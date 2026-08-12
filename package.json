@@ -1,0 +1,22 @@
+{
+  "name": "webgis-maplibre-bun",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@turf/turf": "^7.2.0",
+    "lucide": "^0.475.0",
+    "maplibre-gl": "^6.3.0",
+    "pmtiles": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0"
+  }
+}
