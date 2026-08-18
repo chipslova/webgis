@@ -118,17 +118,6 @@ export class MapManager {
       attributionControl: false
     });
 
-    // Ensure projection is enforced on style load
-    this.map.on('style.load', () => {
-      if (this.map && typeof (this.map as any).setProjection === 'function') {
-        try {
-          this.map.setProjection({ type: this.currentProjection });
-        } catch (err) {
-          console.warn('setProjection error:', err);
-        }
-      }
-    });
-
     // Add standard controls
     this.map.addControl(
       new maplibregl.NavigationControl({
@@ -259,14 +248,6 @@ export class MapManager {
       this.map.setZoom(zoom);
       this.map.setPitch(pitch);
       this.map.setBearing(bearing);
-
-      if (typeof (this.map as any).setProjection === 'function') {
-        try {
-          this.map.setProjection({ type: this.currentProjection });
-        } catch (e) {
-          console.warn('setProjection error on style.load:', e);
-        }
-      }
     });
 
     return true;
