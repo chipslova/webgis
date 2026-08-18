@@ -5,6 +5,8 @@ import { StatusBarUI } from './ui/status-bar';
 import { GeocoderTool, SearchResult } from './tools/geocoder';
 import { MeasureTool } from './tools/measure';
 import { GeoJsonLoader } from './tools/geojson-loader';
+import { GEELoader } from './tools/gee-loader';
+import { GEEPanelUI } from './ui/gee-panel';
 import { BASEMAPS } from './config/basemaps';
 
 class WebGISApp {
@@ -14,6 +16,8 @@ class WebGISApp {
   private geocoderTool: GeocoderTool | null = null;
   private measureTool: MeasureTool | null = null;
   private geojsonLoader: GeoJsonLoader | null = null;
+  private geeLoader: GEELoader | null = null;
+  private geePanelUI: GEEPanelUI | null = null;
 
   constructor() {
     this.mapManager = new MapManager('map');
@@ -46,13 +50,17 @@ class WebGISApp {
     try {
       const map = await this.mapManager.initMap();
 
-      map.on('load', () => {
+      map.on('load', async () => {
         this.geocoderTool = new GeocoderTool(map);
         this.measureTool = new MeasureTool(map);
         this.geojsonLoader = new GeoJsonLoader(map);
+        this.geeLoader = new GEELoader(map);
+        this.geePanelUI = new GEEPanelUI(this.geeLoader);
 
-        // Load sample cities vector layer
+        // Load sample cities vector layer & GEE Earth Engine datasets
         this.geojsonLoader.loadSampleData();
+        await this.geeLoader.loadGEEDatasets();
+        await this.geePanelUI.init();
         this.renderLayersList();
 
         // Bind measurement callbacks

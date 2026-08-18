@@ -1,0 +1,47 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          106.8272,
+          -6.1754
+        ]
+      },
+      "properties": {
+        "id": "urban_poi",
+        "name": "Jakarta Monas (Urban POI)",
+        "category": "Urban Core",
+        "elevation_m": 14,
+        "mean_lst_celsius": 33.85,
+        "land_cover_code": 13,
+        "land_cover_name": "Urban and Built-up Lands",
+        "latitude": -6.1754,
+        "longitude": 106.8272
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          107.0143,
+          -6.595
+        ]
+      },
+      "properties": {
+        "id": "rural_poi",
+        "name": "West Java / Bogor Foothills (Rural POI)",
+        "category": "Rural / Forest",
+        "elevation_m": 680,
+        "mean_lst_celsius": 24.6,
+        "land_cover_code": 12,
+        "land_cover_name": "Cropland / Natural Vegetation Mosaics",
+        "latitude": -6.595,
+        "longitude": 107.0143
+      }
+    }
+  ]
+}

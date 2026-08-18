@@ -1,0 +1,7 @@
+GEE Export Task Completed: elevation_near_jakarta_indonesia
+Collection: USGS/SRTMGL1_003
+CRS: EPSG:4326
+Scale: 30 meters
+Region: Jakarta Buffer 10,000m
+Export Date: 2026-08-18
+Status: COMPLETED

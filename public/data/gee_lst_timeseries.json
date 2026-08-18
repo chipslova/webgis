@@ -1,0 +1,1324 @@
+{
+  "metadata": {
+    "dataset": "MODIS/061/MOD11A1 (LST Day 1km)",
+    "period": "2020-01-01 to 2026-05-01",
+    "urban_point": {
+      "lat": -6.1754,
+      "lon": 106.8272,
+      "name": "Jakarta Monas"
+    },
+    "rural_point": {
+      "lat": -6.595,
+      "lon": 107.0143,
+      "name": "West Java / Bogor"
+    },
+    "fitting_function": "fit_func(t) = LST0 + (delta_LST/2) * sin(2*pi*t/tau + phi)"
+  },
+  "data": [
+    {
+      "date": "2020-01-01",
+      "timestamp_ms": 1577836800000,
+      "urban_obs_c": 36.09,
+      "urban_fitted_c": 34.79,
+      "rural_obs_c": 26.9,
+      "rural_fitted_c": 25.19,
+      "uhi_delta_c": 9.19
+    },
+    {
+      "date": "2020-01-17",
+      "timestamp_ms": 1579219200000,
+      "urban_obs_c": 36.02,
+      "urban_fitted_c": 35.26,
+      "rural_obs_c": 25.93,
+      "rural_fitted_c": 25.61,
+      "uhi_delta_c": 10.09
+    },
+    {
+      "date": "2020-02-02",
+      "timestamp_ms": 1580601600000,
+      "urban_obs_c": 34.07,
+      "urban_fitted_c": 35.61,
+      "rural_obs_c": 25.37,
+      "rural_fitted_c": 25.96,
+      "uhi_delta_c": 8.7
+    },
+    {
+      "date": "2020-02-18",
+      "timestamp_ms": 1581984000000,
+      "urban_obs_c": 37.31,
+      "urban_fitted_c": 35.83,
+      "rural_obs_c": 25.67,
+      "rural_fitted_c": 26.19,
+      "uhi_delta_c": 11.64
+    },
+    {
+      "date": "2020-03-05",
+      "timestamp_ms": 1583366400000,
+      "urban_obs_c": 37.32,
+      "urban_fitted_c": 35.9,
+      "rural_obs_c": 26.59,
+      "rural_fitted_c": 26.29,
+      "uhi_delta_c": 10.73
+    },
+    {
+      "date": "2020-03-21",
+      "timestamp_ms": 1584748800000,
+      "urban_obs_c": 36.58,
+      "urban_fitted_c": 35.81,
+      "rural_obs_c": 27.56,
+      "rural_fitted_c": 26.27,
+      "uhi_delta_c": 9.02
+    },
+    {
+      "date": "2020-04-06",
+      "timestamp_ms": 1586131200000,
+      "urban_obs_c": 35.32,
+      "urban_fitted_c": 35.57,
+      "rural_obs_c": 26.96,
+      "rural_fitted_c": 26.1,
+      "uhi_delta_c": 8.36
+    },
+    {
+      "date": "2020-04-22",
+      "timestamp_ms": 1587513600000,
+      "urban_obs_c": 36.51,
+      "urban_fitted_c": 35.19,
+      "rural_obs_c": 26.12,
+      "rural_fitted_c": 25.82,
+      "uhi_delta_c": 10.39
+    },
+    {
+      "date": "2020-05-08",
+      "timestamp_ms": 1588896000000,
+      "urban_obs_c": 33.8,
+      "urban_fitted_c": 34.71,
+      "rural_obs_c": 25.92,
+      "rural_fitted_c": 25.44,
+      "uhi_delta_c": 7.88
+    },
+    {
+      "date": "2020-05-24",
+      "timestamp_ms": 1590278400000,
+      "urban_obs_c": 33.91,
+      "urban_fitted_c": 34.16,
+      "rural_obs_c": 26.63,
+      "rural_fitted_c": 24.99,
+      "uhi_delta_c": 7.28
+    },
+    {
+      "date": "2020-06-09",
+      "timestamp_ms": 1591660800000,
+      "urban_obs_c": 33.84,
+      "urban_fitted_c": 33.59,
+      "rural_obs_c": 24.88,
+      "rural_fitted_c": 24.5,
+      "uhi_delta_c": 8.96
+    },
+    {
+      "date": "2020-06-25",
+      "timestamp_ms": 1593043200000,
+      "urban_obs_c": 31.2,
+      "urban_fitted_c": 33.03,
+      "rural_obs_c": 24.58,
+      "rural_fitted_c": 24.01,
+      "uhi_delta_c": 6.62
+    },
+    {
+      "date": "2020-07-11",
+      "timestamp_ms": 1594425600000,
+      "urban_obs_c": 31.65,
+      "urban_fitted_c": 32.52,
+      "rural_obs_c": 22.41,
+      "rural_fitted_c": 23.56,
+      "uhi_delta_c": 9.24
+    },
+    {
+      "date": "2020-07-27",
+      "timestamp_ms": 1595808000000,
+      "urban_obs_c": 32.41,
+      "urban_fitted_c": 32.12,
+      "rural_obs_c": 21.79,
+      "rural_fitted_c": 23.17,
+      "uhi_delta_c": 10.62
+    },
+    {
+      "date": "2020-08-12",
+      "timestamp_ms": 1597190400000,
+      "urban_obs_c": 32.49,
+      "urban_fitted_c": 31.84,
+      "rural_obs_c": 22.23,
+      "rural_fitted_c": 22.89,
+      "uhi_delta_c": 10.26
+    },
+    {
+      "date": "2020-08-28",
+      "timestamp_ms": 1598572800000,
+      "urban_obs_c": 30.96,
+      "urban_fitted_c": 31.71,
+      "rural_obs_c": 22.28,
+      "rural_fitted_c": 22.73,
+      "uhi_delta_c": 8.68
+    },
+    {
+      "date": "2020-09-13",
+      "timestamp_ms": 1599955200000,
+      "urban_obs_c": 31.85,
+      "urban_fitted_c": 31.74,
+      "rural_obs_c": 21.37,
+      "rural_fitted_c": 22.71,
+      "uhi_delta_c": 10.48
+    },
+    {
+      "date": "2020-09-29",
+      "timestamp_ms": 1601337600000,
+      "urban_obs_c": 32.49,
+      "urban_fitted_c": 31.92,
+      "rural_obs_c": 23.0,
+      "rural_fitted_c": 22.81,
+      "uhi_delta_c": 9.49
+    },
+    {
+      "date": "2020-10-15",
+      "timestamp_ms": 1602720000000,
+      "urban_obs_c": 32.11,
+      "urban_fitted_c": 32.24,
+      "rural_obs_c": 23.48,
+      "rural_fitted_c": 23.05,
+      "uhi_delta_c": 8.63
+    },
+    {
+      "date": "2020-10-31",
+      "timestamp_ms": 1604102400000,
+      "urban_obs_c": 33.75,
+      "urban_fitted_c": 32.68,
+      "rural_obs_c": 23.0,
+      "rural_fitted_c": 23.39,
+      "uhi_delta_c": 10.75
+    },
+    {
+      "date": "2020-11-16",
+      "timestamp_ms": 1605484800000,
+      "urban_obs_c": 32.11,
+      "urban_fitted_c": 33.21,
+      "rural_obs_c": 23.28,
+      "rural_fitted_c": 23.82,
+      "uhi_delta_c": 8.83
+    },
+    {
+      "date": "2020-12-02",
+      "timestamp_ms": 1606867200000,
+      "urban_obs_c": 34.37,
+      "urban_fitted_c": 33.78,
+      "rural_obs_c": 24.13,
+      "rural_fitted_c": 24.3,
+      "uhi_delta_c": 10.24
+    },
+    {
+      "date": "2020-12-18",
+      "timestamp_ms": 1608249600000,
+      "urban_obs_c": 34.59,
+      "urban_fitted_c": 34.35,
+      "rural_obs_c": 24.18,
+      "rural_fitted_c": 24.79,
+      "uhi_delta_c": 10.41
+    },
+    {
+      "date": "2021-01-03",
+      "timestamp_ms": 1609632000000,
+      "urban_obs_c": 35.14,
+      "urban_fitted_c": 34.88,
+      "rural_obs_c": 24.41,
+      "rural_fitted_c": 25.26,
+      "uhi_delta_c": 10.73
+    },
+    {
+      "date": "2021-01-19",
+      "timestamp_ms": 1611014400000,
+      "urban_obs_c": 35.76,
+      "urban_fitted_c": 35.33,
+      "rural_obs_c": 25.66,
+      "rural_fitted_c": 25.68,
+      "uhi_delta_c": 10.1
+    },
+    {
+      "date": "2021-02-04",
+      "timestamp_ms": 1612396800000,
+      "urban_obs_c": 36.37,
+      "urban_fitted_c": 35.66,
+      "rural_obs_c": 26.11,
+      "rural_fitted_c": 26.0,
+      "uhi_delta_c": 10.26
+    },
+    {
+      "date": "2021-02-20",
+      "timestamp_ms": 1613779200000,
+      "urban_obs_c": 34.7,
+      "urban_fitted_c": 35.86,
+      "rural_obs_c": 27.02,
+      "rural_fitted_c": 26.22,
+      "uhi_delta_c": 7.68
+    },
+    {
+      "date": "2021-03-08",
+      "timestamp_ms": 1615161600000,
+      "urban_obs_c": 36.4,
+      "urban_fitted_c": 35.9,
+      "rural_obs_c": 26.96,
+      "rural_fitted_c": 26.3,
+      "uhi_delta_c": 9.44
+    },
+    {
+      "date": "2021-03-24",
+      "timestamp_ms": 1616544000000,
+      "urban_obs_c": 36.02,
+      "urban_fitted_c": 35.78,
+      "rural_obs_c": 26.05,
+      "rural_fitted_c": 26.25,
+      "uhi_delta_c": 9.97
+    },
+    {
+      "date": "2021-04-09",
+      "timestamp_ms": 1617926400000,
+      "urban_obs_c": 36.66,
+      "urban_fitted_c": 35.51,
+      "rural_obs_c": 26.19,
+      "rural_fitted_c": 26.06,
+      "uhi_delta_c": 10.47
+    },
+    {
+      "date": "2021-04-25",
+      "timestamp_ms": 1619308800000,
+      "urban_obs_c": 33.97,
+      "urban_fitted_c": 35.11,
+      "rural_obs_c": 24.98,
+      "rural_fitted_c": 25.76,
+      "uhi_delta_c": 8.99
+    },
+    {
+      "date": "2021-05-11",
+      "timestamp_ms": 1620691200000,
+      "urban_obs_c": 33.47,
+      "urban_fitted_c": 34.62,
+      "rural_obs_c": 26.76,
+      "rural_fitted_c": 25.36,
+      "uhi_delta_c": 6.71
+    },
+    {
+      "date": "2021-05-27",
+      "timestamp_ms": 1622073600000,
+      "urban_obs_c": 34.03,
+      "urban_fitted_c": 34.06,
+      "rural_obs_c": 25.22,
+      "rural_fitted_c": 24.9,
+      "uhi_delta_c": 8.81
+    },
+    {
+      "date": "2021-06-12",
+      "timestamp_ms": 1623456000000,
+      "urban_obs_c": 33.5,
+      "urban_fitted_c": 33.49,
+      "rural_obs_c": 23.78,
+      "rural_fitted_c": 24.41,
+      "uhi_delta_c": 9.72
+    },
+    {
+      "date": "2021-06-28",
+      "timestamp_ms": 1624838400000,
+      "urban_obs_c": 33.37,
+      "urban_fitted_c": 32.93,
+      "rural_obs_c": 23.56,
+      "rural_fitted_c": 23.93,
+      "uhi_delta_c": 9.81
+    },
+    {
+      "date": "2021-07-14",
+      "timestamp_ms": 1626220800000,
+      "urban_obs_c": 34.16,
+      "urban_fitted_c": 32.45,
+      "rural_obs_c": 22.83,
+      "rural_fitted_c": 23.48,
+      "uhi_delta_c": 11.33
+    },
+    {
+      "date": "2021-07-30",
+      "timestamp_ms": 1627603200000,
+      "urban_obs_c": 32.15,
+      "urban_fitted_c": 32.06,
+      "rural_obs_c": 24.51,
+      "rural_fitted_c": 23.12,
+      "uhi_delta_c": 7.64
+    },
+    {
+      "date": "2021-08-15",
+      "timestamp_ms": 1628985600000,
+      "urban_obs_c": 31.02,
+      "urban_fitted_c": 31.81,
+      "rural_obs_c": 21.66,
+      "rural_fitted_c": 22.86,
+      "uhi_delta_c": 9.36
+    },
+    {
+      "date": "2021-08-31",
+      "timestamp_ms": 1630368000000,
+      "urban_obs_c": 30.24,
+      "urban_fitted_c": 31.7,
+      "rural_obs_c": 23.25,
+      "rural_fitted_c": 22.72,
+      "uhi_delta_c": 6.99
+    },
+    {
+      "date": "2021-09-16",
+      "timestamp_ms": 1631750400000,
+      "urban_obs_c": 31.25,
+      "urban_fitted_c": 31.76,
+      "rural_obs_c": 23.85,
+      "rural_fitted_c": 22.72,
+      "uhi_delta_c": 7.4
+    },
+    {
+      "date": "2021-10-02",
+      "timestamp_ms": 1633132800000,
+      "urban_obs_c": 31.6,
+      "urban_fitted_c": 31.96,
+      "rural_obs_c": 23.68,
+      "rural_fitted_c": 22.85,
+      "uhi_delta_c": 7.92
+    },
+    {
+      "date": "2021-10-18",
+      "timestamp_ms": 1634515200000,
+      "urban_obs_c": 31.95,
+      "urban_fitted_c": 32.31,
+      "rural_obs_c": 22.8,
+      "rural_fitted_c": 23.1,
+      "uhi_delta_c": 9.15
+    },
+    {
+      "date": "2021-11-03",
+      "timestamp_ms": 1635897600000,
+      "urban_obs_c": 32.96,
+      "urban_fitted_c": 32.77,
+      "rural_obs_c": 23.01,
+      "rural_fitted_c": 23.46,
+      "uhi_delta_c": 9.95
+    },
+    {
+      "date": "2021-11-19",
+      "timestamp_ms": 1637280000000,
+      "urban_obs_c": 33.37,
+      "urban_fitted_c": 33.3,
+      "rural_obs_c": 23.86,
+      "rural_fitted_c": 23.9,
+      "uhi_delta_c": 9.51
+    },
+    {
+      "date": "2021-12-05",
+      "timestamp_ms": 1638662400000,
+      "urban_obs_c": 35.1,
+      "urban_fitted_c": 33.87,
+      "rural_obs_c": 23.48,
+      "rural_fitted_c": 24.38,
+      "uhi_delta_c": 11.62
+    },
+    {
+      "date": "2021-12-21",
+      "timestamp_ms": 1640044800000,
+      "urban_obs_c": 33.26,
+      "urban_fitted_c": 34.44,
+      "rural_obs_c": 26.3,
+      "rural_fitted_c": 24.88,
+      "uhi_delta_c": 6.96
+    },
+    {
+      "date": "2022-01-06",
+      "timestamp_ms": 1641427200000,
+      "urban_obs_c": 34.43,
+      "urban_fitted_c": 34.96,
+      "rural_obs_c": 25.7,
+      "rural_fitted_c": 25.34,
+      "uhi_delta_c": 8.73
+    },
+    {
+      "date": "2022-01-22",
+      "timestamp_ms": 1642809600000,
+      "urban_obs_c": 35.09,
+      "urban_fitted_c": 35.39,
+      "rural_obs_c": 25.86,
+      "rural_fitted_c": 25.74,
+      "uhi_delta_c": 9.23
+    },
+    {
+      "date": "2022-02-07",
+      "timestamp_ms": 1644192000000,
+      "urban_obs_c": 35.0,
+      "urban_fitted_c": 35.71,
+      "rural_obs_c": 26.6,
+      "rural_fitted_c": 26.05,
+      "uhi_delta_c": 8.4
+    },
+    {
+      "date": "2022-02-23",
+      "timestamp_ms": 1645574400000,
+      "urban_obs_c": 36.35,
+      "urban_fitted_c": 35.87,
+      "rural_obs_c": 26.98,
+      "rural_fitted_c": 26.24,
+      "uhi_delta_c": 9.37
+    },
+    {
+      "date": "2022-03-11",
+      "timestamp_ms": 1646956800000,
+      "urban_obs_c": 35.34,
+      "urban_fitted_c": 35.89,
+      "rural_obs_c": 27.12,
+      "rural_fitted_c": 26.3,
+      "uhi_delta_c": 8.22
+    },
+    {
+      "date": "2022-03-27",
+      "timestamp_ms": 1648339200000,
+      "urban_obs_c": 34.8,
+      "urban_fitted_c": 35.74,
+      "rural_obs_c": 25.92,
+      "rural_fitted_c": 26.22,
+      "uhi_delta_c": 8.88
+    },
+    {
+      "date": "2022-04-12",
+      "timestamp_ms": 1649721600000,
+      "urban_obs_c": 35.06,
+      "urban_fitted_c": 35.45,
+      "rural_obs_c": 25.31,
+      "rural_fitted_c": 26.02,
+      "uhi_delta_c": 9.75
+    },
+    {
+      "date": "2022-04-28",
+      "timestamp_ms": 1651104000000,
+      "urban_obs_c": 34.6,
+      "urban_fitted_c": 35.04,
+      "rural_obs_c": 26.47,
+      "rural_fitted_c": 25.7,
+      "uhi_delta_c": 8.13
+    },
+    {
+      "date": "2022-05-14",
+      "timestamp_ms": 1652486400000,
+      "urban_obs_c": 33.31,
+      "urban_fitted_c": 34.53,
+      "rural_obs_c": 25.06,
+      "rural_fitted_c": 25.29,
+      "uhi_delta_c": 8.25
+    },
+    {
+      "date": "2022-05-30",
+      "timestamp_ms": 1653868800000,
+      "urban_obs_c": 33.58,
+      "urban_fitted_c": 33.96,
+      "rural_obs_c": 23.6,
+      "rural_fitted_c": 24.82,
+      "uhi_delta_c": 9.98
+    },
+    {
+      "date": "2022-06-15",
+      "timestamp_ms": 1655251200000,
+      "urban_obs_c": 34.67,
+      "urban_fitted_c": 33.39,
+      "rural_obs_c": 25.06,
+      "rural_fitted_c": 24.33,
+      "uhi_delta_c": 9.61
+    },
+    {
+      "date": "2022-07-01",
+      "timestamp_ms": 1656633600000,
+      "urban_obs_c": 32.75,
+      "urban_fitted_c": 32.85,
+      "rural_obs_c": 23.02,
+      "rural_fitted_c": 23.85,
+      "uhi_delta_c": 9.73
+    },
+    {
+      "date": "2022-07-17",
+      "timestamp_ms": 1658016000000,
+      "urban_obs_c": 33.0,
+      "urban_fitted_c": 32.37,
+      "rural_obs_c": 24.1,
+      "rural_fitted_c": 23.41,
+      "uhi_delta_c": 8.9
+    },
+    {
+      "date": "2022-08-02",
+      "timestamp_ms": 1659398400000,
+      "urban_obs_c": 32.01,
+      "urban_fitted_c": 32.01,
+      "rural_obs_c": 22.74,
+      "rural_fitted_c": 23.07,
+      "uhi_delta_c": 9.27
+    },
+    {
+      "date": "2022-08-18",
+      "timestamp_ms": 1660780800000,
+      "urban_obs_c": 32.85,
+      "urban_fitted_c": 31.78,
+      "rural_obs_c": 22.99,
+      "rural_fitted_c": 22.82,
+      "uhi_delta_c": 9.86
+    },
+    {
+      "date": "2022-09-03",
+      "timestamp_ms": 1662163200000,
+      "urban_obs_c": 31.68,
+      "urban_fitted_c": 31.7,
+      "rural_obs_c": 22.3,
+      "rural_fitted_c": 22.71,
+      "uhi_delta_c": 9.38
+    },
+    {
+      "date": "2022-09-19",
+      "timestamp_ms": 1663545600000,
+      "urban_obs_c": 31.22,
+      "urban_fitted_c": 31.78,
+      "rural_obs_c": 21.95,
+      "rural_fitted_c": 22.73,
+      "uhi_delta_c": 9.27
+    },
+    {
+      "date": "2022-10-05",
+      "timestamp_ms": 1664928000000,
+      "urban_obs_c": 31.42,
+      "urban_fitted_c": 32.01,
+      "rural_obs_c": 21.87,
+      "rural_fitted_c": 22.88,
+      "uhi_delta_c": 9.55
+    },
+    {
+      "date": "2022-10-21",
+      "timestamp_ms": 1666310400000,
+      "urban_obs_c": 31.96,
+      "urban_fitted_c": 32.38,
+      "rural_obs_c": 23.65,
+      "rural_fitted_c": 23.16,
+      "uhi_delta_c": 8.31
+    },
+    {
+      "date": "2022-11-06",
+      "timestamp_ms": 1667692800000,
+      "urban_obs_c": 32.64,
+      "urban_fitted_c": 32.85,
+      "rural_obs_c": 24.62,
+      "rural_fitted_c": 23.53,
+      "uhi_delta_c": 8.02
+    },
+    {
+      "date": "2022-11-22",
+      "timestamp_ms": 1669075200000,
+      "urban_obs_c": 33.59,
+      "urban_fitted_c": 33.4,
+      "rural_obs_c": 23.34,
+      "rural_fitted_c": 23.98,
+      "uhi_delta_c": 10.25
+    },
+    {
+      "date": "2022-12-08",
+      "timestamp_ms": 1670457600000,
+      "urban_obs_c": 33.33,
+      "urban_fitted_c": 33.97,
+      "rural_obs_c": 23.11,
+      "rural_fitted_c": 24.47,
+      "uhi_delta_c": 10.22
+    },
+    {
+      "date": "2022-12-24",
+      "timestamp_ms": 1671840000000,
+      "urban_obs_c": 34.35,
+      "urban_fitted_c": 34.54,
+      "rural_obs_c": 24.95,
+      "rural_fitted_c": 24.96,
+      "uhi_delta_c": 9.4
+    },
+    {
+      "date": "2023-01-09",
+      "timestamp_ms": 1673222400000,
+      "urban_obs_c": 35.04,
+      "urban_fitted_c": 35.04,
+      "rural_obs_c": 25.69,
+      "rural_fitted_c": 25.42,
+      "uhi_delta_c": 9.35
+    },
+    {
+      "date": "2023-01-25",
+      "timestamp_ms": 1674604800000,
+      "urban_obs_c": 34.93,
+      "urban_fitted_c": 35.46,
+      "rural_obs_c": 25.12,
+      "rural_fitted_c": 25.8,
+      "uhi_delta_c": 9.81
+    },
+    {
+      "date": "2023-02-10",
+      "timestamp_ms": 1675987200000,
+      "urban_obs_c": 36.15,
+      "urban_fitted_c": 35.74,
+      "rural_obs_c": 25.85,
+      "rural_fitted_c": 26.09,
+      "uhi_delta_c": 10.3
+    },
+    {
+      "date": "2023-02-26",
+      "timestamp_ms": 1677369600000,
+      "urban_obs_c": 35.94,
+      "urban_fitted_c": 35.89,
+      "rural_obs_c": 27.34,
+      "rural_fitted_c": 26.26,
+      "uhi_delta_c": 8.6
+    },
+    {
+      "date": "2023-03-14",
+      "timestamp_ms": 1678752000000,
+      "urban_obs_c": 35.78,
+      "urban_fitted_c": 35.87,
+      "rural_obs_c": 25.99,
+      "rural_fitted_c": 26.3,
+      "uhi_delta_c": 9.79
+    },
+    {
+      "date": "2023-03-30",
+      "timestamp_ms": 1680134400000,
+      "urban_obs_c": 36.97,
+      "urban_fitted_c": 35.7,
+      "rural_obs_c": 26.29,
+      "rural_fitted_c": 26.2,
+      "uhi_delta_c": 10.68
+    },
+    {
+      "date": "2023-04-15",
+      "timestamp_ms": 1681516800000,
+      "urban_obs_c": 36.3,
+      "urban_fitted_c": 35.39,
+      "rural_obs_c": 26.21,
+      "rural_fitted_c": 25.97,
+      "uhi_delta_c": 10.09
+    },
+    {
+      "date": "2023-05-01",
+      "timestamp_ms": 1682899200000,
+      "urban_obs_c": 34.75,
+      "urban_fitted_c": 34.95,
+      "rural_obs_c": 25.18,
+      "rural_fitted_c": 25.63,
+      "uhi_delta_c": 9.57
+    },
+    {
+      "date": "2023-05-17",
+      "timestamp_ms": 1684281600000,
+      "urban_obs_c": 34.84,
+      "urban_fitted_c": 34.43,
+      "rural_obs_c": 24.96,
+      "rural_fitted_c": 25.21,
+      "uhi_delta_c": 9.88
+    },
+    {
+      "date": "2023-06-02",
+      "timestamp_ms": 1685664000000,
+      "urban_obs_c": 31.65,
+      "urban_fitted_c": 33.87,
+      "rural_obs_c": 24.62,
+      "rural_fitted_c": 24.74,
+      "uhi_delta_c": 7.03
+    },
+    {
+      "date": "2023-06-18",
+      "timestamp_ms": 1687046400000,
+      "urban_obs_c": 33.0,
+      "urban_fitted_c": 33.29,
+      "rural_obs_c": 23.84,
+      "rural_fitted_c": 24.24,
+      "uhi_delta_c": 9.16
+    },
+    {
+      "date": "2023-07-04",
+      "timestamp_ms": 1688428800000,
+      "urban_obs_c": 32.88,
+      "urban_fitted_c": 32.76,
+      "rural_obs_c": 23.75,
+      "rural_fitted_c": 23.77,
+      "uhi_delta_c": 9.13
+    },
+    {
+      "date": "2023-07-20",
+      "timestamp_ms": 1689811200000,
+      "urban_obs_c": 32.61,
+      "urban_fitted_c": 32.3,
+      "rural_obs_c": 25.18,
+      "rural_fitted_c": 23.35,
+      "uhi_delta_c": 7.43
+    },
+    {
+      "date": "2023-08-05",
+      "timestamp_ms": 1691193600000,
+      "urban_obs_c": 31.71,
+      "urban_fitted_c": 31.96,
+      "rural_obs_c": 21.98,
+      "rural_fitted_c": 23.02,
+      "uhi_delta_c": 9.73
+    },
+    {
+      "date": "2023-08-21",
+      "timestamp_ms": 1692576000000,
+      "urban_obs_c": 32.63,
+      "urban_fitted_c": 31.75,
+      "rural_obs_c": 22.47,
+      "rural_fitted_c": 22.79,
+      "uhi_delta_c": 10.16
+    },
+    {
+      "date": "2023-09-06",
+      "timestamp_ms": 1693958400000,
+      "urban_obs_c": 32.45,
+      "urban_fitted_c": 31.7,
+      "rural_obs_c": 22.25,
+      "rural_fitted_c": 22.7,
+      "uhi_delta_c": 10.2
+    },
+    {
+      "date": "2023-09-22",
+      "timestamp_ms": 1695340800000,
+      "urban_obs_c": 30.25,
+      "urban_fitted_c": 31.81,
+      "rural_obs_c": 21.56,
+      "rural_fitted_c": 22.75,
+      "uhi_delta_c": 8.69
+    },
+    {
+      "date": "2023-10-08",
+      "timestamp_ms": 1696723200000,
+      "urban_obs_c": 32.34,
+      "urban_fitted_c": 32.07,
+      "rural_obs_c": 22.72,
+      "rural_fitted_c": 22.92,
+      "uhi_delta_c": 9.62
+    },
+    {
+      "date": "2023-10-24",
+      "timestamp_ms": 1698105600000,
+      "urban_obs_c": 31.7,
+      "urban_fitted_c": 32.45,
+      "rural_obs_c": 23.48,
+      "rural_fitted_c": 23.21,
+      "uhi_delta_c": 8.22
+    },
+    {
+      "date": "2023-11-09",
+      "timestamp_ms": 1699488000000,
+      "urban_obs_c": 32.26,
+      "urban_fitted_c": 32.94,
+      "rural_obs_c": 21.53,
+      "rural_fitted_c": 23.61,
+      "uhi_delta_c": 10.73
+    },
+    {
+      "date": "2023-11-25",
+      "timestamp_ms": 1700870400000,
+      "urban_obs_c": 34.06,
+      "urban_fitted_c": 33.5,
+      "rural_obs_c": 25.45,
+      "rural_fitted_c": 24.06,
+      "uhi_delta_c": 8.61
+    },
+    {
+      "date": "2023-12-11",
+      "timestamp_ms": 1702252800000,
+      "urban_obs_c": 33.55,
+      "urban_fitted_c": 34.07,
+      "rural_obs_c": 25.01,
+      "rural_fitted_c": 24.55,
+      "uhi_delta_c": 8.54
+    },
+    {
+      "date": "2023-12-27",
+      "timestamp_ms": 1703635200000,
+      "urban_obs_c": 33.6,
+      "urban_fitted_c": 34.63,
+      "rural_obs_c": 25.47,
+      "rural_fitted_c": 25.04,
+      "uhi_delta_c": 8.13
+    },
+    {
+      "date": "2024-01-12",
+      "timestamp_ms": 1705017600000,
+      "urban_obs_c": 33.84,
+      "urban_fitted_c": 35.12,
+      "rural_obs_c": 25.75,
+      "rural_fitted_c": 25.49,
+      "uhi_delta_c": 8.09
+    },
+    {
+      "date": "2024-01-28",
+      "timestamp_ms": 1706400000000,
+      "urban_obs_c": 35.08,
+      "urban_fitted_c": 35.52,
+      "rural_obs_c": 25.62,
+      "rural_fitted_c": 25.86,
+      "uhi_delta_c": 9.46
+    },
+    {
+      "date": "2024-02-13",
+      "timestamp_ms": 1707782400000,
+      "urban_obs_c": 37.09,
+      "urban_fitted_c": 35.78,
+      "rural_obs_c": 27.67,
+      "rural_fitted_c": 26.13,
+      "uhi_delta_c": 9.42
+    },
+    {
+      "date": "2024-02-29",
+      "timestamp_ms": 1709164800000,
+      "urban_obs_c": 35.67,
+      "urban_fitted_c": 35.9,
+      "rural_obs_c": 26.54,
+      "rural_fitted_c": 26.28,
+      "uhi_delta_c": 9.13
+    },
+    {
+      "date": "2024-03-16",
+      "timestamp_ms": 1710547200000,
+      "urban_obs_c": 35.13,
+      "urban_fitted_c": 35.85,
+      "rural_obs_c": 26.11,
+      "rural_fitted_c": 26.29,
+      "uhi_delta_c": 9.02
+    },
+    {
+      "date": "2024-04-01",
+      "timestamp_ms": 1711929600000,
+      "urban_obs_c": 34.96,
+      "urban_fitted_c": 35.66,
+      "rural_obs_c": 26.9,
+      "rural_fitted_c": 26.17,
+      "uhi_delta_c": 8.06
+    },
+    {
+      "date": "2024-04-17",
+      "timestamp_ms": 1713312000000,
+      "urban_obs_c": 35.74,
+      "urban_fitted_c": 35.32,
+      "rural_obs_c": 25.76,
+      "rural_fitted_c": 25.92,
+      "uhi_delta_c": 9.98
+    },
+    {
+      "date": "2024-05-03",
+      "timestamp_ms": 1714694400000,
+      "urban_obs_c": 37.36,
+      "urban_fitted_c": 34.87,
+      "rural_obs_c": 25.32,
+      "rural_fitted_c": 25.57,
+      "uhi_delta_c": 12.04
+    },
+    {
+      "date": "2024-05-19",
+      "timestamp_ms": 1716076800000,
+      "urban_obs_c": 34.0,
+      "urban_fitted_c": 34.34,
+      "rural_obs_c": 24.62,
+      "rural_fitted_c": 25.13,
+      "uhi_delta_c": 9.38
+    },
+    {
+      "date": "2024-06-04",
+      "timestamp_ms": 1717459200000,
+      "urban_obs_c": 33.28,
+      "urban_fitted_c": 33.77,
+      "rural_obs_c": 23.88,
+      "rural_fitted_c": 24.65,
+      "uhi_delta_c": 9.4
+    },
+    {
+      "date": "2024-06-20",
+      "timestamp_ms": 1718841600000,
+      "urban_obs_c": 33.46,
+      "urban_fitted_c": 33.2,
+      "rural_obs_c": 23.26,
+      "rural_fitted_c": 24.16,
+      "uhi_delta_c": 10.2
+    },
+    {
+      "date": "2024-07-06",
+      "timestamp_ms": 1720224000000,
+      "urban_obs_c": 33.03,
+      "urban_fitted_c": 32.67,
+      "rural_obs_c": 24.17,
+      "rural_fitted_c": 23.69,
+      "uhi_delta_c": 8.86
+    },
+    {
+      "date": "2024-07-22",
+      "timestamp_ms": 1721606400000,
+      "urban_obs_c": 31.62,
+      "urban_fitted_c": 32.23,
+      "rural_obs_c": 24.34,
+      "rural_fitted_c": 23.28,
+      "uhi_delta_c": 7.28
+    },
+    {
+      "date": "2024-08-07",
+      "timestamp_ms": 1722988800000,
+      "urban_obs_c": 32.97,
+      "urban_fitted_c": 31.91,
+      "rural_obs_c": 23.23,
+      "rural_fitted_c": 22.97,
+      "uhi_delta_c": 9.74
+    },
+    {
+      "date": "2024-08-23",
+      "timestamp_ms": 1724371200000,
+      "urban_obs_c": 31.6,
+      "urban_fitted_c": 31.73,
+      "rural_obs_c": 23.64,
+      "rural_fitted_c": 22.77,
+      "uhi_delta_c": 7.96
+    },
+    {
+      "date": "2024-09-08",
+      "timestamp_ms": 1725753600000,
+      "urban_obs_c": 31.21,
+      "urban_fitted_c": 31.71,
+      "rural_obs_c": 22.1,
+      "rural_fitted_c": 22.7,
+      "uhi_delta_c": 9.11
+    },
+    {
+      "date": "2024-09-24",
+      "timestamp_ms": 1727136000000,
+      "urban_obs_c": 32.14,
+      "urban_fitted_c": 31.84,
+      "rural_obs_c": 23.39,
+      "rural_fitted_c": 22.77,
+      "uhi_delta_c": 8.75
+    },
+    {
+      "date": "2024-10-10",
+      "timestamp_ms": 1728518400000,
+      "urban_obs_c": 33.22,
+      "urban_fitted_c": 32.12,
+      "rural_obs_c": 21.36,
+      "rural_fitted_c": 22.96,
+      "uhi_delta_c": 11.86
+    },
+    {
+      "date": "2024-10-26",
+      "timestamp_ms": 1729900800000,
+      "urban_obs_c": 33.51,
+      "urban_fitted_c": 32.53,
+      "rural_obs_c": 23.41,
+      "rural_fitted_c": 23.28,
+      "uhi_delta_c": 10.1
+    },
+    {
+      "date": "2024-11-11",
+      "timestamp_ms": 1731283200000,
+      "urban_obs_c": 32.26,
+      "urban_fitted_c": 33.03,
+      "rural_obs_c": 24.58,
+      "rural_fitted_c": 23.68,
+      "uhi_delta_c": 7.68
+    },
+    {
+      "date": "2024-11-27",
+      "timestamp_ms": 1732665600000,
+      "urban_obs_c": 33.01,
+      "urban_fitted_c": 33.59,
+      "rural_obs_c": 25.05,
+      "rural_fitted_c": 24.15,
+      "uhi_delta_c": 7.96
+    },
+    {
+      "date": "2024-12-13",
+      "timestamp_ms": 1734048000000,
+      "urban_obs_c": 34.01,
+      "urban_fitted_c": 34.17,
+      "rural_obs_c": 24.49,
+      "rural_fitted_c": 24.64,
+      "uhi_delta_c": 9.52
+    },
+    {
+      "date": "2024-12-29",
+      "timestamp_ms": 1735430400000,
+      "urban_obs_c": 34.6,
+      "urban_fitted_c": 34.72,
+      "rural_obs_c": 24.66,
+      "rural_fitted_c": 25.12,
+      "uhi_delta_c": 9.94
+    },
+    {
+      "date": "2025-01-14",
+      "timestamp_ms": 1736812800000,
+      "urban_obs_c": 33.36,
+      "urban_fitted_c": 35.2,
+      "rural_obs_c": 26.37,
+      "rural_fitted_c": 25.56,
+      "uhi_delta_c": 6.99
+    },
+    {
+      "date": "2025-01-30",
+      "timestamp_ms": 1738195200000,
+      "urban_obs_c": 36.12,
+      "urban_fitted_c": 35.57,
+      "rural_obs_c": 25.99,
+      "rural_fitted_c": 25.91,
+      "uhi_delta_c": 10.13
+    },
+    {
+      "date": "2025-02-15",
+      "timestamp_ms": 1739577600000,
+      "urban_obs_c": 35.9,
+      "urban_fitted_c": 35.81,
+      "rural_obs_c": 25.39,
+      "rural_fitted_c": 26.16,
+      "uhi_delta_c": 10.51
+    },
+    {
+      "date": "2025-03-03",
+      "timestamp_ms": 1740960000000,
+      "urban_obs_c": 35.14,
+      "urban_fitted_c": 35.9,
+      "rural_obs_c": 26.55,
+      "rural_fitted_c": 26.29,
+      "uhi_delta_c": 8.59
+    },
+    {
+      "date": "2025-03-19",
+      "timestamp_ms": 1742342400000,
+      "urban_obs_c": 36.33,
+      "urban_fitted_c": 35.83,
+      "rural_obs_c": 25.13,
+      "rural_fitted_c": 26.28,
+      "uhi_delta_c": 11.2
+    },
+    {
+      "date": "2025-04-04",
+      "timestamp_ms": 1743724800000,
+      "urban_obs_c": 35.84,
+      "urban_fitted_c": 35.61,
+      "rural_obs_c": 25.47,
+      "rural_fitted_c": 26.13,
+      "uhi_delta_c": 10.37
+    },
+    {
+      "date": "2025-04-20",
+      "timestamp_ms": 1745107200000,
+      "urban_obs_c": 34.96,
+      "urban_fitted_c": 35.25,
+      "rural_obs_c": 26.21,
+      "rural_fitted_c": 25.87,
+      "uhi_delta_c": 8.75
+    },
+    {
+      "date": "2025-05-06",
+      "timestamp_ms": 1746489600000,
+      "urban_obs_c": 34.96,
+      "urban_fitted_c": 34.78,
+      "rural_obs_c": 24.69,
+      "rural_fitted_c": 25.5,
+      "uhi_delta_c": 10.27
+    },
+    {
+      "date": "2025-05-22",
+      "timestamp_ms": 1747872000000,
+      "urban_obs_c": 33.16,
+      "urban_fitted_c": 34.24,
+      "rural_obs_c": 25.37,
+      "rural_fitted_c": 25.05,
+      "uhi_delta_c": 7.79
+    },
+    {
+      "date": "2025-06-07",
+      "timestamp_ms": 1749254400000,
+      "urban_obs_c": 33.71,
+      "urban_fitted_c": 33.67,
+      "rural_obs_c": 25.88,
+      "rural_fitted_c": 24.57,
+      "uhi_delta_c": 7.83
+    },
+    {
+      "date": "2025-06-23",
+      "timestamp_ms": 1750636800000,
+      "urban_obs_c": 34.72,
+      "urban_fitted_c": 33.1,
+      "rural_obs_c": 25.12,
+      "rural_fitted_c": 24.07,
+      "uhi_delta_c": 9.6
+    },
+    {
+      "date": "2025-07-09",
+      "timestamp_ms": 1752019200000,
+      "urban_obs_c": 31.62,
+      "urban_fitted_c": 32.59,
+      "rural_obs_c": 24.4,
+      "rural_fitted_c": 23.62,
+      "uhi_delta_c": 7.22
+    },
+    {
+      "date": "2025-07-25",
+      "timestamp_ms": 1753401600000,
+      "urban_obs_c": 32.53,
+      "urban_fitted_c": 32.17,
+      "rural_obs_c": 23.48,
+      "rural_fitted_c": 23.22,
+      "uhi_delta_c": 9.05
+    },
+    {
+      "date": "2025-08-10",
+      "timestamp_ms": 1754784000000,
+      "urban_obs_c": 31.4,
+      "urban_fitted_c": 31.87,
+      "rural_obs_c": 22.37,
+      "rural_fitted_c": 22.93,
+      "uhi_delta_c": 9.03
+    },
+    {
+      "date": "2025-08-26",
+      "timestamp_ms": 1756166400000,
+      "urban_obs_c": 32.07,
+      "urban_fitted_c": 31.72,
+      "rural_obs_c": 22.7,
+      "rural_fitted_c": 22.75,
+      "uhi_delta_c": 9.37
+    },
+    {
+      "date": "2025-09-11",
+      "timestamp_ms": 1757548800000,
+      "urban_obs_c": 31.39,
+      "urban_fitted_c": 31.72,
+      "rural_obs_c": 22.39,
+      "rural_fitted_c": 22.7,
+      "uhi_delta_c": 9.0
+    },
+    {
+      "date": "2025-09-27",
+      "timestamp_ms": 1758931200000,
+      "urban_obs_c": 31.81,
+      "urban_fitted_c": 31.88,
+      "rural_obs_c": 23.51,
+      "rural_fitted_c": 22.79,
+      "uhi_delta_c": 8.3
+    },
+    {
+      "date": "2025-10-13",
+      "timestamp_ms": 1760313600000,
+      "urban_obs_c": 32.66,
+      "urban_fitted_c": 32.19,
+      "rural_obs_c": 24.97,
+      "rural_fitted_c": 23.01,
+      "uhi_delta_c": 7.69
+    },
+    {
+      "date": "2025-10-29",
+      "timestamp_ms": 1761696000000,
+      "urban_obs_c": 31.75,
+      "urban_fitted_c": 32.61,
+      "rural_obs_c": 23.69,
+      "rural_fitted_c": 23.34,
+      "uhi_delta_c": 8.06
+    },
+    {
+      "date": "2025-11-14",
+      "timestamp_ms": 1763078400000,
+      "urban_obs_c": 32.92,
+      "urban_fitted_c": 33.13,
+      "rural_obs_c": 23.35,
+      "rural_fitted_c": 23.76,
+      "uhi_delta_c": 9.57
+    },
+    {
+      "date": "2025-11-30",
+      "timestamp_ms": 1764460800000,
+      "urban_obs_c": 32.0,
+      "urban_fitted_c": 33.69,
+      "rural_obs_c": 22.88,
+      "rural_fitted_c": 24.23,
+      "uhi_delta_c": 9.12
+    },
+    {
+      "date": "2025-12-16",
+      "timestamp_ms": 1765843200000,
+      "urban_obs_c": 35.84,
+      "urban_fitted_c": 34.27,
+      "rural_obs_c": 24.75,
+      "rural_fitted_c": 24.72,
+      "uhi_delta_c": 11.09
+    },
+    {
+      "date": "2026-01-01",
+      "timestamp_ms": 1767225600000,
+      "urban_obs_c": 34.05,
+      "urban_fitted_c": 34.81,
+      "rural_obs_c": 26.01,
+      "rural_fitted_c": 25.2,
+      "uhi_delta_c": 8.04
+    },
+    {
+      "date": "2026-01-17",
+      "timestamp_ms": 1768608000000,
+      "urban_obs_c": 34.67,
+      "urban_fitted_c": 35.27,
+      "rural_obs_c": 25.23,
+      "rural_fitted_c": 25.63,
+      "uhi_delta_c": 9.44
+    },
+    {
+      "date": "2026-02-02",
+      "timestamp_ms": 1769990400000,
+      "urban_obs_c": 34.78,
+      "urban_fitted_c": 35.62,
+      "rural_obs_c": 27.38,
+      "rural_fitted_c": 25.96,
+      "uhi_delta_c": 7.4
+    },
+    {
+      "date": "2026-02-18",
+      "timestamp_ms": 1771372800000,
+      "urban_obs_c": 35.1,
+      "urban_fitted_c": 35.84,
+      "rural_obs_c": 26.2,
+      "rural_fitted_c": 26.19,
+      "uhi_delta_c": 8.9
+    },
+    {
+      "date": "2026-03-06",
+      "timestamp_ms": 1772755200000,
+      "urban_obs_c": 35.29,
+      "urban_fitted_c": 35.9,
+      "rural_obs_c": 26.13,
+      "rural_fitted_c": 26.3,
+      "uhi_delta_c": 9.16
+    },
+    {
+      "date": "2026-03-22",
+      "timestamp_ms": 1774137600000,
+      "urban_obs_c": 37.08,
+      "urban_fitted_c": 35.8,
+      "rural_obs_c": 26.54,
+      "rural_fitted_c": 26.26,
+      "uhi_delta_c": 10.54
+    },
+    {
+      "date": "2026-04-07",
+      "timestamp_ms": 1775520000000,
+      "urban_obs_c": 35.2,
+      "urban_fitted_c": 35.56,
+      "rural_obs_c": 26.67,
+      "rural_fitted_c": 26.1,
+      "uhi_delta_c": 8.53
+    },
+    {
+      "date": "2026-04-23",
+      "timestamp_ms": 1776902400000,
+      "urban_obs_c": 36.81,
+      "urban_fitted_c": 35.18,
+      "rural_obs_c": 25.69,
+      "rural_fitted_c": 25.81,
+      "uhi_delta_c": 11.12
+    }
+  ]
+}
