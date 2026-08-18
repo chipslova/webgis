@@ -44,24 +44,28 @@ export class GEEPanelUI {
     const focusBtn = document.getElementById('btn-focus-gee-area');
 
     if (lstToggle) {
+      this.geeLoader.toggleLayer('lst', lstToggle.checked);
       lstToggle.addEventListener('change', (e) => {
         this.geeLoader.toggleLayer('lst', (e.target as HTMLInputElement).checked);
       });
     }
 
     if (elvToggle) {
+      this.geeLoader.toggleLayer('elevation', elvToggle.checked);
       elvToggle.addEventListener('change', (e) => {
         this.geeLoader.toggleLayer('elevation', (e.target as HTMLInputElement).checked);
       });
     }
 
     if (lcToggle) {
+      this.geeLoader.toggleLayer('landcover', lcToggle.checked);
       lcToggle.addEventListener('change', (e) => {
         this.geeLoader.toggleLayer('landcover', (e.target as HTMLInputElement).checked);
       });
     }
 
     if (poiToggle) {
+      this.geeLoader.toggleLayer('poi', poiToggle.checked);
       poiToggle.addEventListener('change', (e) => {
         this.geeLoader.toggleLayer('poi', (e.target as HTMLInputElement).checked);
       });

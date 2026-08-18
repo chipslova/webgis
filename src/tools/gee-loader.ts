@@ -76,7 +76,7 @@ export class GEELoader {
     }
   }
 
-  private renderAllLayers() {
+  public renderAllLayers() {
     if (!this.map || !this.lstData || !this.elvData || !this.lcData || !this.poiData) return;
 
     // Safety check: Never add sources/layers if map style is currently loading
@@ -86,7 +86,58 @@ export class GEELoader {
     }
 
     try {
-      // --- LST LAYER ---
+      // --- 1. ELEVATION LAYER (BOTTOM) ---
+      if (!this.map.getSource('gee-elevation-source')) {
+        this.map.addSource('gee-elevation-source', { type: 'geojson', data: this.elvData });
+      }
+      if (!this.map.getLayer('gee-elevation-fill')) {
+        this.map.addLayer({
+          id: 'gee-elevation-fill',
+          type: 'fill',
+          source: 'gee-elevation-source',
+          layout: { visibility: this.elevationVisible ? 'visible' : 'none' },
+          paint: {
+            'fill-color': [
+              'interpolate',
+              ['linear'],
+              ['get', 'elevation_m'],
+              0, '#006633',
+              200, '#e5ffcc',
+              600, '#662a00',
+              1200, '#d8d8d8',
+              2000, '#f5f5f5'
+            ],
+            'fill-opacity': 0.7
+          }
+        });
+      }
+
+      // --- 2. LAND COVER LAYER ---
+      if (!this.map.getSource('gee-landcover-source')) {
+        this.map.addSource('gee-landcover-source', { type: 'geojson', data: this.lcData });
+      }
+      if (!this.map.getLayer('gee-landcover-fill')) {
+        this.map.addLayer({
+          id: 'gee-landcover-fill',
+          type: 'fill',
+          source: 'gee-landcover-source',
+          layout: { visibility: this.landcoverVisible ? 'visible' : 'none' },
+          paint: {
+            'fill-color': [
+              'match',
+              ['get', 'lc_code'],
+              17, '#0284c7', // Water Bodies
+              13, '#e11d48', // Urban Built-up
+              12, '#eab308', // Croplands
+              1, '#15803d',  // Forest
+              '#a3a3a3'      // Default
+            ],
+            'fill-opacity': 0.7
+          }
+        });
+      }
+
+      // --- 3. LST HEATMAP LAYER ---
       if (!this.map.getSource('gee-lst-source')) {
         this.map.addSource('gee-lst-source', { type: 'geojson', data: this.lstData });
       }
@@ -126,58 +177,7 @@ export class GEELoader {
         });
       }
 
-      // --- ELEVATION LAYER ---
-      if (!this.map.getSource('gee-elevation-source')) {
-        this.map.addSource('gee-elevation-source', { type: 'geojson', data: this.elvData });
-      }
-      if (!this.map.getLayer('gee-elevation-fill')) {
-        this.map.addLayer({
-          id: 'gee-elevation-fill',
-          type: 'fill',
-          source: 'gee-elevation-source',
-          layout: { visibility: this.elevationVisible ? 'visible' : 'none' },
-          paint: {
-            'fill-color': [
-              'interpolate',
-              ['linear'],
-              ['get', 'elevation_m'],
-              0, '#006633',
-              200, '#e5ffcc',
-              600, '#662a00',
-              1200, '#d8d8d8',
-              2000, '#f5f5f5'
-            ],
-            'fill-opacity': 0.7
-          }
-        });
-      }
-
-      // --- LAND COVER LAYER ---
-      if (!this.map.getSource('gee-landcover-source')) {
-        this.map.addSource('gee-landcover-source', { type: 'geojson', data: this.lcData });
-      }
-      if (!this.map.getLayer('gee-landcover-fill')) {
-        this.map.addLayer({
-          id: 'gee-landcover-fill',
-          type: 'fill',
-          source: 'gee-landcover-source',
-          layout: { visibility: this.landcoverVisible ? 'visible' : 'none' },
-          paint: {
-            'fill-color': [
-              'match',
-              ['get', 'lc_code'],
-              17, '#0284c7', // Water Bodies
-              13, '#e11d48', // Urban Built-up
-              12, '#eab308', // Croplands
-              1, '#15803d',  // Forest
-              '#a3a3a3'      // Default
-            ],
-            'fill-opacity': 0.7
-          }
-        });
-      }
-
-      // --- POI MARKERS LAYER ---
+      // --- 4. POI MARKERS LAYER (TOP) ---
       if (!this.map.getSource('gee-poi-source')) {
         this.map.addSource('gee-poi-source', { type: 'geojson', data: this.poiData });
       }
@@ -201,8 +201,35 @@ export class GEELoader {
           }
         });
       }
+
+      // Sync layer visibilities with current state
+      this.updateLayerVisibilities();
+
     } catch (e) {
       console.warn('Notice rendering GEE layers:', e);
+    }
+  }
+
+  public updateLayerVisibilities() {
+    if (!this.map) return;
+
+    if (this.map.getLayer('gee-lst-fill')) {
+      this.map.setLayoutProperty('gee-lst-fill', 'visibility', this.lstVisible ? 'visible' : 'none');
+    }
+    if (this.map.getLayer('gee-lst-outline')) {
+      this.map.setLayoutProperty('gee-lst-outline', 'visibility', this.lstVisible ? 'visible' : 'none');
+    }
+
+    if (this.map.getLayer('gee-elevation-fill')) {
+      this.map.setLayoutProperty('gee-elevation-fill', 'visibility', this.elevationVisible ? 'visible' : 'none');
+    }
+
+    if (this.map.getLayer('gee-landcover-fill')) {
+      this.map.setLayoutProperty('gee-landcover-fill', 'visibility', this.landcoverVisible ? 'visible' : 'none');
+    }
+
+    if (this.map.getLayer('gee-poi-circles')) {
+      this.map.setLayoutProperty('gee-poi-circles', 'visibility', this.poiVisible ? 'visible' : 'none');
     }
   }
 
@@ -273,17 +300,11 @@ export class GEELoader {
     if (layerId === 'landcover') this.landcoverVisible = visible;
     if (layerId === 'poi') this.poiVisible = visible;
 
-    const visibility = visible ? 'visible' : 'none';
-
-    if (layerId === 'lst') {
-      if (this.map.getLayer('gee-lst-fill')) this.map.setLayoutProperty('gee-lst-fill', 'visibility', visibility);
-      if (this.map.getLayer('gee-lst-outline')) this.map.setLayoutProperty('gee-lst-outline', 'visibility', visibility);
-    } else if (layerId === 'elevation') {
-      if (this.map.getLayer('gee-elevation-fill')) this.map.setLayoutProperty('gee-elevation-fill', 'visibility', visibility);
-    } else if (layerId === 'landcover') {
-      if (this.map.getLayer('gee-landcover-fill')) this.map.setLayoutProperty('gee-landcover-fill', 'visibility', visibility);
-    } else if (layerId === 'poi') {
-      if (this.map.getLayer('gee-poi-circles')) this.map.setLayoutProperty('gee-poi-circles', 'visibility', visibility);
+    // Check if layer exists; if not, force renderAllLayers
+    if (!this.map.getLayer('gee-lst-fill') && this.lstData) {
+      this.renderAllLayers();
+    } else {
+      this.updateLayerVisibilities();
     }
   }
 }
