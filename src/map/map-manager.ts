@@ -50,9 +50,11 @@ export class MapManager {
       }
     }
 
-    // 2. Normalize relative glyphs URLs
+    // 2. Normalize relative glyphs URLs or provide fallback for raster styles
     if (style && style.glyphs && typeof style.glyphs === 'string' && style.glyphs.startsWith('/')) {
       style.glyphs = origin + style.glyphs;
+    } else if (style && !style.glyphs) {
+      style.glyphs = 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf';
     }
 
     // 3. Deduplicate layer IDs to prevent MapLibre validation warnings

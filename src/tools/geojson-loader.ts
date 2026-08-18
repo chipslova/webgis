@@ -17,8 +17,8 @@ export class GeoJsonLoader {
   constructor(map: maplibregl.Map) {
     this.map = map;
 
-    // Re-attach custom vector layers automatically whenever basemap style is reloaded
-    this.map.on('styledata', () => {
+    // Re-attach custom vector layers safely ONLY when a new basemap style finishes loading
+    this.map.on('style.load', () => {
       this.reattachLayersIfNeeded();
     });
   }
@@ -77,6 +77,12 @@ export class GeoJsonLoader {
   public addGeoJSONLayer(layerId: string, layerName: string, geojson: GeoJSON.FeatureCollection, color: string = '#3b82f6') {
     if (!geojson.features || geojson.features.length === 0) return;
 
+    // Safety check: wait for style to finish loading if needed
+    if (typeof this.map.isStyleLoaded === 'function' && !this.map.isStyleLoaded()) {
+      this.map.once('style.load', () => this.addGeoJSONLayer(layerId, layerName, geojson, color));
+      return;
+    }
+
     const sourceId = `source-${layerId}`;
     const fillLayerId = `layer-fill-${layerId}`;
     const lineLayerId = `layer-line-${layerId}`;
@@ -99,62 +105,66 @@ export class GeoJsonLoader {
       data: geojson
     });
 
-    if (!this.map.getSource(sourceId)) {
-      this.map.addSource(sourceId, {
-        type: 'geojson',
-        data: geojson
-      });
-    }
+    try {
+      if (!this.map.getSource(sourceId)) {
+        this.map.addSource(sourceId, {
+          type: 'geojson',
+          data: geojson
+        });
+      }
 
-    if (primaryType === 'polygon') {
-      if (!this.map.getLayer(fillLayerId)) {
-        this.map.addLayer({
-          id: fillLayerId,
-          type: 'fill',
-          source: sourceId,
-          paint: {
-            'fill-color': color,
-            'fill-opacity': 0.4
-          }
-        });
+      if (primaryType === 'polygon') {
+        if (!this.map.getLayer(fillLayerId)) {
+          this.map.addLayer({
+            id: fillLayerId,
+            type: 'fill',
+            source: sourceId,
+            paint: {
+              'fill-color': color,
+              'fill-opacity': 0.4
+            }
+          });
+        }
+        if (!this.map.getLayer(lineLayerId)) {
+          this.map.addLayer({
+            id: lineLayerId,
+            type: 'line',
+            source: sourceId,
+            paint: {
+              'line-color': color,
+              'line-width': 2
+            }
+          });
+        }
+      } else if (primaryType === 'line') {
+        if (!this.map.getLayer(lineLayerId)) {
+          this.map.addLayer({
+            id: lineLayerId,
+            type: 'line',
+            source: sourceId,
+            paint: {
+              'line-color': color,
+              'line-width': 3
+            }
+          });
+        }
+      } else {
+        if (!this.map.getLayer(pointLayerId)) {
+          this.map.addLayer({
+            id: pointLayerId,
+            type: 'circle',
+            source: sourceId,
+            paint: {
+              'circle-radius': 8,
+              'circle-color': color,
+              'circle-stroke-width': 2,
+              'circle-stroke-color': '#ffffff'
+            }
+          });
+        }
       }
-      if (!this.map.getLayer(lineLayerId)) {
-        this.map.addLayer({
-          id: lineLayerId,
-          type: 'line',
-          source: sourceId,
-          paint: {
-            'line-color': color,
-            'line-width': 2
-          }
-        });
-      }
-    } else if (primaryType === 'line') {
-      if (!this.map.getLayer(lineLayerId)) {
-        this.map.addLayer({
-          id: lineLayerId,
-          type: 'line',
-          source: sourceId,
-          paint: {
-            'line-color': color,
-            'line-width': 3
-          }
-        });
-      }
-    } else {
-      if (!this.map.getLayer(pointLayerId)) {
-        this.map.addLayer({
-          id: pointLayerId,
-          type: 'circle',
-          source: sourceId,
-          paint: {
-            'circle-radius': 8,
-            'circle-color': color,
-            'circle-stroke-width': 2,
-            'circle-stroke-color': '#ffffff'
-          }
-        });
-      }
+    } catch (e) {
+      console.warn('Notice adding GeoJSON layer:', e);
     }
   }
 

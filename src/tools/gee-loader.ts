@@ -26,8 +26,8 @@ export class GEELoader {
       maxWidth: '300px'
     });
 
-    // Re-attach GEE layers automatically whenever basemap style is reloaded
-    this.map.on('styledata', () => {
+    // Re-attach GEE layers safely ONLY when a new basemap style finishes loading
+    this.map.on('style.load', () => {
       this.reattachLayersIfNeeded();
     });
   }
@@ -65,130 +65,138 @@ export class GEELoader {
   }
 
   private renderAllLayers() {
-    if (!this.lstData || !this.elvData || !this.lcData || !this.poiData) return;
+    if (!this.map || !this.lstData || !this.elvData || !this.lcData || !this.poiData) return;
 
-    // --- LST LAYER ---
-    if (!this.map.getSource('gee-lst-source')) {
-      this.map.addSource('gee-lst-source', { type: 'geojson', data: this.lstData });
-    }
-    if (!this.map.getLayer('gee-lst-fill')) {
-      this.map.addLayer({
-        id: 'gee-lst-fill',
-        type: 'fill',
-        source: 'gee-lst-source',
-        layout: { visibility: this.lstVisible ? 'visible' : 'none' },
-        paint: {
-          'fill-color': [
-            'interpolate',
-            ['linear'],
-            ['get', 'lst_celsius'],
-            20, '#1e40af', // Deep blue for cool forest
-            25, '#0284c7', // Sky blue
-            28, '#10b981', // Green
-            31, '#f59e0b', // Yellow / Warm
-            34, '#ea580c', // Orange / Hot
-            37, '#dc2626'  // Red / Extreme Urban Heat
-          ],
-          'fill-opacity': 0.65
-        }
-      });
-    }
-    if (!this.map.getLayer('gee-lst-outline')) {
-      this.map.addLayer({
-        id: 'gee-lst-outline',
-        type: 'line',
-        source: 'gee-lst-source',
-        layout: { visibility: this.lstVisible ? 'visible' : 'none' },
-        paint: {
-          'line-color': '#ffffff',
-          'line-width': 0.3,
-          'line-opacity': 0.4
-        }
-      });
+    // Safety check: Never add sources/layers if map style is currently loading
+    if (typeof this.map.isStyleLoaded === 'function' && !this.map.isStyleLoaded()) {
+      this.map.once('style.load', () => this.renderAllLayers());
+      return;
     }
 
-    // --- ELEVATION LAYER ---
-    if (!this.map.getSource('gee-elevation-source')) {
-      this.map.addSource('gee-elevation-source', { type: 'geojson', data: this.elvData });
-    }
-    if (!this.map.getLayer('gee-elevation-fill')) {
-      this.map.addLayer({
-        id: 'gee-elevation-fill',
-        type: 'fill',
-        source: 'gee-elevation-source',
-        layout: { visibility: this.elevationVisible ? 'visible' : 'none' },
-        paint: {
-          'fill-color': [
-            'interpolate',
-            ['linear'],
-            ['get', 'elevation_m'],
-            0, '#006633',
-            200, '#e5ffcc',
-            600, '#662a00',
-            1200, '#d8d8d8',
-            2000, '#f5f5f5'
-          ],
-          'fill-opacity': 0.7
-        }
-      });
-    }
+    try {
+      // --- LST LAYER ---
+      if (!this.map.getSource('gee-lst-source')) {
+        this.map.addSource('gee-lst-source', { type: 'geojson', data: this.lstData });
+      }
+      if (!this.map.getLayer('gee-lst-fill')) {
+        this.map.addLayer({
+          id: 'gee-lst-fill',
+          type: 'fill',
+          source: 'gee-lst-source',
+          layout: { visibility: this.lstVisible ? 'visible' : 'none' },
+          paint: {
+            'fill-color': [
+              'interpolate',
+              ['linear'],
+              ['get', 'lst_celsius'],
+              20, '#1e40af', // Deep blue for cool forest
+              25, '#0284c7', // Sky blue
+              28, '#10b981', // Green
+              31, '#f59e0b', // Yellow / Warm
+              34, '#ea580c', // Orange / Hot
+              37, '#dc2626'  // Red / Extreme Urban Heat
+            ],
+            'fill-opacity': 0.65
+          }
+        });
+      }
+      if (!this.map.getLayer('gee-lst-outline')) {
+        this.map.addLayer({
+          id: 'gee-lst-outline',
+          type: 'line',
+          source: 'gee-lst-source',
+          layout: { visibility: this.lstVisible ? 'visible' : 'none' },
+          paint: {
+            'line-color': '#ffffff',
+            'line-width': 0.3,
+            'line-opacity': 0.4
+          }
+        });
+      }
 
-    // --- LAND COVER LAYER ---
-    if (!this.map.getSource('gee-landcover-source')) {
-      this.map.addSource('gee-landcover-source', { type: 'geojson', data: this.lcData });
-    }
-    if (!this.map.getLayer('gee-landcover-fill')) {
-      this.map.addLayer({
-        id: 'gee-landcover-fill',
-        type: 'fill',
-        source: 'gee-landcover-source',
-        layout: { visibility: this.landcoverVisible ? 'visible' : 'none' },
-        paint: {
-          'fill-color': [
-            'match',
-            ['get', 'lc_code'],
-            17, '#0284c7', // Water Bodies
-            13, '#e11d48', // Urban Built-up
-            12, '#eab308', // Croplands
-            1, '#15803d',  // Forest
-            '#a3a3a3'      // Default
-          ],
-          'fill-opacity': 0.7
-        }
-      });
-    }
+      // --- ELEVATION LAYER ---
+      if (!this.map.getSource('gee-elevation-source')) {
+        this.map.addSource('gee-elevation-source', { type: 'geojson', data: this.elvData });
+      }
+      if (!this.map.getLayer('gee-elevation-fill')) {
+        this.map.addLayer({
+          id: 'gee-elevation-fill',
+          type: 'fill',
+          source: 'gee-elevation-source',
+          layout: { visibility: this.elevationVisible ? 'visible' : 'none' },
+          paint: {
+            'fill-color': [
+              'interpolate',
+              ['linear'],
+              ['get', 'elevation_m'],
+              0, '#006633',
+              200, '#e5ffcc',
+              600, '#662a00',
+              1200, '#d8d8d8',
+              2000, '#f5f5f5'
+            ],
+            'fill-opacity': 0.7
+          }
+        });
+      }
 
-    // --- POI MARKERS LAYER ---
-    if (!this.map.getSource('gee-poi-source')) {
-      this.map.addSource('gee-poi-source', { type: 'geojson', data: this.poiData });
-    }
-    if (!this.map.getLayer('gee-poi-circles')) {
-      this.map.addLayer({
-        id: 'gee-poi-circles',
-        type: 'circle',
-        source: 'gee-poi-source',
-        layout: { visibility: this.poiVisible ? 'visible' : 'none' },
-        paint: {
-          'circle-radius': 12,
-          'circle-color': [
-            'match',
-            ['get', 'id'],
-            'urban_poi', '#dc2626',
-            'rural_poi', '#16a34a',
-            '#3b82f6'
-          ],
-          'circle-stroke-width': 3,
-          'circle-stroke-color': '#ffffff'
-        }
-      });
+      // --- LAND COVER LAYER ---
+      if (!this.map.getSource('gee-landcover-source')) {
+        this.map.addSource('gee-landcover-source', { type: 'geojson', data: this.lcData });
+      }
+      if (!this.map.getLayer('gee-landcover-fill')) {
+        this.map.addLayer({
+          id: 'gee-landcover-fill',
+          type: 'fill',
+          source: 'gee-landcover-source',
+          layout: { visibility: this.landcoverVisible ? 'visible' : 'none' },
+          paint: {
+            'fill-color': [
+              'match',
+              ['get', 'lc_code'],
+              17, '#0284c7', // Water Bodies
+              13, '#e11d48', // Urban Built-up
+              12, '#eab308', // Croplands
+              1, '#15803d',  // Forest
+              '#a3a3a3'      // Default
+            ],
+            'fill-opacity': 0.7
+          }
+        });
+      }
+
+      // --- POI MARKERS LAYER ---
+      if (!this.map.getSource('gee-poi-source')) {
+        this.map.addSource('gee-poi-source', { type: 'geojson', data: this.poiData });
+      }
+      if (!this.map.getLayer('gee-poi-circles')) {
+        this.map.addLayer({
+          id: 'gee-poi-circles',
+          type: 'circle',
+          source: 'gee-poi-source',
+          layout: { visibility: this.poiVisible ? 'visible' : 'none' },
+          paint: {
+            'circle-radius': 12,
+            'circle-color': [
+              'match',
+              ['get', 'id'],
+              'urban_poi', '#dc2626',
+              'rural_poi', '#16a34a',
+              '#3b82f6'
+            ],
+            'circle-stroke-width': 3,
+            'circle-stroke-color': '#ffffff'
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('Notice rendering GEE layers:', e);
     }
   }
 
   private reattachLayersIfNeeded() {
-    if (!this.lstData) return; // Data not loaded yet
-    if (!this.map.getSource('gee-lst-source')) {
-      this.renderAllLayers();
-    }
+    if (!this.lstData) return;
+    this.renderAllLayers();
   }
 
   private bindLayerEvents() {
