@@ -20,8 +20,8 @@ export const BASEMAPS: BasemapConfig[] = [
     styleUrl: '/basemap/styles/google-satellite.json',
     previewColor: '#1e3a8a',
     initialBounds: {
-      center: [117.89, -2.55],
-      zoom: 5
+      center: [106.90, -6.35],
+      zoom: 9.5
     }
   },
   {
@@ -32,8 +32,8 @@ export const BASEMAPS: BasemapConfig[] = [
     styleUrl: '/basemap/styles/google-hybrid.json',
     previewColor: '#0f766e',
     initialBounds: {
-      center: [117.89, -2.55],
-      zoom: 5
+      center: [106.90, -6.35],
+      zoom: 9.5
     }
   },
   {
