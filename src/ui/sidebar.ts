@@ -1,7 +1,7 @@
-export type TabId = 'basemaps' | 'layers' | 'measure' | 'data' | 'legend' | 'about';
+export type TabId = 'gee' | 'basemaps' | 'layers' | 'measure' | 'data' | 'legend' | 'about';
 
 export class SidebarUI {
-  private activeTab: TabId = 'basemaps';
+  private activeTab: TabId = 'gee';
   private isOpen: boolean = true;
   private onTabChangeCallback?: (tabId: TabId) => void;
 

@@ -3,6 +3,20 @@ import * as maplibregl from 'maplibre-gl';
 export class GEELoader {
   private map: maplibregl.Map;
   private popup: maplibregl.Popup;
+  
+  // Cached GeoJSON Data
+  private poiData: GeoJSON.FeatureCollection | null = null;
+  private lstData: GeoJSON.FeatureCollection | null = null;
+  private elvData: GeoJSON.FeatureCollection | null = null;
+  private lcData: GeoJSON.FeatureCollection | null = null;
+
+  // Layer Visibility State
+  private lstVisible: boolean = true;
+  private poiVisible: boolean = true;
+  private elevationVisible: boolean = false;
+  private landcoverVisible: boolean = false;
+
+  private isEventsBound: boolean = false;
 
   constructor(map: maplibregl.Map) {
     this.map = map;
@@ -10,6 +24,11 @@ export class GEELoader {
       closeButton: true,
       closeOnClick: false,
       maxWidth: '300px'
+    });
+
+    // Re-attach GEE layers automatically whenever basemap style is reloaded
+    this.map.on('styledata', () => {
+      this.reattachLayersIfNeeded();
     });
   }
 
@@ -23,151 +42,152 @@ export class GEELoader {
         fetch('/data/gee_landcover.geojson').then(r => r.json())
       ]);
 
-      // 2. Add Sources
-      if (!this.map.getSource('gee-lst-source')) {
-        this.map.addSource('gee-lst-source', { type: 'geojson', data: lstRes });
-      }
-      if (!this.map.getSource('gee-elevation-source')) {
-        this.map.addSource('gee-elevation-source', { type: 'geojson', data: elvRes });
-      }
-      if (!this.map.getSource('gee-landcover-source')) {
-        this.map.addSource('gee-landcover-source', { type: 'geojson', data: lcRes });
-      }
-      if (!this.map.getSource('gee-poi-source')) {
-        this.map.addSource('gee-poi-source', { type: 'geojson', data: poiRes });
-      }
+      this.poiData = poiRes;
+      this.lstData = lstRes;
+      this.elvData = elvRes;
+      this.lcData = lcRes;
 
-      // 3. Add Layers
-      // LST Heatmap Layer (MODIS LST Day 1km in °C)
-      if (!this.map.getLayer('gee-lst-fill')) {
-        this.map.addLayer({
-          id: 'gee-lst-fill',
-          type: 'fill',
-          source: 'gee-lst-source',
-          layout: { visibility: 'visible' },
-          paint: {
-            'fill-color': [
-              'interpolate',
-              ['linear'],
-              ['get', 'lst_celsius'],
-              20, '#1e40af', // Deep blue for cool forest
-              25, '#0284c7', // Sky blue
-              28, '#10b981', // Green
-              31, '#f59e0b', // Yellow / Warm
-              34, '#ea580c', // Orange / Hot
-              37, '#dc2626'  // Red / Extreme Urban Heat
-            ],
-            'fill-opacity': 0.65
-          }
-        });
+      // 2. Render Layers on Map
+      this.renderAllLayers();
 
-        this.map.addLayer({
-          id: 'gee-lst-outline',
-          type: 'line',
-          source: 'gee-lst-source',
-          layout: { visibility: 'visible' },
-          paint: {
-            'line-color': '#ffffff',
-            'line-width': 0.3,
-            'line-opacity': 0.4
-          }
-        });
+      // 3. Bind Map Events
+      if (!this.isEventsBound) {
+        this.bindLayerEvents();
+        this.isEventsBound = true;
       }
 
-      // Elevation Layer (USGS SRTM in meters)
-      if (!this.map.getLayer('gee-elevation-fill')) {
-        this.map.addLayer({
-          id: 'gee-elevation-fill',
-          type: 'fill',
-          source: 'gee-elevation-source',
-          layout: { visibility: 'none' },
-          paint: {
-            'fill-color': [
-              'interpolate',
-              ['linear'],
-              ['get', 'elevation_m'],
-              0, '#006633',
-              200, '#e5ffcc',
-              600, '#662a00',
-              1200, '#d8d8d8',
-              2000, '#f5f5f5'
-            ],
-            'fill-opacity': 0.7
-          }
-        });
-      }
-
-      // Land Cover Layer (MODIS MCD12Q1)
-      if (!this.map.getLayer('gee-landcover-fill')) {
-        this.map.addLayer({
-          id: 'gee-landcover-fill',
-          type: 'fill',
-          source: 'gee-landcover-source',
-          layout: { visibility: 'none' },
-          paint: {
-            'fill-color': [
-              'match',
-              ['get', 'lc_code'],
-              17, '#0284c7', // Water Bodies
-              13, '#e11d48', // Urban Built-up
-              12, '#eab308', // Croplands
-              1, '#15803d',  // Forest
-              '#a3a3a3'      // Default
-            ],
-            'fill-opacity': 0.7
-          }
-        });
-      }
-
-      // POI Markers Layer (Urban vs Rural points)
-      if (!this.map.getLayer('gee-poi-circles')) {
-        this.map.addLayer({
-          id: 'gee-poi-circles',
-          type: 'circle',
-          source: 'gee-poi-source',
-          layout: { visibility: 'visible' },
-          paint: {
-            'circle-radius': 10,
-            'circle-color': [
-              'match',
-              ['get', 'id'],
-              'urban_poi', '#dc2626',
-              'rural_poi', '#16a34a',
-              '#3b82f6'
-            ],
-            'circle-stroke-width': 3,
-            'circle-stroke-color': '#ffffff'
-          }
-        });
-
-        // Add POI labels
-        this.map.addLayer({
-          id: 'gee-poi-labels',
-          type: 'symbol',
-          source: 'gee-poi-source',
-          layout: {
-            'text-field': ['get', 'name'],
-            'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-            'text-size': 12,
-            'text-offset': [0, 1.4],
-            'text-anchor': 'top'
-          },
-          paint: {
-            'text-color': '#0f172a',
-            'text-halo-color': '#ffffff',
-            'text-halo-width': 2
-          }
-        });
-      }
-
-      // 4. Bind Click Events for Telemetry Popups
-      this.bindLayerEvents();
-
-      // 5. Fly to Greater Jakarta Area
+      // 4. Fly to Greater Jakarta Area
       this.flyToStudyArea();
 
     } catch (err) {
       console.error('Failed loading GEE datasets:', err);
+    }
+  }
+
+  private renderAllLayers() {
+    if (!this.lstData || !this.elvData || !this.lcData || !this.poiData) return;
+
+    // --- LST LAYER ---
+    if (!this.map.getSource('gee-lst-source')) {
+      this.map.addSource('gee-lst-source', { type: 'geojson', data: this.lstData });
+    }
+    if (!this.map.getLayer('gee-lst-fill')) {
+      this.map.addLayer({
+        id: 'gee-lst-fill',
+        type: 'fill',
+        source: 'gee-lst-source',
+        layout: { visibility: this.lstVisible ? 'visible' : 'none' },
+        paint: {
+          'fill-color': [
+            'interpolate',
+            ['linear'],
+            ['get', 'lst_celsius'],
+            20, '#1e40af', // Deep blue for cool forest
+            25, '#0284c7', // Sky blue
+            28, '#10b981', // Green
+            31, '#f59e0b', // Yellow / Warm
+            34, '#ea580c', // Orange / Hot
+            37, '#dc2626'  // Red / Extreme Urban Heat
+          ],
+          'fill-opacity': 0.65
+        }
+      });
+    }
+    if (!this.map.getLayer('gee-lst-outline')) {
+      this.map.addLayer({
+        id: 'gee-lst-outline',
+        type: 'line',
+        source: 'gee-lst-source',
+        layout: { visibility: this.lstVisible ? 'visible' : 'none' },
+        paint: {
+          'line-color': '#ffffff',
+          'line-width': 0.3,
+          'line-opacity': 0.4
+        }
+      });
+    }
+
+    // --- ELEVATION LAYER ---
+    if (!this.map.getSource('gee-elevation-source')) {
+      this.map.addSource('gee-elevation-source', { type: 'geojson', data: this.elvData });
+    }
+    if (!this.map.getLayer('gee-elevation-fill')) {
+      this.map.addLayer({
+        id: 'gee-elevation-fill',
+        type: 'fill',
+        source: 'gee-elevation-source',
+        layout: { visibility: this.elevationVisible ? 'visible' : 'none' },
+        paint: {
+          'fill-color': [
+            'interpolate',
+            ['linear'],
+            ['get', 'elevation_m'],
+            0, '#006633',
+            200, '#e5ffcc',
+            600, '#662a00',
+            1200, '#d8d8d8',
+            2000, '#f5f5f5'
+          ],
+          'fill-opacity': 0.7
+        }
+      });
+    }
+
+    // --- LAND COVER LAYER ---
+    if (!this.map.getSource('gee-landcover-source')) {
+      this.map.addSource('gee-landcover-source', { type: 'geojson', data: this.lcData });
+    }
+    if (!this.map.getLayer('gee-landcover-fill')) {
+      this.map.addLayer({
+        id: 'gee-landcover-fill',
+        type: 'fill',
+        source: 'gee-landcover-source',
+        layout: { visibility: this.landcoverVisible ? 'visible' : 'none' },
+        paint: {
+          'fill-color': [
+            'match',
+            ['get', 'lc_code'],
+            17, '#0284c7', // Water Bodies
+            13, '#e11d48', // Urban Built-up
+            12, '#eab308', // Croplands
+            1, '#15803d',  // Forest
+            '#a3a3a3'      // Default
+          ],
+          'fill-opacity': 0.7
+        }
+      });
+    }
+
+    // --- POI MARKERS LAYER ---
+    if (!this.map.getSource('gee-poi-source')) {
+      this.map.addSource('gee-poi-source', { type: 'geojson', data: this.poiData });
+    }
+    if (!this.map.getLayer('gee-poi-circles')) {
+      this.map.addLayer({
+        id: 'gee-poi-circles',
+        type: 'circle',
+        source: 'gee-poi-source',
+        layout: { visibility: this.poiVisible ? 'visible' : 'none' },
+        paint: {
+          'circle-radius': 12,
+          'circle-color': [
+            'match',
+            ['get', 'id'],
+            'urban_poi', '#dc2626',
+            'rural_poi', '#16a34a',
+            '#3b82f6'
+          ],
+          'circle-stroke-width': 3,
+          'circle-stroke-color': '#ffffff'
+        }
+      });
+    }
+  }
+
+  private reattachLayersIfNeeded() {
+    if (!this.lstData) return; // Data not loaded yet
+    if (!this.map.getSource('gee-lst-source')) {
+      this.renderAllLayers();
     }
   }
 
@@ -228,17 +248,22 @@ export class GEELoader {
   }
 
   public toggleLayer(layerId: string, visible: boolean) {
+    if (layerId === 'lst') this.lstVisible = visible;
+    if (layerId === 'elevation') this.elevationVisible = visible;
+    if (layerId === 'landcover') this.landcoverVisible = visible;
+    if (layerId === 'poi') this.poiVisible = visible;
+
     const visibility = visible ? 'visible' : 'none';
-    if (layerId === 'lst' && this.map.getLayer('gee-lst-fill')) {
-      this.map.setLayoutProperty('gee-lst-fill', 'visibility', visibility);
-      this.map.setLayoutProperty('gee-lst-outline', 'visibility', visibility);
-    } else if (layerId === 'elevation' && this.map.getLayer('gee-elevation-fill')) {
-      this.map.setLayoutProperty('gee-elevation-fill', 'visibility', visibility);
-    } else if (layerId === 'landcover' && this.map.getLayer('gee-landcover-fill')) {
-      this.map.setLayoutProperty('gee-landcover-fill', 'visibility', visibility);
-    } else if (layerId === 'poi' && this.map.getLayer('gee-poi-circles')) {
-      this.map.setLayoutProperty('gee-poi-circles', 'visibility', visibility);
-      this.map.setLayoutProperty('gee-poi-labels', 'visibility', visibility);
+
+    if (layerId === 'lst') {
+      if (this.map.getLayer('gee-lst-fill')) this.map.setLayoutProperty('gee-lst-fill', 'visibility', visibility);
+      if (this.map.getLayer('gee-lst-outline')) this.map.setLayoutProperty('gee-lst-outline', 'visibility', visibility);
+    } else if (layerId === 'elevation') {
+      if (this.map.getLayer('gee-elevation-fill')) this.map.setLayoutProperty('gee-elevation-fill', 'visibility', visibility);
+    } else if (layerId === 'landcover') {
+      if (this.map.getLayer('gee-landcover-fill')) this.map.setLayoutProperty('gee-landcover-fill', 'visibility', visibility);
+    } else if (layerId === 'poi') {
+      if (this.map.getLayer('gee-poi-circles')) this.map.setLayoutProperty('gee-poi-circles', 'visibility', visibility);
     }
   }
 }

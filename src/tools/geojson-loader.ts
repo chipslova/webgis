@@ -7,6 +7,7 @@ export interface CustomLayerItem {
   visible: boolean;
   color: string;
   featureCount: number;
+  data: GeoJSON.FeatureCollection;
 }
 
 export class GeoJsonLoader {
@@ -15,6 +16,11 @@ export class GeoJsonLoader {
 
   constructor(map: maplibregl.Map) {
     this.map = map;
+
+    // Re-attach custom vector layers automatically whenever basemap style is reloaded
+    this.map.on('styledata', () => {
+      this.reattachLayersIfNeeded();
+    });
   }
 
   public async loadSampleData() {
@@ -76,64 +82,12 @@ export class GeoJsonLoader {
     const lineLayerId = `layer-line-${layerId}`;
     const pointLayerId = `layer-point-${layerId}`;
 
-    if (this.map.getSource(sourceId)) {
-      (this.map.getSource(sourceId) as maplibregl.GeoJSONSource).setData(geojson);
-      return;
-    }
-
-    this.map.addSource(sourceId, {
-      type: 'geojson',
-      data: geojson
-    });
-
     const firstFeatureType = geojson.features[0].geometry.type;
     let primaryType: 'point' | 'line' | 'polygon' = 'point';
 
-    if (firstFeatureType.includes('Polygon')) {
-      primaryType = 'polygon';
-      this.map.addLayer({
-        id: fillLayerId,
-        type: 'fill',
-        source: sourceId,
-        paint: {
-          'fill-color': color,
-          'fill-opacity': 0.4
-        }
-      });
-      this.map.addLayer({
-        id: lineLayerId,
-        type: 'line',
-        source: sourceId,
-        paint: {
-          'line-color': color,
-          'line-width': 2
-        }
-      });
-    } else if (firstFeatureType.includes('Line')) {
-      primaryType = 'line';
-      this.map.addLayer({
-        id: lineLayerId,
-        type: 'line',
-        source: sourceId,
-        paint: {
-          'line-color': color,
-          'line-width': 3
-        }
-      });
-    } else {
-      primaryType = 'point';
-      this.map.addLayer({
-        id: pointLayerId,
-        type: 'circle',
-        source: sourceId,
-        paint: {
-          'circle-radius': 8,
-          'circle-color': color,
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#ffffff'
-        }
-      });
-    }
+    if (firstFeatureType.includes('Polygon')) primaryType = 'polygon';
+    else if (firstFeatureType.includes('Line')) primaryType = 'line';
+    else primaryType = 'point';
 
     this.customLayers.set(layerId, {
       id: layerId,
@@ -141,7 +95,76 @@ export class GeoJsonLoader {
       type: primaryType,
       visible: true,
       color,
-      featureCount: geojson.features.length
+      featureCount: geojson.features.length,
+      data: geojson
+    });
+
+    if (!this.map.getSource(sourceId)) {
+      this.map.addSource(sourceId, {
+        type: 'geojson',
+        data: geojson
+      });
+    }
+
+    if (primaryType === 'polygon') {
+      if (!this.map.getLayer(fillLayerId)) {
+        this.map.addLayer({
+          id: fillLayerId,
+          type: 'fill',
+          source: sourceId,
+          paint: {
+            'fill-color': color,
+            'fill-opacity': 0.4
+          }
+        });
+      }
+      if (!this.map.getLayer(lineLayerId)) {
+        this.map.addLayer({
+          id: lineLayerId,
+          type: 'line',
+          source: sourceId,
+          paint: {
+            'line-color': color,
+            'line-width': 2
+          }
+        });
+      }
+    } else if (primaryType === 'line') {
+      if (!this.map.getLayer(lineLayerId)) {
+        this.map.addLayer({
+          id: lineLayerId,
+          type: 'line',
+          source: sourceId,
+          paint: {
+            'line-color': color,
+            'line-width': 3
+          }
+        });
+      }
+    } else {
+      if (!this.map.getLayer(pointLayerId)) {
+        this.map.addLayer({
+          id: pointLayerId,
+          type: 'circle',
+          source: sourceId,
+          paint: {
+            'circle-radius': 8,
+            'circle-color': color,
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#ffffff'
+          }
+        });
+      }
+    }
+  }
+
+  private reattachLayersIfNeeded() {
+    this.customLayers.forEach((layer) => {
+      const sourceId = `source-${layer.id}`;
+      if (!this.map.getSource(sourceId)) {
+        this.addGeoJSONLayer(layer.id, layer.name, layer.data, layer.color);
+        this.toggleLayerVisibility(layer.id, layer.visible);
+      }
     });
   }
 
