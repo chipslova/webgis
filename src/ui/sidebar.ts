@@ -16,10 +16,16 @@ export class SidebarUI {
       btn.addEventListener('click', () => {
         const tab = btn.dataset.tab as TabId;
         if (tab) {
-          if (!this.isOpen) {
-            this.setOpen(true);
+          if (this.isOpen && this.activeTab === tab) {
+            // Clicking active tab toggles panel closed
+            this.setOpen(false);
+          } else {
+            // Open and switch to selected tab
+            this.setActiveTab(tab);
+            if (!this.isOpen) {
+              this.setOpen(true);
+            }
           }
-          this.setActiveTab(tab);
         }
       });
     });
@@ -77,6 +83,19 @@ export class SidebarUI {
         ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>`
         : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
     }
+
+    // Continuously trigger resize during transition so MapLibre canvas expands smoothly to full width
+    const start = performance.now();
+    const duration = 350;
+    const animateResize = (now: number) => {
+      window.dispatchEvent(new Event('resize'));
+      if (now - start < duration) {
+        requestAnimationFrame(animateResize);
+      } else {
+        window.dispatchEvent(new Event('resize'));
+      }
+    };
+    requestAnimationFrame(animateResize);
   }
 
   public onTabChange(callback: (tabId: TabId) => void) {

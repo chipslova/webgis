@@ -37,6 +37,12 @@ class WebGISApp {
     this.bindExportEvents();
     this.bindInspectorEvents();
 
+    this.sidebarUI.onTabChange((tab) => {
+      if (tab === 'layers') {
+        this.renderLayersList();
+      }
+    });
+
     // 2. Connect Telemetry & Feature Inspector
     this.mapManager.onMouseMove((info) => {
       this.statusBarUI.update(info);
@@ -50,7 +56,7 @@ class WebGISApp {
     try {
       const map = await this.mapManager.initMap();
 
-      map.on('load', async () => {
+      const onMapReady = async () => {
         this.geocoderTool = new GeocoderTool(map);
         this.measureTool = new MeasureTool(map);
         this.geojsonLoader = new GeoJsonLoader(map);
@@ -60,7 +66,7 @@ class WebGISApp {
         // Load sample cities vector layer & GEE Earth Engine datasets
         this.geojsonLoader.loadSampleData();
         await this.geeLoader.loadGEEDatasets();
-        await this.geePanelUI.init();
+        this.geePanelUI.init();
         this.renderLayersList();
 
         // Bind measurement callbacks
@@ -72,7 +78,13 @@ class WebGISApp {
             val.innerText = res.text || '0';
           }
         });
-      });
+      };
+
+      if (map.loaded()) {
+        onMapReady();
+      } else {
+        map.once('load', onMapReady);
+      }
     } catch (err) {
       console.warn('Map initialization notice:', err);
     }
@@ -148,28 +160,52 @@ class WebGISApp {
       const item = document.createElement('div');
       item.className = 'layer-item';
       item.innerHTML = `
-        <div class="layer-left">
+        <div class="layer-left" style="cursor: pointer;" title="Click to zoom to layer">
           <input type="checkbox" id="check-${layer.id}" ${layer.visible ? 'checked' : ''} />
           <span class="legend-symbol" style="background-color: ${layer.color};"></span>
           <span class="layer-title">${layer.name} (${layer.featureCount})</span>
         </div>
-        <button class="icon-btn-sm btn-delete-layer" data-id="${layer.id}">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-        </button>
+        <div class="layer-actions" style="display: flex; gap: 4px; align-items: center;">
+          <button class="icon-btn-sm btn-zoom-layer" data-id="${layer.id}" title="Zoom to layer extent">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </button>
+          <button class="icon-btn-sm btn-delete-layer" data-id="${layer.id}" title="Delete layer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          </button>
+        </div>
       `;
 
       // Checkbox toggle
       const check = item.querySelector<HTMLInputElement>(`#check-${layer.id}`);
       if (check) {
+        check.addEventListener('click', (e) => e.stopPropagation());
         check.addEventListener('change', (e) => {
           this.geojsonLoader?.toggleLayerVisibility(layer.id, (e.target as HTMLInputElement).checked);
+        });
+      }
+
+      // Zoom to layer button
+      const zoomBtn = item.querySelector<HTMLButtonElement>('.btn-zoom-layer');
+      if (zoomBtn) {
+        zoomBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.geojsonLoader?.zoomToLayer(layer.id);
+        });
+      }
+
+      // Click title to zoom
+      const titleEl = item.querySelector<HTMLElement>('.layer-title');
+      if (titleEl) {
+        titleEl.addEventListener('click', () => {
+          this.geojsonLoader?.zoomToLayer(layer.id);
         });
       }
 
       // Delete layer
       const delBtn = item.querySelector<HTMLButtonElement>('.btn-delete-layer');
       if (delBtn) {
-        delBtn.addEventListener('click', () => {
+        delBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
           this.geojsonLoader?.removeLayer(layer.id);
           this.renderLayersList();
         });

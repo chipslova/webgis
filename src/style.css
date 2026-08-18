@@ -20,7 +20,7 @@
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
-  --sidebar-width: 380px;
+  --sidebar-width: 400px;
   --nav-width: 68px;
   --header-height: 56px;
   --footer-height: 34px;
@@ -270,16 +270,20 @@ html, body, #app {
   background: var(--bg-sidebar);
   border-right: 1px solid var(--border-color);
   z-index: 30;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .sidebar.collapsed {
-  transform: translateX(calc(-1 * (var(--sidebar-width) - var(--nav-width))));
+  width: var(--nav-width);
 }
 
 .sidebar-nav {
   width: var(--nav-width);
+  min-width: var(--nav-width);
+  height: 100%;
   background: rgba(15, 23, 42, 0.6);
   border-right: 1px solid var(--border-color);
   display: flex;
@@ -288,6 +292,7 @@ html, body, #app {
   padding: 12px 0;
   gap: 8px;
   z-index: 2;
+  flex-shrink: 0;
 }
 
 .sidebar-tab-btn {
@@ -324,10 +329,18 @@ html, body, #app {
 
 .sidebar-content {
   flex: 1;
+  width: calc(var(--sidebar-width) - var(--nav-width));
+  min-width: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  transition: opacity 0.2s ease;
+}
+
+.sidebar.collapsed .sidebar-content {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .sidebar-toggle {
@@ -358,6 +371,9 @@ html, body, #app {
   padding: 16px;
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .sidebar-panel.active {
@@ -367,6 +383,8 @@ html, body, #app {
 .panel-header {
   margin-bottom: 16px;
   padding-right: 32px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .panel-header h2 {
@@ -394,9 +412,11 @@ html, body, #app {
    Basemap Gallery Cards Grid
    ========================================================================== */
 .basemap-grid {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .basemap-card {
@@ -410,6 +430,8 @@ html, body, #app {
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .basemap-card:hover {
@@ -442,6 +464,51 @@ html, body, #app {
 .basemap-info {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
+}
+
+/* About panel card */
+.about-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.about-card ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.about-card li {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.about-card li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.about-card li strong {
+  color: var(--text-main);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.about-card li code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 11px;
+  color: var(--accent-cyan);
 }
 
 /* Custom Scrollbars */

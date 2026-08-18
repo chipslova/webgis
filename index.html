@@ -89,7 +89,7 @@
               <span>Legend</span>
             </button>
             <button class="sidebar-tab-btn" data-tab="about" title="About WebGIS">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
               <span>About</span>
             </button>
           </nav>
@@ -119,11 +119,11 @@
                 <h3>Map Layer Controls</h3>
                 <div class="gee-toggle-group">
                   <label class="gee-toggle-item">
-                    <input type="checkbox" id="toggle-gee-lst" checked />
+                    <input type="checkbox" id="toggle-gee-lst" />
                     <span class="toggle-label">🌡️ MODIS Daytime LST Heatmap</span>
                   </label>
                   <label class="gee-toggle-item">
-                    <input type="checkbox" id="toggle-gee-poi" checked />
+                    <input type="checkbox" id="toggle-gee-poi" />
                     <span class="toggle-label">📍 Urban vs Rural Observation POIs</span>
                   </label>
                   <label class="gee-toggle-item">
@@ -158,14 +158,14 @@
 
               <!-- Time Series Canvas Chart -->
               <div class="gee-card">
-                <h3>LST Time Series (2020–2026)</h3>
-                <p class="chart-subtitle">Fitted curve: $LST(t) = LST_0 + \frac{\Delta LST}{2} \cdot \sin(2\pi t/\tau + \phi)$</p>
+                <h3>Tren Suhu Tahunan (2020–2026)</h3>
+                <p class="chart-subtitle">Pola fluktuasi suhu musiman: Perkotaan vs Pedesaan</p>
                 <div class="chart-container">
                   <canvas id="gee-chart-canvas" width="300" height="200"></canvas>
                 </div>
                 <div class="chart-legend">
-                  <span class="legend-badge urban-badge">■ Urban Fitted (°C)</span>
-                  <span class="legend-badge rural-badge">■ Rural Fitted (°C)</span>
+                  <span class="legend-badge urban-badge">■ Kota Jakarta (Panas)</span>
+                  <span class="legend-badge rural-badge">■ Pedesaan/Hutan (Sejuk)</span>
                 </div>
               </div>
 

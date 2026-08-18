@@ -75,14 +75,6 @@ export class GeoJsonLoader {
   }
 
   public addGeoJSONLayer(layerId: string, layerName: string, geojson: GeoJSON.FeatureCollection, color: string = '#3b82f6') {
-    if (!geojson.features || geojson.features.length === 0) return;
-
-    // Safety check: wait for style to finish loading if needed
-    if (typeof this.map.isStyleLoaded === 'function' && !this.map.isStyleLoaded()) {
-      this.map.once('style.load', () => this.addGeoJSONLayer(layerId, layerName, geojson, color));
-      return;
-    }
-
     const sourceId = `source-${layerId}`;
     const fillLayerId = `layer-fill-${layerId}`;
     const lineLayerId = `layer-line-${layerId}`;
@@ -105,6 +97,12 @@ export class GeoJsonLoader {
       data: geojson
     });
 
+    // Safety check: wait for style to finish loading if needed
+    if (typeof this.map.isStyleLoaded === 'function' && !this.map.isStyleLoaded()) {
+      this.map.once('style.load', () => this.addGeoJSONLayer(layerId, layerName, geojson, color));
+      return;
+    }
+
     try {
       if (!this.map.getSource(sourceId)) {
         this.map.addSource(sourceId, {
@@ -119,9 +117,10 @@ export class GeoJsonLoader {
             id: fillLayerId,
             type: 'fill',
             source: sourceId,
+            layout: { visibility: 'visible' },
             paint: {
               'fill-color': color,
-              'fill-opacity': 0.4
+              'fill-opacity': 0.5
             }
           });
         }
@@ -130,6 +129,7 @@ export class GeoJsonLoader {
             id: lineLayerId,
             type: 'line',
             source: sourceId,
+            layout: { visibility: 'visible' },
             paint: {
               'line-color': color,
               'line-width': 2
@@ -142,6 +142,7 @@ export class GeoJsonLoader {
             id: lineLayerId,
             type: 'line',
             source: sourceId,
+            layout: { visibility: 'visible' },
             paint: {
               'line-color': color,
               'line-width': 3
@@ -154,18 +155,63 @@ export class GeoJsonLoader {
             id: pointLayerId,
             type: 'circle',
             source: sourceId,
+            layout: { visibility: 'visible' },
             paint: {
-              'circle-radius': 8,
+              'circle-radius': 9,
               'circle-color': color,
-              'circle-stroke-width': 2,
+              'circle-stroke-width': 2.5,
               'circle-stroke-color': '#ffffff'
             }
           });
         }
       }
+
+      this.ensureLayerOnTop(layerId);
+      this.bindClickPopup(layerId);
     } catch (e) {
       console.warn('Notice adding GeoJSON layer:', e);
     }
+  }
+
+  private bindClickPopup(layerId: string) {
+    const fillId = `layer-fill-${layerId}`;
+    const lineId = `layer-line-${layerId}`;
+    const pointId = `layer-point-${layerId}`;
+    const popup = new maplibregl.Popup({ closeButton: true, maxWidth: '320px' });
+
+    [pointId, fillId, lineId].forEach((lid) => {
+      if (this.map.getLayer(lid)) {
+        this.map.on('click', lid, (e: any) => {
+          if (!e.features || e.features.length === 0) return;
+          const props = e.features[0].properties;
+          let content = `<div style="padding: 6px 10px; font-family: sans-serif;">`;
+          content += `<h4 style="margin: 0 0 6px 0; color: #0f172a; font-weight: 700; font-size: 14px;">📍 ${props.name || 'Feature'}</h4>`;
+          content += `<table style="width: 100%; border-collapse: collapse; font-size: 12px; color: #334155;">`;
+          for (const [k, v] of Object.entries(props)) {
+            content += `<tr><td style="padding: 2px 4px; font-weight: 600; color: #64748b;">${k}:</td><td style="padding: 2px 4px; font-weight: 500;">${v}</td></tr>`;
+          }
+          content += `</table></div>`;
+          popup.setLngLat(e.lngLat).setHTML(content).addTo(this.map);
+        });
+
+        this.map.on('mouseenter', lid, () => {
+          this.map.getCanvas().style.cursor = 'pointer';
+        });
+        this.map.on('mouseleave', lid, () => {
+          this.map.getCanvas().style.cursor = '';
+        });
+      }
+    });
+  }
+
+  public ensureLayerOnTop(layerId: string) {
+    [`layer-fill-${layerId}`, `layer-line-${layerId}`, `layer-point-${layerId}`].forEach((id) => {
+      if (this.map.getLayer(id)) {
+        try {
+          this.map.moveLayer(id);
+        } catch (_) {}
+      }
+    });
   }
 
   private reattachLayersIfNeeded() {
@@ -185,11 +231,52 @@ export class GeoJsonLoader {
     item.visible = visible;
     const visibility = visible ? 'visible' : 'none';
 
+    const sourceId = `source-${layerId}`;
+    if (!this.map.getSource(sourceId)) {
+      this.addGeoJSONLayer(layerId, item.name, item.data, item.color);
+    }
+
     [`layer-fill-${layerId}`, `layer-line-${layerId}`, `layer-point-${layerId}`].forEach((id) => {
       if (this.map.getLayer(id)) {
         this.map.setLayoutProperty(id, 'visibility', visibility);
       }
     });
+
+    if (visible) {
+      this.ensureLayerOnTop(layerId);
+    }
+  }
+
+  public zoomToLayer(layerId: string) {
+    const item = this.customLayers.get(layerId);
+    if (!item || !item.data.features || item.data.features.length === 0) return;
+
+    const coords: [number, number][] = [];
+    item.data.features.forEach((feat: any) => {
+      if (feat.geometry.type === 'Point') {
+        coords.push(feat.geometry.coordinates);
+      } else if (feat.geometry.type === 'Polygon') {
+        feat.geometry.coordinates[0]?.forEach((c: [number, number]) => coords.push(c));
+      } else if (feat.geometry.type === 'LineString') {
+        feat.geometry.coordinates.forEach((c: [number, number]) => coords.push(c));
+      }
+    });
+
+    if (coords.length === 0) return;
+
+    let minX = coords[0][0], maxX = coords[0][0], minY = coords[0][1], maxY = coords[0][1];
+    coords.forEach(([x, y]) => {
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    });
+
+    if (coords.length === 1 || (minX === maxX && minY === maxY)) {
+      this.map.flyTo({ center: [minX, minY], zoom: 12, duration: 1500 });
+    } else {
+      this.map.fitBounds([[minX, minY], [maxX, maxY]], { padding: 80, duration: 1500 });
+    }
   }
 
   public removeLayer(layerId: string) {
@@ -214,3 +301,4 @@ export class GeoJsonLoader {
     return Array.from(this.customLayers.values());
   }
 }
+

@@ -20,43 +20,64 @@ export class GEEPanelUI {
     this.geeLoader = geeLoader;
   }
 
-  public async init() {
+  private isToggleEventsBound: boolean = false;
+
+  public init() {
+    this.syncCheckboxStates();
     this.bindLayerToggleEvents();
     this.bindDownloadEvents();
     this.renderTimeSeriesChart();
+
+    const map = this.geeLoader.getMap();
+    if (map) {
+      map.on('style.load', () => {
+        this.syncCheckboxStates();
+      });
+    }
+
+    // Re-render chart on window resize
+    window.addEventListener('resize', () => {
+      this.renderTimeSeriesChart();
+    });
+  }
+
+  private syncCheckboxStates() {
+    const lst = document.getElementById('toggle-gee-lst') as HTMLInputElement;
+    if (lst) lst.checked = (this.geeLoader as any).lstVisible;
+    const elv = document.getElementById('toggle-gee-elevation') as HTMLInputElement;
+    if (elv) elv.checked = (this.geeLoader as any).elevationVisible;
+    const lc = document.getElementById('toggle-gee-landcover') as HTMLInputElement;
+    if (lc) lc.checked = (this.geeLoader as any).landcoverVisible;
+    const poi = document.getElementById('toggle-gee-poi') as HTMLInputElement;
+    if (poi) poi.checked = (this.geeLoader as any).poiVisible;
   }
 
   private bindLayerToggleEvents() {
-    const lstToggle = document.getElementById('toggle-gee-lst') as HTMLInputElement;
-    const elvToggle = document.getElementById('toggle-gee-elevation') as HTMLInputElement;
-    const lcToggle = document.getElementById('toggle-gee-landcover') as HTMLInputElement;
-    const poiToggle = document.getElementById('toggle-gee-poi') as HTMLInputElement;
-    const focusBtn = document.getElementById('btn-focus-gee-area');
+    if (this.isToggleEventsBound) return;
 
-    const bindToggle = (el: HTMLInputElement | null, layerKey: string) => {
-      if (!el) return;
-      // Sync initial state
-      this.geeLoader.toggleLayer(layerKey, el.checked);
+    document.addEventListener('change', (e) => {
+      const target = e.target as HTMLInputElement;
+      if (!target || !target.id) return;
 
-      const handler = () => {
-        this.geeLoader.toggleLayer(layerKey, el.checked);
-      };
+      if (target.id === 'toggle-gee-lst') {
+        this.geeLoader.toggleLayer('lst', target.checked);
+      } else if (target.id === 'toggle-gee-elevation') {
+        this.geeLoader.toggleLayer('elevation', target.checked);
+      } else if (target.id === 'toggle-gee-landcover') {
+        this.geeLoader.toggleLayer('landcover', target.checked);
+      } else if (target.id === 'toggle-gee-poi') {
+        this.geeLoader.toggleLayer('poi', target.checked);
+      }
+    });
 
-      el.addEventListener('change', handler);
-      el.addEventListener('input', handler);
-      el.addEventListener('click', handler);
-    };
-
-    bindToggle(lstToggle, 'lst');
-    bindToggle(elvToggle, 'elevation');
-    bindToggle(lcToggle, 'landcover');
-    bindToggle(poiToggle, 'poi');
-
-    if (focusBtn) {
-      focusBtn.addEventListener('click', () => {
+    document.addEventListener('click', (e) => {
+      const target = (e.target as HTMLElement)?.closest('#btn-focus-gee-area');
+      if (target) {
         this.geeLoader.flyToStudyArea();
-      });
-    }
+      }
+    });
+
+    this.isToggleEventsBound = true;
   }
 
   private bindDownloadEvents() {
