@@ -7,7 +7,7 @@ export class MapManager {
   private map: maplibregl.Map | null = null;
   private containerId: string;
   private currentBasemapId: string = DEFAULT_BASEMAP_ID;
-  private currentProjection: 'globe' | 'mercator' = 'globe';
+  private currentProjection: 'globe' | 'mercator' = 'mercator';
   private onMoveCallback?: (info: { lat: number; lng: number; zoom: number; pitch: number; bearing: number }) => void;
   private onFeatureClickCallback?: (properties: Record<string, any>, layerName: string, coordinates: [number, number]) => void;
 

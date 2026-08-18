@@ -3,6 +3,7 @@ import * as maplibregl from 'maplibre-gl';
 export class GEELoader {
   private map: maplibregl.Map;
   private popup: maplibregl.Popup;
+  private htmlMarkers: maplibregl.Marker[] = [];
   
   // Cached GeoJSON Data
   private poiData: GeoJSON.FeatureCollection | null = null;
@@ -23,10 +24,10 @@ export class GEELoader {
     this.popup = new maplibregl.Popup({
       closeButton: true,
       closeOnClick: false,
-      maxWidth: '300px'
+      maxWidth: '320px'
     });
 
-    // Re-attach GEE layers safely ONLY when a new basemap style finishes loading
+    // Re-attach GEE layers safely when a new basemap style finishes loading
     this.map.on('style.load', () => {
       this.reattachLayersIfNeeded();
     });
@@ -39,7 +40,7 @@ export class GEELoader {
     if (!res.ok) throw new Error(`Failed fetching ${url}: HTTP ${res.status}`);
     const contentType = res.headers.get('content-type');
     if (contentType && contentType.includes('text/html')) {
-      throw new Error(`Expected JSON from ${url} but got HTML. Check server rewrite configuration.`);
+      throw new Error(`Expected JSON from ${url} but got HTML.`);
     }
     return res.json();
   }
@@ -62,13 +63,16 @@ export class GEELoader {
       // 2. Render Layers on Map
       this.renderAllLayers();
 
-      // 3. Bind Map Events
+      // 3. Render HTML POI Markers
+      this.renderHtmlMarkers();
+
+      // 4. Bind Map Events
       if (!this.isEventsBound) {
         this.bindLayerEvents();
         this.isEventsBound = true;
       }
 
-      // 4. Fly to Greater Jakarta Area
+      // 5. Fly to Greater Jakarta Area
       this.flyToStudyArea();
 
     } catch (err) {
@@ -79,14 +83,13 @@ export class GEELoader {
   public renderAllLayers() {
     if (!this.map || !this.lstData || !this.elvData || !this.lcData || !this.poiData) return;
 
-    // Safety check: Never add sources/layers if map style is currently loading
     if (typeof this.map.isStyleLoaded === 'function' && !this.map.isStyleLoaded()) {
       this.map.once('style.load', () => this.renderAllLayers());
       return;
     }
 
     try {
-      // --- 1. ELEVATION LAYER (BOTTOM) ---
+      // --- 1. ELEVATION LAYER ---
       if (!this.map.getSource('gee-elevation-source')) {
         this.map.addSource('gee-elevation-source', { type: 'geojson', data: this.elvData });
       }
@@ -102,12 +105,12 @@ export class GEELoader {
               ['linear'],
               ['get', 'elevation_m'],
               0, '#006633',
-              200, '#e5ffcc',
-              600, '#662a00',
-              1200, '#d8d8d8',
-              2000, '#f5f5f5'
+              50, '#84cc16',
+              200, '#eab308',
+              600, '#c2410c',
+              1200, '#f5f5f5'
             ],
-            'fill-opacity': 0.7
+            'fill-opacity': 0.65
           }
         });
       }
@@ -126,13 +129,13 @@ export class GEELoader {
             'fill-color': [
               'match',
               ['get', 'lc_code'],
-              17, '#0284c7', // Water Bodies
-              13, '#e11d48', // Urban Built-up
-              12, '#eab308', // Croplands
+              17, '#0284c7', // Water
+              13, '#e11d48', // Urban
+              12, '#eab308', // Cropland
               1, '#15803d',  // Forest
-              '#a3a3a3'      // Default
+              '#94a3b8'      // Other
             ],
-            'fill-opacity': 0.7
+            'fill-opacity': 0.65
           }
         });
       }
@@ -152,12 +155,12 @@ export class GEELoader {
               'interpolate',
               ['linear'],
               ['get', 'lst_celsius'],
-              20, '#1e40af', // Deep blue for cool forest
-              25, '#0284c7', // Sky blue
-              28, '#10b981', // Green
-              31, '#f59e0b', // Yellow / Warm
-              34, '#ea580c', // Orange / Hot
-              37, '#dc2626'  // Red / Extreme Urban Heat
+              18, '#1e40af', // Deep blue
+              23, '#0284c7', // Sky blue
+              27, '#10b981', // Green
+              30, '#f59e0b', // Yellow / Warm
+              33, '#ea580c', // Orange / Hot
+              36, '#dc2626'  // Red / Extreme Heat
             ],
             'fill-opacity': 0.65
           }
@@ -171,13 +174,13 @@ export class GEELoader {
           layout: { visibility: this.lstVisible ? 'visible' : 'none' },
           paint: {
             'line-color': '#ffffff',
-            'line-width': 0.3,
-            'line-opacity': 0.4
+            'line-width': 0.5,
+            'line-opacity': 0.35
           }
         });
       }
 
-      // --- 4. POI MARKERS LAYER (TOP) ---
+      // --- 4. POI VECTOR CIRCLES ---
       if (!this.map.getSource('gee-poi-source')) {
         this.map.addSource('gee-poi-source', { type: 'geojson', data: this.poiData });
       }
@@ -188,7 +191,7 @@ export class GEELoader {
           source: 'gee-poi-source',
           layout: { visibility: this.poiVisible ? 'visible' : 'none' },
           paint: {
-            'circle-radius': 12,
+            'circle-radius': 14,
             'circle-color': [
               'match',
               ['get', 'id'],
@@ -202,12 +205,61 @@ export class GEELoader {
         });
       }
 
-      // Sync layer visibilities with current state
       this.updateLayerVisibilities();
 
     } catch (e) {
       console.warn('Notice rendering GEE layers:', e);
     }
+  }
+
+  private renderHtmlMarkers() {
+    // Remove old markers
+    this.htmlMarkers.forEach(m => m.remove());
+    this.htmlMarkers = [];
+
+    if (!this.poiData) return;
+
+    this.poiData.features.forEach((feat: any) => {
+      const coords = feat.geometry.coordinates;
+      const props = feat.properties;
+
+      const el = document.createElement('div');
+      el.className = `gee-map-marker ${props.id}`;
+      el.innerHTML = `
+        <div class="marker-pulse ${props.id}"></div>
+        <div class="marker-pin ${props.id}">
+          <span class="marker-icon">${props.id === 'urban_poi' ? '🏙️' : '🌲'}</span>
+        </div>
+        <div class="marker-label">${props.name.split(' (')[0]}</div>
+      `;
+
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const html = `
+          <div class="gee-popup-card">
+            <div class="gee-popup-badge ${props.id}">${props.category}</div>
+            <h4>${props.name}</h4>
+            <table class="gee-popup-table">
+              <tr><td><strong>Mean Daytime LST:</strong></td><td><span class="highlight-temp">${props.mean_lst_celsius} °C</span></td></tr>
+              <tr><td><strong>Ground Elevation:</strong></td><td>${props.elevation_m} m</td></tr>
+              <tr><td><strong>Land Cover:</strong></td><td>${props.land_cover_name}</td></tr>
+              <tr><td><strong>Coordinates:</strong></td><td>${props.latitude.toFixed(4)}, ${props.longitude.toFixed(4)}</td></tr>
+            </table>
+          </div>
+        `;
+        this.popup.setLngLat(coords).setHTML(html).addTo(this.map);
+      });
+
+      if (!this.poiVisible) {
+        el.style.display = 'none';
+      }
+
+      const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+        .setLngLat(coords)
+        .addTo(this.map);
+
+      this.htmlMarkers.push(marker);
+    });
   }
 
   public updateLayerVisibilities() {
@@ -231,15 +283,22 @@ export class GEELoader {
     if (this.map.getLayer('gee-poi-circles')) {
       this.map.setLayoutProperty('gee-poi-circles', 'visibility', this.poiVisible ? 'visible' : 'none');
     }
+
+    // Toggle HTML markers visibility
+    this.htmlMarkers.forEach((m) => {
+      const el = m.getElement();
+      if (el) el.style.display = this.poiVisible ? 'flex' : 'none';
+    });
   }
 
   private reattachLayersIfNeeded() {
     if (!this.lstData) return;
     this.renderAllLayers();
+    this.renderHtmlMarkers();
   }
 
   private bindLayerEvents() {
-    // Click POIs
+    // Click POIs vector circle
     this.map.on('click', 'gee-poi-circles', (e) => {
       if (!e.features || e.features.length === 0) return;
       const feat = e.features[0];
@@ -288,8 +347,8 @@ export class GEELoader {
     this.map.flyTo({
       center: [106.9, -6.35],
       zoom: 9.5,
-      pitch: 35,
-      bearing: -5,
+      pitch: 0,
+      bearing: 0,
       duration: 2000
     });
   }
@@ -300,7 +359,6 @@ export class GEELoader {
     if (layerId === 'landcover') this.landcoverVisible = visible;
     if (layerId === 'poi') this.poiVisible = visible;
 
-    // Check if layer exists; if not, force renderAllLayers
     if (!this.map.getLayer('gee-lst-fill') && this.lstData) {
       this.renderAllLayers();
     } else {
