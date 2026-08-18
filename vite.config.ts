@@ -13,7 +13,17 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    target: 'es2022'
+    target: 'es2022',
+    chunkSizeWarningLimit: 1600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          maplibre: ['maplibre-gl'],
+          turf: ['@turf/turf'],
+          pmtiles: ['pmtiles']
+        }
+      }
+    }
   },
   resolve: {
     alias: {
