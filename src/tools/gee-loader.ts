@@ -369,10 +369,28 @@ export class GEELoader {
     if (layerId === 'landcover') this.landcoverVisible = visible;
     if (layerId === 'poi') this.poiVisible = visible;
 
-    if (!this.map.getLayer('gee-lst-fill')) {
-      this.renderAllLayers();
-    } else {
-      this.updateLayerVisibilities();
+    // Ensure all layers are created in case style was reloaded
+    this.renderAllLayers();
+
+    // Update visibility layout properties
+    this.updateLayerVisibilities();
+
+    // Dynamically elevate the newly activated layer to the top of the fill stack
+    if (visible) {
+      if (layerId === 'elevation' && this.map.getLayer('gee-elevation-fill')) {
+        this.map.moveLayer('gee-elevation-fill');
+      } else if (layerId === 'landcover' && this.map.getLayer('gee-landcover-fill')) {
+        this.map.moveLayer('gee-landcover-fill');
+      } else if (layerId === 'lst' && this.map.getLayer('gee-lst-fill')) {
+        this.map.moveLayer('gee-lst-fill');
+      }
+
+      if (this.map.getLayer('gee-lst-outline')) {
+        this.map.moveLayer('gee-lst-outline');
+      }
+      if (this.map.getLayer('gee-poi-circles')) {
+        this.map.moveLayer('gee-poi-circles');
+      }
     }
   }
 }

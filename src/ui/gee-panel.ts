@@ -33,33 +33,24 @@ export class GEEPanelUI {
     const poiToggle = document.getElementById('toggle-gee-poi') as HTMLInputElement;
     const focusBtn = document.getElementById('btn-focus-gee-area');
 
-    if (lstToggle) {
-      this.geeLoader.toggleLayer('lst', lstToggle.checked);
-      lstToggle.addEventListener('change', (e) => {
-        this.geeLoader.toggleLayer('lst', (e.target as HTMLInputElement).checked);
-      });
-    }
+    const bindToggle = (el: HTMLInputElement | null, layerKey: string) => {
+      if (!el) return;
+      // Sync initial state
+      this.geeLoader.toggleLayer(layerKey, el.checked);
 
-    if (elvToggle) {
-      this.geeLoader.toggleLayer('elevation', elvToggle.checked);
-      elvToggle.addEventListener('change', (e) => {
-        this.geeLoader.toggleLayer('elevation', (e.target as HTMLInputElement).checked);
-      });
-    }
+      const handler = () => {
+        this.geeLoader.toggleLayer(layerKey, el.checked);
+      };
 
-    if (lcToggle) {
-      this.geeLoader.toggleLayer('landcover', lcToggle.checked);
-      lcToggle.addEventListener('change', (e) => {
-        this.geeLoader.toggleLayer('landcover', (e.target as HTMLInputElement).checked);
-      });
-    }
+      el.addEventListener('change', handler);
+      el.addEventListener('input', handler);
+      el.addEventListener('click', handler);
+    };
 
-    if (poiToggle) {
-      this.geeLoader.toggleLayer('poi', poiToggle.checked);
-      poiToggle.addEventListener('change', (e) => {
-        this.geeLoader.toggleLayer('poi', (e.target as HTMLInputElement).checked);
-      });
-    }
+    bindToggle(lstToggle, 'lst');
+    bindToggle(elvToggle, 'elevation');
+    bindToggle(lcToggle, 'landcover');
+    bindToggle(poiToggle, 'poi');
 
     if (focusBtn) {
       focusBtn.addEventListener('click', () => {
