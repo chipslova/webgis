@@ -205,6 +205,20 @@ export class GEELoader {
         });
       }
 
+      // Ensure layers are always on top of basemap raster layers
+      const layerIds = [
+        'gee-elevation-fill',
+        'gee-landcover-fill',
+        'gee-lst-fill',
+        'gee-lst-outline',
+        'gee-poi-circles'
+      ];
+      layerIds.forEach((id) => {
+        if (this.map.getLayer(id)) {
+          this.map.moveLayer(id);
+        }
+      });
+
       this.updateLayerVisibilities();
 
     } catch (e) {
@@ -267,21 +281,26 @@ export class GEELoader {
 
     if (this.map.getLayer('gee-lst-fill')) {
       this.map.setLayoutProperty('gee-lst-fill', 'visibility', this.lstVisible ? 'visible' : 'none');
+      if (this.lstVisible) this.map.moveLayer('gee-lst-fill');
     }
     if (this.map.getLayer('gee-lst-outline')) {
       this.map.setLayoutProperty('gee-lst-outline', 'visibility', this.lstVisible ? 'visible' : 'none');
+      if (this.lstVisible) this.map.moveLayer('gee-lst-outline');
     }
 
     if (this.map.getLayer('gee-elevation-fill')) {
       this.map.setLayoutProperty('gee-elevation-fill', 'visibility', this.elevationVisible ? 'visible' : 'none');
+      if (this.elevationVisible) this.map.moveLayer('gee-elevation-fill');
     }
 
     if (this.map.getLayer('gee-landcover-fill')) {
       this.map.setLayoutProperty('gee-landcover-fill', 'visibility', this.landcoverVisible ? 'visible' : 'none');
+      if (this.landcoverVisible) this.map.moveLayer('gee-landcover-fill');
     }
 
     if (this.map.getLayer('gee-poi-circles')) {
       this.map.setLayoutProperty('gee-poi-circles', 'visibility', this.poiVisible ? 'visible' : 'none');
+      if (this.poiVisible) this.map.moveLayer('gee-poi-circles');
     }
 
     // Toggle HTML markers visibility

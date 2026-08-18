@@ -32,9 +32,6 @@ export class MapManager {
   private normalizeStyleSpecification(style: maplibregl.StyleSpecification): maplibregl.StyleSpecification {
     const origin = window.location.origin;
 
-    // 0. Set root projection specification
-    (style as any).projection = { type: this.currentProjection };
-
     // 1. Normalize relative sprite URLs
     if (style && style.sprite) {
       if (typeof style.sprite === 'string' && style.sprite.startsWith('/')) {
