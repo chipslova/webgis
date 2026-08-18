@@ -1,4 +1,5 @@
 import { GEELoader } from '../tools/gee-loader';
+import { GEE_TIMESERIES_DATA } from '../data/gee-datasets';
 
 interface TimeSeriesRecord {
   date: string;
@@ -12,7 +13,7 @@ interface TimeSeriesRecord {
 
 export class GEEPanelUI {
   private geeLoader: GEELoader;
-  private timeSeriesData: TimeSeriesRecord[] = [];
+  private timeSeriesData: TimeSeriesRecord[] = (GEE_TIMESERIES_DATA.data as any) || [];
   private canvas: HTMLCanvasElement | null = null;
 
   constructor(geeLoader: GEELoader) {
@@ -22,18 +23,7 @@ export class GEEPanelUI {
   public async init() {
     this.bindLayerToggleEvents();
     this.bindDownloadEvents();
-
-    try {
-      const origin = window.location.origin;
-      const res = await fetch(`${origin}/data/gee_lst_timeseries.json`);
-      if (res.ok) {
-        const payload = await res.json();
-        this.timeSeriesData = payload.data || [];
-        this.renderTimeSeriesChart();
-      }
-    } catch (err) {
-      console.warn('Failed loading LST time-series JSON:', err);
-    }
+    this.renderTimeSeriesChart();
   }
 
   private bindLayerToggleEvents() {

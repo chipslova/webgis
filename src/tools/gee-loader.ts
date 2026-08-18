@@ -1,15 +1,21 @@
 import * as maplibregl from 'maplibre-gl';
+import {
+  GEE_POI_DATA,
+  GEE_LST_GRID_DATA,
+  GEE_ELEVATION_GRID_DATA,
+  GEE_LANDCOVER_GRID_DATA
+} from '../data/gee-datasets';
 
 export class GEELoader {
   private map: maplibregl.Map;
   private popup: maplibregl.Popup;
   private htmlMarkers: maplibregl.Marker[] = [];
-  
-  // Cached GeoJSON Data
-  private poiData: GeoJSON.FeatureCollection | null = null;
-  private lstData: GeoJSON.FeatureCollection | null = null;
-  private elvData: GeoJSON.FeatureCollection | null = null;
-  private lcData: GeoJSON.FeatureCollection | null = null;
+
+  // In-memory GeoJSON Data (Zero Network Latency)
+  private poiData: GeoJSON.FeatureCollection = GEE_POI_DATA;
+  private lstData: GeoJSON.FeatureCollection = GEE_LST_GRID_DATA;
+  private elvData: GeoJSON.FeatureCollection = GEE_ELEVATION_GRID_DATA;
+  private lcData: GeoJSON.FeatureCollection = GEE_LANDCOVER_GRID_DATA;
 
   // Layer Visibility State
   private lstVisible: boolean = true;
@@ -27,61 +33,37 @@ export class GEELoader {
       maxWidth: '320px'
     });
 
-    // Re-attach GEE layers safely when a new basemap style finishes loading
+    // Re-attach GEE layers safely whenever basemap style is reloaded
     this.map.on('style.load', () => {
-      this.reattachLayersIfNeeded();
+      this.renderAllLayers();
+      this.renderHtmlMarkers();
     });
-  }
-
-  private async fetchJson(url: string) {
-    const origin = window.location.origin;
-    const fullUrl = url.startsWith('/') ? origin + url : url;
-    const res = await fetch(fullUrl);
-    if (!res.ok) throw new Error(`Failed fetching ${url}: HTTP ${res.status}`);
-    const contentType = res.headers.get('content-type');
-    if (contentType && contentType.includes('text/html')) {
-      throw new Error(`Expected JSON from ${url} but got HTML.`);
-    }
-    return res.json();
   }
 
   public async loadGEEDatasets() {
     try {
-      // 1. Fetch Datasets
-      const [poiRes, lstRes, elvRes, lcRes] = await Promise.all([
-        this.fetchJson('/data/gee_jakarta_poi.geojson'),
-        this.fetchJson('/data/gee_lst_grid.geojson'),
-        this.fetchJson('/data/gee_elevation_grid.geojson'),
-        this.fetchJson('/data/gee_landcover.geojson')
-      ]);
-
-      this.poiData = poiRes;
-      this.lstData = lstRes;
-      this.elvData = elvRes;
-      this.lcData = lcRes;
-
-      // 2. Render Layers on Map
+      // 1. Render all GEE vector & raster layers immediately from embedded data
       this.renderAllLayers();
 
-      // 3. Render HTML POI Markers
+      // 2. Render Interactive HTML POI Markers
       this.renderHtmlMarkers();
 
-      // 4. Bind Map Events
+      // 3. Bind Click Telemetry Events
       if (!this.isEventsBound) {
         this.bindLayerEvents();
         this.isEventsBound = true;
       }
 
-      // 5. Fly to Greater Jakarta Area
+      // 4. Focus Camera onto Jakarta - West Java study region
       this.flyToStudyArea();
 
     } catch (err) {
-      console.error('Failed loading GEE datasets:', err);
+      console.error('GEELoader notice:', err);
     }
   }
 
   public renderAllLayers() {
-    if (!this.map || !this.lstData || !this.elvData || !this.lcData || !this.poiData) return;
+    if (!this.map) return;
 
     if (typeof this.map.isStyleLoaded === 'function' && !this.map.isStyleLoaded()) {
       this.map.once('style.load', () => this.renderAllLayers());
@@ -89,9 +71,12 @@ export class GEELoader {
     }
 
     try {
-      // --- 1. ELEVATION LAYER ---
+      // --- 1. ELEVATION LAYER (SRTM) ---
       if (!this.map.getSource('gee-elevation-source')) {
-        this.map.addSource('gee-elevation-source', { type: 'geojson', data: this.elvData });
+        this.map.addSource('gee-elevation-source', {
+          type: 'geojson',
+          data: this.elvData
+        });
       }
       if (!this.map.getLayer('gee-elevation-fill')) {
         this.map.addLayer({
@@ -115,9 +100,12 @@ export class GEELoader {
         });
       }
 
-      // --- 2. LAND COVER LAYER ---
+      // --- 2. LAND COVER LAYER (MODIS MCD12Q1) ---
       if (!this.map.getSource('gee-landcover-source')) {
-        this.map.addSource('gee-landcover-source', { type: 'geojson', data: this.lcData });
+        this.map.addSource('gee-landcover-source', {
+          type: 'geojson',
+          data: this.lcData
+        });
       }
       if (!this.map.getLayer('gee-landcover-fill')) {
         this.map.addLayer({
@@ -140,9 +128,12 @@ export class GEELoader {
         });
       }
 
-      // --- 3. LST HEATMAP LAYER ---
+      // --- 3. LST HEATMAP LAYER (MODIS MOD11A1) ---
       if (!this.map.getSource('gee-lst-source')) {
-        this.map.addSource('gee-lst-source', { type: 'geojson', data: this.lstData });
+        this.map.addSource('gee-lst-source', {
+          type: 'geojson',
+          data: this.lstData
+        });
       }
       if (!this.map.getLayer('gee-lst-fill')) {
         this.map.addLayer({
@@ -180,9 +171,12 @@ export class GEELoader {
         });
       }
 
-      // --- 4. POI VECTOR CIRCLES ---
+      // --- 4. POI VECTOR LAYER ---
       if (!this.map.getSource('gee-poi-source')) {
-        this.map.addSource('gee-poi-source', { type: 'geojson', data: this.poiData });
+        this.map.addSource('gee-poi-source', {
+          type: 'geojson',
+          data: this.poiData
+        });
       }
       if (!this.map.getLayer('gee-poi-circles')) {
         this.map.addLayer({
@@ -205,7 +199,7 @@ export class GEELoader {
         });
       }
 
-      // Ensure layers are always on top of basemap raster layers
+      // Elevate all GEE layers above raster basemaps
       const layerIds = [
         'gee-elevation-fill',
         'gee-landcover-fill',
@@ -222,16 +216,13 @@ export class GEELoader {
       this.updateLayerVisibilities();
 
     } catch (e) {
-      console.warn('Notice rendering GEE layers:', e);
+      console.warn('GEE Layer rendering notice:', e);
     }
   }
 
   private renderHtmlMarkers() {
-    // Remove old markers
     this.htmlMarkers.forEach(m => m.remove());
     this.htmlMarkers = [];
-
-    if (!this.poiData) return;
 
     this.poiData.features.forEach((feat: any) => {
       const coords = feat.geometry.coordinates;
@@ -303,43 +294,13 @@ export class GEELoader {
       if (this.poiVisible) this.map.moveLayer('gee-poi-circles');
     }
 
-    // Toggle HTML markers visibility
     this.htmlMarkers.forEach((m) => {
       const el = m.getElement();
       if (el) el.style.display = this.poiVisible ? 'flex' : 'none';
     });
   }
 
-  private reattachLayersIfNeeded() {
-    if (!this.lstData) return;
-    this.renderAllLayers();
-    this.renderHtmlMarkers();
-  }
-
   private bindLayerEvents() {
-    // Click POIs vector circle
-    this.map.on('click', 'gee-poi-circles', (e) => {
-      if (!e.features || e.features.length === 0) return;
-      const feat = e.features[0];
-      const props = feat.properties;
-      const coords = (feat.geometry as any).coordinates.slice();
-
-      const html = `
-        <div class="gee-popup-card">
-          <div class="gee-popup-badge ${props.id}">${props.category}</div>
-          <h4>${props.name}</h4>
-          <table class="gee-popup-table">
-            <tr><td><strong>Mean Daytime LST:</strong></td><td><span class="highlight-temp">${props.mean_lst_celsius} °C</span></td></tr>
-            <tr><td><strong>Ground Elevation:</strong></td><td>${props.elevation_m} m</td></tr>
-            <tr><td><strong>Land Cover:</strong></td><td>${props.land_cover_name}</td></tr>
-            <tr><td><strong>Coordinates:</strong></td><td>${props.latitude.toFixed(4)}, ${props.longitude.toFixed(4)}</td></tr>
-          </table>
-        </div>
-      `;
-
-      this.popup.setLngLat(coords).setHTML(html).addTo(this.map);
-    });
-
     // Click LST grid cell
     this.map.on('click', 'gee-lst-fill', (e) => {
       if (!e.features || e.features.length === 0) return;
@@ -355,8 +316,38 @@ export class GEELoader {
         .addTo(this.map);
     });
 
-    // Change cursor on hover
-    ['gee-poi-circles', 'gee-lst-fill'].forEach((layerId) => {
+    // Click Elevation grid cell
+    this.map.on('click', 'gee-elevation-fill', (e) => {
+      if (!e.features || e.features.length === 0) return;
+      const props = e.features[0].properties;
+      this.popup
+        .setLngLat(e.lngLat)
+        .setHTML(`
+          <div class="gee-popup-card">
+            <h4>USGS SRTM Elevation</h4>
+            <p><strong>Elevation:</strong> <span class="highlight-temp">${props.elevation_m} meters</span></p>
+          </div>
+        `)
+        .addTo(this.map);
+    });
+
+    // Click Land Cover cell
+    this.map.on('click', 'gee-landcover-fill', (e) => {
+      if (!e.features || e.features.length === 0) return;
+      const props = e.features[0].properties;
+      this.popup
+        .setLngLat(e.lngLat)
+        .setHTML(`
+          <div class="gee-popup-card">
+            <h4>MODIS Land Cover</h4>
+            <p><strong>Class:</strong> <span class="highlight-temp">${props.lc_name}</span> (Code: ${props.lc_code})</p>
+          </div>
+        `)
+        .addTo(this.map);
+    });
+
+    // Cursor pointer on hover
+    ['gee-lst-fill', 'gee-elevation-fill', 'gee-landcover-fill', 'gee-poi-circles'].forEach((layerId) => {
       this.map.on('mouseenter', layerId, () => (this.map.getCanvas().style.cursor = 'pointer'));
       this.map.on('mouseleave', layerId, () => (this.map.getCanvas().style.cursor = ''));
     });
@@ -378,7 +369,7 @@ export class GEELoader {
     if (layerId === 'landcover') this.landcoverVisible = visible;
     if (layerId === 'poi') this.poiVisible = visible;
 
-    if (!this.map.getLayer('gee-lst-fill') && this.lstData) {
+    if (!this.map.getLayer('gee-lst-fill')) {
       this.renderAllLayers();
     } else {
       this.updateLayerVisibilities();
