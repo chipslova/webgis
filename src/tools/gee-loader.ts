@@ -32,14 +32,26 @@ export class GEELoader {
     });
   }
 
+  private async fetchJson(url: string) {
+    const origin = window.location.origin;
+    const fullUrl = url.startsWith('/') ? origin + url : url;
+    const res = await fetch(fullUrl);
+    if (!res.ok) throw new Error(`Failed fetching ${url}: HTTP ${res.status}`);
+    const contentType = res.headers.get('content-type');
+    if (contentType && contentType.includes('text/html')) {
+      throw new Error(`Expected JSON from ${url} but got HTML. Check server rewrite configuration.`);
+    }
+    return res.json();
+  }
+
   public async loadGEEDatasets() {
     try {
       // 1. Fetch Datasets
       const [poiRes, lstRes, elvRes, lcRes] = await Promise.all([
-        fetch('/data/gee_jakarta_poi.geojson').then(r => r.json()),
-        fetch('/data/gee_lst_grid.geojson').then(r => r.json()),
-        fetch('/data/gee_elevation_grid.geojson').then(r => r.json()),
-        fetch('/data/gee_landcover.geojson').then(r => r.json())
+        this.fetchJson('/data/gee_jakarta_poi.geojson'),
+        this.fetchJson('/data/gee_lst_grid.geojson'),
+        this.fetchJson('/data/gee_elevation_grid.geojson'),
+        this.fetchJson('/data/gee_landcover.geojson')
       ]);
 
       this.poiData = poiRes;

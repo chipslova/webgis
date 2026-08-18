@@ -24,10 +24,13 @@ export class GEEPanelUI {
     this.bindDownloadEvents();
 
     try {
-      const res = await fetch('/data/gee_lst_timeseries.json');
-      const payload = await res.json();
-      this.timeSeriesData = payload.data || [];
-      this.renderTimeSeriesChart();
+      const origin = window.location.origin;
+      const res = await fetch(`${origin}/data/gee_lst_timeseries.json`);
+      if (res.ok) {
+        const payload = await res.json();
+        this.timeSeriesData = payload.data || [];
+        this.renderTimeSeriesChart();
+      }
     } catch (err) {
       console.warn('Failed loading LST time-series JSON:', err);
     }
