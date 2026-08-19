@@ -19,59 +19,85 @@ export class MeasureTool {
     this.map = map;
     this.initLayers();
     this.bindEvents();
+
+    this.map.on('style.load', () => {
+      this.initLayers();
+      if (this.geojson.features.length > 0) {
+        const source = this.map.getSource('measure-source') as maplibregl.GeoJSONSource;
+        if (source) {
+          source.setData(this.geojson);
+        }
+      }
+    });
   }
 
   private initLayers() {
-    if (this.map.getSource('measure-source')) return;
+    if (!this.map) return;
+    if (typeof this.map.isStyleLoaded === 'function' && !this.map.isStyleLoaded()) {
+      return;
+    }
 
-    this.map.addSource('measure-source', {
-      type: 'geojson',
-      data: this.geojson
-    });
-
-    // Fill layer for Area measurement
-    this.map.addLayer({
-      id: 'measure-fill',
-      type: 'fill',
-      source: 'measure-source',
-      filter: ['==', '$type', 'Polygon'],
-      paint: {
-        'fill-color': '#00f0ff',
-        'fill-opacity': 0.25
+    try {
+      if (!this.map.getSource('measure-source')) {
+        this.map.addSource('measure-source', {
+          type: 'geojson',
+          data: this.geojson
+        });
       }
-    });
 
-    // Line layer for Distance and Area outline
-    this.map.addLayer({
-      id: 'measure-line',
-      type: 'line',
-      source: 'measure-source',
-      filter: ['in', '$type', 'LineString', 'Polygon'],
-      paint: {
-        'line-color': '#00f0ff',
-        'line-width': 3,
-        'line-dasharray': [2, 2]
+      // Fill layer for Area measurement
+      if (!this.map.getLayer('measure-fill')) {
+        this.map.addLayer({
+          id: 'measure-fill',
+          type: 'fill',
+          source: 'measure-source',
+          filter: ['==', '$type', 'Polygon'],
+          paint: {
+            'fill-color': '#00f0ff',
+            'fill-opacity': 0.25
+          }
+        });
       }
-    });
 
-    // Point layer for Vertices
-    this.map.addLayer({
-      id: 'measure-points',
-      type: 'circle',
-      source: 'measure-source',
-      filter: ['==', '$type', 'Point'],
-      paint: {
-        'circle-radius': 6,
-        'circle-color': '#ffffff',
-        'circle-stroke-width': 2,
-        'circle-stroke-color': '#00f0ff'
+      // Line layer for Distance and Area outline
+      if (!this.map.getLayer('measure-line')) {
+        this.map.addLayer({
+          id: 'measure-line',
+          type: 'line',
+          source: 'measure-source',
+          filter: ['in', '$type', 'LineString', 'Polygon'],
+          paint: {
+            'line-color': '#00f0ff',
+            'line-width': 3,
+            'line-dasharray': [2, 2]
+          }
+        });
       }
-    });
+
+      // Point layer for Vertices
+      if (!this.map.getLayer('measure-points')) {
+        this.map.addLayer({
+          id: 'measure-points',
+          type: 'circle',
+          source: 'measure-source',
+          filter: ['==', '$type', 'Point'],
+          paint: {
+            'circle-radius': 6,
+            'circle-color': '#ffffff',
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#00f0ff'
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('Notice initializing MeasureTool layers:', e);
+    }
   }
 
   private bindEvents() {
     this.map.on('click', (e: maplibregl.MapMouseEvent) => {
       if (this.mode === 'none') return;
+      this.initLayers();
       this.addPoint([e.lngLat.lng, e.lngLat.lat]);
     });
 
@@ -89,6 +115,7 @@ export class MeasureTool {
 
   public setMode(mode: MeasureMode) {
     this.mode = mode;
+    this.initLayers();
     this.clear();
     if (mode === 'none') {
       this.map.getCanvas().style.cursor = '';
@@ -103,6 +130,7 @@ export class MeasureTool {
   }
 
   private addPoint(coord: [number, number]) {
+    this.initLayers();
     this.points.push(coord);
     this.renderFeatures(this.points);
   }
@@ -122,6 +150,7 @@ export class MeasureTool {
   public clear() {
     this.points = [];
     this.geojson = { type: 'FeatureCollection', features: [] };
+    this.initLayers();
     const source = this.map.getSource('measure-source') as maplibregl.GeoJSONSource;
     if (source) {
       source.setData(this.geojson);
@@ -136,6 +165,7 @@ export class MeasureTool {
   }
 
   private renderFeatures(coords: [number, number][], _isFinal: boolean = false) {
+    this.initLayers();
     const features: GeoJSON.Feature[] = [];
 
     // Points
