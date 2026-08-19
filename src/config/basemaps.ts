@@ -108,8 +108,8 @@ export const BASEMAPS: BasemapConfig[] = [
     id: 'big-rbi',
     name: 'Rupabumi Indonesia (RBI)',
     category: 'National',
-    description: 'Official National Vector Basemap from BIG (Badan Informasi Geospasial Indonesia)',
-    styleUrl: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/Rupabumi_Indonesia/VectorTileServer/resources/styles/root.json',
+    description: 'Official National Basemap from BIG (Badan Informasi Geospasial Indonesia)',
+    styleUrl: '/basemap/styles/big-style-rbi.json',
     previewColor: '#4fa8d8',
     initialBounds: {
       center: [117.89, -2.55],
