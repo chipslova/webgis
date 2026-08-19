@@ -47,14 +47,12 @@ export class GEELoader {
       this.bindLayerEvents();
       this.isEventsBound = true;
     }
-
-    this.flyToStudyArea();
   }
 
   public renderAllLayers() {
     if (!this.map) return;
 
-    if (typeof this.map.isStyleLoaded === 'function' && !this.map.isStyleLoaded()) {
+    if (!this.map.getStyle()) {
       this.map.once('style.load', () => this.renderAllLayers());
       return;
     }

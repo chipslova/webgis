@@ -37,6 +37,10 @@ export class MeasureTool {
 
   public initLayers() {
     if (!this.map) return;
+    if (!this.map.getStyle()) {
+      this.map.once('style.load', () => this.initLayers());
+      return;
+    }
 
     try {
       if (!this.map.getSource('measure-source')) {

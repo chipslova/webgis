@@ -111,7 +111,7 @@ export class GeoJsonLoader {
       }
     }
 
-    // Always register layer in state map so sidebar UI stays accurate
+    // Register in state map so sidebar UI stays accurate immediately
     this.customLayers.set(layerId, {
       id: layerId,
       name: layerName,
@@ -131,8 +131,9 @@ export class GeoJsonLoader {
     const item = this.customLayers.get(layerId);
     if (!item) return;
 
-    // If style is not ready yet, retry when style loads
-    if (typeof this.map.isStyleLoaded === 'function' && !this.map.isStyleLoaded()) {
+    // If map style object is not initialized yet, wait for style.load
+    if (!this.map || !this.map.getStyle()) {
+      this.map.once('style.load', () => this.attachLayerToMap(layerId));
       return;
     }
 
@@ -204,7 +205,9 @@ export class GeoJsonLoader {
               'circle-radius': 9,
               'circle-color': item.color,
               'circle-stroke-width': 2.5,
-              'circle-stroke-color': '#ffffff'
+              'circle-stroke-color': '#ffffff',
+              'circle-opacity': 1,
+              'circle-stroke-opacity': 1
             }
           });
         }
@@ -261,7 +264,7 @@ export class GeoJsonLoader {
     });
   }
 
-  private reattachLayersIfNeeded() {
+  public reattachLayersIfNeeded() {
     this.customLayers.forEach((layer) => {
       this.attachLayerToMap(layer.id);
       this.toggleLayerVisibility(layer.id, layer.visible);
