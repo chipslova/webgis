@@ -12,6 +12,7 @@ export class MeasureTool {
     features: []
   };
 
+  private isFinished: boolean = false;
   private tooltip: maplibregl.Popup | null = null;
   private onResultCallback?: (result: { text: string; mode: MeasureMode }) => void;
 
@@ -51,7 +52,7 @@ export class MeasureTool {
           id: 'measure-fill',
           type: 'fill',
           source: 'measure-source',
-          filter: ['==', '$type', 'Polygon'],
+          filter: ['==', ['geometry-type'], 'Polygon'],
           paint: {
             'fill-color': '#00f0ff',
             'fill-opacity': 0.25
@@ -65,7 +66,7 @@ export class MeasureTool {
           id: 'measure-line',
           type: 'line',
           source: 'measure-source',
-          filter: ['in', '$type', 'LineString', 'Polygon'],
+          filter: ['match', ['geometry-type'], ['LineString', 'Polygon'], true, false],
           paint: {
             'line-color': '#00f0ff',
             'line-width': 3,
@@ -80,7 +81,7 @@ export class MeasureTool {
           id: 'measure-points',
           type: 'circle',
           source: 'measure-source',
-          filter: ['==', '$type', 'Point'],
+          filter: ['==', ['geometry-type'], 'Point'],
           paint: {
             'circle-radius': 6,
             'circle-color': '#ffffff',
@@ -102,7 +103,7 @@ export class MeasureTool {
     });
 
     this.map.on('mousemove', (e: maplibregl.MapMouseEvent) => {
-      if (this.mode === 'none' || this.points.length === 0) return;
+      if (this.mode === 'none' || this.points.length === 0 || this.isFinished) return;
       this.updateTempDraw([e.lngLat.lng, e.lngLat.lat]);
     });
 
@@ -115,6 +116,7 @@ export class MeasureTool {
 
   public setMode(mode: MeasureMode) {
     this.mode = mode;
+    this.isFinished = false;
     this.initLayers();
     this.clear();
     if (mode === 'none') {
@@ -130,9 +132,14 @@ export class MeasureTool {
   }
 
   private addPoint(coord: [number, number]) {
+    if (this.isFinished) {
+      this.clear();
+      this.isFinished = false;
+    }
     this.initLayers();
     this.points.push(coord);
     this.renderFeatures(this.points);
+    this.updateTooltip(coord, this.points);
   }
 
   private updateTempDraw(currentHover: [number, number]) {
@@ -143,12 +150,16 @@ export class MeasureTool {
 
   private finishMeasurement() {
     if (this.points.length > 0) {
+      this.isFinished = true;
       this.renderFeatures(this.points, true);
+      const lastPoint = this.points[this.points.length - 1];
+      this.updateTooltip(lastPoint, this.points);
     }
   }
 
   public clear() {
     this.points = [];
+    this.isFinished = false;
     this.geojson = { type: 'FeatureCollection', features: [] };
     this.initLayers();
     const source = this.map.getSource('measure-source') as maplibregl.GeoJSONSource;

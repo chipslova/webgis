@@ -63,8 +63,12 @@ class WebGISApp {
         this.geeLoader = new GEELoader(map);
         this.geePanelUI = new GEEPanelUI(this.geeLoader);
 
+        this.geojsonLoader.onLayersChange(() => {
+          this.renderLayersList();
+        });
+
         // Load sample cities vector layer & GEE Earth Engine datasets
-        this.geojsonLoader.loadSampleData();
+        await this.geojsonLoader.loadSampleData();
         await this.geeLoader.loadGEEDatasets();
         this.geePanelUI.init();
         this.renderLayersList();

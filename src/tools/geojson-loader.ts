@@ -13,13 +13,28 @@ export interface CustomLayerItem {
 export class GeoJsonLoader {
   private map: maplibregl.Map;
   private customLayers: Map<string, CustomLayerItem> = new Map();
+  private onLayersChangeCallbacks: Array<() => void> = [];
 
   constructor(map: maplibregl.Map) {
     this.map = map;
 
-    // Re-attach custom vector layers safely ONLY when a new basemap style finishes loading
+    // Re-attach custom vector layers safely when a new basemap style finishes loading
     this.map.on('style.load', () => {
       this.reattachLayersIfNeeded();
+    });
+  }
+
+  public onLayersChange(callback: () => void) {
+    this.onLayersChangeCallbacks.push(callback);
+  }
+
+  private notifyLayersChange() {
+    this.onLayersChangeCallbacks.forEach((cb) => {
+      try {
+        cb();
+      } catch (err) {
+        console.error('Error in layers change callback:', err);
+      }
     });
   }
 
@@ -71,36 +86,40 @@ export class GeoJsonLoader {
       ]
     };
 
-    this.addGeoJSONLayer('sample-indonesia-cities', 'Major Cities of Indonesia', sampleCitiesGeoJSON, '#f59e0b');
+    return this.addGeoJSONLayer('sample-indonesia-cities', 'Major Cities of Indonesia', sampleCitiesGeoJSON, '#f59e0b');
   }
 
-  public addGeoJSONLayer(layerId: string, layerName: string, geojson: GeoJSON.FeatureCollection, color: string = '#3b82f6') {
+  public addGeoJSONLayer(layerId: string, layerName: string, geojson: GeoJSON.FeatureCollection, color: string = '#3b82f6'): boolean {
+    if (!geojson || !Array.isArray(geojson.features) || geojson.features.length === 0) {
+      console.warn(`[GeoJsonLoader] GeoJSON for layer "${layerName}" is empty or invalid.`);
+      return false;
+    }
+
     const sourceId = `source-${layerId}`;
     const fillLayerId = `layer-fill-${layerId}`;
     const lineLayerId = `layer-line-${layerId}`;
     const pointLayerId = `layer-point-${layerId}`;
 
-    const firstFeatureType = geojson.features[0].geometry.type;
+    // Determine primary geometry type robustly
     let primaryType: 'point' | 'line' | 'polygon' = 'point';
+    for (const feat of geojson.features) {
+      if (!feat || !feat.geometry) continue;
+      const t = feat.geometry.type;
+      if (t.includes('Polygon')) {
+        primaryType = 'polygon';
+        break;
+      }
+      if (t.includes('Line')) {
+        primaryType = 'line';
+      }
+    }
 
-    if (firstFeatureType.includes('Polygon')) primaryType = 'polygon';
-    else if (firstFeatureType.includes('Line')) primaryType = 'line';
-    else primaryType = 'point';
-
-    this.customLayers.set(layerId, {
-      id: layerId,
-      name: layerName,
-      type: primaryType,
-      visible: true,
-      color,
-      featureCount: geojson.features.length,
-      data: geojson
-    });
-
-    // Safety check: wait for style to finish loading if needed
+    // Safety check: wait for map style to finish loading if needed
     if (typeof this.map.isStyleLoaded === 'function' && !this.map.isStyleLoaded()) {
-      this.map.once('style.load', () => this.addGeoJSONLayer(layerId, layerName, geojson, color));
-      return;
+      this.map.once('style.load', () => {
+        this.addGeoJSONLayer(layerId, layerName, geojson, color);
+      });
+      return false;
     }
 
     try {
@@ -109,6 +128,11 @@ export class GeoJsonLoader {
           type: 'geojson',
           data: geojson
         });
+      } else {
+        const src = this.map.getSource(sourceId) as maplibregl.GeoJSONSource;
+        if (src && typeof src.setData === 'function') {
+          src.setData(geojson);
+        }
       }
 
       if (primaryType === 'polygon') {
@@ -166,10 +190,23 @@ export class GeoJsonLoader {
         }
       }
 
+      this.customLayers.set(layerId, {
+        id: layerId,
+        name: layerName,
+        type: primaryType,
+        visible: true,
+        color,
+        featureCount: geojson.features.length,
+        data: geojson
+      });
+
       this.ensureLayerOnTop(layerId);
       this.bindClickPopup(layerId);
+      this.notifyLayersChange();
+      return true;
     } catch (e) {
-      console.warn('Notice adding GeoJSON layer:', e);
+      console.error(`[GeoJsonLoader] Failed to add layer "${layerName}" (${layerId}):`, e);
+      return false;
     }
   }
 
@@ -295,10 +332,10 @@ export class GeoJsonLoader {
     }
 
     this.customLayers.delete(layerId);
+    this.notifyLayersChange();
   }
 
   public getLayers(): CustomLayerItem[] {
     return Array.from(this.customLayers.values());
   }
 }
-
