@@ -45,19 +45,24 @@ export class MapManager {
       }
     }
 
-    // 2. Resolve relative glyphs URLs or use high-availability MapLibre glyphs
+    // 2. Resolve relative glyphs URLs and preserve literal {fontstack} and {range} tokens
     if (style) {
       if (style.glyphs && typeof style.glyphs === 'string') {
         if (style.glyphs.startsWith('http://') || style.glyphs.startsWith('https://')) {
-          // absolute already
+          style.glyphs = decodeURI(style.glyphs);
         } else if (style.glyphs.startsWith('/')) {
           style.glyphs = origin + style.glyphs;
         } else if (baseUrl && baseUrl.startsWith('http')) {
-          style.glyphs = new URL(style.glyphs, baseUrl).href;
+          style.glyphs = decodeURI(new URL(style.glyphs, baseUrl).href);
         } else {
           style.glyphs = 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf';
         }
       } else {
+        style.glyphs = 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf';
+      }
+
+      // Guarantee literal tokens are present for MapLibre validation
+      if (!style.glyphs.includes('{fontstack}') || !style.glyphs.includes('{range}')) {
         style.glyphs = 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf';
       }
     }
@@ -76,7 +81,7 @@ export class MapManager {
       });
     }
 
-    // 4. Resolve relative or local source URLs
+    // 4. Resolve relative or local source URLs and direct tiles
     if (style && style.sources) {
       for (const sourceId of Object.keys(style.sources)) {
         const src = style.sources[sourceId] as any;
