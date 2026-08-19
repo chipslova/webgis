@@ -43,39 +43,38 @@ export class GEEPanelUI {
 
   private syncCheckboxStates() {
     const lst = document.getElementById('toggle-gee-lst') as HTMLInputElement;
-    if (lst) lst.checked = (this.geeLoader as any).lstVisible;
+    if (lst) lst.checked = this.geeLoader.isLayerVisible('lst');
     const elv = document.getElementById('toggle-gee-elevation') as HTMLInputElement;
-    if (elv) elv.checked = (this.geeLoader as any).elevationVisible;
+    if (elv) elv.checked = this.geeLoader.isLayerVisible('elevation');
     const lc = document.getElementById('toggle-gee-landcover') as HTMLInputElement;
-    if (lc) lc.checked = (this.geeLoader as any).landcoverVisible;
+    if (lc) lc.checked = this.geeLoader.isLayerVisible('landcover');
     const poi = document.getElementById('toggle-gee-poi') as HTMLInputElement;
-    if (poi) poi.checked = (this.geeLoader as any).poiVisible;
+    if (poi) poi.checked = this.geeLoader.isLayerVisible('poi');
   }
 
   private bindLayerToggleEvents() {
     if (this.isToggleEventsBound) return;
 
-    document.addEventListener('change', (e) => {
-      const target = e.target as HTMLInputElement;
-      if (!target || !target.id) return;
-
-      if (target.id === 'toggle-gee-lst') {
-        this.geeLoader.toggleLayer('lst', target.checked);
-      } else if (target.id === 'toggle-gee-elevation') {
-        this.geeLoader.toggleLayer('elevation', target.checked);
-      } else if (target.id === 'toggle-gee-landcover') {
-        this.geeLoader.toggleLayer('landcover', target.checked);
-      } else if (target.id === 'toggle-gee-poi') {
-        this.geeLoader.toggleLayer('poi', target.checked);
+    const attachToggle = (id: string, key: string) => {
+      const el = document.getElementById(id) as HTMLInputElement;
+      if (el) {
+        el.addEventListener('change', () => {
+          this.geeLoader.toggleLayer(key, el.checked);
+        });
       }
-    });
+    };
 
-    document.addEventListener('click', (e) => {
-      const target = (e.target as HTMLElement)?.closest('#btn-focus-gee-area');
-      if (target) {
+    attachToggle('toggle-gee-lst', 'lst');
+    attachToggle('toggle-gee-elevation', 'elevation');
+    attachToggle('toggle-gee-landcover', 'landcover');
+    attachToggle('toggle-gee-poi', 'poi');
+
+    const focusBtn = document.getElementById('btn-focus-gee-area');
+    if (focusBtn) {
+      focusBtn.addEventListener('click', () => {
         this.geeLoader.flyToStudyArea();
-      }
-    });
+      });
+    }
 
     this.isToggleEventsBound = true;
   }

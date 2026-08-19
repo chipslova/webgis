@@ -17,14 +17,7 @@ export class GeoJsonLoader {
 
   constructor(map: maplibregl.Map) {
     this.map = map;
-
-    const handleReattach = () => {
-      this.reattachLayersIfNeeded();
-    };
-
-    // Re-attach custom vector layers safely when a basemap style finishes loading
-    this.map.on('style.load', handleReattach);
-    this.map.on('load', handleReattach);
+    // NOTE: style.load listener centralized in MapManager.onStyleReady()
   }
 
   public onLayersChange(callback: () => void) {
@@ -213,7 +206,7 @@ export class GeoJsonLoader {
         }
       }
 
-      this.ensureLayerOnTop(layerId);
+      // NOTE: Layer ordering is handled centrally by MapManager.bringCustomLayersToTop()
       this.bindClickPopup(layerId);
     } catch (e) {
       console.warn(`[GeoJsonLoader] Notice attaching layer "${item.name}":`, e);
@@ -254,14 +247,13 @@ export class GeoJsonLoader {
     });
   }
 
-  public ensureLayerOnTop(layerId: string) {
-    [`layer-fill-${layerId}`, `layer-line-${layerId}`, `layer-point-${layerId}`].forEach((id) => {
-      if (this.map.getLayer(id)) {
-        try {
-          this.map.moveLayer(id);
-        } catch (_) {}
-      }
+  /** Returns all MapLibre layer IDs owned by this loader (for MapManager's ordering sweep). */
+  public getAllMapLayerIds(): string[] {
+    const ids: string[] = [];
+    this.customLayers.forEach((item) => {
+      ids.push(`layer-fill-${item.id}`, `layer-line-${item.id}`, `layer-point-${item.id}`);
     });
+    return ids;
   }
 
   public reattachLayersIfNeeded() {
@@ -289,10 +281,7 @@ export class GeoJsonLoader {
         this.map.setLayoutProperty(id, 'visibility', visibility);
       }
     });
-
-    if (visible) {
-      this.ensureLayerOnTop(layerId);
-    }
+    // NOTE: Layer ordering is handled centrally by MapManager.bringCustomLayersToTop()
   }
 
   public zoomToLayer(layerId: string) {

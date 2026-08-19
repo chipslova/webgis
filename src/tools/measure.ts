@@ -20,19 +20,7 @@ export class MeasureTool {
     this.map = map;
     this.initLayers();
     this.bindEvents();
-
-    const handleStyleRefresh = () => {
-      this.initLayers();
-      if (this.geojson.features.length > 0) {
-        const source = this.map.getSource('measure-source') as maplibregl.GeoJSONSource;
-        if (source) {
-          source.setData(this.geojson);
-        }
-      }
-    };
-
-    this.map.on('style.load', handleStyleRefresh);
-    this.map.on('load', handleStyleRefresh);
+    // NOTE: style.load listener centralized in MapManager.onStyleReady()
   }
 
   public initLayers() {
@@ -63,7 +51,21 @@ export class MeasureTool {
         });
       }
 
-      // 2. Line layer for Distance path and Area perimeter (natively renders LineString & Polygon outlines)
+      // 2a. Dark casing for satellite contrast
+      if (!this.map.getLayer('measure-line-casing')) {
+        this.map.addLayer({
+          id: 'measure-line-casing',
+          type: 'line',
+          source: 'measure-source',
+          paint: {
+            'line-color': '#0f172a',
+            'line-width': 7,
+            'line-opacity': 0.6
+          }
+        });
+      }
+
+      // 2b. Line layer for Distance path and Area perimeter (natively renders LineString & Polygon outlines)
       if (!this.map.getLayer('measure-line')) {
         this.map.addLayer({
           id: 'measure-line',
@@ -71,7 +73,7 @@ export class MeasureTool {
           source: 'measure-source',
           paint: {
             'line-color': '#00f0ff',
-            'line-width': 3.5,
+            'line-width': 4,
             'line-dasharray': [2, 2]
           }
         });
@@ -91,21 +93,20 @@ export class MeasureTool {
           }
         });
       }
-
-      this.bringLayersToTop();
     } catch (e) {
       console.warn('Notice initializing MeasureTool layers:', e);
     }
   }
 
-  private bringLayersToTop() {
-    ['measure-fill', 'measure-line', 'measure-points'].forEach((id) => {
-      if (this.map.getLayer(id)) {
-        try {
-          this.map.moveLayer(id);
-        } catch (_) {}
+  /** Called centrally by MapManager after style.load — re-creates source/layers and restores data. */
+  public restoreAfterStyleChange() {
+    this.initLayers();
+    if (this.geojson.features.length > 0) {
+      const source = this.map.getSource('measure-source') as maplibregl.GeoJSONSource;
+      if (source) {
+        source.setData(this.geojson);
       }
-    });
+    }
   }
 
   private bindEvents() {
@@ -237,7 +238,7 @@ export class MeasureTool {
     if (source) {
       source.setData(this.geojson);
     }
-    this.bringLayersToTop();
+    // NOTE: Layer ordering is handled centrally by MapManager.bringCustomLayersToTop()
   }
 
   private updateTooltip(position: [number, number], coords: [number, number][]) {

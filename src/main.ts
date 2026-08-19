@@ -52,51 +52,41 @@ class WebGISApp {
       this.showFeatureInspector(properties, layerName);
     });
 
-    // 3. Initialize MapLibre GL map
+    // 3. Initialize MapLibre GL map (guaranteed to resolve only when map style is loaded)
     try {
       const map = await this.mapManager.initMap();
 
-      const onMapReady = async () => {
-        this.geocoderTool = new GeocoderTool(map);
-        this.measureTool = new MeasureTool(map);
-        this.geojsonLoader = new GeoJsonLoader(map);
-        this.geeLoader = new GEELoader(map);
-        this.geePanelUI = new GEEPanelUI(this.geeLoader);
+      this.geocoderTool = new GeocoderTool(map);
+      this.measureTool = new MeasureTool(map);
+      this.geojsonLoader = new GeoJsonLoader(map);
+      this.geeLoader = new GEELoader(map);
+      this.geePanelUI = new GEEPanelUI(this.geeLoader);
 
-        this.geojsonLoader.onLayersChange(() => {
-          this.renderLayersList();
-        });
-
-        // Load sample cities vector layer & GEE Earth Engine datasets
-        await this.geojsonLoader.loadSampleData();
-        await this.geeLoader.loadGEEDatasets();
-        this.geePanelUI.init();
+      this.geojsonLoader.onLayersChange(() => {
         this.renderLayersList();
+      });
 
-        // Bind measurement callbacks
-        this.measureTool.onResult((res) => {
-          const card = document.getElementById('measure-result-card');
-          const val = document.getElementById('measure-result-value');
-          if (card && val) {
-            card.style.display = res.text ? 'block' : 'none';
-            val.innerText = res.text || '0';
-          }
-        });
-      };
+      // Register centralized layer restoration callbacks (deterministic order)
+      this.mapManager.setGeoJsonLoader(this.geojsonLoader);
+      this.mapManager.onStyleReady(() => this.geojsonLoader?.reattachLayersIfNeeded());
+      this.mapManager.onStyleReady(() => this.geeLoader?.restoreAfterStyleChange());
+      this.mapManager.onStyleReady(() => this.measureTool?.restoreAfterStyleChange());
 
-      let mapReadyCalled = false;
-      const safeMapReady = () => {
-        if (mapReadyCalled) return;
-        mapReadyCalled = true;
-        onMapReady();
-      };
+      // Load sample cities vector layer & GEE Earth Engine datasets
+      await this.geojsonLoader.loadSampleData();
+      await this.geeLoader.loadGEEDatasets();
+      this.geePanelUI.init();
+      this.renderLayersList();
 
-      if (map.getStyle()) {
-        safeMapReady();
-      } else {
-        map.once('style.load', safeMapReady);
-        map.once('load', safeMapReady);
-      }
+      // Bind measurement callbacks
+      this.measureTool.onResult((res) => {
+        const card = document.getElementById('measure-result-card');
+        const val = document.getElementById('measure-result-value');
+        if (card && val) {
+          card.style.display = res.text ? 'block' : 'none';
+          val.innerText = res.text || '0';
+        }
+      });
     } catch (err) {
       console.warn('Map initialization notice:', err);
     }

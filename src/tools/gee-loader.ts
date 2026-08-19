@@ -17,9 +17,9 @@ export class GEELoader {
   private elvData: GeoJSON.FeatureCollection = GEE_ELEVATION_GRID_DATA;
   private lcData: GeoJSON.FeatureCollection = GEE_LANDCOVER_GRID_DATA;
 
-  // Visibility states (default all OFF)
+  // Visibility states (POI on by default, grids user-toggleable)
   private lstVisible: boolean = false;
-  private poiVisible: boolean = false;
+  private poiVisible: boolean = true;
   private elevationVisible: boolean = false;
   private landcoverVisible: boolean = false;
 
@@ -32,11 +32,7 @@ export class GEELoader {
       closeOnClick: false,
       maxWidth: '340px'
     });
-
-    this.map.on('style.load', () => {
-      this.renderAllLayers();
-      this.renderHtmlMarkers();
-    });
+    // NOTE: style.load listener centralized in MapManager.onStyleReady()
   }
 
   public async loadGEEDatasets() {
@@ -244,7 +240,6 @@ export class GEELoader {
     }
 
     this.updateLayerVisibilities();
-    this.ensureLayersOnTop();
   }
 
   private renderHtmlMarkers() {
@@ -391,83 +386,28 @@ export class GEELoader {
     });
   }
 
+  public isLayerVisible(layerId: string): boolean {
+    if (layerId === 'lst') return this.lstVisible;
+    if (layerId === 'elevation') return this.elevationVisible;
+    if (layerId === 'landcover') return this.landcoverVisible;
+    if (layerId === 'poi') return this.poiVisible;
+    return false;
+  }
+
   public toggleLayer(layerId: string, visible: boolean) {
     if (layerId === 'lst') this.lstVisible = visible;
     if (layerId === 'elevation') this.elevationVisible = visible;
     if (layerId === 'landcover') this.landcoverVisible = visible;
     if (layerId === 'poi') this.poiVisible = visible;
 
-    // Ensure layers exist on map before updating visibility
-    if (!this.map.getLayer('gee-lst-fill') || !this.map.getLayer('gee-elevation-fill') || !this.map.getLayer('gee-landcover-fill')) {
-      this.renderAllLayers();
-    }
-
-    // Update visibility without re-creating all layers
+    this.renderAllLayers();
     this.updateLayerVisibilities();
-    if (visible) {
-      this.bringLayerToTop(layerId);
-    }
   }
 
-  // Bring the newly activated layer to the top of the polygon stack
-  public bringLayerToTop(layerKey: string) {
-    if (!this.map) return;
-
-    const layerMap: Record<string, string[]> = {
-      lst: ['gee-lst-fill', 'gee-lst-outline'],
-      elevation: ['gee-elevation-fill', 'gee-elevation-outline'],
-      landcover: ['gee-landcover-fill', 'gee-landcover-outline'],
-      poi: ['gee-poi-circles']
-    };
-
-    const targetLayers = layerMap[layerKey];
-    if (targetLayers) {
-      targetLayers.forEach((id) => {
-        if (this.map.getLayer(id)) {
-          try {
-            this.map.moveLayer(id);
-          } catch (e) {
-            console.warn('Notice moving layer:', id, e);
-          }
-        }
-      });
-    }
-
-    // Always ensure POI vector circles remain on the very top of all raster/polygon grids
-    if (this.map.getLayer('gee-poi-circles')) {
-      try {
-        this.map.moveLayer('gee-poi-circles');
-      } catch (_) {}
-    }
-  }
-
-  // Helper to move custom layers above basemap
-  public ensureLayersOnTop() {
-    if (!this.map) return;
-
-    const layerGroups = [
-      ['gee-lst-fill', 'gee-lst-outline'],
-      ['gee-elevation-fill', 'gee-elevation-outline'],
-      ['gee-landcover-fill', 'gee-landcover-outline']
-    ];
-
-    layerGroups.forEach((group) => {
-      group.forEach((id) => {
-        if (this.map.getLayer(id)) {
-          try {
-            this.map.moveLayer(id);
-          } catch (e) {
-            console.warn('Layer move notice for', id, e);
-          }
-        }
-      });
-    });
-
-    if (this.map.getLayer('gee-poi-circles')) {
-      try {
-        this.map.moveLayer('gee-poi-circles');
-      } catch (_) {}
-    }
+  /** Called centrally by MapManager after style.load — re-creates sources/layers and HTML markers. */
+  public restoreAfterStyleChange() {
+    this.renderAllLayers();
+    this.renderHtmlMarkers();
   }
 
   // Expose map for external use

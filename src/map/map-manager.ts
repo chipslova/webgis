@@ -243,11 +243,76 @@ export class MapManager {
       console.warn('MapLibre style/resource notice:', e.error?.message || e);
     });
 
-    return this.map;
+    // Centralized style.load listener for all basemap transitions
+    this.map.on('style.load', () => {
+      this.fireStyleReadyCallbacks();
+    });
+
+    return new Promise<maplibregl.Map>((resolve) => {
+      if (this.map!.isStyleLoaded()) {
+        resolve(this.map!);
+      } else {
+        this.map!.once('load', () => resolve(this.map!));
+      }
+    });
   }
 
   public getMap(): maplibregl.Map | null {
     return this.map;
+  }
+
+  // Registry for centralized style.load lifecycle
+  private styleReadyCallbacks: Array<() => void> = [];
+  private geojsonLoaderRef?: { getAllMapLayerIds(): string[] };
+
+  public onStyleReady(callback: () => void) {
+    this.styleReadyCallbacks.push(callback);
+  }
+
+  public setGeoJsonLoader(loader: { getAllMapLayerIds(): string[] }) {
+    this.geojsonLoaderRef = loader;
+  }
+
+  private fireStyleReadyCallbacks() {
+    this.styleReadyCallbacks.forEach((cb) => {
+      try {
+        cb();
+      } catch (e) {
+        console.warn('[MapManager] Error in styleReady callback:', e);
+      }
+    });
+    this.bringCustomLayersToTop();
+  }
+
+  /**
+   * Deterministically orders all custom layers above the basemap in a single pass:
+   * Basemap -> GEE Layers -> GeoJSON Custom Layers -> Measure Layers (Top)
+   */
+  public bringCustomLayersToTop() {
+    if (!this.map) return;
+
+    // GEE Layers (bottom of custom stack)
+    const geeLayerIds = [
+      'gee-elevation-fill', 'gee-elevation-outline',
+      'gee-landcover-fill', 'gee-landcover-outline',
+      'gee-lst-fill', 'gee-lst-outline',
+      'gee-poi-circles'
+    ];
+
+    // Custom GeoJSON Layers (middle of custom stack)
+    const geojsonLayerIds = this.geojsonLoaderRef?.getAllMapLayerIds() || [];
+
+    // Measure layers (always on top)
+    const measureLayerIds = ['measure-fill', 'measure-line-casing', 'measure-line', 'measure-points'];
+
+    const allIds = [...geeLayerIds, ...geojsonLayerIds, ...measureLayerIds];
+    allIds.forEach((id) => {
+      if (this.map?.getLayer(id)) {
+        try {
+          this.map.moveLayer(id);
+        } catch (_) {}
+      }
+    });
   }
 
   public async setBasemap(basemapId: string): Promise<boolean> {
