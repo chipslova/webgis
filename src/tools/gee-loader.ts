@@ -59,12 +59,16 @@ export class GEELoader {
 
     // --- 1. ELEVATION LAYER (USGS SRTM) ---
     try {
-      if (!this.map.getSource('gee-elevation-source')) {
+      const elvSrc = this.map.getSource('gee-elevation-source') as maplibregl.GeoJSONSource;
+      if (!elvSrc) {
         this.map.addSource('gee-elevation-source', {
           type: 'geojson',
           data: this.elvData
         });
+      } else if (typeof elvSrc.setData === 'function') {
+        elvSrc.setData(this.elvData);
       }
+
       if (!this.map.getLayer('gee-elevation-fill')) {
         this.map.addLayer({
           id: 'gee-elevation-fill',
@@ -75,14 +79,14 @@ export class GEELoader {
             'fill-color': [
               'interpolate',
               ['linear'],
-              ['get', 'elevation_m'],
+              ['coalesce', ['to-number', ['get', 'elevation_m']], 0],
               0, '#006633',
               50, '#84cc16',
               200, '#eab308',
               600, '#c2410c',
               1200, '#f5f5f5'
             ],
-            'fill-opacity': 0.75
+            'fill-opacity': 0.8
           }
         });
       }
@@ -94,8 +98,8 @@ export class GEELoader {
           layout: { visibility: this.elevationVisible ? 'visible' : 'none' },
           paint: {
             'line-color': '#ffffff',
-            'line-width': 0.3,
-            'line-opacity': 0.4
+            'line-width': 0.6,
+            'line-opacity': 0.6
           }
         });
       }
@@ -105,12 +109,16 @@ export class GEELoader {
 
     // --- 2. LAND COVER LAYER (MODIS MCD12Q1) ---
     try {
-      if (!this.map.getSource('gee-landcover-source')) {
+      const lcSrc = this.map.getSource('gee-landcover-source') as maplibregl.GeoJSONSource;
+      if (!lcSrc) {
         this.map.addSource('gee-landcover-source', {
           type: 'geojson',
           data: this.lcData
         });
+      } else if (typeof lcSrc.setData === 'function') {
+        lcSrc.setData(this.lcData);
       }
+
       if (!this.map.getLayer('gee-landcover-fill')) {
         this.map.addLayer({
           id: 'gee-landcover-fill',
@@ -120,14 +128,14 @@ export class GEELoader {
           paint: {
             'fill-color': [
               'match',
-              ['get', 'lc_code'],
+              ['coalesce', ['to-number', ['get', 'lc_code']], 0],
               17, '#0284c7', // Water
               13, '#e11d48', // Urban
               12, '#eab308', // Cropland
               1, '#15803d',  // Forest
               '#94a3b8'      // Other
             ],
-            'fill-opacity': 0.75
+            'fill-opacity': 0.8
           }
         });
       }
@@ -139,8 +147,8 @@ export class GEELoader {
           layout: { visibility: this.landcoverVisible ? 'visible' : 'none' },
           paint: {
             'line-color': '#ffffff',
-            'line-width': 0.3,
-            'line-opacity': 0.4
+            'line-width': 0.6,
+            'line-opacity': 0.6
           }
         });
       }
@@ -150,12 +158,16 @@ export class GEELoader {
 
     // --- 3. LST HEATMAP LAYER (MODIS MOD11A1) ---
     try {
-      if (!this.map.getSource('gee-lst-source')) {
+      const lstSrc = this.map.getSource('gee-lst-source') as maplibregl.GeoJSONSource;
+      if (!lstSrc) {
         this.map.addSource('gee-lst-source', {
           type: 'geojson',
           data: this.lstData
         });
+      } else if (typeof lstSrc.setData === 'function') {
+        lstSrc.setData(this.lstData);
       }
+
       if (!this.map.getLayer('gee-lst-fill')) {
         this.map.addLayer({
           id: 'gee-lst-fill',
@@ -166,15 +178,15 @@ export class GEELoader {
             'fill-color': [
               'interpolate',
               ['linear'],
-              ['get', 'lst_celsius'],
-              18, '#1e40af', // Deep blue
-              23, '#0284c7', // Sky blue
-              27, '#10b981', // Green
-              30, '#f59e0b', // Yellow / Warm
-              33, '#ea580c', // Orange / Hot
-              36, '#dc2626'  // Red / Extreme Heat
+              ['coalesce', ['to-number', ['get', 'lst_celsius']], 25],
+              18, '#1e40af', // Deep blue (~18°C)
+              22, '#0284c7', // Sky blue (~22°C)
+              25, '#10b981', // Green (~25°C)
+              28, '#f59e0b', // Yellow / Warm (~28°C)
+              31, '#ea580c', // Orange / Hot (~31°C)
+              34, '#dc2626'  // Red / Extreme Heat (~34°C+)
             ],
-            'fill-opacity': 0.75
+            'fill-opacity': 0.85
           }
         });
       }
@@ -186,8 +198,8 @@ export class GEELoader {
           layout: { visibility: this.lstVisible ? 'visible' : 'none' },
           paint: {
             'line-color': '#ffffff',
-            'line-width': 0.4,
-            'line-opacity': 0.5
+            'line-width': 0.8,
+            'line-opacity': 0.7
           }
         });
       }
@@ -197,12 +209,16 @@ export class GEELoader {
 
     // --- 4. POI VECTOR CIRCLES ---
     try {
-      if (!this.map.getSource('gee-poi-source')) {
+      const poiSrc = this.map.getSource('gee-poi-source') as maplibregl.GeoJSONSource;
+      if (!poiSrc) {
         this.map.addSource('gee-poi-source', {
           type: 'geojson',
           data: this.poiData
         });
+      } else if (typeof poiSrc.setData === 'function') {
+        poiSrc.setData(this.poiData);
       }
+
       if (!this.map.getLayer('gee-poi-circles')) {
         this.map.addLayer({
           id: 'gee-poi-circles',
