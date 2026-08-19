@@ -26,53 +26,70 @@ export class MapManager {
   }
 
   /**
-   * Dynamically transforms relative sprite/glyph URLs, normalizes ESRI VectorTileServer
-   * endpoints to absolute direct tile URLs, deduplicates layer IDs, and sets projection.
+   * Dynamically transforms relative sprite/glyph/source URLs, normalizes endpoints,
+   * and strictly deduplicates all layer IDs to prevent MapLibre validation rejections.
    */
-  private normalizeStyleSpecification(style: maplibregl.StyleSpecification): maplibregl.StyleSpecification {
+  private normalizeStyleSpecification(style: maplibregl.StyleSpecification, baseUrl?: string): maplibregl.StyleSpecification {
     const origin = window.location.origin;
 
-    // 1. Normalize relative sprite URLs
+    // 1. Resolve relative or local sprite URLs
     if (style && style.sprite) {
-      if (typeof style.sprite === 'string' && style.sprite.startsWith('/')) {
-        style.sprite = origin + style.sprite;
-      } else if (Array.isArray(style.sprite)) {
-        style.sprite = style.sprite.map((s: any) => {
-          if (typeof s === 'string' && s.startsWith('/')) return origin + s;
-          if (s && typeof s === 'object' && typeof s.url === 'string' && s.url.startsWith('/')) {
-            return { ...s, url: origin + s.url };
-          }
-          return s;
-        });
+      if (typeof style.sprite === 'string') {
+        if (style.sprite.startsWith('http://') || style.sprite.startsWith('https://')) {
+          // absolute already
+        } else if (style.sprite.startsWith('/')) {
+          style.sprite = origin + style.sprite;
+        } else if (baseUrl && baseUrl.startsWith('http')) {
+          style.sprite = new URL(style.sprite, baseUrl).href;
+        }
       }
     }
 
-    // 2. Normalize relative glyphs URLs or provide fallback for raster styles
-    if (style && style.glyphs && typeof style.glyphs === 'string' && style.glyphs.startsWith('/')) {
-      style.glyphs = origin + style.glyphs;
-    } else if (style && !style.glyphs) {
-      style.glyphs = 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf';
+    // 2. Resolve relative glyphs URLs or use high-availability MapLibre glyphs
+    if (style) {
+      if (style.glyphs && typeof style.glyphs === 'string') {
+        if (style.glyphs.startsWith('http://') || style.glyphs.startsWith('https://')) {
+          // absolute already
+        } else if (style.glyphs.startsWith('/')) {
+          style.glyphs = origin + style.glyphs;
+        } else if (baseUrl && baseUrl.startsWith('http')) {
+          style.glyphs = new URL(style.glyphs, baseUrl).href;
+        } else {
+          style.glyphs = 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf';
+        }
+      } else {
+        style.glyphs = 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf';
+      }
     }
 
-    // 3. Deduplicate layer IDs to prevent MapLibre validation warnings
+    // 3. Strictly deduplicate layer IDs (Fixes ArcGIS export duplicate layer ID bugs)
     if (style && Array.isArray(style.layers)) {
-      const seenIds = new Set<string>();
+      const seenIds = new Map<string, number>();
       style.layers.forEach((layer: any, idx: number) => {
         if (layer && layer.id) {
-          if (seenIds.has(layer.id)) {
-            layer.id = `${layer.id}_dup_${idx}`;
-          } else {
-            seenIds.add(layer.id);
+          const count = (seenIds.get(layer.id) || 0) + 1;
+          seenIds.set(layer.id, count);
+          if (count > 1) {
+            layer.id = `${layer.id}_${idx}_${count}`;
           }
         }
       });
     }
 
-    // 4. Normalize tile URLs for vector/raster sources
+    // 4. Resolve relative or local source URLs
     if (style && style.sources) {
       for (const sourceId of Object.keys(style.sources)) {
         const src = style.sources[sourceId] as any;
-        if (src && (src.type === 'vector' || src.type === 'raster')) {
+        if (src) {
+          if (src.url && typeof src.url === 'string') {
+            if (src.url.startsWith('../') || src.url.startsWith('./')) {
+              if (baseUrl && baseUrl.startsWith('http')) {
+                src.url = new URL(src.url, baseUrl).href;
+              }
+            } else if (src.url.startsWith('/')) {
+              src.url = origin + src.url;
+            }
+          }
           if (src.tiles && Array.isArray(src.tiles)) {
             src.tiles = src.tiles.map((t: string) => {
               if (t.startsWith('/')) return origin + t;
@@ -93,16 +110,14 @@ export class MapManager {
     const initialZoom = defaultBasemap.initialBounds?.zoom || 3;
 
     let initialStyle: string | maplibregl.StyleSpecification = defaultBasemap.styleUrl;
-    if (!defaultBasemap.styleUrl.startsWith('http://') && !defaultBasemap.styleUrl.startsWith('https://')) {
-      try {
-        const res = await fetch(defaultBasemap.styleUrl);
-        if (res.ok) {
-          const json = await res.json();
-          initialStyle = this.normalizeStyleSpecification(json);
-        }
-      } catch (e) {
-        console.warn('Initial style fetch notice:', e);
+    try {
+      const res = await fetch(defaultBasemap.styleUrl);
+      if (res.ok) {
+        const json = await res.json();
+        initialStyle = this.normalizeStyleSpecification(json, defaultBasemap.styleUrl);
       }
+    } catch (e) {
+      console.warn('Initial style fetch notice:', e);
     }
 
     this.map = new maplibregl.Map({
@@ -229,15 +244,10 @@ export class MapManager {
     const bearing = this.map.getBearing();
 
     try {
-      if (target.styleUrl.startsWith('http://') || target.styleUrl.startsWith('https://')) {
-        // Pass official remote style URLs (like BIG RBI root.json) directly to MapLibre
-        this.map.setStyle(target.styleUrl, { diff: false });
-      } else {
-        const res = await fetch(target.styleUrl);
-        const styleJson: maplibregl.StyleSpecification = await res.json();
-        const normalizedStyle = this.normalizeStyleSpecification(styleJson);
-        this.map.setStyle(normalizedStyle, { diff: false });
-      }
+      const res = await fetch(target.styleUrl);
+      const styleJson: maplibregl.StyleSpecification = await res.json();
+      const normalizedStyle = this.normalizeStyleSpecification(styleJson, target.styleUrl);
+      this.map.setStyle(normalizedStyle, { diff: false });
     } catch (err) {
       console.warn('Failed to load style JSON directly, fallback to URL:', err);
       this.map.setStyle(target.styleUrl, { diff: false });
