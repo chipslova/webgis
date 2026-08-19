@@ -93,14 +93,16 @@ export class MapManager {
     const initialZoom = defaultBasemap.initialBounds?.zoom || 3;
 
     let initialStyle: string | maplibregl.StyleSpecification = defaultBasemap.styleUrl;
-    try {
-      const res = await fetch(defaultBasemap.styleUrl);
-      if (res.ok) {
-        const json = await res.json();
-        initialStyle = this.normalizeStyleSpecification(json);
+    if (!defaultBasemap.styleUrl.startsWith('http://') && !defaultBasemap.styleUrl.startsWith('https://')) {
+      try {
+        const res = await fetch(defaultBasemap.styleUrl);
+        if (res.ok) {
+          const json = await res.json();
+          initialStyle = this.normalizeStyleSpecification(json);
+        }
+      } catch (e) {
+        console.warn('Initial style fetch notice:', e);
       }
-    } catch (e) {
-      console.warn('Initial style fetch notice:', e);
     }
 
     this.map = new maplibregl.Map({
@@ -227,11 +229,15 @@ export class MapManager {
     const bearing = this.map.getBearing();
 
     try {
-      const res = await fetch(target.styleUrl);
-      const styleJson: maplibregl.StyleSpecification = await res.json();
-      const normalizedStyle = this.normalizeStyleSpecification(styleJson);
-
-      this.map.setStyle(normalizedStyle, { diff: false });
+      if (target.styleUrl.startsWith('http://') || target.styleUrl.startsWith('https://')) {
+        // Pass official remote style URLs (like BIG RBI root.json) directly to MapLibre
+        this.map.setStyle(target.styleUrl, { diff: false });
+      } else {
+        const res = await fetch(target.styleUrl);
+        const styleJson: maplibregl.StyleSpecification = await res.json();
+        const normalizedStyle = this.normalizeStyleSpecification(styleJson);
+        this.map.setStyle(normalizedStyle, { diff: false });
+      }
     } catch (err) {
       console.warn('Failed to load style JSON directly, fallback to URL:', err);
       this.map.setStyle(target.styleUrl, { diff: false });
