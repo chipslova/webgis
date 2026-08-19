@@ -85,22 +85,37 @@ export class MapManager {
     if (style && style.sources) {
       for (const sourceId of Object.keys(style.sources)) {
         const src = style.sources[sourceId] as any;
-        if (src) {
-          if (src.url && typeof src.url === 'string') {
-            if (src.url.startsWith('../') || src.url.startsWith('./')) {
-              if (baseUrl && baseUrl.startsWith('http')) {
-                src.url = new URL(src.url, baseUrl).href;
-              }
-            } else if (src.url.startsWith('/')) {
-              src.url = origin + src.url;
+        if (!src) continue;
+
+        // Resolve relative source URLs first
+        if (src.url && typeof src.url === 'string') {
+          if (src.url.startsWith('../') || src.url.startsWith('./')) {
+            if (baseUrl && baseUrl.startsWith('http')) {
+              src.url = new URL(src.url, baseUrl).href;
             }
+          } else if (src.url.startsWith('/')) {
+            src.url = origin + src.url;
           }
-          if (src.tiles && Array.isArray(src.tiles)) {
-            src.tiles = src.tiles.map((t: string) => {
-              if (t.startsWith('/')) return origin + t;
-              return t;
-            });
-          }
+        }
+
+        // Convert ArcGIS VectorTileServer REST endpoint to direct PBF tiles array
+        // (Prevents MapLibre from fetching ArcGIS HTML pages and throwing "Unexpected token '<'")
+        if (
+          src.type === 'vector' &&
+          typeof src.url === 'string' &&
+          src.url.includes('VectorTileServer')
+        ) {
+          const sBase = src.url.split('?')[0].replace(/\/$/, '');
+          src.tiles = [`${sBase}/tile/{z}/{y}/{x}.pbf`];
+          delete src.url;
+        }
+
+        // Normalize existing tile URLs
+        if (src.tiles && Array.isArray(src.tiles)) {
+          src.tiles = src.tiles.map((t: string) => {
+            if (t.startsWith('/')) return origin + t;
+            return t;
+          });
         }
       }
     }
