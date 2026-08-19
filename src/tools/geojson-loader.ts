@@ -18,10 +18,13 @@ export class GeoJsonLoader {
   constructor(map: maplibregl.Map) {
     this.map = map;
 
-    // Re-attach custom vector layers safely when a new basemap style finishes loading
-    this.map.on('style.load', () => {
+    const handleReattach = () => {
       this.reattachLayersIfNeeded();
-    });
+    };
+
+    // Re-attach custom vector layers safely when a basemap style finishes loading
+    this.map.on('style.load', handleReattach);
+    this.map.on('load', handleReattach);
   }
 
   public onLayersChange(callback: () => void) {
@@ -38,8 +41,7 @@ export class GeoJsonLoader {
     });
   }
 
-  public async loadSampleData() {
-    // Add sample Indonesia Major Cities vector points
+  public loadSampleData() {
     const sampleCitiesGeoJSON: GeoJSON.FeatureCollection = {
       type: 'FeatureCollection',
       features: [
@@ -95,11 +97,6 @@ export class GeoJsonLoader {
       return false;
     }
 
-    const sourceId = `source-${layerId}`;
-    const fillLayerId = `layer-fill-${layerId}`;
-    const lineLayerId = `layer-line-${layerId}`;
-    const pointLayerId = `layer-point-${layerId}`;
-
     // Determine primary geometry type robustly
     let primaryType: 'point' | 'line' | 'polygon' = 'point';
     for (const feat of geojson.features) {
@@ -114,36 +111,59 @@ export class GeoJsonLoader {
       }
     }
 
-    // Safety check: wait for map style to finish loading if needed
+    // Always register layer in state map so sidebar UI stays accurate
+    this.customLayers.set(layerId, {
+      id: layerId,
+      name: layerName,
+      type: primaryType,
+      visible: true,
+      color,
+      featureCount: geojson.features.length,
+      data: geojson
+    });
+
+    this.attachLayerToMap(layerId);
+    this.notifyLayersChange();
+    return true;
+  }
+
+  public attachLayerToMap(layerId: string) {
+    const item = this.customLayers.get(layerId);
+    if (!item) return;
+
+    // If style is not ready yet, retry when style loads
     if (typeof this.map.isStyleLoaded === 'function' && !this.map.isStyleLoaded()) {
-      this.map.once('style.load', () => {
-        this.addGeoJSONLayer(layerId, layerName, geojson, color);
-      });
-      return false;
+      return;
     }
+
+    const sourceId = `source-${layerId}`;
+    const fillLayerId = `layer-fill-${layerId}`;
+    const lineLayerId = `layer-line-${layerId}`;
+    const pointLayerId = `layer-point-${layerId}`;
+    const visibility = item.visible ? 'visible' : 'none';
 
     try {
       if (!this.map.getSource(sourceId)) {
         this.map.addSource(sourceId, {
           type: 'geojson',
-          data: geojson
+          data: item.data
         });
       } else {
         const src = this.map.getSource(sourceId) as maplibregl.GeoJSONSource;
         if (src && typeof src.setData === 'function') {
-          src.setData(geojson);
+          src.setData(item.data);
         }
       }
 
-      if (primaryType === 'polygon') {
+      if (item.type === 'polygon') {
         if (!this.map.getLayer(fillLayerId)) {
           this.map.addLayer({
             id: fillLayerId,
             type: 'fill',
             source: sourceId,
-            layout: { visibility: 'visible' },
+            layout: { visibility },
             paint: {
-              'fill-color': color,
+              'fill-color': item.color,
               'fill-opacity': 0.5
             }
           });
@@ -153,22 +173,22 @@ export class GeoJsonLoader {
             id: lineLayerId,
             type: 'line',
             source: sourceId,
-            layout: { visibility: 'visible' },
+            layout: { visibility },
             paint: {
-              'line-color': color,
+              'line-color': item.color,
               'line-width': 2
             }
           });
         }
-      } else if (primaryType === 'line') {
+      } else if (item.type === 'line') {
         if (!this.map.getLayer(lineLayerId)) {
           this.map.addLayer({
             id: lineLayerId,
             type: 'line',
             source: sourceId,
-            layout: { visibility: 'visible' },
+            layout: { visibility },
             paint: {
-              'line-color': color,
+              'line-color': item.color,
               'line-width': 3
             }
           });
@@ -179,10 +199,10 @@ export class GeoJsonLoader {
             id: pointLayerId,
             type: 'circle',
             source: sourceId,
-            layout: { visibility: 'visible' },
+            layout: { visibility },
             paint: {
               'circle-radius': 9,
-              'circle-color': color,
+              'circle-color': item.color,
               'circle-stroke-width': 2.5,
               'circle-stroke-color': '#ffffff'
             }
@@ -190,23 +210,10 @@ export class GeoJsonLoader {
         }
       }
 
-      this.customLayers.set(layerId, {
-        id: layerId,
-        name: layerName,
-        type: primaryType,
-        visible: true,
-        color,
-        featureCount: geojson.features.length,
-        data: geojson
-      });
-
       this.ensureLayerOnTop(layerId);
       this.bindClickPopup(layerId);
-      this.notifyLayersChange();
-      return true;
     } catch (e) {
-      console.error(`[GeoJsonLoader] Failed to add layer "${layerName}" (${layerId}):`, e);
-      return false;
+      console.warn(`[GeoJsonLoader] Notice attaching layer "${item.name}":`, e);
     }
   }
 
@@ -218,7 +225,8 @@ export class GeoJsonLoader {
 
     [pointId, fillId, lineId].forEach((lid) => {
       if (this.map.getLayer(lid)) {
-        this.map.on('click', lid, (e: any) => {
+        this.map.off('click', lid, (this as any)[`_popupClick_${lid}`]);
+        const clickHandler = (e: any) => {
           if (!e.features || e.features.length === 0) return;
           const props = e.features[0].properties;
           let content = `<div style="padding: 6px 10px; font-family: sans-serif;">`;
@@ -229,7 +237,9 @@ export class GeoJsonLoader {
           }
           content += `</table></div>`;
           popup.setLngLat(e.lngLat).setHTML(content).addTo(this.map);
-        });
+        };
+        (this as any)[`_popupClick_${lid}`] = clickHandler;
+        this.map.on('click', lid, clickHandler);
 
         this.map.on('mouseenter', lid, () => {
           this.map.getCanvas().style.cursor = 'pointer';
@@ -253,12 +263,10 @@ export class GeoJsonLoader {
 
   private reattachLayersIfNeeded() {
     this.customLayers.forEach((layer) => {
-      const sourceId = `source-${layer.id}`;
-      if (!this.map.getSource(sourceId)) {
-        this.addGeoJSONLayer(layer.id, layer.name, layer.data, layer.color);
-        this.toggleLayerVisibility(layer.id, layer.visible);
-      }
+      this.attachLayerToMap(layer.id);
+      this.toggleLayerVisibility(layer.id, layer.visible);
     });
+    this.notifyLayersChange();
   }
 
   public toggleLayerVisibility(layerId: string, visible: boolean) {
@@ -270,7 +278,7 @@ export class GeoJsonLoader {
 
     const sourceId = `source-${layerId}`;
     if (!this.map.getSource(sourceId)) {
-      this.addGeoJSONLayer(layerId, item.name, item.data, item.color);
+      this.attachLayerToMap(layerId);
     }
 
     [`layer-fill-${layerId}`, `layer-line-${layerId}`, `layer-point-${layerId}`].forEach((id) => {

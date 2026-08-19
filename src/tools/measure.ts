@@ -7,12 +7,12 @@ export class MeasureTool {
   private map: maplibregl.Map;
   private mode: MeasureMode = 'none';
   private points: [number, number][] = [];
+  private isFinished: boolean = false;
   private geojson: GeoJSON.FeatureCollection = {
     type: 'FeatureCollection',
     features: []
   };
 
-  private isFinished: boolean = false;
   private tooltip: maplibregl.Popup | null = null;
   private onResultCallback?: (result: { text: string; mode: MeasureMode }) => void;
 
@@ -21,7 +21,7 @@ export class MeasureTool {
     this.initLayers();
     this.bindEvents();
 
-    this.map.on('style.load', () => {
+    const handleStyleRefresh = () => {
       this.initLayers();
       if (this.geojson.features.length > 0) {
         const source = this.map.getSource('measure-source') as maplibregl.GeoJSONSource;
@@ -29,14 +29,14 @@ export class MeasureTool {
           source.setData(this.geojson);
         }
       }
-    });
+    };
+
+    this.map.on('style.load', handleStyleRefresh);
+    this.map.on('load', handleStyleRefresh);
   }
 
-  private initLayers() {
+  public initLayers() {
     if (!this.map) return;
-    if (typeof this.map.isStyleLoaded === 'function' && !this.map.isStyleLoaded()) {
-      return;
-    }
 
     try {
       if (!this.map.getSource('measure-source')) {
@@ -46,13 +46,12 @@ export class MeasureTool {
         });
       }
 
-      // Fill layer for Area measurement
+      // 1. Fill layer for Area measurement (natively renders Polygon features)
       if (!this.map.getLayer('measure-fill')) {
         this.map.addLayer({
           id: 'measure-fill',
           type: 'fill',
           source: 'measure-source',
-          filter: ['==', ['geometry-type'], 'Polygon'],
           paint: {
             'fill-color': '#00f0ff',
             'fill-opacity': 0.25
@@ -60,39 +59,49 @@ export class MeasureTool {
         });
       }
 
-      // Line layer for Distance and Area outline
+      // 2. Line layer for Distance path and Area perimeter (natively renders LineString & Polygon outlines)
       if (!this.map.getLayer('measure-line')) {
         this.map.addLayer({
           id: 'measure-line',
           type: 'line',
           source: 'measure-source',
-          filter: ['match', ['geometry-type'], ['LineString', 'Polygon'], true, false],
           paint: {
             'line-color': '#00f0ff',
-            'line-width': 3,
+            'line-width': 3.5,
             'line-dasharray': [2, 2]
           }
         });
       }
 
-      // Point layer for Vertices
+      // 3. Point layer for Vertices (natively renders Point features)
       if (!this.map.getLayer('measure-points')) {
         this.map.addLayer({
           id: 'measure-points',
           type: 'circle',
           source: 'measure-source',
-          filter: ['==', ['geometry-type'], 'Point'],
           paint: {
             'circle-radius': 6,
             'circle-color': '#ffffff',
-            'circle-stroke-width': 2,
+            'circle-stroke-width': 2.5,
             'circle-stroke-color': '#00f0ff'
           }
         });
       }
+
+      this.bringLayersToTop();
     } catch (e) {
       console.warn('Notice initializing MeasureTool layers:', e);
     }
+  }
+
+  private bringLayersToTop() {
+    ['measure-fill', 'measure-line', 'measure-points'].forEach((id) => {
+      if (this.map.getLayer(id)) {
+        try {
+          this.map.moveLayer(id);
+        } catch (_) {}
+      }
+    });
   }
 
   private bindEvents() {
@@ -117,8 +126,8 @@ export class MeasureTool {
   public setMode(mode: MeasureMode) {
     this.mode = mode;
     this.isFinished = false;
-    this.initLayers();
     this.clear();
+    this.initLayers();
     if (mode === 'none') {
       this.map.getCanvas().style.cursor = '';
       if (this.tooltip) this.tooltip.remove();
@@ -179,7 +188,7 @@ export class MeasureTool {
     this.initLayers();
     const features: GeoJSON.Feature[] = [];
 
-    // Points
+    // Add vertex point features
     coords.forEach((c) => {
       features.push({
         type: 'Feature',
@@ -188,19 +197,35 @@ export class MeasureTool {
       });
     });
 
-    if (this.mode === 'distance' && coords.length >= 2) {
-      features.push({
-        type: 'Feature',
-        geometry: { type: 'LineString', coordinates: coords },
-        properties: {}
-      });
-    } else if (this.mode === 'area' && coords.length >= 3) {
-      const closedCoords = [...coords, coords[0]];
-      features.push({
-        type: 'Feature',
-        geometry: { type: 'Polygon', coordinates: [closedCoords] },
-        properties: {}
-      });
+    if (this.mode === 'distance') {
+      if (coords.length >= 2) {
+        features.push({
+          type: 'Feature',
+          geometry: { type: 'LineString', coordinates: coords },
+          properties: {}
+        });
+      }
+    } else if (this.mode === 'area') {
+      if (coords.length === 2) {
+        // Show line segment while user is drawing first 2 points
+        features.push({
+          type: 'Feature',
+          geometry: { type: 'LineString', coordinates: coords },
+          properties: {}
+        });
+      } else if (coords.length >= 3) {
+        const closedCoords = [...coords, coords[0]];
+        features.push({
+          type: 'Feature',
+          geometry: { type: 'Polygon', coordinates: [closedCoords] },
+          properties: {}
+        });
+        features.push({
+          type: 'Feature',
+          geometry: { type: 'LineString', coordinates: closedCoords },
+          properties: {}
+        });
+      }
     }
 
     this.geojson = { type: 'FeatureCollection', features };
@@ -208,6 +233,7 @@ export class MeasureTool {
     if (source) {
       source.setData(this.geojson);
     }
+    this.bringLayersToTop();
   }
 
   private updateTooltip(position: [number, number], coords: [number, number][]) {
@@ -228,7 +254,7 @@ export class MeasureTool {
         text = `${areaSqM.toFixed(0)} m²`;
       }
     } else {
-      text = 'Click map to start measuring...';
+      text = 'Click map to measure (Right-click to finish)';
     }
 
     if (!this.tooltip) {
@@ -241,7 +267,7 @@ export class MeasureTool {
 
     this.tooltip
       .setLngLat(position)
-      .setHTML(`<div style="padding: 4px 8px; font-weight: 600; font-size: 12px; color: #1e293b;">${text}</div>`)
+      .setHTML(`<div style="padding: 6px 10px; font-weight: 600; font-size: 12px; color: #0f172a; background: white; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">${text}</div>`)
       .addTo(this.map);
 
     if (this.onResultCallback) {
