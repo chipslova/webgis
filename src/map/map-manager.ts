@@ -68,21 +68,16 @@ export class MapManager {
       });
     }
 
-    // 4. Force direct absolute tiles array and DELETE src.url for ESRI VectorTileServer
+    // 4. Normalize tile URLs for vector/raster sources
     if (style && style.sources) {
       for (const sourceId of Object.keys(style.sources)) {
         const src = style.sources[sourceId] as any;
         if (src && (src.type === 'vector' || src.type === 'raster')) {
-          if (src.url && typeof src.url === 'string' && src.url.includes('VectorTileServer')) {
-            const baseUrl = src.url.split('?')[0].replace(/\/$/, '');
-            src.tiles = [`${baseUrl}/tile/{z}/{y}/{x}.pbf`];
-            delete src.url;
-          } else if (src.tiles && Array.isArray(src.tiles)) {
+          if (src.tiles && Array.isArray(src.tiles)) {
             src.tiles = src.tiles.map((t: string) => {
               if (t.startsWith('/')) return origin + t;
               return t;
             });
-            delete src.url;
           }
         }
       }
