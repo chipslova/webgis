@@ -84,10 +84,18 @@ class WebGISApp {
         });
       };
 
-      if (map.loaded()) {
+      let mapReadyCalled = false;
+      const safeMapReady = () => {
+        if (mapReadyCalled) return;
+        mapReadyCalled = true;
         onMapReady();
+      };
+
+      if (map.getStyle()) {
+        safeMapReady();
       } else {
-        map.once('load', onMapReady);
+        map.once('style.load', safeMapReady);
+        map.once('load', safeMapReady);
       }
     } catch (err) {
       console.warn('Map initialization notice:', err);
