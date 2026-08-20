@@ -1,7 +1,11 @@
 import * as maplibregl from 'maplibre-gl';
+import { setWorkerUrl } from 'maplibre-gl';
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import * as pmtiles from 'pmtiles';
 import { BASEMAPS, DEFAULT_BASEMAP_ID } from '../config/basemaps';
+
+setWorkerUrl(workerUrl);
 
 export class MapManager {
   private map: maplibregl.Map | null = null;
