@@ -1120,4 +1120,330 @@ html, body, #app {
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
+/* ==========================================================================
+   Piksel Earth Observation Panel Styles
+   ========================================================================== */
+.piksel-panel-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.piksel-national-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  letter-spacing: 0.5px;
+}
+
+.piksel-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.piksel-card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.piksel-card h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.piksel-hint {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* Presets Grid */
+.piksel-presets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.piksel-preset-btn {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.piksel-preset-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--accent-cyan);
+  transform: translateY(-1px);
+}
+
+.piksel-preset-btn.active {
+  background: rgba(6, 182, 212, 0.15);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 1px var(--accent-cyan);
+}
+
+.preset-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.preset-loc {
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+/* Product Cards */
+.piksel-products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.piksel-product-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  transition: all 0.2s ease;
+}
+
+.piksel-product-card.active {
+  border-color: var(--accent-blue);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.piksel-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+/* Master Control Card */
+.piksel-master-control {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.piksel-control-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.control-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.control-val {
+  font-size: 11px;
+  font-family: monospace;
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+.slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Grid Toggle Box */
+.piksel-grid-toggle-box {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px dashed rgba(16, 185, 129, 0.3);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 14px;
+}
+
+.piksel-grid-toggle-box .toggle-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.piksel-grid-toggle-box .toggle-text strong {
+  font-size: 11px;
+  color: #10b981;
+}
+
+.piksel-grid-toggle-box .toggle-text small {
+  font-size: 9.5px;
+  color: var(--text-muted);
+  line-height: 1.25;
+}
+
+.piksel-section-subtitle {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.piksel-products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.piksel-radio-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.piksel-radio-wrap input[type="radio"] {
+  accent-color: var(--accent-cyan);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.piksel-product-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.piksel-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.piksel-product-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.35;
+  margin-bottom: 6px;
+}
+
+.piksel-product-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 10px;
+  color: var(--text-muted);
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.piksel-product-meta strong {
+  color: var(--text-main);
+}
+
+.piksel-slider {
+  width: 100%;
+  height: 5px;
+  border-radius: 2.5px;
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--accent-cyan);
+}
+
+/* Info Card */
+.piksel-info-card p {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.piksel-what-shows {
+  font-size: 11px;
+  color: #e2e8f0;
+  background: rgba(15, 23, 42, 0.7);
+  border-left: 3px solid var(--accent-cyan);
+  padding: 6px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  line-height: 1.35;
+}
+
+.piksel-what-shows strong {
+  color: var(--accent-cyan);
+}
+
+/* Legend Bar */
+.piksel-legend-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.legend-scale-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.legend-gradient {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.legend-gradient.thermal {
+  background: linear-gradient(90deg, #1e40af, #06b6d4, #10b981, #f59e0b, #ef4444, #7f1d1d);
+}
+
+.legend-gradient.falsecolor {
+  background: linear-gradient(90deg, #d97706, #f59e0b, #84cc16, #15803d, #064e3b);
+}
+
+.legend-gradient.radar {
+  background: linear-gradient(90deg, #0f172a, #1e293b, #64748b, #cbd5e1, #ffffff);
+}
+
+.legend-gradient.natural {
+  background: linear-gradient(90deg, #1e3a8a, #0d9488, #16a34a, #15803d);
+}
+
+.piksel-links-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+
+
 

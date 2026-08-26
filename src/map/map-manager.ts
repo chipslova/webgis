@@ -268,6 +268,7 @@ export class MapManager {
   // Registry for centralized style.load lifecycle
   private styleReadyCallbacks: Array<() => void> = [];
   private geojsonLoaderRef?: { getAllMapLayerIds(): string[] };
+  private pikselLoaderRef?: { getAllMapLayerIds(): string[] };
 
   public onStyleReady(callback: () => void) {
     this.styleReadyCallbacks.push(callback);
@@ -275,6 +276,10 @@ export class MapManager {
 
   public setGeoJsonLoader(loader: { getAllMapLayerIds(): string[] }) {
     this.geojsonLoaderRef = loader;
+  }
+
+  public setPikselLoader(loader: { getAllMapLayerIds(): string[] }) {
+    this.pikselLoaderRef = loader;
   }
 
   private fireStyleReadyCallbacks() {
@@ -290,12 +295,15 @@ export class MapManager {
 
   /**
    * Deterministically orders all custom layers above the basemap in a single pass:
-   * Basemap -> GEE Layers -> GeoJSON Custom Layers -> Measure Layers (Top)
+   * Basemap -> Piksel Layers -> GEE Layers -> GeoJSON Custom Layers -> Measure Layers (Top)
    */
   public bringCustomLayersToTop() {
     if (!this.map) return;
 
-    // GEE Layers (bottom of custom stack)
+    // Piksel WMS/WMTS Layers (bottom of custom raster stack)
+    const pikselLayerIds = this.pikselLoaderRef?.getAllMapLayerIds() || [];
+
+    // GEE Layers (middle-bottom of custom stack)
     const geeLayerIds = [
       'gee-elevation-fill', 'gee-elevation-outline',
       'gee-landcover-fill', 'gee-landcover-outline',
@@ -309,7 +317,7 @@ export class MapManager {
     // Measure layers (always on top)
     const measureLayerIds = ['measure-fill', 'measure-line-casing', 'measure-line', 'measure-points'];
 
-    const allIds = [...geeLayerIds, ...geojsonLayerIds, ...measureLayerIds];
+    const allIds = [...pikselLayerIds, ...geeLayerIds, ...geojsonLayerIds, ...measureLayerIds];
     allIds.forEach((id) => {
       if (this.map?.getLayer(id)) {
         try {

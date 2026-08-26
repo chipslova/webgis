@@ -64,7 +64,15 @@
         <aside id="sidebar" class="sidebar">
           <!-- Navigation Tab Icons -->
           <nav class="sidebar-nav">
-            <button class="sidebar-tab-btn active" data-tab="gee" title="GEE Earth Engine Data">
+            <button class="sidebar-tab-btn active" data-tab="piksel" title="Piksel Earth Observation (BIG)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+                <path d="M2 12h20"/>
+              </svg>
+              <span>Piksel EO</span>
+            </button>
+            <button class="sidebar-tab-btn" data-tab="gee" title="GEE Earth Engine Data">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07l14.14-14.14"/></svg>
               <span>GEE Data</span>
             </button>
@@ -101,8 +109,56 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
             </button>
 
+            <!-- Panel: Piksel Earth Observation (BIG) -->
+            <section id="panel-piksel" class="sidebar-panel active">
+              <div class="panel-header">
+                <div class="piksel-panel-badge-row">
+                  <h2>Piksel Earth Observation</h2>
+                  <span class="piksel-national-badge">BIG × GA</span>
+                </div>
+                <p>Bumi Digital Indonesia: Data citra satelit nasional (Sentinel & Landsat) siap analisis via WMS.</p>
+              </div>
+
+              <!-- Study Area Presets -->
+              <div class="piksel-card">
+                <div class="piksel-card-title-row">
+                  <h3>📍 Kawasan Pantauan Prioritas</h3>
+                  <span class="piksel-hint">Klik untuk jelajah</span>
+                </div>
+                <div id="piksel-presets-container" class="piksel-presets-grid">
+                  <!-- Dynamically populated presets -->
+                </div>
+              </div>
+
+              <!-- Piksel WMS Products & Opacity Sliders -->
+              <div class="piksel-card">
+                <div class="piksel-card-title-row">
+                  <h3>🛰️ Layer Satelit & Analisis (WMS)</h3>
+                </div>
+                <div id="piksel-products-container" class="piksel-products-list">
+                  <!-- Dynamically populated product cards -->
+                </div>
+              </div>
+
+              <!-- Info & External Links -->
+              <div class="piksel-card piksel-info-card">
+                <h3>🌐 Portal & Dokumentasi Resmi</h3>
+                <p>Layanan web OGC WMS didukung oleh Badan Informasi Geospasial & Geoscience Australia.</p>
+                <div class="piksel-links-group">
+                  <a href="https://piksel.big.go.id" target="_blank" rel="noopener noreferrer" class="btn btn-outline full-width">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    Buka Portal Piksel
+                  </a>
+                  <a href="https://explorer.piksel.big.go.id" target="_blank" rel="noopener noreferrer" class="btn btn-secondary full-width">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    Data Explorer Piksel
+                  </a>
+                </div>
+              </div>
+            </section>
+
             <!-- Panel: GEE Earth Engine Data -->
-            <section id="panel-gee" class="sidebar-panel active">
+            <section id="panel-gee" class="sidebar-panel">
               <div class="panel-header">
                 <h2>GEE Urban Heat & LST</h2>
                 <p>MODIS Land Surface Temp & Elevation Analysis (Jakarta & West Java)</p>

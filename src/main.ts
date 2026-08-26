@@ -7,6 +7,8 @@ import { MeasureTool } from './tools/measure';
 import { GeoJsonLoader } from './tools/geojson-loader';
 import { GEELoader } from './tools/gee-loader';
 import { GEEPanelUI } from './ui/gee-panel';
+import { PikselLoader } from './tools/piksel-loader';
+import { PikselPanelUI } from './ui/piksel-panel';
 import { BASEMAPS } from './config/basemaps';
 
 class WebGISApp {
@@ -18,6 +20,8 @@ class WebGISApp {
   private geojsonLoader: GeoJsonLoader | null = null;
   private geeLoader: GEELoader | null = null;
   private geePanelUI: GEEPanelUI | null = null;
+  private pikselLoader: PikselLoader | null = null;
+  private pikselPanelUI: PikselPanelUI | null = null;
 
   constructor() {
     this.mapManager = new MapManager('map');
@@ -61,6 +65,8 @@ class WebGISApp {
       this.geojsonLoader = new GeoJsonLoader(map);
       this.geeLoader = new GEELoader(map);
       this.geePanelUI = new GEEPanelUI(this.geeLoader);
+      this.pikselLoader = new PikselLoader(map);
+      this.pikselPanelUI = new PikselPanelUI(this.pikselLoader);
 
       this.geojsonLoader.onLayersChange(() => {
         this.renderLayersList();
@@ -68,14 +74,17 @@ class WebGISApp {
 
       // Register centralized layer restoration callbacks (deterministic order)
       this.mapManager.setGeoJsonLoader(this.geojsonLoader);
+      this.mapManager.setPikselLoader(this.pikselLoader);
+      this.mapManager.onStyleReady(() => this.pikselLoader?.restoreAfterStyleChange());
       this.mapManager.onStyleReady(() => this.geojsonLoader?.reattachLayersIfNeeded());
       this.mapManager.onStyleReady(() => this.geeLoader?.restoreAfterStyleChange());
       this.mapManager.onStyleReady(() => this.measureTool?.restoreAfterStyleChange());
 
-      // Load sample cities vector layer & GEE Earth Engine datasets
+      // Load sample cities vector layer, GEE Earth Engine datasets & Piksel EO UI
       await this.geojsonLoader.loadSampleData();
       await this.geeLoader.loadGEEDatasets();
       this.geePanelUI.init();
+      this.pikselPanelUI.init();
       this.renderLayersList();
 
       // Bind measurement callbacks

@@ -1,4 +1,4 @@
-export type TabId = 'gee' | 'basemaps' | 'layers' | 'measure' | 'data' | 'legend' | 'about';
+export type TabId = 'piksel' | 'gee' | 'basemaps' | 'layers' | 'measure' | 'data' | 'legend' | 'about';
 
 export class SidebarUI {
   private activeTab: TabId = 'gee';
