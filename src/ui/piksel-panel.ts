@@ -226,8 +226,8 @@ export class PikselPanelUI {
         <div class="piksel-product-card ${isSelected ? 'active' : ''}" data-product-id="${product.id}">
           <div class="piksel-card-header">
             <div class="piksel-radio-wrap">
-              <input type="radio" name="piksel-product-radio" id="radio-${product.id}" value="${product.id}" ${isSelected ? 'checked' : ''} />
-              <label for="radio-${product.id}" class="piksel-product-title">${product.name}</label>
+              <input type="radio" name="piksel-product-radio" id="radio-${product.id}" value="${product.id}" ${isSelected ? 'checked' : ''} style="pointer-events: none;" tabindex="-1" />
+              <span class="piksel-product-title">${product.name}</span>
             </div>
             <span class="piksel-badge" style="background-color: ${product.color}22; color: ${product.color}; border-color: ${product.color}44;">
               ${product.badge}
@@ -288,9 +288,19 @@ export class PikselPanelUI {
 
     const container = document.getElementById('piksel-products-container');
     if (container) {
-      // Delegate product card clicks
+      // Single unified click handler
       container.addEventListener('click', (e) => {
-        const card = (e.target as HTMLElement).closest('.piksel-product-card') as HTMLElement;
+        const target = e.target as HTMLElement;
+
+        // Health Ping Button
+        const pingBtn = target.closest('#btn-check-piksel-health');
+        if (pingBtn) {
+          this.pikselLoader.checkEndpointHealth();
+          return;
+        }
+
+        // Product Card Toggle
+        const card = target.closest('.piksel-product-card') as HTMLElement;
         if (card && card.dataset.productId) {
           const productId = card.dataset.productId;
           const currentActive = this.pikselLoader.getActiveProductId();
@@ -322,15 +332,6 @@ export class PikselPanelUI {
           this.pikselLoader.setServiceType(target.value as 'WMTS' | 'WMS');
         } else if (target.id === 'toggle-piksel-grid') {
           this.pikselLoader.setGridVisible((target as HTMLInputElement).checked);
-        }
-      });
-
-      // Health Ping Button
-      container.addEventListener('click', (e) => {
-        const btn = (e.target as HTMLElement).closest('#btn-check-piksel-health');
-        if (btn) {
-          e.stopPropagation();
-          this.pikselLoader.checkEndpointHealth();
         }
       });
     }
