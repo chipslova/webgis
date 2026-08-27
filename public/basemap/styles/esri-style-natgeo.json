@@ -1,0 +1,24 @@
+{
+  "version": 8,
+  "name": "Esri National Geographic",
+  "sources": {
+    "esri-natgeo-source": {
+      "type": "raster",
+      "tiles": [
+        "https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}"
+      ],
+      "tileSize": 256,
+      "maxzoom": 16,
+      "attribution": "National Geographic, Esri, DeLorme, HERE, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, increment P Corp."
+    }
+  },
+  "layers": [
+    {
+      "id": "esri-natgeo-layer",
+      "type": "raster",
+      "source": "esri-natgeo-source",
+      "minzoom": 0,
+      "maxzoom": 16
+    }
+  ]
+}

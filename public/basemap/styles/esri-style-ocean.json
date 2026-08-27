@@ -1,0 +1,24 @@
+{
+  "version": 8,
+  "name": "Esri Ocean Basemap",
+  "sources": {
+    "esri-ocean-source": {
+      "type": "raster",
+      "tiles": [
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}"
+      ],
+      "tileSize": 256,
+      "maxzoom": 13,
+      "attribution": "Sources: GEBCO, NOAA, National Geographic, DeLorme, HERE, Geonames.org, and other contributors"
+    }
+  },
+  "layers": [
+    {
+      "id": "esri-ocean-layer",
+      "type": "raster",
+      "source": "esri-ocean-source",
+      "minzoom": 0,
+      "maxzoom": 13
+    }
+  ]
+}

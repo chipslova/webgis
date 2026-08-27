@@ -172,24 +172,69 @@
 
               <!-- Layer Toggles Container -->
               <div class="gee-card">
-                <h3>Map Layer Controls</h3>
+                <h3>Map Layer Controls & Legenda</h3>
                 <div class="gee-toggle-group">
-                  <label class="gee-toggle-item">
-                    <input type="checkbox" id="toggle-gee-lst" />
-                    <span class="toggle-label">🌡️ MODIS Daytime LST Heatmap</span>
-                  </label>
-                  <label class="gee-toggle-item">
-                    <input type="checkbox" id="toggle-gee-poi" />
-                    <span class="toggle-label">📍 Urban vs Rural Observation POIs</span>
-                  </label>
-                  <label class="gee-toggle-item">
-                    <input type="checkbox" id="toggle-gee-elevation" />
-                    <span class="toggle-label">⛰️ USGS SRTM Ground Elevation Grid</span>
-                  </label>
-                  <label class="gee-toggle-item">
-                    <input type="checkbox" id="toggle-gee-landcover" />
-                    <span class="toggle-label">🌳 MODIS Land Cover Classification</span>
-                  </label>
+                  <!-- 1. LST Heatmap -->
+                  <div class="gee-toggle-item-wrap">
+                    <label class="gee-toggle-item">
+                      <input type="checkbox" id="toggle-gee-lst" />
+                      <span class="toggle-label">🌡️ MODIS Daytime LST Heatmap</span>
+                    </label>
+                    <div class="gee-layer-legend-box" id="legend-box-lst">
+                      <div class="gee-legend-bar lst-gradient"></div>
+                      <div class="gee-legend-labels">
+                        <span>18°C (Sejuk)</span>
+                        <span>25°C</span>
+                        <span>28°C</span>
+                        <span>31°C</span>
+                        <span>34°C+ (Ekstrem Panas)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 2. Observation POIs -->
+                  <div class="gee-toggle-item-wrap">
+                    <label class="gee-toggle-item">
+                      <input type="checkbox" id="toggle-gee-poi" />
+                      <span class="toggle-label">📍 Urban vs Rural Observation POIs</span>
+                    </label>
+                    <div class="gee-layer-legend-box poi-tags">
+                      <span class="poi-tag urban-tag">🔴 Urban Core (Jakarta - 33.85°C)</span>
+                      <span class="poi-tag rural-tag">🟢 Rural / Forest (Bogor - 24.60°C)</span>
+                    </div>
+                  </div>
+
+                  <!-- 3. Elevation Grid -->
+                  <div class="gee-toggle-item-wrap">
+                    <label class="gee-toggle-item">
+                      <input type="checkbox" id="toggle-gee-elevation" />
+                      <span class="toggle-label">⛰️ USGS SRTM Ground Elevation Grid</span>
+                    </label>
+                    <div class="gee-layer-legend-box" id="legend-box-elv">
+                      <div class="gee-legend-bar elv-gradient"></div>
+                      <div class="gee-legend-labels">
+                        <span>0m (Pesisir)</span>
+                        <span>50m</span>
+                        <span>200m</span>
+                        <span>600m</span>
+                        <span>1200m+ (Puncak)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 4. Land Cover -->
+                  <div class="gee-toggle-item-wrap">
+                    <label class="gee-toggle-item">
+                      <input type="checkbox" id="toggle-gee-landcover" />
+                      <span class="toggle-label">🌳 MODIS Land Cover Classification</span>
+                    </label>
+                    <div class="gee-layer-legend-box lc-tags">
+                      <span class="lc-chip" style="border-left-color: #0284c7;">Laut / Air</span>
+                      <span class="lc-chip" style="border-left-color: #e11d48;">Perkotaan</span>
+                      <span class="lc-chip" style="border-left-color: #eab308;">Pertanian</span>
+                      <span class="lc-chip" style="border-left-color: #15803d;">Hutan Lebat</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 

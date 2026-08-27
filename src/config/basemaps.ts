@@ -1,7 +1,7 @@
 export interface BasemapConfig {
   id: string;
   name: string;
-  category: 'Esri' | 'National' | 'Protomaps' | 'Google' | 'Raster';
+  category: 'Esri' | 'National' | 'OpenData' | 'Google';
   description: string;
   styleUrl: string;
   previewColor: string;
@@ -37,78 +37,90 @@ export const BASEMAPS: BasemapConfig[] = [
     }
   },
   {
-    id: 'esri-open-basemap',
-    name: 'Esri Open Basemap',
-    category: 'Esri',
-    description: 'Detailed global vector basemap powered by OpenStreetMap data',
-    styleUrl: '/basemap/styles/esri-style-open-basemap.json',
-    previewColor: '#e0dfdb',
+    id: 'google-streets',
+    name: 'Google Streets (Navigation)',
+    category: 'Google',
+    description: 'High-contrast street map with road networks, city labels, and transit lines',
+    styleUrl: '/basemap/styles/esri-style-navigation.json',
+    previewColor: '#0ea5e9',
     initialBounds: {
       center: [117.89, -2.55],
-      zoom: 5
+      zoom: 4.5
+    }
+  },
+  {
+    id: 'esri-imagery',
+    name: 'Esri World Imagery',
+    category: 'Esri',
+    description: 'Esri high-resolution global satellite & aerial imagery (No API Key Required)',
+    styleUrl: '/basemap/styles/esri-style-community.json',
+    previewColor: '#1e293b',
+    initialBounds: {
+      center: [117.89, -2.55],
+      zoom: 4.5
     }
   },
   {
     id: 'esri-topographic',
-    name: 'Esri Topographic',
+    name: 'Esri World Topographic',
     category: 'Esri',
-    description: 'Comprehensive topographic map including contours and landforms',
+    description: 'Official Esri world topographic map with contours and physical landforms',
     styleUrl: '/basemap/styles/esri-style-topographic.json',
     previewColor: '#688e57'
   },
   {
-    id: 'esri-navigation',
-    name: 'Esri Navigation',
+    id: 'esri-streets',
+    name: 'Esri World Streets',
     category: 'Esri',
-    description: 'Optimized vector style for routing, transport, and navigation',
-    styleUrl: '/basemap/styles/esri-style-navigation.json',
-    previewColor: '#3a76a4'
+    description: 'Detailed Esri global street map with road networks and city landmarks',
+    styleUrl: '/basemap/styles/esri-style-streets.json',
+    previewColor: '#3b82f6'
+  },
+  {
+    id: 'esri-natgeo',
+    name: 'Esri National Geographic',
+    category: 'Esri',
+    description: 'Distinctive National Geographic world cartographic styling and shaded relief',
+    styleUrl: '/basemap/styles/esri-style-natgeo.json',
+    previewColor: '#84cc16'
   },
   {
     id: 'esri-light-grey',
-    name: 'Esri Light Grey Canvas',
+    name: 'Esri Light Gray Canvas',
     category: 'Esri',
-    description: 'Minimalist neutral backdrop for highlighting thematic spatial data',
+    description: 'Official Esri minimalist neutral backdrop with labels for thematic spatial analysis',
     styleUrl: '/basemap/styles/esri-style-light-grey-canvas.json',
-    previewColor: '#dedede'
+    previewColor: '#e2e8f0'
   },
   {
-    id: 'esri-cleanmap',
-    name: 'Esri Clean Map',
+    id: 'esri-dark-grey',
+    name: 'Esri Dark Gray Canvas',
     category: 'Esri',
-    description: 'Clutter-free clean vector basemap for high legibility',
+    description: 'Official Esri sleek dark canvas with high-contrast road and place labels',
     styleUrl: '/basemap/styles/esri-style-cleanmap.json',
-    previewColor: '#eeddbb'
+    previewColor: '#1e293b'
   },
   {
-    id: 'esri-colorpencil',
-    name: 'Esri Color Pencil',
+    id: 'esri-ocean',
+    name: 'Esri Ocean Basemap',
     category: 'Esri',
-    description: 'Artistic hand-drawn colored pencil styling for creative maps',
-    styleUrl: '/basemap/styles/esri-style-colorpencil.json',
-    previewColor: '#e6c89c'
+    description: 'Esri marine and ocean bathymetry basemap detailing seafloor features and depths',
+    styleUrl: '/basemap/styles/esri-style-ocean.json',
+    previewColor: '#0284c7'
   },
   {
-    id: 'esri-community',
-    name: 'Esri Community',
+    id: 'esri-relief',
+    name: 'Esri World Shaded Relief',
     category: 'Esri',
-    description: 'Community contributed rich basemap layer detailing landmarks and terrain',
-    styleUrl: '/basemap/styles/esri-style-community.json',
-    previewColor: '#7ba269'
-  },
-  {
-    id: 'esri-open-topo',
-    name: 'Esri Open Topo',
-    category: 'Esri',
-    description: 'Open data topographic vector style with physical terrain',
-    styleUrl: '/basemap/styles/esri-style-open-topographic.json',
-    previewColor: '#8cae7d'
+    description: 'Esri terrain surface model with shaded elevation relief and mountain contours',
+    styleUrl: '/basemap/styles/esri-style-relief.json',
+    previewColor: '#78716c'
   },
   {
     id: 'big-rbi',
     name: 'Rupabumi Indonesia (RBI)',
     category: 'National',
-    description: 'Official National Basemap from BIG (Badan Informasi Geospasial Indonesia)',
+    description: 'Official National Topographic Basemap from BIG (Badan Informasi Geospasial)',
     styleUrl: '/basemap/styles/big-style-rbi.json',
     previewColor: '#4fa8d8',
     initialBounds: {
@@ -117,12 +129,28 @@ export const BASEMAPS: BasemapConfig[] = [
     }
   },
   {
-    id: 'protomaps-light',
-    name: 'Protomaps Light',
-    category: 'Protomaps',
-    description: 'Open source vector basemap powered by PMTiles protocol',
+    id: 'osm-standard',
+    name: 'OpenStreetMap Standard',
+    category: 'OpenData',
+    description: 'Global community-driven OpenStreetMap street data and land cover',
+    styleUrl: '/basemap/styles/esri-style-open-basemap.json',
+    previewColor: '#d97706'
+  },
+  {
+    id: 'osm-humanitarian',
+    name: 'OpenStreetMap Humanitarian',
+    category: 'OpenData',
+    description: 'High-contrast humanitarian OpenStreetMap styling detailing roads, rivers, and topography',
     styleUrl: '/basemap/styles/protomaps-style-light.json',
-    previewColor: '#cccccc'
+    previewColor: '#e11d48'
+  },
+  {
+    id: 'open-topo',
+    name: 'OpenTopoMap',
+    category: 'OpenData',
+    description: 'Topographic map derived from OpenStreetMap and SRTM elevation contours',
+    styleUrl: '/basemap/styles/esri-style-open-topographic.json',
+    previewColor: '#15803d'
   }
 ];
 

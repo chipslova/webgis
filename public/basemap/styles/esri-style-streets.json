@@ -2,7 +2,7 @@
   "version": 8,
   "name": "Esri World Streets",
   "sources": {
-    "esri-street-source": {
+    "esri-streets-source": {
       "type": "raster",
       "tiles": [
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"
@@ -14,9 +14,9 @@
   },
   "layers": [
     {
-      "id": "esri-street-layer",
+      "id": "esri-streets-layer",
       "type": "raster",
-      "source": "esri-street-source",
+      "source": "esri-streets-source",
       "minzoom": 0,
       "maxzoom": 19
     }

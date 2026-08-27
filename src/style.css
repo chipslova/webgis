@@ -910,6 +910,69 @@ html, body, #app {
   height: 15px;
 }
 
+.gee-toggle-item-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.gee-layer-legend-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.55);
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-left: 23px;
+}
+
+.gee-legend-bar {
+  width: 100%;
+  height: 7px;
+  border-radius: 3.5px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.gee-legend-bar.lst-gradient {
+  background: linear-gradient(90deg, #1e40af 0%, #0284c7 20%, #10b981 40%, #f59e0b 60%, #ea580c 80%, #dc2626 100%);
+}
+
+.gee-legend-bar.elv-gradient {
+  background: linear-gradient(90deg, #006633 0%, #84cc16 20%, #eab308 45%, #c2410c 75%, #f5f5f5 100%);
+}
+
+.gee-legend-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.poi-tags, .lc-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.poi-tag {
+  font-size: 10px;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.lc-chip {
+  font-size: 9.5px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid var(--border-color);
+  border-left-width: 3px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--text-main);
+}
+
 .gee-metrics-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1538,57 +1601,80 @@ html, body, #app {
   color: var(--accent-cyan);
 }
 
-/* Scientific EO Legend Bars */
+/* Legend Bar & Container */
+.piksel-legend-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 8px;
+  background: rgba(15, 23, 42, 0.55);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .piksel-legend-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
+  width: 100%;
 }
 
-.legend-scale-label {
-  font-size: 9px;
+.piksel-legend-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9.5px;
   color: var(--text-muted);
-  white-space: nowrap;
+  gap: 4px;
+}
+
+.piksel-legend-labels .left {
+  text-align: left;
+  flex: 1;
+}
+
+.piksel-legend-labels .middle {
+  text-align: center;
+  color: #cbd5e1;
+  font-weight: 500;
+  flex: 1;
+}
+
+.piksel-legend-labels .right {
+  text-align: right;
+  flex: 1;
 }
 
 .legend-gradient {
-  flex: 1;
-  height: 7px;
-  border-radius: 3px;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
-.legend-gradient.natural {
-  background: linear-gradient(90deg, #1e3a8a 0%, #0d9488 30%, #16a34a 70%, #15803d 100%);
+/* 1. Sentinel-2 GeoMAD True Color: Blue Water -> Sand/Soil -> Urban -> Green Forest */
+.legend-gradient.s2-geomad-gradient {
+  background: linear-gradient(90deg, #1e3a8a 0%, #0284c7 20%, #d4b285 45%, #94a3b8 65%, #16a34a 85%, #15803d 100%);
 }
 
-.legend-gradient.nir {
-  background: linear-gradient(90deg, #0f172a 0%, #64748b 30%, #f97316 65%, #dc2626 100%);
+/* 2. Sentinel-2 CIR: Water Navy Blue -> Non-Vegetation Orange -> Crops Yellow-Green -> Dense Forest Dark Green */
+.legend-gradient.s2-cir-gradient {
+  background: linear-gradient(90deg, #0f172a 0%, #1e3a8a 20%, #d97706 45%, #84cc16 75%, #15803d 100%);
 }
 
-.legend-gradient.falsecolor {
-  background: linear-gradient(90deg, #581c87 0%, #3b82f6 30%, #eab308 65%, #16a34a 100%);
+/* 3. Sentinel-1 SAR: Water Pitch Black -> Land Grey -> Urban Double-Bounce Bright White */
+.legend-gradient.s1-radar-gradient {
+  background: linear-gradient(90deg, #020617 0%, #1e293b 25%, #64748b 60%, #cbd5e1 85%, #ffffff 100%);
 }
 
-.legend-gradient.ndvi {
-  background: linear-gradient(90deg, #78350f 0%, #d97706 25%, #facc15 50%, #84cc16 75%, #14532d 100%);
+/* 4. Landsat 9 SR: Optical Blue -> Soil/Urban -> Natural Forest */
+.legend-gradient.ls9-sr-gradient {
+  background: linear-gradient(90deg, #1e3a8a 0%, #0f766e 25%, #a8a29e 50%, #84cc16 75%, #15803d 100%);
 }
 
-.legend-gradient.ndwi {
-  background: linear-gradient(90deg, #334155 0%, #64748b 35%, #38bdf8 70%, #0284c7 100%);
-}
-
-.legend-gradient.bsi {
-  background: linear-gradient(90deg, #14532d 0%, #4d7c0f 30%, #ca8a04 65%, #78350f 100%);
-}
-
-.legend-gradient.flood {
-  background: linear-gradient(90deg, rgba(59,130,246,0.1) 0%, #fde047 30%, #f97316 65%, #ef4444 100%);
-}
-
-.legend-gradient.stats {
-  background: linear-gradient(90deg, #312e81 0%, #0284c7 35%, #10b981 65%, #f59e0b 85%, #dc2626 100%);
+/* 5. DEMNAS Topo: Shadowed Valley Dark Slate -> Ridge Light Sunlit */
+.legend-gradient.demnas-topo-gradient {
+  background: linear-gradient(90deg, #1e293b 0%, #334155 25%, #64748b 55%, #e2e8f0 85%, #ffffff 100%);
 }
 
 .piksel-links-group {
