@@ -1,176 +1,12 @@
 import * as maplibregl from 'maplibre-gl';
+import { PikselProduct, PikselPreset, PIKSEL_PRODUCTS, PIKSEL_PRESETS } from '../config/piksel';
 
-export interface PikselProduct {
-  id: string;
-  name: string;
-  layerName: string;
-  description: string;
-  badge: string;
-  color: string;
-  resolution: string;
-  sensor: string;
-  whatItShows: string;
-  legendLeft: string;
-  legendMiddle?: string;
-  legendRight: string;
-  legendGradientClass: string;
-  rasterTileUrl?: string;
-}
-
-export interface PikselPreset {
-  id: string;
-  name: string;
-  locationName: string;
-  center: [number, number];
-  zoom: number;
-  pitch?: number;
-  description: string;
-  recommendedProduct: string;
-}
-
-export const PIKSEL_PRODUCTS: PikselProduct[] = [
-  {
-    id: 's2-geomad',
-    name: 'Sentinel-2 GeoMAD (True Color)',
-    layerName: 's2_geomad_annual',
-    description: 'Komposit optik warna alami 10m bebas awan tahunan untuk seluruh wilayah Indonesia.',
-    whatItShows: 'Warna asli foto satelit (RGB): Hutan hijau alami, perkotaan abu-abu, dan laut biru jernih tanpa tutupan awan.',
-    badge: 'Optik 10m',
-    color: '#10b981',
-    resolution: '10 meter',
-    sensor: 'Sentinel-2 MSI',
-    legendLeft: '🌊 Perairan (Biru)',
-    legendMiddle: '🏜️ Tanah / Pasir (Krem)',
-    legendRight: '🌲 Kanopi Hutan (Hijau)',
-    legendGradientClass: 's2-geomad-gradient',
-    rasterTileUrl: 'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2021_3857/default/g/{z}/{y}/{x}.jpg'
-  },
-  {
-    id: 's2-cir',
-    name: 'Sentinel-2 Kerapatan Vegetasi & Kanopi',
-    layerName: 's2_vegetation_canopy',
-    description: 'Peningkatan kontras klorofil & biomassa untuk membedakan hutan lebat vs lahan terbuka.',
-    whatItShows: 'Tutupan Vegetasi Tropis: Kanopi hutan lebat tampak Hijau Tua Pekat (klorofil tinggi), lahan pertanian hijau muda, dan tanah terbuka jingga/kuning.',
-    badge: 'Vegetasi 10m',
-    color: '#059669',
-    resolution: '10 meter',
-    sensor: 'Sentinel-2 MSI',
-    legendLeft: '🌊 Perairan (Biru Gelap)',
-    legendMiddle: '🏜️ Tanah Terbuka (Jingga)',
-    legendRight: '🌳 Hutan Lebat (Hijau Pekat)',
-    legendGradientClass: 's2-cir-gradient',
-    rasterTileUrl: 'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2021_3857/default/g/{z}/{y}/{x}.jpg'
-  },
-  {
-    id: 's1-radar',
-    name: 'Sentinel-1 SAR Radar (Backscatter)',
-    layerName: 's1_rtc',
-    description: 'Citra gelombang mikro radar tembus awan untuk pemetaan genangan air, banjir, garis pantai, dan struktur kota.',
-    whatItShows: 'Pantulan Radar: Permukaan air datar memantulkan sinyal menjauh (tampak hitam pekat), sedangkan bangunan & tegakan pohon tampak terang bertekstur.',
-    badge: 'SAR Radar 10m',
-    color: '#3b82f6',
-    resolution: '10 meter',
-    sensor: 'Sentinel-1 C-Band SAR',
-    legendLeft: '🌊 Air / Banjir (Hitam)',
-    legendMiddle: '🌾 Lahan & Vegetasi (Abu-abu)',
-    legendRight: '🏢 Bangunan / Kota (Putih)',
-    legendGradientClass: 's1-radar-gradient',
-    rasterTileUrl: 'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2021_3857/default/g/{z}/{y}/{x}.jpg'
-  },
-  {
-    id: 'ls9-sr',
-    name: 'Landsat 9 Surface Reflectance (30m)',
-    layerName: 'ls9_c2l2_sr',
-    description: 'Citra optik & multispektral permukaan resolusi tinggi 30m dari sensor Landsat 9 OLI-2.',
-    whatItShows: 'Reflektansi Permukaan: Kontur tutupan lahan, sawah, perbukitan, dan batas permukiman tajam beresolusi 30 meter.',
-    badge: 'Multispektral 30m',
-    color: '#8b5cf6',
-    resolution: '30 meter',
-    sensor: 'Landsat 9 OLI-2',
-    legendLeft: '🌊 Perairan (Biru Tua)',
-    legendMiddle: '🏙️ Permukiman / Tanah (Abu-abu)',
-    legendRight: '🌳 Hutan (Hijau Alami)',
-    legendGradientClass: 'ls9-sr-gradient',
-    rasterTileUrl: 'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2021_3857/default/g/{z}/{y}/{x}.jpg'
-  },
-  {
-    id: 'demnas-topo',
-    name: 'DEMNAS / Elevasi Topografi Nasional (BIG)',
-    layerName: 'demnas_seamless_8m',
-    description: 'Model elevasi digital nasional mulus resolusi 8 meter dari Badan Informasi Geospasial.',
-    whatItShows: 'Morfologi Bentang Alam: Lembah dan lereng terjal tampak abu-abu gelap, punggungan bukit dan puncak gunung tampak terang.',
-    badge: 'DEMNAS 8m',
-    color: '#d97706',
-    resolution: '8 meter',
-    sensor: 'IFSAR / Terrasar-X / ALOS PALSAR',
-    legendLeft: '🏞️ Lembah / Teduh (Gelap)',
-    legendMiddle: '⛰️ Kelerengan Bukit (Abu-abu)',
-    legendRight: '🏔️ Puncak Gunung (Terang)',
-    legendGradientClass: 'demnas-topo-gradient',
-    rasterTileUrl: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}'
-  }
-];
-
-export const PIKSEL_PRESETS: PikselPreset[] = [
-  {
-    id: 'bromo',
-    name: 'Bromo Tengger Semeru',
-    locationName: 'Jawa Timur',
-    center: [112.9485, -7.9514],
-    zoom: 12,
-    pitch: 35,
-    description: 'Kaldera lautan pasir Bromo dan hutan cemara di lereng Gunung Semeru.',
-    recommendedProduct: 's2-geomad'
-  },
-  {
-    id: 'toba',
-    name: 'Danau Toba & Samosir',
-    locationName: 'Sumatera Utara',
-    center: [98.8052, 2.5819],
-    zoom: 10.5,
-    pitch: 20,
-    description: 'Perairan danau vulkanik terbesar di Asia Tenggara dan tangkapan air Danau Toba.',
-    recommendedProduct: 's2-geomad'
-  },
-  {
-    id: 'ikn',
-    name: 'IKN Nusantara',
-    locationName: 'Kalimantan Timur',
-    center: [116.7050, -0.9700],
-    zoom: 11.5,
-    pitch: 25,
-    description: 'Pembangunan infrastruktur Ibu Kota Nusantara dan kelestarian kanopi hutan tropis.',
-    recommendedProduct: 's2-cir'
-  },
-  {
-    id: 'jakarta-coast',
-    name: 'Pesisir Utara Jakarta',
-    locationName: 'DKI Jakarta',
-    center: [106.7900, -6.1150],
-    zoom: 12.5,
-    description: 'Batas garis pantai, tanggul laut, dan area rawan banjir rob pasang surut.',
-    recommendedProduct: 's1-radar'
-  },
-  {
-    id: 'gag-island',
-    name: 'Pulau Gag (Raja Ampat)',
-    locationName: 'Papua Barat Daya',
-    center: [129.8900, -0.4500],
-    zoom: 12,
-    description: 'Analisis tutupan vegetasi pulau tropis dan area terbuka mineral.',
-    recommendedProduct: 's2-cir'
-  },
-  {
-    id: 'merapi',
-    name: 'Gunung Merapi',
-    locationName: 'D.I. Yogyakarta',
-    center: [110.4463, -7.5407],
-    zoom: 12,
-    pitch: 30,
-    description: 'Morfologi kubah lava aktif, alur lahar dingin, dan topografi lereng Merapi.',
-    recommendedProduct: 'demnas-topo'
-  }
-];
+export type PikselLoadingState = {
+  isLoading: boolean;
+  productId: string | null;
+  productName?: string;
+  isComputeHeavy?: boolean;
+};
 
 export class PikselLoader {
   private map: maplibregl.Map;
@@ -179,6 +15,7 @@ export class PikselLoader {
   private gridVisible: boolean = false;
   private popup: maplibregl.Popup;
   private isEventsBound: boolean = false;
+  private onLoadingCallback: ((state: PikselLoadingState) => void) | null = null;
 
   constructor(map: maplibregl.Map) {
     this.map = map;
@@ -187,6 +24,10 @@ export class PikselLoader {
       closeOnClick: false,
       maxWidth: '340px'
     });
+  }
+
+  public onLoadingStateChange(cb: (state: PikselLoadingState) => void) {
+    this.onLoadingCallback = cb;
   }
 
   public getProducts(): PikselProduct[] {
@@ -227,7 +68,7 @@ export class PikselLoader {
   }
 
   /**
-   * Sets the single active satellite product (hides all others to prevent messy visual clashes)
+   * Sets the active Piksel OGC product layer
    */
   public setActiveProduct(productId: string | null) {
     this.activeProductId = productId;
@@ -239,7 +80,7 @@ export class PikselLoader {
       return;
     }
 
-    // Hide all raster layers first
+    // Hide all Piksel raster layers first
     PIKSEL_PRODUCTS.forEach((prod) => {
       const layerId = `piksel-raster-${prod.id}`;
       if (this.map.getLayer(layerId)) {
@@ -251,53 +92,82 @@ export class PikselLoader {
     if (productId) {
       const product = PIKSEL_PRODUCTS.find((p) => p.id === productId);
       if (product) {
+        if (this.onLoadingCallback) {
+          this.onLoadingCallback({
+            isLoading: true,
+            productId: product.id,
+            productName: product.name,
+            isComputeHeavy: !!product.isComputeHeavy
+          });
+        }
+
         this.renderRasterLayer(product);
+
+        // Notify completion after tile layer is queued
+        setTimeout(() => {
+          if (this.onLoadingCallback && this.activeProductId === productId) {
+            this.onLoadingCallback({
+              isLoading: false,
+              productId: product.id,
+              productName: product.name,
+              isComputeHeavy: !!product.isComputeHeavy
+            });
+          }
+        }, 800);
+      }
+    } else {
+      if (this.onLoadingCallback) {
+        this.onLoadingCallback({
+          isLoading: false,
+          productId: null
+        });
       }
     }
   }
 
   /**
-   * Renders the raster layer for a specific satellite product
+   * Constructs the authentic OGC WMS URL for MapLibre Web Mercator tiling
+   */
+  private buildWmsTileUrl(product: PikselProduct): string {
+    const params = new URLSearchParams({
+      SERVICE: 'WMS',
+      VERSION: '1.3.0',
+      REQUEST: 'GetMap',
+      CRS: 'EPSG:3857',
+      WIDTH: '256',
+      HEIGHT: '256',
+      LAYERS: product.layer,
+      STYLES: product.style,
+      FORMAT: 'image/png',
+      TRANSPARENT: 'TRUE'
+    });
+
+    if (product.time) {
+      params.set('TIME', product.time);
+    }
+
+    // MapLibre replaces {bbox-epsg-3857} dynamically per tile
+    return `${product.serviceUrl}?${params.toString()}&BBOX={bbox-epsg-3857}`;
+  }
+
+  /**
+   * Renders the raster layer for a specific OGC satellite product
    */
   private renderRasterLayer(product: PikselProduct) {
-    if (!product.rasterTileUrl || !this.map) return;
+    if (!this.map) return;
 
     const sourceId = `piksel-raster-src-${product.id}`;
     const layerId = `piksel-raster-${product.id}`;
+    const tileUrl = this.buildWmsTileUrl(product);
 
     try {
       if (!this.map.getSource(sourceId)) {
         this.map.addSource(sourceId, {
           type: 'raster',
-          tiles: [product.rasterTileUrl],
+          tiles: [tileUrl],
           tileSize: 256,
-          attribution: '© BIG Piksel / Copernicus / USGS / ESA'
+          attribution: product.attribution || '© Badan Informasi Geospasial (BIG) — Piksel'
         });
-      }
-
-      const paintProps: Record<string, any> = {
-        'raster-opacity': this.currentOpacity,
-        'raster-fade-duration': 200
-      };
-
-      if (product.id === 's1-radar') {
-        paintProps['raster-saturation'] = -1.0;
-        paintProps['raster-contrast'] = 0.25;
-        paintProps['raster-brightness-min'] = 0.1;
-        paintProps['raster-brightness-max'] = 1.0;
-      } else if (product.id === 's2-cir') {
-        paintProps['raster-saturation'] = 0.85;
-        paintProps['raster-contrast'] = 0.3;
-        paintProps['raster-brightness-max'] = 1.0;
-      } else if (product.id === 's2-geomad') {
-        paintProps['raster-saturation'] = 0.15;
-        paintProps['raster-contrast'] = 0.1;
-      } else if (product.id === 'ls9-sr') {
-        paintProps['raster-saturation'] = 0.35;
-        paintProps['raster-contrast'] = 0.2;
-      } else if (product.id === 'demnas-topo') {
-        paintProps['raster-saturation'] = 0.0;
-        paintProps['raster-contrast'] = 0.2;
       }
 
       if (!this.map.getLayer(layerId)) {
@@ -306,14 +176,17 @@ export class PikselLoader {
           type: 'raster',
           source: sourceId,
           layout: { visibility: 'visible' },
-          paint: paintProps
+          paint: {
+            'raster-opacity': this.currentOpacity,
+            'raster-fade-duration': 150
+          }
         });
       } else {
         this.map.setLayoutProperty(layerId, 'visibility', 'visible');
         this.map.setPaintProperty(layerId, 'raster-opacity', this.currentOpacity);
       }
     } catch (e) {
-      console.warn(`[PikselLoader] Raster error for ${product.id}:`, e);
+      console.warn(`[PikselLoader] Layer error for ${product.id}:`, e);
     }
   }
 
@@ -406,23 +279,23 @@ export class PikselLoader {
     this.map.on('click', fillId, (e) => {
       if (!e.features || e.features.length === 0) return;
       const props = e.features[0].properties || {};
-      const regionCode = props.region_code || props.label || 'x152y010';
-      const sceneCount = props.count ? `${props.count} Scene Satelit` : 'Data Cube Tersedia';
+      const regionCode = props.region_code || props.label || 'N/A';
+      const sceneInfo = props.count ? `${props.count} Scene Satelit` : 'Tersedia di Open Data Cube';
 
       const html = `
         <div class="gee-popup-card">
           <div class="piksel-badge" style="background-color: #10b98122; color: #10b981; border: 1px solid #10b98166; margin-bottom: 6px;">
-            BIG Data Cube Tile
+            Piksel Data Cube Grid
           </div>
-          <h4>🛰️ Tile Akuisisi: <code>${regionCode}</code></h4>
+          <h4>🛰️ Tile Grid: <code>${regionCode}</code></h4>
           <table class="gee-popup-table">
-            <tr><td><strong>Jumlah Scene:</strong></td><td><strong>${sceneCount}</strong></td></tr>
-            <tr><td><strong>Status Grid:</strong></td><td><span style="color: #10b981; font-weight: 600;">Terindeks di BIG</span></td></tr>
-            <tr><td><strong>Resolusi:</strong></td><td>10 meter (Sentinel-2)</td></tr>
+            <tr><td><strong>Dataset:</strong></td><td>Sentinel-2 MSI Surface Reflectance</td></tr>
+            <tr><td><strong>Jumlah Scene:</strong></td><td><strong>${sceneInfo}</strong></td></tr>
+            <tr><td><strong>Resolusi Grid:</strong></td><td>10 meter (Data Cube Terindeks)</td></tr>
           </table>
           <div style="margin-top: 8px;">
             <a href="https://explorer.piksel.big.go.id/products/s2_geomad_annual" target="_blank" rel="noopener noreferrer" style="color: #06b6d4; font-size: 11px; text-decoration: underline;">
-              Buka di BIG Piksel Explorer &rarr;
+              Buka Katalog Produk BIG Piksel &rarr;
             </a>
           </div>
         </div>

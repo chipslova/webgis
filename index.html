@@ -398,7 +398,16 @@
         </aside>
 
         <!-- Map Container -->
-        <main id="map" class="map-container"></main>
+        <main id="map" class="map-container">
+          <!-- Floating Map HUD Notification for Piksel EO -->
+          <div id="piksel-map-hud" class="piksel-map-hud" style="display: none;">
+            <div class="hud-spinner" id="hud-spinner"></div>
+            <div class="hud-content">
+              <span class="hud-title" id="hud-title">🛰️ Memuat Layer WMS Piksel...</span>
+              <span class="hud-subtitle" id="hud-subtitle">Sentinel-2 GeoMAD</span>
+            </div>
+          </div>
+        </main>
 
         <!-- Feature Inspection Card / Popup Modal -->
         <div id="feature-inspector" class="feature-inspector-card" style="display:none;">

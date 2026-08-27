@@ -1,8 +1,11 @@
-import { PikselLoader, PIKSEL_PRODUCTS, PIKSEL_PRESETS } from '../tools/piksel-loader';
+import { PikselLoader, PikselLoadingState } from '../tools/piksel-loader';
+import { PIKSEL_PRODUCTS, PIKSEL_PRESETS, PIKSEL_CATEGORIES, PikselProduct } from '../config/piksel';
 
 export class PikselPanelUI {
   private pikselLoader: PikselLoader;
   private isEventsBound: boolean = false;
+  private currentLoadingState: PikselLoadingState = { isLoading: false, productId: null };
+  private hudHideTimer: any = null;
 
   constructor(pikselLoader: PikselLoader) {
     this.pikselLoader = pikselLoader;
@@ -13,6 +16,12 @@ export class PikselPanelUI {
     this.renderControls();
     this.renderProducts();
     this.bindEvents();
+
+    this.pikselLoader.onLoadingStateChange((state) => {
+      this.currentLoadingState = state;
+      this.renderLoadingBanner();
+      this.updateMapHUD(state);
+    });
 
     const map = this.pikselLoader.getMap();
     if (map) {
@@ -62,10 +71,13 @@ export class PikselPanelUI {
     const isGridOn = this.pikselLoader.isGridVisible();
 
     const controlsHtml = `
+      <!-- Loading & Status Banner Container in Sidebar -->
+      <div id="piksel-loading-banner-wrap"></div>
+
       <!-- Master Opacity Slider -->
       <div class="piksel-master-control">
         <div class="piksel-control-header">
-          <span class="control-title">🎚️ Transparansi Layer Citra</span>
+          <span class="control-title">🎚️ Transparansi Layer Citra OGC</span>
           <span class="control-val" id="piksel-master-opacity-val">${opacityPct}%</span>
         </div>
         <input 
@@ -88,17 +100,115 @@ export class PikselPanelUI {
         <label class="piksel-toggle-label">
           <input type="checkbox" id="toggle-piksel-grid" ${isGridOn ? 'checked' : ''} />
           <span class="toggle-text">
-            <strong>📦 Tampilkan Grid Tile Akuisisi (BIG Piksel)</strong>
-            <small>Garis tile Data Cube nasional (klik tile untuk info scene)</small>
+            <strong>📦 Tampilkan Grid Tile Data Cube (BIG Piksel)</strong>
+            <small>Garis 1.631 tile Open Data Cube nasional (klik tile untuk metadata)</small>
           </span>
         </label>
       </div>
 
-      <div class="piksel-section-subtitle">KATALOG PRODUK EARTH OBSERVATION:</div>
+      <div class="piksel-section-subtitle">KATALOG PRODUK OGC BIG PIKSEL:</div>
       <div class="piksel-products-list" id="piksel-products-inner-list"></div>
     `;
 
     container.innerHTML = controlsHtml;
+  }
+
+  private updateMapHUD(state: PikselLoadingState) {
+    const hud = document.getElementById('piksel-map-hud');
+    const titleEl = document.getElementById('hud-title');
+    const subEl = document.getElementById('hud-subtitle');
+    if (!hud || !titleEl || !subEl) return;
+
+    if (this.hudHideTimer) {
+      clearTimeout(this.hudHideTimer);
+      this.hudHideTimer = null;
+    }
+
+    if (state.productId) {
+      hud.style.display = 'flex';
+
+      if (state.isLoading) {
+        hud.classList.remove('ready');
+        titleEl.innerHTML = `🛰️ Memuat Layer WMS: ${state.productName}`;
+        subEl.innerHTML = state.isComputeHeavy 
+          ? `⚡ Pemrosesan spektral on-the-fly di cloud BIG Piksel...`
+          : `Mengunduh tile resolusi tinggi dari server OGC BIG...`;
+      } else {
+        hud.classList.add('ready');
+        titleEl.innerHTML = `✅ Layer Aktif: ${state.productName}`;
+        subEl.innerHTML = `Sumber: OGC WMS Badan Informasi Geospasial (BIG)`;
+
+        // Fade out floating HUD badge gracefully after 5 seconds
+        this.hudHideTimer = setTimeout(() => {
+          if (hud) hud.style.display = 'none';
+        }, 5000);
+      }
+    } else {
+      hud.style.display = 'none';
+    }
+  }
+
+  private renderLoadingBanner() {
+    const bannerWrap = document.getElementById('piksel-loading-banner-wrap');
+    if (!bannerWrap) return;
+
+    if (this.currentLoadingState.isLoading) {
+      bannerWrap.innerHTML = `
+        <div class="piksel-live-toast loading">
+          <div class="piksel-toast-spinner"></div>
+          <div class="piksel-toast-content">
+            <strong>🛰️ Memuat Layer WMS Piksel...</strong>
+            <span>${this.currentLoadingState.productName || 'Sedang mengambil tile dari OGC BIG'}</span>
+            ${this.currentLoadingState.isComputeHeavy ? '<small style="color: #f59e0b; display: block; margin-top: 2px;">⚡ Pemrosesan spektral on-the-fly di cloud BIG...</small>' : ''}
+          </div>
+        </div>
+      `;
+    } else {
+      bannerWrap.innerHTML = '';
+    }
+  }
+
+  private renderLegend(product: PikselProduct): string {
+    if (product.legend.type === 'categorical') {
+      const itemsHtml = product.legend.items
+        .map(
+          (item) => `
+          <div class="piksel-cat-item">
+            <span class="piksel-cat-swatch" style="background-color: ${item.color};"></span>
+            <span class="piksel-cat-label">${item.label}</span>
+          </div>
+        `
+        )
+        .join('');
+
+      return `
+        <div class="piksel-legend-container categorical">
+          <div class="piksel-categorical-list">
+            ${itemsHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    // Continuous or Natural legend
+    const legend = product.legend;
+    const rangeTextHtml = legend.type === 'continuous' && legend.rangeText 
+      ? `<div class="piksel-legend-range-note">${legend.rangeText}</div>` 
+      : '';
+
+    return `
+      <div class="piksel-legend-container">
+        ${rangeTextHtml}
+        <div class="piksel-legend-bar">
+          <div class="legend-gradient ${legend.gradientClass}"></div>
+        </div>
+        <div class="piksel-legend-labels">
+          <span class="legend-scale-label left">${legend.leftLabel}</span>
+          ${legend.middleLabel ? `<span class="legend-scale-label middle">${legend.middleLabel}</span>` : ''}
+          <span class="legend-scale-label right">${legend.rightLabel}</span>
+        </div>
+      </div>
+    `;
   }
 
   private renderProducts() {
@@ -108,49 +218,55 @@ export class PikselPanelUI {
     const activeId = this.pikselLoader.getActiveProductId();
     let html = '';
 
-    PIKSEL_PRODUCTS.forEach((product) => {
-      const isSelected = product.id === activeId;
-
-      const legendHtml = `
-        <div class="piksel-legend-container">
-          <div class="piksel-legend-bar">
-            <div class="legend-gradient ${product.legendGradientClass}"></div>
-          </div>
-          <div class="piksel-legend-labels">
-            <span class="legend-scale-label left">${product.legendLeft}</span>
-            ${product.legendMiddle ? `<span class="legend-scale-label middle">${product.legendMiddle}</span>` : ''}
-            <span class="legend-scale-label right">${product.legendRight}</span>
-          </div>
-        </div>
-      `;
+    PIKSEL_CATEGORIES.forEach((cat) => {
+      const catProducts = PIKSEL_PRODUCTS.filter((p) => p.category === cat.id);
+      if (catProducts.length === 0) return;
 
       html += `
-        <div class="piksel-product-card ${isSelected ? 'active' : ''}" data-product-id="${product.id}">
-          <div class="piksel-card-header">
-            <div class="piksel-radio-wrap">
-              <input type="radio" name="piksel-product-radio" id="radio-${product.id}" value="${product.id}" ${isSelected ? 'checked' : ''} style="pointer-events: none;" tabindex="-1" />
-              <span class="piksel-product-title">${product.name}</span>
-            </div>
-            <span class="piksel-badge" style="background-color: ${product.color}22; color: ${product.color}; border-color: ${product.color}44;">
-              ${product.badge}
-            </span>
-          </div>
-          
-          <p class="piksel-product-desc">${product.description}</p>
-          
-          <div class="piksel-what-shows">
-            <strong>🔍 Arti Visual:</strong> ${product.whatItShows}
-          </div>
-
-          ${legendHtml}
-
-          <div class="piksel-product-meta">
-            <span><strong>Sensor:</strong> ${product.sensor}</span>
-            <span><strong>Resolusi:</strong> ${product.resolution}</span>
-            <span><strong>Dataset:</strong> ${product.layerName}</span>
-          </div>
+        <div class="piksel-group-header">
+          <span class="group-icon">${cat.icon}</span>
+          <span class="group-title">${cat.name}</span>
         </div>
       `;
+
+      catProducts.forEach((product) => {
+        const isSelected = product.id === activeId;
+        const legendHtml = this.renderLegend(product);
+        const noticeHtml = product.statusNotice
+          ? `<div class="piksel-product-notice">${product.statusNotice}</div>`
+          : '';
+
+        html += `
+          <div class="piksel-product-card ${isSelected ? 'active' : ''}" data-product-id="${product.id}">
+            <div class="piksel-card-header">
+              <div class="piksel-radio-wrap">
+                <input type="radio" name="piksel-product-radio" id="radio-${product.id}" value="${product.id}" ${isSelected ? 'checked' : ''} style="pointer-events: none;" tabindex="-1" />
+                <span class="piksel-product-title">${product.name}</span>
+              </div>
+              <span class="piksel-badge" style="background-color: ${product.color}22; color: ${product.color}; border-color: ${product.color}44;">
+                ${product.badge}
+              </span>
+            </div>
+            
+            <p class="piksel-product-desc">${product.description}</p>
+            ${noticeHtml}
+            
+            <div class="piksel-what-shows">
+              <strong>🔍 Arti Analitis:</strong> ${product.whatItShows}
+            </div>
+
+            ${legendHtml}
+
+            <div class="piksel-product-meta">
+              <span><strong>Sensor:</strong> ${product.sensor}</span>
+              <span><strong>Resolusi:</strong> ${product.resolution}</span>
+              <span><strong>OGC Layer:</strong> <code>${product.layer}</code></span>
+              <span><strong>Style:</strong> <code>${product.style}</code></span>
+              ${product.time ? `<span><strong>Waktu:</strong> ${product.time}</span>` : ''}
+            </div>
+          </div>
+        `;
+      });
     });
 
     listContainer.innerHTML = html;

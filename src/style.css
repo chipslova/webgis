@@ -1652,29 +1652,67 @@ html, body, #app {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
-/* 1. Sentinel-2 GeoMAD True Color: Blue Water -> Sand/Soil -> Urban -> Green Forest */
+/* 1. Sentinel-2 GeoMAD True Color */
 .legend-gradient.s2-geomad-gradient {
   background: linear-gradient(90deg, #1e3a8a 0%, #0284c7 20%, #d4b285 45%, #94a3b8 65%, #16a34a 85%, #15803d 100%);
 }
 
-/* 2. Sentinel-2 CIR: Water Navy Blue -> Non-Vegetation Orange -> Crops Yellow-Green -> Dense Forest Dark Green */
-.legend-gradient.s2-cir-gradient {
-  background: linear-gradient(90deg, #0f172a 0%, #1e3a8a 20%, #d97706 45%, #84cc16 75%, #15803d 100%);
+/* 2. Sentinel-2 False Color NIR: Water Dark -> Urban Cyan/Grey -> Dense Canopy Deep Red */
+.legend-gradient.s2-nir-gradient {
+  background: linear-gradient(90deg, #020617 0%, #1e3a8a 20%, #64748b 45%, #f43f5e 75%, #be123c 100%);
 }
 
-/* 3. Sentinel-1 SAR: Water Pitch Black -> Land Grey -> Urban Double-Bounce Bright White */
-.legend-gradient.s1-radar-gradient {
-  background: linear-gradient(90deg, #020617 0%, #1e293b 25%, #64748b 60%, #cbd5e1 85%, #ffffff 100%);
+/* 3. NDVI: Water/Barren Gray/Tan -> Sparse Yellow -> Dense Canopy Deep Green */
+.legend-gradient.ndvi-gradient {
+  background: linear-gradient(90deg, #0284c7 0%, #d4b285 25%, #fde047 50%, #4ade80 75%, #15803d 100%);
 }
 
-/* 4. Landsat 9 SR: Optical Blue -> Soil/Urban -> Natural Forest */
+/* 4. NDWI: Dry Warm Brown -> Moist Pale Cyan -> Deep Water Navy Blue */
+.legend-gradient.ndwi-gradient {
+  background: linear-gradient(90deg, #b45309 0%, #fde047 30%, #67e8f9 60%, #0284c7 85%, #1e3a8a 100%);
+}
+
+/* 5. BSI: Dense Vegetation Dark Slate/Green -> Mixed Tan -> Bare Soil Bright Orange/Red */
+.legend-gradient.bsi-gradient {
+  background: linear-gradient(90deg, #064e3b 0%, #10b981 25%, #fde047 55%, #ea580c 85%, #991b1b 100%);
+}
+
+/* 6. Observation Count: Low Purple -> Medium Blue -> High Golden Yellow */
+.legend-gradient.count-gradient {
+  background: linear-gradient(90deg, #4c1d95 0%, #2563eb 40%, #06b6d4 70%, #facc15 100%);
+}
+
+/* 7. Landsat 9 SR: Optical Blue -> Soil/Urban -> Natural Forest */
 .legend-gradient.ls9-sr-gradient {
   background: linear-gradient(90deg, #1e3a8a 0%, #0f766e 25%, #a8a29e 50%, #84cc16 75%, #15803d 100%);
 }
 
-/* 5. DEMNAS Topo: Shadowed Valley Dark Slate -> Ridge Light Sunlit */
-.legend-gradient.demnas-topo-gradient {
-  background: linear-gradient(90deg, #1e293b 0%, #334155 25%, #64748b 55%, #e2e8f0 85%, #ffffff 100%);
+/* Categorical Legend Box */
+.piksel-categorical-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 2px 0;
+}
+
+.piksel-cat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: #cbd5e1;
+}
+
+.piksel-cat-swatch {
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.piksel-cat-label {
+  font-weight: 500;
 }
 
 .piksel-links-group {
@@ -1682,6 +1720,179 @@ html, body, #app {
   flex-direction: column;
   gap: 6px;
 }
+
+/* Category Group Headers */
+.piksel-group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  margin-bottom: 4px;
+  padding: 4px 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border-left: 3px solid var(--accent-cyan);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.piksel-group-header .group-icon {
+  font-size: 13px;
+}
+
+.piksel-group-header .group-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #e2e8f0;
+}
+
+/* Live Loading Toast */
+.piksel-live-toast.loading {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--accent-cyan);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  animation: fadeInToast 0.25s ease-out;
+}
+
+@keyframes fadeInToast {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.piksel-toast-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(6, 182, 212, 0.2);
+  border-top-color: var(--accent-cyan);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.piksel-toast-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+}
+
+.piksel-toast-content strong {
+  color: var(--accent-cyan);
+}
+
+.piksel-toast-content span {
+  color: #cbd5e1;
+  font-size: 10.5px;
+}
+
+/* Product Notice Banner */
+.piksel-product-notice {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: 4px;
+  color: #fbbf24;
+  font-size: 10px;
+  line-height: 1.35;
+  padding: 5px 8px;
+  margin-bottom: 8px;
+}
+
+.piksel-legend-range-note {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-family: monospace;
+  margin-bottom: 2px;
+}
+
+/* Floating Map HUD Notification for Piksel EO */
+.piksel-map-hud {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(6, 182, 212, 0.2);
+  border-radius: 40px;
+  padding: 8px 20px;
+  pointer-events: auto;
+  animation: slideDownHUD 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s ease;
+  max-width: 90%;
+}
+
+@keyframes slideDownHUD {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.piksel-map-hud .hud-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(6, 182, 212, 0.25);
+  border-top-color: var(--accent-cyan);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+.piksel-map-hud.ready .hud-spinner {
+  display: none;
+}
+
+.piksel-map-hud.ready {
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.2);
+}
+
+.piksel-map-hud .hud-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.piksel-map-hud .hud-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  line-height: 1.2;
+}
+
+.piksel-map-hud.ready .hud-title {
+  color: #10b981;
+}
+
+.piksel-map-hud .hud-subtitle {
+  font-size: 10.5px;
+  color: #cbd5e1;
+  line-height: 1.2;
+}
+
+
+
 
 
 
