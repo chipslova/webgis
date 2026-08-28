@@ -356,25 +356,32 @@
               </button>
             </section>
 
-            <!-- Panel: Legend -->
+            <!-- Panel: General Map Legend -->
             <section id="panel-legend" class="sidebar-panel">
               <div class="panel-header">
-                <h2>Map Legend</h2>
-                <p>Active layer symbols and attributes</p>
+                <h2>General Map Legend</h2>
+                <p>Simbol layer peta umum & hasil pengukuran vektor</p>
               </div>
               <div id="legend-content" class="legend-content">
                 <div class="legend-item">
                   <span class="legend-symbol point" style="background-color: #f59e0b;"></span>
-                  <span class="legend-label">Major Cities (Sample Data)</span>
+                  <span class="legend-label">Kota Utama (Sampel Data Vektor)</span>
                 </div>
                 <div class="legend-item">
                   <span class="legend-symbol line" style="border-color: #00f0ff;"></span>
-                  <span class="legend-label">Measurement Path</span>
+                  <span class="legend-label">Jalur Pengukuran Jarak (Turf.js)</span>
                 </div>
                 <div class="legend-item">
                   <span class="legend-symbol polygon" style="background-color: rgba(0,240,255,0.3); border-color: #00f0ff;"></span>
-                  <span class="legend-label">Measurement Area</span>
+                  <span class="legend-label">Area Poligon Pengukuran Luas</span>
                 </div>
+                <div class="legend-item">
+                  <span class="legend-symbol line" style="border-color: #10b981; border-style: dashed;"></span>
+                  <span class="legend-label">Grid Tile Data Cube Nasional (10m)</span>
+                </div>
+              </div>
+              <div style="margin-top: 14px; padding: 10px; background: rgba(15, 23, 42, 0.6); border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+                💡 <em>Legenda analisis spektral Earth Observation (NDVI, NDWI, GeoMAD, Bahaya Banjir) ditampilkan secara dinamis di tab <strong>Piksel EO</strong>.</em>
               </div>
             </section>
 
@@ -382,15 +389,16 @@
             <section id="panel-about" class="sidebar-panel">
               <div class="panel-header">
                 <h2>WebGIS Stack</h2>
-                <p>Engineered with modern GIS runtime technologies</p>
+                <p>Engineered with modern WebGIS & Earth Observation architectures</p>
               </div>
               <div class="about-card">
                 <ul>
-                  <li><strong>Runtime / Bundler:</strong> Bun (v1.3+)</li>
-                  <li><strong>Mapping Library:</strong> MapLibre GL JS (v6 Latest)</li>
-                  <li><strong>Basemap Formats:</strong> Vector Tile JSON & PMTiles</li>
-                  <li><strong>Spatial Engine:</strong> Turf.js</li>
-                  <li><strong>Local Styles:</strong> 10 JSON Basemaps in <code>/public/basemap/styles</code></li>
+                  <li><strong>Core Mapping:</strong> MapLibre GL JS v6 (2D Mercator & 3D Globe)</li>
+                  <li><strong>Earth Observation:</strong> BIG Piksel OGC WMS (Open Data Cube, GeoMAD, Landsat 9)</li>
+                  <li><strong>Earth Engine:</strong> Google Earth Engine (MODIS LST & Urban Heat Island)</li>
+                  <li><strong>Spatial Analytics:</strong> Turf.js (Geodesic Distance & Polygon Area)</li>
+                  <li><strong>Basemap Services:</strong> 15 Vector Styles (Google, Esri, BIG RBI, OSM) & PMTiles</li>
+                  <li><strong>Runtime & Bundler:</strong> Bun + Vite</li>
                 </ul>
               </div>
             </section>

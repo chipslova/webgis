@@ -6,16 +6,19 @@ export type PikselLoadingState = {
   productId: string | null;
   productName?: string;
   isComputeHeavy?: boolean;
+  hasError?: boolean;
 };
 
 export class PikselLoader {
   private map: maplibregl.Map;
   private activeProductId: string | null = null;
+  private selectedYear: string = '2021';
   private currentOpacity: number = 0.85;
   private gridVisible: boolean = false;
   private popup: maplibregl.Popup;
   private isEventsBound: boolean = false;
   private onLoadingCallback: ((state: PikselLoadingState) => void) | null = null;
+  private activeSourceId: string | null = null;
 
   constructor(map: maplibregl.Map) {
     this.map = map;
@@ -23,6 +26,70 @@ export class PikselLoader {
       closeButton: true,
       closeOnClick: false,
       maxWidth: '340px'
+    });
+    this.attachMapSourceListeners();
+  }
+
+  /**
+   * Real MapLibre source event listener for accurate tile loading detection
+   */
+  private attachMapSourceListeners() {
+    if (!this.map) return;
+
+    this.map.on('sourcedataloading', (e) => {
+      if (this.activeSourceId && e.sourceId === this.activeSourceId) {
+        const prod = this.getActiveProduct();
+        if (prod && this.onLoadingCallback) {
+          this.onLoadingCallback({
+            isLoading: true,
+            productId: prod.id,
+            productName: prod.name,
+            isComputeHeavy: !!prod.isComputeHeavy
+          });
+        }
+      }
+    });
+
+    this.map.on('sourcedata', (e) => {
+      if (this.activeSourceId && e.sourceId === this.activeSourceId && e.isSourceLoaded) {
+        const prod = this.getActiveProduct();
+        if (prod && this.onLoadingCallback) {
+          this.onLoadingCallback({
+            isLoading: false,
+            productId: prod.id,
+            productName: prod.name,
+            isComputeHeavy: !!prod.isComputeHeavy
+          });
+        }
+      }
+    });
+
+    this.map.on('idle', () => {
+      if (this.activeSourceId && this.map.isSourceLoaded(this.activeSourceId)) {
+        const prod = this.getActiveProduct();
+        if (prod && this.onLoadingCallback) {
+          this.onLoadingCallback({
+            isLoading: false,
+            productId: prod.id,
+            productName: prod.name,
+            isComputeHeavy: !!prod.isComputeHeavy
+          });
+        }
+      }
+    });
+
+    this.map.on('error', (e: any) => {
+      if (this.activeSourceId && e.sourceId === this.activeSourceId) {
+        const prod = this.getActiveProduct();
+        if (prod && this.onLoadingCallback) {
+          this.onLoadingCallback({
+            isLoading: false,
+            productId: prod.id,
+            productName: prod.name,
+            hasError: true
+          });
+        }
+      }
     });
   }
 
@@ -48,6 +115,20 @@ export class PikselLoader {
 
   public getActiveProduct(): PikselProduct | null {
     return PIKSEL_PRODUCTS.find((p) => p.id === this.activeProductId) || null;
+  }
+
+  public getSelectedYear(): string {
+    return this.selectedYear;
+  }
+
+  public setSelectedYear(year: string) {
+    this.selectedYear = year;
+    if (this.activeProductId) {
+      const product = this.getActiveProduct();
+      if (product && product.timeEnabled) {
+        this.renderRasterLayer(product);
+      }
+    }
   }
 
   public getOpacity(): number {
@@ -92,6 +173,8 @@ export class PikselLoader {
     if (productId) {
       const product = PIKSEL_PRODUCTS.find((p) => p.id === productId);
       if (product) {
+        this.activeSourceId = `piksel-raster-src-${product.id}`;
+
         if (this.onLoadingCallback) {
           this.onLoadingCallback({
             isLoading: true,
@@ -102,20 +185,9 @@ export class PikselLoader {
         }
 
         this.renderRasterLayer(product);
-
-        // Notify completion after tile layer is queued
-        setTimeout(() => {
-          if (this.onLoadingCallback && this.activeProductId === productId) {
-            this.onLoadingCallback({
-              isLoading: false,
-              productId: product.id,
-              productName: product.name,
-              isComputeHeavy: !!product.isComputeHeavy
-            });
-          }
-        }, 800);
       }
     } else {
+      this.activeSourceId = null;
       if (this.onLoadingCallback) {
         this.onLoadingCallback({
           isLoading: false,
@@ -142,8 +214,11 @@ export class PikselLoader {
       TRANSPARENT: 'TRUE'
     });
 
-    if (product.time) {
-      params.set('TIME', product.time);
+    if (product.timeEnabled) {
+      const yearToUse = (product.availableYears && product.availableYears.includes(this.selectedYear))
+        ? this.selectedYear
+        : (product.availableYears ? product.availableYears[0] : this.selectedYear);
+      params.set('TIME', `${yearToUse}-01-01`);
     }
 
     // MapLibre replaces {bbox-epsg-3857} dynamically per tile
@@ -161,30 +236,31 @@ export class PikselLoader {
     const tileUrl = this.buildWmsTileUrl(product);
 
     try {
-      if (!this.map.getSource(sourceId)) {
-        this.map.addSource(sourceId, {
-          type: 'raster',
-          tiles: [tileUrl],
-          tileSize: 256,
-          attribution: product.attribution || '© Badan Informasi Geospasial (BIG) — Piksel'
-        });
+      // If source already exists, update its tile URL or remove and re-add for clean reload
+      if (this.map.getSource(sourceId)) {
+        if (this.map.getLayer(layerId)) {
+          this.map.removeLayer(layerId);
+        }
+        this.map.removeSource(sourceId);
       }
 
-      if (!this.map.getLayer(layerId)) {
-        this.map.addLayer({
-          id: layerId,
-          type: 'raster',
-          source: sourceId,
-          layout: { visibility: 'visible' },
-          paint: {
-            'raster-opacity': this.currentOpacity,
-            'raster-fade-duration': 150
-          }
-        });
-      } else {
-        this.map.setLayoutProperty(layerId, 'visibility', 'visible');
-        this.map.setPaintProperty(layerId, 'raster-opacity', this.currentOpacity);
-      }
+      this.map.addSource(sourceId, {
+        type: 'raster',
+        tiles: [tileUrl],
+        tileSize: 256,
+        attribution: product.attribution || '© Badan Informasi Geospasial (BIG) — Piksel'
+      });
+
+      this.map.addLayer({
+        id: layerId,
+        type: 'raster',
+        source: sourceId,
+        layout: { visibility: 'visible' },
+        paint: {
+          'raster-opacity': this.currentOpacity,
+          'raster-fade-duration': 200
+        }
+      });
     } catch (e) {
       console.warn(`[PikselLoader] Layer error for ${product.id}:`, e);
     }

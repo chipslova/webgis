@@ -134,7 +134,7 @@ export class GEEPanelUI {
     ctx.clearRect(0, 0, width, height);
 
     // Draw background grid lines
-    ctx.strokeStyle = '#e2e8f0';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
     ctx.lineWidth = 1;
     for (let yVal = 20; yVal <= 40; yVal += 10) {
       const y = padding.top + chartH - ((yVal - yMin) / (yMax - yMin)) * chartH;
@@ -144,7 +144,7 @@ export class GEEPanelUI {
       ctx.stroke();
 
       // Label
-      ctx.fillStyle = '#64748b';
+      ctx.fillStyle = '#94a3b8';
       ctx.font = '10px Inter, sans-serif';
       ctx.fillText(`${yVal}°C`, 5, y + 3);
     }

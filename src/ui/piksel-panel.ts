@@ -1,5 +1,5 @@
 import { PikselLoader, PikselLoadingState } from '../tools/piksel-loader';
-import { PIKSEL_PRODUCTS, PIKSEL_PRESETS, PIKSEL_CATEGORIES, PikselProduct } from '../config/piksel';
+import { PIKSEL_PRODUCTS, PIKSEL_PRESETS, PIKSEL_CATEGORIES, S2_YEARS, PikselProduct } from '../config/piksel';
 
 export class PikselPanelUI {
   private pikselLoader: PikselLoader;
@@ -69,10 +69,29 @@ export class PikselPanelUI {
 
     const opacityPct = Math.round(this.pikselLoader.getOpacity() * 100);
     const isGridOn = this.pikselLoader.isGridVisible();
+    const currentYear = this.pikselLoader.getSelectedYear();
+
+    const yearOptionsHtml = S2_YEARS.map(
+      (y) => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>Tahun ${y}</option>`
+    ).join('');
 
     const controlsHtml = `
       <!-- Loading & Status Banner Container in Sidebar -->
       <div id="piksel-loading-banner-wrap"></div>
+
+      <!-- Time & Protocol Control Bar -->
+      <div class="piksel-meta-bar">
+        <div class="piksel-meta-item">
+          <label for="piksel-year-select">📅 Tahun Observasi:</label>
+          <select id="piksel-year-select" class="piksel-select">
+            ${yearOptionsHtml}
+          </select>
+        </div>
+        <div class="piksel-meta-item">
+          <label>🌐 Protokol Layanan:</label>
+          <div class="piksel-protocol-badge">OGC WMS 1.3.0</div>
+        </div>
+      </div>
 
       <!-- Master Opacity Slider -->
       <div class="piksel-master-control">
@@ -133,9 +152,15 @@ export class PikselPanelUI {
         subEl.innerHTML = state.isComputeHeavy 
           ? `⚡ Pemrosesan spektral on-the-fly di cloud BIG Piksel...`
           : `Mengunduh tile resolusi tinggi dari server OGC BIG...`;
+      } else if (state.hasError) {
+        hud.classList.remove('ready');
+        titleEl.innerHTML = `⚠️ Respon Server Lambat / Error`;
+        subEl.innerHTML = `Tile OGC BIG sedang diproses ulang`;
       } else {
         hud.classList.add('ready');
-        titleEl.innerHTML = `✅ Layer Aktif: ${state.productName}`;
+        const prod = this.pikselLoader.getActiveProduct();
+        const yearText = prod?.timeEnabled ? ` (Tahun ${this.pikselLoader.getSelectedYear()})` : '';
+        titleEl.innerHTML = `✅ Layer Aktif: ${state.productName}${yearText}`;
         subEl.innerHTML = `Sumber: OGC WMS Badan Informasi Geospasial (BIG)`;
 
         // Fade out floating HUD badge gracefully after 5 seconds
@@ -216,6 +241,7 @@ export class PikselPanelUI {
     if (!listContainer) return;
 
     const activeId = this.pikselLoader.getActiveProductId();
+    const currentYear = this.pikselLoader.getSelectedYear();
     let html = '';
 
     PIKSEL_CATEGORIES.forEach((cat) => {
@@ -235,6 +261,8 @@ export class PikselPanelUI {
         const noticeHtml = product.statusNotice
           ? `<div class="piksel-product-notice">${product.statusNotice}</div>`
           : '';
+
+        const timeBadge = product.timeEnabled ? `<span><strong>Tahun:</strong> ${currentYear}</span>` : '';
 
         html += `
           <div class="piksel-product-card ${isSelected ? 'active' : ''}" data-product-id="${product.id}">
@@ -262,7 +290,7 @@ export class PikselPanelUI {
               <span><strong>Resolusi:</strong> ${product.resolution}</span>
               <span><strong>OGC Layer:</strong> <code>${product.layer}</code></span>
               <span><strong>Style:</strong> <code>${product.style}</code></span>
-              ${product.time ? `<span><strong>Waktu:</strong> ${product.time}</span>` : ''}
+              ${timeBadge}
             </div>
           </div>
         `;
@@ -304,6 +332,9 @@ export class PikselPanelUI {
         const target = e.target as HTMLInputElement;
         if (target.id === 'toggle-piksel-grid') {
           this.pikselLoader.setGridVisible(target.checked);
+        } else if (target.id === 'piksel-year-select') {
+          this.pikselLoader.setSelectedYear(target.value);
+          this.renderProducts();
         }
       });
     }
@@ -315,6 +346,7 @@ export class PikselPanelUI {
     const activeId = this.pikselLoader.getActiveProductId();
     const opacityPct = Math.round(this.pikselLoader.getOpacity() * 100);
     const isGridOn = this.pikselLoader.isGridVisible();
+    const currentYear = this.pikselLoader.getSelectedYear();
 
     document.querySelectorAll<HTMLElement>('.piksel-product-card').forEach((card) => {
       const pId = card.dataset.productId;
@@ -332,5 +364,8 @@ export class PikselPanelUI {
 
     const gridToggle = document.getElementById('toggle-piksel-grid') as HTMLInputElement;
     if (gridToggle) gridToggle.checked = isGridOn;
+
+    const yearSelect = document.getElementById('piksel-year-select') as HTMLSelectElement;
+    if (yearSelect) yearSelect.value = currentYear;
   }
 }
