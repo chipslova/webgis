@@ -43,6 +43,10 @@
 
         <!-- Header Actions -->
         <div class="header-actions">
+          <button id="btn-reset-map" class="btn btn-secondary" title="Reset Map View & Active Analysis">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            Reset
+          </button>
           <button id="btn-toggle-globe" class="btn btn-secondary" title="Toggle 3D Globe / 2D Mercator Projection">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
             <span id="globe-btn-label">3D Globe</span>
@@ -173,6 +177,28 @@
               <!-- Layer Toggles Container -->
               <div class="gee-card">
                 <h3>Map Layer Controls & Legenda</h3>
+
+                <!-- GEE Independent Opacity Slider -->
+                <div class="piksel-master-control" style="margin-bottom: 14px;">
+                  <div class="piksel-control-header">
+                    <span class="control-title">🎚️ Transparansi Layer Analisis GEE</span>
+                    <span class="control-val" id="gee-opacity-val">80%</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    id="gee-opacity-slider" 
+                    min="0" 
+                    max="100" 
+                    value="80" 
+                    class="piksel-slider" 
+                  />
+                  <div class="slider-ticks">
+                    <span>0% (Transparan)</span>
+                    <span>50%</span>
+                    <span>100% (Penuh)</span>
+                  </div>
+                </div>
+
                 <div class="gee-toggle-group">
                   <!-- 1. LST Heatmap -->
                   <div class="gee-toggle-item-wrap">

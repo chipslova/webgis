@@ -22,6 +22,7 @@ export class GEELoader {
   private poiVisible: boolean = true;
   private elevationVisible: boolean = false;
   private landcoverVisible: boolean = false;
+  private currentOpacity: number = 0.8;
 
   private isEventsBound: boolean = false;
 
@@ -33,6 +34,32 @@ export class GEELoader {
       maxWidth: '340px'
     });
     // NOTE: style.load listener centralized in MapManager.onStyleReady()
+  }
+
+  public setOpacity(opacity: number) {
+    this.currentOpacity = opacity;
+    if (!this.map) return;
+    if (this.map.getLayer('gee-elevation-fill')) {
+      this.map.setPaintProperty('gee-elevation-fill', 'fill-opacity', opacity);
+    }
+    if (this.map.getLayer('gee-landcover-fill')) {
+      this.map.setPaintProperty('gee-landcover-fill', 'fill-opacity', opacity);
+    }
+    if (this.map.getLayer('gee-lst-fill')) {
+      this.map.setPaintProperty('gee-lst-fill', 'fill-opacity', opacity);
+    }
+  }
+
+  public getOpacity(): number {
+    return this.currentOpacity;
+  }
+
+  public clearAllLayers() {
+    this.lstVisible = false;
+    this.elevationVisible = false;
+    this.landcoverVisible = false;
+    this.poiVisible = false;
+    this.updateLayerVisibilities();
   }
 
   public async loadGEEDatasets() {

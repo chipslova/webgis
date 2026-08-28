@@ -25,6 +25,7 @@ export class GEEPanelUI {
   public init() {
     this.syncCheckboxStates();
     this.bindLayerToggleEvents();
+    this.bindOpacityEvents();
     this.bindDownloadEvents();
     this.renderTimeSeriesChart();
 
@@ -50,6 +51,24 @@ export class GEEPanelUI {
     if (lc) lc.checked = this.geeLoader.isLayerVisible('landcover');
     const poi = document.getElementById('toggle-gee-poi') as HTMLInputElement;
     if (poi) poi.checked = this.geeLoader.isLayerVisible('poi');
+
+    const opacitySlider = document.getElementById('gee-opacity-slider') as HTMLInputElement;
+    const opacityVal = document.getElementById('gee-opacity-val');
+    const pct = Math.round(this.geeLoader.getOpacity() * 100);
+    if (opacitySlider) opacitySlider.value = String(pct);
+    if (opacityVal) opacityVal.innerText = `${pct}%`;
+  }
+
+  private bindOpacityEvents() {
+    const slider = document.getElementById('gee-opacity-slider') as HTMLInputElement;
+    const valLabel = document.getElementById('gee-opacity-val');
+    if (slider) {
+      slider.addEventListener('input', () => {
+        const val = Number(slider.value);
+        if (valLabel) valLabel.innerText = `${val}%`;
+        this.geeLoader.setOpacity(val / 100);
+      });
+    }
   }
 
   private bindLayerToggleEvents() {

@@ -35,6 +35,7 @@ class WebGISApp {
     // 1. Build UI Component Views & Basemap Gallery immediately
     this.renderBasemapGallery();
     this.bindProjectionEvents();
+    this.bindResetMapEvents();
     this.bindSearchEvents();
     this.bindMeasureEvents();
     this.bindImportEvents();
@@ -117,6 +118,46 @@ class WebGISApp {
     btn.addEventListener('click', () => {
       this.mapManager.toggleProjection();
       updateLabel();
+    });
+  }
+
+  private bindResetMapEvents() {
+    const resetBtn = document.getElementById('btn-reset-map');
+    if (!resetBtn) return;
+
+    resetBtn.addEventListener('click', () => {
+      const map = this.mapManager.getMap();
+      if (!map) return;
+
+      // 1. Reset map camera to Indonesia archipelago view
+      map.flyTo({
+        center: [117.89, -2.55],
+        zoom: 4.5,
+        pitch: 0,
+        bearing: 0,
+        duration: 1500
+      });
+
+      // 2. Clear active Piksel EO product and grid
+      this.pikselLoader?.setActiveProduct(null);
+      this.pikselLoader?.setGridVisible(false);
+      this.pikselPanelUI?.syncUIStates();
+
+      // 3. Reset GEE layers to default (POI only)
+      this.geeLoader?.clearAllLayers();
+      this.geeLoader?.toggleLayer('poi', true);
+      this.geePanelUI?.init();
+
+      // 4. Clear active measurement
+      this.measureTool?.clear();
+      document.getElementById('btn-measure-dist')?.classList.remove('active');
+      document.getElementById('btn-measure-area')?.classList.remove('active');
+      const measureCard = document.getElementById('measure-result-card');
+      if (measureCard) measureCard.style.display = 'none';
+
+      // 5. Hide feature inspector
+      const inspector = document.getElementById('feature-inspector');
+      if (inspector) inspector.style.display = 'none';
     });
   }
 

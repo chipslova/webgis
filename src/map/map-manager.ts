@@ -295,30 +295,56 @@ export class MapManager {
 
   /**
    * Deterministically orders all custom layers above the basemap in a single pass:
-   * Basemap -> Piksel Layers -> GEE Layers -> GeoJSON Custom Layers -> Measure Layers (Top)
+   * Basemap (Bottom)
+   * -> Piksel WMS Raster Layers
+   * -> Piksel Grid Boundaries (Fill & Line)
+   * -> GEE Raster Analysis (Elevation, Landcover, LST)
+   * -> GEE POI Vector Circles & Labels
+   * -> Custom Vector GeoJSON Layers (Major Cities, User GeoJSON)
+   * -> Measurement Tool (Fill, Casing, DashLine, Vertices) (Topmost)
    */
   public bringCustomLayersToTop() {
     if (!this.map) return;
 
-    // Piksel WMS/WMTS Layers (bottom of custom raster stack)
-    const pikselLayerIds = this.pikselLoaderRef?.getAllMapLayerIds() || [];
+    // 1. Piksel WMS Raster Layers (bottom of analytical stack)
+    const pikselRasterLayerIds = (this.pikselLoaderRef?.getAllMapLayerIds() || []).filter(
+      (id) => !id.includes('grid')
+    );
 
-    // GEE Layers (middle-bottom of custom stack)
-    const geeLayerIds = [
+    // 2. Piksel Grid Boundaries
+    const pikselGridLayerIds = ['piksel-grid-fill', 'piksel-grid-line'];
+
+    // 3. GEE Analytical Rasters
+    const geeRasterLayerIds = [
       'gee-elevation-fill', 'gee-elevation-outline',
       'gee-landcover-fill', 'gee-landcover-outline',
-      'gee-lst-fill', 'gee-lst-outline',
-      'gee-poi-circles'
+      'gee-lst-fill', 'gee-lst-outline'
     ];
 
-    // Custom GeoJSON Layers (middle of custom stack)
+    // 4. GEE POI Vector Circles
+    const geeVectorLayerIds = ['gee-poi-circles'];
+
+    // 5. Custom Vector GeoJSON Layers (Major Cities, Uploaded GeoJSON)
     const geojsonLayerIds = this.geojsonLoaderRef?.getAllMapLayerIds() || [];
 
-    // Measure layers (always on top)
-    const measureLayerIds = ['measure-fill', 'measure-line-casing', 'measure-line', 'measure-points'];
+    // 6. Measurement Layers (Always topmost interactive overlay)
+    const measureLayerIds = [
+      'measure-fill',
+      'measure-line-casing',
+      'measure-line',
+      'measure-points'
+    ];
 
-    const allIds = [...pikselLayerIds, ...geeLayerIds, ...geojsonLayerIds, ...measureLayerIds];
-    allIds.forEach((id) => {
+    const orderedLayerStack = [
+      ...pikselRasterLayerIds,
+      ...pikselGridLayerIds,
+      ...geeRasterLayerIds,
+      ...geeVectorLayerIds,
+      ...geojsonLayerIds,
+      ...measureLayerIds
+    ];
+
+    orderedLayerStack.forEach((id) => {
       if (this.map?.getLayer(id)) {
         try {
           this.map.moveLayer(id);

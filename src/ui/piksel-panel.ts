@@ -112,6 +112,10 @@ export class PikselPanelUI {
           <span>50%</span>
           <span>100% (Penuh)</span>
         </div>
+        <button id="btn-clear-piksel-layer" class="btn btn-outline full-width" style="margin-top: 10px; font-size: 11px; padding: 5px 10px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          Nonaktifkan Layer EO Aktif
+        </button>
       </div>
 
       <!-- Data Cube Grid Toggle -->
@@ -148,18 +152,21 @@ export class PikselPanelUI {
 
       if (state.isLoading) {
         hud.classList.remove('ready');
+        hud.classList.remove('error');
         titleEl.innerHTML = `🛰️ Memuat Layer WMS: ${state.productName}`;
         subEl.innerHTML = state.isComputeHeavy 
           ? `⚡ Pemrosesan spektral on-the-fly di cloud BIG Piksel...`
           : `Mengunduh tile resolusi tinggi dari server OGC BIG...`;
       } else if (state.hasError) {
         hud.classList.remove('ready');
-        titleEl.innerHTML = `⚠️ Respon Server Lambat / Error`;
-        subEl.innerHTML = `Tile OGC BIG sedang diproses ulang`;
+        hud.classList.add('error');
+        titleEl.innerHTML = `🔴 Gagal Mengambil Tile WMS`;
+        subEl.innerHTML = `Server BIG OGC timeout / 500. Silakan pilih produk atau tahun lain.`;
       } else {
+        hud.classList.remove('error');
         hud.classList.add('ready');
         const prod = this.pikselLoader.getActiveProduct();
-        const yearText = prod?.timeEnabled ? ` (Tahun ${this.pikselLoader.getSelectedYear()})` : '';
+        const yearText = prod?.timeEnabled ? ` (${this.pikselLoader.getSelectedYear()})` : '';
         titleEl.innerHTML = `✅ Layer Aktif: ${state.productName}${yearText}`;
         subEl.innerHTML = `Sumber: OGC WMS Badan Informasi Geospasial (BIG)`;
 
@@ -185,6 +192,15 @@ export class PikselPanelUI {
             <strong>🛰️ Memuat Layer WMS Piksel...</strong>
             <span>${this.currentLoadingState.productName || 'Sedang mengambil tile dari OGC BIG'}</span>
             ${this.currentLoadingState.isComputeHeavy ? '<small style="color: #f59e0b; display: block; margin-top: 2px;">⚡ Pemrosesan spektral on-the-fly di cloud BIG...</small>' : ''}
+          </div>
+        </div>
+      `;
+    } else if (this.currentLoadingState.hasError) {
+      bannerWrap.innerHTML = `
+        <div class="piksel-live-toast error" style="border-color: #ef4444; background: rgba(239, 68, 68, 0.12);">
+          <div class="piksel-toast-content">
+            <strong style="color: #ef4444;">⚠️ Gagal Memuat Layer WMS</strong>
+            <span>Server OGC BIG mengembalikan status error / timeout. Coba pilih produk atau tahun lain.</span>
           </div>
         </div>
       `;
@@ -262,8 +278,6 @@ export class PikselPanelUI {
           ? `<div class="piksel-product-notice">${product.statusNotice}</div>`
           : '';
 
-        const timeBadge = product.timeEnabled ? `<span><strong>Tahun:</strong> ${currentYear}</span>` : '';
-
         html += `
           <div class="piksel-product-card ${isSelected ? 'active' : ''}" data-product-id="${product.id}">
             <div class="piksel-card-header">
@@ -285,12 +299,15 @@ export class PikselPanelUI {
 
             ${legendHtml}
 
-            <div class="piksel-product-meta">
-              <span><strong>Sensor:</strong> ${product.sensor}</span>
-              <span><strong>Resolusi:</strong> ${product.resolution}</span>
-              <span><strong>OGC Layer:</strong> <code>${product.layer}</code></span>
-              <span><strong>Style:</strong> <code>${product.style}</code></span>
-              ${timeBadge}
+            <!-- Structured Metadata Provenance -->
+            <div class="piksel-provenance-box">
+              <table class="piksel-provenance-table">
+                <tr><td><strong>Sumber Data:</strong></td><td>BIG Piksel / Open Data Cube</td></tr>
+                <tr><td><strong>Sensor Satelit:</strong></td><td>${product.sensor}</td></tr>
+                <tr><td><strong>Resolusi Spasial:</strong></td><td>${product.resolution}</td></tr>
+                <tr><td><strong>OGC Layer / Style:</strong></td><td><code>${product.layer}</code> (<code>${product.style}</code>)</td></tr>
+                ${product.timeEnabled ? `<tr><td><strong>Periode Waktu:</strong></td><td>${currentYear} (Tahunan)</td></tr>` : ''}
+              </table>
             </div>
           </div>
         `;
@@ -307,6 +324,13 @@ export class PikselPanelUI {
     if (container) {
       container.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
+
+        if (target.closest('#btn-clear-piksel-layer')) {
+          this.pikselLoader.setActiveProduct(null);
+          this.syncUIStates();
+          return;
+        }
+
         const card = target.closest('.piksel-product-card') as HTMLElement;
         if (card && card.dataset.productId) {
           const productId = card.dataset.productId;

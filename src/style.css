@@ -1623,6 +1623,44 @@ html, body, #app {
   color: var(--text-main);
 }
 
+/* Structured Provenance Table */
+.piksel-provenance-box {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  margin-top: 6px;
+}
+
+.piksel-provenance-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+}
+
+.piksel-provenance-table td {
+  padding: 2.5px 4px;
+  vertical-align: top;
+}
+
+.piksel-provenance-table td:first-child {
+  color: var(--text-muted);
+  width: 36%;
+  white-space: nowrap;
+}
+
+.piksel-provenance-table td:last-child {
+  color: #e2e8f0;
+}
+
+.piksel-provenance-table code {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 9.5px;
+  color: var(--accent-cyan);
+}
+
 .piksel-slider {
   width: 100%;
   height: 5px;
@@ -1938,6 +1976,19 @@ html, body, #app {
 
 .piksel-map-hud.ready .hud-title {
   color: #10b981;
+}
+
+.piksel-map-hud.error {
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(239, 68, 68, 0.25);
+}
+
+.piksel-map-hud.error .hud-spinner {
+  display: none;
+}
+
+.piksel-map-hud.error .hud-title {
+  color: #ef4444;
 }
 
 .piksel-map-hud .hud-subtitle {
