@@ -72,8 +72,8 @@ export const PIKSEL_CATEGORIES: { id: ProductCategory; name: string; icon: strin
 ];
 
 export const PIKSEL_WMS_BASE_URL = 'https://ows.staging.piksel.big.go.id/wms';
-export const S2_YEARS = ['2023', '2022', '2021', '2020', '2019', '2018'];
-export const LS9_YEARS = ['2023', '2022'];
+export const S2_YEARS = ['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017'];
+export const LS9_YEARS = ['2025', '2024', '2023', '2022', '2021'];
 
 export const PIKSEL_PRODUCTS: PikselProduct[] = [
   // 1. GeoMAD Group

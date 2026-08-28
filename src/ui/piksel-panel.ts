@@ -344,6 +344,7 @@ export class PikselPanelUI {
 
   public syncUIStates() {
     const activeId = this.pikselLoader.getActiveProductId();
+    const activeProduct = this.pikselLoader.getActiveProduct();
     const opacityPct = Math.round(this.pikselLoader.getOpacity() * 100);
     const isGridOn = this.pikselLoader.isGridVisible();
     const currentYear = this.pikselLoader.getSelectedYear();
@@ -365,7 +366,27 @@ export class PikselPanelUI {
     const gridToggle = document.getElementById('toggle-piksel-grid') as HTMLInputElement;
     if (gridToggle) gridToggle.checked = isGridOn;
 
+    // Dynamically populate year options based on the active product's temporal range
     const yearSelect = document.getElementById('piksel-year-select') as HTMLSelectElement;
-    if (yearSelect) yearSelect.value = currentYear;
+    if (yearSelect) {
+      if (activeProduct && activeProduct.timeEnabled && activeProduct.availableYears) {
+        yearSelect.disabled = false;
+        yearSelect.innerHTML = activeProduct.availableYears
+          .map((y) => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>Tahun ${y}</option>`)
+          .join('');
+        yearSelect.value = activeProduct.availableYears.includes(currentYear)
+          ? currentYear
+          : activeProduct.availableYears[0];
+      } else if (activeProduct && !activeProduct.timeEnabled) {
+        yearSelect.disabled = true;
+        yearSelect.innerHTML = `<option value="">N/A (Model Probabilistik)</option>`;
+      } else {
+        yearSelect.disabled = false;
+        yearSelect.innerHTML = S2_YEARS
+          .map((y) => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>Tahun ${y}</option>`)
+          .join('');
+        yearSelect.value = currentYear;
+      }
+    }
   }
 }
