@@ -2359,6 +2359,225 @@ html, body, #app {
   flex-shrink: 0;
 }
 
+/* Status Alert Bar inside Active Card */
+.piksel-active-status-bar {
+  margin-bottom: 10px;
+}
+
+.status-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.status-alert.zoom-warning {
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  color: #38bdf8;
+  justify-content: space-between;
+}
+
+.status-alert.loading {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #f59e0b;
+}
+
+.status-alert.partial {
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  color: #eab308;
+}
+
+.status-alert.ready {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #10b981;
+}
+
+.status-alert.error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #ef4444;
+}
+
+.status-alert-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.status-alert-text strong {
+  font-size: 11px;
+}
+
+.status-alert-text span {
+  font-size: 10px;
+  opacity: 0.9;
+}
+
+.btn-jump-preset {
+  background: rgba(6, 182, 212, 0.2);
+  color: #38bdf8;
+  border: 1px solid rgba(6, 182, 212, 0.5);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.btn-jump-preset:hover {
+  background: rgba(6, 182, 212, 0.35);
+  transform: translateY(-1px);
+}
+
+.hud-spinner-inline {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(245, 158, 11, 0.3);
+  border-top-color: #f59e0b;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+/* Diagnostics details */
+.piksel-diagnostics-box {
+  margin-top: 10px;
+}
+
+.diagnostics-details {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  font-size: 10.5px;
+  overflow: hidden;
+}
+
+.diagnostics-details summary {
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  color: var(--text-muted);
+  user-select: none;
+  font-weight: 600;
+}
+
+.diagnostics-details summary:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.diag-status-pill {
+  font-size: 8.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.diag-status-pill.ready {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.diag-status-pill.loading {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+}
+
+.diag-status-pill.warning {
+  background: rgba(6, 182, 212, 0.2);
+  color: #38bdf8;
+}
+
+.diag-status-pill.info {
+  background: rgba(148, 163, 184, 0.2);
+  color: #94a3b8;
+}
+
+.diagnostics-content {
+  padding: 8px 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.diag-metric {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+}
+
+.diag-label {
+  color: var(--text-muted);
+}
+
+.diag-val {
+  color: var(--text-main);
+}
+
+.text-danger {
+  color: #ef4444 !important;
+}
+
+/* HUD State Variants */
+.piksel-map-hud.zoom_too_low {
+  border-color: rgba(6, 182, 212, 0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(6, 182, 212, 0.2);
+}
+
+.piksel-map-hud.zoom_too_low .hud-title {
+  color: #38bdf8;
+}
+
+.piksel-map-hud.partial {
+  border-color: rgba(234, 179, 8, 0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(234, 179, 8, 0.2);
+}
+
+.piksel-map-hud.partial .hud-title {
+  color: #eab308;
+}
+
+.active-pulse-indicator.zoom_too_low {
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+}
+
+.active-pulse-indicator.loading {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+}
+
+.active-pulse-indicator.partial {
+  background: #eab308;
+  box-shadow: 0 0 8px #eab308;
+}
+
+.active-pulse-indicator.error {
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+}
+
+.group-subtitle {
+  display: block;
+  font-size: 9.5px;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-top: 1px;
+}
+
 
 
 

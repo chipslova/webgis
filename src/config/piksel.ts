@@ -50,6 +50,7 @@ export interface PikselProduct {
   attribution?: string;
   statusNotice?: string;
   isComputeHeavy?: boolean;
+  minZoom?: number;
 }
 
 export interface PikselPreset {

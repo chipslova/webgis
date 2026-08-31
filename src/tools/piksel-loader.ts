@@ -1,25 +1,59 @@
 import * as maplibregl from 'maplibre-gl';
-import { PikselProduct, PikselPreset, PIKSEL_PRODUCTS, PIKSEL_PRESETS } from '../config/piksel';
+import { PikselProduct, PikselPreset, PIKSEL_PRODUCTS, PIKSEL_PRESETS, S2_YEARS } from '../config/piksel';
+
+export type PikselStatusCode = 'idle' | 'zoom_too_low' | 'requesting' | 'loading' | 'ready' | 'partial' | 'error';
+
+export interface PikselDiagnostics {
+  productId: string | null;
+  productName?: string;
+  year?: string;
+  minZoom: number;
+  currentZoom: number;
+  tilesRequested: number;
+  tilesLoaded: number;
+  tilesFailed: number;
+  latencyMs: number;
+  status: PikselStatusCode;
+  statusMessage: string;
+}
 
 export type PikselLoadingState = {
+  status: PikselStatusCode;
   isLoading: boolean;
   productId: string | null;
   productName?: string;
   isComputeHeavy?: boolean;
+  minZoom?: number;
+  currentZoom?: number;
+  diagnostics?: PikselDiagnostics;
   hasError?: boolean;
+  statusMessage?: string;
 };
 
 export class PikselLoader {
   private map: maplibregl.Map;
   private activeProductId: string | null = null;
-  private selectedYear: string = '2021';
+  private selectedYear: string = '2025';
   private currentOpacity: number = 0.85;
   private gridVisible: boolean = false;
   private popup: maplibregl.Popup;
   private isEventsBound: boolean = false;
   private onLoadingCallback: ((state: PikselLoadingState) => void) | null = null;
   private onLayersChangeCallbacks: Array<() => void> = [];
+
+  // Request Manager State
+  private requestCounter: number = 0;
+  private activeRequestId: number = 0;
   private activeSourceId: string | null = null;
+  private activeLayerId: string | null = null;
+
+  // Diagnostics & Telemetry
+  private tilesRequested: number = 0;
+  private tilesLoaded: number = 0;
+  private tilesFailed: number = 0;
+  private requestStartTime: number = 0;
+  private currentLatencyMs: number = 0;
+  private currentStatus: PikselStatusCode = 'idle';
 
   constructor(map: maplibregl.Map) {
     this.map = map;
@@ -28,7 +62,9 @@ export class PikselLoader {
       closeOnClick: false,
       maxWidth: '340px'
     });
+
     this.attachMapSourceListeners();
+    this.attachMapZoomListeners();
   }
 
   public onLayersChange(callback: () => void) {
@@ -45,22 +81,113 @@ export class PikselLoader {
     });
   }
 
+  public onLoadingStateChange(cb: (state: PikselLoadingState) => void) {
+    this.onLoadingCallback = cb;
+  }
+
+  private emitState(status: PikselStatusCode, customMessage?: string) {
+    this.currentStatus = status;
+    const prod = this.getActiveProduct();
+    const currentZoom = this.map ? Number(this.map.getZoom().toFixed(1)) : 0;
+    const minZoom = prod?.minZoom ?? 6;
+
+    if (this.requestStartTime > 0 && (status === 'ready' || status === 'partial' || status === 'error')) {
+      this.currentLatencyMs = Math.round(performance.now() - this.requestStartTime);
+    }
+
+    let defaultMsg = '';
+    switch (status) {
+      case 'idle':
+        defaultMsg = 'Tidak ada layer citra aktif';
+        break;
+      case 'zoom_too_low':
+        defaultMsg = `Perbesar peta (Zoom ≥ ${minZoom}) untuk memproses komposit Piksel 10m`;
+        break;
+      case 'requesting':
+        defaultMsg = `Menginisialisasi pipeline WMS ${prod?.name || ''}...`;
+        break;
+      case 'loading':
+        defaultMsg = `Memproses tile satelit di Open Data Cube BIG (${this.tilesLoaded}/${Math.max(this.tilesRequested, 1)} tile)...`;
+        break;
+      case 'ready':
+        defaultMsg = `Layer ${prod?.name || ''} siap ditampilkan`;
+        break;
+      case 'partial':
+        defaultMsg = `Sebagian tile citra dimuat (${this.tilesLoaded}/${Math.max(this.tilesRequested, 1)} tile). Beberapa tile masih diproses di server.`;
+        break;
+      case 'error':
+        defaultMsg = `Server OGC Piksel timeout / 500. Silakan perbesar peta atau pilih tahun lain.`;
+        break;
+    }
+
+    const statusMessage = customMessage || defaultMsg;
+
+    const diagnostics: PikselDiagnostics = {
+      productId: prod?.id || null,
+      productName: prod?.name,
+      year: this.selectedYear,
+      minZoom,
+      currentZoom,
+      tilesRequested: this.tilesRequested,
+      tilesLoaded: this.tilesLoaded,
+      tilesFailed: this.tilesFailed,
+      latencyMs: this.currentLatencyMs,
+      status,
+      statusMessage
+    };
+
+    if (this.onLoadingCallback) {
+      this.onLoadingCallback({
+        status,
+        isLoading: status === 'requesting' || status === 'loading',
+        productId: prod?.id || null,
+        productName: prod?.name,
+        isComputeHeavy: !!prod?.isComputeHeavy,
+        minZoom,
+        currentZoom,
+        diagnostics,
+        hasError: status === 'error',
+        statusMessage
+      });
+    }
+  }
+
   /**
-   * Real MapLibre source event listener for accurate tile loading detection
+   * Monitor zoom level dynamically to prevent nationwide overload and alert users
+   */
+  private attachMapZoomListeners() {
+    if (!this.map) return;
+
+    this.map.on('zoomend', () => {
+      const prod = this.getActiveProduct();
+      if (!prod) return;
+
+      const currentZoom = this.map.getZoom();
+      const minZoom = prod.minZoom ?? 6;
+
+      if (currentZoom < minZoom) {
+        this.emitState('zoom_too_low');
+      } else if (this.currentStatus === 'zoom_too_low') {
+        this.emitState('loading');
+      }
+    });
+  }
+
+  /**
+   * Source lifecycle & tile telemetry listener
    */
   private attachMapSourceListeners() {
     if (!this.map) return;
 
     this.map.on('sourcedataloading', (e) => {
       if (this.activeSourceId && e.sourceId === this.activeSourceId) {
+        const currentZoom = this.map.getZoom();
         const prod = this.getActiveProduct();
-        if (prod && this.onLoadingCallback) {
-          this.onLoadingCallback({
-            isLoading: true,
-            productId: prod.id,
-            productName: prod.name,
-            isComputeHeavy: !!prod.isComputeHeavy
-          });
+        const minZoom = prod?.minZoom ?? 6;
+
+        if (currentZoom >= minZoom) {
+          this.tilesRequested++;
+          this.emitState('loading');
         }
       }
     });
@@ -68,13 +195,20 @@ export class PikselLoader {
     this.map.on('sourcedata', (e) => {
       if (this.activeSourceId && e.sourceId === this.activeSourceId && e.isSourceLoaded) {
         const prod = this.getActiveProduct();
-        if (prod && this.onLoadingCallback) {
-          this.onLoadingCallback({
-            isLoading: false,
-            productId: prod.id,
-            productName: prod.name,
-            isComputeHeavy: !!prod.isComputeHeavy
-          });
+        if (prod) {
+          const currentZoom = this.map.getZoom();
+          const minZoom = prod.minZoom ?? 6;
+
+          if (currentZoom < minZoom) {
+            this.emitState('zoom_too_low');
+          } else {
+            this.tilesLoaded = Math.max(this.tilesLoaded, this.tilesRequested);
+            if (this.tilesFailed > 0) {
+              this.emitState('partial');
+            } else {
+              this.emitState('ready');
+            }
+          }
         }
       }
     });
@@ -82,34 +216,41 @@ export class PikselLoader {
     this.map.on('idle', () => {
       if (this.activeSourceId && this.map.isSourceLoaded(this.activeSourceId)) {
         const prod = this.getActiveProduct();
-        if (prod && this.onLoadingCallback) {
-          this.onLoadingCallback({
-            isLoading: false,
-            productId: prod.id,
-            productName: prod.name,
-            isComputeHeavy: !!prod.isComputeHeavy
-          });
+        if (prod) {
+          const currentZoom = this.map.getZoom();
+          const minZoom = prod.minZoom ?? 6;
+
+          if (currentZoom < minZoom) {
+            this.emitState('zoom_too_low');
+          } else if (this.tilesFailed > 0 && this.tilesLoaded === 0) {
+            this.emitState('error');
+          } else if (this.tilesFailed > 0) {
+            this.emitState('partial');
+          } else {
+            this.emitState('ready');
+          }
         }
       }
     });
 
     this.map.on('error', (e: any) => {
       if (this.activeSourceId && e.sourceId === this.activeSourceId) {
+        this.tilesFailed++;
         const prod = this.getActiveProduct();
-        if (prod && this.onLoadingCallback) {
-          this.onLoadingCallback({
-            isLoading: false,
-            productId: prod.id,
-            productName: prod.name,
-            hasError: true
-          });
+        if (prod) {
+          const currentZoom = this.map.getZoom();
+          const minZoom = prod.minZoom ?? 6;
+
+          if (currentZoom >= minZoom) {
+            if (this.tilesLoaded > 0) {
+              this.emitState('partial');
+            } else {
+              this.emitState('error');
+            }
+          }
         }
       }
     });
-  }
-
-  public onLoadingStateChange(cb: (state: PikselLoadingState) => void) {
-    this.onLoadingCallback = cb;
   }
 
   public getProducts(): PikselProduct[] {
@@ -137,7 +278,9 @@ export class PikselLoader {
   }
 
   public setSelectedYear(year: string) {
+    if (this.selectedYear === year) return;
     this.selectedYear = year;
+
     if (this.activeProductId) {
       const product = this.getActiveProduct();
       if (product && product.timeEnabled) {
@@ -164,55 +307,81 @@ export class PikselLoader {
     return ids;
   }
 
+  public getDiagnostics(): PikselDiagnostics {
+    const prod = this.getActiveProduct();
+    const currentZoom = this.map ? Number(this.map.getZoom().toFixed(1)) : 0;
+    const minZoom = prod?.minZoom ?? 6;
+
+    return {
+      productId: prod?.id || null,
+      productName: prod?.name,
+      year: this.selectedYear,
+      minZoom,
+      currentZoom,
+      tilesRequested: this.tilesRequested,
+      tilesLoaded: this.tilesLoaded,
+      tilesFailed: this.tilesFailed,
+      latencyMs: this.currentLatencyMs,
+      status: this.currentStatus,
+      statusMessage: ''
+    };
+  }
+
   /**
-   * Sets the active Piksel OGC product layer
+   * Sets the active Piksel OGC product layer with monotonic request tracking
    */
   public setActiveProduct(productId: string | null) {
     this.activeProductId = productId;
+    const currentReqId = ++this.requestCounter;
+    this.activeRequestId = currentReqId;
 
     if (!this.map) return;
 
     if (!this.map.getStyle()) {
-      this.map.once('style.load', () => this.setActiveProduct(productId));
+      this.map.once('style.load', () => {
+        if (this.activeRequestId === currentReqId) {
+          this.setActiveProduct(productId);
+        }
+      });
       return;
     }
 
-    // Hide all Piksel raster layers first
-    PIKSEL_PRODUCTS.forEach((prod) => {
-      const layerId = `piksel-raster-${prod.id}`;
-      if (this.map.getLayer(layerId)) {
-        this.map.setLayoutProperty(layerId, 'visibility', 'none');
-      }
-    });
+    // Hide/remove previous active raster layers cleanly
+    this.cleanupActiveRasterLayer();
 
-    // If a product is selected, render/activate it
     if (productId) {
       const product = PIKSEL_PRODUCTS.find((p) => p.id === productId);
       if (product) {
-        this.activeSourceId = `piksel-raster-src-${product.id}`;
-
-        if (this.onLoadingCallback) {
-          this.onLoadingCallback({
-            isLoading: true,
-            productId: product.id,
-            productName: product.name,
-            isComputeHeavy: !!product.isComputeHeavy
-          });
-        }
-
         this.renderRasterLayer(product);
       }
     } else {
-      this.activeSourceId = null;
-      if (this.onLoadingCallback) {
-        this.onLoadingCallback({
-          isLoading: false,
-          productId: null
-        });
-      }
+      this.emitState('idle');
     }
 
     this.notifyLayersChange();
+  }
+
+  private cleanupActiveRasterLayer() {
+    if (!this.map) return;
+
+    PIKSEL_PRODUCTS.forEach((prod) => {
+      const lId = `piksel-raster-${prod.id}`;
+      const sId = `piksel-raster-src-${prod.id}`;
+
+      if (this.map.getLayer(lId)) {
+        try {
+          this.map.removeLayer(lId);
+        } catch (_) {}
+      }
+      if (this.map.getSource(sId)) {
+        try {
+          this.map.removeSource(sId);
+        } catch (_) {}
+      }
+    });
+
+    this.activeSourceId = null;
+    this.activeLayerId = null;
   }
 
   /**
@@ -239,12 +408,11 @@ export class PikselLoader {
       params.set('TIME', `${yearToUse}-01-01`);
     }
 
-    // MapLibre replaces {bbox-epsg-3857} dynamically per tile
     return `${product.serviceUrl}?${params.toString()}&BBOX={bbox-epsg-3857}`;
   }
 
   /**
-   * Renders the raster layer for a specific OGC satellite product
+   * Renders the raster layer for a specific OGC satellite product with zoom gating
    */
   private renderRasterLayer(product: PikselProduct) {
     if (!this.map) return;
@@ -252,13 +420,30 @@ export class PikselLoader {
     const sourceId = `piksel-raster-src-${product.id}`;
     const layerId = `piksel-raster-${product.id}`;
     const tileUrl = this.buildWmsTileUrl(product);
+    const minZoom = product.minZoom ?? 6;
+
+    this.activeSourceId = sourceId;
+    this.activeLayerId = layerId;
+
+    // Reset tile telemetry
+    this.tilesRequested = 0;
+    this.tilesLoaded = 0;
+    this.tilesFailed = 0;
+    this.requestStartTime = performance.now();
+
+    const currentZoom = this.map.getZoom();
+    if (currentZoom < minZoom) {
+      this.emitState('zoom_too_low');
+    } else {
+      this.emitState('requesting');
+    }
 
     try {
-      // If source already exists, update its tile URL or remove and re-add for clean reload
+      // Remove layer and source cleanly if existing
+      if (this.map.getLayer(layerId)) {
+        this.map.removeLayer(layerId);
+      }
       if (this.map.getSource(sourceId)) {
-        if (this.map.getLayer(layerId)) {
-          this.map.removeLayer(layerId);
-        }
         this.map.removeSource(sourceId);
       }
 
@@ -266,6 +451,8 @@ export class PikselLoader {
         type: 'raster',
         tiles: [tileUrl],
         tileSize: 256,
+        minzoom: minZoom,
+        maxzoom: 18,
         attribution: product.attribution || '© Badan Informasi Geospasial (BIG) — Piksel'
       });
 
@@ -273,14 +460,17 @@ export class PikselLoader {
         id: layerId,
         type: 'raster',
         source: sourceId,
+        minzoom: minZoom,
+        maxzoom: 18,
         layout: { visibility: 'visible' },
         paint: {
           'raster-opacity': this.currentOpacity,
-          'raster-fade-duration': 200
+          'raster-fade-duration': 250
         }
       });
     } catch (e) {
       console.warn(`[PikselLoader] Layer error for ${product.id}:`, e);
+      this.emitState('error', `Gagal menambahkan layer WMS: ${(e as Error).message}`);
     }
   }
 
