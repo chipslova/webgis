@@ -67,59 +67,93 @@ export class PikselPanelUI {
     const container = document.getElementById('piksel-products-container');
     if (!container) return;
 
+    const activeProduct = this.pikselLoader.getActiveProduct();
     const opacityPct = Math.round(this.pikselLoader.getOpacity() * 100);
     const isGridOn = this.pikselLoader.isGridVisible();
     const currentYear = this.pikselLoader.getSelectedYear();
 
-    const yearOptionsHtml = S2_YEARS.map(
-      (y) => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>Tahun ${y}</option>`
-    ).join('');
+    let activeSummaryHtml = '';
+    if (activeProduct) {
+      const yearOptionsHtml = (activeProduct.availableYears || S2_YEARS).map(
+        (y) => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`
+      ).join('');
+
+      activeSummaryHtml = `
+        <div class="piksel-active-summary-card">
+          <div class="piksel-active-header">
+            <div class="piksel-active-title-group">
+              <span class="active-pulse-indicator"></span>
+              <div>
+                <h4 class="active-product-heading">${activeProduct.name}</h4>
+                <span class="active-tag-badge">${activeProduct.badge}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="piksel-active-meta-grid">
+            <div class="meta-field">
+              <span class="meta-field-label">📅 Tahun:</span>
+              ${activeProduct.timeEnabled ? `
+                <select id="piksel-year-select" class="piksel-select-sm">
+                  ${yearOptionsHtml}
+                </select>
+              ` : `<span class="meta-field-val">Statik</span>`}
+            </div>
+            <div class="meta-field">
+              <span class="meta-field-label">📐 Resolusi:</span>
+              <span class="meta-field-val">${activeProduct.resolution}</span>
+            </div>
+            <div class="meta-field">
+              <span class="meta-field-label">🏢 Penyedia:</span>
+              <span class="meta-field-val">BIG Piksel</span>
+            </div>
+            <div class="meta-field">
+              <span class="meta-field-label">🌐 Layanan:</span>
+              <span class="meta-field-val">OGC WMS 1.3.0</span>
+            </div>
+          </div>
+
+          <div class="piksel-active-slider-wrap">
+            <div class="slider-header-row">
+              <span>Transparansi:</span>
+              <strong id="piksel-master-opacity-val">${opacityPct}%</strong>
+            </div>
+            <input 
+              type="range" 
+              id="piksel-master-opacity" 
+              min="0" 
+              max="100" 
+              value="${opacityPct}" 
+              class="piksel-slider" 
+            />
+          </div>
+
+          <button id="btn-clear-piksel-layer" class="btn btn-danger-outline full-width" style="margin-top: 10px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            ✕ Nonaktifkan Layer
+          </button>
+        </div>
+      `;
+    } else {
+      activeSummaryHtml = `
+        <div class="piksel-inactive-banner">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>Pilih salah satu produk citra satelit atau indeks di katalog bawah untuk mengaktifkan layer.</span>
+        </div>
+      `;
+    }
 
     const controlsHtml = `
       <!-- Loading & Status Banner Container in Sidebar -->
       <div id="piksel-loading-banner-wrap"></div>
 
-      <!-- Time & Protocol Control Bar -->
-      <div class="piksel-meta-bar">
-        <div class="piksel-meta-item">
-          <label for="piksel-year-select">📅 Tahun Observasi:</label>
-          <select id="piksel-year-select" class="piksel-select">
-            ${yearOptionsHtml}
-          </select>
-        </div>
-        <div class="piksel-meta-item">
-          <label>🌐 Protokol Layanan:</label>
-          <div class="piksel-protocol-badge">OGC WMS 1.3.0</div>
-        </div>
-      </div>
-
-      <!-- Master Opacity Slider -->
-      <div class="piksel-master-control">
-        <div class="piksel-control-header">
-          <span class="control-title">🎚️ Transparansi Layer Citra OGC</span>
-          <span class="control-val" id="piksel-master-opacity-val">${opacityPct}%</span>
-        </div>
-        <input 
-          type="range" 
-          id="piksel-master-opacity" 
-          min="0" 
-          max="100" 
-          value="${opacityPct}" 
-          class="piksel-slider" 
-        />
-        <div class="slider-ticks">
-          <span>0% (Basemap)</span>
-          <span>50%</span>
-          <span>100% (Penuh)</span>
-        </div>
-        <button id="btn-clear-piksel-layer" class="btn btn-outline full-width" style="margin-top: 10px; font-size: 11px; padding: 5px 10px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          Nonaktifkan Layer EO Aktif
-        </button>
+      <!-- Active Layer Card / Inactive Banner -->
+      <div id="piksel-active-card-container">
+        ${activeSummaryHtml}
       </div>
 
       <!-- Data Cube Grid Toggle -->
-      <div class="piksel-grid-toggle-box">
+      <div class="piksel-grid-toggle-box" style="margin-top: 12px;">
         <label class="piksel-toggle-label">
           <input type="checkbox" id="toggle-piksel-grid" ${isGridOn ? 'checked' : ''} />
           <span class="toggle-text">
@@ -129,7 +163,7 @@ export class PikselPanelUI {
         </label>
       </div>
 
-      <div class="piksel-section-subtitle">KATALOG PRODUK OGC BIG PIKSEL:</div>
+      <div class="piksel-section-subtitle" style="margin-top: 16px; margin-bottom: 8px;">KATALOG PRODUK OGC BIG PIKSEL:</div>
       <div class="piksel-products-list" id="piksel-products-inner-list"></div>
     `;
 
@@ -373,6 +407,79 @@ export class PikselPanelUI {
     const isGridOn = this.pikselLoader.isGridVisible();
     const currentYear = this.pikselLoader.getSelectedYear();
 
+    const cardContainer = document.getElementById('piksel-active-card-container');
+    if (cardContainer) {
+      if (activeProduct) {
+        const yearOptionsHtml = (activeProduct.availableYears || S2_YEARS).map(
+          (y) => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`
+        ).join('');
+
+        cardContainer.innerHTML = `
+          <div class="piksel-active-summary-card">
+            <div class="piksel-active-header">
+              <div class="piksel-active-title-group">
+                <span class="active-pulse-indicator"></span>
+                <div>
+                  <h4 class="active-product-heading">${activeProduct.name}</h4>
+                  <span class="active-tag-badge">${activeProduct.badge}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="piksel-active-meta-grid">
+              <div class="meta-field">
+                <span class="meta-field-label">📅 Tahun:</span>
+                ${activeProduct.timeEnabled ? `
+                  <select id="piksel-year-select" class="piksel-select-sm">
+                    ${yearOptionsHtml}
+                  </select>
+                ` : `<span class="meta-field-val">Statik</span>`}
+              </div>
+              <div class="meta-field">
+                <span class="meta-field-label">📐 Resolusi:</span>
+                <span class="meta-field-val">${activeProduct.resolution}</span>
+              </div>
+              <div class="meta-field">
+                <span class="meta-field-label">🏢 Penyedia:</span>
+                <span class="meta-field-val">BIG Piksel</span>
+              </div>
+              <div class="meta-field">
+                <span class="meta-field-label">🌐 Layanan:</span>
+                <span class="meta-field-val">OGC WMS 1.3.0</span>
+              </div>
+            </div>
+
+            <div class="piksel-active-slider-wrap">
+              <div class="slider-header-row">
+                <span>Transparansi:</span>
+                <strong id="piksel-master-opacity-val">${opacityPct}%</strong>
+              </div>
+              <input 
+                type="range" 
+                id="piksel-master-opacity" 
+                min="0" 
+                max="100" 
+                value="${opacityPct}" 
+                class="piksel-slider" 
+              />
+            </div>
+
+            <button id="btn-clear-piksel-layer" class="btn btn-danger-outline full-width" style="margin-top: 10px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              ✕ Nonaktifkan Layer
+            </button>
+          </div>
+        `;
+      } else {
+        cardContainer.innerHTML = `
+          <div class="piksel-inactive-banner">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>Pilih salah satu produk citra satelit atau indeks di katalog bawah untuk mengaktifkan layer.</span>
+          </div>
+        `;
+      }
+    }
+
     document.querySelectorAll<HTMLElement>('.piksel-product-card').forEach((card) => {
       const pId = card.dataset.productId;
       const isSelected = pId === activeId;
@@ -382,35 +489,7 @@ export class PikselPanelUI {
       if (radio) radio.checked = isSelected;
     });
 
-    const slider = document.getElementById('piksel-master-opacity') as HTMLInputElement;
-    if (slider) slider.value = String(opacityPct);
-    const valLabel = document.getElementById('piksel-master-opacity-val');
-    if (valLabel) valLabel.innerText = `${opacityPct}%`;
-
     const gridToggle = document.getElementById('toggle-piksel-grid') as HTMLInputElement;
     if (gridToggle) gridToggle.checked = isGridOn;
-
-    // Dynamically populate year options based on the active product's temporal range
-    const yearSelect = document.getElementById('piksel-year-select') as HTMLSelectElement;
-    if (yearSelect) {
-      if (activeProduct && activeProduct.timeEnabled && activeProduct.availableYears) {
-        yearSelect.disabled = false;
-        yearSelect.innerHTML = activeProduct.availableYears
-          .map((y) => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>Tahun ${y}</option>`)
-          .join('');
-        yearSelect.value = activeProduct.availableYears.includes(currentYear)
-          ? currentYear
-          : activeProduct.availableYears[0];
-      } else if (activeProduct && !activeProduct.timeEnabled) {
-        yearSelect.disabled = true;
-        yearSelect.innerHTML = `<option value="">N/A (Model Probabilistik)</option>`;
-      } else {
-        yearSelect.disabled = false;
-        yearSelect.innerHTML = S2_YEARS
-          .map((y) => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>Tahun ${y}</option>`)
-          .join('');
-        yearSelect.value = currentYear;
-      }
-    }
   }
 }

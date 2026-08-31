@@ -269,6 +269,8 @@ export class MapManager {
   private styleReadyCallbacks: Array<() => void> = [];
   private geojsonLoaderRef?: { getAllMapLayerIds(): string[] };
   private pikselLoaderRef?: { getAllMapLayerIds(): string[] };
+  private geeLoaderRef?: { getAllMapLayerIds?(): string[] };
+  private measureToolRef?: { getAllMapLayerIds?(): string[] };
 
   public onStyleReady(callback: () => void) {
     this.styleReadyCallbacks.push(callback);
@@ -282,6 +284,14 @@ export class MapManager {
     this.pikselLoaderRef = loader;
   }
 
+  public setGeeLoader(loader: { getAllMapLayerIds?(): string[] }) {
+    this.geeLoaderRef = loader;
+  }
+
+  public setMeasureTool(tool: { getAllMapLayerIds?(): string[] }) {
+    this.measureToolRef = tool;
+  }
+
   private fireStyleReadyCallbacks() {
     this.styleReadyCallbacks.forEach((cb) => {
       try {
@@ -290,38 +300,41 @@ export class MapManager {
         console.warn('[MapManager] Error in styleReady callback:', e);
       }
     });
-    this.bringCustomLayersToTop();
+    this.enforceLayerOrder();
   }
 
   /**
    * Deterministically orders all custom layers above the basemap in a single pass:
    * Basemap (Bottom)
-   * -> Piksel WMS Raster Layers
-   * -> Piksel Grid Boundaries (Fill & Line)
-   * -> GEE Raster Analysis (Elevation, Landcover, LST)
+   * -> Piksel WMS Raster Layers (Bottommost Analytical Layer)
+   * -> GEE Raster Analysis (MODIS LST, SRTM Elevation, Landcover)
+   * -> Piksel Grid Boundaries (Fill & Dashed Line)
    * -> GEE POI Vector Circles & Labels
    * -> Custom Vector GeoJSON Layers (Major Cities, User GeoJSON)
-   * -> Measurement Tool (Fill, Casing, DashLine, Vertices) (Topmost)
+   * -> Measurement / Drawing (Fill, Casing, DashLine, Vertices) (Topmost)
    */
-  public bringCustomLayersToTop() {
-    if (!this.map) return;
+  public enforceLayerOrder() {
+    if (!this.map || !this.map.getStyle()) return;
 
     // 1. Piksel WMS Raster Layers (bottom of analytical stack)
     const pikselRasterLayerIds = (this.pikselLoaderRef?.getAllMapLayerIds() || []).filter(
       (id) => !id.includes('grid')
     );
 
-    // 2. Piksel Grid Boundaries
-    const pikselGridLayerIds = ['piksel-grid-fill', 'piksel-grid-line'];
-
-    // 3. GEE Analytical Rasters
+    // 2. GEE Analytical Rasters (above Piksel imagery)
     const geeRasterLayerIds = [
-      'gee-elevation-fill', 'gee-elevation-outline',
-      'gee-landcover-fill', 'gee-landcover-outline',
-      'gee-lst-fill', 'gee-lst-outline'
+      'gee-elevation-fill',
+      'gee-elevation-outline',
+      'gee-landcover-fill',
+      'gee-landcover-outline',
+      'gee-lst-fill',
+      'gee-lst-outline'
     ];
 
-    // 4. GEE POI Vector Circles
+    // 3. Piksel Grid Boundaries (above GEE/Piksel rasters)
+    const pikselGridLayerIds = ['piksel-grid-fill', 'piksel-grid-line'];
+
+    // 4. GEE POI Vector Circles & Observations
     const geeVectorLayerIds = ['gee-poi-circles'];
 
     // 5. Custom Vector GeoJSON Layers (Major Cities, Uploaded GeoJSON)
@@ -337,8 +350,8 @@ export class MapManager {
 
     const orderedLayerStack = [
       ...pikselRasterLayerIds,
-      ...pikselGridLayerIds,
       ...geeRasterLayerIds,
+      ...pikselGridLayerIds,
       ...geeVectorLayerIds,
       ...geojsonLayerIds,
       ...measureLayerIds
@@ -351,6 +364,10 @@ export class MapManager {
         } catch (_) {}
       }
     });
+  }
+
+  public bringCustomLayersToTop() {
+    this.enforceLayerOrder();
   }
 
   public async setBasemap(basemapId: string): Promise<boolean> {

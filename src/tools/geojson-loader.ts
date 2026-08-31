@@ -6,6 +6,7 @@ export interface CustomLayerItem {
   type: 'point' | 'line' | 'polygon';
   visible: boolean;
   color: string;
+  opacity?: number;
   featureCount: number;
   data: GeoJSON.FeatureCollection;
 }
@@ -32,6 +33,28 @@ export class GeoJsonLoader {
         console.error('Error in layers change callback:', err);
       }
     });
+  }
+
+  public setLayerOpacity(layerId: string, opacity: number) {
+    const item = this.customLayers.get(layerId);
+    if (!item || !this.map) return;
+    item.opacity = opacity;
+
+    const fillId = `layer-fill-${layerId}`;
+    const lineId = `layer-line-${layerId}`;
+    const pointId = `layer-point-${layerId}`;
+
+    if (this.map.getLayer(fillId)) {
+      this.map.setPaintProperty(fillId, 'fill-opacity', opacity * 0.5);
+    }
+    if (this.map.getLayer(lineId)) {
+      this.map.setPaintProperty(lineId, 'line-opacity', opacity);
+    }
+    if (this.map.getLayer(pointId)) {
+      this.map.setPaintProperty(pointId, 'circle-opacity', opacity);
+      this.map.setPaintProperty(pointId, 'circle-stroke-opacity', opacity);
+    }
+    this.notifyLayersChange();
   }
 
   public loadSampleData() {

@@ -18,6 +18,7 @@ export class PikselLoader {
   private popup: maplibregl.Popup;
   private isEventsBound: boolean = false;
   private onLoadingCallback: ((state: PikselLoadingState) => void) | null = null;
+  private onLayersChangeCallbacks: Array<() => void> = [];
   private activeSourceId: string | null = null;
 
   constructor(map: maplibregl.Map) {
@@ -28,6 +29,20 @@ export class PikselLoader {
       maxWidth: '340px'
     });
     this.attachMapSourceListeners();
+  }
+
+  public onLayersChange(callback: () => void) {
+    this.onLayersChangeCallbacks.push(callback);
+  }
+
+  private notifyLayersChange() {
+    this.onLayersChangeCallbacks.forEach((cb) => {
+      try {
+        cb();
+      } catch (e) {
+        console.warn('[PikselLoader] Error in layersChange callback:', e);
+      }
+    });
   }
 
   /**
@@ -129,6 +144,7 @@ export class PikselLoader {
         this.renderRasterLayer(product);
       }
     }
+    this.notifyLayersChange();
   }
 
   public getOpacity(): number {
@@ -195,6 +211,8 @@ export class PikselLoader {
         });
       }
     }
+
+    this.notifyLayersChange();
   }
 
   /**
@@ -275,6 +293,7 @@ export class PikselLoader {
     if (this.map.getLayer(layerId)) {
       this.map.setPaintProperty(layerId, 'raster-opacity', opacity);
     }
+    this.notifyLayersChange();
   }
 
   public setGridVisible(visible: boolean) {
@@ -347,6 +366,8 @@ export class PikselLoader {
         this.map.setLayoutProperty(lineId, 'visibility', 'none');
       }
     }
+
+    this.notifyLayersChange();
   }
 
   private bindGridEvents() {

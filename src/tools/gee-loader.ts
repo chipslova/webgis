@@ -25,6 +25,7 @@ export class GEELoader {
   private currentOpacity: number = 0.8;
 
   private isEventsBound: boolean = false;
+  private onLayersChangeCallbacks: Array<() => void> = [];
 
   constructor(map: maplibregl.Map) {
     this.map = map;
@@ -34,6 +35,29 @@ export class GEELoader {
       maxWidth: '340px'
     });
     // NOTE: style.load listener centralized in MapManager.onStyleReady()
+  }
+
+  public onLayersChange(callback: () => void) {
+    this.onLayersChangeCallbacks.push(callback);
+  }
+
+  private notifyLayersChange() {
+    this.onLayersChangeCallbacks.forEach((cb) => {
+      try {
+        cb();
+      } catch (e) {
+        console.warn('[GEELoader] Error in layersChange callback:', e);
+      }
+    });
+  }
+
+  public getAllMapLayerIds(): string[] {
+    return [
+      'gee-elevation-fill', 'gee-elevation-outline',
+      'gee-landcover-fill', 'gee-landcover-outline',
+      'gee-lst-fill', 'gee-lst-outline',
+      'gee-poi-circles'
+    ];
   }
 
   public setOpacity(opacity: number) {
@@ -48,6 +72,7 @@ export class GEELoader {
     if (this.map.getLayer('gee-lst-fill')) {
       this.map.setPaintProperty('gee-lst-fill', 'fill-opacity', opacity);
     }
+    this.notifyLayersChange();
   }
 
   public getOpacity(): number {
@@ -60,6 +85,7 @@ export class GEELoader {
     this.landcoverVisible = false;
     this.poiVisible = false;
     this.updateLayerVisibilities();
+    this.notifyLayersChange();
   }
 
   public async loadGEEDatasets() {
@@ -429,6 +455,7 @@ export class GEELoader {
 
     this.renderAllLayers();
     this.updateLayerVisibilities();
+    this.notifyLayersChange();
   }
 
   /** Called centrally by MapManager after style.load — re-creates sources/layers and HTML markers. */

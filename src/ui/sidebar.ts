@@ -1,7 +1,7 @@
-export type TabId = 'piksel' | 'gee' | 'basemaps' | 'layers' | 'measure' | 'data' | 'legend' | 'about';
+export type TabId = 'map' | 'piksel' | 'gee' | 'measure' | 'data' | 'legend' | 'about';
 
 export class SidebarUI {
-  private activeTab: TabId = 'piksel';
+  private activeTab: TabId = 'map';
   private isOpen: boolean = true;
   private onTabChangeCallback?: (tabId: TabId) => void;
 

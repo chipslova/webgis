@@ -9,6 +9,7 @@ import { GEELoader } from './tools/gee-loader';
 import { GEEPanelUI } from './ui/gee-panel';
 import { PikselLoader } from './tools/piksel-loader';
 import { PikselPanelUI } from './ui/piksel-panel';
+import { ActiveLayersUI } from './ui/active-layers';
 import { BASEMAPS } from './config/basemaps';
 
 class WebGISApp {
@@ -22,6 +23,7 @@ class WebGISApp {
   private geePanelUI: GEEPanelUI | null = null;
   private pikselLoader: PikselLoader | null = null;
   private pikselPanelUI: PikselPanelUI | null = null;
+  private activeLayersUI: ActiveLayersUI | null = null;
 
   constructor() {
     this.mapManager = new MapManager('map');
@@ -41,12 +43,6 @@ class WebGISApp {
     this.bindImportEvents();
     this.bindExportEvents();
     this.bindInspectorEvents();
-
-    this.sidebarUI.onTabChange((tab) => {
-      if (tab === 'layers') {
-        this.renderLayersList();
-      }
-    });
 
     // 2. Connect Telemetry & Feature Inspector
     this.mapManager.onMouseMove((info) => {
@@ -69,24 +65,41 @@ class WebGISApp {
       this.pikselLoader = new PikselLoader(map);
       this.pikselPanelUI = new PikselPanelUI(this.pikselLoader);
 
-      this.geojsonLoader.onLayersChange(() => {
-        this.renderLayersList();
-      });
-
-      // Register centralized layer restoration callbacks (deterministic order)
+      // Register tool references for deterministic layer ordering
       this.mapManager.setGeoJsonLoader(this.geojsonLoader);
       this.mapManager.setPikselLoader(this.pikselLoader);
+      this.mapManager.setGeeLoader(this.geeLoader);
+      this.mapManager.setMeasureTool(this.measureTool);
+
+      // Centralized style.load lifecycle restoration
       this.mapManager.onStyleReady(() => this.pikselLoader?.restoreAfterStyleChange());
       this.mapManager.onStyleReady(() => this.geojsonLoader?.reattachLayersIfNeeded());
       this.mapManager.onStyleReady(() => this.geeLoader?.restoreAfterStyleChange());
       this.mapManager.onStyleReady(() => this.measureTool?.restoreAfterStyleChange());
+
+      // Auto-enforce layer ordering on any layer state changes across all tools
+      this.pikselLoader.onLayersChange(() => this.mapManager.enforceLayerOrder());
+      this.geeLoader.onLayersChange(() => this.mapManager.enforceLayerOrder());
+      this.geojsonLoader.onLayersChange(() => this.mapManager.enforceLayerOrder());
+
+      // Instantiate Active Layers UI manager
+      this.activeLayersUI = new ActiveLayersUI(
+        'active-layers-container',
+        this.mapManager,
+        this.pikselLoader,
+        this.geeLoader,
+        this.geojsonLoader,
+        this.measureTool
+      );
 
       // Load sample cities vector layer, GEE Earth Engine datasets & Piksel EO UI
       await this.geojsonLoader.loadSampleData();
       await this.geeLoader.loadGEEDatasets();
       this.geePanelUI.init();
       this.pikselPanelUI.init();
-      this.renderLayersList();
+
+      // Enforce strict layer order on initial load
+      this.mapManager.enforceLayerOrder();
 
       // Bind measurement callbacks
       this.measureTool.onResult((res) => {
@@ -96,6 +109,7 @@ class WebGISApp {
           card.style.display = res.text ? 'block' : 'none';
           val.innerText = res.text || '0';
         }
+        this.mapManager.enforceLayerOrder();
       });
     } catch (err) {
       console.warn('Map initialization notice:', err);

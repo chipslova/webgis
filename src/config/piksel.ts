@@ -29,7 +29,7 @@ export interface NaturalLegend {
 
 export type PikselLegend = ContinuousLegend | CategoricalLegend | NaturalLegend;
 
-export type ProductCategory = 'geomad' | 'indices' | 'hazard' | 'quality' | 'other';
+export type ProductCategory = 'geomad' | 'indices' | 'quality' | 'landsat' | 'hazard' | 'other';
 
 export interface PikselProduct {
   id: string;
@@ -63,12 +63,12 @@ export interface PikselPreset {
   recommendedProduct: string;
 }
 
-export const PIKSEL_CATEGORIES: { id: ProductCategory; name: string; icon: string }[] = [
-  { id: 'geomad', name: 'Sentinel-2 GeoMAD Tahunan', icon: '🎨' },
-  { id: 'indices', name: 'Indeks Spektral Biofisik', icon: '🔬' },
-  { id: 'hazard', name: 'Model Bahaya Kebencanaan', icon: '🌊' },
-  { id: 'quality', name: 'Kualitas & Statistik Data', icon: '📊' },
-  { id: 'other', name: 'Sensor Satelit Lain', icon: '🛰️' }
+export const PIKSEL_CATEGORIES: { id: ProductCategory; name: string; icon: string; subtitle: string }[] = [
+  { id: 'geomad', name: 'Sentinel-2 GeoMAD', icon: '🎨', subtitle: 'Komposit Optik & Inframerah 10m Bebas Awan' },
+  { id: 'indices', name: 'Spectral Indices', icon: '🔬', subtitle: 'Indeks Biofisik Klorofil, Air & Lahan' },
+  { id: 'quality', name: 'Data Quality', icon: '📊', subtitle: 'Statistik Observasi Open Data Cube' },
+  { id: 'landsat', name: 'Landsat 9', icon: '🛰️', subtitle: 'Reflektansi Permukaan USGS/NASA 30m' },
+  { id: 'hazard', name: 'Flood Hazard', icon: '🌊', subtitle: 'Model Probabilitas Genangan Banjir Nasional' }
 ];
 
 export const PIKSEL_WMS_BASE_URL = 'https://ows.staging.piksel.big.go.id/wms';
@@ -282,11 +282,11 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
   },
 
-  // 5. Other EO Sensor Group
+  // 4. Landsat Group
   {
     id: 'ls9-sr',
     name: 'Landsat 9 OLI-2 Surface Reflectance',
-    category: 'other',
+    category: 'landsat',
     layer: 'ls9_c2l2_sr',
     style: 'simple_rgb',
     timeEnabled: true,

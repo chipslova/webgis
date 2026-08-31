@@ -283,4 +283,17 @@ export class MeasureTool {
   public onResult(callback: (result: { text: string; mode: MeasureMode }) => void) {
     this.onResultCallback = callback;
   }
+
+  public getAllMapLayerIds(): string[] {
+    return [
+      'measure-fill',
+      'measure-line-casing',
+      'measure-line',
+      'measure-points'
+    ];
+  }
+
+  public hasActiveMeasurement(): boolean {
+    return this.geojson.features.length > 0 || this.points.length > 0;
+  }
 }
