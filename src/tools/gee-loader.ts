@@ -284,13 +284,11 @@ export class GEELoader {
               'interpolate',
               ['linear'],
               ['coalesce', ['to-number', ['get', 'lst_celsius']], 25],
-              24, '#0000ff',
-              27, '#00ffff',
-              30, '#00ff00',
-              33, '#ffff00',
-              36, '#ff8000',
-              40, '#ff0000',
-              44, '#800000'
+              22, '#3b82f6', // Blue / Cool (~22°C)
+              25, '#10b981', // Green (~25°C)
+              28, '#f59e0b', // Yellow / Warm (~28°C)
+              31, '#ea580c', // Orange / Hot (~31°C)
+              34, '#dc2626'  // Red / Extreme Heat (~34°C+)
             ],
             'fill-opacity': this.getLayerOpacity('lst')
           }
@@ -304,8 +302,8 @@ export class GEELoader {
           layout: { visibility: isLstVis ? 'visible' : 'none' },
           paint: {
             'line-color': '#ffffff',
-            'line-width': 0.6,
-            'line-opacity': 0.6
+            'line-width': 0.8,
+            'line-opacity': 0.7
           }
         });
       }
@@ -332,17 +330,16 @@ export class GEELoader {
           source: 'gee-poi-source',
           layout: { visibility: isPoiVis ? 'visible' : 'none' },
           paint: {
-            'circle-radius': 8,
+            'circle-radius': 14,
             'circle-color': [
               'match',
-              ['get', 'category'],
-              'Urban Core (High Density)', '#ef4444',
-              'Rural Reference (Forest/Plantation)', '#10b981',
+              ['get', 'id'],
+              'urban_poi', '#dc2626',
+              'rural_poi', '#16a34a',
               '#3b82f6'
             ],
-            'circle-stroke-width': 2.5,
-            'circle-stroke-color': '#ffffff',
-            'circle-opacity': 0.95
+            'circle-stroke-width': 3,
+            'circle-stroke-color': '#ffffff'
           }
         });
       }
@@ -364,11 +361,13 @@ export class GEELoader {
       const props = feat.properties;
 
       const el = document.createElement('div');
-      el.className = `custom-poi-marker ${props.id}`;
+      el.className = `gee-map-marker ${props.id}`;
       el.innerHTML = `
-        <div class="marker-pulse"></div>
-        <div class="marker-dot"></div>
-        <div class="marker-label">${props.name}</div>
+        <div class="marker-pulse ${props.id}"></div>
+        <div class="marker-pin ${props.id}">
+          <span class="marker-icon">${props.id === 'urban_poi' ? '🏙️' : '🌲'}</span>
+        </div>
+        <div class="marker-label">${props.name.split(' (')[0]}</div>
       `;
 
       el.addEventListener('click', () => {
