@@ -163,7 +163,7 @@ class WebGISApp {
 
       // 4. Clear all custom GeoJSON layers & sample cities
       this.geojsonLoader?.clearAllLayers();
-      this.geojsonPanelUI?.renderLayerList();
+      this.renderLayersList();
 
       // 5. Clear active measurement
       this.measureTool?.clear();
@@ -438,7 +438,7 @@ class WebGISApp {
         const name = file.name.replace(/\.[^/.]+$/, '');
         this.geojsonLoader?.addGeoJSONLayer(layerId, name, json, '#10b981');
         this.renderLayersList();
-        this.sidebarUI.setActiveTab('layers');
+        this.sidebarUI.setActiveTab('data');
       } catch (err) {
         alert('Invalid GeoJSON file structure');
       }
