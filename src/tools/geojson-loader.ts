@@ -358,6 +358,11 @@ export class GeoJsonLoader {
     this.notifyLayersChange();
   }
 
+  public clearAllLayers() {
+    const ids = Array.from(this.customLayers.keys());
+    ids.forEach((id) => this.removeLayer(id));
+  }
+
   public getLayers(): CustomLayerItem[] {
     return Array.from(this.customLayers.values());
   }

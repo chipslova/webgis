@@ -153,10 +153,22 @@ export class PikselLoader {
   }
 
   /**
-   * Monitor zoom level dynamically to prevent nationwide overload and alert users
+   * Monitor zoom and move events dynamically
    */
   private attachMapZoomListeners() {
     if (!this.map) return;
+
+    this.map.on('zoomstart', () => {
+      if (this.activeSourceId) {
+        this.tilesFailed = 0;
+      }
+    });
+
+    this.map.on('movestart', () => {
+      if (this.activeSourceId) {
+        this.tilesFailed = 0;
+      }
+    });
 
     this.map.on('zoomend', () => {
       const prod = this.getActiveProduct();
@@ -193,21 +205,26 @@ export class PikselLoader {
     });
 
     this.map.on('sourcedata', (e) => {
-      if (this.activeSourceId && e.sourceId === this.activeSourceId && e.isSourceLoaded) {
+      if (this.activeSourceId && e.sourceId === this.activeSourceId) {
         const prod = this.getActiveProduct();
-        if (prod) {
-          const currentZoom = this.map.getZoom();
-          const minZoom = prod.minZoom ?? 6;
+        if (!prod) return;
 
-          if (currentZoom < minZoom) {
-            this.emitState('zoom_too_low');
-          } else {
-            this.tilesLoaded = Math.max(this.tilesLoaded, this.tilesRequested);
-            if (this.tilesFailed > 0) {
-              this.emitState('partial');
-            } else {
-              this.emitState('ready');
-            }
+        const currentZoom = this.map.getZoom();
+        const minZoom = prod.minZoom ?? 6;
+
+        if (currentZoom < minZoom) {
+          this.emitState('zoom_too_low');
+          return;
+        }
+
+        if (e.isSourceLoaded) {
+          this.tilesLoaded = Math.max(this.tilesLoaded, this.tilesRequested);
+          // If all requested tiles arrived or map source is fully loaded
+          if (this.tilesLoaded >= this.tilesRequested && this.tilesRequested > 0) {
+            this.tilesFailed = 0; // Clear transient errors since source is fully loaded
+            this.emitState('ready');
+          } else if (this.tilesLoaded > 0 && this.tilesLoaded < this.tilesRequested) {
+            this.emitState('partial');
           }
         }
       }
@@ -216,37 +233,37 @@ export class PikselLoader {
     this.map.on('idle', () => {
       if (this.activeSourceId && this.map.isSourceLoaded(this.activeSourceId)) {
         const prod = this.getActiveProduct();
-        if (prod) {
-          const currentZoom = this.map.getZoom();
-          const minZoom = prod.minZoom ?? 6;
+        if (!prod) return;
 
-          if (currentZoom < minZoom) {
-            this.emitState('zoom_too_low');
-          } else if (this.tilesFailed > 0 && this.tilesLoaded === 0) {
-            this.emitState('error');
-          } else if (this.tilesFailed > 0) {
-            this.emitState('partial');
-          } else {
-            this.emitState('ready');
-          }
+        const currentZoom = this.map.getZoom();
+        const minZoom = prod.minZoom ?? 6;
+
+        if (currentZoom < minZoom) {
+          this.emitState('zoom_too_low');
+        } else {
+          // Source is 100% loaded and map is idle
+          this.tilesLoaded = Math.max(this.tilesLoaded, this.tilesRequested);
+          this.tilesFailed = 0;
+          this.emitState('ready');
         }
       }
     });
 
     this.map.on('error', (e: any) => {
       if (this.activeSourceId && e.sourceId === this.activeSourceId) {
-        this.tilesFailed++;
         const prod = this.getActiveProduct();
-        if (prod) {
-          const currentZoom = this.map.getZoom();
-          const minZoom = prod.minZoom ?? 6;
+        if (!prod) return;
 
-          if (currentZoom >= minZoom) {
-            if (this.tilesLoaded > 0) {
-              this.emitState('partial');
-            } else {
-              this.emitState('error');
-            }
+        const currentZoom = this.map.getZoom();
+        const minZoom = prod.minZoom ?? 6;
+
+        if (currentZoom >= minZoom) {
+          // Check if it's a persistent error or unrecoverable 500
+          this.tilesFailed++;
+          if (this.tilesLoaded === 0 && this.tilesRequested <= 2) {
+            this.emitState('error');
+          } else {
+            this.emitState('partial');
           }
         }
       }
@@ -472,6 +489,23 @@ export class PikselLoader {
       console.warn(`[PikselLoader] Layer error for ${product.id}:`, e);
       this.emitState('error', `Gagal menambahkan layer WMS: ${(e as Error).message}`);
     }
+  }
+
+  private rasterVisible: boolean = true;
+
+  public isLayerVisible(): boolean {
+    return this.rasterVisible;
+  }
+
+  public setLayerVisible(visible: boolean) {
+    this.rasterVisible = visible;
+    if (!this.map || !this.activeProductId) return;
+
+    const layerId = `piksel-raster-${this.activeProductId}`;
+    if (this.map.getLayer(layerId)) {
+      this.map.setLayoutProperty(layerId, 'visibility', visible ? 'visible' : 'none');
+    }
+    this.notifyLayersChange();
   }
 
   public setOpacity(opacity: number) {

@@ -2578,6 +2578,101 @@ html, body, #app {
   margin-top: 1px;
 }
 
+/* Hidden Layer State */
+.active-layer-item.is-hidden {
+  opacity: 0.6;
+  background: rgba(15, 23, 42, 0.4);
+  border-style: dashed;
+}
+
+.active-layer-item.is-hidden:hover {
+  opacity: 0.85;
+}
+
+.hidden-status-tag {
+  font-size: 8.5px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(100, 116, 139, 0.25);
+  color: #94a3b8;
+  border: 1px solid rgba(100, 116, 139, 0.4);
+}
+
+/* ==========================================================================
+   Mobile & Tablet Responsive Refinements (P6 QA)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .app-header {
+    height: 52px;
+    padding: 0 12px;
+  }
+
+  .app-logo span {
+    font-size: 15px;
+  }
+
+  .header-actions {
+    gap: 6px;
+  }
+
+  .header-actions .btn-text-label {
+    display: none;
+  }
+
+  .header-actions .btn {
+    padding: 6px 8px;
+  }
+
+  .sidebar {
+    width: 60px;
+  }
+
+  .sidebar-drawer {
+    left: 60px;
+    width: calc(100vw - 60px);
+    max-width: 360px;
+  }
+
+  .piksel-map-hud {
+    top: 12px;
+    padding: 6px 14px;
+    max-width: 95%;
+  }
+
+  .piksel-map-hud .hud-title {
+    font-size: 11px;
+  }
+
+  .piksel-map-hud .hud-subtitle {
+    font-size: 9.5px;
+  }
+
+  .basemap-gallery {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar-drawer {
+    left: 56px;
+    width: calc(100vw - 56px);
+  }
+
+  .sidebar-nav-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .active-layers-title-row h3 {
+    font-size: 12px;
+  }
+
+  .piksel-active-meta-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 
 

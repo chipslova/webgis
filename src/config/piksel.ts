@@ -74,7 +74,7 @@ export const PIKSEL_CATEGORIES: { id: ProductCategory; name: string; icon: strin
 
 export const PIKSEL_WMS_BASE_URL = 'https://ows.staging.piksel.big.go.id/wms';
 export const S2_YEARS = ['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017'];
-export const LS9_YEARS = ['2025', '2024', '2023', '2022', '2021'];
+export const LS9_YEARS = ['2025', '2024', '2023', '2022'];
 
 export const PIKSEL_PRODUCTS: PikselProduct[] = [
   // 1. GeoMAD Group
@@ -259,7 +259,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
   // 4. Quality & Statistics Group
   {
     id: 's2-count',
-    name: 'Kerapatan Observasi Data Cube (Scene Count)',
+    name: 'Sentinel-2 GeoMAD — Observation Density (Scene Count)',
     category: 'quality',
     layer: 's2_geomad_annual_statistics',
     style: 'count',
@@ -268,7 +268,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     serviceUrl: PIKSEL_WMS_BASE_URL,
     description: 'Jumlah akuisisi citra Sentinel-2 bebas awan yang menyusun setiap pixel komposit GeoMAD tahunan.',
     whatItShows: 'Kualitas komposit: Pixel dengan jumlah scene tinggi (>20) memiliki kestabilan reflektansi paling tinggi.',
-    badge: 'Statistik Piksel',
+    badge: 'Data Quality',
     color: '#6366f1',
     resolution: '10 meter',
     sensor: 'Open Data Cube Quality Mask',
@@ -283,7 +283,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
   },
 
-  // 4. Landsat Group
+  // 5. Landsat Group
   {
     id: 'ls9-sr',
     name: 'Landsat 9 OLI-2 Surface Reflectance',
@@ -300,6 +300,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     resolution: '30 meter',
     sensor: 'Landsat 9 OLI-2 (Collection 2 Level-2)',
     isComputeHeavy: true,
+    statusNotice: 'ℹ️ Catatan: Landsat 9 merupakan koleksi scene individual USGS/NASA (area non-lintasan satelit tampak transparan).',
     legend: {
       type: 'natural',
       leftLabel: '🌊 Air (Biru Tua)',
@@ -344,11 +345,11 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
   },
   {
     id: 'jakarta-coast',
-    name: 'Pesisir Utara Jakarta',
-    locationName: 'DKI Jakarta',
-    center: [106.7900, -6.1150],
-    zoom: 12,
-    description: 'Zonasi bahaya banjir rob pasang surut dan genangan pesisir Teluk Jakarta.',
+    name: 'Dataran Banjir Karawang & Citarum',
+    locationName: 'Jawa Barat',
+    center: [107.2500, -6.2200],
+    zoom: 10.5,
+    description: 'Pemodelan zonasi bahaya banjir hidrologi spasial BIG di dataran banjir DAS Citarum hilir.',
     recommendedProduct: 'flood-hazard-rp02'
   },
   {

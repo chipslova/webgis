@@ -46,6 +46,7 @@ export class ActiveLayersUI {
     if (!container) return;
 
     const activePiksel = this.pikselLoader.getActiveProduct();
+    const isPikselVisible = this.pikselLoader.isLayerVisible();
     const isPikselGridOn = this.pikselLoader.isGridVisible();
     const isGeePoiOn = this.geeLoader.isLayerVisible('poi');
     const isGeeLstOn = this.geeLoader.isLayerVisible('lst');
@@ -54,20 +55,18 @@ export class ActiveLayersUI {
     const customLayers = this.geojsonLoader.getLayers();
     const hasMeasure = this.measureTool.hasActiveMeasurement();
 
-    // Compute active layers count
-    let activeCount = 0;
-    if (activePiksel) activeCount++;
-    if (isPikselGridOn) activeCount++;
-    if (isGeePoiOn) activeCount++;
-    if (isGeeLstOn) activeCount++;
-    if (isGeeElvOn) activeCount++;
-    if (isGeeLcOn) activeCount++;
-    customLayers.forEach(l => { if (l.visible) activeCount++; });
-    if (hasMeasure) activeCount++;
+    // Count all configured overlay layers
+    let layerCount = 0;
+    if (activePiksel) layerCount++;
+    if (isPikselGridOn) layerCount++;
+    if (isGeePoiOn) layerCount++;
+    if (isGeeLstOn || isGeeElvOn || isGeeLcOn) layerCount++;
+    layerCount += customLayers.length;
+    if (hasMeasure) layerCount++;
 
     let itemsHtml = '';
 
-    if (activeCount === 0) {
+    if (layerCount === 0) {
       itemsHtml = `
         <div class="active-layers-empty">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -103,12 +102,13 @@ export class ActiveLayersUI {
 
       // 2. Custom GeoJSON Layers (Major Cities, uploaded layers)
       customLayers.forEach((layer) => {
+        const isVisible = layer.visible !== false;
         const opacityPct = Math.round((layer.opacity ?? 1.0) * 100);
         itemsHtml += `
-          <div class="active-layer-item" data-type="geojson" data-id="${layer.id}">
+          <div class="active-layer-item ${!isVisible ? 'is-hidden' : ''}" data-type="geojson" data-id="${layer.id}">
             <div class="active-layer-main">
-              <button class="layer-eye-btn btn-toggle-geojson" data-id="${layer.id}" title="Toggle Visibilitas">
-                ${layer.visible 
+              <button class="layer-eye-btn btn-toggle-geojson" data-id="${layer.id}" title="${isVisible ? 'Sembunyikan Layer' : 'Tampilkan Layer'}">
+                ${isVisible 
                   ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`
                   : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>`
                 }
@@ -118,6 +118,7 @@ export class ActiveLayersUI {
                 <div class="layer-name-row">
                   <strong>${layer.name}</strong>
                   <span class="active-pill-badge">${layer.featureCount} Fitur</span>
+                  ${!isVisible ? '<span class="hidden-status-tag">Tersembunyi</span>' : ''}
                 </div>
                 <div class="layer-meta-line">Vektor GeoJSON (${layer.type})</div>
               </div>
@@ -125,12 +126,12 @@ export class ActiveLayersUI {
                 <button class="icon-btn-sm btn-zoom-active-geojson" data-id="${layer.id}" title="Fokus ke layer">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                 </button>
-                <button class="icon-btn-sm btn-delete-active-geojson" data-id="${layer.id}" title="Hapus layer">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                <button class="icon-btn-sm btn-delete-active-geojson" data-id="${layer.id}" title="Hapus layer secara permanen">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
                 </button>
               </div>
             </div>
-            ${layer.visible ? `
+            ${isVisible ? `
               <div class="active-layer-slider-row">
                 <span>Transparansi:</span>
                 <input type="range" class="active-layer-slider geojson-opacity-slider" data-id="${layer.id}" min="0" max="100" value="${opacityPct}" />
@@ -146,7 +147,7 @@ export class ActiveLayersUI {
         itemsHtml += `
           <div class="active-layer-item">
             <div class="active-layer-main">
-              <button class="layer-eye-btn btn-toggle-gee-poi" title="Toggle POI">
+              <button class="layer-eye-btn btn-toggle-gee-poi" title="Matikan POI">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
               <div class="layer-status-icon">📍</div>
@@ -157,6 +158,9 @@ export class ActiveLayersUI {
                 </div>
                 <div class="layer-meta-line">Titik Stasiun Pantau Jakarta Monas & Hutan Bogor</div>
               </div>
+              <button class="icon-btn-sm btn-toggle-gee-poi" title="Hapus Layer POI">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
             </div>
           </div>
         `;
@@ -167,7 +171,7 @@ export class ActiveLayersUI {
         itemsHtml += `
           <div class="active-layer-item">
             <div class="active-layer-main">
-              <button class="layer-eye-btn btn-toggle-piksel-grid" title="Toggle Grid">
+              <button class="layer-eye-btn btn-toggle-piksel-grid" title="Matikan Grid">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
               <div class="layer-status-icon">📦</div>
@@ -178,6 +182,9 @@ export class ActiveLayersUI {
                 </div>
                 <div class="layer-meta-line">Grid Indeks 10m Open Data Cube BIG</div>
               </div>
+              <button class="icon-btn-sm btn-toggle-piksel-grid" title="Hapus Grid">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
             </div>
           </div>
         `;
@@ -194,7 +201,7 @@ export class ActiveLayersUI {
         itemsHtml += `
           <div class="active-layer-item">
             <div class="active-layer-main">
-              <button class="layer-eye-btn btn-toggle-gee-rasters" title="Matikan Layer Raster GEE">
+              <button class="layer-eye-btn btn-toggle-gee-rasters" title="Nonaktifkan Layer Raster GEE">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
               <div class="layer-status-icon">🌡️</div>
@@ -205,6 +212,9 @@ export class ActiveLayersUI {
                 </div>
                 <div class="layer-meta-line">${activeGeeSublayers.join(' • ')}</div>
               </div>
+              <button class="icon-btn-sm btn-toggle-gee-rasters" title="Hapus Raster GEE">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
             </div>
             <div class="active-layer-slider-row">
               <span>Transparansi:</span>
@@ -220,28 +230,34 @@ export class ActiveLayersUI {
         const pikselOpacityPct = Math.round(this.pikselLoader.getOpacity() * 100);
         const yearText = activePiksel.timeEnabled ? ` • Tahun ${this.pikselLoader.getSelectedYear()}` : '';
         itemsHtml += `
-          <div class="active-layer-item highlight-piksel">
+          <div class="active-layer-item highlight-piksel ${!isPikselVisible ? 'is-hidden' : ''}">
             <div class="active-layer-main">
-              <button class="layer-eye-btn btn-disable-active-piksel" title="Nonaktifkan Layer EO">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              <button class="layer-eye-btn btn-toggle-piksel-visibility" title="${isPikselVisible ? 'Sembunyikan Layer Citra' : 'Tampilkan Layer Citra'}">
+                ${isPikselVisible
+                  ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`
+                  : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>`
+                }
               </button>
               <div class="layer-status-icon">🛰️</div>
               <div class="layer-info-col">
                 <div class="layer-name-row">
                   <strong>${activePiksel.name}</strong>
                   <span class="active-pill-badge" style="background:${activePiksel.color}22; color:${activePiksel.color}; border-color:${activePiksel.color}55;">${activePiksel.badge}</span>
+                  ${!isPikselVisible ? '<span class="hidden-status-tag">Tersembunyi</span>' : ''}
                 </div>
                 <div class="layer-meta-line">OGC WMS 1.3.0 (${activePiksel.resolution}${yearText})</div>
               </div>
-              <button class="icon-btn-sm btn-disable-active-piksel" title="Nonaktifkan Layer Citra">
+              <button class="icon-btn-sm btn-remove-active-piksel" title="Nonaktifkan / Hapus Layer Citra">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
               </button>
             </div>
-            <div class="active-layer-slider-row">
-              <span>Transparansi:</span>
-              <input type="range" class="active-layer-slider piksel-opacity-slider" min="0" max="100" value="${pikselOpacityPct}" />
-              <span class="slider-pct">${pikselOpacityPct}%</span>
-            </div>
+            ${isPikselVisible ? `
+              <div class="active-layer-slider-row">
+                <span>Transparansi:</span>
+                <input type="range" class="active-layer-slider piksel-opacity-slider" min="0" max="100" value="${pikselOpacityPct}" />
+                <span class="slider-pct">${pikselOpacityPct}%</span>
+              </div>
+            ` : ''}
           </div>
         `;
       }
@@ -251,9 +267,9 @@ export class ActiveLayersUI {
       <div class="active-layers-header">
         <div class="active-layers-title-row">
           <h3>👁️ Active Layers</h3>
-          <span class="active-count-badge">${activeCount} Layer Aktif</span>
+          <span class="active-count-badge">${layerCount} Layer Aktif</span>
         </div>
-        <p class="active-layers-desc">Lapisan peta yang sedang ditampilkan di atas basemap (urutan rendering otomatis terorkestrasi).</p>
+        <p class="active-layers-desc">Lapisan peta yang sedang dikonfigurasi di atas basemap (urutan rendering otomatis terorkestrasi).</p>
       </div>
       <div class="active-layers-list">
         ${itemsHtml}
@@ -278,8 +294,16 @@ export class ActiveLayersUI {
         return;
       }
 
-      // Disable Piksel layer
-      if (target.closest('.btn-disable-active-piksel')) {
+      // Toggle Piksel visibility (Hide != Remove)
+      if (target.closest('.btn-toggle-piksel-visibility')) {
+        const currentVis = this.pikselLoader.isLayerVisible();
+        this.pikselLoader.setLayerVisible(!currentVis);
+        this.render();
+        return;
+      }
+
+      // Remove / Disable Piksel layer
+      if (target.closest('.btn-remove-active-piksel')) {
         this.pikselLoader.setActiveProduct(null);
         this.render();
         return;
@@ -294,8 +318,7 @@ export class ActiveLayersUI {
 
       // Toggle GEE POI
       if (target.closest('.btn-toggle-gee-poi')) {
-        const current = this.geeLoader.isLayerVisible('poi');
-        this.geeLoader.toggleLayer('poi', !current);
+        this.geeLoader.toggleLayer('poi', false);
         this.render();
         return;
       }
@@ -309,13 +332,14 @@ export class ActiveLayersUI {
         return;
       }
 
-      // Toggle GeoJSON layer
+      // Toggle GeoJSON layer visibility (Hide != Remove)
       const toggleGeoJsonBtn = target.closest('.btn-toggle-geojson') as HTMLElement;
       if (toggleGeoJsonBtn && toggleGeoJsonBtn.dataset.id) {
         const id = toggleGeoJsonBtn.dataset.id;
         const current = this.geojsonLoader.getLayers().find(l => l.id === id);
         if (current) {
-          this.geojsonLoader.toggleLayerVisibility(id, !current.visible);
+          const nextVis = current.visible === false ? true : false;
+          this.geojsonLoader.toggleLayerVisibility(id, nextVis);
           this.render();
         }
         return;
@@ -328,7 +352,7 @@ export class ActiveLayersUI {
         return;
       }
 
-      // Delete GeoJSON layer
+      // Delete GeoJSON layer (Permanent remove)
       const deleteGeoJsonBtn = target.closest('.btn-delete-active-geojson') as HTMLElement;
       if (deleteGeoJsonBtn && deleteGeoJsonBtn.dataset.id) {
         this.geojsonLoader.removeLayer(deleteGeoJsonBtn.dataset.id);

@@ -157,21 +157,27 @@ class WebGISApp {
       this.pikselLoader?.setGridVisible(false);
       this.pikselPanelUI?.syncUIStates();
 
-      // 3. Reset GEE layers to default (POI only)
+      // 3. Reset all GEE layers (Rasters and POIs off)
       this.geeLoader?.clearAllLayers();
-      this.geeLoader?.toggleLayer('poi', true);
       this.geePanelUI?.init();
 
-      // 4. Clear active measurement
+      // 4. Clear all custom GeoJSON layers & sample cities
+      this.geojsonLoader?.clearAllLayers();
+      this.geojsonPanelUI?.renderLayerList();
+
+      // 5. Clear active measurement
       this.measureTool?.clear();
       document.getElementById('btn-measure-dist')?.classList.remove('active');
       document.getElementById('btn-measure-area')?.classList.remove('active');
       const measureCard = document.getElementById('measure-result-card');
       if (measureCard) measureCard.style.display = 'none';
 
-      // 5. Hide feature inspector
+      // 6. Hide feature inspector
       const inspector = document.getElementById('feature-inspector');
       if (inspector) inspector.style.display = 'none';
+
+      // 7. Refresh Active Layers UI
+      this.activeLayersUI?.render();
     });
   }
 
