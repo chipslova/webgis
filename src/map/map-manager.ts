@@ -151,6 +151,7 @@ export class MapManager {
       zoom: initialZoom,
       pitch: 0,
       bearing: 0,
+      preserveDrawingBuffer: true,
       attributionControl: false
     });
 
