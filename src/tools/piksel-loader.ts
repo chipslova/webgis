@@ -644,6 +644,11 @@ export class PikselLoader {
       duration: 1800,
       essential: true
     });
+
+    // Automatically activate the optimal satellite analysis product for this preset location
+    if (preset.recommendedProduct) {
+      this.setActiveProduct(preset.recommendedProduct);
+    }
   }
 
   public restoreAfterStyleChange() {

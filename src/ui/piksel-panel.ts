@@ -5,6 +5,7 @@ import {
   PikselPreset,
   S2_YEARS
 } from '../config/piksel';
+import { showToast } from './toast';
 
 export class PikselPanelUI {
   private pikselLoader: PikselLoader;
@@ -435,7 +436,11 @@ export class PikselPanelUI {
       const presetBtn = target.closest('.piksel-preset-chip') as HTMLElement;
       if (presetBtn && presetBtn.dataset.id) {
         const preset = PIKSEL_PRESETS.find(p => p.id === presetBtn.dataset.id);
-        if (preset) this.pikselLoader.flyToPreset(preset);
+        if (preset) {
+          this.pikselLoader.flyToPreset(preset);
+          const prod = PIKSEL_PRODUCTS.find(p => p.id === preset.recommendedProduct);
+          showToast(`Menampilkan lokasi ${preset.name} (${prod?.name || 'Citra Satelit'})`, 'info');
+        }
         return;
       }
 
