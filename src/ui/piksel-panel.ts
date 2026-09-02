@@ -14,6 +14,7 @@ export class PikselPanelUI {
     isLoading: false,
     productId: null
   };
+  private selectedCategory: string = 'all';
   private isEventsBound: boolean = false;
 
   constructor(pikselLoader: PikselLoader) {
@@ -22,37 +23,22 @@ export class PikselPanelUI {
   }
 
   public init() {
-    this.renderPresets();
-    this.renderControls();
-    this.renderProducts();
+    this.render();
     this.bindEvents();
 
-    // Listen to layer and telemetry state changes
     this.pikselLoader.onLayersChange(() => {
-      this.syncUIStates();
+      this.render();
     });
 
     this.pikselLoader.onLoadingStateChange((state) => {
       this.currentLoadingState = state;
       this.updateLoadingHUD(state);
-      this.updateActiveCardDiagnostics(state.diagnostics);
+      this.updateActiveCardStatus(state);
     });
   }
 
-  private renderPresets() {
-    const container = document.getElementById('piksel-presets-container');
-    if (!container) return;
-
-    container.innerHTML = PIKSEL_PRESETS.map((preset: PikselPreset) => `
-      <button class="piksel-preset-btn" data-id="${preset.id}" title="${preset.description}">
-        <span class="preset-name">${preset.name}</span>
-        <span class="preset-desc">${preset.description}</span>
-      </button>
-    `).join('');
-  }
-
-  private renderControls() {
-    const container = document.getElementById('piksel-products-container');
+  public render() {
+    const container = document.getElementById('panel-piksel');
     if (!container) return;
 
     const activeProduct = this.pikselLoader.getActiveProduct();
@@ -61,119 +47,228 @@ export class PikselPanelUI {
     const currentYear = this.pikselLoader.getSelectedYear();
     const diagnostics = this.pikselLoader.getDiagnostics();
 
-    let activeSummaryHtml = '';
+    // 1. Presets HTML
+    const presetsHtml = PIKSEL_PRESETS.map((preset: PikselPreset) => `
+      <button class="piksel-preset-chip" data-id="${preset.id}" title="${preset.description}">
+        <span class="preset-chip-title">${preset.name}</span>
+        <span class="preset-chip-sub">${preset.locationName}</span>
+      </button>
+    `).join('');
+
+    // 2. Active Layer Control Box (Prominent & Clear)
+    let activeControlHtml = '';
     if (activeProduct) {
       const yearOptionsHtml = (activeProduct.availableYears || S2_YEARS).map(
         (y) => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`
       ).join('');
 
-      activeSummaryHtml = `
-        <div class="piksel-active-summary-card">
-          <div class="piksel-active-header">
-            <div class="piksel-active-title-group">
-              <span class="active-pulse-indicator ${this.currentLoadingState.status}"></span>
-              <div>
-                <h4 class="active-product-heading">${activeProduct.name}</h4>
-                <span class="active-tag-badge">${activeProduct.badge}</span>
+      let legendHtml = '';
+      if (activeProduct.legend) {
+        if (activeProduct.legend.type === 'continuous' || activeProduct.legend.type === 'natural') {
+          legendHtml = `
+            <div class="active-legend-block">
+              <div class="active-legend-bar ${activeProduct.legend.gradientClass}"></div>
+              <div class="active-legend-labels">
+                <span>${activeProduct.legend.leftLabel}</span>
+                ${activeProduct.legend.middleLabel ? `<span>${activeProduct.legend.middleLabel}</span>` : ''}
+                <span>${activeProduct.legend.rightLabel}</span>
               </div>
             </div>
+          `;
+        } else if (activeProduct.legend.type === 'categorical') {
+          legendHtml = `
+            <div class="active-legend-cat-grid">
+              ${activeProduct.legend.items.map(it => `
+                <div class="cat-legend-item">
+                  <span class="cat-dot" style="background:${it.color};"></span>
+                  <span>${it.label}</span>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+      }
+
+      activeControlHtml = `
+        <div class="piksel-active-box">
+          <div class="active-box-header">
+            <div class="active-box-title-wrap">
+              <span class="active-live-dot ${this.currentLoadingState.status}"></span>
+              <div>
+                <h4 class="active-box-title">${activeProduct.name}</h4>
+                <span class="active-box-badge" style="border-color:${activeProduct.color}66; color:${activeProduct.color};">${activeProduct.badge}</span>
+              </div>
+            </div>
+            <button id="btn-clear-piksel-layer" class="btn-deactivate-chip" title="Nonaktifkan layer ini">
+              ✕ Lepas Layer
+            </button>
           </div>
 
-          <!-- Dynamic Status / Zoom Alert inside card -->
-          <div id="piksel-active-status-bar" class="piksel-active-status-bar ${this.currentLoadingState.status}">
+          <!-- Status Indicator Alert -->
+          <div id="piksel-status-alert-slot" class="status-alert-slot">
             ${this.getStatusBadgeHtml(this.currentLoadingState)}
           </div>
 
-          <div class="piksel-active-meta-grid">
-            <div class="meta-field">
-              <span class="meta-field-label">📅 Tahun:</span>
-              ${activeProduct.timeEnabled ? `
-                <select id="piksel-year-select" class="piksel-select-sm">
+          <!-- Controls: Year & Opacity -->
+          <div class="active-controls-grid">
+            ${activeProduct.timeEnabled ? `
+              <div class="control-field">
+                <label>📅 Tahun Citra</label>
+                <select id="piksel-year-select" class="clean-select">
                   ${yearOptionsHtml}
                 </select>
-              ` : `<span class="meta-field-val">Statik</span>`}
-            </div>
-            <div class="meta-field">
-              <span class="meta-field-label">📐 Resolusi:</span>
-              <span class="meta-field-val">${activeProduct.resolution}</span>
-            </div>
-            <div class="meta-field">
-              <span class="meta-field-label">🏢 Penyedia:</span>
-              <span class="meta-field-val">BIG Piksel</span>
-            </div>
-            <div class="meta-field">
-              <span class="meta-field-label">🌐 Layanan:</span>
-              <span class="meta-field-val">OGC WMS 1.3.0</span>
+              </div>
+            ` : `
+              <div class="control-field">
+                <label>📐 Resolusi</label>
+                <div class="static-val">${activeProduct.resolution}</div>
+              </div>
+            `}
+            <div class="control-field">
+              <label>🔍 Batas Zoom</label>
+              <div class="static-val">Min. Z${activeProduct.minZoom ?? 6}</div>
             </div>
           </div>
 
-          <div class="piksel-active-slider-wrap">
-            <div class="slider-header-row">
-              <span>Transparansi Layer:</span>
-              <strong id="piksel-master-opacity-val">${opacityPct}%</strong>
+          <!-- Opacity Slider -->
+          <div class="active-slider-field">
+            <div class="slider-label-row">
+              <span>Transparansi Layer</span>
+              <strong id="piksel-opacity-text">${opacityPct}%</strong>
             </div>
-            <input 
-              type="range" 
-              id="piksel-master-opacity" 
-              min="0" 
-              max="100" 
-              value="${opacityPct}" 
-              class="piksel-slider" 
-            />
+            <input type="range" id="piksel-master-opacity" min="0" max="100" value="${opacityPct}" class="clean-range-slider" />
           </div>
 
-          <!-- Live Tile Diagnostics Panel (Collapsible) -->
-          <div class="piksel-diagnostics-box" id="piksel-diagnostics-box">
-            ${this.renderDiagnosticsHtml(diagnostics)}
-          </div>
+          <!-- Active Product Legend -->
+          ${legendHtml}
 
-          <button id="btn-clear-piksel-layer" class="btn btn-danger-outline full-width" style="margin-top: 10px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M18 6 6 18M6 6l12 12"/></svg>
-            ✕ Nonaktifkan Layer
-          </button>
+          <!-- Collapsible Diagnostics -->
+          <details class="diagnostics-details" style="margin-top: 10px;">
+            <summary class="diagnostics-summary">
+              <span>📊 Telemetri Layanan OGC WMS</span>
+              <span class="diag-status-pill ${diagnostics?.status || 'idle'}">${(diagnostics?.status || 'idle').toUpperCase()}</span>
+            </summary>
+            <div class="diagnostics-content">
+              <div class="diag-row"><span>Tile Selesai:</span><strong>${diagnostics?.tilesLoaded || 0} / ${Math.max(diagnostics?.tilesRequested || 1, 1)}</strong></div>
+              <div class="diag-row"><span>Tile Gagal:</span><strong class="${(diagnostics?.tilesFailed || 0) > 0 ? 'text-danger' : ''}">${diagnostics?.tilesFailed || 0}</strong></div>
+              <div class="diag-row"><span>Latensi Server:</span><strong>${diagnostics?.latencyMs ? (diagnostics.latencyMs / 1000).toFixed(2) + ' detik' : 'Menunggu...'}</strong></div>
+              <div class="diag-row"><span>Protokol:</span><strong>OGC WMS 1.3.0</strong></div>
+            </div>
+          </details>
         </div>
       `;
     } else {
-      activeSummaryHtml = `
-        <div class="piksel-inactive-banner">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <span>Pilih salah satu produk citra satelit atau indeks di katalog bawah untuk mengaktifkan layer.</span>
+      activeControlHtml = `
+        <div class="piksel-empty-prompt">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+          <div>
+            <strong>Belum ada layer citra yang aktif</strong>
+            <p>Pilih salah satu produk di katalog bawah untuk menampilkan citra di atas peta.</p>
+          </div>
         </div>
       `;
     }
 
-    const controlsHtml = `
-      <!-- Loading & Status Banner Container in Sidebar -->
-      <div id="piksel-loading-banner-wrap"></div>
+    // 3. Filtered Products Catalog
+    const categories = [
+      { id: 'all', label: 'Semua' },
+      { id: 'geomad', label: '🌈 Citra & Warna' },
+      { id: 'indices', label: '📊 Indeks (NDVI/Air)' },
+      { id: 'hazard', label: '🌊 Bahaya Banjir' },
+      { id: 'landsat', label: '🛰️ Landsat 9' }
+    ];
 
-      <!-- Active Layer Card / Inactive Banner -->
-      <div id="piksel-active-card-container">
-        ${activeSummaryHtml}
+    const categoryChipsHtml = categories.map(c => `
+      <button class="cat-filter-btn ${this.selectedCategory === c.id ? 'active' : ''}" data-cat="${c.id}">
+        ${c.label}
+      </button>
+    `).join('');
+
+    const filteredProducts = this.selectedCategory === 'all' 
+      ? PIKSEL_PRODUCTS 
+      : PIKSEL_PRODUCTS.filter(p => p.category === this.selectedCategory);
+
+    const productCardsHtml = filteredProducts.map(prod => {
+      const isActive = activeProduct?.id === prod.id;
+      return `
+        <div class="clean-product-card ${isActive ? 'is-active' : ''}" data-id="${prod.id}">
+          <div class="card-main-info">
+            <div class="card-title-line">
+              <span class="card-color-dot" style="background:${prod.color};"></span>
+              <strong class="card-name">${prod.name}</strong>
+            </div>
+            <p class="card-description">${prod.description}</p>
+            <div class="card-tags-line">
+              <span class="card-tag">${prod.resolution}</span>
+              <span class="card-tag">Z${prod.minZoom ?? 6}+</span>
+              ${prod.timeEnabled ? `<span class="card-tag multi-year">2019–2025</span>` : ''}
+              <span class="card-badge" style="color:${prod.color};">${prod.badge}</span>
+            </div>
+          </div>
+          <button class="btn-select-product ${isActive ? 'btn-active-state' : ''}" data-id="${prod.id}">
+            ${isActive ? '✓ Aktif' : 'Pilih Layer'}
+          </button>
+        </div>
+      `;
+    }).join('');
+
+    container.innerHTML = `
+      <div class="panel-header">
+        <h2>🛰️ Piksel Earth Observation</h2>
+        <p>Layanan OGC WMS resmi Badan Informasi Geospasial (BIG) berbasis Open Data Cube.</p>
+      </div>
+
+      <!-- Quick Preset Navigation -->
+      <div class="clean-section">
+        <div class="clean-section-header">
+          <span>Kawasan Pantauan Cepat</span>
+        </div>
+        <div id="piksel-presets-container" class="presets-chip-grid">
+          ${presetsHtml}
+        </div>
+      </div>
+
+      <!-- Active Layer Box -->
+      <div class="clean-section" style="margin-top: 14px;">
+        ${activeControlHtml}
       </div>
 
       <!-- Data Cube Grid Toggle -->
-      <div class="piksel-grid-toggle-box" style="margin-top: 12px;">
-        <label class="piksel-toggle-label">
+      <div class="grid-toggle-bar">
+        <label class="toggle-checkbox-label">
           <input type="checkbox" id="toggle-piksel-grid" ${isGridOn ? 'checked' : ''} />
-          <span class="piksel-toggle-custom"></span>
-          <span class="piksel-toggle-text">
-            <strong>📦 Grid Data Cube Nasional (10m)</strong>
-            <small>Tampilkan batas 1.631 tile spasial Open Data Cube</small>
-          </span>
+          <span>Tampilkan Grid Indeks Data Cube 10m (1.631 Tile)</span>
         </label>
       </div>
 
-      <!-- Catalog Header -->
-      <div class="piksel-catalog-header">
-        <h4>🛰️ Katalog Citra Satelit & Indeks Spektral</h4>
-        <span class="catalog-count">${PIKSEL_PRODUCTS.length} Produk</span>
+      <!-- Catalog Section -->
+      <div class="clean-section" style="margin-top: 14px;">
+        <div class="clean-section-header">
+          <span>Katalog Produk Citra Satelit</span>
+          <span class="count-tag">${filteredProducts.length} Produk</span>
+        </div>
+
+        <!-- Category Filter Tabs -->
+        <div class="cat-filter-tabs">
+          ${categoryChipsHtml}
+        </div>
+
+        <!-- Product Cards Grid -->
+        <div class="clean-products-container">
+          ${productCardsHtml}
+        </div>
       </div>
 
-      <!-- Products Grid -->
-      <div id="piksel-products-list-items" class="piksel-products-grid"></div>
+      <!-- Official Links Footer -->
+      <div class="clean-footer-links">
+        <a href="https://piksel.big.go.id" target="_blank" rel="noopener noreferrer" class="link-btn">
+          Portal Resmi Piksel BIG ↗
+        </a>
+        <a href="https://explorer.piksel.big.go.id" target="_blank" rel="noopener noreferrer" class="link-btn secondary">
+          Data Cube Explorer ↗
+        </a>
+      </div>
     `;
-
-    container.innerHTML = controlsHtml;
   }
 
   private getStatusBadgeHtml(state: PikselLoadingState): string {
@@ -183,24 +278,22 @@ export class PikselPanelUI {
 
     if (status === 'zoom_too_low') {
       return `
-        <div class="status-alert zoom-warning">
-          <div class="status-alert-text">
-            <strong>Tingkat Zoom Terlalu Rendah</strong>
-            <span>Perbesar peta ke <strong>Z${minZoom}+</strong> untuk melihat tile citra 10m (Zoom saat ini: Z${state.diagnostics?.currentZoom || '?'}).</span>
+        <div class="clean-alert alert-warning">
+          <div>
+            <strong>Zoom terlalu jauh</strong>
+            <span>Perbesar peta ke level <strong>Z${minZoom}+</strong> untuk memuat data.</span>
           </div>
-          <button class="btn btn-xs btn-primary-outline" id="btn-jump-bromo-preset" style="margin-top: 6px;">
-            Terbang ke Bromo (Z11)
-          </button>
+          <button class="btn-quick-zoom" id="btn-jump-bromo-preset">Zoom Bromo (Z11)</button>
         </div>
       `;
     }
 
     if (status === 'requesting' || status === 'loading') {
       return `
-        <div class="status-alert loading">
-          <div class="hud-spinner-inline"></div>
-          <div class="status-alert-text">
-            <strong>Memproses di Open Data Cube BIG...</strong>
+        <div class="clean-alert alert-loading">
+          <div class="mini-spinner"></div>
+          <div>
+            <strong>Sedang memproses raster di server BIG...</strong>
             <span>Tile: ${state.diagnostics?.tilesLoaded || 0}/${Math.max(state.diagnostics?.tilesRequested || 1, 1)}</span>
           </div>
         </div>
@@ -209,10 +302,10 @@ export class PikselPanelUI {
 
     if (status === 'partial') {
       return `
-        <div class="status-alert partial">
-          <div class="status-alert-text">
-            <strong>🟡 Sebagian Tile Selesai Dimuat</strong>
-            <span>${state.diagnostics?.tilesLoaded || 0}/${state.diagnostics?.tilesRequested || 1} tile selesai. Server memproses sisa area.</span>
+        <div class="clean-alert alert-partial">
+          <div>
+            <strong>Sebagian tile berhasil dimuat</strong>
+            <span>${state.diagnostics?.tilesLoaded || 0}/${state.diagnostics?.tilesRequested || 1} tile selesai.</span>
           </div>
         </div>
       `;
@@ -220,22 +313,18 @@ export class PikselPanelUI {
 
     if (status === 'error') {
       return `
-        <div class="status-alert error">
-          <div class="status-alert-text">
-            <strong>🔴 Server Timeout (HTTP 500)</strong>
-            <span>Coba perbesar ke kawasan pantauan atau pilih tahun lain.</span>
-          </div>
+        <div class="clean-alert alert-error">
+          <strong>Server Timeout (HTTP 500)</strong>
+          <span>Coba perbesar ke kawasan pantauan atau pilih tahun lain.</span>
         </div>
       `;
     }
 
     if (status === 'ready') {
       return `
-        <div class="status-alert ready">
-          <div class="status-alert-text">
-            <strong>🟢 Layer Citra Siap</strong>
-            <span>Tile resolusi 10m berhasil dimuat (${state.diagnostics?.latencyMs || 0}ms)</span>
-          </div>
+        <div class="clean-alert alert-success">
+          <strong>✓ Layer siap ditampilkan</strong>
+          <span>Tile 10m berhasil dimuat (${state.diagnostics?.latencyMs || 0}ms).</span>
         </div>
       `;
     }
@@ -243,56 +332,11 @@ export class PikselPanelUI {
     return '';
   }
 
-  private renderDiagnosticsHtml(diag?: PikselDiagnostics): string {
-    if (!diag || !diag.productId) return '';
-
-    const statusBadgeClass = diag.status === 'ready' ? 'ready' : (diag.status === 'loading' ? 'loading' : (diag.status === 'zoom_too_low' ? 'warning' : 'info'));
-
-    return `
-      <details class="diagnostics-details">
-        <summary class="diagnostics-summary">
-          <span style="font-size: 13px;">📊</span>
-          <span style="flex:1;">Telemetri & Diagnostik OGC</span>
-          <span class="diag-status-pill ${statusBadgeClass}">${diag.status.toUpperCase()}</span>
-        </summary>
-        <div class="diagnostics-content">
-          <div class="diag-metric">
-            <span class="diag-label">Tile Dimuat:</span>
-            <strong class="diag-val">${diag.tilesLoaded} / ${Math.max(diag.tilesRequested, 1)}</strong>
-          </div>
-          <div class="diag-metric">
-            <span class="diag-label">Tile Gagal / Timeout:</span>
-            <strong class="diag-val ${diag.tilesFailed > 0 ? 'text-danger' : ''}">${diag.tilesFailed}</strong>
-          </div>
-          <div class="diag-metric">
-            <span class="diag-label">Latensi Respons:</span>
-            <strong class="diag-val">${diag.latencyMs > 0 ? (diag.latencyMs / 1000).toFixed(2) + ' detik' : 'Menunggu...'}</strong>
-          </div>
-          <div class="diag-metric">
-            <span class="diag-label">Batas Zoom Layer:</span>
-            <strong class="diag-val">Min. Z${diag.minZoom} (Saat ini: Z${diag.currentZoom})</strong>
-          </div>
-          <div class="diag-metric">
-            <span class="diag-label">Protokol:</span>
-            <strong class="diag-val">OGC WMS 1.3.0</strong>
-          </div>
-        </div>
-      </details>
-    `;
-  }
-
-  private updateActiveCardDiagnostics(diag?: PikselDiagnostics) {
-    const diagBox = document.getElementById('piksel-diagnostics-box');
-    if (diagBox && diag) {
-      diagBox.innerHTML = this.renderDiagnosticsHtml(diag);
-    }
-
-    const statusBar = document.getElementById('piksel-active-status-bar');
-    if (statusBar) {
-      statusBar.className = `piksel-active-status-bar ${this.currentLoadingState.status}`;
-      statusBar.innerHTML = this.getStatusBadgeHtml(this.currentLoadingState);
-
-      const jumpBtn = statusBar.querySelector('#btn-jump-bromo-preset');
+  private updateActiveCardStatus(state: PikselLoadingState) {
+    const slot = document.getElementById('piksel-status-alert-slot');
+    if (slot) {
+      slot.innerHTML = this.getStatusBadgeHtml(state);
+      const jumpBtn = slot.querySelector('#btn-jump-bromo-preset');
       if (jumpBtn) {
         jumpBtn.addEventListener('click', () => {
           const bromo = PIKSEL_PRESETS.find(p => p.id === 'bromo');
@@ -300,118 +344,6 @@ export class PikselPanelUI {
         });
       }
     }
-  }
-
-  public renderProducts() {
-    const container = document.getElementById('piksel-products-list-items');
-    if (!container) return;
-
-    const activeProduct = this.pikselLoader.getActiveProduct();
-
-    const categories: { [key: string]: PikselProduct[] } = {
-      '🌈 Komposit Warna Alami & Spektral': PIKSEL_PRODUCTS.filter(p => p.category === 'geomad'),
-      '📊 Indeks Spektral (Komputasi ODC)': PIKSEL_PRODUCTS.filter(p => p.category === 'indices'),
-      '🌊 Model Bahaya & Fisik Nasional': PIKSEL_PRODUCTS.filter(p => p.category === 'hazard'),
-      '🛰️ Analisis Landsat 9': PIKSEL_PRODUCTS.filter(p => p.category === 'landsat'),
-      '📈 Kualitas Data & Kerapatan Observasi': PIKSEL_PRODUCTS.filter(p => p.category === 'quality')
-    };
-
-    let html = '';
-
-    for (const [categoryName, products] of Object.entries(categories)) {
-      if (products.length === 0) continue;
-
-      let subtitle = '';
-      if (categoryName.includes('Komposit')) subtitle = 'Mosaik tahunan Sentinel-2 GeoMAD tanpa awan';
-      else if (categoryName.includes('Indeks')) subtitle = 'Aljabar pita spektral langsung di server Open Data Cube';
-      else if (categoryName.includes('Bahaya')) subtitle = 'Klasifikasi risiko bahaya hidrologi nasional';
-      else if (categoryName.includes('Landsat')) subtitle = 'Reflektansi permukaan USGS Landsat 9 Collection 2 Level 2';
-      else if (categoryName.includes('Kualitas')) subtitle = 'Ketersediaan data observasi dan metrik statistik';
-
-      html += `
-        <div class="piksel-category-group">
-          <div class="piksel-category-title">
-            <span>${categoryName}</span>
-            <small class="group-subtitle">${subtitle}</small>
-          </div>
-          <div class="piksel-category-items">
-      `;
-
-      products.forEach((prod) => {
-        const isActive = activeProduct?.id === prod.id;
-        const isBsiWarning = prod.id === 's2-bsi';
-
-        let legendHtml = '';
-        if (prod.legend) {
-          if (prod.legend.type === 'continuous' || prod.legend.type === 'natural') {
-            legendHtml = `
-              <div class="product-legend-preview">
-                <div class="legend-bar-mini ${prod.legend.gradientClass}"></div>
-                <div class="legend-labels-mini">
-                  <span>${prod.legend.leftLabel}</span>
-                  ${prod.legend.middleLabel ? `<span>${prod.legend.middleLabel}</span>` : ''}
-                  <span>${prod.legend.rightLabel}</span>
-                </div>
-              </div>
-            `;
-          } else if (prod.legend.type === 'categorical') {
-            legendHtml = `
-              <div class="product-legend-preview-cat">
-                ${prod.legend.items.slice(0, 4).map(it => `
-                  <span class="legend-cat-chip" style="border-left: 3px solid ${it.color};">${it.label}</span>
-                `).join('')}
-              </div>
-            `;
-          }
-        }
-
-        html += `
-          <div class="piksel-product-card ${isActive ? 'active' : ''}" data-id="${prod.id}">
-            <div class="product-card-top">
-              <div class="product-title-row">
-                <span class="product-bullet" style="background-color: ${prod.color};"></span>
-                <span class="product-name">${prod.name}</span>
-              </div>
-              <span class="product-badge" style="border-color: ${prod.color}66; color: ${prod.color};">${prod.badge}</span>
-            </div>
-
-            <p class="product-desc">${prod.description}</p>
-
-            ${prod.statusNotice ? `
-              <div class="product-provenance-box" style="margin: 4px 0 8px; font-size: 10px; color: #94a3b8; background: rgba(15, 23, 42, 0.5); padding: 4px 8px; border-radius: 4px; border-left: 2px solid ${prod.color};">
-                ${prod.statusNotice}
-              </div>
-            ` : ''}
-
-            ${isBsiWarning ? `
-              <div class="product-warning-box">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                <span>Info: Server BIG mengembalikan status 500 pada beberapa kawasan.</span>
-              </div>
-            ` : ''}
-
-            <div class="product-meta-row">
-              <span class="meta-tag">Res: ${prod.resolution}</span>
-              <span class="meta-tag">Min Zoom: Z${prod.minZoom ?? 6}</span>
-              ${prod.timeEnabled ? `<span class="meta-tag time-tag">Multi-Tahun</span>` : ''}
-            </div>
-
-            ${legendHtml}
-
-            <button class="btn btn-sm ${isActive ? 'btn-danger-outline' : 'btn-primary-outline'} full-width btn-toggle-product" data-id="${prod.id}" style="margin-top: 8px;">
-              ${isActive ? '✕ Nonaktifkan Layer' : '✓ Aktifkan Layer'}
-            </button>
-          </div>
-        `;
-      });
-
-      html += `
-          </div>
-        </div>
-      `;
-    }
-
-    container.innerHTML = html;
   }
 
   private updateLoadingHUD(state: PikselLoadingState) {
@@ -446,20 +378,6 @@ export class PikselPanelUI {
       return;
     }
 
-    if (state.status === 'partial') {
-      spinner.style.display = 'none';
-      hudTitle.innerText = `Sebagian Dimuat: ${activeProduct.name}`;
-      hudSubtitle.innerText = `${state.diagnostics?.tilesLoaded || 0}/${state.diagnostics?.tilesRequested || 1} tile selesai (${state.diagnostics?.latencyMs || 0}ms)`;
-      return;
-    }
-
-    if (state.status === 'error') {
-      spinner.style.display = 'none';
-      hudTitle.innerText = `Server WMS Timeout (HTTP 500)`;
-      hudSubtitle.innerText = `Coba perbesar ke kawasan pantauan`;
-      return;
-    }
-
     if (state.status === 'ready') {
       spinner.style.display = 'none';
       hudTitle.innerText = `${activeProduct.name} Siap`;
@@ -476,82 +394,75 @@ export class PikselPanelUI {
   private bindEvents() {
     if (this.isEventsBound) return;
 
-    const presetsContainer = document.getElementById('piksel-presets-container');
-    if (presetsContainer) {
-      presetsContainer.addEventListener('click', (e) => {
-        const target = e.target as HTMLElement;
-        const btn = target.closest('.piksel-preset-btn') as HTMLElement;
-        if (btn && btn.dataset.id) {
-          const preset = PIKSEL_PRESETS.find(p => p.id === btn.dataset.id);
-          if (preset) {
-            this.pikselLoader.flyToPreset(preset);
-          }
-        }
-      });
-    }
-
     const container = document.getElementById('panel-piksel');
-    if (container) {
-      container.addEventListener('click', (e) => {
-        const target = e.target as HTMLElement;
+    if (!container) return;
 
-        const toggleBtn = target.closest('.btn-toggle-product') as HTMLElement;
-        if (toggleBtn && toggleBtn.dataset.id) {
-          const prodId = toggleBtn.dataset.id;
-          const current = this.pikselLoader.getActiveProduct();
-          if (current?.id === prodId) {
-            this.pikselLoader.setActiveProduct(null);
-          } else {
-            this.pikselLoader.setActiveProduct(prodId);
-          }
-          this.syncUIStates();
-          return;
-        }
+    container.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
 
-        const card = target.closest('.piksel-product-card') as HTMLElement;
-        if (card && card.dataset.id && !target.closest('button')) {
-          const prodId = card.dataset.id;
-          const current = this.pikselLoader.getActiveProduct();
-          if (current?.id !== prodId) {
-            this.pikselLoader.setActiveProduct(prodId);
-            this.syncUIStates();
-          }
-          return;
-        }
+      // 1. Preset chip click
+      const presetBtn = target.closest('.piksel-preset-chip') as HTMLElement;
+      if (presetBtn && presetBtn.dataset.id) {
+        const preset = PIKSEL_PRESETS.find(p => p.id === presetBtn.dataset.id);
+        if (preset) this.pikselLoader.flyToPreset(preset);
+        return;
+      }
 
-        if (target.closest('#btn-clear-piksel-layer')) {
+      // 2. Category filter click
+      const catBtn = target.closest('.cat-filter-btn') as HTMLElement;
+      if (catBtn && catBtn.dataset.cat) {
+        this.selectedCategory = catBtn.dataset.cat;
+        this.render();
+        return;
+      }
+
+      // 3. Product select click
+      const selectBtn = target.closest('.btn-select-product') as HTMLElement;
+      const productCard = target.closest('.clean-product-card') as HTMLElement;
+      const clickedId = selectBtn?.dataset.id || productCard?.dataset.id;
+
+      if (clickedId && !target.closest('select') && !target.closest('input')) {
+        const current = this.pikselLoader.getActiveProduct();
+        if (current?.id === clickedId) {
           this.pikselLoader.setActiveProduct(null);
-          this.syncUIStates();
-          return;
+        } else {
+          this.pikselLoader.setActiveProduct(clickedId);
         }
-      });
+        this.render();
+        return;
+      }
 
-      container.addEventListener('input', (e) => {
-        const target = e.target as HTMLInputElement;
-        if (target.id === 'piksel-master-opacity') {
-          const val = Number(target.value);
-          const label = document.getElementById('piksel-master-opacity-val');
-          if (label) label.innerText = `${val}%`;
-          this.pikselLoader.setOpacity(val / 100);
-        }
-      });
+      // 4. Deactivate layer button
+      if (target.closest('#btn-clear-piksel-layer')) {
+        this.pikselLoader.setActiveProduct(null);
+        this.render();
+        return;
+      }
+    });
 
-      container.addEventListener('change', (e) => {
-        const target = e.target as HTMLInputElement;
-        if (target.id === 'toggle-piksel-grid') {
-          this.pikselLoader.setGridVisible(target.checked);
-        } else if (target.id === 'piksel-year-select') {
-          this.pikselLoader.setSelectedYear(target.value);
-          this.renderProducts();
-        }
-      });
-    }
+    container.addEventListener('input', (e) => {
+      const target = e.target as HTMLInputElement;
+      if (target.id === 'piksel-master-opacity') {
+        const val = Number(target.value);
+        const text = document.getElementById('piksel-opacity-text');
+        if (text) text.innerText = `${val}%`;
+        this.pikselLoader.setOpacity(val / 100);
+      }
+    });
+
+    container.addEventListener('change', (e) => {
+      const target = e.target as HTMLInputElement;
+      if (target.id === 'piksel-year-select') {
+        this.pikselLoader.setSelectedYear(target.value);
+      } else if (target.id === 'toggle-piksel-grid') {
+        this.pikselLoader.setGridVisible(target.checked);
+      }
+    });
 
     this.isEventsBound = true;
   }
 
   public syncUIStates() {
-    this.renderControls();
-    this.renderProducts();
+    this.render();
   }
 }
