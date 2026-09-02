@@ -1,4 +1,3 @@
-import * as maplibregl from 'maplibre-gl';
 import { MapManager } from '../map/map-manager';
 import { PikselLoader } from './piksel-loader';
 
