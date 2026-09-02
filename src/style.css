@@ -4083,6 +4083,20 @@ kbd {
   gap: 12px;
 }
 
+.legend-section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.legend-section-header .section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #38bdf8;
+}
+
 .dynamic-legend-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
@@ -4090,6 +4104,12 @@ kbd {
   padding: 12px 14px;
   box-shadow: var(--shadow-sm);
   transition: border-color var(--transition-fast);
+}
+
+.dynamic-legend-card.highlight-card {
+  border-color: rgba(0, 240, 255, 0.4);
+  background: linear-gradient(135deg, rgba(9, 19, 38, 0.9), rgba(15, 23, 42, 0.9));
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.1);
 }
 
 .dynamic-legend-card:hover {

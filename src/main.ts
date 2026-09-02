@@ -474,12 +474,15 @@ class WebGISApp {
     if (!container) return;
 
     let html = '';
-    let hasAnyLayer = false;
+    let activeLayersCount = 0;
+
+    // --- SECTION 1: ACTIVE THEMATIC LAYERS & SATELLITE IMAGERY ---
+    let thematicHtml = '';
 
     // 1. Active Piksel EO Product Legend
     const activeProduct = this.pikselLoader?.getActiveProduct();
     if (activeProduct) {
-      hasAnyLayer = true;
+      activeLayersCount++;
       let swatchesHtml = '';
       if (activeProduct.legend && activeProduct.legend.swatches) {
         swatchesHtml = `
@@ -487,20 +490,20 @@ class WebGISApp {
             ${activeProduct.legend.swatches.map(sw => `
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: ${sw.color}; box-shadow: 0 0 6px ${sw.color}66;"></span>
-                <span class="dynamic-legend-label">${sw.icon ? sw.icon + ' ' : ''}${sw.label}</span>
+                <span class="dynamic-legend-label"><strong>${sw.icon ? sw.icon + ' ' : ''}</strong>${sw.label}</span>
               </div>
             `).join('')}
           </div>
         `;
       }
 
-      html += `
-        <div class="dynamic-legend-card">
+      thematicHtml += `
+        <div class="dynamic-legend-card highlight-card">
           <div class="dynamic-legend-card-header">
             <span class="legend-card-icon">🛰️</span>
             <div>
               <div class="dynamic-legend-title">${activeProduct.name}</div>
-              <div class="dynamic-legend-sub">${activeProduct.category} • Resolusi ${activeProduct.resolution}</div>
+              <div class="dynamic-legend-sub">${activeProduct.category} • Resolusi ${activeProduct.resolution} • OGC WMS (BIG)</div>
             </div>
           </div>
           ${swatchesHtml}
@@ -511,8 +514,8 @@ class WebGISApp {
     // 2. Active GEE Layers (LST, Elevation, POIs, Land Cover)
     if (this.geeLoader) {
       if (this.geeLoader.isLayerVisible('lst')) {
-        hasAnyLayer = true;
-        html += `
+        activeLayersCount++;
+        thematicHtml += `
           <div class="dynamic-legend-card">
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">🌡️</span>
@@ -534,8 +537,8 @@ class WebGISApp {
       }
 
       if (this.geeLoader.isLayerVisible('elevation')) {
-        hasAnyLayer = true;
-        html += `
+        activeLayersCount++;
+        thematicHtml += `
           <div class="dynamic-legend-card">
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">⛰️</span>
@@ -557,8 +560,8 @@ class WebGISApp {
       }
 
       if (this.geeLoader.isLayerVisible('poi')) {
-        hasAnyLayer = true;
-        html += `
+        activeLayersCount++;
+        thematicHtml += `
           <div class="dynamic-legend-card">
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">📍</span>
@@ -582,8 +585,8 @@ class WebGISApp {
       }
 
       if (this.geeLoader.isLayerVisible('landcover')) {
-        hasAnyLayer = true;
-        html += `
+        activeLayersCount++;
+        thematicHtml += `
           <div class="dynamic-legend-card">
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">🌳</span>
@@ -607,13 +610,13 @@ class WebGISApp {
     const customLayers = this.geojsonLoader?.getLayers() || [];
     const visibleCustomLayers = customLayers.filter(l => l.visible);
     if (visibleCustomLayers.length > 0) {
-      hasAnyLayer = true;
-      html += `
+      activeLayersCount++;
+      thematicHtml += `
         <div class="dynamic-legend-card">
           <div class="dynamic-legend-card-header">
             <span class="legend-card-icon">📂</span>
             <div>
-              <div class="dynamic-legend-title">Layer Vektor Kustom</div>
+              <div class="dynamic-legend-title">Layer Vektor Kustom (GeoJSON)</div>
               <div class="dynamic-legend-sub">${visibleCustomLayers.length} layer vektor aktif</div>
             </div>
           </div>
@@ -629,16 +632,56 @@ class WebGISApp {
       `;
     }
 
-    // 4. Fallback when no thematic layers are active
-    if (!hasAnyLayer) {
-      html = `
+    // Wrap Thematic Section
+    if (activeLayersCount > 0) {
+      html += `
+        <div class="legend-section-header">
+          <span class="section-title">🛰️ Layer Tematik & Citra Aktif (${activeLayersCount})</span>
+        </div>
+        ${thematicHtml}
+      `;
+    } else {
+      html += `
         <div class="dynamic-legend-empty">
-          <div class="empty-icon">🗺️</div>
-          <div class="empty-title">Belum Ada Layer Analisis Aktif</div>
-          <p class="empty-desc">Peta saat ini menampilkan peta dasar standar. Aktifkan citra satelit di tab <strong>Piksel EO</strong> atau analisis spasial di tab <strong>GEE</strong> untuk memuat legenda interaktif.</p>
+          <div class="empty-icon">🛰️</div>
+          <div class="empty-title">Belum Ada Layer Citra / Analisis Aktif</div>
+          <p class="empty-desc">Aktifkan citra di tab <strong>Piksel EO</strong> atau analisis spasial di tab <strong>GEE</strong> untuk memuat legenda spektral otomatis di sini.</p>
         </div>
       `;
     }
+
+    // --- SECTION 2: PERMANENT GENERAL MAP & TOOL SYMBOLS ---
+    html += `
+      <div class="legend-section-header" style="margin-top: 14px;">
+        <span class="section-title">🗺️ Simbol Peta & Fitur Standar</span>
+      </div>
+      <div class="dynamic-legend-card">
+        <div class="dynamic-legend-swatches">
+          <div class="dynamic-legend-item">
+            <span class="legend-symbol point" style="background-color: #f59e0b; width: 12px; height: 12px; border-radius: 50%; display: inline-block;"></span>
+            <span class="dynamic-legend-label"><strong>Kota Utama</strong> (Sampel Titik Vektor Ibukota & Kota Besar)</span>
+          </div>
+          <div class="dynamic-legend-item">
+            <span class="legend-symbol line" style="border-top: 2px dashed #10b981; width: 18px; display: inline-block;"></span>
+            <span class="dynamic-legend-label"><strong>Grid Data Cube Nasional</strong> (Indeks Petak Scene 10m BIG)</span>
+          </div>
+          <div class="dynamic-legend-item">
+            <span class="legend-symbol line" style="border-top: 2.5px solid #00f0ff; width: 18px; display: inline-block;"></span>
+            <span class="dynamic-legend-label"><strong>Jalur Pengukuran Jarak</strong> (Turf.js Geodesik)</span>
+          </div>
+          <div class="dynamic-legend-item">
+            <span class="legend-symbol polygon" style="background-color: rgba(0,240,255,0.3); border: 1.5px solid #00f0ff; width: 14px; height: 14px; border-radius: 3px; display: inline-block;"></span>
+            <span class="dynamic-legend-label"><strong>Area Pengukuran Luas</strong> (Poligon Geodesik)</span>
+          </div>
+          <div class="dynamic-legend-item">
+            <span style="display: flex; align-items: center; justify-content: center; width: 16px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            </span>
+            <span class="dynamic-legend-label"><strong>Penanda Lokasi</strong> (Hasil Pencarian Geocoder)</span>
+          </div>
+        </div>
+      </div>
+    `;
 
     container.innerHTML = html;
   }
