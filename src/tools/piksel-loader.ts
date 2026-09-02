@@ -105,7 +105,7 @@ export class PikselLoader {
         defaultMsg = 'Tidak ada layer citra aktif';
         break;
       case 'zoom_too_low':
-        defaultMsg = `Perbesar peta (Zoom ≥ ${minZoom}) untuk memproses komposit Piksel 10m`;
+        defaultMsg = `Peta masih terlalu jauh (Level ${currentZoom}). Perbesar peta minimal ke Zoom Level ${minZoom} (Skala Pulau/Provinsi) agar server dapat merender citra satelit 10m.`;
         break;
       case 'requesting':
         defaultMsg = `Menginisialisasi pipeline WMS ${prod?.name || ''}...`;

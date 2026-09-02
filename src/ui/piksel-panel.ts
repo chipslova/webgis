@@ -140,8 +140,8 @@ export class PikselPanelUI {
               </div>
             `}
             <div class="control-field">
-              <label>🔍 Batas Zoom</label>
-              <div class="static-val">Min. Z${activeProduct.minZoom ?? 6}</div>
+              <label>🔍 Jarak Pandang (Zoom)</label>
+              <div class="static-val">Zoom Level ${activeProduct.minZoom ?? 6}+ (Skala Pulau/Provinsi)</div>
             </div>
           </div>
 
@@ -229,7 +229,7 @@ export class PikselPanelUI {
 
             <div class="card-tags-line">
               <span class="card-tag">${prod.resolution}</span>
-              <span class="card-tag">Z${prod.minZoom ?? 6}+</span>
+              <span class="card-tag" title="Perlu perbesar peta minimal ke Zoom Level ${prod.minZoom ?? 6} (skala pulau/provinsi) agar citra satelit muncul">Zoom Min. Level ${prod.minZoom ?? 6} (Skala Pulau)</span>
               ${prod.timeEnabled ? `<span class="card-tag multi-year">2019–2025</span>` : ''}
               <span class="card-badge" style="color:${prod.color};">${prod.badge}</span>
             </div>
@@ -306,13 +306,14 @@ export class PikselPanelUI {
     const minZoom = activeProduct?.minZoom ?? 6;
 
     if (status === 'zoom_too_low') {
+      const curZ = state.diagnostics?.currentZoom ? `Level ${state.diagnostics.currentZoom}` : 'Terlalu Jauh';
       return `
         <div class="clean-alert alert-warning">
           <div>
-            <strong>Zoom terlalu jauh</strong>
-            <span>Perbesar peta ke level <strong>Z${minZoom}+</strong> untuk memuat data.</span>
+            <strong>Peta Masih Terlalu Jauh (Zoom ${curZ})</strong>
+            <span>Citra satelit 10m membutuhkan jarak pandang lebih dekat. Silakan <strong>perbesar peta (scroll ke depan) hingga minimal Zoom Level ${minZoom}</strong> (tampilan per pulau/provinsi) agar citra dapat dimuat.</span>
           </div>
-          <button class="btn-quick-zoom" id="btn-jump-bromo-preset">Zoom Bromo (Z11)</button>
+          <button class="btn-quick-zoom" id="btn-jump-bromo-preset">🔍 Contoh Cepat: Bromo (Zoom Level 11)</button>
         </div>
       `;
     }
@@ -395,8 +396,9 @@ export class PikselPanelUI {
 
     if (state.status === 'zoom_too_low') {
       spinner.style.display = 'none';
-      hudTitle.innerText = `Perbesar ke Z${activeProduct.minZoom ?? 6}+ untuk memuat ${activeProduct.name}`;
-      hudSubtitle.innerText = `Zoom Saat Ini: Z${state.diagnostics?.currentZoom || '?'}`;
+      const curZ = state.diagnostics?.currentZoom ? `Level ${state.diagnostics.currentZoom}` : '';
+      hudTitle.innerText = `🔍 Perbesar Peta (Minimal Zoom Level ${activeProduct.minZoom ?? 6}) untuk Memuat Citra`;
+      hudSubtitle.innerText = `Zoom saat ini: ${curZ} • Dekatkan peta ke wilayah pulau/kota yang ingin diamati`;
       return;
     }
 
