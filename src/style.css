@@ -3543,6 +3543,291 @@ html, body, #app {
   color: var(--text-secondary);
 }
 
+/* ==========================================================================
+   Onboarding Action Cards (Empty State Guidance)
+   ========================================================================== */
+.onboarding-action-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.onboarding-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #131d31;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+}
+
+.onboarding-card:hover {
+  border-color: var(--accent-cyan);
+  background: #1a2744;
+  transform: translateX(2px);
+  box-shadow: 0 4px 12px rgba(0, 240, 255, 0.15);
+}
+
+.onboarding-card-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.onboarding-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.onboarding-card-body strong {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.onboarding-card-body span {
+  font-size: 10.5px;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.onboarding-card svg {
+  color: #38bdf8;
+  flex-shrink: 0;
+}
+
+/* Active Count Badge States */
+.active-count-badge.count-zero {
+  background: rgba(100, 116, 139, 0.15);
+  color: #64748b;
+  border-color: rgba(100, 116, 139, 0.3);
+}
+
+/* ==========================================================================
+   GEE Reference Value Label
+   ========================================================================== */
+.gee-reference-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  margin-bottom: 8px;
+  letter-spacing: 0.2px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* ==========================================================================
+   Legenda Contextual Tip Box
+   ========================================================================== */
+.legend-tip-box {
+  margin-top: 14px;
+  padding: 12px;
+  background: rgba(0, 240, 255, 0.05);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: var(--radius-sm);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.legend-tip-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #00f0ff;
+  margin-bottom: 6px;
+}
+
+.legend-tip-box p {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.45;
+}
+
+.legend-tip-box strong {
+  color: #38bdf8;
+}
+
+/* ==========================================================================
+   About Tab: Quick Start Guide & Architecture Cards
+   ========================================================================== */
+.architecture-card {
+  background: #131d31;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.quickstart-card {
+  border-color: rgba(0, 240, 255, 0.3);
+  background: rgba(19, 29, 49, 0.9);
+}
+
+.quickstart-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qs-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.qs-step-num {
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(135deg, #0284c7, #00f0ff);
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 800;
+  color: #070b14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+}
+
+.qs-step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.qs-step-body strong {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.qs-step-body span {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.qs-step-body b {
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+/* Architecture Flow Diagram */
+.arch-flow-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.arch-node {
+  background: #090e1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.arch-node strong {
+  color: #ffffff;
+}
+
+.arch-arrow-down {
+  font-size: 12px;
+  color: var(--accent-cyan);
+  line-height: 1;
+}
+
+/* Data Matrix Table (Bounded & Responsive) */
+.data-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10.5px;
+  table-layout: fixed;
+  box-sizing: border-box;
+}
+
+.data-matrix-table th {
+  background: #090e1a;
+  color: var(--accent-cyan);
+  font-weight: 700;
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  white-space: nowrap;
+}
+
+.data-matrix-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  word-break: break-word;
+  overflow: hidden;
+}
+
+.data-matrix-table tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* ==========================================================================
+   Responsive Header (Hide labels on medium screens)
+   ========================================================================== */
+@media (max-width: 1280px) {
+  .btn-text-label {
+    display: none;
+  }
+
+  .header-brand {
+    min-width: auto;
+  }
+
+  .brand-text h1 {
+    font-size: 14px;
+  }
+
+  .header-search {
+    max-width: 300px;
+  }
+
+  .header-actions {
+    gap: 6px;
+  }
+
+  .btn.btn-secondary {
+    padding: 7px 10px;
+  }
+}
+
+@media (max-width: 960px) {
+  .header-search {
+    max-width: 200px;
+  }
+}
+
 
 
 

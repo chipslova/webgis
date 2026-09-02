@@ -80,13 +80,39 @@ export class ActiveLayersUI {
     if (layerCount === 0) {
       itemsHtml = `
         <div class="active-layers-empty">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:#00f0ff; opacity:0.8;">
             <polygon points="12 2 2 7 12 12 22 7 12 2"/>
             <polyline points="2 17 12 22 22 17"/>
             <polyline points="2 12 12 17 22 12"/>
           </svg>
-          <p>Belum ada layer analisis aktif</p>
-          <small>Aktifkan layer dari tab <strong>Piksel EO</strong>, <strong>GEE Data</strong>, atau <strong>Data</strong>.</small>
+          <p style="font-size:13px; font-weight:700; color:#ffffff; margin:8px 0 4px;">Peta Anda Kosong</p>
+          <small style="color:#94a3b8; font-size:11px; line-height:1.5;">Mulai eksplorasi dengan memilih salah satu sumber data:</small>
+        </div>
+        <div class="onboarding-action-cards">
+          <button class="onboarding-card" data-go-tab="piksel">
+            <span class="onboarding-card-icon">🛰️</span>
+            <div class="onboarding-card-body">
+              <strong>Citra Satelit Nasional</strong>
+              <span>Sentinel-2, Landsat 9, NDVI, Banjir</span>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <button class="onboarding-card" data-go-tab="gee">
+            <span class="onboarding-card-icon">🌡️</span>
+            <div class="onboarding-card-body">
+              <strong>Analisis Suhu & Elevasi</strong>
+              <span>MODIS LST, SRTM, Land Cover</span>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <button class="onboarding-card" data-go-tab="data">
+            <span class="onboarding-card-icon">📂</span>
+            <div class="onboarding-card-body">
+              <strong>Upload Data Kustom</strong>
+              <span>GeoJSON, File Vektor Lokal</span>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
         </div>
       `;
     } else {
@@ -354,13 +380,12 @@ export class ActiveLayersUI {
     container.innerHTML = `
       <div class="active-layers-header">
         <div class="active-layers-title-row">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 15px;">👁️</span>
-            <h3 style="margin: 0; font-size: 13px;">Layer Analisis Aktif</h3>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 14px;">👁️</span>
+            <span style="font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; text-transform: uppercase;">Layer Aktif</span>
           </div>
-          <span class="active-count-badge">${layerCount} Layer Aktif</span>
+          <span class="active-count-badge ${layerCount === 0 ? 'count-zero' : ''}">${layerCount} Layer</span>
         </div>
-        <p class="active-layers-desc">Lapisan peta yang sedang dikonfigurasi di atas basemap (urutan rendering terorkestrasi otomatis).</p>
       </div>
       <div class="active-layers-list">
         ${itemsHtml}
@@ -377,6 +402,21 @@ export class ActiveLayersUI {
 
     container.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
+
+      // Onboarding tab navigation cards
+      const goTabBtn = target.closest('[data-go-tab]') as HTMLElement;
+      if (goTabBtn && goTabBtn.dataset.goTab) {
+        const tabId = goTabBtn.dataset.goTab;
+        document.querySelectorAll('.sidebar-tab-btn').forEach(btn => {
+          const b = btn as HTMLElement;
+          b.classList.toggle('active', b.dataset.tab === tabId);
+        });
+        document.querySelectorAll('.sidebar-panel').forEach(panel => {
+          const p = panel as HTMLElement;
+          p.classList.toggle('active', p.id === `panel-${tabId}`);
+        });
+        return;
+      }
 
       // Clear measure
       if (target.closest('.btn-clear-active-measure')) {

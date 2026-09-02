@@ -391,7 +391,9 @@ class WebGISApp {
 
     quickImportBtn?.addEventListener('click', () => {
       this.sidebarUI.setActiveTab('data');
-      fileInput?.click();
+      setTimeout(() => {
+        document.getElementById('geojson-dropzone')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 200);
     });
 
     dropzone?.addEventListener('click', () => {

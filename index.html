@@ -286,7 +286,10 @@
                 </div>
               </div>
 
-              <!-- Metrics Cards -->
+              <!-- Metrics Cards with Reference Label -->
+              <div class="gee-reference-label">
+                📌 Nilai Acuan Studi — MODIS MOD11A2 Rata-rata 2020–2024
+              </div>
               <div class="gee-metrics-grid">
                 <div class="gee-metric-card urban">
                   <div class="metric-title">Suhu Urban Avg</div>
@@ -296,7 +299,7 @@
                 <div class="gee-metric-card rural">
                   <div class="metric-title">Suhu Rural Avg</div>
                   <div class="metric-val">24.60 °C</div>
-                  <div class="metric-sub">Jawa Barat (680m elev)</div>
+                  <div class="metric-sub">Hutan IPB Bogor (680m elev)</div>
                 </div>
               </div>
 
@@ -332,7 +335,7 @@
                     Unduh CSV Time-Series LST
                   </button>
                   <button id="btn-download-geotiff" class="btn btn-secondary full-width">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                     Info Metadata Elevasi GeoTIFF
                   </button>
                 </div>
@@ -373,7 +376,7 @@
                 <p>Unggah atau seret file GeoJSON untuk menampilkan data vektor kustom.</p>
               </div>
               <div class="upload-dropzone" id="geojson-dropzone">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                 <p><strong>Klik untuk pilih file</strong> atau seret file GeoJSON ke sini</p>
                 <input type="file" id="file-geojson-input" accept=".geojson,.json" style="display:none;" />
               </div>
@@ -407,8 +410,15 @@
                   <span class="legend-label">Grid Indeks Data Cube Nasional (10m)</span>
                 </div>
               </div>
-              <div style="margin-top: 14px; padding: 10px; background: rgba(15, 23, 42, 0.6); border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 11px; color: var(--text-muted); line-height: 1.4;">
-                <span>💡 Legenda spektral citra satelit (NDVI, NDWI, GeoMAD, Bahaya Banjir) ditampilkan secara dinamis di tab <strong>Piksel EO</strong>.</span>
+              <div class="legend-tip-box">
+                <div class="legend-tip-title">💡 Legenda Dinamis Citra Satelit</div>
+                <p>Legenda spektral untuk produk <strong>Piksel EO</strong> (NDVI, NDWI, GeoMAD, Banjir) ditampilkan langsung di dalam tab <strong>Piksel EO</strong> setelah layer diaktifkan — lengkap dengan contoh warna dan keterangan kelas.</p>
+                <button class="btn btn-secondary full-width" style="margin-top: 8px;" onclick="
+                  document.querySelectorAll('.sidebar-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'piksel'));
+                  document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-piksel'));
+                ">
+                  Buka Tab Piksel EO →
+                </button>
               </div>
             </section>
 
@@ -417,6 +427,43 @@
               <div class="panel-header">
                 <h2>ℹ️ Arsitektur Sistem & Stack</h2>
                 <p>Dibangun dengan arsitektur WebGIS modern, standar OGC, dan komputasi Earth Observation.</p>
+              </div>
+
+              <!-- Quick Start Guide -->
+              <div class="architecture-card quickstart-card">
+                <div style="font-size: 12px; font-weight: 600; color: #00f0ff; margin-bottom: 10px;">
+                  🚀 PANDUAN MULAI CEPAT
+                </div>
+                <div class="quickstart-steps">
+                  <div class="qs-step">
+                    <div class="qs-step-num">1</div>
+                    <div class="qs-step-body">
+                      <strong>Pilih Citra Satelit</strong>
+                      <span>Buka tab <b>Piksel EO</b>, pilih produk (Sentinel-2, NDVI, dll), klik <b>Aktifkan</b>.</span>
+                    </div>
+                  </div>
+                  <div class="qs-step">
+                    <div class="qs-step-num">2</div>
+                    <div class="qs-step-body">
+                      <strong>Atur Tampilan Peta</strong>
+                      <span>Di tab <b>Peta</b> — ubah basemap dan atur transparansi layer aktif.</span>
+                    </div>
+                  </div>
+                  <div class="qs-step">
+                    <div class="qs-step-num">3</div>
+                    <div class="qs-step-body">
+                      <strong>Analisis & Ukur</strong>
+                      <span>Tab <b>Ukur</b> untuk jarak/luas, tab <b>GEE Data</b> untuk analisis suhu.</span>
+                    </div>
+                  </div>
+                  <div class="qs-step">
+                    <div class="qs-step-num">4</div>
+                    <div class="qs-step-body">
+                      <strong>Export Hasil</strong>
+                      <span>Header → <b>Simpan Peta</b> untuk screenshot PNG, atau unduh dataset dari tab GEE.</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <!-- Architecture Flow Card -->
@@ -444,60 +491,62 @@
                 <div style="font-size: 12px; font-weight: 600; color: #10b981; margin-bottom: 8px;">
                   SPESIFIKASI & SUMBER DATA
                 </div>
-                <table class="data-matrix-table">
-                  <thead>
-                    <tr>
-                      <th>Produk</th>
-                      <th>Sumber</th>
-                      <th>Resolusi</th>
-                      <th>Tipe</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Sentinel-2 GeoMAD</td>
-                      <td>BIG Piksel / ESA</td>
-                      <td>10 meter</td>
-                      <td>OGC WMS (ODC)</td>
-                    </tr>
-                    <tr>
-                      <td>Indeks Spektral (NDVI/NDWI)</td>
-                      <td>Open Data Cube</td>
-                      <td>10 meter</td>
-                      <td>Komputasi On-the-Fly</td>
-                    </tr>
-                    <tr>
-                      <td>Landsat 9 Swath</td>
-                      <td>USGS / NASA</td>
-                      <td>30 meter</td>
-                      <td>OGC WMS Scene</td>
-                    </tr>
-                    <tr>
-                      <td>Model Bahaya Banjir</td>
-                      <td>BIG Hidrologi</td>
-                      <td>10 meter</td>
-                      <td>Raster Fisik</td>
-                    </tr>
-                    <tr>
-                      <td>MODIS Daytime LST</td>
-                      <td>Google Earth Engine</td>
-                      <td>1.000 meter</td>
-                      <td>Grid Termal Analitis</td>
-                    </tr>
-                    <tr>
-                      <td>SRTM Topografi</td>
-                      <td>USGS / NASA</td>
-                      <td>30 meter</td>
-                      <td>Model Elevasi Digital</td>
-                    </tr>
-                    <tr>
-                      <td>Tutupan Lahan MCD12Q1</td>
-                      <td>NASA LP DAAC</td>
-                      <td>500 meter</td>
-                      <td>Klasifikasi Lahan</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <div style="overflow-x: auto; width: 100%;">
+                  <table class="data-matrix-table">
+                    <thead>
+                      <tr>
+                        <th>Produk</th>
+                        <th>Sumber</th>
+                        <th>Resolusi</th>
+                        <th>Tipe</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Sentinel-2 GeoMAD</td>
+                        <td>BIG Piksel / ESA</td>
+                        <td>10 meter</td>
+                        <td>OGC WMS (ODC)</td>
+                      </tr>
+                      <tr>
+                        <td>Indeks Spektral (NDVI/NDWI)</td>
+                        <td>Open Data Cube</td>
+                        <td>10 meter</td>
+                        <td>Komputasi On-the-Fly</td>
+                      </tr>
+                      <tr>
+                        <td>Landsat 9 Swath</td>
+                        <td>USGS / NASA</td>
+                        <td>30 meter</td>
+                        <td>OGC WMS Scene</td>
+                      </tr>
+                      <tr>
+                        <td>Model Bahaya Banjir</td>
+                        <td>BIG Hidrologi</td>
+                        <td>10 meter</td>
+                        <td>Raster Fisik</td>
+                      </tr>
+                      <tr>
+                        <td>MODIS Daytime LST</td>
+                        <td>Google Earth Engine</td>
+                        <td>1.000 meter</td>
+                        <td>Grid Termal Analitis</td>
+                      </tr>
+                      <tr>
+                        <td>SRTM Topografi</td>
+                        <td>USGS / NASA</td>
+                        <td>30 meter</td>
+                        <td>Model Elevasi Digital</td>
+                      </tr>
+                      <tr>
+                        <td>Tutupan Lahan MCD12Q1</td>
+                        <td>NASA LP DAAC</td>
+                        <td>500 meter</td>
+                        <td>Klasifikasi Lahan</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </section>
           </div>
