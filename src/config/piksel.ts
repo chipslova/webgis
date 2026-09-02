@@ -1,5 +1,11 @@
 export type LegendType = 'continuous' | 'categorical' | 'natural';
 
+export interface LegendSwatch {
+  label: string;
+  color: string;
+  icon?: string;
+}
+
 export interface ContinuousLegend {
   type: 'continuous';
   leftLabel: string;
@@ -7,16 +13,19 @@ export interface ContinuousLegend {
   rightLabel: string;
   gradientClass: string;
   rangeText?: string;
+  swatches?: LegendSwatch[];
 }
 
 export interface CategoricalItem {
   label: string;
   color: string;
+  icon?: string;
 }
 
 export interface CategoricalLegend {
   type: 'categorical';
   items: CategoricalItem[];
+  swatches?: LegendSwatch[];
 }
 
 export interface NaturalLegend {
@@ -25,6 +34,7 @@ export interface NaturalLegend {
   middleLabel?: string;
   rightLabel: string;
   gradientClass: string;
+  swatches?: LegendSwatch[];
 }
 
 export type PikselLegend = ContinuousLegend | CategoricalLegend | NaturalLegend;
@@ -95,10 +105,16 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     sensor: 'Sentinel-2 MSI (GeoMAD Annual)',
     legend: {
       type: 'natural',
-      leftLabel: '🌊 Air (Biru)',
-      middleLabel: '🏜️ Lahan Terbuka (Krem)',
-      rightLabel: '🌲 Kanopi Hutan (Hijau)',
-      gradientClass: 's2-geomad-gradient'
+      leftLabel: 'Air / Laut',
+      middleLabel: 'Lahan / Kota',
+      rightLabel: 'Kanopi Hutan',
+      gradientClass: 's2-geomad-gradient',
+      swatches: [
+        { label: 'Air (Biru)', color: '#1e40af', icon: '🌊' },
+        { label: 'Lahan Terbuka (Krem)', color: '#d4b285', icon: '🏜️' },
+        { label: 'Kanopi Hutan (Hijau)', color: '#15803d', icon: '🌲' },
+        { label: 'Kota / Bangunan (Abu)', color: '#94a3b8', icon: '🏢' }
+      ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel / Copernicus Sentinel-2'
   },
@@ -120,10 +136,15 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     isComputeHeavy: true,
     legend: {
       type: 'continuous',
-      leftLabel: '🌊 Air / Lahan Basah',
-      middleLabel: '🏢 Bangunan / Kota',
-      rightLabel: '🌺 Kanopi Lebat (Klorofil Tinggi)',
-      gradientClass: 's2-nir-gradient'
+      leftLabel: 'Air / Lahan Basah',
+      middleLabel: 'Bangunan / Kota',
+      rightLabel: 'Kanopi Lebat (Klorofil)',
+      gradientClass: 's2-nir-gradient',
+      swatches: [
+        { label: 'Air / Basah (Hitam/Biru)', color: '#020617', icon: '🌊' },
+        { label: 'Kota / Bangunan (Sian/Abu)', color: '#64748b', icon: '🏢' },
+        { label: 'Klorofil Lebat (Merah/Magenta)', color: '#f43f5e', icon: '🌺' }
+      ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel / Copernicus Sentinel-2'
   },
@@ -151,7 +172,12 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
       middleLabel: 'Jarang (0.2 s.d 0.4)',
       rightLabel: 'Hutan Lebat (0.7 s.d +1.0)',
       gradientClass: 'ndvi-gradient',
-      rangeText: 'Skala Rentang Indeks: -1.0 s.d +1.0'
+      rangeText: 'Skala Rentang Indeks: -1.0 s.d +1.0',
+      swatches: [
+        { label: 'Air / Non-Veg (-1.0)', color: '#0284c7', icon: '💧' },
+        { label: 'Vegetasi Jarang (+0.3)', color: '#fde047', icon: '🌾' },
+        { label: 'Hutan Lebat (+0.8)', color: '#15803d', icon: '🌲' }
+      ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
   },
@@ -176,7 +202,12 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
       middleLabel: 'Lembap (0.0)',
       rightLabel: 'Badan Air Terbuka (+0.3 s.d +1.0)',
       gradientClass: 'ndwi-gradient',
-      rangeText: 'Skala Rentang Indeks: -1.0 s.d +1.0'
+      rangeText: 'Skala Rentang Indeks: -1.0 s.d +1.0',
+      swatches: [
+        { label: 'Daratan Kering (-0.5)', color: '#b45309', icon: '🏜️' },
+        { label: 'Lahan Lembap (0.0)', color: '#67e8f9', icon: '🌾' },
+        { label: 'Badan Air Terbuka (+0.7)', color: '#1e3a8a', icon: '🌊' }
+      ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
   },
@@ -200,8 +231,13 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
       type: 'continuous',
       leftLabel: 'Tertutup Vegetasi / Air',
       middleLabel: 'Sedang / Campuran',
-      rightLabel: 'Tanah Terbuka / Tambang (Tinggi)',
-      gradientClass: 'bsi-gradient'
+      rightLabel: 'Tanah Terbuka / Tambang',
+      gradientClass: 'bsi-gradient',
+      swatches: [
+        { label: 'Vegetasi Rapat (Hijau)', color: '#064e3b', icon: '🌲' },
+        { label: 'Lahan Campuran (Kuning)', color: '#fde047', icon: '🌾' },
+        { label: 'Tanah Terbuka / Tambang (Merah)', color: '#dc2626', icon: '⛏️' }
+      ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
   },
@@ -224,9 +260,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     legend: {
       type: 'categorical',
       items: [
-        { label: 'Bahaya Rendah', color: '#fef08a' },
-        { label: 'Bahaya Sedang', color: '#f97316' },
-        { label: 'Bahaya Tinggi', color: '#dc2626' }
+        { label: 'Bahaya Rendah (<0.5m)', color: '#fef08a', icon: '🟡' },
+        { label: 'Bahaya Sedang (0.5–1.5m)', color: '#f97316', icon: '🟠' },
+        { label: 'Bahaya Tinggi (>1.5m)', color: '#dc2626', icon: '🔴' }
+      ],
+      swatches: [
+        { label: 'Bahaya Rendah (<0.5m)', color: '#fef08a', icon: '🟡' },
+        { label: 'Bahaya Sedang (0.5–1.5m)', color: '#f97316', icon: '🟠' },
+        { label: 'Bahaya Tinggi (>1.5m)', color: '#dc2626', icon: '🔴' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Ina-Geoportal / Piksel'
@@ -248,9 +289,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     legend: {
       type: 'categorical',
       items: [
-        { label: 'Bahaya Rendah', color: '#fef08a' },
-        { label: 'Bahaya Sedang', color: '#f97316' },
-        { label: 'Bahaya Tinggi', color: '#dc2626' }
+        { label: 'Bahaya Rendah (<0.5m)', color: '#fef08a', icon: '🟡' },
+        { label: 'Bahaya Sedang (0.5–1.5m)', color: '#f97316', icon: '🟠' },
+        { label: 'Bahaya Tinggi (>1.5m)', color: '#dc2626', icon: '🔴' }
+      ],
+      swatches: [
+        { label: 'Bahaya Rendah (<0.5m)', color: '#fef08a', icon: '🟡' },
+        { label: 'Bahaya Sedang (0.5–1.5m)', color: '#f97316', icon: '🟠' },
+        { label: 'Bahaya Tinggi (>1.5m)', color: '#dc2626', icon: '🔴' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Ina-Geoportal / Piksel'
@@ -278,7 +324,12 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
       middleLabel: 'Sedang (~15 Scene)',
       rightLabel: 'Tinggi (> 30 Scene)',
       gradientClass: 'count-gradient',
-      rangeText: 'Jumlah Scene Bebas Awan per Pixel'
+      rangeText: 'Jumlah Scene Bebas Awan per Pixel',
+      swatches: [
+        { label: 'Observasi Rendah (<5)', color: '#4c1d95', icon: '🟣' },
+        { label: 'Observasi Sedang (~15)', color: '#06b6d4', icon: '🔵' },
+        { label: 'Observasi Tinggi (>30)', color: '#facc15', icon: '🟡' }
+      ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
   },
@@ -303,10 +354,15 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     statusNotice: 'ℹ️ Catatan: Landsat 9 merupakan koleksi scene individual USGS/NASA (area non-lintasan satelit tampak transparan).',
     legend: {
       type: 'natural',
-      leftLabel: '🌊 Air (Biru Tua)',
-      middleLabel: '🏙️ Permukiman / Lahan (Abu/Krem)',
-      rightLabel: '🌳 Kanopi (Hijau Alami)',
-      gradientClass: 'ls9-sr-gradient'
+      leftLabel: 'Air (Biru Tua)',
+      middleLabel: 'Lahan / Kota (Krem)',
+      rightLabel: 'Kanopi (Hijau)',
+      gradientClass: 'ls9-sr-gradient',
+      swatches: [
+        { label: 'Air (Biru Tua)', color: '#1e3a8a', icon: '🌊' },
+        { label: 'Lahan / Kota (Krem/Abu)', color: '#a8a29e', icon: '🏜️' },
+        { label: 'Kanopi Hutan (Hijau)', color: '#15803d', icon: '🌲' }
+      ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) / USGS / NASA'
   }

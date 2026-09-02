@@ -64,26 +64,42 @@ export class PikselPanelUI {
 
       let legendHtml = '';
       if (activeProduct.legend) {
+        const swatchesHtml = (activeProduct.legend.swatches || []).map(sw => `
+          <div class="swatch-pill">
+            <span class="swatch-color-box" style="background:${sw.color}; box-shadow: 0 0 6px ${sw.color}88;"></span>
+            <span class="swatch-text"><strong>${sw.icon ? sw.icon + ' ' : ''}</strong>${sw.label}</span>
+          </div>
+        `).join('');
+
         if (activeProduct.legend.type === 'continuous' || activeProduct.legend.type === 'natural') {
           legendHtml = `
             <div class="active-legend-block">
-              <div class="active-legend-bar ${activeProduct.legend.gradientClass}"></div>
+              <div class="legend-section-title">🎨 Panduan Interpretasi Warna Satelit</div>
+              <div class="active-legend-bar legend-gradient ${activeProduct.legend.gradientClass}"></div>
               <div class="active-legend-labels">
                 <span>${activeProduct.legend.leftLabel}</span>
                 ${activeProduct.legend.middleLabel ? `<span>${activeProduct.legend.middleLabel}</span>` : ''}
                 <span>${activeProduct.legend.rightLabel}</span>
               </div>
+              ${swatchesHtml ? `
+                <div class="legend-swatches-grid">
+                  ${swatchesHtml}
+                </div>
+              ` : ''}
             </div>
           `;
         } else if (activeProduct.legend.type === 'categorical') {
           legendHtml = `
-            <div class="active-legend-cat-grid">
-              ${activeProduct.legend.items.map(it => `
-                <div class="cat-legend-item">
-                  <span class="cat-dot" style="background:${it.color};"></span>
-                  <span>${it.label}</span>
-                </div>
-              `).join('')}
+            <div class="active-legend-block">
+              <div class="legend-section-title">🎨 Klasifikasi Bahaya Spasial</div>
+              <div class="legend-swatches-grid">
+                ${(activeProduct.legend.items || []).map(it => `
+                  <div class="swatch-pill">
+                    <span class="swatch-color-box" style="background:${it.color}; box-shadow: 0 0 6px ${it.color}88;"></span>
+                    <span class="swatch-text"><strong>${it.icon ? it.icon + ' ' : ''}</strong>${it.label}</span>
+                  </div>
+                `).join('')}
+              </div>
             </div>
           `;
         }
@@ -139,7 +155,7 @@ export class PikselPanelUI {
             <input type="range" id="piksel-master-opacity" min="0" max="100" value="${opacityPct}" class="clean-range-slider" />
           </div>
 
-          <!-- Active Product Legend -->
+          <!-- Active Product Legend & Swatches -->
           ${legendHtml}
 
           <!-- Collapsible Diagnostics -->
@@ -190,6 +206,13 @@ export class PikselPanelUI {
 
     const productCardsHtml = filteredProducts.map(prod => {
       const isActive = activeProduct?.id === prod.id;
+      const swatchesPreviewHtml = (prod.legend?.swatches || []).map(sw => `
+        <span class="card-swatch-chip" title="${sw.label}">
+          <span class="card-swatch-dot" style="background:${sw.color};"></span>
+          <span class="card-swatch-label">${sw.label}</span>
+        </span>
+      `).join('');
+
       return `
         <div class="clean-product-card ${isActive ? 'is-active' : ''}" data-id="${prod.id}">
           <div class="card-main-info">
@@ -198,6 +221,13 @@ export class PikselPanelUI {
               <strong class="card-name">${prod.name}</strong>
             </div>
             <p class="card-description">${prod.description}</p>
+            
+            ${swatchesPreviewHtml ? `
+              <div class="card-swatches-preview">
+                ${swatchesPreviewHtml}
+              </div>
+            ` : ''}
+
             <div class="card-tags-line">
               <span class="card-tag">${prod.resolution}</span>
               <span class="card-tag">Z${prod.minZoom ?? 6}+</span>
