@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WebGIS Boilerplate - MapLibre GL v6 & Bun</title>
+    <title>Digital Earth Indonesia WebGIS — Earth Observation & Spatial Analytics</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="app">
@@ -21,8 +21,8 @@
             </svg>
           </div>
           <div class="brand-text">
-            <h1>WebGIS Core</h1>
-            <span class="badge">MapLibre GL v6</span>
+            <h1>Digital Earth WebGIS</h1>
+            <span class="badge">MapLibre GL JS</span>
           </div>
         </div>
 
@@ -33,8 +33,8 @@
               <circle cx="11" cy="11" r="8"/>
               <path d="m21 21-4.3-4.3"/>
             </svg>
-            <input type="text" id="geocoder-input" placeholder="Search location (e.g. Jakarta, Bali, Tokyo)..." autocomplete="off" />
-            <button id="search-clear-btn" class="icon-btn-sm" style="display:none;">
+            <input type="text" id="geocoder-input" placeholder="Search location (e.g. Jakarta, Bromo, IKN, Tokyo)..." autocomplete="off" />
+            <button id="search-clear-btn" class="icon-btn-sm" style="display:none;" title="Clear search">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
             </button>
           </div>
@@ -43,21 +43,21 @@
 
         <!-- Header Actions -->
         <div class="header-actions">
-          <button id="btn-reset-map" class="btn btn-secondary" title="Reset Map View & Active Analysis">
+          <button id="btn-reset-map" class="btn btn-secondary" title="Reset Camera View & Analytical Overlays">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-            Reset
+            <span class="btn-text-label">Reset View</span>
           </button>
           <button id="btn-toggle-globe" class="btn btn-secondary" title="Toggle 3D Globe / 2D Mercator Projection">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-            <span id="globe-btn-label">3D Globe</span>
+            <span id="globe-btn-label" class="btn-text-label">3D Globe</span>
           </button>
-          <button id="btn-quick-import" class="btn btn-secondary">
+          <button id="btn-quick-import" class="btn btn-secondary" title="Import Custom GeoJSON File">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-            Import GeoJSON
+            <span class="btn-text-label">Import GeoJSON</span>
           </button>
-          <button id="btn-export-map" class="btn btn-secondary" title="Export Map Screenshot">
+          <button id="btn-export-map" class="btn btn-secondary" title="Export High-Resolution Map PNG">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            Export
+            <span class="btn-text-label">Export Map</span>
           </button>
         </div>
       </header>
@@ -68,35 +68,31 @@
         <aside id="sidebar" class="sidebar">
           <!-- Navigation Tab Icons -->
           <nav class="sidebar-nav">
-            <button class="sidebar-tab-btn active" data-tab="map" title="Map & Active Layers">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-              <span>Map</span>
+            <button class="sidebar-tab-btn active" data-tab="map" title="Map Layers & Basemaps">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+              <span>Layers</span>
             </button>
             <button class="sidebar-tab-btn" data-tab="piksel" title="Piksel Earth Observation (BIG)">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
-                <path d="M2 12h20"/>
-              </svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
               <span>Piksel EO</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="gee" title="GEE Earth Engine Analysis">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07l14.14-14.14"/></svg>
+            <button class="sidebar-tab-btn" data-tab="gee" title="GEE Thermal & Elevation Analysis">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
               <span>GEE Analysis</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="measure" title="Measurement Tools">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20"/><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="M6 12V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8"/></svg>
+            <button class="sidebar-tab-btn" data-tab="measure" title="Spatial Measurement Tools">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20"/><path d="M6 12V8"/><path d="M12 12V8"/><path d="M18 12V8"/></svg>
               <span>Measure</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="data" title="Custom Spatial Data">
+            <button class="sidebar-tab-btn" data-tab="data" title="Custom Vector Data & GeoJSON">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
               <span>Data</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="legend" title="Map Legend">
+            <button class="sidebar-tab-btn" data-tab="legend" title="Cartographic Legend">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
               <span>Legend</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="about" title="About WebGIS">
+            <button class="sidebar-tab-btn" data-tab="about" title="Architecture & System Documentation">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
               <span>About</span>
             </button>
@@ -112,8 +108,8 @@
             <!-- Panel: Map & Active Layers & Basemaps -->
             <section id="panel-map" class="sidebar-panel active">
               <div class="panel-header">
-                <h2>Map & Layers</h2>
-                <p>Kelola active layer stack dan pilih dari 15 vector basemap resolusi tinggi.</p>
+                <h2>Map Layers & Basemaps</h2>
+                <p>Manage active layer stack and select from 15 high-resolution vector and raster basemaps.</p>
               </div>
 
               <!-- Active Layers Manager Container -->
@@ -122,8 +118,11 @@
               <!-- Basemap Gallery Section -->
               <div class="piksel-card" style="margin-top: 14px;">
                 <div class="piksel-card-title-row">
-                  <h3>🗺️ Vector Basemap Gallery</h3>
-                  <span class="piksel-hint">Pilih gaya peta dasar</span>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <h3 style="margin:0;">Vector Basemap Gallery</h3>
+                  </div>
+                  <span class="piksel-hint">Select base layer</span>
                 </div>
                 <div id="basemap-grid" class="basemap-grid">
                   <!-- Dynamically populated basemap cards -->
@@ -138,14 +137,17 @@
                   <h2>Piksel Earth Observation</h2>
                   <span class="piksel-national-badge">BIG × GA</span>
                 </div>
-                <p>Digital Earth Indonesia: Data citra satelit & produk turunan OGC WMTS / WMS resmi Badan Informasi Geospasial.</p>
+                <p>Digital Earth Indonesia: Standardized OGC WMS satellite imagery and analytical products powered by Open Data Cube.</p>
               </div>
 
               <!-- Study Area Presets -->
               <div class="piksel-card">
                 <div class="piksel-card-title-row">
-                  <h3>📍 Kawasan Pantauan Prioritas</h3>
-                  <span class="piksel-hint">Klik untuk jelajah</span>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                    <h3 style="margin:0;">Priority Study Areas</h3>
+                  </div>
+                  <span class="piksel-hint">Click to navigate</span>
                 </div>
                 <div id="piksel-presets-container" class="piksel-presets-grid">
                   <!-- Dynamically populated presets -->
@@ -154,9 +156,6 @@
 
               <!-- Piksel OGC Products & Master Controls -->
               <div class="piksel-card">
-                <div class="piksel-card-title-row">
-                  <h3>🛰️ Layer Satelit & Analisis OGC</h3>
-                </div>
                 <div id="piksel-products-container" class="piksel-products-list">
                   <!-- Dynamically populated controls and product cards -->
                 </div>
@@ -164,16 +163,19 @@
 
               <!-- Info & External Links -->
               <div class="piksel-card piksel-info-card">
-                <h3>🌐 Portal & Dokumentasi Resmi</h3>
-                <p>Layanan OGC WMTS & WMS didukung oleh Open Data Cube BIG (Badan Informasi Geospasial) & Geoscience Australia.</p>
+                <div style="display:flex; align-items:center; gap:6px; margin-bottom: 6px;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                  <h3 style="margin:0;">Official Documentation & Portal</h3>
+                </div>
+                <p>OGC WMS services are hosted by BIG (Badan Informasi Geospasial) in collaboration with Geoscience Australia.</p>
                 <div class="piksel-links-group">
                   <a href="https://piksel.big.go.id" target="_blank" rel="noopener noreferrer" class="btn btn-outline full-width">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                    Buka Portal Piksel
+                    Piksel Portal
                   </a>
                   <a href="https://explorer.piksel.big.go.id" target="_blank" rel="noopener noreferrer" class="btn btn-secondary full-width">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                    Data Explorer Piksel
+                    Data Cube Explorer
                   </a>
                 </div>
               </div>
@@ -182,24 +184,24 @@
             <!-- Panel: GEE Earth Engine Data -->
             <section id="panel-gee" class="sidebar-panel">
               <div class="panel-header">
-                <h2>GEE Urban Heat & LST</h2>
-                <p>MODIS Land Surface Temp & Elevation Analysis (Jakarta & West Java)</p>
+                <h2>GEE Thermal & Elevation Analysis</h2>
+                <p>MODIS Land Surface Temperature & USGS SRTM Elevation Analysis (Jakarta & West Java study basin).</p>
               </div>
 
               <!-- Quick Focus Area Button -->
               <button id="btn-focus-gee-area" class="btn btn-secondary full-width" style="margin-bottom: 12px;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-                Focus GEE Area (Jakarta - West Java)
+                Focus Study Area (Jakarta - West Java)
               </button>
 
               <!-- Layer Toggles Container -->
               <div class="gee-card">
-                <h3>Map Layer Controls & Legenda</h3>
+                <h3>Analytical Layers & Legend</h3>
 
                 <!-- GEE Independent Opacity Slider -->
                 <div class="piksel-master-control" style="margin-bottom: 14px;">
                   <div class="piksel-control-header">
-                    <span class="control-title">🎚️ Transparansi Layer Analisis GEE</span>
+                    <span class="control-title">GEE Layers Master Opacity</span>
                     <span class="control-val" id="gee-opacity-val">80%</span>
                   </div>
                   <input 
@@ -211,9 +213,9 @@
                     class="piksel-slider" 
                   />
                   <div class="slider-ticks">
-                    <span>0% (Transparan)</span>
+                    <span>0% (Transparent)</span>
                     <span>50%</span>
-                    <span>100% (Penuh)</span>
+                    <span>100% (Solid)</span>
                   </div>
                 </div>
 
@@ -222,16 +224,16 @@
                   <div class="gee-toggle-item-wrap">
                     <label class="gee-toggle-item">
                       <input type="checkbox" id="toggle-gee-lst" />
-                      <span class="toggle-label">🌡️ MODIS Daytime LST Heatmap</span>
+                      <span class="toggle-label">MODIS Daytime LST Heatmap</span>
                     </label>
                     <div class="gee-layer-legend-box" id="legend-box-lst">
                       <div class="gee-legend-bar lst-gradient"></div>
                       <div class="gee-legend-labels">
-                        <span>18°C (Sejuk)</span>
+                        <span>22°C (Cool)</span>
                         <span>25°C</span>
                         <span>28°C</span>
                         <span>31°C</span>
-                        <span>34°C+ (Ekstrem Panas)</span>
+                        <span>34°C+ (Extreme UHI)</span>
                       </div>
                     </div>
                   </div>
@@ -240,11 +242,11 @@
                   <div class="gee-toggle-item-wrap">
                     <label class="gee-toggle-item">
                       <input type="checkbox" id="toggle-gee-poi" />
-                      <span class="toggle-label">📍 Urban vs Rural Observation POIs</span>
+                      <span class="toggle-label">Urban vs Rural Observation POIs</span>
                     </label>
                     <div class="gee-layer-legend-box poi-tags">
-                      <span class="poi-tag urban-tag">🔴 Urban Core (Jakarta - 33.85°C)</span>
-                      <span class="poi-tag rural-tag">🟢 Rural / Forest (Bogor - 24.60°C)</span>
+                      <span class="poi-tag urban-tag">Urban Core (Jakarta - 33.85°C)</span>
+                      <span class="poi-tag rural-tag">Rural / Forest (Bogor - 24.60°C)</span>
                     </div>
                   </div>
 
@@ -252,16 +254,16 @@
                   <div class="gee-toggle-item-wrap">
                     <label class="gee-toggle-item">
                       <input type="checkbox" id="toggle-gee-elevation" />
-                      <span class="toggle-label">⛰️ USGS SRTM Ground Elevation Grid</span>
+                      <span class="toggle-label">USGS SRTM Ground Elevation Grid</span>
                     </label>
                     <div class="gee-layer-legend-box" id="legend-box-elv">
                       <div class="gee-legend-bar elv-gradient"></div>
                       <div class="gee-legend-labels">
-                        <span>0m (Pesisir)</span>
+                        <span>0m (Coast)</span>
                         <span>50m</span>
                         <span>200m</span>
                         <span>600m</span>
-                        <span>1200m+ (Puncak)</span>
+                        <span>1200m+ (Summit)</span>
                       </div>
                     </div>
                   </div>
@@ -270,13 +272,13 @@
                   <div class="gee-toggle-item-wrap">
                     <label class="gee-toggle-item">
                       <input type="checkbox" id="toggle-gee-landcover" />
-                      <span class="toggle-label">🌳 MODIS Land Cover Classification</span>
+                      <span class="toggle-label">MODIS Land Cover Classification</span>
                     </label>
                     <div class="gee-layer-legend-box lc-tags">
-                      <span class="lc-chip" style="border-left-color: #0284c7;">Laut / Air</span>
-                      <span class="lc-chip" style="border-left-color: #e11d48;">Perkotaan</span>
-                      <span class="lc-chip" style="border-left-color: #eab308;">Pertanian</span>
-                      <span class="lc-chip" style="border-left-color: #15803d;">Hutan Lebat</span>
+                      <span class="lc-chip" style="border-left-color: #0284c7;">Water</span>
+                      <span class="lc-chip" style="border-left-color: #e11d48;">Urban</span>
+                      <span class="lc-chip" style="border-left-color: #eab308;">Cropland</span>
+                      <span class="lc-chip" style="border-left-color: #15803d;">Dense Forest</span>
                     </div>
                   </div>
                 </div>
@@ -303,21 +305,21 @@
 
               <!-- Time Series Canvas Chart -->
               <div class="gee-card">
-                <h3>Tren Suhu Tahunan (2020–2026)</h3>
-                <p class="chart-subtitle">Pola fluktuasi suhu musiman: Perkotaan vs Pedesaan</p>
+                <h3>Annual Thermal Dynamics (2020–2026)</h3>
+                <p class="chart-subtitle">Seasonal surface temperature variations: Urban Core vs Rural Baseline</p>
                 <div class="chart-container">
                   <canvas id="gee-chart-canvas" width="300" height="200"></canvas>
                 </div>
                 <div class="chart-legend">
-                  <span class="legend-badge urban-badge">■ Kota Jakarta (Panas)</span>
-                  <span class="legend-badge rural-badge">■ Pedesaan/Hutan (Sejuk)</span>
+                  <span class="legend-badge urban-badge">■ Urban Core (Jakarta)</span>
+                  <span class="legend-badge rural-badge">■ Rural Baseline (Forest)</span>
                 </div>
               </div>
 
               <!-- Download Export Data Center -->
               <div class="gee-card download-center">
-                <h3>Downloaded GEE Data Files</h3>
-                <p>Exported spatial layers & analysis records:</p>
+                <h3>Exported Spatial Datasets</h3>
+                <p>Download analytical layers and time-series records:</p>
                 <div class="download-buttons">
                   <button id="btn-download-geojson" class="btn btn-outline full-width">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
@@ -329,7 +331,7 @@
                   </button>
                   <button id="btn-download-geotiff" class="btn btn-secondary full-width">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                    Download Elevation GeoTIFF Info
+                    Elevation GeoTIFF Metadata
                   </button>
                 </div>
               </div>
@@ -339,7 +341,7 @@
             <section id="panel-measure" class="sidebar-panel">
               <div class="panel-header">
                 <h2>Spatial Measurement</h2>
-                <p>Interactive distance and area calculation using Turf.js</p>
+                <p>Interactive geodesic distance and polygon area calculation powered by Turf.js.</p>
               </div>
               <div class="measure-controls">
                 <button id="btn-measure-dist" class="btn btn-outline full-width">
@@ -358,7 +360,7 @@
               <div id="measure-result-card" class="result-card" style="display:none;">
                 <div class="result-title">Measurement Result</div>
                 <div id="measure-result-value" class="result-value">0 km</div>
-                <div class="result-help">Right-click on map to complete shape</div>
+                <div class="result-help">Right-click on map to complete polygon or path</div>
               </div>
             </section>
 
@@ -366,7 +368,7 @@
             <section id="panel-data" class="sidebar-panel">
               <div class="panel-header">
                 <h2>Custom Vector Data</h2>
-                <p>Upload or drag GeoJSON files to render spatial features</p>
+                <p>Upload or drag & drop GeoJSON files to render custom spatial features.</p>
               </div>
               <div class="upload-dropzone" id="geojson-dropzone">
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
@@ -374,53 +376,132 @@
                 <input type="file" id="file-geojson-input" accept=".geojson,.json" style="display:none;" />
               </div>
               <button id="btn-load-sample" class="btn btn-secondary full-width" style="margin-top: 12px;">
-                Load Sample Cities Layer
+                Load Major Indonesian Cities Sample
               </button>
+              <div id="layers-list" class="layers-list-container" style="margin-top: 16px;"></div>
             </section>
 
             <!-- Panel: General Map Legend -->
             <section id="panel-legend" class="sidebar-panel">
               <div class="panel-header">
-                <h2>General Map Legend</h2>
-                <p>Simbol layer peta umum & hasil pengukuran vektor</p>
+                <h2>Cartographic Legend</h2>
+                <p>Symbology for active vector layers, analytical grids, and measurement geometry.</p>
               </div>
               <div id="legend-content" class="legend-content">
                 <div class="legend-item">
                   <span class="legend-symbol point" style="background-color: #f59e0b;"></span>
-                  <span class="legend-label">Kota Utama (Sampel Data Vektor)</span>
+                  <span class="legend-label">Major Cities (Sample Point Vectors)</span>
                 </div>
                 <div class="legend-item">
                   <span class="legend-symbol line" style="border-color: #00f0ff;"></span>
-                  <span class="legend-label">Jalur Pengukuran Jarak (Turf.js)</span>
+                  <span class="legend-label">Geodesic Distance Path (Turf.js)</span>
                 </div>
                 <div class="legend-item">
                   <span class="legend-symbol polygon" style="background-color: rgba(0,240,255,0.3); border-color: #00f0ff;"></span>
-                  <span class="legend-label">Area Poligon Pengukuran Luas</span>
+                  <span class="legend-label">Polygon Area Measurement Boundary</span>
                 </div>
                 <div class="legend-item">
                   <span class="legend-symbol line" style="border-color: #10b981; border-style: dashed;"></span>
-                  <span class="legend-label">Grid Tile Data Cube Nasional (10m)</span>
+                  <span class="legend-label">National Data Cube Grid Index (10m)</span>
                 </div>
               </div>
               <div style="margin-top: 14px; padding: 10px; background: rgba(15, 23, 42, 0.6); border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 11px; color: var(--text-muted); line-height: 1.4;">
-                💡 <em>Legenda analisis spektral Earth Observation (NDVI, NDWI, GeoMAD, Bahaya Banjir) ditampilkan secara dinamis di tab <strong>Piksel EO</strong>.</em>
+                <span>Dynamic Earth Observation spectral color ramps (NDVI, NDWI, GeoMAD, Flood Hazard) are rendered live inside the <strong>Piksel EO</strong> panel.</span>
               </div>
             </section>
 
-            <!-- Panel: About -->
+            <!-- Panel: About (Technical Architecture & Provenance) -->
             <section id="panel-about" class="sidebar-panel">
               <div class="panel-header">
-                <h2>WebGIS Stack</h2>
-                <p>Engineered with modern WebGIS & Earth Observation architectures</p>
+                <h2>System Architecture & Stack</h2>
+                <p>Engineered with modern WebGIS, OGC protocols, and Earth Observation architectures.</p>
               </div>
+
+              <!-- Architecture Flow Card -->
+              <div class="architecture-card">
+                <div style="font-size: 12px; font-weight: 600; color: #38bdf8; margin-bottom: 8px;">
+                  SYSTEM DATA FLOW PIPELINE
+                </div>
+                <div class="arch-flow-diagram">
+                  <div class="arch-node client">
+                    <strong>Client Layer:</strong> MapLibre GL JS v6 (WebGL 2D/3D Projection)
+                  </div>
+                  <div class="arch-arrow-down">↓</div>
+                  <div class="arch-node pipeline">
+                    <strong>Protocols:</strong> OGC WMS 1.3.0 • PMTiles • GeoJSON Vectors • Turf.js
+                  </div>
+                  <div class="arch-arrow-down">↓</div>
+                  <div class="arch-node backend">
+                    <strong>Compute Backends:</strong> Open Data Cube (BIG) • Google Earth Engine
+                  </div>
+                </div>
+              </div>
+
+              <!-- Data Provenance Table -->
+              <div class="architecture-card">
+                <div style="font-size: 12px; font-weight: 600; color: #10b981; margin-bottom: 8px;">
+                  DATA PROVENANCE & SPECIFICATIONS
+                </div>
+                <table class="data-matrix-table">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Source</th>
+                      <th>Resolution</th>
+                      <th>Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Sentinel-2 GeoMAD</td>
+                      <td>BIG Piksel / ESA</td>
+                      <td>10 meters</td>
+                      <td>OGC WMS (ODC)</td>
+                    </tr>
+                    <tr>
+                      <td>Landsat 9 Analysis</td>
+                      <td>USGS / NASA</td>
+                      <td>30 meters</td>
+                      <td>OGC WMS Swaths</td>
+                    </tr>
+                    <tr>
+                      <td>Flood Hazard Models</td>
+                      <td>BIG Hidrologi</td>
+                      <td>10 meters</td>
+                      <td>Physical Raster</td>
+                    </tr>
+                    <tr>
+                      <td>MODIS LST Day (MOD11A2)</td>
+                      <td>Google Earth Engine</td>
+                      <td>1,000 meters</td>
+                      <td>Thermal GeoJSON</td>
+                    </tr>
+                    <tr>
+                      <td>SRTM Topography</td>
+                      <td>USGS / NASA</td>
+                      <td>30 meters</td>
+                      <td>Elevation Grid</td>
+                    </tr>
+                    <tr>
+                      <td>MCD12Q1 Land Cover</td>
+                      <td>NASA LP DAAC</td>
+                      <td>500 meters</td>
+                      <td>Land Classification</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Core Stack Details -->
               <div class="about-card">
+                <div style="font-size: 12px; font-weight: 600; color: #f59e0b; margin-bottom: 8px;">
+                  ENGINEERING SPECIFICATIONS
+                </div>
                 <ul>
-                  <li><strong>Core Mapping:</strong> MapLibre GL JS v6 (2D Mercator & 3D Globe)</li>
-                  <li><strong>Earth Observation:</strong> BIG Piksel OGC WMS (Open Data Cube, GeoMAD, Landsat 9)</li>
-                  <li><strong>Earth Engine:</strong> Google Earth Engine (MODIS LST & Urban Heat Island)</li>
-                  <li><strong>Spatial Analytics:</strong> Turf.js (Geodesic Distance & Polygon Area)</li>
-                  <li><strong>Basemap Services:</strong> 15 Vector Styles (Google, Esri, BIG RBI, OSM) & PMTiles</li>
-                  <li><strong>Runtime & Bundler:</strong> Bun + Vite</li>
+                  <li><strong>Core Engine:</strong> MapLibre GL JS v6 with WebGL <code>preserveDrawingBuffer</code></li>
+                  <li><strong>Tile Telemetry:</strong> Live OGC request tracking, lifecycle abort handling, and latency metrics</li>
+                  <li><strong>Layer Stacking:</strong> Deterministic visual orchestration via <code>enforceLayerOrder()</code></li>
+                  <li><strong>Bundler & Runtime:</strong> Vite 6 + Bun 1.2+ TypeScript compiler</li>
                 </ul>
               </div>
             </section>
@@ -433,7 +514,7 @@
           <div id="piksel-map-hud" class="piksel-map-hud" style="display: none;">
             <div class="hud-spinner" id="hud-spinner"></div>
             <div class="hud-content">
-              <span class="hud-title" id="hud-title">🛰️ Memuat Layer WMS Piksel...</span>
+              <span class="hud-title" id="hud-title">Loading Piksel WMS Raster...</span>
               <span class="hud-subtitle" id="hud-subtitle">Sentinel-2 GeoMAD</span>
             </div>
           </div>
@@ -443,10 +524,10 @@
         <div id="feature-inspector" class="feature-inspector-card" style="display:none;">
           <div class="inspector-header">
             <div class="inspector-title">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
               <span id="inspector-layer-name">Feature Details</span>
             </div>
-            <button id="inspector-close-btn" class="icon-btn-sm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+            <button id="inspector-close-btn" class="icon-btn-sm" title="Close inspector"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
           </div>
           <div id="inspector-content" class="inspector-table-wrapper"></div>
         </div>

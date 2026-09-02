@@ -2673,6 +2673,123 @@ html, body, #app {
   }
 }
 
+/* ==========================================================================
+   Professional Diagnostics & Architecture Card Styling
+   ========================================================================== */
+.diagnostics-details {
+  margin-top: 8px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  font-size: 11px;
+}
+
+.diagnostics-summary {
+  padding: 6px 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+  background: rgba(255, 255, 255, 0.02);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.diagnostics-summary:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-main);
+}
+
+.diagnostics-summary::-webkit-details-marker {
+  display: none;
+}
+
+.diagnostics-details[open] .diagnostics-summary {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #38bdf8;
+}
+
+/* Architecture Flow in About */
+.architecture-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.arch-flow-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 10px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace, sans-serif;
+  font-size: 11px;
+}
+
+.arch-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.arch-node.client {
+  border-left: 3px solid #38bdf8;
+}
+
+.arch-node.pipeline {
+  border-left: 3px solid #10b981;
+}
+
+.arch-node.backend {
+  border-left: 3px solid #f59e0b;
+}
+
+.arch-arrow-down {
+  display: flex;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.data-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  margin-top: 8px;
+}
+
+.data-matrix-table th {
+  text-align: left;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.data-matrix-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-main);
+}
+
+.data-matrix-table tr:last-child td {
+  border-bottom: none;
+}
+
 
 
 
