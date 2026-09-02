@@ -151,9 +151,8 @@ export class MapManager {
       zoom: initialZoom,
       pitch: 0,
       bearing: 0,
-      preserveDrawingBuffer: true,
       attributionControl: false
-    });
+    } as maplibregl.MapOptions & { preserveDrawingBuffer?: boolean });
 
     // Add standard controls
     this.map.addControl(
@@ -219,16 +218,29 @@ export class MapManager {
       }
     });
 
-    // Click event for feature identification
+    // Click event for feature identification (filtered to application layers)
     this.map.on('click', (e: maplibregl.MapMouseEvent) => {
       if (!this.map) return;
       
       const bbox: [maplibregl.PointLike, maplibregl.PointLike] = [
-        [e.point.x - 5, e.point.y - 5],
-        [e.point.x + 5, e.point.y + 5]
+        [e.point.x - 6, e.point.y - 6],
+        [e.point.x + 6, e.point.y + 6]
       ];
       
-      const features = this.map.queryRenderedFeatures(bbox);
+      // Get only registered application layer IDs to prevent inspecting arbitrary basemap road/boundary lines
+      const styleLayers = this.map.getStyle()?.layers || [];
+      const appLayerIds = styleLayers
+        .map(l => l.id)
+        .filter(id => 
+          id.startsWith('gee-') || 
+          id.startsWith('layer-') || 
+          id.startsWith('piksel-') || 
+          id.startsWith('measure-')
+        );
+
+      if (appLayerIds.length === 0) return;
+
+      const features = this.map.queryRenderedFeatures(bbox, { layers: appLayerIds });
       if (features && features.length > 0) {
         const topFeature = features[0];
         if (topFeature.properties && Object.keys(topFeature.properties).length > 0) {
@@ -270,8 +282,6 @@ export class MapManager {
   private styleReadyCallbacks: Array<() => void> = [];
   private geojsonLoaderRef?: { getAllMapLayerIds(): string[] };
   private pikselLoaderRef?: { getAllMapLayerIds(): string[] };
-  private geeLoaderRef?: { getAllMapLayerIds?(): string[] };
-  private measureToolRef?: { getAllMapLayerIds?(): string[] };
 
   public onStyleReady(callback: () => void) {
     this.styleReadyCallbacks.push(callback);
@@ -285,12 +295,12 @@ export class MapManager {
     this.pikselLoaderRef = loader;
   }
 
-  public setGeeLoader(loader: { getAllMapLayerIds?(): string[] }) {
-    this.geeLoaderRef = loader;
+  public setGeeLoader(_loader: { getAllMapLayerIds?(): string[] }) {
+    // Registered for architecture uniformity
   }
 
-  public setMeasureTool(tool: { getAllMapLayerIds?(): string[] }) {
-    this.measureToolRef = tool;
+  public setMeasureTool(_tool: { getAllMapLayerIds?(): string[] }) {
+    // Registered for architecture uniformity
   }
 
   private fireStyleReadyCallbacks() {

@@ -1,8 +1,7 @@
-import { PikselLoader, PikselLoadingState, PikselDiagnostics } from '../tools/piksel-loader';
+import { PikselLoader, PikselLoadingState } from '../tools/piksel-loader';
 import {
   PIKSEL_PRODUCTS,
   PIKSEL_PRESETS,
-  PikselProduct,
   PikselPreset,
   S2_YEARS
 } from '../config/piksel';

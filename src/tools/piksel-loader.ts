@@ -1,5 +1,5 @@
 import * as maplibregl from 'maplibre-gl';
-import { PikselProduct, PikselPreset, PIKSEL_PRODUCTS, PIKSEL_PRESETS, S2_YEARS } from '../config/piksel';
+import { PikselProduct, PikselPreset, PIKSEL_PRODUCTS, PIKSEL_PRESETS } from '../config/piksel';
 
 export type PikselStatusCode = 'idle' | 'zoom_too_low' | 'requesting' | 'loading' | 'ready' | 'partial' | 'error';
 
@@ -46,6 +46,10 @@ export class PikselLoader {
   private activeRequestId: number = 0;
   private activeSourceId: string | null = null;
   private activeLayerId: string | null = null;
+
+  public getActiveLayerId(): string | null {
+    return this.activeLayerId;
+  }
 
   // Diagnostics & Telemetry
   private tilesRequested: number = 0;

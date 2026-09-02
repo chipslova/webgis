@@ -126,6 +126,14 @@ export class MeasureTool {
       e.preventDefault();
       this.finishMeasurement();
     });
+
+    // Keyboard support: Escape cancels measuring
+    window.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && this.mode !== 'none') {
+        this.setMode('none');
+        this.clear();
+      }
+    });
   }
 
   public setMode(mode: MeasureMode) {

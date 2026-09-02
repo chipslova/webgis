@@ -3,6 +3,7 @@ import { PikselLoader } from '../tools/piksel-loader';
 import { GEELoader } from '../tools/gee-loader';
 import { GeoJsonLoader } from '../tools/geojson-loader';
 import { MeasureTool } from '../tools/measure';
+import { TabId } from './sidebar';
 
 export class ActiveLayersUI {
   private mapManager: MapManager;
@@ -11,6 +12,7 @@ export class ActiveLayersUI {
   private geojsonLoader: GeoJsonLoader;
   private measureTool: MeasureTool;
   private containerId: string;
+  private onNavigateTab?: (tabId: TabId) => void;
 
   constructor(
     containerId: string,
@@ -18,7 +20,8 @@ export class ActiveLayersUI {
     pikselLoader: PikselLoader,
     geeLoader: GEELoader,
     geojsonLoader: GeoJsonLoader,
-    measureTool: MeasureTool
+    measureTool: MeasureTool,
+    onNavigateTab?: (tabId: TabId) => void
   ) {
     this.containerId = containerId;
     this.mapManager = mapManager;
@@ -26,6 +29,7 @@ export class ActiveLayersUI {
     this.geeLoader = geeLoader;
     this.geojsonLoader = geojsonLoader;
     this.measureTool = measureTool;
+    this.onNavigateTab = onNavigateTab;
 
     this.init();
   }
@@ -406,15 +410,19 @@ export class ActiveLayersUI {
       // Onboarding tab navigation cards
       const goTabBtn = target.closest('[data-go-tab]') as HTMLElement;
       if (goTabBtn && goTabBtn.dataset.goTab) {
-        const tabId = goTabBtn.dataset.goTab;
-        document.querySelectorAll('.sidebar-tab-btn').forEach(btn => {
-          const b = btn as HTMLElement;
-          b.classList.toggle('active', b.dataset.tab === tabId);
-        });
-        document.querySelectorAll('.sidebar-panel').forEach(panel => {
-          const p = panel as HTMLElement;
-          p.classList.toggle('active', p.id === `panel-${tabId}`);
-        });
+        const tabId = goTabBtn.dataset.goTab as TabId;
+        if (this.onNavigateTab) {
+          this.onNavigateTab(tabId);
+        } else {
+          document.querySelectorAll('.sidebar-tab-btn').forEach(btn => {
+            const b = btn as HTMLElement;
+            b.classList.toggle('active', b.dataset.tab === tabId);
+          });
+          document.querySelectorAll('.sidebar-panel').forEach(panel => {
+            const p = panel as HTMLElement;
+            p.classList.toggle('active', p.id === `panel-${tabId}`);
+          });
+        }
         return;
       }
 

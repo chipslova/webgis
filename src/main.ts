@@ -11,6 +11,7 @@ import { PikselLoader } from './tools/piksel-loader';
 import { PikselPanelUI } from './ui/piksel-panel';
 import { ActiveLayersUI } from './ui/active-layers';
 import { BASEMAPS } from './config/basemaps';
+import { showToast } from './ui/toast';
 
 class WebGISApp {
   private mapManager: MapManager;
@@ -57,6 +58,13 @@ class WebGISApp {
     try {
       const map = await this.mapManager.initMap();
 
+      // Remove loading overlay smoothly
+      const overlay = document.getElementById('map-loading-overlay');
+      if (overlay) {
+        overlay.classList.add('fade-out');
+        setTimeout(() => overlay.remove(), 400);
+      }
+
       this.geocoderTool = new GeocoderTool(map);
       this.measureTool = new MeasureTool(map);
       this.geojsonLoader = new GeoJsonLoader(map);
@@ -82,14 +90,15 @@ class WebGISApp {
       this.geeLoader.onLayersChange(() => this.mapManager.enforceLayerOrder());
       this.geojsonLoader.onLayersChange(() => this.mapManager.enforceLayerOrder());
 
-      // Instantiate Active Layers UI manager
+      // Instantiate Active Layers UI manager with seamless tab router integration
       this.activeLayersUI = new ActiveLayersUI(
         'active-layers-container',
         this.mapManager,
         this.pikselLoader,
         this.geeLoader,
         this.geojsonLoader,
-        this.measureTool
+        this.measureTool,
+        (tabId) => this.sidebarUI.setActiveTab(tabId)
       );
 
       // Load sample cities vector layer, GEE Earth Engine datasets & Piksel EO UI
@@ -112,7 +121,24 @@ class WebGISApp {
         this.mapManager.enforceLayerOrder();
       });
     } catch (err) {
-      console.warn('Map initialization notice:', err);
+      console.error('[WebGIS] Map initialization error:', err);
+      const mapEl = document.getElementById('map');
+      if (mapEl) {
+        mapEl.innerHTML = `
+          <div class="map-error-fallback">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <h2>Gagal Memuat Peta WebGIS</h2>
+            <p>Pastikan browser Anda mendukung akselerasi perangkat keras WebGL dan terhubung ke internet.</p>
+            <button class="btn btn-primary" onclick="window.location.reload()">
+              🔄 Muat Ulang Halaman
+            </button>
+          </div>
+        `;
+      }
     }
   }
 
@@ -436,30 +462,56 @@ class WebGISApp {
     reader.onload = (e) => {
       try {
         const json = JSON.parse(e.target?.result as string) as GeoJSON.FeatureCollection;
+        if (!json || (!json.type && !Array.isArray((json as any).features))) {
+          throw new Error('Invalid GeoJSON');
+        }
         const layerId = `custom-${Date.now()}`;
         const name = file.name.replace(/\.[^/.]+$/, '');
         this.geojsonLoader?.addGeoJSONLayer(layerId, name, json, '#10b981');
         this.renderLayersList();
         this.sidebarUI.setActiveTab('data');
+        showToast(`Layer "${name}" berhasil ditambahkan ke peta!`, 'success');
       } catch (err) {
-        alert('Invalid GeoJSON file structure');
+        showToast('Format GeoJSON tidak valid. Pastikan file berformat FeatureCollection yang benar.', 'error');
       }
+    };
+    reader.onerror = () => {
+      showToast('Gagal membaca file dari sistem lokal.', 'error');
     };
     reader.readAsText(file);
   }
 
   private bindExportEvents() {
     const exportBtn = document.getElementById('btn-export-map');
-    exportBtn?.addEventListener('click', () => {
+    if (!exportBtn) return;
+
+    exportBtn.addEventListener('click', () => {
       const map = this.mapManager.getMap();
       if (!map) return;
 
+      const originalHtml = exportBtn.innerHTML;
+      exportBtn.innerHTML = `
+        <svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+        <span class="btn-text-label">Memproses...</span>
+      `;
+      (exportBtn as HTMLButtonElement).disabled = true;
+
       map.once('render', () => {
-        const canvas = map.getCanvas();
-        const link = document.createElement('a');
-        link.download = `webgis-map-export-${Date.now()}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        try {
+          const canvas = map.getCanvas();
+          const link = document.createElement('a');
+          link.download = `webgis-indonesia-map-${Date.now()}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+          showToast('Peta berhasil diekspor sebagai gambar PNG!', 'success');
+        } catch (e) {
+          showToast('Gagal mengekspor peta ke format gambar.', 'error');
+        } finally {
+          setTimeout(() => {
+            exportBtn.innerHTML = originalHtml;
+            (exportBtn as HTMLButtonElement).disabled = false;
+          }, 1200);
+        }
       });
       map.triggerRepaint();
     });
@@ -490,9 +542,17 @@ class WebGISApp {
 
   private bindInspectorEvents() {
     const closeBtn = document.getElementById('inspector-close-btn');
+    const card = document.getElementById('feature-inspector');
+
     closeBtn?.addEventListener('click', () => {
-      const card = document.getElementById('feature-inspector');
       if (card) card.style.display = 'none';
+    });
+
+    // Escape key closes feature inspector modal
+    window.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && card && card.style.display !== 'none') {
+        card.style.display = 'none';
+      }
     });
   }
 }

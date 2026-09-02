@@ -4,10 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Digital Earth Indonesia WebGIS — Analisis Citra Satelit & Geospasial</title>
+    
+    <!-- Meta & SEO Tags -->
+    <meta name="description" content="Platform WebGIS interaktif untuk analisis citra satelit Sentinel-2, Landsat 9, NDVI, suhu permukaan (LST), dan elevasi SRTM wilayah Indonesia. Data resmi BIG Piksel & Google Earth Engine." />
+    <meta name="keywords" content="WebGIS Indonesia, Citra Satelit, Sentinel-2, Landsat 9, NDVI, Open Data Cube, BIG Piksel, Google Earth Engine, MODIS LST, SRTM" />
+    <meta name="author" content="Digital Earth Indonesia" />
+    <meta name="theme-color" content="#070b14" />
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Digital Earth WebGIS — Nusantara EO" />
+    <meta property="og:description" content="Platform WebGIS analitis untuk citra satelit nasional, estimasi suhu, dan data geospasial Indonesia." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://webgis-three-iota.vercel.app/" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23070b14'/%3E%3Cpolygon points='16,4 4,10 16,16 28,10' fill='%2300f0ff'/%3E%3Cpolyline points='4,22 16,28 28,22' stroke='%2338bdf8' stroke-width='2' fill='none'/%3E%3Cpolyline points='4,16 16,22 28,16' stroke='%230284c7' stroke-width='2' fill='none'/%3E%3C/svg%3E" />
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
@@ -554,6 +569,15 @@
 
         <!-- Map Container -->
         <main id="map" class="map-container">
+          <!-- Initial Map Loading Overlay -->
+          <div id="map-loading-overlay" class="map-loading-overlay">
+            <div class="map-spinner"></div>
+            <div class="map-loading-text">
+              <strong>Memuat Peta Indonesia</strong>
+              <span>Menghubungkan ke Basemap & Layanan Data Spasial...</span>
+            </div>
+          </div>
+
           <!-- Floating Map HUD Notification for Piksel EO -->
           <div id="piksel-map-hud" class="piksel-map-hud" style="display: none;">
             <div class="hud-spinner" id="hud-spinner"></div>
