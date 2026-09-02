@@ -12,6 +12,7 @@ import { PikselPanelUI } from './ui/piksel-panel';
 import { ActiveLayersUI } from './ui/active-layers';
 import { BASEMAPS } from './config/basemaps';
 import { showToast } from './ui/toast';
+import { PermalinkManager } from './tools/permalink';
 
 class WebGISApp {
   private mapManager: MapManager;
@@ -25,6 +26,7 @@ class WebGISApp {
   private pikselLoader: PikselLoader | null = null;
   private pikselPanelUI: PikselPanelUI | null = null;
   private activeLayersUI: ActiveLayersUI | null = null;
+  private permalinkManager: PermalinkManager | null = null;
 
   constructor() {
     this.mapManager = new MapManager('map');
@@ -44,6 +46,7 @@ class WebGISApp {
     this.bindImportEvents();
     this.bindExportEvents();
     this.bindInspectorEvents();
+    this.bindLegendEvents();
 
     // 2. Connect Telemetry & Feature Inspector
     this.mapManager.onMouseMove((info) => {
@@ -84,11 +87,22 @@ class WebGISApp {
       this.mapManager.onStyleReady(() => this.geojsonLoader?.reattachLayersIfNeeded());
       this.mapManager.onStyleReady(() => this.geeLoader?.restoreAfterStyleChange());
       this.mapManager.onStyleReady(() => this.measureTool?.restoreAfterStyleChange());
+      this.mapManager.onStyleReady(() => this.updateDynamicLegend());
 
-      // Auto-enforce layer ordering on any layer state changes across all tools
-      this.pikselLoader.onLayersChange(() => this.mapManager.enforceLayerOrder());
-      this.geeLoader.onLayersChange(() => this.mapManager.enforceLayerOrder());
-      this.geojsonLoader.onLayersChange(() => this.mapManager.enforceLayerOrder());
+      // Auto-enforce layer ordering & legend update on any layer state changes
+      this.pikselLoader.onLayersChange(() => {
+        this.mapManager.enforceLayerOrder();
+        this.updateDynamicLegend();
+        this.permalinkManager?.scheduleHashUpdate();
+      });
+      this.geeLoader.onLayersChange(() => {
+        this.mapManager.enforceLayerOrder();
+        this.updateDynamicLegend();
+      });
+      this.geojsonLoader.onLayersChange(() => {
+        this.mapManager.enforceLayerOrder();
+        this.updateDynamicLegend();
+      });
 
       // Instantiate Active Layers UI manager with seamless tab router integration
       this.activeLayersUI = new ActiveLayersUI(
@@ -107,8 +121,28 @@ class WebGISApp {
       this.geePanelUI.init();
       this.pikselPanelUI.init();
 
-      // Enforce strict layer order on initial load
+      // Enforce strict layer order and render initial legend
       this.mapManager.enforceLayerOrder();
+      this.updateDynamicLegend();
+
+      // Initialize Permalink State Sync
+      this.permalinkManager = new PermalinkManager(this.mapManager, this.pikselLoader);
+      this.permalinkManager.init();
+
+      // Check if URL hash has initial parameters
+      const urlState = PermalinkManager.parseHash();
+      if (urlState.lng !== undefined && urlState.lat !== undefined && urlState.zoom !== undefined) {
+        map.jumpTo({
+          center: [urlState.lng, urlState.lat],
+          zoom: urlState.zoom
+        });
+      }
+      if (urlState.basemapId && urlState.basemapId !== this.mapManager.getCurrentBasemapId()) {
+        this.mapManager.setBasemap(urlState.basemapId);
+      }
+      if (urlState.productId) {
+        this.pikselLoader.setActiveProduct(urlState.productId);
+      }
 
       // Bind measurement callbacks
       this.measureTool.onResult((res) => {
@@ -119,6 +153,7 @@ class WebGISApp {
           val.innerText = res.text || '0';
         }
         this.mapManager.enforceLayerOrder();
+        this.updateDynamicLegend();
       });
     } catch (err) {
       console.error('[WebGIS] Map initialization error:', err);
@@ -250,7 +285,7 @@ class WebGISApp {
     list.innerHTML = '';
 
     if (layers.length === 0) {
-      list.innerHTML = '<div style="color: var(--text-muted); font-size: 12px; padding: 12px;">No active custom vector layers</div>';
+      list.innerHTML = '<div style="color: var(--text-muted); font-size: 12px; padding: 12px; text-align: center;">Belum ada layer vektor kustom. Unggah file GeoJSON atau muat data sampel.</div>';
       return;
     }
 
@@ -258,16 +293,16 @@ class WebGISApp {
       const item = document.createElement('div');
       item.className = 'layer-item';
       item.innerHTML = `
-        <div class="layer-left" style="cursor: pointer;" title="Click to zoom to layer">
+        <div class="layer-left" style="cursor: pointer;" title="Klik untuk menuju ke lokasi layer">
           <input type="checkbox" id="check-${layer.id}" ${layer.visible ? 'checked' : ''} />
           <span class="legend-symbol" style="background-color: ${layer.color};"></span>
           <span class="layer-title">${layer.name} (${layer.featureCount})</span>
         </div>
         <div class="layer-actions" style="display: flex; gap: 4px; align-items: center;">
-          <button class="icon-btn-sm btn-zoom-layer" data-id="${layer.id}" title="Zoom to layer extent">
+          <button class="icon-btn-sm btn-zoom-layer" data-id="${layer.id}" title="Pusatkan peta ke layer">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           </button>
-          <button class="icon-btn-sm btn-delete-layer" data-id="${layer.id}" title="Delete layer">
+          <button class="icon-btn-sm btn-delete-layer" data-id="${layer.id}" title="Hapus layer">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
           </button>
         </div>
@@ -279,6 +314,7 @@ class WebGISApp {
         check.addEventListener('click', (e) => e.stopPropagation());
         check.addEventListener('change', (e) => {
           this.geojsonLoader?.toggleLayerVisibility(layer.id, (e.target as HTMLInputElement).checked);
+          this.updateDynamicLegend();
         });
       }
 
@@ -306,6 +342,7 @@ class WebGISApp {
           e.stopPropagation();
           this.geojsonLoader?.removeLayer(layer.id);
           this.renderLayersList();
+          this.updateDynamicLegend();
         });
       }
 
@@ -358,7 +395,7 @@ class WebGISApp {
   private renderSearchResults(results: SearchResult[], dropdown: HTMLElement) {
     dropdown.innerHTML = '';
     if (results.length === 0) {
-      dropdown.innerHTML = '<div class="search-result-item" style="color: var(--text-muted);">No locations found</div>';
+      dropdown.innerHTML = '<div class="search-result-item" style="color: var(--text-muted);">Lokasi tidak ditemukan</div>';
       dropdown.classList.add('active');
       return;
     }
@@ -383,6 +420,14 @@ class WebGISApp {
     const distBtn = document.getElementById('btn-measure-dist');
     const areaBtn = document.getElementById('btn-measure-area');
     const clearBtn = document.getElementById('btn-measure-clear');
+    const instructionBox = document.getElementById('measure-instruction-box');
+
+    const updateInstructionVisibility = () => {
+      const mode = this.measureTool?.getMode();
+      if (instructionBox) {
+        instructionBox.style.display = mode && mode !== 'none' ? 'block' : 'none';
+      }
+    };
 
     distBtn?.addEventListener('click', () => {
       if (!this.measureTool) return;
@@ -390,6 +435,8 @@ class WebGISApp {
       this.measureTool.setMode(current === 'distance' ? 'none' : 'distance');
       distBtn.classList.toggle('active', this.measureTool.getMode() === 'distance');
       areaBtn?.classList.remove('active');
+      updateInstructionVisibility();
+      this.updateDynamicLegend();
     });
 
     areaBtn?.addEventListener('click', () => {
@@ -398,15 +445,202 @@ class WebGISApp {
       this.measureTool.setMode(current === 'area' ? 'none' : 'area');
       areaBtn.classList.toggle('active', this.measureTool.getMode() === 'area');
       distBtn?.classList.remove('active');
+      updateInstructionVisibility();
+      this.updateDynamicLegend();
     });
 
     clearBtn?.addEventListener('click', () => {
       this.measureTool?.clear();
       distBtn?.classList.remove('active');
       areaBtn?.classList.remove('active');
+      updateInstructionVisibility();
       const card = document.getElementById('measure-result-card');
       if (card) card.style.display = 'none';
+      this.updateDynamicLegend();
     });
+  }
+
+  private bindLegendEvents() {
+    const pikselBtn = document.getElementById('btn-goto-piksel-tab');
+    if (pikselBtn) {
+      pikselBtn.addEventListener('click', () => {
+        this.sidebarUI.setActiveTab('piksel');
+      });
+    }
+  }
+
+  public updateDynamicLegend() {
+    const container = document.getElementById('dynamic-legend-container');
+    if (!container) return;
+
+    let html = '';
+    let hasAnyLayer = false;
+
+    // 1. Active Piksel EO Product Legend
+    const activeProduct = this.pikselLoader?.getActiveProduct();
+    if (activeProduct) {
+      hasAnyLayer = true;
+      let swatchesHtml = '';
+      if (activeProduct.legend && activeProduct.legend.swatches) {
+        swatchesHtml = `
+          <div class="dynamic-legend-swatches">
+            ${activeProduct.legend.swatches.map(sw => `
+              <div class="dynamic-legend-item">
+                <span class="dynamic-color-box" style="background-color: ${sw.color}; box-shadow: 0 0 6px ${sw.color}66;"></span>
+                <span class="dynamic-legend-label">${sw.icon ? sw.icon + ' ' : ''}${sw.label}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      html += `
+        <div class="dynamic-legend-card">
+          <div class="dynamic-legend-card-header">
+            <span class="legend-card-icon">🛰️</span>
+            <div>
+              <div class="dynamic-legend-title">${activeProduct.name}</div>
+              <div class="dynamic-legend-sub">${activeProduct.category} • Resolusi ${activeProduct.resolution}</div>
+            </div>
+          </div>
+          ${swatchesHtml}
+        </div>
+      `;
+    }
+
+    // 2. Active GEE Layers (LST, Elevation, POIs, Land Cover)
+    if (this.geeLoader) {
+      if (this.geeLoader.isLayerVisible('lst')) {
+        hasAnyLayer = true;
+        html += `
+          <div class="dynamic-legend-card">
+            <div class="dynamic-legend-card-header">
+              <span class="legend-card-icon">🌡️</span>
+              <div>
+                <div class="dynamic-legend-title">MODIS Daytime Land Surface Temperature</div>
+                <div class="dynamic-legend-sub">Wilayah Studi Jakarta - Jawa Barat</div>
+              </div>
+            </div>
+            <div class="gee-legend-bar lst-gradient" style="margin-top: 8px;"></div>
+            <div class="gee-legend-labels">
+              <span>22°C (Sejuk)</span>
+              <span>25°C</span>
+              <span>28°C</span>
+              <span>31°C</span>
+              <span>34°C+ (Ekstrem)</span>
+            </div>
+          </div>
+        `;
+      }
+
+      if (this.geeLoader.isLayerVisible('elevation')) {
+        hasAnyLayer = true;
+        html += `
+          <div class="dynamic-legend-card">
+            <div class="dynamic-legend-card-header">
+              <span class="legend-card-icon">⛰️</span>
+              <div>
+                <div class="dynamic-legend-title">USGS SRTM Ground Elevation Grid</div>
+                <div class="dynamic-legend-sub">Elevasi Permukaan Tanah (mdpl)</div>
+              </div>
+            </div>
+            <div class="gee-legend-bar elv-gradient" style="margin-top: 8px;"></div>
+            <div class="gee-legend-labels">
+              <span>0m (Pesisir)</span>
+              <span>50m</span>
+              <span>200m</span>
+              <span>600m</span>
+              <span>1200m+ (Puncak)</span>
+            </div>
+          </div>
+        `;
+      }
+
+      if (this.geeLoader.isLayerVisible('poi')) {
+        hasAnyLayer = true;
+        html += `
+          <div class="dynamic-legend-card">
+            <div class="dynamic-legend-card-header">
+              <span class="legend-card-icon">📍</span>
+              <div>
+                <div class="dynamic-legend-title">Stasiun Observasi Suhu Urban vs Rural</div>
+                <div class="dynamic-legend-sub">Titik Referensi MODIS LST</div>
+              </div>
+            </div>
+            <div class="dynamic-legend-swatches" style="margin-top: 8px;">
+              <div class="dynamic-legend-item">
+                <span class="dynamic-color-box" style="background-color: #ef4444; border-radius: 50%;"></span>
+                <span class="dynamic-legend-label">Urban Core (Jakarta Monas - 33.85°C)</span>
+              </div>
+              <div class="dynamic-legend-item">
+                <span class="dynamic-color-box" style="background-color: #22c55e; border-radius: 50%;"></span>
+                <span class="dynamic-legend-label">Rural / Forest (Bogor IPB - 24.60°C)</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (this.geeLoader.isLayerVisible('landcover')) {
+        hasAnyLayer = true;
+        html += `
+          <div class="dynamic-legend-card">
+            <div class="dynamic-legend-card-header">
+              <span class="legend-card-icon">🌳</span>
+              <div>
+                <div class="dynamic-legend-title">MODIS Land Cover Classification</div>
+                <div class="dynamic-legend-sub">Klasifikasi Tutupan Lahan</div>
+              </div>
+            </div>
+            <div class="dynamic-legend-swatches" style="margin-top: 8px;">
+              <div class="dynamic-legend-item"><span class="dynamic-color-box" style="background-color: #0284c7;"></span><span class="dynamic-legend-label">Laut / Air</span></div>
+              <div class="dynamic-legend-item"><span class="dynamic-color-box" style="background-color: #e11d48;"></span><span class="dynamic-legend-label">Perkotaan</span></div>
+              <div class="dynamic-legend-item"><span class="dynamic-color-box" style="background-color: #eab308;"></span><span class="dynamic-legend-label">Pertanian</span></div>
+              <div class="dynamic-legend-item"><span class="dynamic-color-box" style="background-color: #15803d;"></span><span class="dynamic-legend-label">Hutan Lebat</span></div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // 3. Custom GeoJSON Layers
+    const customLayers = this.geojsonLoader?.getLayers() || [];
+    const visibleCustomLayers = customLayers.filter(l => l.visible);
+    if (visibleCustomLayers.length > 0) {
+      hasAnyLayer = true;
+      html += `
+        <div class="dynamic-legend-card">
+          <div class="dynamic-legend-card-header">
+            <span class="legend-card-icon">📂</span>
+            <div>
+              <div class="dynamic-legend-title">Layer Vektor Kustom</div>
+              <div class="dynamic-legend-sub">${visibleCustomLayers.length} layer vektor aktif</div>
+            </div>
+          </div>
+          <div class="dynamic-legend-swatches" style="margin-top: 8px;">
+            ${visibleCustomLayers.map(l => `
+              <div class="dynamic-legend-item">
+                <span class="dynamic-color-box" style="background-color: ${l.color};"></span>
+                <span class="dynamic-legend-label">${l.name} (${l.featureCount} fitur)</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // 4. Fallback when no thematic layers are active
+    if (!hasAnyLayer) {
+      html = `
+        <div class="dynamic-legend-empty">
+          <div class="empty-icon">🗺️</div>
+          <div class="empty-title">Belum Ada Layer Analisis Aktif</div>
+          <p class="empty-desc">Peta saat ini menampilkan peta dasar standar. Aktifkan citra satelit di tab <strong>Piksel EO</strong> atau analisis spasial di tab <strong>GEE</strong> untuk memuat legenda interaktif.</p>
+        </div>
+      `;
+    }
+
+    container.innerHTML = html;
   }
 
   private bindImportEvents() {

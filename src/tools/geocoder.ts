@@ -54,16 +54,41 @@ export class GeocoderTool {
       .setLngLat([lon, lat])
       .setPopup(
         new maplibregl.Popup({ offset: 25 }).setHTML(
-          `<div style="font-weight: 600; font-size: 13px; color: #1e293b;">${result.display_name}</div>`
+          `<div style="font-weight: 600; font-size: 13px; color: var(--text-main, #f1f5f9); background: var(--bg-surface, #1e293b); padding: 4px 6px; border-radius: 4px;">${result.display_name}</div>`
         )
       )
       .addTo(this.map);
 
+    // If result has a bounding box (e.g. islands, provinces, countries, cities), fit to bounds
+    if (result.boundingbox && result.boundingbox.length === 4) {
+      const south = parseFloat(result.boundingbox[0]);
+      const north = parseFloat(result.boundingbox[1]);
+      const west = parseFloat(result.boundingbox[2]);
+      const east = parseFloat(result.boundingbox[3]);
+
+      if (!isNaN(south) && !isNaN(north) && !isNaN(west) && !isNaN(east)) {
+        this.map.fitBounds(
+          [
+            [west, south],
+            [east, north]
+          ],
+          {
+            padding: 60,
+            maxZoom: 15,
+            duration: 1800,
+            essential: true
+          }
+        );
+        return;
+      }
+    }
+
+    // Default fallback to flyTo
     this.map.flyTo({
       center: [lon, lat],
-      zoom: 14,
+      zoom: 13,
       essential: true,
-      duration: 2000
+      duration: 1800
     });
   }
 

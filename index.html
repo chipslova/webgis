@@ -205,6 +205,15 @@
                 <p>Analisis MODIS Land Surface Temp & Elevasi SRTM (Wilayah Studi Jakarta & Jawa Barat).</p>
               </div>
 
+              <!-- Case Study Disclaimer Banner -->
+              <div class="gee-disclaimer-banner">
+                <div class="gee-disclaimer-header">
+                  <span>📌 <strong>Studi Kasus Analisis Spasial</strong></span>
+                  <span class="gee-disclaimer-tag">Snapshot Analitis</span>
+                </div>
+                <p>Data hasil olahan komputasi Google Earth Engine (MODIS MOD11A2 & USGS SRTM 2020–2024) untuk wilayah kajian aglomerasi Jabodetabek & Jawa Barat.</p>
+              </div>
+
               <!-- Quick Focus Area Button -->
               <button id="btn-focus-gee-area" class="btn btn-secondary full-width" style="margin-bottom: 12px;">
                 <span style="font-size: 15px; margin-right: 4px;">🎯</span>
@@ -349,9 +358,9 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                     Unduh CSV Time-Series LST
                   </button>
-                  <button id="btn-download-geotiff" class="btn btn-secondary full-width">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                    Info Metadata Elevasi GeoTIFF
+                  <button id="btn-download-geotiff" class="btn btn-secondary full-width" title="Unduh catatan spesifikasi & metadata hasil ekspor GeoTIFF GEE">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                    📄 Log Metadata Elevasi GeoTIFF (Teks)
                   </button>
                 </div>
               </div>
@@ -377,10 +386,21 @@
                   Hapus Pengukuran
                 </button>
               </div>
+
+              <!-- Interactive Measure Instructions Box -->
+              <div id="measure-instruction-box" class="measure-instruction-box" style="display: none;">
+                <div class="measure-instruction-title">🎯 Panduan Pengukuran Aktif:</div>
+                <ul class="measure-instruction-list">
+                  <li><strong>Klik Kiri:</strong> Tambah titik simpul (waypoint) di peta.</li>
+                  <li><strong>Klik Kanan:</strong> Selesaikan jalur pengukuran atau tutup poligon.</li>
+                  <li><strong>Tombol <kbd>Esc</kbd>:</strong> Batalkan atau selesaikan pengukuran yang sedang berjalan.</li>
+                </ul>
+              </div>
+
               <div id="measure-result-card" class="result-card" style="display:none;">
                 <div class="result-title">Hasil Pengukuran</div>
                 <div id="measure-result-value" class="result-value">0 km</div>
-                <div class="result-help">Klik kanan pada peta untuk menyelesaikan jalur atau area poligon</div>
+                <div class="result-help">Klik kanan pada peta atau tekan Esc untuk menyelesaikan pengukuran</div>
               </div>
             </section>
 
@@ -401,38 +421,23 @@
               <div id="layers-list" class="layers-list-container" style="margin-top: 16px;"></div>
             </section>
 
-            <!-- Panel: General Map Legend -->
+            <!-- Panel: General Map Legend (Dynamic Live Legend) -->
             <section id="panel-legend" class="sidebar-panel">
               <div class="panel-header">
-                <h2>📋 Legenda Simbol Peta</h2>
-                <p>Simbol layer peta umum, grid data cube, dan hasil pengukuran vektor.</p>
+                <h2>📋 Legenda Simbol & Layer</h2>
+                <p>Legenda terintegrasi dinamis yang otomatis menyesuaikan layer dan citra aktif.</p>
               </div>
-              <div id="legend-content" class="legend-content">
-                <div class="legend-item">
-                  <span class="legend-symbol point" style="background-color: #f59e0b;"></span>
-                  <span class="legend-label">Kota Utama (Sampel Titik Vektor)</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-symbol line" style="border-color: #00f0ff;"></span>
-                  <span class="legend-label">Jalur Pengukuran Jarak (Turf.js)</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-symbol polygon" style="background-color: rgba(0,240,255,0.3); border-color: #00f0ff;"></span>
-                  <span class="legend-label">Area Poligon Pengukuran Luas</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-symbol line" style="border-color: #10b981; border-style: dashed;"></span>
-                  <span class="legend-label">Grid Indeks Data Cube Nasional (10m)</span>
-                </div>
+              
+              <!-- Dynamic Legend Container -->
+              <div id="dynamic-legend-container" class="dynamic-legend-container">
+                <!-- Dynamically populated from main.ts updateDynamicLegend() -->
               </div>
-              <div class="legend-tip-box">
-                <div class="legend-tip-title">💡 Legenda Dinamis Citra Satelit</div>
-                <p>Legenda spektral untuk produk <strong>Piksel EO</strong> (NDVI, NDWI, GeoMAD, Banjir) ditampilkan langsung di dalam tab <strong>Piksel EO</strong> setelah layer diaktifkan — lengkap dengan contoh warna dan keterangan kelas.</p>
-                <button class="btn btn-secondary full-width" style="margin-top: 8px;" onclick="
-                  document.querySelectorAll('.sidebar-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'piksel'));
-                  document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-piksel'));
-                ">
-                  Buka Tab Piksel EO →
+
+              <div class="legend-tip-box" style="margin-top: 16px;">
+                <div class="legend-tip-title">🛰️ Eksplorasi Citra Satelit Lainnya</div>
+                <p>Buka katalog <strong>Piksel EO</strong> untuk memilih citra Sentinel-2 GeoMAD, Landsat, indeks spektral, atau pemodelan bahaya banjir nasional.</p>
+                <button id="btn-goto-piksel-tab" class="btn btn-secondary full-width" style="margin-top: 8px;">
+                  Buka Katalog Piksel EO →
                 </button>
               </div>
             </section>

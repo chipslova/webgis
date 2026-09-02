@@ -1,5 +1,6 @@
 import { GEELoader } from '../tools/gee-loader';
 import { GEE_TIMESERIES_DATA } from '../data/gee-datasets';
+import { showToast } from './toast';
 
 interface TimeSeriesRecord {
   date: string;
@@ -15,6 +16,7 @@ export class GEEPanelUI {
   private geeLoader: GEELoader;
   private timeSeriesData: TimeSeriesRecord[] = (GEE_TIMESERIES_DATA.data as any) || [];
   private canvas: HTMLCanvasElement | null = null;
+  private isInitialized: boolean = false;
 
   constructor(geeLoader: GEELoader) {
     this.geeLoader = geeLoader;
@@ -24,22 +26,28 @@ export class GEEPanelUI {
 
   public init() {
     this.syncCheckboxStates();
-    this.bindLayerToggleEvents();
-    this.bindOpacityEvents();
-    this.bindDownloadEvents();
-    this.renderTimeSeriesChart();
 
-    const map = this.geeLoader.getMap();
-    if (map) {
-      map.on('style.load', () => {
-        this.syncCheckboxStates();
+    if (!this.isInitialized) {
+      this.bindLayerToggleEvents();
+      this.bindOpacityEvents();
+      this.bindDownloadEvents();
+
+      const map = this.geeLoader.getMap();
+      if (map) {
+        map.on('style.load', () => {
+          this.syncCheckboxStates();
+        });
+      }
+
+      // Re-render chart on window resize
+      window.addEventListener('resize', () => {
+        this.renderTimeSeriesChart();
       });
+
+      this.isInitialized = true;
     }
 
-    // Re-render chart on window resize
-    window.addEventListener('resize', () => {
-      this.renderTimeSeriesChart();
-    });
+    this.renderTimeSeriesChart();
   }
 
   private syncCheckboxStates() {
@@ -109,6 +117,7 @@ export class GEEPanelUI {
         link.href = '/data/gee_jakarta_poi.geojson';
         link.download = 'gee_jakarta_urban_rural_poi.geojson';
         link.click();
+        showToast('Mengunduh dataset POI Stasiun Observasi GeoJSON...', 'info');
       });
     }
 
@@ -118,6 +127,7 @@ export class GEEPanelUI {
         link.href = '/downloads/gee_lst_timeseries_jakarta.csv';
         link.download = 'gee_lst_timeseries_jakarta.csv';
         link.click();
+        showToast('Mengunduh data deret waktu suhu LST (CSV)...', 'info');
       });
     }
 
@@ -127,6 +137,7 @@ export class GEEPanelUI {
         link.href = '/downloads/my_export_jakarta_elevation.geotiff.txt';
         link.download = 'elevation_near_jakarta_export_log.txt';
         link.click();
+        showToast('Mengunduh log metadata & spesifikasi ekspor GeoTIFF (TXT)...', 'info');
       });
     }
   }
