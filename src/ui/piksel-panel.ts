@@ -2,14 +2,18 @@ import { PikselLoader, PikselLoadingState, PikselDiagnostics } from '../tools/pi
 import {
   PIKSEL_PRODUCTS,
   PIKSEL_PRESETS,
-  PikselProductConfig,
+  PikselProduct,
   PikselPreset,
   S2_YEARS
 } from '../config/piksel';
 
 export class PikselPanelUI {
   private pikselLoader: PikselLoader;
-  private currentLoadingState: PikselLoadingState = { status: 'idle' };
+  private currentLoadingState: PikselLoadingState = {
+    status: 'idle',
+    isLoading: false,
+    productId: null
+  };
   private isEventsBound: boolean = false;
 
   constructor(pikselLoader: PikselLoader) {
@@ -304,9 +308,9 @@ export class PikselPanelUI {
 
     const activeProduct = this.pikselLoader.getActiveProduct();
 
-    const categories: { [key: string]: PikselProductConfig[] } = {
-      'True & False Color Composites': PIKSEL_PRODUCTS.filter(p => p.category === 'composite'),
-      'Spectral Indices (ODC Compute)': PIKSEL_PRODUCTS.filter(p => p.category === 'index'),
+    const categories: { [key: string]: PikselProduct[] } = {
+      'True & False Color Composites': PIKSEL_PRODUCTS.filter(p => p.category === 'geomad'),
+      'Spectral Indices (ODC Compute)': PIKSEL_PRODUCTS.filter(p => p.category === 'indices'),
       'Hazards & Physical Models': PIKSEL_PRODUCTS.filter(p => p.category === 'hazard'),
       'Landsat 9 Analysis': PIKSEL_PRODUCTS.filter(p => p.category === 'landsat'),
       'Data Quality & Density': PIKSEL_PRODUCTS.filter(p => p.category === 'quality')
@@ -335,8 +339,31 @@ export class PikselPanelUI {
 
       products.forEach((prod) => {
         const isActive = activeProduct?.id === prod.id;
-        const legendGradient = prod.legend?.gradient ? `background: ${prod.legend.gradient};` : '';
         const isBsiWarning = prod.id === 's2-bsi';
+
+        let legendHtml = '';
+        if (prod.legend) {
+          if (prod.legend.type === 'continuous' || prod.legend.type === 'natural') {
+            legendHtml = `
+              <div class="product-legend-preview">
+                <div class="legend-bar-mini ${prod.legend.gradientClass}"></div>
+                <div class="legend-labels-mini">
+                  <span>${prod.legend.leftLabel}</span>
+                  ${prod.legend.middleLabel ? `<span>${prod.legend.middleLabel}</span>` : ''}
+                  <span>${prod.legend.rightLabel}</span>
+                </div>
+              </div>
+            `;
+          } else if (prod.legend.type === 'categorical') {
+            legendHtml = `
+              <div class="product-legend-preview-cat">
+                ${prod.legend.items.slice(0, 4).map(it => `
+                  <span class="legend-cat-chip" style="border-left: 3px solid ${it.color};">${it.label}</span>
+                `).join('')}
+              </div>
+            `;
+          }
+        }
 
         html += `
           <div class="piksel-product-card ${isActive ? 'active' : ''}" data-id="${prod.id}">
@@ -350,9 +377,9 @@ export class PikselPanelUI {
 
             <p class="product-desc">${prod.description}</p>
 
-            ${prod.provenanceNote ? `
+            ${prod.statusNotice ? `
               <div class="product-provenance-box" style="margin: 4px 0 8px; font-size: 10px; color: #94a3b8; background: rgba(15, 23, 42, 0.5); padding: 4px 8px; border-radius: 4px; border-left: 2px solid ${prod.color};">
-                ${prod.provenanceNote}
+                ${prod.statusNotice}
               </div>
             ` : ''}
 
@@ -365,19 +392,11 @@ export class PikselPanelUI {
 
             <div class="product-meta-row">
               <span class="meta-tag">Res: ${prod.resolution}</span>
-              <span class="meta-tag">Min Zoom: Z${prod.minZoom}</span>
+              <span class="meta-tag">Min Zoom: Z${prod.minZoom ?? 6}</span>
               ${prod.timeEnabled ? `<span class="meta-tag time-tag">Multi-Year</span>` : ''}
             </div>
 
-            ${prod.legend ? `
-              <div class="product-legend-preview">
-                <div class="legend-bar-mini" style="${legendGradient}"></div>
-                <div class="legend-labels-mini">
-                  <span>${prod.legend.min}</span>
-                  <span>${prod.legend.max}</span>
-                </div>
-              </div>
-            ` : ''}
+            ${legendHtml}
 
             <button class="btn btn-sm ${isActive ? 'btn-danger-outline' : 'btn-primary-outline'} full-width btn-toggle-product" data-id="${prod.id}" style="margin-top: 8px;">
               ${isActive ? 'Deactivate Layer' : 'Activate Layer'}
@@ -415,7 +434,7 @@ export class PikselPanelUI {
 
     if (state.status === 'zoom_too_low') {
       spinner.style.display = 'none';
-      hudTitle.innerText = `Zoom in to Z${activeProduct.minZoom}+ to load ${activeProduct.name}`;
+      hudTitle.innerText = `Zoom in to Z${activeProduct.minZoom ?? 6}+ to load ${activeProduct.name}`;
       hudSubtitle.innerText = `Current Zoom: Z${state.diagnostics?.currentZoom || '?'}`;
       return;
     }
