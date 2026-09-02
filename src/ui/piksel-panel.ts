@@ -86,30 +86,30 @@ export class PikselPanelUI {
 
           <div class="piksel-active-meta-grid">
             <div class="meta-field">
-              <span class="meta-field-label">Year:</span>
+              <span class="meta-field-label">📅 Tahun:</span>
               ${activeProduct.timeEnabled ? `
                 <select id="piksel-year-select" class="piksel-select-sm">
                   ${yearOptionsHtml}
                 </select>
-              ` : `<span class="meta-field-val">Static</span>`}
+              ` : `<span class="meta-field-val">Statik</span>`}
             </div>
             <div class="meta-field">
-              <span class="meta-field-label">Resolution:</span>
+              <span class="meta-field-label">📐 Resolusi:</span>
               <span class="meta-field-val">${activeProduct.resolution}</span>
             </div>
             <div class="meta-field">
-              <span class="meta-field-label">Provider:</span>
+              <span class="meta-field-label">🏢 Penyedia:</span>
               <span class="meta-field-val">BIG Piksel</span>
             </div>
             <div class="meta-field">
-              <span class="meta-field-label">Protocol:</span>
+              <span class="meta-field-label">🌐 Layanan:</span>
               <span class="meta-field-val">OGC WMS 1.3.0</span>
             </div>
           </div>
 
           <div class="piksel-active-slider-wrap">
             <div class="slider-header-row">
-              <span>Layer Opacity:</span>
+              <span>Transparansi Layer:</span>
               <strong id="piksel-master-opacity-val">${opacityPct}%</strong>
             </div>
             <input 
@@ -129,7 +129,7 @@ export class PikselPanelUI {
 
           <button id="btn-clear-piksel-layer" class="btn btn-danger-outline full-width" style="margin-top: 10px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M18 6 6 18M6 6l12 12"/></svg>
-            Deactivate Layer
+            ✕ Nonaktifkan Layer
           </button>
         </div>
       `;
@@ -137,7 +137,7 @@ export class PikselPanelUI {
       activeSummaryHtml = `
         <div class="piksel-inactive-banner">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <span>Select a satellite imagery or spectral index product below to activate layer.</span>
+          <span>Pilih salah satu produk citra satelit atau indeks di katalog bawah untuk mengaktifkan layer.</span>
         </div>
       `;
     }
@@ -157,16 +157,16 @@ export class PikselPanelUI {
           <input type="checkbox" id="toggle-piksel-grid" ${isGridOn ? 'checked' : ''} />
           <span class="piksel-toggle-custom"></span>
           <span class="piksel-toggle-text">
-            <strong>National Data Cube Grid (10m)</strong>
-            <small>Overlay 1,631 Open Data Cube index boundaries</small>
+            <strong>📦 Grid Data Cube Nasional (10m)</strong>
+            <small>Tampilkan batas 1.631 tile spasial Open Data Cube</small>
           </span>
         </label>
       </div>
 
       <!-- Catalog Header -->
       <div class="piksel-catalog-header">
-        <h4>Satellite Imagery & Analysis Catalog</h4>
-        <span class="catalog-count">${PIKSEL_PRODUCTS.length} Products</span>
+        <h4>🛰️ Katalog Citra Satelit & Indeks Spektral</h4>
+        <span class="catalog-count">${PIKSEL_PRODUCTS.length} Produk</span>
       </div>
 
       <!-- Products Grid -->
@@ -185,11 +185,11 @@ export class PikselPanelUI {
       return `
         <div class="status-alert zoom-warning">
           <div class="status-alert-text">
-            <strong>Zoom Level Too Low</strong>
-            <span>Zoom in to <strong>Z${minZoom}+</strong> to render 10m raster tiles (Current: Z${state.diagnostics?.currentZoom || '?'}).</span>
+            <strong>Tingkat Zoom Terlalu Rendah</strong>
+            <span>Perbesar peta ke <strong>Z${minZoom}+</strong> untuk melihat tile citra 10m (Zoom saat ini: Z${state.diagnostics?.currentZoom || '?'}).</span>
           </div>
           <button class="btn btn-xs btn-primary-outline" id="btn-jump-bromo-preset" style="margin-top: 6px;">
-            Jump to Bromo (Z11)
+            Terbang ke Bromo (Z11)
           </button>
         </div>
       `;
@@ -200,8 +200,8 @@ export class PikselPanelUI {
         <div class="status-alert loading">
           <div class="hud-spinner-inline"></div>
           <div class="status-alert-text">
-            <strong>Processing in Open Data Cube...</strong>
-            <span>Tiles: ${state.diagnostics?.tilesLoaded || 0}/${Math.max(state.diagnostics?.tilesRequested || 1, 1)}</span>
+            <strong>Memproses di Open Data Cube BIG...</strong>
+            <span>Tile: ${state.diagnostics?.tilesLoaded || 0}/${Math.max(state.diagnostics?.tilesRequested || 1, 1)}</span>
           </div>
         </div>
       `;
@@ -211,8 +211,8 @@ export class PikselPanelUI {
       return `
         <div class="status-alert partial">
           <div class="status-alert-text">
-            <strong>Partial Tile Coverage</strong>
-            <span>${state.diagnostics?.tilesLoaded || 0}/${state.diagnostics?.tilesRequested || 1} tiles loaded. Server processing remaining extent.</span>
+            <strong>🟡 Sebagian Tile Selesai Dimuat</strong>
+            <span>${state.diagnostics?.tilesLoaded || 0}/${state.diagnostics?.tilesRequested || 1} tile selesai. Server memproses sisa area.</span>
           </div>
         </div>
       `;
@@ -222,8 +222,8 @@ export class PikselPanelUI {
       return `
         <div class="status-alert error">
           <div class="status-alert-text">
-            <strong>Server Timeout (HTTP 500)</strong>
-            <span>Zoom into a study area or select another product/year.</span>
+            <strong>🔴 Server Timeout (HTTP 500)</strong>
+            <span>Coba perbesar ke kawasan pantauan atau pilih tahun lain.</span>
           </div>
         </div>
       `;
@@ -233,8 +233,8 @@ export class PikselPanelUI {
       return `
         <div class="status-alert ready">
           <div class="status-alert-text">
-            <strong>Raster Ready</strong>
-            <span>10m resolution tiles loaded (${state.diagnostics?.latencyMs || 0}ms)</span>
+            <strong>🟢 Layer Citra Siap</strong>
+            <span>Tile resolusi 10m berhasil dimuat (${state.diagnostics?.latencyMs || 0}ms)</span>
           </div>
         </div>
       `;
@@ -251,29 +251,29 @@ export class PikselPanelUI {
     return `
       <details class="diagnostics-details">
         <summary class="diagnostics-summary">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          <span style="flex:1;">Technical Diagnostics</span>
+          <span style="font-size: 13px;">📊</span>
+          <span style="flex:1;">Telemetri & Diagnostik OGC</span>
           <span class="diag-status-pill ${statusBadgeClass}">${diag.status.toUpperCase()}</span>
         </summary>
         <div class="diagnostics-content">
           <div class="diag-metric">
-            <span class="diag-label">Tiles Loaded:</span>
+            <span class="diag-label">Tile Dimuat:</span>
             <strong class="diag-val">${diag.tilesLoaded} / ${Math.max(diag.tilesRequested, 1)}</strong>
           </div>
           <div class="diag-metric">
-            <span class="diag-label">Tiles Aborted / Failed:</span>
+            <span class="diag-label">Tile Gagal / Timeout:</span>
             <strong class="diag-val ${diag.tilesFailed > 0 ? 'text-danger' : ''}">${diag.tilesFailed}</strong>
           </div>
           <div class="diag-metric">
-            <span class="diag-label">Server Latency:</span>
-            <strong class="diag-val">${diag.latencyMs > 0 ? (diag.latencyMs / 1000).toFixed(2) + ' s' : 'Waiting...'}</strong>
+            <span class="diag-label">Latensi Respons:</span>
+            <strong class="diag-val">${diag.latencyMs > 0 ? (diag.latencyMs / 1000).toFixed(2) + ' detik' : 'Menunggu...'}</strong>
           </div>
           <div class="diag-metric">
-            <span class="diag-label">Zoom Threshold:</span>
-            <strong class="diag-val">Min. Z${diag.minZoom} (Current: Z${diag.currentZoom})</strong>
+            <span class="diag-label">Batas Zoom Layer:</span>
+            <strong class="diag-val">Min. Z${diag.minZoom} (Saat ini: Z${diag.currentZoom})</strong>
           </div>
           <div class="diag-metric">
-            <span class="diag-label">Service Protocol:</span>
+            <span class="diag-label">Protokol:</span>
             <strong class="diag-val">OGC WMS 1.3.0</strong>
           </div>
         </div>
@@ -309,11 +309,11 @@ export class PikselPanelUI {
     const activeProduct = this.pikselLoader.getActiveProduct();
 
     const categories: { [key: string]: PikselProduct[] } = {
-      'True & False Color Composites': PIKSEL_PRODUCTS.filter(p => p.category === 'geomad'),
-      'Spectral Indices (ODC Compute)': PIKSEL_PRODUCTS.filter(p => p.category === 'indices'),
-      'Hazards & Physical Models': PIKSEL_PRODUCTS.filter(p => p.category === 'hazard'),
-      'Landsat 9 Analysis': PIKSEL_PRODUCTS.filter(p => p.category === 'landsat'),
-      'Data Quality & Density': PIKSEL_PRODUCTS.filter(p => p.category === 'quality')
+      '🌈 Komposit Warna Alami & Spektral': PIKSEL_PRODUCTS.filter(p => p.category === 'geomad'),
+      '📊 Indeks Spektral (Komputasi ODC)': PIKSEL_PRODUCTS.filter(p => p.category === 'indices'),
+      '🌊 Model Bahaya & Fisik Nasional': PIKSEL_PRODUCTS.filter(p => p.category === 'hazard'),
+      '🛰️ Analisis Landsat 9': PIKSEL_PRODUCTS.filter(p => p.category === 'landsat'),
+      '📈 Kualitas Data & Kerapatan Observasi': PIKSEL_PRODUCTS.filter(p => p.category === 'quality')
     };
 
     let html = '';
@@ -322,11 +322,11 @@ export class PikselPanelUI {
       if (products.length === 0) continue;
 
       let subtitle = '';
-      if (categoryName.includes('Composite')) subtitle = 'Sentinel-2 GeoMAD Median Absolute Deviation Mosaic';
-      else if (categoryName.includes('Indices')) subtitle = 'On-the-fly server-side band math via Open Data Cube';
-      else if (categoryName.includes('Hazards')) subtitle = 'National hydrological hazard classifications';
-      else if (categoryName.includes('Landsat')) subtitle = 'USGS Landsat 9 Collection 2 Level 2 Surface Reflectance';
-      else if (categoryName.includes('Quality')) subtitle = 'Pixel observation availability & statistical metrics';
+      if (categoryName.includes('Komposit')) subtitle = 'Mosaik tahunan Sentinel-2 GeoMAD tanpa awan';
+      else if (categoryName.includes('Indeks')) subtitle = 'Aljabar pita spektral langsung di server Open Data Cube';
+      else if (categoryName.includes('Bahaya')) subtitle = 'Klasifikasi risiko bahaya hidrologi nasional';
+      else if (categoryName.includes('Landsat')) subtitle = 'Reflektansi permukaan USGS Landsat 9 Collection 2 Level 2';
+      else if (categoryName.includes('Kualitas')) subtitle = 'Ketersediaan data observasi dan metrik statistik';
 
       html += `
         <div class="piksel-category-group">
@@ -386,20 +386,20 @@ export class PikselPanelUI {
             ${isBsiWarning ? `
               <div class="product-warning-box">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                <span>Server notice: BIG BSI endpoint returns HTTP 500 in certain regions.</span>
+                <span>Info: Server BIG mengembalikan status 500 pada beberapa kawasan.</span>
               </div>
             ` : ''}
 
             <div class="product-meta-row">
               <span class="meta-tag">Res: ${prod.resolution}</span>
               <span class="meta-tag">Min Zoom: Z${prod.minZoom ?? 6}</span>
-              ${prod.timeEnabled ? `<span class="meta-tag time-tag">Multi-Year</span>` : ''}
+              ${prod.timeEnabled ? `<span class="meta-tag time-tag">Multi-Tahun</span>` : ''}
             </div>
 
             ${legendHtml}
 
             <button class="btn btn-sm ${isActive ? 'btn-danger-outline' : 'btn-primary-outline'} full-width btn-toggle-product" data-id="${prod.id}" style="margin-top: 8px;">
-              ${isActive ? 'Deactivate Layer' : 'Activate Layer'}
+              ${isActive ? '✕ Nonaktifkan Layer' : '✓ Aktifkan Layer'}
             </button>
           </div>
         `;
@@ -434,36 +434,36 @@ export class PikselPanelUI {
 
     if (state.status === 'zoom_too_low') {
       spinner.style.display = 'none';
-      hudTitle.innerText = `Zoom in to Z${activeProduct.minZoom ?? 6}+ to load ${activeProduct.name}`;
-      hudSubtitle.innerText = `Current Zoom: Z${state.diagnostics?.currentZoom || '?'}`;
+      hudTitle.innerText = `Perbesar ke Z${activeProduct.minZoom ?? 6}+ untuk memuat ${activeProduct.name}`;
+      hudSubtitle.innerText = `Zoom Saat Ini: Z${state.diagnostics?.currentZoom || '?'}`;
       return;
     }
 
     if (state.status === 'requesting' || state.status === 'loading') {
       spinner.style.display = 'block';
-      hudTitle.innerText = `Loading ${activeProduct.name}...`;
-      hudSubtitle.innerText = `Open Data Cube • ${state.diagnostics?.tilesLoaded || 0}/${Math.max(state.diagnostics?.tilesRequested || 1, 1)} tiles`;
+      hudTitle.innerText = `Memuat ${activeProduct.name}...`;
+      hudSubtitle.innerText = `Open Data Cube • ${state.diagnostics?.tilesLoaded || 0}/${Math.max(state.diagnostics?.tilesRequested || 1, 1)} tile`;
       return;
     }
 
     if (state.status === 'partial') {
       spinner.style.display = 'none';
-      hudTitle.innerText = `Partial Coverage: ${activeProduct.name}`;
-      hudSubtitle.innerText = `${state.diagnostics?.tilesLoaded || 0}/${state.diagnostics?.tilesRequested || 1} tiles loaded (${state.diagnostics?.latencyMs || 0}ms)`;
+      hudTitle.innerText = `Sebagian Dimuat: ${activeProduct.name}`;
+      hudSubtitle.innerText = `${state.diagnostics?.tilesLoaded || 0}/${state.diagnostics?.tilesRequested || 1} tile selesai (${state.diagnostics?.latencyMs || 0}ms)`;
       return;
     }
 
     if (state.status === 'error') {
       spinner.style.display = 'none';
-      hudTitle.innerText = `WMS Service Timeout (HTTP 500)`;
-      hudSubtitle.innerText = `Try zooming into a study preset`;
+      hudTitle.innerText = `Server WMS Timeout (HTTP 500)`;
+      hudSubtitle.innerText = `Coba perbesar ke kawasan pantauan`;
       return;
     }
 
     if (state.status === 'ready') {
       spinner.style.display = 'none';
-      hudTitle.innerText = `${activeProduct.name} Ready`;
-      hudSubtitle.innerText = `10m Sentinel-2 GeoMAD (${state.diagnostics?.latencyMs || 0}ms)`;
+      hudTitle.innerText = `${activeProduct.name} Siap`;
+      hudSubtitle.innerText = `Citra 10m Sentinel-2 GeoMAD (${state.diagnostics?.latencyMs || 0}ms)`;
       setTimeout(() => {
         if (this.currentLoadingState.status === 'ready') {
           hud.style.display = 'none';

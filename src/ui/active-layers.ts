@@ -85,8 +85,8 @@ export class ActiveLayersUI {
             <polyline points="2 17 12 22 22 17"/>
             <polyline points="2 12 12 17 22 12"/>
           </svg>
-          <p>No active analytical layers</p>
-          <small>Activate layers from <strong>Piksel EO</strong>, <strong>GEE Analysis</strong>, or <strong>Data</strong>.</small>
+          <p>Belum ada layer analisis aktif</p>
+          <small>Aktifkan layer dari tab <strong>Piksel EO</strong>, <strong>GEE Data</strong>, atau <strong>Data</strong>.</small>
         </div>
       `;
     } else {
@@ -95,17 +95,15 @@ export class ActiveLayersUI {
         itemsHtml += `
           <div class="active-layer-item highlight-measure">
             <div class="active-layer-main">
-              <div class="layer-status-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" stroke-width="2"><path d="M2 12h20"/><path d="M6 12V8"/><path d="M12 12V8"/><path d="M18 12V8"/></svg>
-              </div>
+              <div class="layer-status-icon" style="font-size: 16px;">📏</div>
               <div class="layer-info-col">
                 <div class="layer-name-row">
-                  <strong>Spatial Measurement (Turf.js)</strong>
-                  <span class="active-pill-badge" style="background:#00f0ff22; color:#00f0ff; border-color:#00f0ff66;">Topmost</span>
+                  <strong>Pengukuran Spasial (Turf.js)</strong>
+                  <span class="active-pill-badge" style="background:#00f0ff22; color:#00f0ff; border-color:#00f0ff66;">Teratas</span>
                 </div>
-                <div class="layer-meta-line">Geodesic distance & polygon area calculations</div>
+                <div class="layer-meta-line">Vektor Geodesik Jarak Lintasan / Luas Poligon</div>
               </div>
-              <button class="icon-btn-sm btn-clear-active-measure" title="Clear measurement">
+              <button class="icon-btn-sm btn-clear-active-measure" title="Hapus Pengukuran">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
               </button>
             </div>
@@ -120,7 +118,7 @@ export class ActiveLayersUI {
         itemsHtml += `
           <div class="active-layer-item ${!isVisible ? 'is-hidden' : ''}" data-type="geojson" data-id="${layer.id}">
             <div class="active-layer-main">
-              <button class="layer-eye-btn btn-toggle-geojson" data-id="${layer.id}" title="${isVisible ? 'Hide layer' : 'Show layer'}">
+              <button class="layer-eye-btn btn-toggle-geojson" data-id="${layer.id}" title="${isVisible ? 'Sembunyikan Layer' : 'Tampilkan Layer'}">
                 ${isVisible 
                   ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`
                   : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>`
@@ -130,23 +128,23 @@ export class ActiveLayersUI {
               <div class="layer-info-col">
                 <div class="layer-name-row">
                   <strong>${layer.name}</strong>
-                  <span class="active-pill-badge">${layer.featureCount} Features</span>
-                  ${!isVisible ? '<span class="hidden-status-tag">Hidden</span>' : ''}
+                  <span class="active-pill-badge">${layer.featureCount} Fitur</span>
+                  ${!isVisible ? '<span class="hidden-status-tag">Tersembunyi</span>' : ''}
                 </div>
-                <div class="layer-meta-line">Vector GeoJSON (${layer.type})</div>
+                <div class="layer-meta-line">Vektor GeoJSON (${layer.type})</div>
               </div>
               <div class="layer-quick-actions">
-                <button class="icon-btn-sm btn-zoom-active-geojson" data-id="${layer.id}" title="Focus to layer extent">
+                <button class="icon-btn-sm btn-zoom-active-geojson" data-id="${layer.id}" title="Fokus ke layer">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                 </button>
-                <button class="icon-btn-sm btn-delete-active-geojson" data-id="${layer.id}" title="Remove layer">
+                <button class="icon-btn-sm btn-delete-active-geojson" data-id="${layer.id}" title="Hapus layer">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
                 </button>
               </div>
             </div>
             ${isVisible ? `
               <div class="active-layer-slider-row">
-                <span>Opacity:</span>
+                <span>Transparansi:</span>
                 <input type="range" class="active-layer-slider geojson-opacity-slider" data-id="${layer.id}" min="0" max="100" value="${opacityPct}" />
                 <span class="slider-pct">${opacityPct}%</span>
               </div>
@@ -160,24 +158,22 @@ export class ActiveLayersUI {
         itemsHtml += `
           <div class="active-layer-item ${!isGeePoiVis ? 'is-hidden' : ''}">
             <div class="active-layer-main">
-              <button class="layer-eye-btn btn-toggle-gee-poi" title="${isGeePoiVis ? 'Hide POI stations' : 'Show POI stations'}">
+              <button class="layer-eye-btn btn-toggle-gee-poi" title="${isGeePoiVis ? 'Sembunyikan Stasiun POI' : 'Tampilkan Stasiun POI'}">
                 ${isGeePoiVis
                   ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`
                   : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>`
                 }
               </button>
-              <div class="layer-status-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 14.14 14.14"/><path d="m4.93 19.07 14.14-14.14"/></svg>
-              </div>
+              <div class="layer-status-icon" style="font-size: 16px;">📍</div>
               <div class="layer-info-col">
                 <div class="layer-name-row">
-                  <strong>GEE Urban vs Rural POIs</strong>
-                  <span class="active-pill-badge" style="background:#ef444422; color:#ef4444; border-color:#ef444455;">Observation</span>
-                  ${!isGeePoiVis ? '<span class="hidden-status-tag">Hidden</span>' : ''}
+                  <strong>GEE Urban vs Rural POI</strong>
+                  <span class="active-pill-badge" style="background:#ef444422; color:#ef4444; border-color:#ef444455;">Observasi</span>
+                  ${!isGeePoiVis ? '<span class="hidden-status-tag">Tersembunyi</span>' : ''}
                 </div>
-                <div class="layer-meta-line">Monas Urban Core & IPB Forest monitoring stations</div>
+                <div class="layer-meta-line">Titik Stasiun Pantau Monas Jakarta & Hutan IPB</div>
               </div>
-              <button class="icon-btn-sm btn-remove-gee-poi" title="Remove POI layer">
+              <button class="icon-btn-sm btn-remove-gee-poi" title="Hapus Layer POI">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
               </button>
             </div>
@@ -190,20 +186,18 @@ export class ActiveLayersUI {
         itemsHtml += `
           <div class="active-layer-item">
             <div class="active-layer-main">
-              <button class="layer-eye-btn btn-toggle-piksel-grid" title="Hide Grid">
+              <button class="layer-eye-btn btn-toggle-piksel-grid" title="Matikan Grid">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
-              <div class="layer-status-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-              </div>
+              <div class="layer-status-icon" style="font-size: 16px;">📦</div>
               <div class="layer-info-col">
                 <div class="layer-name-row">
                   <strong>Piksel Data Cube Grid</strong>
-                  <span class="active-pill-badge" style="background:#10b98122; color:#10b981; border-color:#10b98155;">1,631 Tiles</span>
+                  <span class="active-pill-badge" style="background:#10b98122; color:#10b981; border-color:#10b98155;">1.631 Tile</span>
                 </div>
-                <div class="layer-meta-line">Open Data Cube 10m spatial indexing boundaries</div>
+                <div class="layer-meta-line">Grid Indeks 10m Open Data Cube BIG</div>
               </div>
-              <button class="icon-btn-sm btn-toggle-piksel-grid" title="Remove Grid">
+              <button class="icon-btn-sm btn-toggle-piksel-grid" title="Hapus Grid">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
               </button>
             </div>
@@ -217,30 +211,28 @@ export class ActiveLayersUI {
         itemsHtml += `
           <div class="active-layer-item ${!isGeeLstVis ? 'is-hidden' : ''}">
             <div class="active-layer-main">
-              <button class="layer-eye-btn btn-toggle-gee-lst" title="${isGeeLstVis ? 'Hide LST Heatmap' : 'Show LST Heatmap'}">
+              <button class="layer-eye-btn btn-toggle-gee-lst" title="${isGeeLstVis ? 'Sembunyikan LST Heatmap' : 'Tampilkan LST Heatmap'}">
                 ${isGeeLstVis
                   ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`
                   : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>`
                 }
               </button>
-              <div class="layer-status-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
-              </div>
+              <div class="layer-status-icon" style="font-size: 16px;">🌡️</div>
               <div class="layer-info-col">
                 <div class="layer-name-row">
                   <strong>GEE MODIS LST Heatmap</strong>
-                  <span class="active-pill-badge" style="background:#f59e0b22; color:#f59e0b; border-color:#f59e0b55;">Surface Temp</span>
-                  ${!isGeeLstVis ? '<span class="hidden-status-tag">Hidden</span>' : ''}
+                  <span class="active-pill-badge" style="background:#f59e0b22; color:#f59e0b; border-color:#f59e0b55;">Suhu Permukaan</span>
+                  ${!isGeeLstVis ? '<span class="hidden-status-tag">Tersembunyi</span>' : ''}
                 </div>
-                <div class="layer-meta-line">MOD11A2 Land Surface Temperature (Daytime 1km)</div>
+                <div class="layer-meta-line">MOD11A2 Land Surface Temp (Daytime 1km)</div>
               </div>
-              <button class="icon-btn-sm btn-remove-gee-lst" title="Remove LST layer">
+              <button class="icon-btn-sm btn-remove-gee-lst" title="Hapus LST">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
               </button>
             </div>
             ${isGeeLstVis ? `
               <div class="active-layer-slider-row">
-                <span>Opacity:</span>
+                <span>Transparansi:</span>
                 <input type="range" class="active-layer-slider gee-lst-opacity-slider" min="0" max="100" value="${lstOpacityPct}" />
                 <span class="slider-pct">${lstOpacityPct}%</span>
               </div>
@@ -255,30 +247,28 @@ export class ActiveLayersUI {
         itemsHtml += `
           <div class="active-layer-item ${!isGeeElvVis ? 'is-hidden' : ''}">
             <div class="active-layer-main">
-              <button class="layer-eye-btn btn-toggle-gee-elv" title="${isGeeElvVis ? 'Hide Elevation' : 'Show Elevation'}">
+              <button class="layer-eye-btn btn-toggle-gee-elv" title="${isGeeElvVis ? 'Sembunyikan Elevasi' : 'Tampilkan Elevasi'}">
                 ${isGeeElvVis
                   ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#84cc16" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`
                   : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>`
                 }
               </button>
-              <div class="layer-status-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#84cc16" stroke-width="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
-              </div>
+              <div class="layer-status-icon" style="font-size: 16px;">⛰️</div>
               <div class="layer-info-col">
                 <div class="layer-name-row">
                   <strong>GEE SRTM Ground Elevation</strong>
-                  <span class="active-pill-badge" style="background:#84cc1622; color:#84cc16; border-color:#84cc1655;">Topography 30m</span>
-                  ${!isGeeElvVis ? '<span class="hidden-status-tag">Hidden</span>' : ''}
+                  <span class="active-pill-badge" style="background:#84cc1622; color:#84cc16; border-color:#84cc1655;">Topografi 30m</span>
+                  ${!isGeeElvVis ? '<span class="hidden-status-tag">Tersembunyi</span>' : ''}
                 </div>
                 <div class="layer-meta-line">USGS SRTM Digital Elevation Model</div>
               </div>
-              <button class="icon-btn-sm btn-remove-gee-elv" title="Remove Elevation layer">
+              <button class="icon-btn-sm btn-remove-gee-elv" title="Hapus Elevasi">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
               </button>
             </div>
             ${isGeeElvVis ? `
               <div class="active-layer-slider-row">
-                <span>Opacity:</span>
+                <span>Transparansi:</span>
                 <input type="range" class="active-layer-slider gee-elv-opacity-slider" min="0" max="100" value="${elvOpacityPct}" />
                 <span class="slider-pct">${elvOpacityPct}%</span>
               </div>
@@ -293,30 +283,28 @@ export class ActiveLayersUI {
         itemsHtml += `
           <div class="active-layer-item ${!isGeeLcVis ? 'is-hidden' : ''}">
             <div class="active-layer-main">
-              <button class="layer-eye-btn btn-toggle-gee-lc" title="${isGeeLcVis ? 'Hide Land Cover' : 'Show Land Cover'}">
+              <button class="layer-eye-btn btn-toggle-gee-lc" title="${isGeeLcVis ? 'Sembunyikan Land Cover' : 'Tampilkan Land Cover'}">
                 ${isGeeLcVis
                   ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`
                   : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>`
                 }
               </button>
-              <div class="layer-status-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M12 2v20"/><path d="m17 7-5-5-5 5"/><path d="m19 13-7-6-7 6"/><path d="m21 19-9-8-9 8"/></svg>
-              </div>
+              <div class="layer-status-icon" style="font-size: 16px;">🌳</div>
               <div class="layer-info-col">
                 <div class="layer-name-row">
                   <strong>GEE MODIS Land Cover</strong>
-                  <span class="active-pill-badge" style="background:#22c55e22; color:#22c55e; border-color:#22c55e55;">Classification 500m</span>
-                  ${!isGeeLcVis ? '<span class="hidden-status-tag">Hidden</span>' : ''}
+                  <span class="active-pill-badge" style="background:#22c55e22; color:#22c55e; border-color:#22c55e55;">Klasifikasi 500m</span>
+                  ${!isGeeLcVis ? '<span class="hidden-status-tag">Tersembunyi</span>' : ''}
                 </div>
-                <div class="layer-meta-line">MCD12Q1 Land Cover & Forest Canopy</div>
+                <div class="layer-meta-line">MCD12Q1 Tutupan Lahan & Kanopi Hutan</div>
               </div>
-              <button class="icon-btn-sm btn-remove-gee-lc" title="Remove Land Cover layer">
+              <button class="icon-btn-sm btn-remove-gee-lc" title="Hapus Land Cover">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
               </button>
             </div>
             ${isGeeLcVis ? `
               <div class="active-layer-slider-row">
-                <span>Opacity:</span>
+                <span>Transparansi:</span>
                 <input type="range" class="active-layer-slider gee-lc-opacity-slider" min="0" max="100" value="${lcOpacityPct}" />
                 <span class="slider-pct">${lcOpacityPct}%</span>
               </div>
@@ -328,34 +316,32 @@ export class ActiveLayersUI {
       // 8. Piksel OGC Satellite Raster (GeoMAD, Indices, Hazard, Landsat)
       if (activePiksel) {
         const pikselOpacityPct = Math.round(this.pikselLoader.getOpacity() * 100);
-        const yearText = activePiksel.timeEnabled ? ` • Year ${this.pikselLoader.getSelectedYear()}` : '';
+        const yearText = activePiksel.timeEnabled ? ` • Tahun ${this.pikselLoader.getSelectedYear()}` : '';
         itemsHtml += `
           <div class="active-layer-item highlight-piksel ${!isPikselVisible ? 'is-hidden' : ''}">
             <div class="active-layer-main">
-              <button class="layer-eye-btn btn-toggle-piksel-visibility" title="${isPikselVisible ? 'Hide raster imagery' : 'Show raster imagery'}">
+              <button class="layer-eye-btn btn-toggle-piksel-visibility" title="${isPikselVisible ? 'Sembunyikan Layer Citra' : 'Tampilkan Layer Citra'}">
                 ${isPikselVisible
                   ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`
                   : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>`
                 }
               </button>
-              <div class="layer-status-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-              </div>
+              <div class="layer-status-icon" style="font-size: 16px;">🛰️</div>
               <div class="layer-info-col">
                 <div class="layer-name-row">
                   <strong>${activePiksel.name}</strong>
                   <span class="active-pill-badge" style="background:${activePiksel.color}22; color:${activePiksel.color}; border-color:${activePiksel.color}55;">${activePiksel.badge}</span>
-                  ${!isPikselVisible ? '<span class="hidden-status-tag">Hidden</span>' : ''}
+                  ${!isPikselVisible ? '<span class="hidden-status-tag">Tersembunyi</span>' : ''}
                 </div>
                 <div class="layer-meta-line">OGC WMS 1.3.0 (${activePiksel.resolution}${yearText})</div>
               </div>
-              <button class="icon-btn-sm btn-remove-active-piksel" title="Deactivate raster layer">
+              <button class="icon-btn-sm btn-remove-active-piksel" title="Nonaktifkan Layer Citra">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
               </button>
             </div>
             ${isPikselVisible ? `
               <div class="active-layer-slider-row">
-                <span>Opacity:</span>
+                <span>Transparansi:</span>
                 <input type="range" class="active-layer-slider piksel-opacity-slider" min="0" max="100" value="${pikselOpacityPct}" />
                 <span class="slider-pct">${pikselOpacityPct}%</span>
               </div>
@@ -369,12 +355,12 @@ export class ActiveLayersUI {
       <div class="active-layers-header">
         <div class="active-layers-title-row">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-            <h3 style="margin: 0; font-size: 13px;">Active Layer Stack</h3>
+            <span style="font-size: 15px;">👁️</span>
+            <h3 style="margin: 0; font-size: 13px;">Layer Analisis Aktif</h3>
           </div>
-          <span class="active-count-badge">${layerCount} Active</span>
+          <span class="active-count-badge">${layerCount} Layer Aktif</span>
         </div>
-        <p class="active-layers-desc">Analytical layers configured above basemap (stacking order orchestrated deterministically).</p>
+        <p class="active-layers-desc">Lapisan peta yang sedang dikonfigurasi di atas basemap (urutan rendering terorkestrasi otomatis).</p>
       </div>
       <div class="active-layers-list">
         ${itemsHtml}
