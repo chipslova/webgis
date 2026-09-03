@@ -2069,78 +2069,287 @@ html, body, #app {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
-.active-layers-header {
-  margin-bottom: 10px;
-}
+/* ═══════════════════════════════════════════
+   ACTIVE LAYERS — Compact GIS Layer Manager
+══════════════════════════════════════════════ */
 
-.active-layers-title-row {
+.al-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 4px;
+  padding: 0 2px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  margin-bottom: 6px;
 }
 
-.active-layers-title-row h3 {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
-}
-
-.active-count-badge {
+.al-header-label {
   font-size: 10px;
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 12px;
-  background: rgba(0, 240, 255, 0.15);
-  color: var(--accent-cyan);
-  border: 1px solid rgba(0, 240, 255, 0.4);
+  letter-spacing: 0.9px;
+  color: #475569;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
 }
 
-.active-layers-desc {
-  font-size: 11px;
-  color: var(--text-muted);
-  line-height: 1.35;
-  margin: 0;
+.al-count {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1px 7px;
+  font-family: 'JetBrains Mono', monospace;
 }
 
-.active-layers-empty {
+.al-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* Empty State */
+.al-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 18px 14px;
-  color: var(--text-muted);
-  background: #131d31;
-  border-radius: var(--radius-sm);
-  border: 1px dashed rgba(255, 255, 255, 0.18);
-  margin-top: 6px;
+  padding: 20px 14px 12px;
+  gap: 4px;
 }
 
-.active-layers-empty svg {
-  color: #38bdf8;
-  margin-bottom: 8px;
-  opacity: 0.8;
+.al-empty-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  margin: 8px 0 2px;
 }
 
-.active-layers-empty p {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0 0 4px 0;
-}
-
-.active-layers-empty small {
+.al-empty-sub {
   font-size: 11px;
-  color: var(--text-secondary);
+  color: #334155;
+  margin: 0;
 }
 
-.active-layers-list {
+.al-onboard-grid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 4px;
+  margin-top: 10px;
 }
+
+.al-onboard-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #0d1525;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.al-onboard-btn:hover {
+  background: #131d31;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.al-onboard-icon {
+  font-size: 10px;
+  font-weight: 700;
+  color: #334155;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  width: 20px;
+}
+
+.al-onboard-btn div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.al-onboard-btn strong {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  display: block;
+}
+
+.al-onboard-btn span {
+  font-size: 10.5px;
+  color: #475569;
+}
+
+/* Compact Row */
+.al-row {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: background 0.12s ease;
+}
+
+.al-row-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 6px 7px 8px;
+  cursor: default;
+}
+
+.al-row:hover .al-row-compact {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.al-row-expanded .al-row-compact {
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.al-row-hidden {
+  opacity: 0.45;
+}
+
+.al-eye-btn {
+  background: none;
+  border: none;
+  padding: 3px;
+  cursor: pointer;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  flex-shrink: 0;
+  transition: color 0.12s ease;
+}
+
+.al-eye-btn:hover {
+  color: #e2e8f0;
+}
+
+.al-color-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.al-row-body {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.al-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.al-meta {
+  font-size: 10px;
+  color: #475569;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.al-opacity-chip {
+  font-size: 10px;
+  font-weight: 600;
+  color: #475569;
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+  width: 30px;
+  text-align: right;
+}
+
+.al-remove-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  flex-shrink: 0;
+  transition: color 0.12s ease;
+}
+
+.al-remove-btn:hover {
+  color: #ef4444;
+}
+
+/* Expanded Detail Panel */
+.al-row-detail {
+  padding: 10px 12px 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.al-detail-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin-bottom: 10px;
+}
+
+.al-detail-label {
+  font-size: 10px;
+  color: #475569;
+  font-weight: 500;
+  padding-top: 1px;
+  white-space: nowrap;
+}
+
+.al-detail-val {
+  font-size: 10.5px;
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.al-detail-opacity {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.al-detail-opacity-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.al-opacity-val {
+  font-size: 10px;
+  font-weight: 600;
+  color: #00f0ff;
+  width: 30px;
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+}
+
 
 .active-layer-item {
   background: #131d31;
@@ -3436,6 +3645,103 @@ html, body, #app {
   font-size: 9px;
   font-weight: 700;
   margin-left: auto;
+}
+
+/* Card About Accordion (Track B) */
+.card-about-accordion {
+  margin-top: 6px;
+  width: 100%;
+}
+
+.card-about-accordion[open] {
+  margin-bottom: 2px;
+}
+
+.card-about-summary {
+  font-size: 10px;
+  color: #475569;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: color 0.12s ease;
+}
+
+.card-about-summary::-webkit-details-marker { display: none; }
+.card-about-summary::before {
+  content: '▸ ';
+  font-size: 9px;
+}
+.card-about-accordion[open] .card-about-summary::before {
+  content: '▾ ';
+}
+
+.card-about-summary:hover {
+  color: #94a3b8;
+}
+
+.card-about-body {
+  font-size: 10.5px;
+  color: #64748b;
+  line-height: 1.5;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card-about-attr {
+  font-size: 9.5px;
+  color: #334155;
+  font-style: italic;
+}
+
+/* Product Pillars (About Panel — Track D) */
+.product-pillars {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 14px;
+}
+
+.pillar {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #0d1525;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.pillar-number {
+  font-size: 10px;
+  font-weight: 700;
+  color: #334155;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  padding-top: 2px;
+  width: 18px;
+}
+
+.pillar strong {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  color: #64748b;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 2px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.pillar p {
+  font-size: 11px;
+  color: #475569;
+  margin: 0;
+  line-height: 1.45;
 }
 
 .btn-select-product {

@@ -163,7 +163,7 @@ export class PikselPanelUI {
           <!-- Collapsible Telemetry & Grid Options -->
           <details class="clean-accordion" style="margin-top: 10px;">
             <summary>
-              <span>📊 Telemetri Layanan OGC WMS & Grid</span>
+              <span>Diagnostik OGC WMS</span>
               <span class="diag-status-pill ${diagnostics?.status || 'idle'}">${(diagnostics?.status || 'idle').toUpperCase()}</span>
             </summary>
             <div class="accordion-body">
@@ -253,9 +253,13 @@ export class PikselPanelUI {
               ${prod.timeEnabled && yearRange ? `<span class="card-tag multi-year">${yearRange}</span>` : ''}
               <span class="card-badge" style="color:${prod.color};">${prod.badge}</span>
             </div>
+            <details class="card-about-accordion" data-about="${prod.id}">
+              <summary class="card-about-summary">About this product</summary>
+              <div class="card-about-body">${prod.description}${prod.attribution ? `<span class="card-about-attr">${prod.attribution}</span>` : ''}</div>
+            </details>
           </div>
           <button class="btn-select-product ${isActive ? 'btn-active-state' : ''}" data-id="${prod.id}">
-            ${isActive ? '✓ Aktif' : 'Aktifkan'}
+            ${isActive ? '\u2713 Aktif' : 'Aktifkan'}
           </button>
         </div>
       `;
@@ -526,12 +530,12 @@ export class PikselPanelUI {
         return;
       }
 
-      // 3. Product select click
+      // 3. Product select click — ignore if clicking About accordion
       const selectBtn = target.closest('.btn-select-product') as HTMLElement;
       const productCard = target.closest('.clean-product-card') as HTMLElement;
       const clickedId = selectBtn?.dataset.id || productCard?.dataset.id;
 
-      if (clickedId && !target.closest('select') && !target.closest('input')) {
+      if (clickedId && !target.closest('select') && !target.closest('input') && !target.closest('.card-about-accordion')) {
         const current = this.pikselLoader.getActiveProduct();
         if (current?.id === clickedId) {
           this.pikselLoader.setActiveProduct(null);
