@@ -385,10 +385,9 @@ export class GEELoader {
           paint: {
             'circle-radius': 14,
             'circle-color': [
-              'match',
-              ['get', 'id'],
-              'urban_poi', '#dc2626',
-              'rural_poi', '#16a34a',
+              'case',
+              ['==', ['get', 'category'], 'Urban Core'], '#dc2626',
+              ['==', ['get', 'category'], 'Rural / Forest'], '#16a34a',
               '#3b82f6'
             ],
             'circle-stroke-width': 3,
@@ -413,12 +412,16 @@ export class GEELoader {
       const coords = feat.geometry.coordinates as [number, number];
       const props = feat.properties;
 
+      const isUrban = props.category === 'Urban Core' || (props.id && props.id.includes('urban'));
+      const badgeClass = isUrban ? 'urban_poi' : 'rural_poi';
+      const icon = isUrban ? '🏙️' : '🌲';
+
       const el = document.createElement('div');
-      el.className = `gee-map-marker ${props.id}`;
+      el.className = `gee-map-marker ${badgeClass}`;
       el.innerHTML = `
-        <div class="marker-pulse ${props.id}"></div>
-        <div class="marker-pin ${props.id}">
-          <span class="marker-icon">${props.id === 'urban_poi' ? '🏙️' : '🌲'}</span>
+        <div class="marker-pulse ${badgeClass}"></div>
+        <div class="marker-pin ${badgeClass}">
+          <span class="marker-icon">${icon}</span>
         </div>
         <div class="marker-label">${props.name.split(' (')[0]}</div>
       `;
@@ -426,7 +429,7 @@ export class GEELoader {
       el.addEventListener('click', () => {
         const html = `
           <div class="gee-popup-card">
-            <div class="gee-popup-badge ${props.id}">${props.category}</div>
+            <div class="gee-popup-badge ${badgeClass}">${props.category}</div>
             <h4>${props.name}</h4>
             <table class="gee-popup-table">
               <tr><td><strong>Mean Daytime LST:</strong></td><td><span class="highlight-temp">${props.mean_lst_celsius} °C</span></td></tr>
