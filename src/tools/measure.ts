@@ -38,15 +38,19 @@ export class MeasureTool {
         });
       }
 
-      // 1. Fill layer for Area measurement (natively renders Polygon features)
+      // 1. Fill layer for Area measurement (STRICTLY renders only Polygon features during Area mode)
       if (!this.map.getLayer('measure-fill')) {
         this.map.addLayer({
           id: 'measure-fill',
           type: 'fill',
           source: 'measure-source',
+          filter: ['==', '$type', 'Polygon'],
+          layout: {
+            visibility: this.mode === 'area' ? 'visible' : 'none'
+          },
           paint: {
             'fill-color': '#00f0ff',
-            'fill-opacity': 0.25
+            'fill-opacity': 0.22
           }
         });
       }
@@ -141,6 +145,9 @@ export class MeasureTool {
     this.isFinished = false;
     this.clear();
     this.initLayers();
+    if (this.map && this.map.getLayer('measure-fill')) {
+      this.map.setLayoutProperty('measure-fill', 'visibility', mode === 'area' ? 'visible' : 'none');
+    }
     if (mode === 'none') {
       this.map.getCanvas().style.cursor = '';
       if (this.tooltip) this.tooltip.remove();
