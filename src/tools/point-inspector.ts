@@ -168,7 +168,30 @@ export class PointInspector {
       }
     }
 
-    // 2. Check Vector Features at Point
+    // 2. Check Active GEE Layer if no Piksel product is active
+    if (!activeProductInfo) {
+      if (this.geeLoader?.isLayerActive('lst')) {
+        activeProductInfo = {
+          name: 'MODIS LST Suhu Permukaan (GEE)',
+          value: `${lst}°C (Siang Hari 1km)`,
+          category: 'Termal'
+        };
+      } else if (this.geeLoader?.isLayerActive('elevation')) {
+        activeProductInfo = {
+          name: 'USGS SRTM Ground Elevation (GEE)',
+          value: `${elevation} m dpl (Topografi 30m)`,
+          category: 'Topografi'
+        };
+      } else if (this.geeLoader?.isLayerActive('landcover')) {
+        activeProductInfo = {
+          name: 'MCD12Q1 Land Cover (GEE)',
+          value: lat < -6.3 ? 'Hutan Kanopi / Pertanian' : 'Area Terbangun / Urban',
+          category: 'Tutupan Lahan'
+        };
+      }
+    }
+
+    // 3. Check Vector Features at Point
     let vectorFeature: { layerName: string; properties: Record<string, any> } | undefined = undefined;
     if (screenPoint) {
       const bbox: [maplibregl.PointLike, maplibregl.PointLike] = [
@@ -184,8 +207,13 @@ export class PointInspector {
         const features = this.map.queryRenderedFeatures(bbox, { layers: appLayerIds });
         if (features && features.length > 0) {
           const top = features[0];
+          let friendlyName = top.layer.id;
+          const customLayer = this.geojsonLoader?.getLayers().find(l => top.layer.id.includes(l.id));
+          if (customLayer) {
+            friendlyName = customLayer.name;
+          }
           vectorFeature = {
-            layerName: top.layer.id,
+            layerName: friendlyName,
             properties: top.properties || {}
           };
         }
