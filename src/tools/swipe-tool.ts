@@ -1,11 +1,13 @@
 import * as maplibregl from 'maplibre-gl';
-import { PIKSEL_PRODUCTS, PIKSEL_WMS_BASE_URL, S2_YEARS, PikselProduct } from '../config/piksel';
+import { PIKSEL_PRODUCTS, PIKSEL_WMS_BASE_URL, S2_YEARS, LS9_YEARS, PikselProduct } from '../config/piksel';
 import { BASEMAPS } from '../config/basemaps';
+import { PikselLoader } from './piksel-loader';
 import { showToast } from '../ui/toast';
 
 export interface SwipeLayerOption {
   id: string;
   name: string;
+  group: string;
   type: 'piksel' | 'basemap';
   productId?: string;
   year?: string;
@@ -14,23 +16,12 @@ export interface SwipeLayerOption {
 
 export class SwipeTool {
   private mainMap: maplibregl.Map;
+  private pikselLoader?: PikselLoader;
   private swipeMap: maplibregl.Map | null = null;
   private isActive: boolean = false;
   private dividerPosition: number = 0.5; // 0.0 to 1.0
-  private leftOption: SwipeLayerOption = {
-    id: 's2-2017',
-    name: 'Sentinel-2 GeoMAD (2017)',
-    type: 'piksel',
-    productId: 's2-geomad-rgb',
-    year: '2017'
-  };
-  private rightOption: SwipeLayerOption = {
-    id: 's2-2025',
-    name: 'Sentinel-2 GeoMAD (2025)',
-    type: 'piksel',
-    productId: 's2-geomad-rgb',
-    year: '2025'
-  };
+  private leftOption!: SwipeLayerOption;
+  private rightOption!: SwipeLayerOption;
 
   private isDragging: boolean = false;
   private isSyncing: boolean = false;
@@ -38,8 +29,13 @@ export class SwipeTool {
   private handleEl: HTMLElement | null = null;
   private onToggleCallback?: (active: boolean) => void;
 
-  constructor(mainMap: maplibregl.Map) {
+  constructor(mainMap: maplibregl.Map, pikselLoader?: PikselLoader) {
     this.mainMap = mainMap;
+    this.pikselLoader = pikselLoader;
+  }
+
+  public setPikselLoader(loader: PikselLoader) {
+    this.pikselLoader = loader;
   }
 
   public onToggle(cb: (active: boolean) => void) {
@@ -62,10 +58,12 @@ export class SwipeTool {
     if (this.isActive) return;
     this.isActive = true;
 
-    // 1. If current map zoom is < 6, auto-zoom to Level 7.5 to ensure satellite imagery is immediately visible
+    // 1. Contextually adopt the currently active product from PikselLoader
+    this.setupContextualPair();
+
+    // 2. If current map zoom is < 6, smoothly auto-zoom to Level 7.5 so satellite imagery is immediately visible
     if (this.mainMap.getZoom() < 6) {
       const center = this.mainMap.getCenter();
-      // If at country overview center, jump to iconic Bromo Caldera or current location
       const isCountryCenter = Math.abs(center.lng - 117.89) < 2 && Math.abs(center.lat - (-2.55)) < 2;
       this.mainMap.flyTo({
         center: isCountryCenter ? [112.9485, -7.9514] : [center.lng, center.lat],
@@ -77,18 +75,133 @@ export class SwipeTool {
     this.createUI();
     this.initSwipeMap();
 
-    // 2. Apply right layer to main map
+    // 3. Apply right comparison layer on main map
     this.applyLayerToMap(this.mainMap, this.rightOption, 'swipe-right');
 
     if (this.onToggleCallback) this.onToggleCallback(true);
-    showToast('Mode Bandingkan Aktif: Geser slider vertikal untuk komparasi temporal (2017 vs 2025)', 'info');
+    showToast(`Bandingkan: ${this.leftOption.name} (Kiri) vs ${this.rightOption.name} (Kanan)`, 'info');
+  }
+
+  /**
+   * Intelligently sets Left & Right comparison layers based on what the user is currently viewing
+   */
+  private setupContextualPair() {
+    const activeProduct = this.pikselLoader?.getActiveProduct();
+    const activeYear = this.pikselLoader?.getSelectedYear() || '2025';
+
+    if (activeProduct) {
+      // User is currently viewing an active product in Piksel panel
+      if (activeProduct.id === 'flood-hazard-rp02') {
+        this.leftOption = {
+          id: 'opt-flood-hazard-rp02',
+          name: 'Bahaya Banjir (Periode Ulang 2 Tahun)',
+          group: 'Bahaya Banjir',
+          type: 'piksel',
+          productId: 'flood-hazard-rp02'
+        };
+        this.rightOption = {
+          id: 'opt-flood-hazard-rp10',
+          name: 'Bahaya Banjir (Periode Ulang 10 Tahun)',
+          group: 'Bahaya Banjir',
+          type: 'piksel',
+          productId: 'flood-hazard-rp10'
+        };
+      } else if (activeProduct.id === 's2-ndvi') {
+        this.leftOption = {
+          id: `opt-s2-geomad-rgb-${activeYear}`,
+          name: `Sentinel-2 Warna Alami (${activeYear})`,
+          group: 'Sentinel-2 GeoMAD',
+          type: 'piksel',
+          productId: 's2-geomad-rgb',
+          year: activeYear
+        };
+        this.rightOption = {
+          id: `opt-s2-ndvi-${activeYear}`,
+          name: `Sentinel-2 NDVI Vegetasi (${activeYear})`,
+          group: 'Indeks Spektral',
+          type: 'piksel',
+          productId: 's2-ndvi',
+          year: activeYear
+        };
+      } else if (activeProduct.id === 's2-ndwi') {
+        this.leftOption = {
+          id: `opt-s2-geomad-rgb-${activeYear}`,
+          name: `Sentinel-2 Warna Alami (${activeYear})`,
+          group: 'Sentinel-2 GeoMAD',
+          type: 'piksel',
+          productId: 's2-geomad-rgb',
+          year: activeYear
+        };
+        this.rightOption = {
+          id: `opt-s2-ndwi-${activeYear}`,
+          name: `Sentinel-2 NDWI Air (${activeYear})`,
+          group: 'Indeks Spektral',
+          type: 'piksel',
+          productId: 's2-ndwi',
+          year: activeYear
+        };
+      } else if (activeProduct.id === 's2-geomad-rgb') {
+        const compareYear = activeYear === '2017' ? '2025' : '2017';
+        this.leftOption = {
+          id: `opt-s2-geomad-rgb-${compareYear}`,
+          name: `Sentinel-2 GeoMAD (${compareYear})`,
+          group: 'Sentinel-2 GeoMAD',
+          type: 'piksel',
+          productId: 's2-geomad-rgb',
+          year: compareYear
+        };
+        this.rightOption = {
+          id: `opt-s2-geomad-rgb-${activeYear}`,
+          name: `Sentinel-2 GeoMAD (${activeYear})`,
+          group: 'Sentinel-2 GeoMAD',
+          type: 'piksel',
+          productId: 's2-geomad-rgb',
+          year: activeYear
+        };
+      } else {
+        // Any other active product: pair with Sentinel-2 RGB
+        this.leftOption = {
+          id: `opt-s2-geomad-rgb-${activeYear}`,
+          name: `Sentinel-2 Warna Alami (${activeYear})`,
+          group: 'Sentinel-2 GeoMAD',
+          type: 'piksel',
+          productId: 's2-geomad-rgb',
+          year: activeYear
+        };
+        this.rightOption = {
+          id: `opt-${activeProduct.id}-${activeYear}`,
+          name: `${activeProduct.name} (${activeYear})`,
+          group: 'Produk Aktif',
+          type: 'piksel',
+          productId: activeProduct.id,
+          year: activeYear
+        };
+      }
+    } else {
+      // Default initial pair: 2017 vs 2025
+      this.leftOption = {
+        id: 'opt-s2-geomad-rgb-2017',
+        name: 'Sentinel-2 GeoMAD (2017)',
+        group: 'Sentinel-2 GeoMAD',
+        type: 'piksel',
+        productId: 's2-geomad-rgb',
+        year: '2017'
+      };
+      this.rightOption = {
+        id: 'opt-s2-geomad-rgb-2025',
+        name: 'Sentinel-2 GeoMAD (2025)',
+        group: 'Sentinel-2 GeoMAD',
+        type: 'piksel',
+        productId: 's2-geomad-rgb',
+        year: '2025'
+      };
+    }
   }
 
   public disable() {
     if (!this.isActive) return;
     this.isActive = false;
 
-    // Remove right comparison layer from main map cleanly
     this.cleanupLayerFromMap(this.mainMap, 'swipe-right');
 
     if (this.swipeMap) {
@@ -114,6 +227,9 @@ export class SwipeTool {
     this.containerEl.id = 'swipe-comparison-container';
     this.containerEl.className = 'swipe-comparison-container';
 
+    const leftOptionsHtml = this.renderSelectOptions(this.leftOption.id);
+    const rightOptionsHtml = this.renderSelectOptions(this.rightOption.id);
+
     this.containerEl.innerHTML = `
       <div id="swipe-map-view" class="swipe-map-view"></div>
       
@@ -126,9 +242,9 @@ export class SwipeTool {
 
       <div class="swipe-top-bar">
         <div class="swipe-selector-group">
-          <span class="swipe-side-tag left-tag">KIRI</span>
+          <span class="swipe-side-tag left-tag">SISI KIRI</span>
           <select id="swipe-left-select" class="swipe-select">
-            ${this.getLayerOptions().map(opt => `<option value="${opt.id}" ${opt.id === this.leftOption.id ? 'selected' : ''}>${opt.name}</option>`).join('')}
+            ${leftOptionsHtml}
           </select>
         </div>
 
@@ -137,9 +253,9 @@ export class SwipeTool {
         </div>
 
         <div class="swipe-selector-group">
-          <span class="swipe-side-tag right-tag">KANAN</span>
+          <span class="swipe-side-tag right-tag">SISI KANAN</span>
           <select id="swipe-right-select" class="swipe-select">
-            ${this.getLayerOptions().map(opt => `<option value="${opt.id}" ${opt.id === this.rightOption.id ? 'selected' : ''}>${opt.name}</option>`).join('')}
+            ${rightOptionsHtml}
           </select>
         </div>
 
@@ -153,55 +269,127 @@ export class SwipeTool {
     this.handleEl = this.containerEl.querySelector('#swipe-handle');
   }
 
-  private getLayerOptions(): SwipeLayerOption[] {
+  /**
+   * Generates clean, grouped <optgroup> dropdown list of all available datasets
+   */
+  private renderSelectOptions(selectedId: string): string {
+    const allOptions = this.getAllLayerOptions();
+    const groups = [
+      '📅 Sentinel-2 GeoMAD (Multi-Tahun)',
+      '🔬 Indeks Biofisik & Spektral',
+      '🌊 Pemodelan Bahaya Banjir Nasional',
+      '🛰️ Satelit Landsat 9 & Kualitas',
+      '🗺️ Peta Dasar (Basemaps)'
+    ];
+
+    return groups.map(grp => {
+      const opts = allOptions.filter(o => o.group === grp);
+      if (opts.length === 0) return '';
+      const itemsHtml = opts.map(o => `
+        <option value="${o.id}" ${o.id === selectedId ? 'selected' : ''}>${o.name}</option>
+      `).join('');
+      return `<optgroup label="${grp}">${itemsHtml}</optgroup>`;
+    }).join('');
+  }
+
+  public getAllLayerOptions(): SwipeLayerOption[] {
     const options: SwipeLayerOption[] = [];
 
-    // Sentinel-2 Multi-Year Options
+    // 1. Sentinel-2 GeoMAD Multi-Year
     S2_YEARS.forEach(yr => {
       options.push({
-        id: `s2-${yr}`,
+        id: `opt-s2-geomad-rgb-${yr}`,
         name: `Sentinel-2 GeoMAD (${yr})`,
+        group: '📅 Sentinel-2 GeoMAD (Multi-Tahun)',
         type: 'piksel',
         productId: 's2-geomad-rgb',
         year: yr
       });
     });
 
-    // Other Spectral Products
-    options.push({
-      id: 's2-ndvi',
-      name: 'Sentinel-2 NDVI (Vegetasi)',
-      type: 'piksel',
-      productId: 's2-ndvi',
-      year: '2025'
+    // 2. Spectral Indices
+    S2_YEARS.slice(0, 4).forEach(yr => {
+      options.push({
+        id: `opt-s2-ndvi-${yr}`,
+        name: `NDVI Indeks Vegetasi (${yr})`,
+        group: '🔬 Indeks Biofisik & Spektral',
+        type: 'piksel',
+        productId: 's2-ndvi',
+        year: yr
+      });
+      options.push({
+        id: `opt-s2-ndwi-${yr}`,
+        name: `NDWI Indeks Air (${yr})`,
+        group: '🔬 Indeks Biofisik & Spektral',
+        type: 'piksel',
+        productId: 's2-ndwi',
+        year: yr
+      });
     });
+
     options.push({
-      id: 's2-ndwi',
-      name: 'Sentinel-2 NDWI (Air)',
-      type: 'piksel',
-      productId: 's2-ndwi',
-      year: '2025'
-    });
-    options.push({
-      id: 's2-nir',
-      name: 'Sentinel-2 NIR (Inframerah)',
+      id: 'opt-s2-nir',
+      name: 'Sentinel-2 NIR (Inframerah Dekat)',
+      group: '🔬 Indeks Biofisik & Spektral',
       type: 'piksel',
       productId: 's2-geomad-nir',
       year: '2025'
     });
 
-    // Basemaps
+    // 3. Flood Hazard
     options.push({
-      id: 'base-osm',
-      name: 'OpenStreetMap Standard',
-      type: 'basemap',
-      basemapId: 'osm-standard'
+      id: 'opt-flood-hazard-rp02',
+      name: 'Bahaya Banjir (Periode Ulang 2 Tahun)',
+      group: '🌊 Pemodelan Bahaya Banjir Nasional',
+      type: 'piksel',
+      productId: 'flood-hazard-rp02'
     });
     options.push({
-      id: 'base-satellite',
-      name: 'ESRI World Imagery',
-      type: 'basemap',
-      basemapId: 'esri-satellite'
+      id: 'opt-flood-hazard-rp10',
+      name: 'Bahaya Banjir (Periode Ulang 10 Tahun)',
+      group: '🌊 Pemodelan Bahaya Banjir Nasional',
+      type: 'piksel',
+      productId: 'flood-hazard-rp10'
+    });
+
+    // 4. Landsat 9 & Quality Mask
+    LS9_YEARS.forEach(yr => {
+      options.push({
+        id: `opt-ls9-${yr}`,
+        name: `Landsat 9 Surface Reflectance (${yr})`,
+        group: '🛰️ Satelit Landsat 9 & Kualitas',
+        type: 'piksel',
+        productId: 'ls9-sr',
+        year: yr
+      });
+    });
+
+    options.push({
+      id: 'opt-s2-count',
+      name: 'Observation Density Mask (Scene Count)',
+      group: '🛰️ Satelit Landsat 9 & Kualitas',
+      type: 'piksel',
+      productId: 's2-count',
+      year: '2025'
+    });
+
+    // 5. Basemaps
+    const bmList = [
+      { id: 'google-satellite', name: 'Google Satellite (Foto Udara)' },
+      { id: 'big-rbi', name: 'BIG Peta Rupa Bumi Indonesia (RBI)' },
+      { id: 'osm-standard', name: 'OpenStreetMap Standard' },
+      { id: 'esri-satellite', name: 'ESRI World Imagery' },
+      { id: 'esri-topographic', name: 'ESRI World Topographic' }
+    ];
+
+    bmList.forEach(bm => {
+      options.push({
+        id: `opt-base-${bm.id}`,
+        name: bm.name,
+        group: '🗺️ Peta Dasar (Basemaps)',
+        type: 'basemap',
+        basemapId: bm.id
+      });
     });
 
     return options;
@@ -211,12 +399,10 @@ export class SwipeTool {
     const swipeViewEl = document.getElementById('swipe-map-view');
     if (!swipeViewEl) return;
 
-    // Get current main map style as base
     let baseStyle: any = { version: 8, sources: {}, layers: [] };
     try {
       const mainStyle = this.mainMap.getStyle();
       if (mainStyle) {
-        // Clone sources and layers
         baseStyle = JSON.parse(JSON.stringify(mainStyle));
       }
     } catch (_) {}
@@ -345,7 +531,6 @@ export class SwipeTool {
     const leftPct = Math.round(this.dividerPosition * 100);
     const rightPct = 100 - leftPct;
 
-    // Clip left map view
     const swipeViewEl = document.getElementById('swipe-map-view');
     if (swipeViewEl) {
       swipeViewEl.style.clipPath = `polygon(0 0, ${splitX}px 0, ${splitX}px 100%, 0 100%)`;
@@ -400,7 +585,7 @@ export class SwipeTool {
     const leftSelect = document.getElementById('swipe-left-select') as HTMLSelectElement;
     if (leftSelect) {
       leftSelect.addEventListener('change', () => {
-        const found = this.getLayerOptions().find(o => o.id === leftSelect.value);
+        const found = this.getAllLayerOptions().find(o => o.id === leftSelect.value);
         if (found && this.swipeMap) {
           this.leftOption = found;
           this.applyLayerToMap(this.swipeMap, this.leftOption, 'swipe-left');
@@ -411,7 +596,7 @@ export class SwipeTool {
     const rightSelect = document.getElementById('swipe-right-select') as HTMLSelectElement;
     if (rightSelect) {
       rightSelect.addEventListener('change', () => {
-        const found = this.getLayerOptions().find(o => o.id === rightSelect.value);
+        const found = this.getAllLayerOptions().find(o => o.id === rightSelect.value);
         if (found) {
           this.rightOption = found;
           this.applyLayerToMap(this.mainMap, this.rightOption, 'swipe-right');
@@ -425,7 +610,6 @@ export class SwipeTool {
       closeBtn.addEventListener('click', () => this.disable());
     }
 
-    // Window resize handler
     window.addEventListener('resize', () => {
       if (this.isActive) {
         this.updateClipPath();

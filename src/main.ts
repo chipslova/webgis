@@ -149,7 +149,7 @@ class WebGISApp {
       }
 
       // Instantiate Swipe Tool & Point Inspector
-      this.swipeTool = new SwipeTool(map);
+      this.swipeTool = new SwipeTool(map, this.pikselLoader);
       this.pointInspector = new PointInspector(map, this.pikselLoader, this.geeLoader, this.geojsonLoader);
 
       const swipeBtn = document.getElementById('btn-toggle-swipe');
