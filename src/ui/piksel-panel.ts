@@ -158,17 +158,25 @@ export class PikselPanelUI {
           <!-- Active Product Legend & Swatches -->
           ${legendHtml}
 
-          <!-- Collapsible Diagnostics -->
-          <details class="diagnostics-details" style="margin-top: 10px;">
-            <summary class="diagnostics-summary">
-              <span>📊 Telemetri Layanan OGC WMS</span>
+          <!-- Collapsible Telemetry & Grid Options -->
+          <details class="clean-accordion" style="margin-top: 10px;">
+            <summary>
+              <span>📊 Telemetri Layanan OGC WMS & Grid</span>
               <span class="diag-status-pill ${diagnostics?.status || 'idle'}">${(diagnostics?.status || 'idle').toUpperCase()}</span>
             </summary>
-            <div class="diagnostics-content">
-              <div class="diag-row"><span>Tile Selesai:</span><strong>${diagnostics?.tilesLoaded || 0} / ${Math.max(diagnostics?.tilesRequested || 1, 1)}</strong></div>
-              <div class="diag-row"><span>Tile Gagal:</span><strong class="${(diagnostics?.tilesFailed || 0) > 0 ? 'text-danger' : ''}">${diagnostics?.tilesFailed || 0}</strong></div>
-              <div class="diag-row"><span>Latensi Server:</span><strong>${diagnostics?.latencyMs ? (diagnostics.latencyMs / 1000).toFixed(2) + ' detik' : 'Menunggu...'}</strong></div>
-              <div class="diag-row"><span>Protokol:</span><strong>OGC WMS 1.3.0</strong></div>
+            <div class="accordion-body">
+              <div class="diagnostics-content">
+                <div class="diag-row"><span>Tile Selesai:</span><strong>${diagnostics?.tilesLoaded || 0} / ${Math.max(diagnostics?.tilesRequested || 1, 1)}</strong></div>
+                <div class="diag-row"><span>Tile Gagal:</span><strong class="${(diagnostics?.tilesFailed || 0) > 0 ? 'text-danger' : ''}">${diagnostics?.tilesFailed || 0}</strong></div>
+                <div class="diag-row"><span>Latensi Server:</span><strong>${diagnostics?.latencyMs ? (diagnostics.latencyMs / 1000).toFixed(2) + ' detik' : 'Menunggu...'}</strong></div>
+                <div class="diag-row"><span>Protokol:</span><strong>OGC WMS 1.3.0 (EPSG:3857)</strong></div>
+              </div>
+              <div style="margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 8px;">
+                <label class="toggle-checkbox-label">
+                  <input type="checkbox" id="toggle-piksel-grid" ${isGridOn ? 'checked' : ''} />
+                  <span>Tampilkan Grid Indeks Data Cube (1.631 Tile)</span>
+                </label>
+              </div>
             </div>
           </details>
         </div>
@@ -189,8 +197,8 @@ export class PikselPanelUI {
     const categories = [
       { id: 'all', label: 'Semua' },
       { id: 'geomad', label: '🌈 Citra & Warna' },
-      { id: 'indices', label: '📊 Indeks (NDVI/Air)' },
-      { id: 'hazard', label: '🌊 Bahaya Banjir' },
+      { id: 'indices', label: '📊 Indeks' },
+      { id: 'hazard', label: '🌊 Banjir' },
       { id: 'landsat', label: '🛰️ Landsat 9' }
     ];
 
@@ -230,7 +238,7 @@ export class PikselPanelUI {
 
             <div class="card-tags-line">
               <span class="card-tag">${prod.resolution}</span>
-              <span class="card-tag" title="Perlu perbesar peta minimal ke Zoom Level ${prod.minZoom ?? 6} (skala pulau/provinsi) agar citra satelit muncul">Zoom Min. Level ${prod.minZoom ?? 6} (Skala Pulau)</span>
+              <span class="card-tag" title="Perlu perbesar peta minimal ke Zoom Level ${prod.minZoom ?? 6}">Zoom Level ${prod.minZoom ?? 6}+</span>
               ${prod.timeEnabled ? `<span class="card-tag multi-year">2019–2025</span>` : ''}
               <span class="card-badge" style="color:${prod.color};">${prod.badge}</span>
             </div>
@@ -259,20 +267,12 @@ export class PikselPanelUI {
       </div>
 
       <!-- Active Layer Box -->
-      <div class="clean-section" style="margin-top: 14px;">
+      <div class="clean-section" style="margin-top: 12px;">
         ${activeControlHtml}
       </div>
 
-      <!-- Data Cube Grid Toggle -->
-      <div class="grid-toggle-bar">
-        <label class="toggle-checkbox-label">
-          <input type="checkbox" id="toggle-piksel-grid" ${isGridOn ? 'checked' : ''} />
-          <span>Tampilkan Grid Indeks Data Cube 10m (1.631 Tile)</span>
-        </label>
-      </div>
-
       <!-- Catalog Section -->
-      <div class="clean-section" style="margin-top: 14px;">
+      <div class="clean-section" style="margin-top: 12px;">
         <div class="clean-section-header">
           <span>Katalog Produk Citra Satelit</span>
           <span class="count-tag">${filteredProducts.length} Produk</span>
@@ -289,15 +289,25 @@ export class PikselPanelUI {
         </div>
       </div>
 
-      <!-- Official Links Footer -->
-      <div class="clean-footer-links">
-        <a href="https://piksel.big.go.id" target="_blank" rel="noopener noreferrer" class="link-btn">
-          Portal Resmi Piksel BIG ↗
-        </a>
-        <a href="https://explorer.piksel.big.go.id" target="_blank" rel="noopener noreferrer" class="link-btn secondary">
-          Data Cube Explorer ↗
-        </a>
-      </div>
+      <!-- Collapsible Official Links -->
+      <details class="clean-accordion" style="margin-top: 14px;">
+        <summary>
+          <span>🌐 Dokumentasi & Portal Resmi BIG Piksel</span>
+        </summary>
+        <div class="accordion-body">
+          <p style="margin-bottom: 10px; color: var(--text-muted);">
+            Layanan OGC WMS didukung oleh Open Data Cube BIG & Geoscience Australia.
+          </p>
+          <div class="clean-footer-links" style="display: flex; flex-direction: column; gap: 6px;">
+            <a href="https://piksel.big.go.id" target="_blank" rel="noopener noreferrer" class="link-btn full-width">
+              Buka Portal Piksel BIG ↗
+            </a>
+            <a href="https://explorer.piksel.big.go.id" target="_blank" rel="noopener noreferrer" class="link-btn secondary full-width">
+              Data Cube Explorer ↗
+            </a>
+          </div>
+        </div>
+      </details>
     `;
   }
 
