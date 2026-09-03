@@ -46,6 +46,7 @@ class WebGISApp {
     this.bindSearchEvents();
     this.bindMeasureEvents();
     this.bindImportEvents();
+    this.bindShareEvents();
     this.bindExportEvents();
     this.bindInspectorEvents();
     this.bindLegendEvents();
@@ -128,7 +129,7 @@ class WebGISApp {
       this.updateDynamicLegend();
 
       // Initialize Permalink State Sync
-      this.permalinkManager = new PermalinkManager(this.mapManager, this.pikselLoader);
+      this.permalinkManager = new PermalinkManager(this.mapManager, this.pikselLoader, this.geeLoader);
       this.permalinkManager.init();
 
       // Check if URL hash has initial parameters
@@ -142,8 +143,18 @@ class WebGISApp {
       if (urlState.basemapId && urlState.basemapId !== this.mapManager.getCurrentBasemapId()) {
         this.mapManager.setBasemap(urlState.basemapId);
       }
-      if (urlState.productId) {
+      if (urlState.year && this.pikselLoader) {
+        this.pikselLoader.setSelectedYear(urlState.year);
+      }
+      if (urlState.productId && this.pikselLoader) {
         this.pikselLoader.setActiveProduct(urlState.productId);
+      }
+      if (urlState.geeLayers && this.geeLoader) {
+        ['lst', 'elevation', 'landcover', 'poi'].forEach(k => {
+          const shouldBeActive = urlState.geeLayers!.includes(k);
+          this.geeLoader?.toggleLayer(k as any, shouldBeActive);
+        });
+        this.geePanelUI.init();
       }
 
       // Instantiate Point Inspector
@@ -764,6 +775,25 @@ class WebGISApp {
     reader.readAsText(file);
   }
 
+  private bindShareEvents() {
+    const shareBtn = document.getElementById('btn-share-map');
+    if (!shareBtn) return;
+
+    shareBtn.addEventListener('click', () => {
+      if (!this.permalinkManager) return;
+      const url = this.permalinkManager.getShareableUrl();
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => {
+          showToast('Tautan peta & analisis aktif disalin ke clipboard!', 'success');
+        }).catch(() => {
+          prompt('Salin tautan peta berikut:', url);
+        });
+      } else {
+        prompt('Salin tautan peta berikut:', url);
+      }
+    });
+  }
+
   private bindExportEvents() {
     const exportBtn = document.getElementById('btn-export-map');
     if (!exportBtn) return;
@@ -781,19 +811,83 @@ class WebGISApp {
 
       map.once('render', () => {
         try {
-          const canvas = map.getCanvas();
+          const mapCanvas = map.getCanvas();
+          const w = mapCanvas.width;
+          const h = mapCanvas.height;
+
+          // Create high-res composite canvas
+          const outCanvas = document.createElement('canvas');
+          outCanvas.width = w;
+          outCanvas.height = h;
+          const ctx = outCanvas.getContext('2d');
+
+          if (!ctx) {
+            throw new Error('Canvas context unavailable');
+          }
+
+          // 1. Draw Map Canvas
+          ctx.drawImage(mapCanvas, 0, 0);
+
+          // 2. Draw Top GIS Title Banner
+          const topBarHeight = Math.max(54, Math.round(h * 0.065));
+          ctx.fillStyle = 'rgba(9, 14, 27, 0.88)';
+          ctx.fillRect(0, 0, w, topBarHeight);
+
+          // Top Accent Line
+          ctx.fillStyle = '#00f0ff';
+          ctx.fillRect(0, topBarHeight - 2, w, 2);
+
+          // Title Text
+          ctx.fillStyle = '#ffffff';
+          ctx.font = `bold ${Math.max(14, Math.round(topBarHeight * 0.34))}px "Plus Jakarta Sans", sans-serif`;
+          ctx.textAlign = 'left';
+          ctx.fillText('Digital Earth Indonesia WebGIS', 20, Math.round(topBarHeight * 0.44));
+
+          // Subtitle (Active Layers & Basemap)
+          const activeProduct = this.pikselLoader?.getActiveProduct();
+          const activeYear = this.pikselLoader?.getSelectedYear() || '2025';
+          const prodText = activeProduct ? `${activeProduct.name} (${activeYear}) • OGC WMS (10m)` : 'Peta Analisis Geospasial Nasional';
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = `${Math.max(11, Math.round(topBarHeight * 0.24))}px "Plus Jakarta Sans", sans-serif`;
+          ctx.fillText(prodText, 20, Math.round(topBarHeight * 0.78));
+
+          // 3. Draw Bottom GIS Metadata Strip
+          const bottomBarHeight = Math.max(34, Math.round(h * 0.04));
+          ctx.fillStyle = 'rgba(9, 14, 27, 0.88)';
+          ctx.fillRect(0, h - bottomBarHeight, w, bottomBarHeight);
+
+          // Bottom Accent Line
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+          ctx.fillRect(0, h - bottomBarHeight, w, 1);
+
+          const center = map.getCenter();
+          const zoom = map.getZoom().toFixed(2);
+          const coordsText = `Lat: ${center.lat.toFixed(4)}°, Lng: ${center.lng.toFixed(4)}° | Zoom: ${zoom} | CRS: EPSG:3857`;
+          const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+
+          ctx.fillStyle = '#cbd5e1';
+          ctx.font = `${Math.max(10, Math.round(bottomBarHeight * 0.36))}px "JetBrains Mono", monospace`;
+          ctx.textAlign = 'left';
+          ctx.fillText(coordsText, 20, h - Math.round(bottomBarHeight * 0.38));
+
+          ctx.textAlign = 'right';
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText(`Diekspor: ${nowStr} • BIG / Open Data Cube`, w - 20, h - Math.round(bottomBarHeight * 0.38));
+
+          // Trigger download
           const link = document.createElement('a');
-          link.download = `webgis-indonesia-map-${Date.now()}.png`;
-          link.href = canvas.toDataURL('image/png');
+          link.download = `digital-earth-indonesia-map-${Date.now()}.png`;
+          link.href = outCanvas.toDataURL('image/png');
           link.click();
-          showToast('Peta berhasil diekspor sebagai gambar PNG!', 'success');
+          showToast('Peta grafis berkualitas tinggi berhasil diekspor!', 'success');
         } catch (e) {
+          console.error('Export error:', e);
           showToast('Gagal mengekspor peta ke format gambar.', 'error');
         } finally {
           setTimeout(() => {
             exportBtn.innerHTML = originalHtml;
             (exportBtn as HTMLButtonElement).disabled = false;
-          }, 1200);
+          }, 1000);
         }
       });
       map.triggerRepaint();

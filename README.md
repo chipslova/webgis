@@ -71,6 +71,10 @@ An interactive WebGIS for exploring Indonesian Earth Observation datasets and de
 * **Polygon Area Measurement**: Spherical geodesic area calculation powered by Turf.js.
 * **Custom GeoJSON Engine**: Drag-and-drop vector upload with automatic bounding box zoom, symbology, and feature inspection.
 
+### 🔗 6. State Synchronization & High-Resolution GIS Report Export
+* **Stateful Permalink URL Sharing**: Automatically synchronizes coordinates, zoom, active basemap, Sentinel-2 product/year, and GEE layers directly into the URL hash. One-click **"Bagikan"** button copies shareable analytical links.
+* **Professional GIS Export**: Export high-resolution PNG map layouts complete with top branding banner (Title & active EO dataset), bottom coordinate strip, EPSG:3857 reference system, and timestamped data attribution.
+
 ---
 
 ## 🏗️ Technical Architecture & Reliability Engineering

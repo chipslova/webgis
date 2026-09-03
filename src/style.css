@@ -2920,6 +2920,14 @@ html, body, #app {
   .basemap-gallery {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .floating-inspector-card {
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: calc(100vw - 24px) !important;
+    bottom: 48px !important;
+  }
 }
 
 @media (max-width: 480px) {
