@@ -129,22 +129,24 @@ export class PikselPanelUI {
           <div class="active-controls-grid">
             ${activeProduct.timeEnabled ? `
               <div class="control-field">
-                <label>📅 Tahun Citra</label>
+                <label>📅 Tahun Citra Satelit</label>
                 <select id="piksel-year-select" class="clean-select">
                   ${yearOptionsHtml}
                 </select>
               </div>
-            ` : `
-              <div class="control-field">
-                <label>📐 Resolusi</label>
-                <div class="static-val">${activeProduct.resolution}</div>
-              </div>
-            `}
+            ` : ''}
             <div class="control-field">
-              <label>🔍 Jarak Pandang (Zoom)</label>
-              <div class="static-val">Zoom Level ${activeProduct.minZoom ?? 6}+ (Skala Pulau/Provinsi)</div>
+              <label>📐 Resolusi Spasial</label>
+              <div class="static-val">${activeProduct.resolution}</div>
             </div>
           </div>
+
+          <!-- Dedicated Direct Zoom to Level 6 Button -->
+          <button class="btn-zoom-product-action full-width" id="btn-zoom-to-product" title="Perbesar peta ke Zoom Level ${activeProduct.minZoom ?? 6} agar citra satelit muncul">
+            <span style="font-size: 14px;">🔍</span>
+            <span>Perbesar ke Level ${activeProduct.minZoom ?? 6} (Skala Pulau)</span>
+            <span style="font-size: 13px; font-weight: 800;">→</span>
+          </button>
 
           <!-- Opacity Slider -->
           <div class="active-slider-field">
@@ -531,7 +533,27 @@ export class PikselPanelUI {
         return;
       }
 
-      // 4. Deactivate layer button
+      // 4. Zoom to product / Auto Zoom to minZoom
+      if (target.closest('#btn-zoom-to-product') || target.closest('#btn-auto-zoom-min')) {
+        this.pikselLoader.zoomToMinZoom();
+        return;
+      }
+
+      // 5. Retry Piksel product
+      if (target.closest('#btn-retry-piksel')) {
+        this.pikselLoader.retryCurrentProduct();
+        showToast('Mencoba memuat ulang ubin citra dari server OGC...', 'info');
+        return;
+      }
+
+      // 6. Jump to Bromo preset from alert
+      if (target.closest('#btn-jump-bromo-preset')) {
+        const bromo = PIKSEL_PRESETS.find(p => p.id === 'bromo');
+        if (bromo) this.pikselLoader.flyToPreset(bromo);
+        return;
+      }
+
+      // 7. Deactivate layer button
       if (target.closest('#btn-clear-piksel-layer')) {
         this.pikselLoader.setActiveProduct(null);
         this.render();
