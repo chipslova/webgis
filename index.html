@@ -205,34 +205,27 @@
             <!-- Panel: GEE Earth Engine Data -->
             <section id="panel-gee" class="sidebar-panel">
               <div class="panel-header">
-                <h2>🌡️ GEE Analysis — Iklim & UHI Nasional</h2>
-                <p>Analisis MODIS Land Surface Temp & Elevasi SRTM (6 Kawasan Strategis Indonesia).</p>
+                <h2>🌡️ GEE Analysis — Suhu Permukaan & Elevasi</h2>
+                <p>Analisis Termal MODIS LST & Elevasi SRTM (Wilayah Studi Jabodetabek & Jawa Barat).</p>
               </div>
 
               <!-- Case Study Disclaimer Banner -->
               <div class="gee-disclaimer-banner">
                 <div class="gee-disclaimer-header">
-                  <span>📌 <strong>Pusat Analisis Iklim Mikro Nasional</strong></span>
-                  <span class="gee-disclaimer-tag">Multi-Region</span>
+                  <span>📌 <strong>Studi Kasus Urban Heat Island (UHI)</strong></span>
+                  <span class="gee-disclaimer-tag">Analisis GEE</span>
                 </div>
-                <p>Data hasil olahan komputasi Google Earth Engine (MODIS MOD11A2 & USGS SRTM 2020–2024) untuk komparasi iklim mikro & Urban Heat Island lintas pulau Indonesia.</p>
+                <p>Pemodelan gradien termal satelit (MODIS MOD11A2) & topografi (USGS SRTM 30m) untuk menganalisis kontras suhu inti kota vs sabuk hijau pedesaan.</p>
               </div>
 
-              <!-- National Region Selector Card -->
-              <div class="gee-region-selector-card" style="margin-bottom: 12px;">
-                <label for="gee-region-select" class="gee-region-label">Pilih Kawasan Studi Nasional:</label>
-                <div class="gee-region-select-wrap">
-                  <select id="gee-region-select" class="gee-region-select">
-                    <option value="jkt-jabar">🏛️ Jabodetabek & Jawa Barat</option>
-                    <option value="ikn-kaltim">🌲 IKN Nusantara & Kaltim</option>
-                    <option value="sby-jatim">🏭 Surabaya & Jawa Timur</option>
-                    <option value="mdn-sumut">🌴 Medan & Sumatera Utara</option>
-                    <option value="mks-sulsel">⛵ Makassar & Sulawesi Selatan</option>
-                    <option value="dps-bali">🏝️ Denpasar & Bali</option>
-                  </select>
-                  <button id="btn-focus-gee-area" class="btn-gee-focus-action" title="Fokuskan Kamera ke Kawasan Ini">🎯 Terbang</button>
+              <!-- Quick Focus Area Button -->
+              <button id="btn-focus-gee-area" class="btn-focus-gee full-width" style="margin-bottom: 12px;">
+                <span style="font-size: 16px;">🎯</span>
+                <div class="btn-focus-gee-text">
+                  <span class="btn-focus-title">Fokus Wilayah Studi</span>
+                  <span class="btn-focus-sub">(Jakarta – Jawa Barat)</span>
                 </div>
-              </div>
+              </button>
 
               <!-- Layer Toggles Container -->
               <div class="gee-card">
@@ -242,14 +235,14 @@
                 <div class="piksel-master-control" style="margin-bottom: 14px;">
                   <div class="piksel-control-header">
                     <span class="control-title">Transparansi Layer GEE</span>
-                    <span class="control-val" id="gee-opacity-val">80%</span>
+                    <span class="control-val" id="gee-opacity-val">82%</span>
                   </div>
                   <input 
                     type="range" 
                     id="gee-opacity-slider" 
                     min="0" 
                     max="100" 
-                    value="80" 
+                    value="82" 
                     class="piksel-slider" 
                   />
                   <div class="slider-ticks">
@@ -264,7 +257,7 @@
                   <div class="gee-toggle-item-wrap">
                     <label class="gee-toggle-item">
                       <input type="checkbox" id="toggle-gee-lst" />
-                      <span class="toggle-label">🌡️ MODIS Daytime LST Heatmap</span>
+                      <span class="toggle-label">🌡️ MODIS Daytime LST Thermal Plume</span>
                     </label>
                     <div class="gee-layer-legend-box" id="legend-box-lst">
                       <div class="gee-legend-bar lst-gradient"></div>
@@ -273,7 +266,7 @@
                         <span>25°C</span>
                         <span>28°C</span>
                         <span>31°C</span>
-                        <span>34°C+ (Ekstrem Panas)</span>
+                        <span>34°C+ (Hotspot)</span>
                       </div>
                     </div>
                   </div>
@@ -285,8 +278,8 @@
                       <span class="toggle-label">📍 Stasiun Observasi Urban vs Rural</span>
                     </label>
                     <div class="gee-layer-legend-box poi-tags">
-                      <span id="poi-tag-urban" class="poi-tag urban-tag">🔴 Urban Core</span>
-                      <span id="poi-tag-rural" class="poi-tag rural-tag">🟢 Rural / Forest</span>
+                      <span class="poi-tag urban-tag">🔴 Jakarta Monas (33.85°C)</span>
+                      <span class="poi-tag rural-tag">🟢 Hutan IPB Bogor (24.60°C)</span>
                     </div>
                   </div>
 
@@ -294,7 +287,7 @@
                   <div class="gee-toggle-item-wrap">
                     <label class="gee-toggle-item">
                       <input type="checkbox" id="toggle-gee-elevation" />
-                      <span class="toggle-label">⛰️ USGS SRTM Ground Elevation Grid</span>
+                      <span class="toggle-label">⛰️ USGS SRTM Ground Elevation</span>
                     </label>
                     <div class="gee-layer-legend-box" id="legend-box-elv">
                       <div class="gee-legend-bar elv-gradient"></div>
@@ -326,24 +319,24 @@
 
               <!-- Metrics Cards with Reference Label -->
               <div class="gee-reference-label">
-                📌 Nilai Acuan Kawasan — MODIS MOD11A2 Rata-rata 2020–2024
+                📌 Nilai Acuan Riset — MODIS MOD11A2 Rata-rata 2020–2024
               </div>
               <div class="gee-metrics-grid">
                 <div class="gee-metric-card urban">
                   <div class="metric-title">Suhu Urban Avg</div>
-                  <div class="metric-val" id="gee-urban-val">33.85 °C</div>
-                  <div class="metric-sub" id="gee-urban-sub">Jakarta Monas (14m elev)</div>
+                  <div class="metric-val">33.85 °C</div>
+                  <div class="metric-sub">Jakarta Monas (14m elev)</div>
                 </div>
                 <div class="gee-metric-card rural">
                   <div class="metric-title">Suhu Rural Avg</div>
-                  <div class="metric-val" id="gee-rural-val">24.60 °C</div>
-                  <div class="metric-sub" id="gee-rural-sub">Hutan IPB Bogor (680m elev)</div>
+                  <div class="metric-val">24.60 °C</div>
+                  <div class="metric-sub">Hutan IPB Bogor (680m elev)</div>
                 </div>
               </div>
 
               <div class="gee-metric-card highlight">
                 <div class="metric-title">Urban Heat Island (UHI) Delta</div>
-                <div class="metric-val" id="gee-uhi-val">+9.25 °C Kontras Termal</div>
+                <div class="metric-val">+9.25 °C Kontras Termal</div>
               </div>
 
               <!-- Time Series Canvas Chart (Collapsible Accordion) -->
@@ -352,13 +345,13 @@
                   <span>📈 Tren Deret Waktu Suhu (2020–2026)</span>
                 </summary>
                 <div class="accordion-body">
-                  <p class="chart-subtitle" id="gee-chart-subtitle" style="margin-bottom: 8px;">Pola fluktuasi suhu musiman: Urban Core vs Rural Baseline</p>
+                  <p class="chart-subtitle" style="margin-bottom: 8px;">Pola fluktuasi suhu musiman: Perkotaan Jakarta vs Pedesaan Bogor</p>
                   <div class="chart-container">
                     <canvas id="gee-chart-canvas" width="300" height="200"></canvas>
                   </div>
                   <div class="chart-legend" style="margin-top: 8px;">
-                    <span class="legend-badge urban-badge">■ Urban Core (Panas)</span>
-                    <span class="legend-badge rural-badge">■ Rural / Hutan (Sejuk)</span>
+                    <span class="legend-badge urban-badge">■ Kota Jakarta (Panas)</span>
+                    <span class="legend-badge rural-badge">■ Pedesaan/Hutan (Sejuk)</span>
                   </div>
                 </div>
               </details>

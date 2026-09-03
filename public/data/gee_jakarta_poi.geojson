@@ -11,7 +11,7 @@
         ]
       },
       "properties": {
-        "id": "jkt-jabar_urban",
+        "id": "urban_poi",
         "name": "Jakarta Monas (Urban Core)",
         "category": "Urban Core",
         "elevation_m": 14,
@@ -32,13 +32,13 @@
         ]
       },
       "properties": {
-        "id": "jkt-jabar_rural",
+        "id": "rural_poi",
         "name": "Hutan IPB / Bogor (Rural Baseline)",
         "category": "Rural / Forest",
         "elevation_m": 680,
         "mean_lst_celsius": 24.6,
         "land_cover_code": 12,
-        "land_cover_name": "Cropland / Natural Vegetation",
+        "land_cover_name": "Cropland / Natural Vegetation Mosaics",
         "latitude": -6.595,
         "longitude": 107.0143
       }

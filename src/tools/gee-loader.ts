@@ -1,12 +1,9 @@
 import * as maplibregl from 'maplibre-gl';
 import {
   GEE_POI_DATA,
-  GEE_LST_GRID_DATA,
+  GEE_LST_POINT_DATA,
   GEE_ELEVATION_GRID_DATA,
-  GEE_LANDCOVER_GRID_DATA,
-  GEE_REGIONS,
-  GEE_MULTI_REGION_DATA,
-  GEERegionConfig
+  GEE_LANDCOVER_GRID_DATA
 } from '../data/gee-datasets';
 
 export class GEELoader {
@@ -14,18 +11,15 @@ export class GEELoader {
   private popup: maplibregl.Popup;
   private htmlMarkers: maplibregl.Marker[] = [];
 
-  // Active Multi-Region State
-  private activeRegionId: string = 'jkt-jabar';
-
   // In-memory GeoJSON Datasets
   private poiData: GeoJSON.FeatureCollection = GEE_POI_DATA;
-  private lstData: GeoJSON.FeatureCollection = GEE_LST_GRID_DATA;
+  private lstPointData: GeoJSON.FeatureCollection = GEE_LST_POINT_DATA;
   private elvData: GeoJSON.FeatureCollection = GEE_ELEVATION_GRID_DATA;
   private lcData: GeoJSON.FeatureCollection = GEE_LANDCOVER_GRID_DATA;
 
   // Active layers in workspace
   private activeLayers: Set<string> = new Set(['poi']);
-  // Visibility states (whether layer is hidden/shown on map)
+  // Visibility states
   private layerVisibilities: Map<string, boolean> = new Map([
     ['poi', true],
     ['lst', true],
@@ -34,9 +28,9 @@ export class GEELoader {
   ]);
   // Independent layer opacities
   private layerOpacities: Map<string, number> = new Map([
-    ['lst', 0.8],
-    ['elevation', 0.8],
-    ['landcover', 0.8]
+    ['lst', 0.82],
+    ['elevation', 0.75],
+    ['landcover', 0.75]
   ]);
 
   private isEventsBound: boolean = false;
@@ -49,53 +43,6 @@ export class GEELoader {
       closeOnClick: false,
       maxWidth: '340px'
     });
-  }
-
-  public getRegions(): GEERegionConfig[] {
-    return GEE_REGIONS;
-  }
-
-  public getActiveRegionId(): string {
-    return this.activeRegionId;
-  }
-
-  public getActiveRegionConfig(): GEERegionConfig {
-    return GEE_REGIONS.find((r) => r.id === this.activeRegionId) || GEE_REGIONS[0];
-  }
-
-  public setActiveRegion(regionId: string, flyTo: boolean = true) {
-    const regData = GEE_MULTI_REGION_DATA[regionId];
-    if (!regData) return;
-
-    this.activeRegionId = regionId;
-    this.poiData = regData.poi;
-    this.lstData = regData.lst;
-    this.elvData = regData.elevation;
-    this.lcData = regData.landcover;
-
-    if (this.map && this.map.getStyle()) {
-      try {
-        (this.map.getSource('gee-poi-source') as maplibregl.GeoJSONSource)?.setData(this.poiData);
-        (this.map.getSource('gee-lst-source') as maplibregl.GeoJSONSource)?.setData(this.lstData);
-        (this.map.getSource('gee-elevation-source') as maplibregl.GeoJSONSource)?.setData(this.elvData);
-        (this.map.getSource('gee-landcover-source') as maplibregl.GeoJSONSource)?.setData(this.lcData);
-      } catch (e) {
-        console.warn('Notice updating GEE sources:', e);
-      }
-
-      this.renderHtmlMarkers();
-
-      if (flyTo) {
-        const conf = regData.config;
-        this.map.flyTo({
-          center: conf.center,
-          zoom: conf.zoom,
-          duration: 1200
-        });
-      }
-    }
-
-    this.notifyLayersChange();
   }
 
   public onLayersChange(callback: () => void) {
@@ -114,9 +61,9 @@ export class GEELoader {
 
   public getAllMapLayerIds(): string[] {
     return [
-      'gee-elevation-fill', 'gee-elevation-outline',
-      'gee-landcover-fill', 'gee-landcover-outline',
-      'gee-lst-fill', 'gee-lst-outline',
+      'gee-elevation-fill',
+      'gee-landcover-fill',
+      'gee-lst-heatmap',
       'gee-poi-circles'
     ];
   }
@@ -156,8 +103,8 @@ export class GEELoader {
       this.map.setPaintProperty('gee-elevation-fill', 'fill-opacity', opacity);
     } else if (layerId === 'landcover' && this.map.getLayer('gee-landcover-fill')) {
       this.map.setPaintProperty('gee-landcover-fill', 'fill-opacity', opacity);
-    } else if (layerId === 'lst' && this.map.getLayer('gee-lst-fill')) {
-      this.map.setPaintProperty('gee-lst-fill', 'fill-opacity', opacity);
+    } else if (layerId === 'lst' && this.map.getLayer('gee-lst-heatmap')) {
+      this.map.setPaintProperty('gee-lst-heatmap', 'heatmap-opacity', opacity);
     }
     this.notifyLayersChange();
   }
@@ -171,13 +118,23 @@ export class GEELoader {
   }
 
   public getOpacity(): number {
-    return this.layerOpacities.get('lst') ?? 0.8;
+    return this.layerOpacities.get('lst') ?? 0.82;
   }
 
   public clearAllLayers() {
     this.activeLayers.clear();
     this.updateLayerVisibilities();
     this.notifyLayersChange();
+  }
+
+  public flyToStudyArea() {
+    if (!this.map) return;
+    this.map.flyTo({
+      center: [106.8272, -6.3500],
+      zoom: 9.8,
+      pitch: 25,
+      duration: 1500
+    });
   }
 
   public async loadGEEDatasets() {
@@ -208,7 +165,7 @@ export class GEELoader {
     const isLstVis = isLstActive && (this.layerVisibilities.get('lst') ?? true);
     const isPoiVis = isPoiActive && (this.layerVisibilities.get('poi') ?? true);
 
-    // --- 1. ELEVATION LAYER (USGS SRTM) ---
+    // --- 1. ELEVATION LAYER (USGS SRTM 30m - Smooth Gradient Fill) ---
     try {
       const elvSrc = this.map.getSource('gee-elevation-source') as maplibregl.GeoJSONSource;
       if (!elvSrc) {
@@ -231,26 +188,13 @@ export class GEELoader {
               'interpolate',
               ['linear'],
               ['coalesce', ['to-number', ['get', 'elevation_m']], 0],
-              0, '#006633',
-              50, '#84cc16',
-              200, '#eab308',
-              600, '#c2410c',
-              1200, '#f5f5f5'
+              0, 'rgba(16, 185, 129, 0.4)',
+              50, 'rgba(132, 204, 22, 0.55)',
+              200, 'rgba(234, 179, 8, 0.7)',
+              600, 'rgba(194, 65, 12, 0.82)',
+              1200, 'rgba(245, 245, 245, 0.92)'
             ],
             'fill-opacity': this.getLayerOpacity('elevation')
-          }
-        });
-      }
-      if (!this.map.getLayer('gee-elevation-outline')) {
-        this.map.addLayer({
-          id: 'gee-elevation-outline',
-          type: 'line',
-          source: 'gee-elevation-source',
-          layout: { visibility: isElvVis ? 'visible' : 'none' },
-          paint: {
-            'line-color': '#ffffff',
-            'line-width': 0.6,
-            'line-opacity': 0.6
           }
         });
       }
@@ -279,34 +223,14 @@ export class GEELoader {
           paint: {
             'fill-color': [
               'match',
-              ['coalesce', ['to-number', ['get', 'lc_code']], 0],
-              1, '#004d00',
-              2, '#008000',
-              4, '#2e8b57',
-              5, '#3cb371',
-              8, '#8fbc8f',
-              9, '#d2b48c',
-              10, '#f0e68c',
-              12, '#ffff00',
-              13, '#dc2626',
-              14, '#ff7f50',
-              17, '#0000cd',
-              '#888888'
+              ['get', 'lc_code'],
+              17, '#0284c7', // Water
+              13, '#e11d48', // Urban
+              12, '#eab308', // Croplands
+              1, '#15803d',  // Forest
+              '#64748b'
             ],
             'fill-opacity': this.getLayerOpacity('landcover')
-          }
-        });
-      }
-      if (!this.map.getLayer('gee-landcover-outline')) {
-        this.map.addLayer({
-          id: 'gee-landcover-outline',
-          type: 'line',
-          source: 'gee-landcover-source',
-          layout: { visibility: isLcVis ? 'visible' : 'none' },
-          paint: {
-            'line-color': '#ffffff',
-            'line-width': 0.6,
-            'line-opacity': 0.6
           }
         });
       }
@@ -314,57 +238,75 @@ export class GEELoader {
       console.warn('Notice adding Land Cover layer:', e);
     }
 
-    // --- 3. LST THERMAL GRID LAYER (MODIS MOD11A2) ---
+    // --- 3. MODIS LST DAYTIME (SMOOTH CONTINUOUS WEBGL HEATMAP) ---
     try {
-      const lstSrc = this.map.getSource('gee-lst-source') as maplibregl.GeoJSONSource;
+      const lstSrc = this.map.getSource('gee-lst-point-source') as maplibregl.GeoJSONSource;
       if (!lstSrc) {
-        this.map.addSource('gee-lst-source', {
+        this.map.addSource('gee-lst-point-source', {
           type: 'geojson',
-          data: this.lstData
+          data: this.lstPointData
         });
       } else if (typeof lstSrc.setData === 'function') {
-        lstSrc.setData(this.lstData);
+        lstSrc.setData(this.lstPointData);
       }
 
-      if (!this.map.getLayer('gee-lst-fill')) {
+      if (!this.map.getLayer('gee-lst-heatmap')) {
         this.map.addLayer({
-          id: 'gee-lst-fill',
-          type: 'fill',
-          source: 'gee-lst-source',
+          id: 'gee-lst-heatmap',
+          type: 'heatmap',
+          source: 'gee-lst-point-source',
           layout: { visibility: isLstVis ? 'visible' : 'none' },
           paint: {
-            'fill-color': [
+            // Increase heatmap weight based on thermal temperature
+            'heatmap-weight': [
               'interpolate',
               ['linear'],
-              ['coalesce', ['to-number', ['get', 'lst_celsius']], 25],
-              22, '#3b82f6', // Blue / Cool (~22°C)
-              25, '#10b981', // Green (~25°C)
-              28, '#f59e0b', // Yellow / Warm (~28°C)
-              31, '#ea580c', // Orange / Hot (~31°C)
-              34, '#dc2626'  // Red / Extreme Heat (~34°C+)
+              ['coalesce', ['to-number', ['get', 'thermal_weight']], 0.5],
+              0, 0.1,
+              0.5, 0.6,
+              1, 1.4
             ],
-            'fill-opacity': this.getLayerOpacity('lst')
-          }
-        });
-      }
-      if (!this.map.getLayer('gee-lst-outline')) {
-        this.map.addLayer({
-          id: 'gee-lst-outline',
-          type: 'line',
-          source: 'gee-lst-source',
-          layout: { visibility: isLstVis ? 'visible' : 'none' },
-          paint: {
-            'line-color': '#ffffff',
-            'line-width': 0.8,
-            'line-opacity': 0.7
+            // Increase heatmap intensity based on zoom level
+            'heatmap-intensity': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              7, 0.8,
+              10, 1.4,
+              13, 2.2
+            ],
+            // NASA MODIS Thermal Spectrum Color Ramp (Cold Blue -> Cyan -> Yellow -> Orange -> Crimson)
+            'heatmap-color': [
+              'interpolate',
+              ['linear'],
+              ['heatmap-density'],
+              0.0, 'rgba(0, 0, 0, 0)',
+              0.12, 'rgba(14, 116, 144, 0.45)', // 22°C Cold
+              0.32, 'rgba(16, 185, 129, 0.65)', // 25°C Moderate
+              0.52, 'rgba(234, 179, 8, 0.82)',  // 28°C Warm
+              0.72, 'rgba(249, 115, 22, 0.92)', // 31°C Hot
+              0.88, 'rgba(225, 29, 72, 0.96)',  // 34°C Urban Hotspot
+              1.0, 'rgba(255, 255, 255, 1.0)'   // 36°C+ Peak Heat Core
+            ],
+            // Smooth radius scaling with zoom
+            'heatmap-radius': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              7, 18,
+              9, 32,
+              11, 55,
+              13, 90
+            ],
+            'heatmap-opacity': this.getLayerOpacity('lst')
           }
         });
       }
     } catch (e) {
-      console.warn('Notice adding LST layer:', e);
+      console.warn('Notice adding LST Heatmap layer:', e);
     }
 
-    // --- 4. POI OBSERVATION LAYER ---
+    // --- 4. POI LAYER ---
     try {
       const poiSrc = this.map.getSource('gee-poi-source') as maplibregl.GeoJSONSource;
       if (!poiSrc) {
@@ -383,14 +325,14 @@ export class GEELoader {
           source: 'gee-poi-source',
           layout: { visibility: isPoiVis ? 'visible' : 'none' },
           paint: {
-            'circle-radius': 14,
+            'circle-radius': 12,
             'circle-color': [
               'case',
               ['==', ['get', 'category'], 'Urban Core'], '#dc2626',
               ['==', ['get', 'category'], 'Rural / Forest'], '#16a34a',
               '#3b82f6'
             ],
-            'circle-stroke-width': 3,
+            'circle-stroke-width': 2.5,
             'circle-stroke-color': '#ffffff'
           }
         });
@@ -412,7 +354,7 @@ export class GEELoader {
       const coords = feat.geometry.coordinates as [number, number];
       const props = feat.properties;
 
-      const isUrban = props.category === 'Urban Core' || (props.id && props.id.includes('urban'));
+      const isUrban = props.category === 'Urban Core' || props.id === 'urban_poi';
       const badgeClass = isUrban ? 'urban_poi' : 'rural_poi';
       const icon = isUrban ? '🏙️' : '🌲';
 
@@ -462,25 +404,16 @@ export class GEELoader {
     const isLcVis = this.isLayerVisible('landcover');
     const isPoiVis = this.isLayerVisible('poi');
 
-    if (this.map.getLayer('gee-lst-fill')) {
-      this.map.setLayoutProperty('gee-lst-fill', 'visibility', isLstVis ? 'visible' : 'none');
-    }
-    if (this.map.getLayer('gee-lst-outline')) {
-      this.map.setLayoutProperty('gee-lst-outline', 'visibility', isLstVis ? 'visible' : 'none');
+    if (this.map.getLayer('gee-lst-heatmap')) {
+      this.map.setLayoutProperty('gee-lst-heatmap', 'visibility', isLstVis ? 'visible' : 'none');
     }
 
     if (this.map.getLayer('gee-elevation-fill')) {
       this.map.setLayoutProperty('gee-elevation-fill', 'visibility', isElvVis ? 'visible' : 'none');
     }
-    if (this.map.getLayer('gee-elevation-outline')) {
-      this.map.setLayoutProperty('gee-elevation-outline', 'visibility', isElvVis ? 'visible' : 'none');
-    }
 
     if (this.map.getLayer('gee-landcover-fill')) {
       this.map.setLayoutProperty('gee-landcover-fill', 'visibility', isLcVis ? 'visible' : 'none');
-    }
-    if (this.map.getLayer('gee-landcover-outline')) {
-      this.map.setLayoutProperty('gee-landcover-outline', 'visibility', isLcVis ? 'visible' : 'none');
     }
 
     if (this.map.getLayer('gee-poi-circles')) {
@@ -489,76 +422,46 @@ export class GEELoader {
 
     this.htmlMarkers.forEach((m) => {
       const el = m.getElement();
-      if (el) el.style.display = isPoiVis ? 'flex' : 'none';
+      if (el) {
+        el.style.display = isPoiVis ? 'flex' : 'none';
+      }
     });
   }
 
   private bindLayerEvents() {
-    // Click LST grid cell
-    this.map.on('click', 'gee-lst-fill', (e) => {
-      if (!e.features || e.features.length === 0) return;
-      const props = e.features[0].properties;
-      this.popup
-        .setLngLat(e.lngLat)
-        .setHTML(`
-          <div class="gee-popup-card">
-            <h4>🌡️ MODIS LST Thermal Grid</h4>
-            <p><strong>LST Day:</strong> <span class="highlight-temp">${props.lst_celsius} °C</span> (${props.lst_kelvin} K)</p>
-          </div>
-        `)
-        .addTo(this.map);
-    });
+    if (!this.map) return;
 
-    // Click Elevation grid cell
     this.map.on('click', 'gee-elevation-fill', (e) => {
       if (!e.features || e.features.length === 0) return;
-      const props = e.features[0].properties;
-      this.popup
+      const feat = e.features[0];
+      const props = feat.properties as any;
+      new maplibregl.Popup()
         .setLngLat(e.lngLat)
         .setHTML(`
           <div class="gee-popup-card">
-            <h4>⛰️ USGS SRTM Ground Elevation</h4>
-            <p><strong>Elevation:</strong> <span class="highlight-temp">${props.elevation_m} meters</span></p>
+            <div class="gee-popup-badge" style="background: #10b981; color: #fff;">USGS SRTM DEM</div>
+            <h4>Ketinggian Topografi</h4>
+            <p style="margin: 6px 0; font-size: 14px;"><strong>${props.elevation_m} meter</strong> dpl</p>
           </div>
         `)
         .addTo(this.map);
     });
 
-    // Click Land Cover cell
     this.map.on('click', 'gee-landcover-fill', (e) => {
       if (!e.features || e.features.length === 0) return;
-      const props = e.features[0].properties;
-      this.popup
+      const feat = e.features[0];
+      const props = feat.properties as any;
+      new maplibregl.Popup()
         .setLngLat(e.lngLat)
         .setHTML(`
           <div class="gee-popup-card">
-            <h4>🌳 MODIS Land Cover Classification</h4>
-            <p><strong>Class:</strong> <span class="highlight-temp">${props.lc_name}</span> (Code: ${props.lc_code})</p>
+            <div class="gee-popup-badge" style="background: #0284c7; color: #fff;">MODIS MCD12Q1</div>
+            <h4>Klasifikasi Tutupan Lahan</h4>
+            <p style="margin: 6px 0; font-size: 13px;"><strong>${props.lc_name}</strong> (Kode: ${props.lc_code})</p>
           </div>
         `)
         .addTo(this.map);
     });
-
-    // Cursor pointer on hover
-    ['gee-lst-fill', 'gee-elevation-fill', 'gee-landcover-fill', 'gee-poi-circles'].forEach((layerId) => {
-      this.map.on('mouseenter', layerId, () => (this.map.getCanvas().style.cursor = 'pointer'));
-      this.map.on('mouseleave', layerId, () => (this.map.getCanvas().style.cursor = ''));
-    });
-  }
-
-  public flyToStudyArea() {
-    this.map.flyTo({
-      center: [106.9, -6.35],
-      zoom: 9.5,
-      pitch: 0,
-      bearing: 0,
-      duration: 1500
-    });
-  }
-
-  public restoreAfterStyleChange() {
-    this.renderAllLayers();
-    this.renderHtmlMarkers();
   }
 
   public getMap(): maplibregl.Map {

@@ -46,17 +46,11 @@ An interactive WebGIS for exploring Indonesian Earth Observation datasets and de
 * **National Flood Hazard Modeling**: High-resolution hydrological floodplain risk classifications (`flood_hazard_rp02`).
 * **National 10m Grid Index**: Interactive overlay of 1,631 Open Data Cube tile boundaries.
 
-### 🌡️ 2. Google Earth Engine (GEE) National Multi-Region Analysis
-* **National Multi-Region Framework**: Interactive microclimate and thermal analysis across **6 Strategic Economic & Urban Corridors in Indonesia**:
-  1. **Jabodetabek & Jawa Barat**: *Jakarta Monas (33.85°C) vs Hutan IPB Bogor (24.60°C)* $\to$ **+9.25°C UHI Delta**
-  2. **IKN Nusantara & Kalimantan Timur**: *KIPP IKN (31.40°C) vs Hutan Lindung S. Wain (25.10°C)* $\to$ **+6.30°C UHI Delta**
-  3. **Surabaya & Jawa Timur**: *Pusat Kota Surabaya (34.20°C) vs Tahura R. Soerjo / Bromo (23.80°C)* $\to$ **+10.40°C UHI Delta**
-  4. **Medan & Sumatera Utara**: *Medan Kota (33.10°C) vs Cagar Alam Sibolangit (24.90°C)* $\to$ **+8.20°C UHI Delta**
-  5. **Makassar & Sulawesi Selatan**: *Kawasan Losari (32.80°C) vs Pegunungan Malino (24.30°C)* $\to$ **+8.50°C UHI Delta**
-  6. **Denpasar & Bali**: *Kawasan Kuta/Denpasar (32.50°C) vs Hutan Bedugul (23.40°C)* $\to$ **+9.10°C UHI Delta**
-* **MODIS Land Surface Temperature (LST)**: 1km daytime thermal gradient (MOD11A2) with live region swapping and automatic camera navigation.
-* **Seasonal Time-Series (2020–2026)**: Dynamic canvas-rendered annual temperature dynamics and sinusoidal harmonic fits per region.
-* **USGS SRTM Elevation & MODIS Land Cover**: 30m digital elevation model and MCD12Q1 land cover classification for all 6 regions.
+### 🌡️ 2. Google Earth Engine (GEE) Urban Heat Island Case Study
+* **Continuous WebGL Thermal Plume**: High-density MODIS Daytime LST rendering using smooth bicubic continuous heat gradients (Cold Cyan $22^\circ\text{C} \to$ Warm Yellow $28^\circ\text{C} \to$ Hotspot Crimson $34^\circ\text{C}+$) without blocky wireframes or artificial grid boundaries.
+* **Urban Heat Island (UHI) Quantification**: Precise microclimate comparison between Jakarta Urban Core (*Monas, 33.85°C, 14m elev*) and West Java Rural Baseline (*Hutan IPB Bogor, 24.60°C, 680m elev*) with a **+9.25°C UHI Delta**.
+* **Seasonal Time-Series Dynamics (2020–2026)**: Dynamic canvas-rendered sinusoidal harmonic curve fits displaying annual dry-season temperature peaks and wet-season cooling.
+* **USGS SRTM 30m Elevation & MODIS MCD12Q1 Land Cover**: Clean topographic color ramps and land use classifications across the Jabodetabek metropolitan corridor.
 
 ### 🗺️ 3. Layer Orchestration & Active Layer Management
 * **Deterministic Visual Stacking**: Enforces strict vertical hierarchy:
