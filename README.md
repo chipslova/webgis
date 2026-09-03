@@ -58,7 +58,19 @@ An interactive WebGIS for exploring Indonesian Earth Observation datasets and de
 * **Independent Layer Control**: Every active dataset features discrete **Hide/Show (👁)**, **Opacity Sliders (0–100%)**, and **Remove (✕)** actions.
 * **15 Vector & Raster Basemaps**: Google Satellite/Hybrid/Streets, Esri World Imagery/Topographic/NatGeo/Canvas, BIG Rupabumi Indonesia (RBI), OpenStreetMap, and OpenTopoMap.
 
-### 📐 4. Spatial Measurement & Vector Tools
+### 🪟 4. Swipe / Split-Screen Comparison Tool
+* **Interactive Visual Change Detection**: Compare any two temporal or spectral datasets side-by-side (e.g. Sentinel-2 GeoMAD 2017 vs 2025, or True Color vs NDVI vs Basemap) with a 60fps synchronized draggable swipe divider.
+* **Dual Multi-Year Selector**: Select independent left and right product/year combinations directly from the floating comparison HUD.
+
+### 📍 5. Point Inspector & Surface Query
+* **Geospatial & Active Layer Query**: Click anywhere on the map to query:
+  * High-precision coordinates (Decimal Degrees & DMS).
+  * Topographic Ground Elevation (USGS SRTM 30m).
+  * Land Surface Temperature estimates (MODIS Daytime LST).
+  * Active spectral index / flood hazard classification interpretation.
+  * Vector feature properties and copy-to-clipboard actions.
+
+### 📐 6. Spatial Measurement & Vector Tools
 * **Geodesic Path Distance**: Real-time multi-point path calculation with satellite-contrast casing.
 * **Polygon Area Measurement**: Spherical geodesic area calculation powered by Turf.js.
 * **Custom GeoJSON Engine**: Drag-and-drop vector upload with automatic bounding box zoom, symbology, and feature inspection.
