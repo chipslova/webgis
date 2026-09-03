@@ -877,11 +877,24 @@ html, body, #app {
   display: flex;
   align-items: center;
   gap: 14px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s ease;
+  user-select: none;
+}
+
+.status-group:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.status-group:hover .status-item strong {
+  color: var(--accent-cyan);
 }
 
 .status-item strong {
   color: var(--text-main);
-  font-family: monospace;
+  font-family: 'JetBrains Mono', monospace;
+  transition: color 0.15s ease;
 }
 
 .status-actions {
@@ -891,23 +904,32 @@ html, body, #app {
 }
 
 .btn-text-sm {
-  background: none;
-  border: none;
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.3);
   color: var(--accent-cyan);
   cursor: pointer;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
 }
 
 .btn-text-sm:hover {
-  text-decoration: underline;
+  background: #00f0ff;
+  color: #070b14;
+  border-color: #00f0ff;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
 }
 
 .status-tag {
   background: rgba(255, 255, 255, 0.08);
-  padding: 1px 5px;
+  padding: 2px 6px;
   border-radius: 3px;
   color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* ==========================================================================
