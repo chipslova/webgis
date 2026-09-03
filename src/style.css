@@ -4943,6 +4943,13 @@ kbd {
   width: 100%;
   height: 100%;
   pointer-events: none;
+  overflow: hidden;
+}
+
+.swipe-map-view .maplibregl-canvas-container,
+.swipe-map-view .maplibregl-canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .swipe-handle {

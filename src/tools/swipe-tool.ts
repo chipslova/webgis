@@ -1,5 +1,5 @@
 import * as maplibregl from 'maplibre-gl';
-import { PIKSEL_PRODUCTS, PIKSEL_WMS_BASE_URL, S2_YEARS } from '../config/piksel';
+import { PIKSEL_PRODUCTS, PIKSEL_WMS_BASE_URL, S2_YEARS, PikselProduct } from '../config/piksel';
 import { BASEMAPS } from '../config/basemaps';
 import { showToast } from '../ui/toast';
 
@@ -62,21 +62,39 @@ export class SwipeTool {
     if (this.isActive) return;
     this.isActive = true;
 
+    // 1. If current map zoom is < 6, auto-zoom to Level 7.5 to ensure satellite imagery is immediately visible
+    if (this.mainMap.getZoom() < 6) {
+      const center = this.mainMap.getCenter();
+      // If at country overview center, jump to iconic Bromo Caldera or current location
+      const isCountryCenter = Math.abs(center.lng - 117.89) < 2 && Math.abs(center.lat - (-2.55)) < 2;
+      this.mainMap.flyTo({
+        center: isCountryCenter ? [112.9485, -7.9514] : [center.lng, center.lat],
+        zoom: 7.5,
+        duration: 1200
+      });
+    }
+
     this.createUI();
     this.initSwipeMap();
-    this.updateClipPath();
-    this.bindEvents();
+
+    // 2. Apply right layer to main map
+    this.applyLayerToMap(this.mainMap, this.rightOption, 'swipe-right');
 
     if (this.onToggleCallback) this.onToggleCallback(true);
-    showToast('Mode Bandingkan (Swipe) Aktif — Geser slider untuk komparasi temporal/spektral', 'info');
+    showToast('Mode Bandingkan Aktif: Geser slider vertikal untuk komparasi temporal (2017 vs 2025)', 'info');
   }
 
   public disable() {
     if (!this.isActive) return;
     this.isActive = false;
 
+    // Remove right comparison layer from main map cleanly
+    this.cleanupLayerFromMap(this.mainMap, 'swipe-right');
+
     if (this.swipeMap) {
-      this.swipeMap.remove();
+      try {
+        this.swipeMap.remove();
+      } catch (_) {}
       this.swipeMap = null;
     }
 
@@ -92,15 +110,9 @@ export class SwipeTool {
   private createUI() {
     const mapWrapper = document.getElementById('map') || document.body;
 
-    // 1. Container for Swipe Map and Handle
     this.containerEl = document.createElement('div');
     this.containerEl.id = 'swipe-comparison-container';
     this.containerEl.className = 'swipe-comparison-container';
-
-    // Top control banner
-    const optionsHtml = this.getLayerOptions().map(opt => `
-      <option value="${opt.id}">${opt.name}</option>
-    `).join('');
 
     this.containerEl.innerHTML = `
       <div id="swipe-map-view" class="swipe-map-view"></div>
@@ -114,7 +126,7 @@ export class SwipeTool {
 
       <div class="swipe-top-bar">
         <div class="swipe-selector-group">
-          <span class="swipe-side-tag left-tag">KIRI (LEFT)</span>
+          <span class="swipe-side-tag left-tag">KIRI</span>
           <select id="swipe-left-select" class="swipe-select">
             ${this.getLayerOptions().map(opt => `<option value="${opt.id}" ${opt.id === this.leftOption.id ? 'selected' : ''}>${opt.name}</option>`).join('')}
           </select>
@@ -125,7 +137,7 @@ export class SwipeTool {
         </div>
 
         <div class="swipe-selector-group">
-          <span class="swipe-side-tag right-tag">KANAN (RIGHT)</span>
+          <span class="swipe-side-tag right-tag">KANAN</span>
           <select id="swipe-right-select" class="swipe-select">
             ${this.getLayerOptions().map(opt => `<option value="${opt.id}" ${opt.id === this.rightOption.id ? 'selected' : ''}>${opt.name}</option>`).join('')}
           </select>
@@ -199,9 +211,19 @@ export class SwipeTool {
     const swipeViewEl = document.getElementById('swipe-map-view');
     if (!swipeViewEl) return;
 
+    // Get current main map style as base
+    let baseStyle: any = { version: 8, sources: {}, layers: [] };
+    try {
+      const mainStyle = this.mainMap.getStyle();
+      if (mainStyle) {
+        // Clone sources and layers
+        baseStyle = JSON.parse(JSON.stringify(mainStyle));
+      }
+    } catch (_) {}
+
     this.swipeMap = new maplibregl.Map({
       container: swipeViewEl,
-      style: { version: 8, sources: {}, layers: [] },
+      style: baseStyle,
       center: this.mainMap.getCenter(),
       zoom: this.mainMap.getZoom(),
       bearing: this.mainMap.getBearing(),
@@ -209,11 +231,20 @@ export class SwipeTool {
       attributionControl: false
     });
 
-    this.swipeMap.on('load', () => {
-      this.applyLayerToMap(this.swipeMap!, this.leftOption, 'swipe-left');
-    });
+    const onReady = () => {
+      if (!this.swipeMap) return;
+      this.applyLayerToMap(this.swipeMap, this.leftOption, 'swipe-left');
+      this.updateClipPath();
+      this.swipeMap.resize();
+    };
 
-    // Sync movements both ways
+    if (this.swipeMap.isStyleLoaded()) {
+      onReady();
+    } else {
+      this.swipeMap.once('load', onReady);
+    }
+
+    // Bidirectional smooth movement synchronization
     const sync = (source: maplibregl.Map, target: maplibregl.Map) => {
       if (this.isSyncing) return;
       this.isSyncing = true;
@@ -233,6 +264,40 @@ export class SwipeTool {
     this.swipeMap.on('move', () => {
       if (this.mainMap && this.isActive) sync(this.swipeMap, this.mainMap);
     });
+
+    this.bindEvents();
+  }
+
+  private buildWmsUrl(product: PikselProduct, year?: string): string {
+    const yr = year || '2025';
+    const params = new URLSearchParams({
+      SERVICE: 'WMS',
+      VERSION: '1.3.0',
+      REQUEST: 'GetMap',
+      CRS: 'EPSG:3857',
+      WIDTH: '256',
+      HEIGHT: '256',
+      LAYERS: product.layer,
+      STYLES: product.style,
+      FORMAT: 'image/png',
+      TRANSPARENT: 'TRUE'
+    });
+
+    if (product.timeEnabled) {
+      params.set('TIME', `${yr}-01-01`);
+    }
+
+    return `${PIKSEL_WMS_BASE_URL}?${params.toString()}&BBOX={bbox-epsg-3857}`;
+  }
+
+  private cleanupLayerFromMap(map: maplibregl.Map, prefix: string) {
+    const sourceId = `${prefix}-source`;
+    const layerId = `${prefix}-layer`;
+
+    try {
+      if (map.getLayer(layerId)) map.removeLayer(layerId);
+      if (map.getSource(sourceId)) map.removeSource(sourceId);
+    } catch (_) {}
   }
 
   private applyLayerToMap(map: maplibregl.Map, opt: SwipeLayerOption, prefix: string) {
@@ -240,15 +305,11 @@ export class SwipeTool {
       const prod = PIKSEL_PRODUCTS.find(p => p.id === opt.productId);
       if (!prod) return;
 
-      const yr = opt.year || '2025';
-      const timeParam = prod.timeEnabled ? `&TIME=${yr}` : '';
-      const wmsUrl = `${PIKSEL_WMS_BASE_URL}?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=${prod.layer}&STYLES=${prod.style}&FORMAT=image/png&TRANSPARENT=TRUE&CRS=EPSG:3857&WIDTH=256&HEIGHT=256${timeParam}&BBOX={bbox-epsg-3857}`;
-
+      const wmsUrl = this.buildWmsUrl(prod, opt.year);
       const sourceId = `${prefix}-source`;
       const layerId = `${prefix}-layer`;
 
-      if (map.getLayer(layerId)) map.removeLayer(layerId);
-      if (map.getSource(sourceId)) map.removeSource(sourceId);
+      this.cleanupLayerFromMap(map, prefix);
 
       map.addSource(sourceId, {
         type: 'raster',
@@ -353,7 +414,6 @@ export class SwipeTool {
         const found = this.getLayerOptions().find(o => o.id === rightSelect.value);
         if (found) {
           this.rightOption = found;
-          // Apply to main map
           this.applyLayerToMap(this.mainMap, this.rightOption, 'swipe-right');
         }
       });
@@ -367,7 +427,10 @@ export class SwipeTool {
 
     // Window resize handler
     window.addEventListener('resize', () => {
-      if (this.isActive) this.updateClipPath();
+      if (this.isActive) {
+        this.updateClipPath();
+        this.swipeMap?.resize();
+      }
     });
   }
 }
