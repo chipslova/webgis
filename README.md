@@ -98,10 +98,52 @@ Standard WebGIS applications often suffer from desynchronized loading spinners d
 * **Frontend Framework**: Vanilla TypeScript + Modular Component Architecture
 * **Mapping Engine**: [MapLibre GL JS](https://maplibre.org/) v5/v6
 * **Spatial Analytics**: [@turf/turf](https://turfjs.org/)
-* **Protocols**: OGC WMS 1.3.0, PMTiles, GeoJSON
+* **Protocols**: OGC WMS 1.3.0, PMTiles, GeoJSON, EPSG:3857 / EPSG:4326
 * **Bundler & Build Tool**: [Vite 6](https://vitejs.dev/)
 * **Runtime**: [Bun](https://bun.sh/)
 * **Deployment**: [Vercel](https://vercel.com/)
+
+---
+
+## 📐 Mathematical Formulations & Band Algebra
+
+All spectral indices are computed server-side on Open Data Cube (ODC) and rendered dynamically via OGC WMS:
+
+$$
+\text{NDVI} = \frac{\text{B08 (NIR)} - \text{B04 (Red)}}{\text{B08 (NIR)} + \text{B04 (Red)}}
+$$
+
+$$
+\text{NDWI} = \frac{\text{B03 (Green)} - \text{B08 (NIR)}}{\text{B03 (Green)} + \text{B08 (NIR)}}
+$$
+
+$$
+\text{BSI} = \frac{(\text{B12 (SWIR}_2\text{)} + \text{B04 (Red)}) - (\text{B08 (NIR)} + \text{B02 (Blue)})}{(\text{B12 (SWIR}_2\text{)} + \text{B04 (Red)}) + (\text{B08 (NIR)} + \text{B02 (Blue)})}
+$$
+
+$$
+\Delta\text{UHI} = \bar{T}_{\text{Urban (Monas 14m)}} - \bar{T}_{\text{Rural (IPB Forest 680m)}} = 33.85^\circ\text{C} - 24.60^\circ\text{C} = \mathbf{+9.25^\circ\text{C}}
+$$
+
+---
+
+## ⚠️ Known Limitations & Engineering Trade-offs
+
+A transparent understanding of architectural boundaries distinguishes a production-minded WebGIS from a toy project:
+
+1. **Zoom Level Gating (Z6+) for OGC WMS Products**:
+   * *Rationale*: Sentinel-2 GeoMAD has a 10m spatial resolution spanning $>1.9 \text{ million km}^2$ of Indonesian territory. Querying raw 10m rasters at global zoom levels ($Z < 6$) would trigger millions of un-cached server-side pixel calculations on the Open Data Cube cluster.
+   * *Mitigation*: The client enforces Zoom Level 6 gating (Island/Provincial scale) and provides automated one-click zoom guidance buttons (`[Perbesar ke Level 6]`) and interactive HUD alerts.
+
+2. **Upstream OGC Server Availability (BIG Piksel)**:
+   * *Behavior*: Occasional HTTP 500 or request timeouts may occur on experimental derivative products (such as Bare Soil Index for specific historical years) due to upstream backend maintenance at Badan Informasi Geospasial.
+   * *Mitigation*: The application features an instant client-side retry mechanism (`retryCurrentProduct()`) and transparent user feedback instead of silent failure states.
+
+3. **Google Earth Engine (GEE) Spatial Snapshot**:
+   * *Scope*: GEE thermal time-series and Land Surface Temperature analyses are currently computed for the **Jakarta Metropolitan Area & West Java study region** (2020–2026) to provide instant client-side responsiveness without requiring paid cloud backend quotas.
+
+4. **WebGL Layer Ordering & Canvas Buffer**:
+   * *Mechanism*: To prevent raster layers from burying interactive vectors and measurements, `enforceLayerOrder()` runs deterministically after any source manipulation, while `preserveDrawingBuffer: true` enables direct high-resolution PNG exports.
 
 ---
 
