@@ -66,15 +66,15 @@ export class PikselPanelUI {
       if (activeProduct.legend) {
         const swatchesHtml = (activeProduct.legend.swatches || []).map(sw => `
           <div class="swatch-pill">
-            <span class="swatch-color-box" style="background:${sw.color}; box-shadow: 0 0 6px ${sw.color}88;"></span>
-            <span class="swatch-text"><strong>${sw.icon ? sw.icon + ' ' : ''}</strong>${sw.label}</span>
+            <span class="swatch-color-box" style="background:${sw.color};"></span>
+            <span class="swatch-text">${sw.label}</span>
           </div>
         `).join('');
 
         if (activeProduct.legend.type === 'continuous' || activeProduct.legend.type === 'natural') {
           legendHtml = `
             <div class="active-legend-block">
-              <div class="legend-section-title">🎨 Panduan Interpretasi Warna Satelit</div>
+              <div class="legend-section-title">Legenda Warna</div>
               <div class="active-legend-bar legend-gradient ${activeProduct.legend.gradientClass}"></div>
               <div class="active-legend-labels">
                 <span>${activeProduct.legend.leftLabel}</span>
@@ -91,12 +91,12 @@ export class PikselPanelUI {
         } else if (activeProduct.legend.type === 'categorical') {
           legendHtml = `
             <div class="active-legend-block">
-              <div class="legend-section-title">🎨 Klasifikasi Bahaya Spasial</div>
+              <div class="legend-section-title">Klasifikasi</div>
               <div class="legend-swatches-grid">
                 ${(activeProduct.legend.items || []).map(it => `
                   <div class="swatch-pill">
-                    <span class="swatch-color-box" style="background:${it.color}; box-shadow: 0 0 6px ${it.color}88;"></span>
-                    <span class="swatch-text"><strong>${it.icon ? it.icon + ' ' : ''}</strong>${it.label}</span>
+                    <span class="swatch-color-box" style="background:${it.color};"></span>
+                    <span class="swatch-text">${it.label}</span>
                   </div>
                 `).join('')}
               </div>
@@ -129,15 +129,15 @@ export class PikselPanelUI {
           <div class="active-controls-grid">
             ${activeProduct.timeEnabled ? `
               <div class="control-field">
-                <label>📅 Tahun Citra Satelit</label>
+                <label>Tahun</label>
                 <select id="piksel-year-select" class="clean-select">
                   ${yearOptionsHtml}
                 </select>
               </div>
             ` : ''}
             <div class="control-field">
-              <label>📐 Resolusi Spasial</label>
-              <div class="static-val">${activeProduct.resolution}</div>
+              <label>Resolusi</label>
+              <div class="static-val">${activeProduct.resolution} &middot; ${activeProduct.sensor.split(' ')[0]} ${activeProduct.sensor.split(' ')[1] || ''}</div>
             </div>
           </div>
 
@@ -216,37 +216,46 @@ export class PikselPanelUI {
 
     const productCardsHtml = filteredProducts.map(prod => {
       const isActive = activeProduct?.id === prod.id;
-      const swatchesPreviewHtml = (prod.legend?.swatches || []).map(sw => `
-        <span class="card-swatch-chip" title="${sw.label}">
-          <span class="card-swatch-dot" style="background:${sw.color};"></span>
-          <span class="card-swatch-label">${sw.label}</span>
-        </span>
-      `).join('');
+      const isDisabled = prod.isDisabled === true;
+      const years = prod.availableYears;
+      const yearRange = years && years.length > 1
+        ? `${years[years.length - 1]}–${years[0]}`
+        : (years?.[0] ?? '');
+
+      if (isDisabled) {
+        return `
+          <div class="clean-product-card is-disabled" data-id="${prod.id}" title="${prod.statusNotice || 'Produk tidak tersedia'}">
+            <div class="card-main-info">
+              <div class="card-title-line">
+                <span class="card-color-dot" style="background:#475569;"></span>
+                <strong class="card-name" style="color:#64748b;">${prod.name}</strong>
+              </div>
+              <div class="card-tags-line">
+                <span class="card-tag" style="color:#475569;">${prod.resolution}</span>
+                <span class="card-tag card-tag-unavailable">Tidak Tersedia</span>
+              </div>
+            </div>
+            <div class="btn-disabled-product">Tidak Tersedia</div>
+          </div>
+        `;
+      }
 
       return `
-        <div class="clean-product-card ${isActive ? 'is-active' : ''}" data-id="${prod.id}">
+        <div class="clean-product-card ${isActive ? 'is-active' : ''}" data-id="${prod.id}" title="${prod.description}">
           <div class="card-main-info">
             <div class="card-title-line">
               <span class="card-color-dot" style="background:${prod.color};"></span>
               <strong class="card-name">${prod.name}</strong>
             </div>
-            <p class="card-description">${prod.description}</p>
-            
-            ${swatchesPreviewHtml ? `
-              <div class="card-swatches-preview">
-                ${swatchesPreviewHtml}
-              </div>
-            ` : ''}
-
             <div class="card-tags-line">
               <span class="card-tag">${prod.resolution}</span>
-              <span class="card-tag" title="Perlu perbesar peta minimal ke Zoom Level ${prod.minZoom ?? 6}">Zoom Level ${prod.minZoom ?? 6}+</span>
-              ${prod.timeEnabled ? `<span class="card-tag multi-year">2019–2025</span>` : ''}
+              <span class="card-tag" title="Perbesar ke Zoom Level ${prod.minZoom ?? 6}+">Z${prod.minZoom ?? 6}+</span>
+              ${prod.timeEnabled && yearRange ? `<span class="card-tag multi-year">${yearRange}</span>` : ''}
               <span class="card-badge" style="color:${prod.color};">${prod.badge}</span>
             </div>
           </div>
           <button class="btn-select-product ${isActive ? 'btn-active-state' : ''}" data-id="${prod.id}">
-            ${isActive ? '✓ Aktif' : 'Pilih Layer'}
+            ${isActive ? '✓ Aktif' : 'Aktifkan'}
           </button>
         </div>
       `;

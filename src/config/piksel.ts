@@ -60,6 +60,7 @@ export interface PikselProduct {
   attribution?: string;
   statusNotice?: string;
   isComputeHeavy?: boolean;
+  isDisabled?: boolean;
   minZoom?: number;
 }
 
@@ -213,20 +214,21 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
   },
   {
     id: 's2-bsi',
-    name: 'Indeks Lahan Terbuka (BSI / Bare Soil Index)',
+    name: 'Bare Soil Index (BSI)',
     category: 'indices',
     layer: 's2_geomad_annual_indices',
     style: 'bsi',
     timeEnabled: true,
     availableYears: S2_YEARS,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'Kombinasi spektral Blue-Red-NIR-SWIR untuk mendeteksi tanah terbuka, pembukaan lahan, tambang, dan proyek konstruksi.',
-    whatItShows: 'Tingkat keterbukaan tanah: Jingga/Merah Tua menunjukkan lahan gundul/tambang aktif, warna gelap menunjukkan kanopi/air.',
-    badge: 'Indeks Tanah',
-    color: '#d97706',
+    description: 'Kombinasi spektral Blue-Red-NIR-SWIR untuk mendeteksi tanah terbuka, pembukaan lahan, tambang, dan proyek konstruksi berskala besar.',
+    whatItShows: 'Tingkat keterbukaan tanah: nilai tinggi menunjukkan lahan gundul atau tambang aktif, nilai rendah menunjukkan kanopi atau badan air.',
+    badge: 'Tidak Tersedia',
+    color: '#64748b',
     resolution: '10 meter',
     sensor: 'Sentinel-2 GeoMAD Indices',
-    statusNotice: '⚠️ BSI sementara tidak tersedia — Server OGC Piksel mengembalikan status HTTP 500.',
+    isDisabled: true,
+    statusNotice: 'Tidak tersedia — upstream OGC server mengembalikan HTTP 500. Produk belum dipublikasikan pada layanan staging.',
     legend: {
       type: 'continuous',
       leftLabel: 'Tertutup Vegetasi / Air',
@@ -400,7 +402,7 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     recommendedProduct: 's2-ndvi'
   },
   {
-    id: 'jakarta-coast',
+    id: 'citarum-floodplain',
     name: 'Dataran Banjir Karawang & Citarum',
     locationName: 'Jawa Barat',
     center: [107.2500, -6.2200],

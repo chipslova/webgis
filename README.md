@@ -1,6 +1,6 @@
 # Digital Earth Indonesia WebGIS
 
-An interactive, high-performance WebGIS and Earth Observation (EO) analytical platform for exploring Indonesian satellite imagery, environmental models, and spatial analytics.
+An interactive WebGIS for exploring Indonesian Earth Observation datasets and demonstrating spatial analytics workflows, integrating BIG Piksel OGC services, Open Data Cube, and Google Earth Engine.
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-webgis--three--iota.vercel.app-00f0ff?style=for-the-badge&logo=vercel)](https://webgis-three-iota.vercel.app/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
@@ -14,7 +14,7 @@ An interactive, high-performance WebGIS and Earth Observation (EO) analytical pl
 
 **Digital Earth Indonesia WebGIS** combines standardized OGC Web Mapping Services (WMS), Open Data Cube (ODC) satellite pipelines, Google Earth Engine (GEE) thermal analysis, and client-side geodesic calculations into a unified geospatial intelligence dashboard.
 
-Designed for national environmental monitoring, land-use planning, and disaster risk assessment across the Indonesian archipelago.
+
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -36,7 +36,7 @@ Designed for national environmental monitoring, land-use planning, and disaster 
 ## 🚀 Key Features
 
 ### 🛰️ 1. Piksel Earth Observation (BIG × Geoscience Australia)
-* **Sentinel-2 GeoMAD Mosaics (10m)**: Cloud-free annual Median Absolute Deviation composites across Indonesia (2019–2025).
+* **Sentinel-2 GeoMAD Mosaics (10m)**: Cloud-free annual Median Absolute Deviation composites across Indonesia (2017–2025).
 * **On-the-Fly Spectral Indices**: Server-side band algebra computed live via Open Data Cube:
   * **NDVI** (Normalized Difference Vegetation Index)
   * **NDWI** (Normalized Difference Water Index)
@@ -49,7 +49,7 @@ Designed for national environmental monitoring, land-use planning, and disaster 
 ### 🌡️ 2. Google Earth Engine Thermal & Topographic Analysis
 * **MODIS Land Surface Temperature (LST)**: 1km daytime thermal gradient (MOD11A2).
 * **Urban Heat Island (UHI) Quantification**: Real-time thermal contrast measurement between Jakarta Urban Core (Monas, 33.85°C) and West Java Rural Baseline (IPB Forest, 24.60°C) with a **+9.25°C UHI Delta**.
-* **Seasonal Time-Series (2020–2026)**: Canvas-rendered annual temperature dynamics with fitted harmonic curves.
+* **Seasonal Time-Series (2020–2024)**: Canvas-rendered annual temperature dynamics with fitted harmonic curves.
 * **USGS SRTM Elevation**: 30m digital elevation model and MODIS MCD12Q1 land cover classifications.
 
 ### 🗺️ 3. Layer Orchestration & Active Layer Management
@@ -82,11 +82,11 @@ Standard WebGIS applications often suffer from desynchronized loading spinners d
 
 | Dataset | Provider / Source | Spatial Resolution | Temporal Coverage | Access Protocol |
 | :--- | :--- | :--- | :--- | :--- |
-| **Sentinel-2 GeoMAD** | BIG Piksel / ESA | 10 meters | 2019 – 2025 | OGC WMS 1.3.0 (PNG) |
+| **Sentinel-2 GeoMAD** | BIG Piksel / ESA | 10 meters | 2017 – 2025 | OGC WMS 1.3.0 (PNG) |
 | **Spectral Indices (NDVI/NDWI)** | Open Data Cube | 10 meters | Annual Comps | OGC WMS 1.3.0 |
 | **Landsat 9 Analysis** | USGS / NASA | 30 meters | 2022 – 2025 | OGC WMS 1.3.0 Swaths |
 | **Flood Hazard Models** | BIG Hidrologi | 10 meters | RP02 Model | Physical Raster WMS |
-| **MODIS Daytime LST** | NASA LP DAAC / GEE | 1,000 meters | 2020 – 2026 | GeoJSON Analytical |
+| **MODIS Daytime LST** | NASA LP DAAC / GEE | 1,000 meters | 2020 – 2024 | GeoJSON Analytical |
 | **SRTM Digital Elevation** | USGS / NASA | 30 meters | Static DEM | GeoJSON Analytical |
 | **MCD12Q1 Land Cover** | NASA LP DAAC | 500 meters | Static Class | GeoJSON Analytical |
 | **National Topographic (RBI)** | BIG Indonesia | Vector Tiles | Multi-Scale | WMTS / Vector Tile |
@@ -102,6 +102,8 @@ Standard WebGIS applications often suffer from desynchronized loading spinners d
 * **Bundler & Build Tool**: [Vite 6](https://vitejs.dev/)
 * **Runtime**: [Bun](https://bun.sh/)
 * **Deployment**: [Vercel](https://vercel.com/)
+
+> **Note — Piksel OGC Service**: Satellite imagery products are accessed via the BIG Piksel OGC Web Map Service (WMS) staging environment (`ows.staging.piksel.big.go.id`), used for development and demonstration. This is the currently available endpoint provided during the internship period.
 
 ---
 
