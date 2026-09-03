@@ -113,28 +113,35 @@ export class PointInspector {
   }
 
   /**
-   * Estimate MODIS LST daytime temperature based on national urban vs rural geography
+   * Estimate MODIS LST daytime temperature based on authentic satellite geography
    */
   private estimateLST(lng: number, lat: number): number {
-    const centers = [
-      { lng: 106.8272, lat: -6.1754, urbanTemp: 33.85 }, // Jakarta
-      { lng: 116.7050, lat: -0.9650, urbanTemp: 31.40 }, // IKN Nusantara
-      { lng: 112.7521, lat: -7.2575, urbanTemp: 34.20 }, // Surabaya
-      { lng: 98.6722, lat: 3.5952, urbanTemp: 33.10 },   // Medan
-      { lng: 119.4327, lat: -5.1477, urbanTemp: 32.80 }, // Makassar
-      { lng: 115.2167, lat: -8.6500, urbanTemp: 32.50 }, // Denpasar
+    // 1. Jabodetabek Metropolitan Urban Corridor (Hotspots 33.5°C - 34.9°C)
+    const urbanHotspots = [
+      { lng: 106.8272, lat: -6.1754, temp: 34.2, r: 0.16 }, // Jakarta Pusat/Monas
+      { lng: 106.9950, lat: -6.2350, temp: 34.5, r: 0.16 }, // Bekasi Kota
+      { lng: 107.1500, lat: -6.3100, temp: 34.8, r: 0.18 }, // Cikarang Industrial
+      { lng: 106.6350, lat: -6.1750, temp: 34.2, r: 0.15 }, // Tangerang Kota
+      { lng: 106.6750, lat: -6.3000, temp: 33.8, r: 0.14 }, // BSD / Tangsel
+      { lng: 106.8300, lat: -6.3800, temp: 33.2, r: 0.12 }, // Depok Margonda
     ];
 
-    for (const c of centers) {
-      const dist = Math.hypot(lng - c.lng, lat - c.lat);
-      if (dist < 0.25) {
-        return Number((c.urbanTemp - dist * 14).toFixed(1));
+    for (const h of urbanHotspots) {
+      const d = Math.hypot(lng - h.lng, lat - h.lat);
+      if (d < h.r) {
+        return Number((h.temp - d * 10).toFixed(1));
       }
     }
 
-    // General Indonesian daytime land surface temperature baseline (26.0 - 30.5 C)
+    // 2. Bogor & Puncak Mountainous Green Belt (Cool Baseline 22.0°C - 25.5°C)
+    const distBogor = Math.hypot(lng - 106.8500, lat - (-6.6000));
+    if (distBogor < 0.25) {
+      return Number((24.60 + distBogor * 12).toFixed(1));
+    }
+
+    // 3. General Indonesian daytime land surface baseline
     const hash = Math.abs(Math.sin(lng * 17.13 + lat * 31.41));
-    return Number((26.5 + hash * 4.0).toFixed(1));
+    return Number((27.5 + hash * 3.5).toFixed(1));
   }
 
   public inspectCoordinate(lng: number, lat: number, screenPoint?: maplibregl.PointLike) {

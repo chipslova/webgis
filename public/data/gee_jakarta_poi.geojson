@@ -5,14 +5,11 @@
       "type": "Feature",
       "geometry": {
         "type": "Point",
-        "coordinates": [
-          106.8272,
-          -6.1754
-        ]
+        "coordinates": [106.8272, -6.1754]
       },
       "properties": {
         "id": "urban_poi",
-        "name": "Jakarta Monas (Urban Core)",
+        "name": "Jakarta Urban POI (Monas)",
         "category": "Urban Core",
         "elevation_m": 14,
         "mean_lst_celsius": 33.85,
@@ -26,20 +23,17 @@
       "type": "Feature",
       "geometry": {
         "type": "Point",
-        "coordinates": [
-          107.0143,
-          -6.595
-        ]
+        "coordinates": [107.0143, -6.5950]
       },
       "properties": {
         "id": "rural_poi",
-        "name": "Hutan IPB / Bogor (Rural Baseline)",
+        "name": "West Java Rural POI (Bogor Foothills)",
         "category": "Rural / Forest",
         "elevation_m": 680,
-        "mean_lst_celsius": 24.6,
+        "mean_lst_celsius": 24.60,
         "land_cover_code": 12,
         "land_cover_name": "Cropland / Natural Vegetation Mosaics",
-        "latitude": -6.595,
+        "latitude": -6.5950,
         "longitude": 107.0143
       }
     }
