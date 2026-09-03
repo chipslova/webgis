@@ -13,7 +13,6 @@ import { ActiveLayersUI } from './ui/active-layers';
 import { BASEMAPS } from './config/basemaps';
 import { showToast } from './ui/toast';
 import { PermalinkManager } from './tools/permalink';
-import { SwipeTool } from './tools/swipe-tool';
 import { PointInspector } from './tools/point-inspector';
 
 class WebGISApp {
@@ -29,7 +28,6 @@ class WebGISApp {
   private pikselPanelUI: PikselPanelUI | null = null;
   private activeLayersUI: ActiveLayersUI | null = null;
   private permalinkManager: PermalinkManager | null = null;
-  private swipeTool: SwipeTool | null = null;
   private pointInspector: PointInspector | null = null;
 
   constructor() {
@@ -148,22 +146,8 @@ class WebGISApp {
         this.pikselLoader.setActiveProduct(urlState.productId);
       }
 
-      // Instantiate Swipe Tool & Point Inspector
-      this.swipeTool = new SwipeTool(map, this.pikselLoader);
+      // Instantiate Point Inspector
       this.pointInspector = new PointInspector(map, this.pikselLoader, this.geeLoader, this.geojsonLoader);
-
-      const swipeBtn = document.getElementById('btn-toggle-swipe');
-      if (swipeBtn) {
-        swipeBtn.addEventListener('click', () => {
-          this.swipeTool?.toggle();
-        });
-      }
-
-      this.swipeTool.onToggle((active) => {
-        if (swipeBtn) {
-          swipeBtn.classList.toggle('active', active);
-        }
-      });
 
       // Bind measurement callbacks
       this.measureTool.onResult((res) => {
@@ -254,11 +238,10 @@ class WebGISApp {
       const measureCard = document.getElementById('measure-result-card');
       if (measureCard) measureCard.style.display = 'none';
 
-      // 6. Hide feature inspector & point inspector & swipe tool
+      // 6. Hide feature inspector & point inspector
       const inspector = document.getElementById('feature-inspector');
       if (inspector) inspector.style.display = 'none';
       this.pointInspector?.clear();
-      this.swipeTool?.disable();
 
       // 7. Refresh Active Layers UI
       this.activeLayersUI?.render();
