@@ -105,22 +105,22 @@ export class PikselLoader {
         defaultMsg = 'Tidak ada layer citra aktif';
         break;
       case 'zoom_too_low':
-        defaultMsg = `Peta masih terlalu jauh (Level ${currentZoom}). Perbesar peta minimal ke Zoom Level ${minZoom} (Skala Pulau/Provinsi) agar server dapat merender citra satelit 10m.`;
+        defaultMsg = `Peta saat ini pada Zoom Level ${currentZoom}. Perbesar peta minimal ke Level ${minZoom} (Skala Pulau/Provinsi) untuk memuat citra satelit resolusi 10m.`;
         break;
       case 'requesting':
-        defaultMsg = `Menginisialisasi pipeline WMS ${prod?.name || ''}...`;
+        defaultMsg = `Menghubungkan ke layanan OGC WMS ${prod?.name || ''}...`;
         break;
       case 'loading':
-        defaultMsg = `Memproses tile satelit di Open Data Cube BIG (${this.tilesLoaded}/${Math.max(this.tilesRequested, 1)} tile)...`;
+        defaultMsg = `Memproses ubin citra di Open Data Cube BIG...`;
         break;
       case 'ready':
-        defaultMsg = `Layer ${prod?.name || ''} siap ditampilkan`;
+        defaultMsg = `Citra ${prod?.name || ''} siap ditampilkan`;
         break;
       case 'partial':
-        defaultMsg = `Sebagian tile citra dimuat (${this.tilesLoaded}/${Math.max(this.tilesRequested, 1)} tile). Beberapa tile masih diproses di server.`;
+        defaultMsg = `Sebagian ubin citra berhasil dimuat. Beberapa ubin sedang diproses oleh server ODC.`;
         break;
       case 'error':
-        defaultMsg = `Server OGC Piksel timeout / 500. Silakan perbesar peta atau pilih tahun lain.`;
+        defaultMsg = `Layanan OGC WMS ${prod?.name || ''} mengalami kendala dari server penyedia (Timeout / HTTP 500).`;
         break;
     }
 
@@ -153,6 +153,35 @@ export class PikselLoader {
         hasError: status === 'error',
         statusMessage
       });
+    }
+  }
+
+  /**
+   * Quick helper to smoothly zoom the map to the minimum level required for the active product
+   */
+  public zoomToMinZoom() {
+    if (!this.map) return;
+    const prod = this.getActiveProduct();
+    const minZ = prod?.minZoom ?? 6;
+    const targetZ = Math.max(minZ, 6.5);
+
+    this.map.easeTo({
+      zoom: targetZ,
+      duration: 1200,
+      essential: true
+    });
+  }
+
+  /**
+   * Retry loading the active product WMS layer
+   */
+  public retryCurrentProduct() {
+    const prod = this.getActiveProduct();
+    if (prod) {
+      this.tilesFailed = 0;
+      this.tilesLoaded = 0;
+      this.tilesRequested = 0;
+      this.renderRasterLayer(prod);
     }
   }
 
@@ -203,7 +232,9 @@ export class PikselLoader {
 
         if (currentZoom >= minZoom) {
           this.tilesRequested++;
-          this.emitState('loading');
+          if (this.currentStatus !== 'ready') {
+            this.emitState('loading');
+          }
         }
       }
     });
@@ -223,11 +254,10 @@ export class PikselLoader {
 
         if (e.isSourceLoaded) {
           this.tilesLoaded = Math.max(this.tilesLoaded, this.tilesRequested);
-          // If all requested tiles arrived or map source is fully loaded
-          if (this.tilesLoaded >= this.tilesRequested && this.tilesRequested > 0) {
-            this.tilesFailed = 0; // Clear transient errors since source is fully loaded
+          // If source is fully loaded
+          if (this.tilesFailed === 0 || this.tilesLoaded >= this.tilesRequested) {
             this.emitState('ready');
-          } else if (this.tilesLoaded > 0 && this.tilesLoaded < this.tilesRequested) {
+          } else if (this.tilesLoaded > 0) {
             this.emitState('partial');
           }
         }
@@ -247,7 +277,6 @@ export class PikselLoader {
         } else {
           // Source is 100% loaded and map is idle
           this.tilesLoaded = Math.max(this.tilesLoaded, this.tilesRequested);
-          this.tilesFailed = 0;
           this.emitState('ready');
         }
       }
@@ -262,11 +291,11 @@ export class PikselLoader {
         const minZoom = prod.minZoom ?? 6;
 
         if (currentZoom >= minZoom) {
-          // Check if it's a persistent error or unrecoverable 500
           this.tilesFailed++;
-          if (this.tilesLoaded === 0 && this.tilesRequested <= 2) {
+          // Only trigger full error if zero tiles were loaded at all
+          if (this.tilesLoaded === 0 && this.tilesFailed >= 2) {
             this.emitState('error');
-          } else {
+          } else if (this.tilesLoaded > 0) {
             this.emitState('partial');
           }
         }

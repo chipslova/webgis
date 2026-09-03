@@ -310,11 +310,22 @@ export class PikselPanelUI {
       const curZ = state.diagnostics?.currentZoom ? `Level ${state.diagnostics.currentZoom}` : 'Terlalu Jauh';
       return `
         <div class="clean-alert alert-warning">
-          <div>
+          <div class="alert-icon-title">
+            <span style="font-size: 16px;">🔍</span>
             <strong>Peta Masih Terlalu Jauh (Zoom ${curZ})</strong>
-            <span>Citra satelit 10m membutuhkan jarak pandang lebih dekat. Silakan <strong>perbesar peta (scroll ke depan) hingga minimal Zoom Level ${minZoom}</strong> (tampilan per pulau/provinsi) agar citra dapat dimuat.</span>
           </div>
-          <button class="btn-quick-zoom" id="btn-jump-bromo-preset">🔍 Contoh Cepat: Bromo (Zoom Level 11)</button>
+          <p class="alert-desc">
+            Citra satelit resolusi 10m membutuhkan jarak pandang minimal <strong>Zoom Level ${minZoom} (Skala Pulau/Provinsi)</strong> agar server Open Data Cube dapat merender data.
+          </p>
+          <div class="alert-actions-row">
+            <button class="btn-alert-action" id="btn-auto-zoom-min">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+              Perbesar Otomatis (Level ${minZoom}+)
+            </button>
+            <button class="btn-alert-secondary" id="btn-jump-bromo-preset">
+              📍 Contoh: Bromo
+            </button>
+          </div>
         </div>
       `;
     }
@@ -324,8 +335,8 @@ export class PikselPanelUI {
         <div class="clean-alert alert-loading">
           <div class="mini-spinner"></div>
           <div>
-            <strong>Sedang memproses raster di server BIG...</strong>
-            <span>Tile: ${state.diagnostics?.tilesLoaded || 0}/${Math.max(state.diagnostics?.tilesRequested || 1, 1)}</span>
+            <strong>Menghubungkan ke Open Data Cube BIG...</strong>
+            <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px;">Mengambil ubin citra satelit OGC WMS</span>
           </div>
         </div>
       `;
@@ -335,8 +346,8 @@ export class PikselPanelUI {
       return `
         <div class="clean-alert alert-partial">
           <div>
-            <strong>Sebagian tile berhasil dimuat</strong>
-            <span>${state.diagnostics?.tilesLoaded || 0}/${state.diagnostics?.tilesRequested || 1} tile selesai.</span>
+            <strong>✓ Sebagian besar citra berhasil ditampilkan</strong>
+            <span style="font-size: 11px; color: #cbd5e1; display: block; margin-top: 2px;">Beberapa ubin luar sedang diproses bertahap oleh server.</span>
           </div>
         </div>
       `;
@@ -345,8 +356,19 @@ export class PikselPanelUI {
     if (status === 'error') {
       return `
         <div class="clean-alert alert-error">
-          <strong>Server Timeout (HTTP 500)</strong>
-          <span>Coba perbesar ke kawasan pantauan atau pilih tahun lain.</span>
+          <div class="alert-icon-title">
+            <span style="font-size: 16px;">⚠️</span>
+            <strong>Layanan OGC WMS Tidak Merespons</strong>
+          </div>
+          <p class="alert-desc">
+            Server Badan Informasi Geospasial (BIG) mengalami galat atau timeout saat memproses produk ini. Anda dapat mencoba memuat ulang atau memilih visualisasi alternatif seperti Sentinel-2 True Color.
+          </p>
+          <div class="alert-actions-row">
+            <button class="btn-alert-retry" id="btn-retry-piksel">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              Coba Muat Ulang (Retry)
+            </button>
+          </div>
         </div>
       `;
     }
@@ -354,8 +376,10 @@ export class PikselPanelUI {
     if (status === 'ready') {
       return `
         <div class="clean-alert alert-success">
-          <strong>✓ Layer siap ditampilkan</strong>
-          <span>Tile 10m berhasil dimuat (${state.diagnostics?.latencyMs || 0}ms).</span>
+          <div>
+            <strong>✓ Citra Satelit Siap Ditampilkan</strong>
+            <span style="font-size: 11px; color: #cbd5e1; display: block; margin-top: 2px;">Resolusi 10m • OGC WMS Open Data Cube</span>
+          </div>
         </div>
       `;
     }
@@ -367,6 +391,22 @@ export class PikselPanelUI {
     const slot = document.getElementById('piksel-status-alert-slot');
     if (slot) {
       slot.innerHTML = this.getStatusBadgeHtml(state);
+      
+      const autoZoomBtn = slot.querySelector('#btn-auto-zoom-min');
+      if (autoZoomBtn) {
+        autoZoomBtn.addEventListener('click', () => {
+          this.pikselLoader.zoomToMinZoom();
+        });
+      }
+
+      const retryBtn = slot.querySelector('#btn-retry-piksel');
+      if (retryBtn) {
+        retryBtn.addEventListener('click', () => {
+          this.pikselLoader.retryCurrentProduct();
+          showToast('Mencoba memuat ulang ubin citra dari server OGC...', 'info');
+        });
+      }
+
       const jumpBtn = slot.querySelector('#btn-jump-bromo-preset');
       if (jumpBtn) {
         jumpBtn.addEventListener('click', () => {
@@ -397,25 +437,38 @@ export class PikselPanelUI {
 
     if (state.status === 'zoom_too_low') {
       spinner.style.display = 'none';
-      const curZ = state.diagnostics?.currentZoom ? `Level ${state.diagnostics.currentZoom}` : '';
-      hudTitle.innerText = `🔍 Perbesar Peta (Minimal Zoom Level ${activeProduct.minZoom ?? 6}) untuk Memuat Citra`;
-      hudSubtitle.innerText = `Zoom saat ini: ${curZ} • Dekatkan peta ke wilayah pulau/kota yang ingin diamati`;
+      const curZ = state.diagnostics?.currentZoom ? `Zoom ${state.diagnostics.currentZoom}` : '';
+      hudTitle.innerText = `🔍 Perbesar Peta (Min. Level ${activeProduct.minZoom ?? 6}) untuk Memuat Citra`;
+      hudSubtitle.innerText = `${curZ} • Klik di sini atau scroll untuk memperbesar ke skala pulau`;
+      
+      hud.onclick = () => {
+        this.pikselLoader.zoomToMinZoom();
+      };
       return;
+    } else {
+      hud.onclick = null;
     }
 
     if (state.status === 'requesting' || state.status === 'loading') {
       spinner.style.display = 'block';
       hudTitle.innerText = `Memuat ${activeProduct.name}...`;
-      hudSubtitle.innerText = `Open Data Cube • ${state.diagnostics?.tilesLoaded || 0}/${Math.max(state.diagnostics?.tilesRequested || 1, 1)} tile`;
+      hudSubtitle.innerText = `Open Data Cube BIG • Mengambil ubin citra`;
       return;
     }
 
-    if (state.status === 'ready') {
+    if (state.status === 'error') {
+      spinner.style.display = 'none';
+      hudTitle.innerText = `⚠️ Gangguan Server OGC WMS`;
+      hudSubtitle.innerText = `Server BIG timeout. Klik di panel untuk memuat ulang.`;
+      return;
+    }
+
+    if (state.status === 'ready' || state.status === 'partial') {
       spinner.style.display = 'none';
       hudTitle.innerText = `${activeProduct.name} Siap`;
-      hudSubtitle.innerText = `Citra 10m Sentinel-2 GeoMAD (${state.diagnostics?.latencyMs || 0}ms)`;
+      hudSubtitle.innerText = `Citra Satelit Resolusi ${activeProduct.resolution} • OGC WMS`;
       setTimeout(() => {
-        if (this.currentLoadingState.status === 'ready') {
+        if (this.currentLoadingState.status === 'ready' || this.currentLoadingState.status === 'partial') {
           hud.style.display = 'none';
         }
       }, 3500);
