@@ -3,13 +3,19 @@ import {
   GEE_POI_DATA,
   GEE_LST_GRID_DATA,
   GEE_ELEVATION_GRID_DATA,
-  GEE_LANDCOVER_GRID_DATA
+  GEE_LANDCOVER_GRID_DATA,
+  GEE_REGIONS,
+  GEE_MULTI_REGION_DATA,
+  GEERegionConfig
 } from '../data/gee-datasets';
 
 export class GEELoader {
   private map: maplibregl.Map;
   private popup: maplibregl.Popup;
   private htmlMarkers: maplibregl.Marker[] = [];
+
+  // Active Multi-Region State
+  private activeRegionId: string = 'jkt-jabar';
 
   // In-memory GeoJSON Datasets
   private poiData: GeoJSON.FeatureCollection = GEE_POI_DATA;
@@ -43,6 +49,53 @@ export class GEELoader {
       closeOnClick: false,
       maxWidth: '340px'
     });
+  }
+
+  public getRegions(): GEERegionConfig[] {
+    return GEE_REGIONS;
+  }
+
+  public getActiveRegionId(): string {
+    return this.activeRegionId;
+  }
+
+  public getActiveRegionConfig(): GEERegionConfig {
+    return GEE_REGIONS.find((r) => r.id === this.activeRegionId) || GEE_REGIONS[0];
+  }
+
+  public setActiveRegion(regionId: string, flyTo: boolean = true) {
+    const regData = GEE_MULTI_REGION_DATA[regionId];
+    if (!regData) return;
+
+    this.activeRegionId = regionId;
+    this.poiData = regData.poi;
+    this.lstData = regData.lst;
+    this.elvData = regData.elevation;
+    this.lcData = regData.landcover;
+
+    if (this.map && this.map.getStyle()) {
+      try {
+        (this.map.getSource('gee-poi-source') as maplibregl.GeoJSONSource)?.setData(this.poiData);
+        (this.map.getSource('gee-lst-source') as maplibregl.GeoJSONSource)?.setData(this.lstData);
+        (this.map.getSource('gee-elevation-source') as maplibregl.GeoJSONSource)?.setData(this.elvData);
+        (this.map.getSource('gee-landcover-source') as maplibregl.GeoJSONSource)?.setData(this.lcData);
+      } catch (e) {
+        console.warn('Notice updating GEE sources:', e);
+      }
+
+      this.renderHtmlMarkers();
+
+      if (flyTo) {
+        const conf = regData.config;
+        this.map.flyTo({
+          center: conf.center,
+          zoom: conf.zoom,
+          duration: 1200
+        });
+      }
+    }
+
+    this.notifyLayersChange();
   }
 
   public onLayersChange(callback: () => void) {

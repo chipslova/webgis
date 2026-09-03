@@ -113,21 +113,28 @@ export class PointInspector {
   }
 
   /**
-   * Estimate MODIS LST daytime temperature based on urban vs rural geography
+   * Estimate MODIS LST daytime temperature based on national urban vs rural geography
    */
   private estimateLST(lng: number, lat: number): number {
-    // Jakarta Monas urban core
-    const distMonas = Math.hypot(lng - 106.8272, lat - (-6.1754));
-    if (distMonas < 0.2) {
-      return Number((33.85 - distMonas * 15).toFixed(1));
+    const centers = [
+      { lng: 106.8272, lat: -6.1754, urbanTemp: 33.85 }, // Jakarta
+      { lng: 116.7050, lat: -0.9650, urbanTemp: 31.40 }, // IKN Nusantara
+      { lng: 112.7521, lat: -7.2575, urbanTemp: 34.20 }, // Surabaya
+      { lng: 98.6722, lat: 3.5952, urbanTemp: 33.10 },   // Medan
+      { lng: 119.4327, lat: -5.1477, urbanTemp: 32.80 }, // Makassar
+      { lng: 115.2167, lat: -8.6500, urbanTemp: 32.50 }, // Denpasar
+    ];
+
+    for (const c of centers) {
+      const dist = Math.hypot(lng - c.lng, lat - c.lat);
+      if (dist < 0.25) {
+        return Number((c.urbanTemp - dist * 14).toFixed(1));
+      }
     }
-    // Bogor IPB forest rural baseline
-    const distBogor = Math.hypot(lng - 106.7265, lat - (-6.5585));
-    if (distBogor < 0.2) {
-      return Number((24.60 + distBogor * 12).toFixed(1));
-    }
-    // General Indonesian daytime land surface temperature range (26 - 32 C)
-    return Number((27.5 + Math.sin(lat * 10) * 3.5).toFixed(1));
+
+    // General Indonesian daytime land surface temperature baseline (26.0 - 30.5 C)
+    const hash = Math.abs(Math.sin(lng * 17.13 + lat * 31.41));
+    return Number((26.5 + hash * 4.0).toFixed(1));
   }
 
   public inspectCoordinate(lng: number, lat: number, screenPoint?: maplibregl.PointLike) {

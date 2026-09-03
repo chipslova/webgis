@@ -1,5 +1,5 @@
 import { GEELoader } from '../tools/gee-loader';
-import { GEE_TIMESERIES_DATA } from '../data/gee-datasets';
+import { GEE_MULTI_REGION_DATA, GEE_TIMESERIES_DATA } from '../data/gee-datasets';
 import { showToast } from './toast';
 
 interface TimeSeriesRecord {
@@ -17,17 +17,18 @@ export class GEEPanelUI {
   private timeSeriesData: TimeSeriesRecord[] = (GEE_TIMESERIES_DATA.data as any) || [];
   private canvas: HTMLCanvasElement | null = null;
   private isInitialized: boolean = false;
+  private isToggleEventsBound: boolean = false;
 
   constructor(geeLoader: GEELoader) {
     this.geeLoader = geeLoader;
   }
 
-  private isToggleEventsBound: boolean = false;
-
   public init() {
     this.syncCheckboxStates();
+    this.updateRegionUI();
 
     if (!this.isInitialized) {
+      this.bindRegionEvents();
       this.bindLayerToggleEvents();
       this.bindOpacityEvents();
       this.bindDownloadEvents();
@@ -48,6 +49,60 @@ export class GEEPanelUI {
     }
 
     this.renderTimeSeriesChart();
+  }
+
+  private bindRegionEvents() {
+    const select = document.getElementById('gee-region-select') as HTMLSelectElement;
+    if (select) {
+      select.value = this.geeLoader.getActiveRegionId();
+      select.addEventListener('change', () => {
+        const regionId = select.value;
+        this.geeLoader.setActiveRegion(regionId, true);
+        this.updateRegionUI();
+        const conf = this.geeLoader.getActiveRegionConfig();
+        showToast(`Wilayah analisis GEE: ${conf.name}`, 'info');
+      });
+    }
+
+    const focusBtn = document.getElementById('btn-focus-gee-area');
+    if (focusBtn) {
+      focusBtn.addEventListener('click', () => {
+        const regionId = select ? select.value : this.geeLoader.getActiveRegionId();
+        this.geeLoader.setActiveRegion(regionId, true);
+      });
+    }
+  }
+
+  public updateRegionUI() {
+    const conf = this.geeLoader.getActiveRegionConfig();
+    const regData = GEE_MULTI_REGION_DATA[conf.id];
+
+    // 1. Update Metrics Cards
+    const uVal = document.getElementById('gee-urban-val');
+    const uSub = document.getElementById('gee-urban-sub');
+    const rVal = document.getElementById('gee-rural-val');
+    const rSub = document.getElementById('gee-rural-sub');
+    const uhiVal = document.getElementById('gee-uhi-val');
+    const subtitle = document.getElementById('gee-chart-subtitle');
+
+    if (uVal) uVal.innerText = `${conf.urban.lst.toFixed(2)} °C`;
+    if (uSub) uSub.innerText = `${conf.urban.name} (${conf.urban.elv}m elev)`;
+    if (rVal) rVal.innerText = `${conf.rural.lst.toFixed(2)} °C`;
+    if (rSub) rSub.innerText = `${conf.rural.name} (${conf.rural.elv}m elev)`;
+    if (uhiVal) uhiVal.innerText = `+${conf.delta_lst.toFixed(2)} °C Kontras Termal`;
+    if (subtitle) subtitle.innerText = `Pola suhu musiman: ${conf.urban.name} vs ${conf.rural.name}`;
+
+    // 2. Update POI Tags
+    const pU = document.getElementById('poi-tag-urban');
+    const pR = document.getElementById('poi-tag-rural');
+    if (pU) pU.innerText = `🔴 Urban: ${conf.urban.name} (${conf.urban.lst}°C)`;
+    if (pR) pR.innerText = `🟢 Rural: ${conf.rural.name} (${conf.rural.lst}°C)`;
+
+    // 3. Update Time Series Data
+    if (regData && regData.timeseries) {
+      this.timeSeriesData = regData.timeseries;
+      this.renderTimeSeriesChart();
+    }
   }
 
   private syncCheckboxStates() {
@@ -96,13 +151,6 @@ export class GEEPanelUI {
     attachToggle('toggle-gee-landcover', 'landcover');
     attachToggle('toggle-gee-poi', 'poi');
 
-    const focusBtn = document.getElementById('btn-focus-gee-area');
-    if (focusBtn) {
-      focusBtn.addEventListener('click', () => {
-        this.geeLoader.flyToStudyArea();
-      });
-    }
-
     this.isToggleEventsBound = true;
   }
 
@@ -113,31 +161,54 @@ export class GEEPanelUI {
 
     if (btnGeoJSON) {
       btnGeoJSON.addEventListener('click', () => {
+        const conf = this.geeLoader.getActiveRegionConfig();
+        const regData = GEE_MULTI_REGION_DATA[conf.id];
+        const blob = new Blob([JSON.stringify(regData.poi, null, 2)], { type: 'application/json' });
         const link = document.createElement('a');
-        link.href = '/data/gee_jakarta_poi.geojson';
-        link.download = 'gee_jakarta_urban_rural_poi.geojson';
+        link.href = URL.createObjectURL(blob);
+        link.download = `gee_${conf.id}_urban_rural_poi.geojson`;
         link.click();
-        showToast('Mengunduh dataset POI Stasiun Observasi GeoJSON...', 'info');
+        showToast(`Mengunduh dataset POI Stasiun Observasi (${conf.name})...`, 'info');
       });
     }
 
     if (btnCSV) {
       btnCSV.addEventListener('click', () => {
+        const conf = this.geeLoader.getActiveRegionConfig();
+        const regData = GEE_MULTI_REGION_DATA[conf.id];
+        const rows = (regData.timeseries || []).map((t: any) =>
+          `${t.date},${t.timestamp_ms},${t.urban_obs_c},${t.urban_fitted_c},${t.rural_obs_c},${t.rural_fitted_c},${t.uhi_delta_c}`
+        );
+        const csvContent = 'Date,Timestamp_MS,Urban_LST_Observed_C,Urban_LST_Fitted_C,Rural_LST_Observed_C,Rural_LST_Fitted_C,UHI_Delta_C\n' + rows.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv' });
         const link = document.createElement('a');
-        link.href = '/downloads/gee_lst_timeseries_jakarta.csv';
-        link.download = 'gee_lst_timeseries_jakarta.csv';
+        link.href = URL.createObjectURL(blob);
+        link.download = `gee_lst_timeseries_${conf.id}.csv`;
         link.click();
-        showToast('Mengunduh data deret waktu suhu LST (CSV)...', 'info');
+        showToast(`Mengunduh data deret waktu suhu LST (${conf.name})...`, 'info');
       });
     }
 
     if (btnTIFF) {
       btnTIFF.addEventListener('click', () => {
+        const conf = this.geeLoader.getActiveRegionConfig();
+        const logText = `GEE Export Task Completed: elevation_lst_${conf.id}_indonesia
+Region: ${conf.name} (${conf.island})
+Center: [${conf.center[0]}, ${conf.center[1]}]
+Urban Core POI: ${conf.urban.name} (LST: ${conf.urban.lst}°C, Elevation: ${conf.urban.elv}m)
+Rural Baseline POI: ${conf.rural.name} (LST: ${conf.rural.lst}°C, Elevation: ${conf.rural.elv}m)
+UHI Thermal Delta: +${conf.delta_lst}°C
+Sensor Collection: MODIS/061/MOD11A1 & USGS/SRTMGL1_003
+CRS: EPSG:4326 (WGS84)
+Export Timestamp: ${new Date().toISOString()}
+Status: COMPLETED
+`;
+        const blob = new Blob([logText], { type: 'text/plain' });
         const link = document.createElement('a');
-        link.href = '/downloads/my_export_jakarta_elevation.geotiff.txt';
-        link.download = 'elevation_near_jakarta_export_log.txt';
+        link.href = URL.createObjectURL(blob);
+        link.download = `elevation_lst_${conf.id}_export_log.txt`;
         link.click();
-        showToast('Mengunduh log metadata & spesifikasi ekspor GeoTIFF (TXT)...', 'info');
+        showToast(`Mengunduh log metadata & spesifikasi ekspor (${conf.name})...`, 'info');
       });
     }
   }
@@ -179,7 +250,7 @@ export class GEEPanelUI {
       ctx.fillText(`${yVal}°C`, 5, y + 3);
     }
 
-    // X Axis Labels (2020, 2022, 2024, 2026)
+    // X Axis Labels
     const totalCount = this.timeSeriesData.length;
     const xStep = chartW / (totalCount - 1);
 
@@ -197,14 +268,14 @@ export class GEEPanelUI {
 
       // Urban point
       const yU = padding.top + chartH - ((rec.urban_obs_c - yMin) / (yMax - yMin)) * chartH;
-      ctx.fillStyle = 'rgba(220, 38, 38, 0.4)'; // Red scatter
+      ctx.fillStyle = 'rgba(220, 38, 38, 0.4)';
       ctx.beginPath();
       ctx.arc(x, yU, 2.5, 0, 2 * Math.PI);
       ctx.fill();
 
       // Rural point
       const yR = padding.top + chartH - ((rec.rural_obs_c - yMin) / (yMax - yMin)) * chartH;
-      ctx.fillStyle = 'rgba(22, 163, 74, 0.4)'; // Green scatter
+      ctx.fillStyle = 'rgba(22, 163, 74, 0.4)';
       ctx.beginPath();
       ctx.arc(x, yR, 2.5, 0, 2 * Math.PI);
       ctx.fill();
