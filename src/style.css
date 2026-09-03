@@ -406,12 +406,10 @@ html, body, #app {
 
 .sidebar-panel {
   display: none;
-  flex-direction: column;
-  padding: 16px 16px 48px 16px;
+  padding: 16px 16px 64px 16px;
   height: 100%;
   max-height: 100%;
   min-height: 0;
-  flex: 1 1 0%;
   overflow-y: auto;
   overflow-x: hidden;
   width: 100%;
@@ -421,7 +419,7 @@ html, body, #app {
 }
 
 .sidebar-panel.active {
-  display: flex;
+  display: block;
 }
 
 .panel-header {
@@ -4523,26 +4521,41 @@ kbd {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  background: #131d31;
-  border: 1px solid rgba(0, 240, 255, 0.4);
+  gap: 10px;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(0, 240, 255, 0.08));
+  border: 1px solid rgba(0, 240, 255, 0.45);
   color: #00f0ff;
-  font-size: 11.5px;
-  font-weight: 700;
   padding: 9px 14px;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  white-space: normal;
-  line-height: 1.35;
-  text-align: center;
-  transition: all 0.2s ease;
   width: 100%;
   box-sizing: border-box;
+  transition: all 0.2s ease;
 }
 
 .btn-focus-gee:hover {
-  background: rgba(0, 240, 255, 0.15);
+  background: rgba(0, 240, 255, 0.2);
   border-color: #00f0ff;
-  box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
   transform: translateY(-1px);
+}
+
+.btn-focus-gee-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.25;
+}
+
+.btn-focus-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.btn-focus-sub {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #38bdf8;
+  margin-top: 2px;
 }
