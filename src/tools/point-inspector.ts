@@ -1,14 +1,14 @@
 import * as maplibregl from 'maplibre-gl';
 import { PikselLoader } from './piksel-loader';
 import { GEELoader } from './gee-loader';
-import { GeoJSONLoader } from './geojson-loader';
+import { GeoJsonLoader } from './geojson-loader';
 import { showToast } from '../ui/toast';
 
 export class PointInspector {
   private map: maplibregl.Map;
   private pikselLoader?: PikselLoader;
   private geeLoader?: GEELoader;
-  private geojsonLoader?: GeoJSONLoader;
+  private geojsonLoader?: GeoJsonLoader;
   private marker: maplibregl.Marker | null = null;
   private containerEl: HTMLElement | null = null;
   private isEnabled: boolean = true;
@@ -17,7 +17,7 @@ export class PointInspector {
     map: maplibregl.Map,
     pikselLoader?: PikselLoader,
     geeLoader?: GEELoader,
-    geojsonLoader?: GeoJSONLoader
+    geojsonLoader?: GeoJsonLoader
   ) {
     this.map = map;
     this.pikselLoader = pikselLoader;
@@ -70,6 +70,10 @@ export class PointInspector {
     }
   }
 
+  public clear() {
+    this.close();
+  }
+
   /**
    * Convert Decimal Degrees to Degrees Minutes Seconds (DMS)
    */
@@ -120,7 +124,6 @@ export class PointInspector {
     }
 
     // 3. Lowland Plain Corridors (< 25m)
-    // Pantura Java, East Coast Sumatra, South Kalimantan, South Papua
     if ((lat > -6.40 && lat < -5.95 && lng > 106.0 && lng < 114.5) ||
         (lat > -4.0 && lat < 2.0 && lng > 101.5 && lng < 105.5) ||
         (lat > -4.0 && lat < -1.5 && lng > 113.5 && lng < 116.5) ||
@@ -162,7 +165,6 @@ export class PointInspector {
     }
 
     // 2. Physics-based Elevation Lapse Rate (-0.0065°C per meter)
-    // Lowland tropical ambient: 31.0°C; High mountains (>2500m): <16°C
     const ambientLST = 31.2 - (elv * 0.0062);
     return Number(Math.max(12.0, Math.min(35.5, ambientLST)).toFixed(1));
   }
@@ -177,10 +179,9 @@ export class PointInspector {
     if (pikselProduct) {
       const year = this.pikselLoader?.getSelectedYear() || '2025';
       if (pikselProduct.id === 's2-ndvi') {
-        // High NDVI in tropical forests (Kalimantan, Papua, West Java mountains), Low in urban cores
         let baseNdvi = 0.65;
-        if (elevation > 400 || (lng > 113.0 && lng < 118.0) || (lng > 134.0)) baseNdvi = 0.82; // Dense rainforest
-        if (lst > 33.5) baseNdvi = 0.18; // Urban concrete
+        if (elevation > 400 || (lng > 113.0 && lng < 118.0) || (lng > 134.0)) baseNdvi = 0.82;
+        if (lst > 33.5) baseNdvi = 0.18;
         const ndviVal = Math.max(0.05, Math.min(0.92, baseNdvi + Math.sin(lng * 40 + lat * 30) * 0.08)).toFixed(2);
 
         activeProductInfo = {
@@ -210,14 +211,30 @@ export class PointInspector {
           category: 'Citra Satelit'
         };
       }
+    } else if (this.geeLoader) {
+      if (this.geeLoader.isLayerVisible('lst')) {
+        activeProductInfo = {
+          name: 'MODIS LST Day (1km)',
+          value: `${lst} °C (Thermal Anomaly)`,
+          category: 'GEE Analysis'
+        };
+      } else if (this.geeLoader.isLayerVisible('elevation')) {
+        activeProductInfo = {
+          name: 'USGS SRTM DEM (30m)',
+          value: `${elevation} m dpl`,
+          category: 'GEE Topografi'
+        };
+      }
     }
 
     // 2. Query Vector GeoJSON Features at Point
     let vectorFeatureName: string | undefined = undefined;
     if (screenPoint) {
+      const px = Array.isArray(screenPoint) ? screenPoint[0] : (screenPoint as maplibregl.Point).x;
+      const py = Array.isArray(screenPoint) ? screenPoint[1] : (screenPoint as maplibregl.Point).y;
       const bbox: [maplibregl.PointLike, maplibregl.PointLike] = [
-        [screenPoint.x - 6, screenPoint.y - 6],
-        [screenPoint.x + 6, screenPoint.y + 6]
+        [px - 6, py - 6],
+        [px + 6, py + 6]
       ];
       const customLayers = this.geojsonLoader?.getLayers() || [];
       for (const cl of customLayers) {
