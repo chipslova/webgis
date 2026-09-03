@@ -17,11 +17,12 @@ export class GEEPanelUI {
   private timeSeriesData: TimeSeriesRecord[] = (GEE_TIMESERIES_DATA.data as any) || [];
   private canvas: HTMLCanvasElement | null = null;
   private isInitialized: boolean = false;
-  private isToggleEventsBound: boolean = false;
 
   constructor(geeLoader: GEELoader) {
     this.geeLoader = geeLoader;
   }
+
+  private isToggleEventsBound: boolean = false;
 
   public init() {
     this.syncCheckboxStates();
@@ -99,7 +100,6 @@ export class GEEPanelUI {
     if (focusBtn) {
       focusBtn.addEventListener('click', () => {
         this.geeLoader.flyToStudyArea();
-        showToast('Kamera terpusat ke Kawasan Studi Jabodetabek & Jawa Barat', 'info');
       });
     }
 
@@ -123,13 +123,8 @@ export class GEEPanelUI {
 
     if (btnCSV) {
       btnCSV.addEventListener('click', () => {
-        const rows = this.timeSeriesData.map((t) =>
-          `${t.date},${t.timestamp_ms},${t.urban_obs_c},${t.urban_fitted_c},${t.rural_obs_c},${t.rural_fitted_c},${t.uhi_delta_c}`
-        );
-        const csvContent = 'Date,Timestamp_MS,Urban_LST_Observed_C,Urban_LST_Fitted_C,Rural_LST_Observed_C,Rural_LST_Fitted_C,UHI_Delta_C\n' + rows.join('\n');
-        const blob = new Blob([csvContent], { type: 'text/csv' });
         const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
+        link.href = '/downloads/gee_lst_timeseries_jakarta.csv';
         link.download = 'gee_lst_timeseries_jakarta.csv';
         link.click();
         showToast('Mengunduh data deret waktu suhu LST (CSV)...', 'info');
@@ -138,23 +133,11 @@ export class GEEPanelUI {
 
     if (btnTIFF) {
       btnTIFF.addEventListener('click', () => {
-        const logText = `GEE Export Task Completed: elevation_lst_jakarta_indonesia
-Region: Jakarta & West Java (Jabodetabek Agglomeration)
-Coordinates: Urban [106.8272, -6.1754], Rural [107.0143, -6.5950]
-Urban Core POI: Jakarta Monas (Mean LST: 33.85°C, Elevation: 14m)
-Rural Baseline POI: Hutan IPB / Bogor (Mean LST: 24.60°C, Elevation: 680m)
-UHI Thermal Delta: +9.25°C
-Sensor Collection: MODIS/061/MOD11A2 & USGS/SRTMGL1_003
-CRS: EPSG:4326 (WGS84)
-Export Timestamp: ${new Date().toISOString()}
-Status: COMPLETED
-`;
-        const blob = new Blob([logText], { type: 'text/plain' });
         const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
+        link.href = '/downloads/my_export_jakarta_elevation.geotiff.txt';
         link.download = 'elevation_near_jakarta_export_log.txt';
         link.click();
-        showToast('Mengunduh log metadata & spesifikasi ekspor (TXT)...', 'info');
+        showToast('Mengunduh log metadata & spesifikasi ekspor GeoTIFF (TXT)...', 'info');
       });
     }
   }
@@ -196,7 +179,7 @@ Status: COMPLETED
       ctx.fillText(`${yVal}°C`, 5, y + 3);
     }
 
-    // X Axis Labels
+    // X Axis Labels (2020, 2022, 2024, 2026)
     const totalCount = this.timeSeriesData.length;
     const xStep = chartW / (totalCount - 1);
 
@@ -214,21 +197,21 @@ Status: COMPLETED
 
       // Urban point
       const yU = padding.top + chartH - ((rec.urban_obs_c - yMin) / (yMax - yMin)) * chartH;
-      ctx.fillStyle = 'rgba(225, 29, 72, 0.45)';
+      ctx.fillStyle = 'rgba(220, 38, 38, 0.4)'; // Red scatter
       ctx.beginPath();
       ctx.arc(x, yU, 2.5, 0, 2 * Math.PI);
       ctx.fill();
 
       // Rural point
       const yR = padding.top + chartH - ((rec.rural_obs_c - yMin) / (yMax - yMin)) * chartH;
-      ctx.fillStyle = 'rgba(16, 185, 129, 0.45)';
+      ctx.fillStyle = 'rgba(22, 163, 74, 0.4)'; // Green scatter
       ctx.beginPath();
       ctx.arc(x, yR, 2.5, 0, 2 * Math.PI);
       ctx.fill();
     });
 
     // 2. Draw Fitted Curve - Urban (Red line)
-    ctx.strokeStyle = '#e11d48';
+    ctx.strokeStyle = '#dc2626';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
     this.timeSeriesData.forEach((rec, i) => {
@@ -240,7 +223,7 @@ Status: COMPLETED
     ctx.stroke();
 
     // 3. Draw Fitted Curve - Rural (Green line)
-    ctx.strokeStyle = '#10b981';
+    ctx.strokeStyle = '#16a34a';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
     this.timeSeriesData.forEach((rec, i) => {

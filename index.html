@@ -206,16 +206,16 @@
             <section id="panel-gee" class="sidebar-panel">
               <div class="panel-header">
                 <h2>🌡️ GEE Analysis — Suhu Permukaan & Elevasi</h2>
-                <p>Analisis Termal MODIS LST & Elevasi SRTM (Wilayah Studi Jabodetabek & Jawa Barat).</p>
+                <p>Analisis MODIS Land Surface Temp & Elevasi SRTM (Wilayah Studi Jakarta & Jawa Barat).</p>
               </div>
 
               <!-- Case Study Disclaimer Banner -->
               <div class="gee-disclaimer-banner">
                 <div class="gee-disclaimer-header">
-                  <span>📌 <strong>Studi Kasus Urban Heat Island (UHI)</strong></span>
-                  <span class="gee-disclaimer-tag">Analisis GEE</span>
+                  <span>📌 <strong>Studi Kasus Analisis Spasial</strong></span>
+                  <span class="gee-disclaimer-tag">Snapshot Analitis</span>
                 </div>
-                <p>Pemodelan gradien termal satelit (MODIS MOD11A2) & topografi (USGS SRTM 30m) untuk menganalisis kontras suhu inti kota vs sabuk hijau pedesaan.</p>
+                <p>Data hasil olahan komputasi Google Earth Engine (MODIS MOD11A2 & USGS SRTM 2020–2024) untuk wilayah kajian aglomerasi Jabodetabek & Jawa Barat.</p>
               </div>
 
               <!-- Quick Focus Area Button -->
@@ -235,14 +235,14 @@
                 <div class="piksel-master-control" style="margin-bottom: 14px;">
                   <div class="piksel-control-header">
                     <span class="control-title">Transparansi Layer GEE</span>
-                    <span class="control-val" id="gee-opacity-val">82%</span>
+                    <span class="control-val" id="gee-opacity-val">80%</span>
                   </div>
                   <input 
                     type="range" 
                     id="gee-opacity-slider" 
                     min="0" 
                     max="100" 
-                    value="82" 
+                    value="80" 
                     class="piksel-slider" 
                   />
                   <div class="slider-ticks">
@@ -257,7 +257,7 @@
                   <div class="gee-toggle-item-wrap">
                     <label class="gee-toggle-item">
                       <input type="checkbox" id="toggle-gee-lst" />
-                      <span class="toggle-label">🌡️ MODIS Daytime LST Thermal Plume</span>
+                      <span class="toggle-label">🌡️ MODIS Daytime LST Heatmap</span>
                     </label>
                     <div class="gee-layer-legend-box" id="legend-box-lst">
                       <div class="gee-legend-bar lst-gradient"></div>
@@ -266,7 +266,7 @@
                         <span>25°C</span>
                         <span>28°C</span>
                         <span>31°C</span>
-                        <span>34°C+ (Hotspot)</span>
+                        <span>34°C+ (Ekstrem Panas)</span>
                       </div>
                     </div>
                   </div>
@@ -278,8 +278,8 @@
                       <span class="toggle-label">📍 Stasiun Observasi Urban vs Rural</span>
                     </label>
                     <div class="gee-layer-legend-box poi-tags">
-                      <span class="poi-tag urban-tag">🔴 Jakarta Monas (33.85°C)</span>
-                      <span class="poi-tag rural-tag">🟢 Hutan IPB Bogor (24.60°C)</span>
+                      <span class="poi-tag urban-tag">🔴 Urban Core (Jakarta - 33.85°C)</span>
+                      <span class="poi-tag rural-tag">🟢 Rural / Forest (Bogor - 24.60°C)</span>
                     </div>
                   </div>
 
@@ -287,7 +287,7 @@
                   <div class="gee-toggle-item-wrap">
                     <label class="gee-toggle-item">
                       <input type="checkbox" id="toggle-gee-elevation" />
-                      <span class="toggle-label">⛰️ USGS SRTM Ground Elevation</span>
+                      <span class="toggle-label">⛰️ USGS SRTM Ground Elevation Grid</span>
                     </label>
                     <div class="gee-layer-legend-box" id="legend-box-elv">
                       <div class="gee-legend-bar elv-gradient"></div>
@@ -319,7 +319,7 @@
 
               <!-- Metrics Cards with Reference Label -->
               <div class="gee-reference-label">
-                📌 Nilai Acuan Riset — MODIS MOD11A2 Rata-rata 2020–2024
+                📌 Nilai Acuan Studi — MODIS MOD11A2 Rata-rata 2020–2024
               </div>
               <div class="gee-metrics-grid">
                 <div class="gee-metric-card urban">
@@ -340,7 +340,7 @@
               </div>
 
               <!-- Time Series Canvas Chart (Collapsible Accordion) -->
-              <details class="clean-accordion" style="margin-top: 14px;" open>
+              <details class="clean-accordion" style="margin-top: 14px;">
                 <summary>
                   <span>📈 Tren Deret Waktu Suhu (2020–2026)</span>
                 </summary>
