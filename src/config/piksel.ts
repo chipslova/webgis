@@ -254,7 +254,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     timeEnabled: false,
     serviceUrl: PIKSEL_WMS_BASE_URL,
     description: 'Peta zonasi bahaya banjir probabilitas 50% tahunan dari pemodelan hidrologi spasial BIG.',
-    whatItShows: 'Klasifikasi tingkat bahaya genangan banjir siklus 2 tahunan berdasarkan model hidrologi nasional.',
+    whatItShows: 'Zonasi bahaya genangan banjir siklus 2 tahunan berdasarkan pemodelan hidrologi spasial Ina-Geoportal.',
     badge: 'Banjir RP 2-Thn',
     color: '#3b82f6',
     resolution: '10-30 meter',
@@ -262,14 +262,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     legend: {
       type: 'categorical',
       items: [
-        { label: 'Bahaya Rendah (<0.5m)', color: '#fef08a', icon: '🟡' },
-        { label: 'Bahaya Sedang (0.5–1.5m)', color: '#f97316', icon: '🟠' },
-        { label: 'Bahaya Tinggi (>1.5m)', color: '#dc2626', icon: '🔴' }
+        { label: 'Kelas Rendah', color: '#fef08a', icon: '🟡' },
+        { label: 'Kelas Sedang', color: '#f97316', icon: '🟠' },
+        { label: 'Kelas Tinggi', color: '#dc2626', icon: '🔴' }
       ],
       swatches: [
-        { label: 'Bahaya Rendah (<0.5m)', color: '#fef08a', icon: '🟡' },
-        { label: 'Bahaya Sedang (0.5–1.5m)', color: '#f97316', icon: '🟠' },
-        { label: 'Bahaya Tinggi (>1.5m)', color: '#dc2626', icon: '🔴' }
+        { label: 'Kelas Rendah', color: '#fef08a', icon: '🟡' },
+        { label: 'Kelas Sedang', color: '#f97316', icon: '🟠' },
+        { label: 'Kelas Tinggi', color: '#dc2626', icon: '🔴' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Ina-Geoportal / Piksel'
@@ -282,8 +282,8 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     style: 'hazard_class',
     timeEnabled: false,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'Peta zonasi bahaya banjir probabilitas 10% tahunan untuk mitigasi bencana dan tata ruang daerah.',
-    whatItShows: 'Jangkauan bahaya banjir ekstrem 10 tahunan yang melanda bantaran sungai, dataran banjir, dan kawasan pesisir.',
+    description: 'Peta zonasi bahaya banjir probabilitas 10% tahunan untuk analisis kebencanaan dan perencanaan spasial.',
+    whatItShows: 'Zonasi bahaya genangan banjir siklus 10 tahunan pada dataran aluvial dan kawasan pesisir.',
     badge: 'Banjir RP 10-Thn',
     color: '#8b5cf6',
     resolution: '10-30 meter',
@@ -291,14 +291,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     legend: {
       type: 'categorical',
       items: [
-        { label: 'Bahaya Rendah (<0.5m)', color: '#fef08a', icon: '🟡' },
-        { label: 'Bahaya Sedang (0.5–1.5m)', color: '#f97316', icon: '🟠' },
-        { label: 'Bahaya Tinggi (>1.5m)', color: '#dc2626', icon: '🔴' }
+        { label: 'Kelas Rendah', color: '#fef08a', icon: '🟡' },
+        { label: 'Kelas Sedang', color: '#f97316', icon: '🟠' },
+        { label: 'Kelas Tinggi', color: '#dc2626', icon: '🔴' }
       ],
       swatches: [
-        { label: 'Bahaya Rendah (<0.5m)', color: '#fef08a', icon: '🟡' },
-        { label: 'Bahaya Sedang (0.5–1.5m)', color: '#f97316', icon: '🟠' },
-        { label: 'Bahaya Tinggi (>1.5m)', color: '#dc2626', icon: '🔴' }
+        { label: 'Kelas Rendah', color: '#fef08a', icon: '🟡' },
+        { label: 'Kelas Sedang', color: '#f97316', icon: '🟠' },
+        { label: 'Kelas Tinggi', color: '#dc2626', icon: '🔴' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Ina-Geoportal / Piksel'
@@ -315,7 +315,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     availableYears: S2_YEARS,
     serviceUrl: PIKSEL_WMS_BASE_URL,
     description: 'Jumlah akuisisi citra Sentinel-2 bebas awan yang menyusun setiap pixel komposit GeoMAD tahunan.',
-    whatItShows: 'Kualitas komposit: Pixel dengan jumlah scene tinggi (>20) memiliki kestabilan reflektansi paling tinggi.',
+    whatItShows: 'Statistik observasi: Menampilkan total scene bebas awan yang digunakan dalam estimasi GeoMAD tahunan.',
     badge: 'Data Quality',
     color: '#6366f1',
     resolution: '10 meter',

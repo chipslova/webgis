@@ -1,7 +1,7 @@
 import * as maplibregl from 'maplibre-gl';
 import { PikselProduct, PikselPreset, PIKSEL_PRODUCTS, PIKSEL_PRESETS } from '../config/piksel';
 
-export type PikselStatusCode = 'idle' | 'zoom_too_low' | 'requesting' | 'loading' | 'ready' | 'partial' | 'error';
+export type PikselStatusCode = 'idle' | 'zoom_too_low' | 'requesting' | 'loading' | 'ready' | 'degraded' | 'partial' | 'error';
 
 export interface PikselDiagnostics {
   productId: string | null;
@@ -95,7 +95,7 @@ export class PikselLoader {
     const currentZoom = this.map ? Number(this.map.getZoom().toFixed(1)) : 0;
     const minZoom = prod?.minZoom ?? 6;
 
-    if (this.requestStartTime > 0 && (status === 'ready' || status === 'partial' || status === 'error')) {
+    if (this.requestStartTime > 0 && (status === 'ready' || status === 'degraded' || status === 'partial' || status === 'error')) {
       this.currentLatencyMs = Math.round(performance.now() - this.requestStartTime);
     }
 
@@ -111,13 +111,14 @@ export class PikselLoader {
         defaultMsg = `Menghubungkan ke layanan OGC WMS ${prod?.name || ''}...`;
         break;
       case 'loading':
-        defaultMsg = `Memproses ubin citra di Open Data Cube BIG...`;
+        defaultMsg = `Memproses permintaan raster di Open Data Cube BIG...`;
         break;
       case 'ready':
         defaultMsg = `Citra ${prod?.name || ''} siap ditampilkan`;
         break;
+      case 'degraded':
       case 'partial':
-        defaultMsg = `Sebagian ubin citra berhasil dimuat. Beberapa ubin sedang diproses oleh server ODC.`;
+        defaultMsg = `Sebagian raster berhasil dimuat. Beberapa bagian mengalami kendala respons dari server ODC upstream.`;
         break;
       case 'error':
         defaultMsg = `Layanan OGC WMS ${prod?.name || ''} mengalami kendala dari server penyedia (Timeout / HTTP 500).`;
@@ -177,7 +178,7 @@ export class PikselLoader {
    */
   public retryCurrentProduct() {
     const prod = this.getActiveProduct();
-    if (prod) {
+    if (prod && !prod.isDisabled) {
       this.tilesFailed = 0;
       this.tilesLoaded = 0;
       this.tilesRequested = 0;
@@ -219,7 +220,7 @@ export class PikselLoader {
   }
 
   /**
-   * Source lifecycle & tile telemetry listener
+   * Source lifecycle & raster request telemetry listener
    */
   private attachMapSourceListeners() {
     if (!this.map) return;
@@ -232,7 +233,7 @@ export class PikselLoader {
 
         if (currentZoom >= minZoom) {
           this.tilesRequested++;
-          if (this.currentStatus !== 'ready') {
+          if (this.currentStatus !== 'loading' && this.currentStatus !== 'requesting') {
             this.emitState('loading');
           }
         }
@@ -253,12 +254,11 @@ export class PikselLoader {
         }
 
         if (e.isSourceLoaded) {
-          this.tilesLoaded = Math.max(this.tilesLoaded, this.tilesRequested);
-          // If source is fully loaded
-          if (this.tilesFailed === 0 || this.tilesLoaded >= this.tilesRequested) {
+          this.tilesLoaded = this.tilesRequested;
+          if (this.tilesFailed > 0) {
+            this.emitState('degraded');
+          } else {
             this.emitState('ready');
-          } else if (this.tilesLoaded > 0) {
-            this.emitState('partial');
           }
         }
       }
@@ -275,9 +275,12 @@ export class PikselLoader {
         if (currentZoom < minZoom) {
           this.emitState('zoom_too_low');
         } else {
-          // Source is 100% loaded and map is idle
-          this.tilesLoaded = Math.max(this.tilesLoaded, this.tilesRequested);
-          this.emitState('ready');
+          this.tilesLoaded = this.tilesRequested;
+          if (this.tilesFailed > 0) {
+            this.emitState('degraded');
+          } else {
+            this.emitState('ready');
+          }
         }
       }
     });
@@ -292,11 +295,11 @@ export class PikselLoader {
 
         if (currentZoom >= minZoom) {
           this.tilesFailed++;
-          // Only trigger full error if zero tiles were loaded at all
+          // Only trigger full error if zero successful data events occurred and repeated errors
           if (this.tilesLoaded === 0 && this.tilesFailed >= 2) {
             this.emitState('error');
-          } else if (this.tilesLoaded > 0) {
-            this.emitState('partial');
+          } else {
+            this.emitState('degraded');
           }
         }
       }
@@ -402,6 +405,13 @@ export class PikselLoader {
     if (productId) {
       const product = PIKSEL_PRODUCTS.find((p) => p.id === productId);
       if (product) {
+        if (product.isDisabled) {
+          console.warn(`[PikselLoader] Product ${product.id} is disabled. Skipping WMS request.`);
+          this.activeProductId = null;
+          this.emitState('idle');
+          this.notifyLayersChange();
+          return;
+        }
         this.renderRasterLayer(product);
       }
     } else {

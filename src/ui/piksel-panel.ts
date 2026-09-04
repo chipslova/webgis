@@ -168,8 +168,8 @@ export class PikselPanelUI {
             </summary>
             <div class="accordion-body">
               <div class="diagnostics-content">
-                <div class="diag-row"><span>Tile Selesai:</span><strong>${diagnostics?.tilesLoaded || 0} / ${Math.max(diagnostics?.tilesRequested || 1, 1)}</strong></div>
-                <div class="diag-row"><span>Tile Gagal:</span><strong class="${(diagnostics?.tilesFailed || 0) > 0 ? 'text-danger' : ''}">${diagnostics?.tilesFailed || 0}</strong></div>
+                <div class="diag-row"><span>Permintaan Raster:</span><strong>${diagnostics?.tilesLoaded || 0} selesai</strong></div>
+                <div class="diag-row"><span>Permintaan Gagal:</span><strong class="${(diagnostics?.tilesFailed || 0) > 0 ? 'text-danger' : ''}">${diagnostics?.tilesFailed || 0}</strong></div>
                 <div class="diag-row"><span>Latensi Server:</span><strong>${diagnostics?.latencyMs ? (diagnostics.latencyMs / 1000).toFixed(2) + ' detik' : 'Menunggu...'}</strong></div>
                 <div class="diag-row"><span>Protokol:</span><strong>OGC WMS 1.3.0 (EPSG:3857)</strong></div>
               </div>
@@ -367,12 +367,12 @@ export class PikselPanelUI {
       `;
     }
 
-    if (status === 'partial') {
+    if (status === 'degraded' || status === 'partial') {
       return `
         <div class="clean-alert alert-partial">
           <div>
-            <strong>✓ Sebagian besar citra berhasil ditampilkan</strong>
-            <span style="font-size: 11px; color: #cbd5e1; display: block; margin-top: 2px;">Beberapa ubin luar sedang diproses bertahap oleh server.</span>
+            <strong>✓ Sebagian ubin raster berhasil dimuat</strong>
+            <span style="font-size: 11px; color: #cbd5e1; display: block; margin-top: 2px;">Sebagian ubin mengalami keterlambatan/gangguan respons dari server ODC upstream.</span>
           </div>
         </div>
       `;
@@ -488,12 +488,12 @@ export class PikselPanelUI {
       return;
     }
 
-    if (state.status === 'ready' || state.status === 'partial') {
+    if (state.status === 'ready' || state.status === 'degraded' || state.status === 'partial') {
       spinner.style.display = 'none';
-      hudTitle.innerText = `${activeProduct.name} Siap`;
+      hudTitle.innerText = state.status === 'degraded' ? `${activeProduct.name} (Sebagian)` : `${activeProduct.name} Siap`;
       hudSubtitle.innerText = `Citra Satelit Resolusi ${activeProduct.resolution} • OGC WMS`;
       setTimeout(() => {
-        if (this.currentLoadingState.status === 'ready' || this.currentLoadingState.status === 'partial') {
+        if (this.currentLoadingState.status === 'ready' || this.currentLoadingState.status === 'degraded' || this.currentLoadingState.status === 'partial') {
           hud.style.display = 'none';
         }
       }, 3500);
@@ -530,12 +530,24 @@ export class PikselPanelUI {
         return;
       }
 
-      // 3. Product select click — ignore if clicking About accordion
+      // 3. Product select click — ignore if clicking About accordion or disabled product
+      const disabledCard = target.closest('.clean-product-card.is-disabled');
+      if (disabledCard) {
+        showToast('Dataset ini saat ini tidak tersedia di layanan OGC staging.', 'warning');
+        return;
+      }
+
       const selectBtn = target.closest('.btn-select-product') as HTMLElement;
       const productCard = target.closest('.clean-product-card') as HTMLElement;
       const clickedId = selectBtn?.dataset.id || productCard?.dataset.id;
 
       if (clickedId && !target.closest('select') && !target.closest('input') && !target.closest('.card-about-accordion')) {
+        const prodObj = PIKSEL_PRODUCTS.find(p => p.id === clickedId);
+        if (prodObj?.isDisabled) {
+          showToast('Dataset ini saat ini tidak tersedia di layanan OGC staging.', 'warning');
+          return;
+        }
+
         const current = this.pikselLoader.getActiveProduct();
         if (current?.id === clickedId) {
           this.pikselLoader.setActiveProduct(null);

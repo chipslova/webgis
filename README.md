@@ -12,9 +12,7 @@ An interactive WebGIS for exploring Indonesian Earth Observation datasets and de
 
 ## 🌟 Overview
 
-**Digital Earth Indonesia WebGIS** combines standardized OGC Web Mapping Services (WMS), Open Data Cube (ODC) satellite pipelines, Google Earth Engine (GEE) thermal analysis, and client-side geodesic calculations into a unified geospatial intelligence dashboard.
-
-
+**Digital Earth Indonesia WebGIS** is an Earth Observation and spatial analysis platform that integrates standardized OGC Web Mapping Services (WMS), Open Data Cube (ODC) satellite pipelines, Google Earth Engine (GEE) Land Surface Temperature (LST) case study data, and client-side geodesic calculations into a cohesive web application.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -43,14 +41,14 @@ An interactive WebGIS for exploring Indonesian Earth Observation datasets and de
   * **NIR Surface Reflectance**
   * **Observation Density** (Scene acquisition count & data availability)
 * **Landsat 9 Swath Analyses**: USGS/NASA surface reflectance (2022–2025).
-* **National Flood Hazard Modeling**: High-resolution hydrological floodplain risk classifications (`flood_hazard_rp02`).
+* **National Flood Hazard Modeling**: Hydrological floodplain hazard classifications (`flood_hazard_rp02` & `rp10`).
 * **National 10m Grid Index**: Interactive overlay of 1,631 Open Data Cube tile boundaries.
 
 ### 🌡️ 2. Google Earth Engine (GEE) Urban Heat Island Case Study
-* **Continuous WebGL Thermal Plume**: High-density MODIS Daytime LST rendering using smooth bicubic continuous heat gradients (Cold Cyan $22^\circ\text{C} \to$ Warm Yellow $28^\circ\text{C} \to$ Hotspot Crimson $34^\circ\text{C}+$) without blocky wireframes or artificial grid boundaries.
-* **Urban Heat Island (UHI) Quantification**: Precise microclimate comparison between Jakarta Urban Core (*Monas, 33.85°C, 14m elev*) and West Java Rural Baseline (*Hutan IPB Bogor, 24.60°C, 680m elev*) with a **+9.25°C UHI Delta**.
-* **Seasonal Time-Series Dynamics (2020–2026)**: Dynamic canvas-rendered sinusoidal harmonic curve fits displaying annual dry-season temperature peaks and wet-season cooling.
-* **USGS SRTM 30m Elevation & MODIS MCD12Q1 Land Cover**: Clean topographic color ramps and land use classifications across the Jabodetabek metropolitan corridor.
+* **MODIS Daytime Land Surface Temperature (LST)**: Interpolated LST continuous gradient visualization ($22^\circ\text{C} \to 34^\circ\text{C}+$) across the Jabodetabek metropolitan region.
+* **Spatial Microclimate Comparison**: Analysis comparing Jakarta Urban Core (*Monas, 33.85°C, 14m elev*) and West Java Rural Baseline (*Hutan IPB Bogor, 24.60°C, 680m elev*) displaying a **+9.25°C UHI Delta**.
+* **Harmonic Seasonal Time-Series Dynamics (2020–2026)**: Canvas-rendered sinusoidal curve fits displaying annual dry-season temperature peaks and wet-season cooling patterns.
+* **USGS SRTM 30m Elevation & MODIS MCD12Q1 Land Cover**: Topographic color ramps and land use classifications across the Jabodetabek corridor.
 
 ### 🗺️ 3. Layer Orchestration & Active Layer Management
 * **Deterministic Visual Stacking**: Enforces strict vertical hierarchy:
@@ -59,8 +57,8 @@ An interactive WebGIS for exploring Indonesian Earth Observation datasets and de
 * **15 Vector & Raster Basemaps**: Google Satellite/Hybrid/Streets, Esri World Imagery/Topographic/NatGeo/Canvas, BIG Rupabumi Indonesia (RBI), OpenStreetMap, and OpenTopoMap.
 
 ### 📍 4. Point Inspector & Surface Query
-* **Geospatial & Active Layer Query**: Click anywhere on the map to query:
-  * High-precision coordinates (Decimal Degrees & DMS).
+* **Geospatial Surface Query**: Click anywhere on the map to query:
+  * Coordinates (Decimal Degrees & DMS).
   * Topographic Ground Elevation (USGS SRTM 30m).
   * Land Surface Temperature estimates (MODIS Daytime LST).
   * Active spectral index / flood hazard classification interpretation.
@@ -71,22 +69,22 @@ An interactive WebGIS for exploring Indonesian Earth Observation datasets and de
 * **Polygon Area Measurement**: Spherical geodesic area calculation powered by Turf.js.
 * **Custom GeoJSON Engine**: Drag-and-drop vector upload with automatic bounding box zoom, symbology, and feature inspection.
 
-### 🔗 6. State Synchronization & High-Resolution GIS Report Export
-* **Stateful Permalink URL Sharing**: Automatically synchronizes coordinates, zoom, active basemap, Sentinel-2 product/year, and GEE layers directly into the URL hash. One-click **"Bagikan"** button copies shareable analytical links.
-* **Professional GIS Export**: Export high-resolution PNG map layouts complete with top branding banner (Title & active EO dataset), bottom coordinate strip, EPSG:3857 reference system, and timestamped data attribution.
+### 🔗 6. State Synchronization & Map Layout Export
+* **Stateful Permalink URL Sharing**: Automatically synchronizes coordinates, zoom, active basemap, Sentinel-2 product/year, and GEE layers directly into the URL hash for shareable analytical links.
+* **Cartographic PNG Export**: Export high-resolution PNG map layouts complete with top header (Title & active EO dataset), bottom coordinate strip, EPSG:3857 reference system, and timestamped data attribution.
 
 ---
 
 ## 🏗️ Technical Architecture & Reliability Engineering
 
-### ⚡ Tile Lifecycle & Request Telemetry
-Standard WebGIS applications often suffer from desynchronized loading spinners during panning. This platform implements a dedicated `PikselRequestManager`:
-* Scopes network aborts during rapid panning to prevent false `PARTIAL` failure locks.
-* Emits live telemetry: `Tiles Loaded`, `Tiles Aborted`, `Server Latency (ms)`, and `Zoom Threshold (Z6+)`.
+### ⚡ Raster Lifecycle & Request Telemetry
+To prevent desynchronized UI states during rapid map panning and zooming, the application implements request tracking:
+* Monotonic request IDs discard stale tile responses from previous zoom levels or product selections.
+* Emits state transitions: `idle`, `zoom_too_low`, `requesting`, `loading`, `ready`, `degraded`, and `error`.
 * Surfaces technical diagnostics inside collapsible expandable accordions without cluttering the primary user workflow.
 
 ### 🎨 WebGL Buffer Preservation
-* Configured MapLibre GL JS with `preserveDrawingBuffer: true`, enabling crisp, full-resolution **Export Map PNG** captures without blank canvas artifacts.
+* Configured MapLibre GL JS with `preserveDrawingBuffer: true`, enabling direct, high-resolution **Export Map PNG** captures without blank canvas artifacts.
 
 ---
 
