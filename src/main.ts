@@ -137,8 +137,17 @@ class WebGISApp {
       if (urlState.lng !== undefined && urlState.lat !== undefined && urlState.zoom !== undefined) {
         map.jumpTo({
           center: [urlState.lng, urlState.lat],
-          zoom: urlState.zoom
+          zoom: urlState.zoom,
+          pitch: urlState.pitch ?? 0,
+          bearing: urlState.bearing ?? 0
         });
+      }
+      if (urlState.projection === 'globe' && this.mapManager.getProjection() !== 'globe') {
+        this.mapManager.toggleProjection();
+        const globeLabel = document.getElementById('globe-btn-label');
+        const globeBtn = document.getElementById('btn-toggle-globe');
+        if (globeLabel) globeLabel.innerText = '3D Globe';
+        if (globeBtn) globeBtn.classList.add('active');
       }
       if (urlState.basemapId && urlState.basemapId !== this.mapManager.getCurrentBasemapId()) {
         this.mapManager.setBasemap(urlState.basemapId);
@@ -149,16 +158,22 @@ class WebGISApp {
       if (urlState.productId && this.pikselLoader) {
         this.pikselLoader.setActiveProduct(urlState.productId);
       }
+      if (urlState.pikselOpacity !== undefined && this.pikselLoader) {
+        this.pikselLoader.setOpacity(urlState.pikselOpacity);
+      }
       if (urlState.geeLayers && this.geeLoader) {
         ['lst', 'elevation', 'landcover', 'poi'].forEach(k => {
           const shouldBeActive = urlState.geeLayers!.includes(k);
           this.geeLoader?.toggleLayer(k as any, shouldBeActive);
         });
+        if (urlState.geeOpacity !== undefined) {
+          this.geeLoader.setOpacity(urlState.geeOpacity);
+        }
         this.geePanelUI.init();
       }
 
       // Instantiate Point Inspector
-      this.pointInspector = new PointInspector(map, this.pikselLoader, this.geeLoader, this.geojsonLoader);
+      this.pointInspector = new PointInspector(map, this.pikselLoader, this.geeLoader, this.geojsonLoader, this.measureTool);
 
       // Bind measurement callbacks
       this.measureTool.onResult((res) => {

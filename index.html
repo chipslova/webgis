@@ -648,6 +648,83 @@
           </div>
           <div id="inspector-content" class="inspector-table-wrapper"></div>
         </div>
+
+        <!-- Floating Point Inspector Card -->
+        <div id="floating-inspector-card" class="floating-inspector-card">
+          <div class="insp-header">
+            <div class="insp-title-wrap">
+              <div class="insp-dot"></div>
+              <span class="insp-title">Point Inspector</span>
+            </div>
+            <button id="floating-insp-close" class="insp-close-btn" title="Tutup">✕</button>
+          </div>
+          <div class="insp-body">
+            <!-- Koordinat -->
+            <div class="insp-section">
+              <div class="insp-section-title">KOORDINAT LOKASI</div>
+              <div class="insp-row">
+                <span class="insp-label">DMS</span>
+                <span class="insp-val mono"><span id="insp-lat">-</span>, <span id="insp-lng">-</span></span>
+              </div>
+              <div class="insp-row">
+                <span class="insp-label">Desimal (WGS84)</span>
+                <span class="insp-val mono" id="insp-coord-decimal">-</span>
+              </div>
+            </div>
+
+            <!-- Biofisik & Topografi -->
+            <div class="insp-section">
+              <div class="insp-section-title-row">
+                <span class="insp-section-title">BIOFISIK & TOPOGRAFI</span>
+                <span class="insp-badge-approx" title="Data hasil interpolasi model statistik / snapshot analitis, bukan query sensor live">~Estimasi Model</span>
+              </div>
+              <div class="insp-metrics-grid">
+                <div class="insp-metric-card" title="Estimasi ketinggian dari model elevasi topografi (SRTM 30m baseline)">
+                  <span class="insp-metric-icon">🏔️</span>
+                  <div class="insp-metric-content">
+                    <span class="insp-metric-label">Elevasi (~SRTM 30m)</span>
+                    <span class="insp-metric-value" id="insp-elevation">-</span>
+                  </div>
+                </div>
+                <div class="insp-metric-card" title="Estimasi Land Surface Temperature siang hari berdasarkan model termal dan lapse rate (MODIS LST baseline)">
+                  <span class="insp-metric-icon">🌡️</span>
+                  <div class="insp-metric-content">
+                    <span class="insp-metric-label">LST Siang (~MODIS 1km)</span>
+                    <span class="insp-metric-value" id="insp-lst">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Active Piksel / GEE Layer -->
+            <div class="insp-section" id="insp-active-product-row" style="display: none;">
+              <div class="insp-section-title">PRODUK AKTIF</div>
+              <div class="insp-row">
+                <span class="insp-label" id="insp-product-name">Layer</span>
+                <span class="insp-val highlight" id="insp-product-val">-</span>
+              </div>
+            </div>
+
+            <!-- Vector Feature -->
+            <div class="insp-section" id="insp-vector-row" style="display: none;">
+              <div class="insp-section-title">FITUR VEKTOR</div>
+              <div class="insp-row">
+                <span class="insp-label">Nama Objek</span>
+                <span class="insp-val" id="insp-vector-val">-</span>
+              </div>
+            </div>
+
+            <!-- Transparency / Provenance Note -->
+            <div class="insp-disclaimer-note">
+              <span class="insp-disclaimer-icon">ℹ️</span>
+              <span>Nilai LST & Elevasi dihitung via <em>spatial statistical baseline model</em> untuk referensi cepat (bukan query API real-time).</span>
+            </div>
+
+            <div class="insp-footer-actions">
+              <button id="btn-insp-copy-coords" class="insp-action-btn">📋 Salin Koordinat Presisi</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Telemetry Status Bar -->

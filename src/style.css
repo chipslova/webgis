@@ -5113,6 +5113,13 @@ kbd {
   gap: 4px;
 }
 
+.insp-section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
 .insp-section-title {
   font-size: 10px;
   font-weight: 700;
@@ -5120,7 +5127,19 @@ kbd {
   color: #64748b;
   letter-spacing: 0.5px;
   font-family: 'JetBrains Mono', monospace;
-  margin-bottom: 2px;
+}
+
+.insp-badge-approx {
+  font-size: 8.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .insp-row {
@@ -5168,24 +5187,51 @@ kbd {
 
 .insp-metric-icon {
   font-size: 16px;
+  flex-shrink: 0;
+}
+
+.insp-metric-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .insp-metric-label {
   display: block;
-  font-size: 9.5px;
+  font-size: 9px;
   color: #64748b;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .insp-metric-value {
   display: block;
-  font-size: 12px;
+  font-size: 11.5px;
   color: #f1f5f9;
   font-family: 'JetBrains Mono', monospace;
 }
 
+.insp-disclaimer-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  font-size: 9.5px;
+  line-height: 1.35;
+  color: #94a3b8;
+}
+
+.insp-disclaimer-icon {
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
 .insp-footer-actions {
-  margin-top: 4px;
+  margin-top: 2px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-top: 8px;
 }
@@ -5207,4 +5253,5 @@ kbd {
   background: rgba(0, 240, 255, 0.2);
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
 }
+
 

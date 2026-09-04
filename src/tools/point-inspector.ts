@@ -2,6 +2,7 @@ import * as maplibregl from 'maplibre-gl';
 import { PikselLoader } from './piksel-loader';
 import { GEELoader } from './gee-loader';
 import { GeoJsonLoader } from './geojson-loader';
+import { MeasureTool } from './measure';
 import { showToast } from '../ui/toast';
 
 export class PointInspector {
@@ -9,6 +10,7 @@ export class PointInspector {
   private pikselLoader?: PikselLoader;
   private geeLoader?: GEELoader;
   private geojsonLoader?: GeoJsonLoader;
+  private measureTool?: MeasureTool;
   private marker: maplibregl.Marker | null = null;
   private containerEl: HTMLElement | null = null;
   private isEnabled: boolean = true;
@@ -17,12 +19,14 @@ export class PointInspector {
     map: maplibregl.Map,
     pikselLoader?: PikselLoader,
     geeLoader?: GEELoader,
-    geojsonLoader?: GeoJsonLoader
+    geojsonLoader?: GeoJsonLoader,
+    measureTool?: MeasureTool
   ) {
     this.map = map;
     this.pikselLoader = pikselLoader;
     this.geeLoader = geeLoader;
     this.geojsonLoader = geojsonLoader;
+    this.measureTool = measureTool;
 
     this.containerEl = document.getElementById('floating-inspector-card');
     this.bindMapEvents();
@@ -32,6 +36,7 @@ export class PointInspector {
   private bindMapEvents() {
     this.map.on('click', (e) => {
       if (!this.isEnabled) return;
+      if (this.measureTool && this.measureTool.getMode() !== 'none') return;
 
       // Ignore if user clicked on another interactive marker or drawer
       const originalTarget = (e.originalEvent?.target as HTMLElement);
@@ -185,15 +190,15 @@ export class PointInspector {
         const ndviVal = Math.max(0.05, Math.min(0.92, baseNdvi + Math.sin(lng * 40 + lat * 30) * 0.08)).toFixed(2);
 
         activeProductInfo = {
-          name: 'NDVI (Indeks Vegetasi)',
-          value: `${ndviVal} (${Number(ndviVal) > 0.6 ? 'Kanopi Rapat / Hutan' : Number(ndviVal) > 0.3 ? 'Vegetasi Sedang / Pertanian' : 'Non-Vegetasi / Lahan Terbangun'})`,
+          name: 'NDVI (~Estimasi Spektral)',
+          value: `~${ndviVal} (${Number(ndviVal) > 0.6 ? 'Kanopi Rapat / Hutan' : Number(ndviVal) > 0.3 ? 'Vegetasi Sedang / Pertanian' : 'Non-Vegetasi / Lahan Terbangun'})`,
           category: 'Indeks Spektral'
         };
       } else if (pikselProduct.id === 's2-ndwi') {
         const isWater = elevation <= 0 || (lat > -5.95 && lat < -5.6);
-        const ndwiVal = isWater ? '0.52 (Badan Air Terbuka / Laut)' : '-0.24 (Lahan Daratan Kering)';
+        const ndwiVal = isWater ? '~0.52 (Badan Air Terbuka / Laut)' : '~-0.24 (Lahan Daratan Kering)';
         activeProductInfo = {
-          name: 'NDWI (Indeks Kebasahan Air)',
+          name: 'NDWI (~Estimasi Spektral)',
           value: ndwiVal,
           category: 'Indeks Spektral'
         };
@@ -201,13 +206,13 @@ export class PointInspector {
         const isFloodPlain = elevation < 15 && lat < -6.15 && lng > 107.0;
         activeProductInfo = {
           name: pikselProduct.name,
-          value: isFloodPlain ? 'Zona Bahaya Tinggi (Genangan >1.5m)' : 'Zona Aman Rendah (Topografi Aman)',
+          value: isFloodPlain ? 'Zona Potensi Bahaya Tinggi (Genangan >1.5m)' : 'Zona Potensi Rendah / Topografi Aman',
           category: 'Bahaya Hidrologis'
         };
       } else {
         activeProductInfo = {
           name: pikselProduct.name,
-          value: `Sentinel-2 GeoMAD ${year} (10m Cloud-free OGC WMS)`,
+          value: `Sentinel-2 GeoMAD ${year} (OGC WMS 10m)`,
           category: 'Citra Satelit'
         };
       }
@@ -215,14 +220,14 @@ export class PointInspector {
       if (this.geeLoader.isLayerVisible('lst')) {
         activeProductInfo = {
           name: 'MODIS LST Day (1km)',
-          value: `${lst} °C (Thermal Anomaly)`,
-          category: 'GEE Analysis'
+          value: `~${lst} °C (Spatial Baseline Snapshot)`,
+          category: 'GEE MODIS Snapshot'
         };
       } else if (this.geeLoader.isLayerVisible('elevation')) {
         activeProductInfo = {
           name: 'USGS SRTM DEM (30m)',
-          value: `${elevation} m dpl`,
-          category: 'GEE Topografi'
+          value: `~${elevation} m dpl (Topographic Baseline)`,
+          category: 'GEE Topografi DEM'
         };
       }
     }
@@ -266,6 +271,9 @@ export class PointInspector {
     activeProduct?: { name: string; value: string; category?: string },
     vectorName?: string
   ) {
+    if (!this.containerEl) {
+      this.containerEl = document.getElementById('floating-inspector-card');
+    }
     if (!this.containerEl) return;
 
     const latDms = this.toDMS(lat, true);
@@ -285,8 +293,8 @@ export class PointInspector {
     if (latEl) latEl.innerText = latDms;
     if (lngEl) lngEl.innerText = lngDms;
     if (decimalEl) decimalEl.innerText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-    if (elvEl) elvEl.innerText = `${elevation} m dpl`;
-    if (lstEl) lstEl.innerText = `${lst} °C`;
+    if (elvEl) elvEl.innerText = `~${elevation} m dpl`;
+    if (lstEl) lstEl.innerText = `~${lst} °C`;
 
     if (productWrapEl && productNameEl && productValEl) {
       if (activeProduct) {
