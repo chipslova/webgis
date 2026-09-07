@@ -216,8 +216,16 @@ describe('Full WebGIS Feature & Button Audit', () => {
 
       const masterToggle = document.getElementById('popover-terrain-master-toggle') as HTMLInputElement;
       const exagVal = document.getElementById('popover-terrain-exaggeration-val');
+      const headerBtn = document.getElementById('btn-quick-3d-terrain');
       expect(masterToggle.checked).toBe(true);
       expect(exagVal?.innerText).toBe('2.50x');
+      expect(headerBtn?.classList.contains('active')).toBe(true);
+
+      // Toggle off via header button click
+      headerBtn?.click();
+      expect(customizer.getState().terrain3D).toBe(false);
+      expect(masterToggle.checked).toBe(false);
+      expect(headerBtn?.classList.contains('active')).toBe(false);
     });
 
     it('should sync Global Overlays (Hillshade & Contours)', () => {
