@@ -244,23 +244,6 @@ class WebGISApp {
     });
   }
 
-  private bindTerrainQuickEvents() {
-    const btn = document.getElementById('btn-quick-3d-terrain');
-    if (!btn) return;
-
-    btn.addEventListener('click', () => {
-      if (this.basemapCustomizer) {
-        this.basemapCustomizer.toggle3DTerrain();
-        const state = this.basemapCustomizer.getState();
-        btn.classList.toggle('active', state.terrain3D);
-        if (state.terrain3D) {
-          showToast('Mode 3D Terrain Elevation diaktifkan!', 'info');
-        } else {
-          showToast('Kembali ke tampilan 2D datar', 'info');
-        }
-      }
-    });
-  }
 
   private bindResetMapEvents() {
     const resetBtn = document.getElementById('btn-reset-map');
