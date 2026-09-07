@@ -153,11 +153,6 @@
                   <!-- Dynamically populated basemap cards -->
                 </div>
               </div>
-
-              <!-- Basemap Customization, Global Overlays & 3D Terrain -->
-              <div id="basemap-customizer-container" style="margin-top: 14px;">
-                <!-- Dynamically populated by BasemapCustomizerUI -->
-              </div>
             </section>
 
             <!-- Panel: Piksel Earth Observation (BIG) -->
@@ -731,6 +726,226 @@
 
             <div class="insp-footer-actions">
               <button id="btn-insp-copy-coords" class="insp-action-btn">📋 Salin Koordinat Presisi</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================================================================
+             Floating Glass Bottom Tools Dock & Popovers (Modern WebGIS Architecture)
+             =================================================================== -->
+
+        <!-- Bottom Floating Layer Tools Dock -->
+        <nav id="bottom-layer-tools" class="bottom-tools-dock tool-group glass-panel" aria-label="Map & Layer Customization">
+          <button id="btn-toggle-basemap" class="dock-btn" type="button" aria-label="Galeri Basemap" title="Galeri Basemap">
+            <span class="dock-btn-icon">🗺️</span>
+            <span class="dock-btn-text">Basemaps</span>
+          </button>
+          <button id="btn-toggle-sublayers" class="dock-btn" type="button" aria-label="Kustomisasi Basemap" title="Kustomisasi Sublayer & Overlays">
+            <span class="dock-btn-icon">🗂️</span>
+            <span class="dock-btn-text">Customization</span>
+          </button>
+          <button id="btn-toggle-terrain" class="dock-btn" type="button" aria-label="3D Terrain Settings" title="Pengaturan 3D Terrain & Elevasi">
+            <span class="dock-btn-icon">⛰️</span>
+            <span class="dock-btn-text">3D Terrain</span>
+          </button>
+          <button id="btn-toggle-3d" class="dock-btn" type="button" aria-label="3D Extruded Buildings" title="Toggle Bangunan Timbul 3D">
+            <span class="dock-btn-icon">🏢</span>
+            <span class="dock-btn-text">3D Buildings</span>
+          </button>
+          <button id="btn-toggle-grid" class="dock-btn" type="button" aria-label="Toggle Grid Open Data Cube" title="Toggle Grid 10m Open Data Cube">
+            <span class="dock-btn-icon">🌐</span>
+            <span class="dock-btn-text">Tile Grid</span>
+          </button>
+        </nav>
+
+        <!-- Floating Basemap Popover Menu -->
+        <div id="basemap-popover" class="glass-popover basemap-popover" style="display: none;">
+          <div class="popover-header-row">
+            <div class="popover-header">BASEMAP GALLERY</div>
+            <button class="popover-close-btn" id="btn-close-basemap-popover" title="Tutup">✕</button>
+          </div>
+
+          <div class="popover-body-scroll">
+            <div class="basemap-section-header">SATELLITE & RASTER</div>
+            <div class="basemap-popover-list" id="popover-basemap-raster-list">
+              <!-- Populated dynamically -->
+            </div>
+
+            <div class="basemap-section-header" style="margin-top: 10px;">VECTOR MAPS</div>
+            <div class="basemap-popover-list" id="popover-basemap-vector-list">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Basemap Customization Popover Menu -->
+        <div id="sublayers-popover" class="glass-popover sublayers-popover" style="display: none;">
+          <div class="popover-header-row">
+            <div class="popover-header">BASEMAP CUSTOMIZATION</div>
+            <button class="popover-close-btn" id="btn-close-sublayers-popover" title="Tutup">✕</button>
+          </div>
+
+          <div class="popover-body-scroll">
+            <!-- Global Overlays Section -->
+            <div class="sublayers-section-header">GLOBAL OVERLAYS</div>
+            <div class="sublayers-list global-overlays-list">
+              <label class="sublayer-item">
+                <div class="sublayer-info">
+                  <span class="sublayer-icon">⛰️</span>
+                  <span class="sublayer-label">Terrain Hillshade</span>
+                </div>
+                <input type="checkbox" id="popover-check-hillshade" class="sublayer-toggle" />
+                <span class="toggle-switch"></span>
+              </label>
+              <label class="sublayer-item">
+                <div class="sublayer-info">
+                  <span class="sublayer-icon">🌊</span>
+                  <span class="sublayer-label">Contour Lines (DEM)</span>
+                </div>
+                <input type="checkbox" id="popover-check-contours" class="sublayer-toggle" />
+                <span class="toggle-switch"></span>
+              </label>
+            </div>
+
+            <!-- Vector Sublayers Section -->
+            <div class="sublayers-section-header" style="margin-top: 10px;">
+              <span>VECTOR SUBLAYERS</span>
+              <div class="sublayers-header-actions">
+                <button class="btn-micro" id="btn-popover-sublayers-all">Semua</button>
+                <button class="btn-micro btn-micro-mute" id="btn-popover-sublayers-mute">Mute</button>
+              </div>
+            </div>
+
+            <div class="sublayer-notice" id="popover-sublayer-notice" style="display: none;">
+              <span>ℹ️ Active only for vector maps</span>
+            </div>
+
+            <div class="sublayers-list vector-sublayers-list">
+              <label class="sublayer-item">
+                <div class="sublayer-info">
+                  <span class="sublayer-icon">📍</span>
+                  <span class="sublayer-label">Points of Interest</span>
+                </div>
+                <input type="checkbox" id="popover-check-poi" class="sublayer-toggle" data-key="poi" checked />
+                <span class="toggle-switch"></span>
+              </label>
+              <label class="sublayer-item">
+                <div class="sublayer-info">
+                  <span class="sublayer-icon">🛣️</span>
+                  <span class="sublayer-label">Road Names</span>
+                </div>
+                <input type="checkbox" id="popover-check-road_names" class="sublayer-toggle" data-key="road_names" checked />
+                <span class="toggle-switch"></span>
+              </label>
+              <label class="sublayer-item">
+                <div class="sublayer-info">
+                  <span class="sublayer-icon">🏙️</span>
+                  <span class="sublayer-label">Place Names</span>
+                </div>
+                <input type="checkbox" id="popover-check-place_names" class="sublayer-toggle" data-key="place_names" checked />
+                <span class="toggle-switch"></span>
+              </label>
+              <label class="sublayer-item">
+                <div class="sublayer-info">
+                  <span class="sublayer-icon">🗺️</span>
+                  <span class="sublayer-label">Admin Boundaries</span>
+                </div>
+                <input type="checkbox" id="popover-check-admin_boundaries" class="sublayer-toggle" data-key="admin_boundaries" checked />
+                <span class="toggle-switch"></span>
+              </label>
+              <label class="sublayer-item">
+                <div class="sublayer-info">
+                  <span class="sublayer-icon">🌲</span>
+                  <span class="sublayer-label">Land Cover</span>
+                </div>
+                <input type="checkbox" id="popover-check-landcover" class="sublayer-toggle" data-key="landcover" checked />
+                <span class="toggle-switch"></span>
+              </label>
+              <label class="sublayer-item">
+                <div class="sublayer-info">
+                  <span class="sublayer-icon">🌊</span>
+                  <span class="sublayer-label">Water Bodies</span>
+                </div>
+                <input type="checkbox" id="popover-check-water" class="sublayer-toggle" data-key="water" checked />
+                <span class="toggle-switch"></span>
+              </label>
+              <label class="sublayer-item">
+                <div class="sublayer-info">
+                  <span class="sublayer-icon">🏢</span>
+                  <span class="sublayer-label">Buildings</span>
+                </div>
+                <input type="checkbox" id="popover-check-buildings" class="sublayer-toggle" data-key="buildings" checked />
+                <span class="toggle-switch"></span>
+              </label>
+              <label class="sublayer-item">
+                <div class="sublayer-info">
+                  <span class="sublayer-icon">🚗</span>
+                  <span class="sublayer-label">Roads</span>
+                </div>
+                <input type="checkbox" id="popover-check-roads" class="sublayer-toggle" data-key="roads" checked />
+                <span class="toggle-switch"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating 3D Terrain Popover Menu -->
+        <div id="terrain-popover" class="glass-popover terrain-popover" style="display: none;">
+          <div class="popover-header-row">
+            <div class="popover-header">3D TERRAIN SETTINGS</div>
+            <label class="master-switch toggle-switch-label" title="Toggle 3D Terrain">
+              <input type="checkbox" id="popover-terrain-master-toggle" />
+              <span class="toggle-switch"></span>
+            </label>
+            <button class="popover-close-btn" id="btn-close-terrain-popover" title="Tutup">✕</button>
+          </div>
+
+          <div class="popover-body-scroll">
+            <!-- DEM Source Provider Selection -->
+            <div class="terrain-section">
+              <div class="terrain-section-label">ELEVATION DEM PROVIDER</div>
+              <div class="dem-source-list">
+                <label class="dem-source-option active">
+                  <input type="radio" name="popover-dem-source" value="aws-terrarium" checked />
+                  <span class="dem-source-title">AWS Terrarium (Global 30m)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Vertical Exaggeration Slider Section -->
+            <div class="terrain-section">
+              <div class="slider-header-row">
+                <span class="terrain-section-label">VERTICAL EXAGGERATION</span>
+                <span id="popover-terrain-exaggeration-val" class="exaggeration-value-badge">1.50x</span>
+              </div>
+              <div class="slider-container">
+                <span class="slider-min-label">0.5x</span>
+                <input type="range" id="popover-terrain-exaggeration-slider" min="0.5" max="3.5" step="0.1" value="1.5" />
+                <span class="slider-max-label">3.5x</span>
+              </div>
+            </div>
+
+            <!-- Features in Terrain Popover -->
+            <div class="terrain-section">
+              <label class="sublayer-item clamp-item toggle-switch-label">
+                <div class="sublayer-info">
+                  <span class="sublayer-icon">🏢</span>
+                  <span class="sublayer-label">3D Extruded Buildings</span>
+                </div>
+                <input type="checkbox" id="popover-terrain-3d-buildings" />
+                <span class="toggle-switch"></span>
+              </label>
+            </div>
+
+            <div class="terrain-section">
+              <label class="sublayer-item clamp-item toggle-switch-label">
+                <div class="sublayer-info">
+                  <span class="sublayer-icon">🌊</span>
+                  <span class="sublayer-label">Contour Lines (DEM)</span>
+                </div>
+                <input type="checkbox" id="popover-terrain-contour-toggle" />
+                <span class="toggle-switch"></span>
+              </label>
             </div>
           </div>
         </div>
