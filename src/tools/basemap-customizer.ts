@@ -129,6 +129,7 @@ export class BasemapCustomizer {
   public toggle3DTerrain(enabled?: boolean) {
     this.state.terrain3D = enabled !== undefined ? enabled : !this.state.terrain3D;
     this.apply3DTerrain();
+    this.apply3DBuildings();
 
     if (this.state.terrain3D) {
       // Smoothly tilt camera into dramatic 3D perspective
@@ -276,52 +277,80 @@ export class BasemapCustomizer {
     this.notify();
   }
 
+  /**
+   * Resolves vector building source from current style or dynamically injects
+   * global OpenFreeMap planet vector building tiles (OpenMapTiles schema).
+   */
+  private ensureBuildingVectorSource(): { source: string; sourceLayer?: string } | null {
+    if (!this.map || !this.map.getStyle()) return null;
+
+    const style = this.map.getStyle();
+    if (!style || !style.layers) return null;
+
+    // 1. Check if the active basemap style already provides a vector building layer
+    for (const layer of style.layers) {
+      const lId = layer.id.toLowerCase();
+      const sLayer = (layer as any)['source-layer']?.toLowerCase() || '';
+      if (
+        (lId.includes('building') || sLayer.includes('building') || sLayer.includes('structure')) &&
+        layer.type === 'fill' &&
+        layer.source &&
+        layer.id !== '3d-extruded-buildings-layer'
+      ) {
+        return {
+          source: layer.source,
+          sourceLayer: (layer as any)['source-layer'] || undefined
+        };
+      }
+    }
+
+    // 2. Fallback: Dynamically provide global OpenFreeMap 3D Vector Building tiles
+    const globalSourceId = 'global-3d-buildings-source';
+    try {
+      if (!this.map.getSource(globalSourceId)) {
+        this.map.addSource(globalSourceId, {
+          type: 'vector',
+          url: 'https://tiles.openfreemap.org/planet'
+        });
+      }
+      return {
+        source: globalSourceId,
+        sourceLayer: 'building'
+      };
+    } catch (e) {
+      console.warn('[BasemapCustomizer] Notice adding global 3D buildings source:', e);
+      return null;
+    }
+  }
+
   private apply3DBuildings() {
     if (!this.map || !this.map.getStyle()) return;
 
-    const style = this.map.getStyle();
-    if (!style || !style.layers) return;
-
     const custom3DLayerId = '3d-extruded-buildings-layer';
+    const isBuildingSublayerOn = this.state.sublayers.buildings !== false;
+    const shouldExtrude = isBuildingSublayerOn && (this.state.terrain3D || this.state.buildings3D);
 
     try {
-      if (this.state.buildings3D) {
-        // Find existing building vector source from vector style
-        let buildingSource: string | null = null;
-        let buildingSourceLayer: string | null = null;
+      if (shouldExtrude) {
+        const buildingSrc = this.ensureBuildingVectorSource();
 
-        for (const layer of style.layers) {
-          const lId = layer.id.toLowerCase();
-          const sLayer = (layer as any)['source-layer']?.toLowerCase() || '';
-          if (
-            (lId.includes('building') || sLayer.includes('building')) &&
-            layer.type === 'fill' &&
-            layer.source
-          ) {
-            buildingSource = layer.source;
-            buildingSourceLayer = (layer as any)['source-layer'] || null;
-            // Hide 2D building fill to avoid z-fighting with 3D extrusions
-            this.map.setLayoutProperty(layer.id, 'visibility', 'none');
-            break;
-          }
-        }
-
-        if (buildingSource) {
+        if (buildingSrc) {
           if (!this.map.getLayer(custom3DLayerId)) {
             const layerDef: any = {
               id: custom3DLayerId,
               type: 'fill-extrusion',
-              source: buildingSource,
+              source: buildingSrc.source,
               minzoom: 13,
               paint: {
                 'fill-extrusion-color': [
                   'interpolate',
                   ['linear'],
-                  ['coalesce', ['to-number', ['get', 'render_height']], ['to-number', ['get', 'height']], 15],
+                  ['coalesce', ['to-number', ['get', 'render_height']], ['to-number', ['get', 'height']], ['*', ['to-number', ['coalesce', ['get', 'building:levels'], ['get', 'levels'], 2]], 3.5], 15],
                   0, '#1e293b',
                   25, '#334155',
-                  60, '#00f0ff',
-                  120, '#38bdf8'
+                  60, '#0284c7',
+                  120, '#00f0ff',
+                  250, '#38bdf8'
                 ],
                 'fill-extrusion-height': [
                   'interpolate',
@@ -339,8 +368,8 @@ export class BasemapCustomizer {
                 'fill-extrusion-opacity': 0.88
               }
             };
-            if (buildingSourceLayer) {
-              layerDef['source-layer'] = buildingSourceLayer;
+            if (buildingSrc.sourceLayer) {
+              layerDef['source-layer'] = buildingSrc.sourceLayer;
             }
             this.map.addLayer(layerDef);
           } else {
@@ -349,8 +378,6 @@ export class BasemapCustomizer {
         }
       } else if (this.map.getLayer(custom3DLayerId)) {
         this.map.setLayoutProperty(custom3DLayerId, 'visibility', 'none');
-        // Restore 2D building visibility according to sublayer state
-        this.applyVectorSublayers();
       }
     } catch (e) {
       console.warn('[BasemapCustomizer] Notice configuring 3D buildings:', e);
@@ -361,6 +388,9 @@ export class BasemapCustomizer {
 
   public toggleSublayer(key: VectorSublayerKey, visible?: boolean) {
     this.state.sublayers[key] = visible !== undefined ? visible : !this.state.sublayers[key];
+    if (key === 'buildings') {
+      this.apply3DBuildings();
+    }
     this.applyVectorSublayers();
     this.notify();
   }
@@ -369,6 +399,7 @@ export class BasemapCustomizer {
     Object.keys(this.state.sublayers).forEach(k => {
       this.state.sublayers[k as VectorSublayerKey] = visible;
     });
+    this.apply3DBuildings();
     this.applyVectorSublayers();
     this.notify();
   }
