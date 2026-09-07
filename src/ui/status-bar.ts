@@ -12,6 +12,12 @@ export class StatusBarUI {
   private currentLat: number = 0;
   private currentLng: number = 0;
 
+  private lastLatStr = '';
+  private lastLngStr = '';
+  private lastZoomStr = '';
+  private lastPitchStr = '';
+  private lastBearingStr = '';
+
   constructor() {
     this.latEl = document.getElementById('stat-lat');
     this.lngEl = document.getElementById('stat-lng');
@@ -60,10 +66,31 @@ export class StatusBarUI {
     this.currentLat = info.lat;
     this.currentLng = info.lng;
 
-    if (this.latEl) this.latEl.innerText = info.lat.toFixed(5);
-    if (this.lngEl) this.lngEl.innerText = info.lng.toFixed(5);
-    if (this.zoomEl) this.zoomEl.innerText = info.zoom.toFixed(1);
-    if (this.pitchEl) this.pitchEl.innerText = `${Math.round(info.pitch)}°`;
-    if (this.bearingEl) this.bearingEl.innerText = `${Math.round(info.bearing)}°`;
+    const latStr = info.lat.toFixed(5);
+    const lngStr = info.lng.toFixed(5);
+    const zoomStr = info.zoom.toFixed(1);
+    const pitchStr = `${Math.round(info.pitch)}°`;
+    const bearingStr = `${Math.round(info.bearing)}°`;
+
+    if (this.latEl && this.lastLatStr !== latStr) {
+      this.latEl.innerText = latStr;
+      this.lastLatStr = latStr;
+    }
+    if (this.lngEl && this.lastLngStr !== lngStr) {
+      this.lngEl.innerText = lngStr;
+      this.lastLngStr = lngStr;
+    }
+    if (this.zoomEl && this.lastZoomStr !== zoomStr) {
+      this.zoomEl.innerText = zoomStr;
+      this.lastZoomStr = zoomStr;
+    }
+    if (this.pitchEl && this.lastPitchStr !== pitchStr) {
+      this.pitchEl.innerText = pitchStr;
+      this.lastPitchStr = pitchStr;
+    }
+    if (this.bearingEl && this.lastBearingStr !== bearingStr) {
+      this.bearingEl.innerText = bearingStr;
+      this.lastBearingStr = bearingStr;
+    }
   }
 }

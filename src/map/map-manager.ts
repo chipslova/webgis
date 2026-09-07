@@ -198,10 +198,25 @@ export class MapManager {
       'bottom-right'
     );
 
-    // Track mouse position and map view state
+    // Track mouse position and map view state with rAF throttling (prevents DOM layout thrashing)
+    let moveRaf: number | null = null;
+    let pendingMoveInfo: { lat: number; lng: number; zoom: number; pitch: number; bearing: number } | null = null;
+
+    const dispatchMoveThrottled = (info: { lat: number; lng: number; zoom: number; pitch: number; bearing: number }) => {
+      pendingMoveInfo = info;
+      if (moveRaf === null) {
+        moveRaf = requestAnimationFrame(() => {
+          moveRaf = null;
+          if (pendingMoveInfo && this.onMoveCallback) {
+            this.onMoveCallback(pendingMoveInfo);
+          }
+        });
+      }
+    };
+
     this.map.on('mousemove', (e: maplibregl.MapMouseEvent) => {
       if (this.onMoveCallback && this.map) {
-        this.onMoveCallback({
+        dispatchMoveThrottled({
           lat: e.lngLat.lat,
           lng: e.lngLat.lng,
           zoom: this.map.getZoom(),
@@ -214,7 +229,7 @@ export class MapManager {
     this.map.on('move', () => {
       if (this.onMoveCallback && this.map) {
         const center = this.map.getCenter();
-        this.onMoveCallback({
+        dispatchMoveThrottled({
           lat: center.lat,
           lng: center.lng,
           zoom: this.map.getZoom(),

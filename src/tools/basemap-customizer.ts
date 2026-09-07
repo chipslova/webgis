@@ -99,16 +99,20 @@ export class BasemapCustomizer {
   public reapplyAll() {
     if (!this.map || !this.map.getStyle()) return;
 
-    // 1. Setup Terrarium DEM Source
-    this.ensureDemSource();
+    // 1. Setup Terrarium DEM Source & 3D Terrain lazily only when enabled
+    if (this.state.terrain3D || this.state.terrainHillshade) {
+      this.ensureDemSource();
+      this.apply3DTerrain();
+      this.applyHillshadeOverlay();
+    } else {
+      if (this.map.getTerrain()) {
+        try {
+          this.map.setTerrain(null as any);
+        } catch (_) {}
+      }
+    }
 
-    // 2. Re-apply 3D Terrain
-    this.apply3DTerrain();
-
-    // 3. Re-apply Global Overlays (Hillshade)
-    this.applyHillshadeOverlay();
-
-    // 4. Re-apply 3D Buildings & Vector Sublayers
+    // 2. Re-apply 3D Buildings & Vector Sublayers
     this.apply3DBuildings();
     this.applyVectorSublayers();
   }
