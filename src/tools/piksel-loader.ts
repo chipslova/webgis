@@ -1,5 +1,6 @@
 import * as maplibregl from 'maplibre-gl';
 import { PikselProduct, PikselPreset, PIKSEL_PRODUCTS, PIKSEL_PRESETS } from '../config/piksel';
+import { logger } from '../utils/logger';
 
 export type PikselStatusCode = 'idle' | 'zoom_too_low' | 'requesting' | 'loading' | 'ready' | 'degraded' | 'partial' | 'error';
 
@@ -80,7 +81,7 @@ export class PikselLoader {
       try {
         cb();
       } catch (e) {
-        console.warn('[PikselLoader] Error in layersChange callback:', e);
+        logger.warn('[PikselLoader] Error in layersChange callback:', e);
       }
     });
   }
@@ -412,7 +413,7 @@ export class PikselLoader {
       const product = PIKSEL_PRODUCTS.find((p) => p.id === productId);
       if (product) {
         if (product.isDisabled) {
-          console.warn(`[PikselLoader] Product ${product.id} is disabled. Skipping WMS request.`);
+          logger.warn(`[PikselLoader] Product ${product.id} is disabled. Skipping WMS request.`);
           this.activeProductId = null;
           this.emitState('idle');
           this.notifyLayersChange();
@@ -484,7 +485,7 @@ export class PikselLoader {
     }
 
     const url = `${product.serviceUrl}?${params.toString()}&BBOX={bbox-epsg-3857}`;
-    console.debug('[Piksel WMS]', {
+    logger.log('[Piksel WMS]', {
       product: product.id,
       layer: product.layer,
       style: product.style,
@@ -554,7 +555,7 @@ export class PikselLoader {
         }
       });
     } catch (e) {
-      console.warn(`[PikselLoader] Layer error for ${product.id}:`, e);
+      logger.warn(`[PikselLoader] Layer error for ${product.id}:`, e);
       this.emitState('error', `Gagal menambahkan layer WMS: ${(e as Error).message}`);
     }
   }
@@ -648,7 +649,7 @@ export class PikselLoader {
           this.isEventsBound = true;
         }
       } catch (e) {
-        console.warn('[PikselLoader] Grid layer error:', e);
+        logger.warn('[PikselLoader] Grid layer error:', e);
       }
     } else {
       if (this.map.getLayer(fillId)) {

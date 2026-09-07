@@ -1,4 +1,5 @@
 import * as maplibregl from 'maplibre-gl';
+import { logger } from '../utils/logger';
 
 export interface CustomLayerItem {
   id: string;
@@ -30,7 +31,7 @@ export class GeoJsonLoader {
       try {
         cb();
       } catch (err) {
-        console.error('Error in layers change callback:', err);
+        logger.error('Error in layers change callback:', err);
       }
     });
   }
@@ -109,7 +110,7 @@ export class GeoJsonLoader {
 
   public addGeoJSONLayer(layerId: string, layerName: string, geojson: GeoJSON.FeatureCollection, color: string = '#3b82f6'): boolean {
     if (!geojson || !Array.isArray(geojson.features) || geojson.features.length === 0) {
-      console.warn(`[GeoJsonLoader] GeoJSON for layer "${layerName}" is empty or invalid.`);
+      logger.warn(`[GeoJsonLoader] GeoJSON for layer "${layerName}" is empty or invalid.`);
       return false;
     }
 
@@ -232,7 +233,7 @@ export class GeoJsonLoader {
       // NOTE: Layer ordering is handled centrally by MapManager.bringCustomLayersToTop()
       this.bindClickPopup(layerId);
     } catch (e) {
-      console.warn(`[GeoJsonLoader] Notice attaching layer "${item.name}":`, e);
+      logger.warn(`[GeoJsonLoader] Notice attaching layer "${item.name}":`, e);
     }
   }
 

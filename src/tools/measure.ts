@@ -1,5 +1,6 @@
 import * as maplibregl from 'maplibre-gl';
 import * as turf from '@turf/turf';
+import { logger } from '../utils/logger';
 
 export type MeasureMode = 'none' | 'distance' | 'area';
 
@@ -98,7 +99,7 @@ export class MeasureTool {
         });
       }
     } catch (e) {
-      console.warn('Notice initializing MeasureTool layers:', e);
+      logger.warn('Notice initializing MeasureTool layers:', e);
     }
   }
 

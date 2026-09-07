@@ -16,6 +16,7 @@ import { PermalinkManager } from './tools/permalink';
 import { PointInspector } from './tools/point-inspector';
 import { BasemapCustomizer } from './tools/basemap-customizer';
 import { BasemapCustomizerUI } from './ui/basemap-customizer-panel';
+import { logger } from './utils/logger';
 
 class WebGISApp {
   private mapManager: MapManager;
@@ -206,7 +207,7 @@ class WebGISApp {
         this.updateDynamicLegend();
       });
     } catch (err) {
-      console.error('[WebGIS] Map initialization error:', err);
+      logger.error('[WebGIS] Map initialization error:', err);
       const mapEl = document.getElementById('map');
       if (mapEl) {
         mapEl.innerHTML = `
@@ -935,7 +936,7 @@ class WebGISApp {
           link.click();
           showToast('Peta grafis berkualitas tinggi berhasil diekspor!', 'success');
         } catch (e) {
-          console.error('Export error:', e);
+          logger.error('Export error:', e);
           showToast('Gagal mengekspor peta ke format gambar.', 'error');
         } finally {
           setTimeout(() => {

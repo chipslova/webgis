@@ -4,6 +4,7 @@ import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import * as pmtiles from 'pmtiles';
 import { BASEMAPS, DEFAULT_BASEMAP_ID } from '../config/basemaps';
+import { logger } from '../utils/logger';
 
 setWorkerUrl(workerUrl);
 
@@ -25,7 +26,7 @@ export class MapManager {
       const protocol = new pmtiles.Protocol();
       maplibregl.addProtocol('pmtiles', protocol.tile);
     } catch (e) {
-      console.warn('PMTiles protocol notice:', e);
+      logger.warn('PMTiles protocol notice:', e);
     }
   }
 
@@ -147,7 +148,7 @@ export class MapManager {
         initialStyle = this.normalizeStyleSpecification(json, defaultBasemap.styleUrl);
       }
     } catch (e) {
-      console.warn('Initial style fetch notice:', e);
+      logger.warn('Initial style fetch notice:', e);
     }
 
     this.map = new maplibregl.Map({
@@ -278,7 +279,7 @@ export class MapManager {
 
     // Handle map style loading error gracefully
     this.map.on('error', (e: any) => {
-      console.warn('MapLibre style/resource notice:', e.error?.message || e);
+      logger.warn('MapLibre style/resource notice:', e.error?.message || e);
     });
 
     // Centralized style.load listener for all basemap transitions
@@ -329,7 +330,7 @@ export class MapManager {
       try {
         cb();
       } catch (e) {
-        console.warn('[MapManager] Error in styleReady callback:', e);
+        logger.warn('[MapManager] Error in styleReady callback:', e);
       }
     });
     this.enforceLayerOrder();
@@ -433,7 +434,7 @@ export class MapManager {
       const normalizedStyle = this.normalizeStyleSpecification(styleJson, target.styleUrl);
       this.map.setStyle(normalizedStyle, { diff: false });
     } catch (err) {
-      console.warn('Failed to load style JSON directly, fallback to URL:', err);
+      logger.warn('Failed to load style JSON directly, fallback to URL:', err);
       this.map.setStyle(target.styleUrl, { diff: false });
     }
 
@@ -454,7 +455,7 @@ export class MapManager {
       try {
         this.map.setProjection({ type });
       } catch (e) {
-        console.warn('setProjection error:', e);
+        logger.warn('setProjection error:', e);
       }
     }
   }

@@ -42,21 +42,27 @@ export class SidebarUI {
   public setActiveTab(tabId: TabId) {
     this.activeTab = tabId;
 
-    // Update active nav button styling
+    // Update active nav button styling and accessibility
     document.querySelectorAll<HTMLButtonElement>('.sidebar-tab-btn').forEach((btn) => {
-      if (btn.dataset.tab === tabId) {
+      const isSelected = btn.dataset.tab === tabId;
+      if (isSelected) {
         btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
       } else {
         btn.classList.remove('active');
+        btn.setAttribute('aria-selected', 'false');
       }
     });
 
-    // Update active panel view
+    // Update active panel view and accessibility
     document.querySelectorAll<HTMLElement>('.sidebar-panel').forEach((panel) => {
-      if (panel.id === `panel-${tabId}`) {
+      const isActive = panel.id === `panel-${tabId}`;
+      if (isActive) {
         panel.classList.add('active');
+        panel.setAttribute('aria-hidden', 'false');
       } else {
         panel.classList.remove('active');
+        panel.setAttribute('aria-hidden', 'true');
       }
     });
 
@@ -71,6 +77,7 @@ export class SidebarUI {
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
 
     if (sidebar) {
+      sidebar.setAttribute('aria-expanded', String(isOpen));
       if (isOpen) {
         sidebar.classList.remove('collapsed');
       } else {
@@ -79,9 +86,11 @@ export class SidebarUI {
     }
 
     if (toggleBtn) {
+      toggleBtn.setAttribute('aria-label', isOpen ? 'Ciutkan bilah samping' : 'Bentangkan bilah samping');
+      toggleBtn.setAttribute('aria-expanded', String(isOpen));
       toggleBtn.innerHTML = isOpen
-        ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>`
-        : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
+        ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>`
+        : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>`;
     }
 
     // Continuously trigger resize during transition so MapLibre canvas expands smoothly to full width

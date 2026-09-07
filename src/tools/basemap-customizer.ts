@@ -1,4 +1,5 @@
 import * as maplibregl from 'maplibre-gl';
+import { logger } from '../utils/logger';
 
 export type VectorSublayerKey =
   | 'poi'
@@ -81,7 +82,7 @@ export class BasemapCustomizer {
       try {
         cb(this.getState());
       } catch (e) {
-        console.warn('[BasemapCustomizer] Error in change callback:', e);
+        logger.warn('[BasemapCustomizer] Error in change callback:', e);
       }
     });
   }
@@ -241,7 +242,7 @@ export class BasemapCustomizer {
         });
       }
     } catch (e) {
-      console.warn('[BasemapCustomizer] Notice adding DEM source:', e);
+      logger.warn('[BasemapCustomizer] Notice adding DEM source:', e);
     }
   }
 
@@ -297,7 +298,7 @@ export class BasemapCustomizer {
         this.map.setTerrain(null as any);
       }
     } catch (e) {
-      console.warn('[BasemapCustomizer] Error applying 3D terrain:', e);
+      logger.warn('[BasemapCustomizer] Error applying 3D terrain:', e);
     }
   }
 
@@ -338,7 +339,7 @@ export class BasemapCustomizer {
         this.map.setLayoutProperty(layerId, 'visibility', 'none');
       }
     } catch (e) {
-      console.warn('[BasemapCustomizer] Error applying hillshade overlay:', e);
+      logger.warn('[BasemapCustomizer] Error applying hillshade overlay:', e);
     }
   }
 
@@ -392,7 +393,7 @@ export class BasemapCustomizer {
         sourceLayer: 'building'
       };
     } catch (e) {
-      console.warn('[BasemapCustomizer] Notice adding global 3D buildings source:', e);
+      logger.warn('[BasemapCustomizer] Notice adding global 3D buildings source:', e);
       return null;
     }
   }
@@ -447,7 +448,7 @@ export class BasemapCustomizer {
         this.map.setLayoutProperty(custom3DLayerId, 'visibility', 'none');
       }
     } catch (e) {
-      console.warn('[BasemapCustomizer] Notice configuring 3D buildings:', e);
+      logger.warn('[BasemapCustomizer] Notice configuring 3D buildings:', e);
     }
   }
 

@@ -48,7 +48,7 @@ export class PikselPanelUI {
 
     // 1. Presets HTML
     const presetsHtml = PIKSEL_PRESETS.map((preset: PikselPreset) => `
-      <button class="piksel-preset-chip" data-id="${preset.id}" title="${preset.description}">
+      <button class="piksel-preset-chip" data-id="${preset.id}" aria-label="Jelajahi kawasan ${preset.name}, ${preset.locationName}" title="${preset.description}">
         <span class="preset-chip-title">${preset.name}</span>
         <span class="preset-chip-sub">${preset.locationName}</span>
       </button>
@@ -105,16 +105,16 @@ export class PikselPanelUI {
       }
 
       activeControlHtml = `
-        <div class="piksel-active-box">
+        <div class="piksel-active-box" role="region" aria-label="Kontrol layer ${activeProduct.name}">
           <div class="active-box-header">
             <div class="active-box-title-wrap">
-              <span class="active-live-dot ${this.currentLoadingState.status}"></span>
+              <span class="active-live-dot ${this.currentLoadingState.status}" aria-hidden="true"></span>
               <div>
                 <h4 class="active-box-title">${activeProduct.name}</h4>
                 <span class="active-box-badge" style="border-color:${activeProduct.color}66; color:${activeProduct.color};">${activeProduct.badge}</span>
               </div>
             </div>
-            <button id="btn-clear-piksel-layer" class="btn-deactivate-chip" title="Nonaktifkan layer ini">
+            <button id="btn-clear-piksel-layer" class="btn-deactivate-chip" aria-label="Nonaktifkan layer ${activeProduct.name}" title="Nonaktifkan layer ini">
               ✕ Lepas Layer
             </button>
           </div>
@@ -128,8 +128,8 @@ export class PikselPanelUI {
           <div class="active-controls-grid">
             ${activeProduct.timeEnabled ? `
               <div class="control-field">
-                <label>Tahun</label>
-                <select id="piksel-year-select" class="clean-select">
+                <label for="piksel-year-select">Tahun</label>
+                <select id="piksel-year-select" class="clean-select" aria-label="Pilih tahun citra satelit ${activeProduct.name}">
                   ${yearOptionsHtml}
                 </select>
               </div>
@@ -141,19 +141,19 @@ export class PikselPanelUI {
           </div>
 
           <!-- Dedicated Direct Zoom to Level 6 Button -->
-          <button class="btn-zoom-product-action full-width" id="btn-zoom-to-product" title="Perbesar peta ke Zoom Level ${activeProduct.minZoom ?? 6} agar citra satelit muncul">
-            <span style="font-size: 14px;">🔍</span>
+          <button class="btn-zoom-product-action full-width" id="btn-zoom-to-product" aria-label="Perbesar peta ke Zoom Level ${activeProduct.minZoom ?? 6} agar citra satelit muncul" title="Perbesar peta ke Zoom Level ${activeProduct.minZoom ?? 6} agar citra satelit muncul">
+            <span style="font-size: 14px;" aria-hidden="true">🔍</span>
             <span>Perbesar ke Level ${activeProduct.minZoom ?? 6} (Skala Pulau)</span>
-            <span style="font-size: 13px; font-weight: 800;">→</span>
+            <span style="font-size: 13px; font-weight: 800;" aria-hidden="true">→</span>
           </button>
 
           <!-- Opacity Slider -->
           <div class="active-slider-field">
             <div class="slider-label-row">
-              <span>Transparansi Layer</span>
+              <label for="piksel-master-opacity">Transparansi Layer</label>
               <strong id="piksel-opacity-text">${opacityPct}%</strong>
             </div>
-            <input type="range" id="piksel-master-opacity" min="0" max="100" value="${opacityPct}" class="clean-range-slider" />
+            <input type="range" id="piksel-master-opacity" min="0" max="100" value="${opacityPct}" class="clean-range-slider" aria-label="Transparansi layer ${activeProduct.name}" />
           </div>
 
           <!-- Active Product Legend & Swatches -->
@@ -174,7 +174,7 @@ export class PikselPanelUI {
               </div>
               <div style="margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 8px;">
                 <label class="toggle-checkbox-label">
-                  <input type="checkbox" id="toggle-piksel-grid" ${isGridOn ? 'checked' : ''} />
+                  <input type="checkbox" id="toggle-piksel-grid" ${isGridOn ? 'checked' : ''} aria-label="Tampilkan Grid Indeks Data Cube 1.631 Tile" />
                   <span>Tampilkan Grid Indeks Data Cube (1.631 Tile)</span>
                 </label>
               </div>
@@ -185,7 +185,7 @@ export class PikselPanelUI {
     } else {
       activeControlHtml = `
         <div class="piksel-empty-prompt">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
           <div>
             <strong>Belum ada layer citra yang aktif</strong>
             <p>Pilih salah satu produk di katalog bawah untuk menampilkan citra di atas peta.</p>
@@ -204,7 +204,7 @@ export class PikselPanelUI {
     ];
 
     const categoryChipsHtml = categories.map(c => `
-      <button class="cat-filter-btn ${this.selectedCategory === c.id ? 'active' : ''}" data-cat="${c.id}">
+      <button class="cat-filter-btn ${this.selectedCategory === c.id ? 'active' : ''}" data-cat="${c.id}" role="tab" aria-selected="${this.selectedCategory === c.id}" aria-label="Filter kategori ${c.label}">
         ${c.label}
       </button>
     `).join('');
@@ -223,10 +223,10 @@ export class PikselPanelUI {
 
       if (isDisabled) {
         return `
-          <div class="clean-product-card is-disabled" data-id="${prod.id}" title="${prod.statusNotice || 'Produk tidak tersedia'}">
+          <div class="clean-product-card is-disabled" data-id="${prod.id}" title="${prod.statusNotice || 'Produk tidak tersedia'}" aria-disabled="true">
             <div class="card-main-info">
               <div class="card-title-line">
-                <span class="card-color-dot" style="background:#475569;"></span>
+                <span class="card-color-dot" style="background:#475569;" aria-hidden="true"></span>
                 <strong class="card-name" style="color:#64748b;">${prod.name}</strong>
               </div>
               <div class="card-tags-line">
@@ -234,7 +234,7 @@ export class PikselPanelUI {
                 <span class="card-tag card-tag-unavailable">Tidak Tersedia</span>
               </div>
             </div>
-            <div class="btn-disabled-product">Tidak Tersedia</div>
+            <div class="btn-disabled-product" aria-hidden="true">Tidak Tersedia</div>
           </div>
         `;
       }
@@ -243,7 +243,7 @@ export class PikselPanelUI {
         <div class="clean-product-card ${isActive ? 'is-active' : ''}" data-id="${prod.id}">
           <div class="card-main-info">
             <div class="card-title-line">
-              <span class="card-color-dot" style="background:${prod.color};"></span>
+              <span class="card-color-dot" style="background:${prod.color};" aria-hidden="true"></span>
               <strong class="card-name">${prod.name}</strong>
             </div>
             <p class="card-brief-desc" style="font-size: 11.5px; color: var(--text-muted); margin: 4px 0 6px 0; line-height: 1.35;">
@@ -268,7 +268,7 @@ export class PikselPanelUI {
               </div>
             </details>
           </div>
-          <button class="btn-select-product ${isActive ? 'btn-active-state' : ''}" data-id="${prod.id}">
+          <button class="btn-select-product ${isActive ? 'btn-active-state' : ''}" data-id="${prod.id}" aria-label="${isActive ? 'Layer ' + prod.name + ' sedang aktif' : 'Tampilkan layer ' + prod.name + ' di peta'}">
             ${isActive ? '✓ Aktif' : 'Tampilkan di Peta'}
           </button>
         </div>

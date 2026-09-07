@@ -158,7 +158,7 @@ export class PointInspector {
     this.queryWMSGetFeatureInfo(lng, lat, screenPoint);
   }
 
-  private async queryWMSGetFeatureInfo(lng: number, lat: number, screenPoint?: maplibregl.PointLike) {
+  private async queryWMSGetFeatureInfo(_lng: number, _lat: number, screenPoint?: maplibregl.PointLike) {
     const rasterStatusEl = document.getElementById('insp-raster-query-status');
     const pikselProduct = this.pikselLoader?.getActiveProduct();
     

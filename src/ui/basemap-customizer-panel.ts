@@ -73,17 +73,27 @@ export class BasemapCustomizerUI {
       const item = document.createElement('div');
       item.className = `basemap-popover-item ${bm.id === currentId ? 'active' : ''}`;
       item.dataset.id = bm.id;
+      item.setAttribute('role', 'button');
+      item.setAttribute('tabindex', '0');
+      item.setAttribute('aria-label', `Pilih basemap ${bm.name} kategori ${bm.category}`);
 
       item.innerHTML = `
         <div class="popover-item-left">
-          <div class="popover-basemap-dot" style="background-color: ${bm.previewColor};"></div>
+          <div class="popover-basemap-dot" style="background-color: ${bm.previewColor};" aria-hidden="true"></div>
           <div class="popover-basemap-text">
             <span class="popover-basemap-title">${bm.name}</span>
             <span class="popover-basemap-cat">${bm.category}</span>
           </div>
         </div>
-        <div class="popover-check-indicator">✓</div>
+        <div class="popover-check-indicator" aria-hidden="true">✓</div>
       `;
+
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          item.click();
+        }
+      });
 
       item.addEventListener('click', () => {
         document.querySelectorAll('.basemap-popover-item').forEach(el => el.classList.remove('active'));

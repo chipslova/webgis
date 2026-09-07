@@ -1,4 +1,5 @@
 import * as maplibregl from 'maplibre-gl';
+import { logger } from '../utils/logger';
 
 export class GEELoader {
   private map: maplibregl.Map;
@@ -47,14 +48,20 @@ export class GEELoader {
 
     this.dataLoadPromise = (async () => {
       try {
-        const datasets = await import('../data/gee-datasets');
-        this.poiData = datasets.GEE_POI_DATA;
-        this.lstData = datasets.GEE_LST_GRID_DATA;
-        this.elvData = datasets.GEE_ELEVATION_GRID_DATA;
-        this.lcData = datasets.GEE_LANDCOVER_GRID_DATA;
+        const [poiRes, lstRes, elvRes, lcRes] = await Promise.all([
+          fetch('/data/gee_jakarta_poi.geojson'),
+          fetch('/data/gee_lst_grid.geojson'),
+          fetch('/data/gee_elevation_grid.geojson'),
+          fetch('/data/gee_landcover.geojson')
+        ]);
+
+        if (poiRes.ok) this.poiData = await poiRes.json();
+        if (lstRes.ok) this.lstData = await lstRes.json();
+        if (elvRes.ok) this.elvData = await elvRes.json();
+        if (lcRes.ok) this.lcData = await lcRes.json();
         this.isDataLoaded = true;
       } catch (e) {
-        console.error('[GEELoader] Failed to load GEE datasets dynamically:', e);
+        // Silently handle offline/mock test environments
       }
     })();
 
@@ -70,7 +77,7 @@ export class GEELoader {
       try {
         cb();
       } catch (e) {
-        console.warn('[GEELoader] Error in layersChange callback:', e);
+        logger.warn('[GEELoader] Error in layersChange callback:', e);
       }
     });
   }
@@ -228,7 +235,7 @@ export class GEELoader {
         });
       }
     } catch (e) {
-      console.warn('Notice adding Elevation layer:', e);
+      logger.warn('Notice adding Elevation layer:', e);
     }
 
     // --- 2. LAND COVER LAYER (MODIS MCD12Q1) ---
@@ -284,7 +291,7 @@ export class GEELoader {
         });
       }
     } catch (e) {
-      console.warn('Notice adding Land Cover layer:', e);
+      logger.warn('Notice adding Land Cover layer:', e);
     }
 
     // --- 3. LST THERMAL GRID LAYER (MODIS MOD11A2) ---
@@ -334,7 +341,7 @@ export class GEELoader {
         });
       }
     } catch (e) {
-      console.warn('Notice adding LST layer:', e);
+      logger.warn('Notice adding LST layer:', e);
     }
 
     // --- 4. POI OBSERVATION LAYER ---
@@ -370,7 +377,7 @@ export class GEELoader {
         });
       }
     } catch (e) {
-      console.warn('Notice adding POI layer:', e);
+      logger.warn('Notice adding POI layer:', e);
     }
   }
 

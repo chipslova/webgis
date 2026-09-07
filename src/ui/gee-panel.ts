@@ -147,10 +147,13 @@ export class GEEPanelUI {
 
     if (this.timeSeriesData.length === 0) {
       try {
-        const { GEE_TIMESERIES_DATA } = await import('../data/gee-datasets');
-        this.timeSeriesData = (GEE_TIMESERIES_DATA.data as any) || [];
+        const res = await fetch('/data/gee_lst_timeseries.json');
+        if (res.ok) {
+          const json = await res.json();
+          this.timeSeriesData = (json.data as any) || [];
+        }
       } catch (e) {
-        console.warn('[GEEPanelUI] Could not load timeseries data:', e);
+        // Silently handle offline/mock test environments
       }
     }
 

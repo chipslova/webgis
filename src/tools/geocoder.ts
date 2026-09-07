@@ -1,4 +1,5 @@
 import * as maplibregl from 'maplibre-gl';
+import { logger } from '../utils/logger';
 
 export interface SearchResult {
   display_name: string;
@@ -30,7 +31,7 @@ export class GeocoderTool {
       const data: SearchResult[] = await res.json();
       return data;
     } catch (e) {
-      console.error('Geocoder search error:', e);
+      logger.error('Geocoder search error:', e);
       return [];
     }
   }

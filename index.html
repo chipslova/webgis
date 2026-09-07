@@ -22,15 +22,16 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"></noscript>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
     <div id="app">
       <!-- Header Bar -->
-      <header class="app-header">
+      <header class="app-header" role="banner">
         <div class="header-brand">
-          <div class="brand-logo">
+          <div class="brand-logo" aria-hidden="true">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="12 2 2 7 12 12 22 7 12 2"/>
               <polyline points="2 17 12 22 22 17"/>
@@ -44,40 +45,40 @@
         </div>
 
         <!-- Search Bar -->
-        <div class="header-search">
+        <div class="header-search" role="search">
           <div class="search-input-wrapper">
-            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <circle cx="11" cy="11" r="8"/>
               <path d="m21 21-4.3-4.3"/>
             </svg>
-            <input type="text" id="geocoder-input" placeholder="Cari lokasi (contoh: Jakarta, Bromo, IKN, Bandung)..." autocomplete="off" />
-            <button id="search-clear-btn" class="icon-btn-sm" style="display:none;" title="Bersihkan pencarian">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            <input type="text" id="geocoder-input" placeholder="Cari lokasi (contoh: Jakarta, Bromo, IKN, Bandung)..." autocomplete="off" aria-label="Cari nama lokasi atau kota di Indonesia" />
+            <button id="search-clear-btn" class="icon-btn-sm" style="display:none;" title="Bersihkan pencarian" aria-label="Hapus teks pencarian">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
             </button>
           </div>
-          <div id="geocoder-results" class="search-results-dropdown"></div>
+          <div id="geocoder-results" class="search-results-dropdown" role="listbox" aria-label="Hasil pencarian lokasi"></div>
         </div>
 
         <!-- Header Actions -->
         <div class="header-actions">
-          <button id="btn-reset-map" class="btn btn-secondary" title="Reset Pandangan Peta & Layer Analisis">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          <button id="btn-reset-map" class="btn btn-secondary" title="Reset Pandangan Peta & Layer Analisis" aria-label="Reset pandangan peta ke Indonesia">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
             <span class="btn-text-label">Reset View</span>
           </button>
-          <button id="btn-toggle-globe" class="btn btn-secondary" title="Beralih Mode 3D Globe / 2D Mercator">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+          <button id="btn-toggle-globe" class="btn btn-secondary" title="Beralih Mode 3D Globe / 2D Mercator" aria-label="Beralih antara mode 3D Globe dan 2D Mercator">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
             <span id="globe-btn-label" class="btn-text-label">Mode 3D Globe</span>
           </button>
-          <button id="btn-quick-import" class="btn btn-secondary" title="Import File GeoJSON Kustom">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+          <button id="btn-quick-import" class="btn btn-secondary" title="Import File GeoJSON Kustom" aria-label="Unggah file GeoJSON kustom">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
             <span class="btn-text-label">Import GeoJSON</span>
           </button>
-          <button id="btn-share-map" class="btn btn-secondary" title="Salin Tautan Peta & Analisis Aktif (Permalink)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <button id="btn-share-map" class="btn btn-secondary" title="Salin Tautan Peta & Analisis Aktif (Permalink)" aria-label="Salin tautan permalink analisis peta">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             <span class="btn-text-label">Bagikan</span>
           </button>
-          <button id="btn-export-map" class="btn btn-secondary" title="Simpan Tangkapan Layar Peta">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <button id="btn-export-map" class="btn btn-secondary" title="Simpan Tangkapan Layar Peta" aria-label="Simpan dan unduh tangkapan layar peta dalam format PNG">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             <span class="btn-text-label">Simpan Peta</span>
           </button>
         </div>
@@ -86,35 +87,35 @@
       <!-- Main Layout -->
       <div class="app-body">
         <!-- Sidebar Panel Drawer -->
-        <aside id="sidebar" class="sidebar">
+        <aside id="sidebar" class="sidebar" aria-expanded="true" aria-label="Bilah Samping Kontrol WebGIS">
           <!-- Navigation Tab Icons -->
-          <nav class="sidebar-nav">
-            <button class="sidebar-tab-btn active" data-tab="map" title="Peta & Layer Aktif">
-              <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+          <nav class="sidebar-nav" role="tablist" aria-label="Navigasi Panel Kontrol">
+            <button class="sidebar-tab-btn active" data-tab="map" id="tab-map" role="tab" aria-selected="true" aria-controls="panel-map" aria-label="Peta dan Layer Aktif" title="Peta & Layer Aktif">
+              <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
               <span>Peta</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="piksel" title="Piksel Earth Observation (BIG × GA)">
-              <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
+            <button class="sidebar-tab-btn" data-tab="piksel" id="tab-piksel" role="tab" aria-selected="false" aria-controls="panel-piksel" aria-label="Piksel Earth Observation BIG" title="Piksel Earth Observation (BIG × GA)">
+              <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
               <span>Piksel EO</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="gee" title="Analisis Termal & Elevasi GEE">
-              <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+            <button class="sidebar-tab-btn" data-tab="gee" id="tab-gee" role="tab" aria-selected="false" aria-controls="panel-gee" aria-label="Analisis Termal dan Elevasi GEE" title="Analisis Termal & Elevasi GEE">
+              <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
               <span>GEE Analysis</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="measure" title="Alat Ukur Jarak & Luas">
-              <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20"/><path d="M6 12V8"/><path d="M12 12V8"/><path d="M18 12V8"/></svg>
+            <button class="sidebar-tab-btn" data-tab="measure" id="tab-measure" role="tab" aria-selected="false" aria-controls="panel-measure" aria-label="Alat Ukur Jarak dan Luas" title="Alat Ukur Jarak & Luas">
+              <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12h20"/><path d="M6 12V8"/><path d="M12 12V8"/><path d="M18 12V8"/></svg>
               <span>Ukur</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="data" title="Data Vektor & Upload GeoJSON">
-              <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            <button class="sidebar-tab-btn" data-tab="data" id="tab-data" role="tab" aria-selected="false" aria-controls="panel-data" aria-label="Data Vektor dan Upload GeoJSON" title="Data Vektor & Upload GeoJSON">
+              <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
               <span>Data</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="legend" title="Legenda Simbol Peta">
-              <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            <button class="sidebar-tab-btn" data-tab="legend" id="tab-legend" role="tab" aria-selected="false" aria-controls="panel-legend" aria-label="Legenda Simbol Peta" title="Legenda Simbol Peta">
+              <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
               <span>Legenda</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="about" title="Tentang & Arsitektur Sistem">
-              <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <button class="sidebar-tab-btn" data-tab="about" id="tab-about" role="tab" aria-selected="false" aria-controls="panel-about" aria-label="Tentang dan Arsitektur Sistem" title="Tentang & Arsitektur Sistem">
+              <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
               <span>Tentang</span>
             </button>
           </nav>
@@ -122,12 +123,12 @@
           <!-- Drawer Content Container -->
           <div class="sidebar-content">
             <!-- Collapse Toggle Button -->
-            <button id="sidebar-toggle-btn" class="sidebar-toggle" title="Sembunyikan / Buka Sidebar">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            <button id="sidebar-toggle-btn" class="sidebar-toggle" title="Sembunyikan / Buka Sidebar" aria-label="Ciutkan bilah samping" aria-expanded="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
             </button>
 
             <!-- Panel: Map & Active Layers -->
-            <section id="panel-map" class="sidebar-panel active">
+            <section id="panel-map" class="sidebar-panel active" role="tabpanel" aria-labelledby="tab-map">
               <div class="panel-header">
                 <h2>Lapisan Aktif (Layer Stack)</h2>
                 <p>Kelola hierarki layer aktif, atur transparansi, visibilitas, dan sinkronisasi tampilan geospasial.</p>
@@ -227,8 +228,8 @@
               </div>
 
               <!-- Quick Focus Area Button -->
-              <button id="btn-focus-gee-area" class="btn-focus-gee full-width" style="margin-bottom: 12px;">
-                <span style="font-size: 16px;">🎯</span>
+              <button id="btn-focus-gee-area" class="btn-focus-gee full-width" style="margin-bottom: 12px;" aria-label="Fokus wilayah studi Jakarta dan Jawa Barat">
+                <span style="font-size: 16px;" aria-hidden="true">🎯</span>
                 <div class="btn-focus-gee-text">
                   <span class="btn-focus-title">Fokus Wilayah Studi</span>
                   <span class="btn-focus-sub">(Jakarta – Jawa Barat)</span>
@@ -242,7 +243,7 @@
                 <!-- GEE Independent Opacity Slider -->
                 <div class="piksel-master-control" style="margin-bottom: 14px;">
                   <div class="piksel-control-header">
-                    <span class="control-title">Transparansi Layer GEE</span>
+                    <label for="gee-opacity-slider" class="control-title">Transparansi Layer GEE</label>
                     <span class="control-val" id="gee-opacity-val">80%</span>
                   </div>
                   <input 
@@ -252,8 +253,9 @@
                     max="100" 
                     value="80" 
                     class="piksel-slider" 
+                    aria-label="Transparansi seluruh layer analitis GEE"
                   />
-                  <div class="slider-ticks">
+                  <div class="slider-ticks" aria-hidden="true">
                     <span>0% (Transparan)</span>
                     <span>50%</span>
                     <span>100% (Penuh)</span>
@@ -264,12 +266,12 @@
                   <!-- 1. LST Heatmap -->
                   <div class="gee-toggle-item-wrap">
                     <label class="gee-toggle-item">
-                      <input type="checkbox" id="toggle-gee-lst" />
+                      <input type="checkbox" id="toggle-gee-lst" aria-label="Aktifkan atau nonaktifkan layer MODIS Daytime LST Heatmap" />
                       <span class="toggle-label">🌡️ MODIS Daytime LST Heatmap</span>
                     </label>
                     <div class="gee-layer-legend-box" id="legend-box-lst">
-                      <div class="gee-legend-bar lst-gradient"></div>
-                      <div class="gee-legend-labels">
+                      <div class="gee-legend-bar lst-gradient" aria-hidden="true"></div>
+                      <div class="gee-legend-labels" aria-hidden="true">
                         <span>22°C (Sejuk)</span>
                         <span>25°C</span>
                         <span>28°C</span>
@@ -282,7 +284,7 @@
                   <!-- 2. Observation POIs -->
                   <div class="gee-toggle-item-wrap">
                     <label class="gee-toggle-item">
-                      <input type="checkbox" id="toggle-gee-poi" />
+                      <input type="checkbox" id="toggle-gee-poi" aria-label="Aktifkan atau nonaktifkan layer Stasiun Observasi Urban vs Rural" />
                       <span class="toggle-label">📍 Stasiun Observasi Urban vs Rural</span>
                     </label>
                     <div class="gee-layer-legend-box poi-tags">
@@ -294,12 +296,12 @@
                   <!-- 3. Elevation Grid -->
                   <div class="gee-toggle-item-wrap">
                     <label class="gee-toggle-item">
-                      <input type="checkbox" id="toggle-gee-elevation" />
+                      <input type="checkbox" id="toggle-gee-elevation" aria-label="Aktifkan atau nonaktifkan layer USGS SRTM Ground Elevation Grid" />
                       <span class="toggle-label">⛰️ USGS SRTM Ground Elevation Grid</span>
                     </label>
                     <div class="gee-layer-legend-box" id="legend-box-elv">
-                      <div class="gee-legend-bar elv-gradient"></div>
-                      <div class="gee-legend-labels">
+                      <div class="gee-legend-bar elv-gradient" aria-hidden="true"></div>
+                      <div class="gee-legend-labels" aria-hidden="true">
                         <span>0m (Pesisir)</span>
                         <span>50m</span>
                         <span>200m</span>
@@ -312,7 +314,7 @@
                   <!-- 4. Land Cover -->
                   <div class="gee-toggle-item-wrap">
                     <label class="gee-toggle-item">
-                      <input type="checkbox" id="toggle-gee-landcover" />
+                      <input type="checkbox" id="toggle-gee-landcover" aria-label="Aktifkan atau nonaktifkan layer MODIS Land Cover Classification" />
                       <span class="toggle-label">🌳 MODIS Land Cover Classification</span>
                     </label>
                     <div class="gee-layer-legend-box lc-tags">
@@ -355,7 +357,7 @@
                 <div class="accordion-body">
                   <p class="chart-subtitle" style="margin-bottom: 8px;">Pola fluktuasi suhu musiman: Perkotaan Jakarta vs Pedesaan Bogor</p>
                   <div class="chart-container">
-                    <canvas id="gee-chart-canvas" width="300" height="200"></canvas>
+                    <canvas id="gee-chart-canvas" width="300" height="200" role="img" aria-label="Grafik Tren Deret Waktu Suhu MODIS LST Perkotaan vs Pedesaan 2020-2026"></canvas>
                   </div>
                   <div class="chart-legend" style="margin-top: 8px;">
                     <span class="legend-badge urban-badge">■ Kota Jakarta (Panas)</span>
@@ -372,16 +374,16 @@
                 <div class="accordion-body">
                   <p style="margin-bottom: 10px;">Ekspor layer spasial & data time-series:</p>
                   <div class="download-buttons">
-                    <button id="btn-download-geojson" class="btn btn-outline full-width">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                    <button id="btn-download-geojson" class="btn btn-outline full-width" aria-label="Unduh dataset GeoJSON POI Stasiun Observasi">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                       Unduh GeoJSON POI Layer
                     </button>
-                    <button id="btn-download-csv" class="btn btn-outline full-width">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <button id="btn-download-csv" class="btn btn-outline full-width" aria-label="Unduh dataset CSV Time-Series LST">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                       Unduh CSV Time-Series LST
                     </button>
-                    <button id="btn-download-geotiff" class="btn btn-secondary full-width" title="Unduh catatan metadata hasil ekspor GEE ke Google Drive. File ini berisi log parameter, bukan data raster.">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                    <button id="btn-download-geotiff" class="btn btn-secondary full-width" title="Unduh catatan metadata hasil ekspor GEE ke Google Drive. File ini berisi log parameter, bukan data raster." aria-label="Unduh catatan spesifikasi metadata ekspor GeoTIFF">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
                       Export Log GEE — Metadata (.txt)
                     </button>
                   </div>
@@ -390,22 +392,22 @@
             </section>
 
             <!-- Panel: Measure -->
-            <section id="panel-measure" class="sidebar-panel">
+            <section id="panel-measure" class="sidebar-panel" role="tabpanel" aria-labelledby="tab-measure">
               <div class="panel-header">
                 <h2>Pengukuran Spasial (Turf.js)</h2>
                 <p>Hitung jarak lintasan geodesik dan luas area poligon secara interaktif di atas peta.</p>
               </div>
               <div class="measure-controls">
-                <button id="btn-measure-dist" class="btn btn-outline full-width">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20"/><path d="M6 12V8"/><path d="M12 12V8"/><path d="M18 12V8"/></svg>
+                <button id="btn-measure-dist" class="btn btn-outline full-width" aria-label="Ukur jarak lintasan geodesik">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12h20"/><path d="M6 12V8"/><path d="M12 12V8"/><path d="M18 12V8"/></svg>
                   Ukur Jarak Lintasan
                 </button>
-                <button id="btn-measure-area" class="btn btn-outline full-width">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/></svg>
+                <button id="btn-measure-area" class="btn btn-outline full-width" aria-label="Ukur luas area poligon geodesik">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/></svg>
                   Ukur Luas Area Poligon
                 </button>
-                <button id="btn-measure-clear" class="btn btn-danger-outline full-width">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                <button id="btn-measure-clear" class="btn btn-danger-outline full-width" aria-label="Hapus jalur dan hasil pengukuran">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                   Hapus Pengukuran
                 </button>
               </div>
@@ -420,7 +422,7 @@
                 </ul>
               </div>
 
-              <div id="measure-result-card" class="result-card" style="display:none;">
+              <div id="measure-result-card" class="result-card" style="display:none;" role="status" aria-live="polite">
                 <div class="result-title">Hasil Pengukuran</div>
                 <div id="measure-result-value" class="result-value">0 km</div>
                 <div class="result-help">Klik kanan pada peta atau tekan Esc untuk menyelesaikan pengukuran</div>
@@ -428,15 +430,15 @@
             </section>
 
             <!-- Panel: Data Import -->
-            <section id="panel-data" class="sidebar-panel">
+            <section id="panel-data" class="sidebar-panel" role="tabpanel" aria-labelledby="tab-data">
               <div class="panel-header">
                 <h2>Data Spasial & GeoJSON</h2>
                 <p>Unggah atau seret file GeoJSON untuk menampilkan data vektor kustom.</p>
               </div>
-              <div class="upload-dropzone" id="geojson-dropzone">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              <div class="upload-dropzone" id="geojson-dropzone" role="button" tabindex="0" aria-label="Pilih atau seret file GeoJSON ke area ini">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                 <p><strong>Klik untuk pilih file</strong> atau seret file GeoJSON ke sini</p>
-                <input type="file" id="file-geojson-input" accept=".geojson,.json" style="display:none;" />
+                <input type="file" id="file-geojson-input" accept=".geojson,.json" style="display:none;" aria-label="Pilih file GeoJSON dari perangkat" />
               </div>
               <button id="btn-load-sample" class="btn btn-secondary full-width" style="margin-top: 12px;">
                 Muat Sampel Kota Besar Indonesia
@@ -646,25 +648,25 @@
         </main>
 
         <!-- Feature Inspection Card / Popup Modal -->
-        <div id="feature-inspector" class="feature-inspector-card" style="display:none;">
+        <div id="feature-inspector" class="feature-inspector-card" style="display:none;" role="dialog" aria-modal="false" aria-label="Detail Fitur Vektor">
           <div class="inspector-header">
             <div class="inspector-title">
-              <span style="font-size: 15px; margin-right: 4px;">🔍</span>
+              <span style="font-size: 15px; margin-right: 4px;" aria-hidden="true">🔍</span>
               <span id="inspector-layer-name">Detail Fitur</span>
             </div>
-            <button id="inspector-close-btn" class="icon-btn-sm" title="Tutup"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+            <button id="inspector-close-btn" class="icon-btn-sm" title="Tutup" aria-label="Tutup panel inspeksi fitur"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
           </div>
           <div id="inspector-content" class="inspector-table-wrapper"></div>
         </div>
 
         <!-- Floating Point & Feature Inspector Card -->
-        <div id="floating-inspector-card" class="floating-inspector-card">
+        <div id="floating-inspector-card" class="floating-inspector-card" role="region" aria-label="Inspeksi Titik dan Fitur Geospasial">
           <div class="insp-header">
             <div class="insp-title-wrap">
-              <div class="insp-dot"></div>
+              <div class="insp-dot" aria-hidden="true"></div>
               <span class="insp-title">Inspeksi Titik & Fitur</span>
             </div>
-            <button id="floating-insp-close" class="insp-close-btn" title="Tutup">✕</button>
+            <button id="floating-insp-close" class="insp-close-btn" title="Tutup" aria-label="Tutup panel inspeksi titik">✕</button>
           </div>
           <div class="insp-body">
             <!-- Koordinat Lokasi -->
@@ -704,19 +706,19 @@
             </div>
 
             <!-- Hidden compatibility slots for tests if needed -->
-            <div style="display:none;">
+            <div style="display:none;" aria-hidden="true">
               <span id="insp-elevation">Tidak tersedia untuk query titik WMS</span>
               <span id="insp-lst">Tidak tersedia untuk query titik WMS</span>
             </div>
 
             <!-- Data Provenance & Transparency Note -->
             <div class="insp-disclaimer-note">
-              <span class="insp-disclaimer-icon">ℹ️</span>
+              <span class="insp-disclaimer-icon" aria-hidden="true">ℹ️</span>
               <span>Koordinat WGS84 presisi & atribut fitur vektor di-query langsung dari objek peta. Citra satelit disajikan via protokol visualisasi WMS.</span>
             </div>
 
             <div class="insp-footer-actions">
-              <button id="btn-insp-copy-coords" class="insp-action-btn">Salin Koordinat (WGS84)</button>
+              <button id="btn-insp-copy-coords" class="insp-action-btn" aria-label="Salin koordinat titik ke clipboard">Salin Koordinat (WGS84)</button>
             </div>
           </div>
         </div>
@@ -727,26 +729,26 @@
 
         <!-- Bottom Floating Layer Tools Dock -->
         <nav id="bottom-layer-tools" class="bottom-tools-dock tool-group glass-panel" aria-label="Map & Layer Customization">
-          <button id="btn-toggle-basemap" class="dock-btn" type="button" aria-label="Galeri Basemap" title="Galeri Basemap (16 Pilihan)">
-            <span class="dock-btn-icon">
+          <button id="btn-toggle-basemap" class="dock-btn" type="button" aria-label="Galeri Basemap (16 Pilihan)" title="Galeri Basemap (16 Pilihan)">
+            <span class="dock-btn-icon" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
             </span>
             <span class="dock-btn-text">Basemaps</span>
           </button>
-          <button id="btn-toggle-sublayers" class="dock-btn" type="button" aria-label="Kustomisasi Sublayer" title="Kustomisasi Sublayer & Relief Hillshade">
-            <span class="dock-btn-icon">
+          <button id="btn-toggle-sublayers" class="dock-btn" type="button" aria-label="Kustomisasi Sublayer dan Relief Hillshade" title="Kustomisasi Sublayer & Relief Hillshade">
+            <span class="dock-btn-icon" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             </span>
             <span class="dock-btn-text">Sublayers</span>
           </button>
-          <button id="btn-toggle-terrain" class="dock-btn" type="button" aria-label="3D Terrain Settings" title="Pengaturan 3D Terrain & Elevasi">
-            <span class="dock-btn-icon">
+          <button id="btn-toggle-terrain" class="dock-btn" type="button" aria-label="Pengaturan 3D Terrain dan Elevasi" title="Pengaturan 3D Terrain & Elevasi">
+            <span class="dock-btn-icon" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
             </span>
             <span class="dock-btn-text">3D Terrain</span>
           </button>
-          <button id="btn-toggle-grid" class="dock-btn" type="button" aria-label="Toggle Grid Open Data Cube" title="Toggle Grid Data Cube (1.631 Tile Boundaries)">
-            <span class="dock-btn-icon">
+          <button id="btn-toggle-grid" class="dock-btn" type="button" aria-label="Toggle Grid Open Data Cube 1.631 Tile Boundaries" title="Toggle Grid Data Cube (1.631 Tile Boundaries)">
+            <span class="dock-btn-icon" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
             </span>
             <span class="dock-btn-text">Tile Grid</span>
@@ -754,10 +756,10 @@
         </nav>
 
         <!-- Floating Basemap Popover Menu -->
-        <div id="basemap-popover" class="glass-popover basemap-popover" style="display: none;">
+        <div id="basemap-popover" class="glass-popover basemap-popover" style="display: none;" role="dialog" aria-modal="false" aria-label="Galeri 16 Basemap">
           <div class="popover-header-row">
             <div class="popover-header">BASEMAP GALLERY (16)</div>
-            <button class="popover-close-btn" id="btn-close-basemap-popover" title="Tutup">✕</button>
+            <button class="popover-close-btn" id="btn-close-basemap-popover" title="Tutup" aria-label="Tutup galeri basemap">✕</button>
           </div>
 
           <div class="popover-body-scroll">
@@ -774,10 +776,10 @@
         </div>
 
         <!-- Floating Basemap Customization Popover Menu -->
-        <div id="sublayers-popover" class="glass-popover sublayers-popover" style="display: none;">
+        <div id="sublayers-popover" class="glass-popover sublayers-popover" style="display: none;" role="dialog" aria-modal="false" aria-label="Kustomisasi Sublayer Basemap">
           <div class="popover-header-row">
             <div class="popover-header">SUBLAYER CUSTOMIZATION</div>
-            <button class="popover-close-btn" id="btn-close-sublayers-popover" title="Tutup">✕</button>
+            <button class="popover-close-btn" id="btn-close-sublayers-popover" title="Tutup" aria-label="Tutup kustomisasi sublayer">✕</button>
           </div>
 
           <div class="popover-body-scroll">
@@ -786,12 +788,12 @@
             <div class="sublayers-list global-overlays-list">
               <label class="sublayer-item">
                 <div class="sublayer-info">
-                  <span class="sublayer-icon">
+                  <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
                   </span>
                   <span class="sublayer-label">Terrain Hillshade (Relief Shading)</span>
                 </div>
-                <input type="checkbox" id="popover-check-hillshade" class="sublayer-toggle" />
+                <input type="checkbox" id="popover-check-hillshade" class="sublayer-toggle" aria-label="Aktifkan atau nonaktifkan Terrain Hillshade" />
                 <span class="toggle-switch"></span>
               </label>
             </div>
@@ -800,8 +802,8 @@
             <div class="sublayers-section-header" style="margin-top: 10px;">
               <span>VECTOR SUBLAYERS</span>
               <div class="sublayers-header-actions">
-                <button class="btn-micro" id="btn-popover-sublayers-all">Semua</button>
-                <button class="btn-micro btn-micro-mute" id="btn-popover-sublayers-mute">Mute</button>
+                <button class="btn-micro" id="btn-popover-sublayers-all" aria-label="Aktifkan semua sublayer vektor">Semua</button>
+                <button class="btn-micro btn-micro-mute" id="btn-popover-sublayers-mute" aria-label="Matikan semua sublayer vektor">Mute</button>
               </div>
             </div>
 
@@ -812,82 +814,82 @@
             <div class="sublayers-list vector-sublayers-list">
               <label class="sublayer-item">
                 <div class="sublayer-info">
-                  <span class="sublayer-icon">
+                  <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/></svg>
                   </span>
                   <span class="sublayer-label">Points of Interest</span>
                 </div>
-                <input type="checkbox" id="popover-check-poi" class="sublayer-toggle" data-key="poi" checked />
+                <input type="checkbox" id="popover-check-poi" class="sublayer-toggle" data-key="poi" checked aria-label="Tampilkan atau sembunyikan Points of Interest" />
                 <span class="toggle-switch"></span>
               </label>
               <label class="sublayer-item">
                 <div class="sublayer-info">
-                  <span class="sublayer-icon">
+                  <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19 19 4"/><path d="M9 4h11v11"/></svg>
                   </span>
                   <span class="sublayer-label">Road Names</span>
                 </div>
-                <input type="checkbox" id="popover-check-road_names" class="sublayer-toggle" data-key="road_names" checked />
+                <input type="checkbox" id="popover-check-road_names" class="sublayer-toggle" data-key="road_names" checked aria-label="Tampilkan atau sembunyikan Road Names" />
                 <span class="toggle-switch"></span>
               </label>
               <label class="sublayer-item">
                 <div class="sublayer-info">
-                  <span class="sublayer-icon">
+                  <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                   </span>
                   <span class="sublayer-label">Place Names</span>
                 </div>
-                <input type="checkbox" id="popover-check-place_names" class="sublayer-toggle" data-key="place_names" checked />
+                <input type="checkbox" id="popover-check-place_names" class="sublayer-toggle" data-key="place_names" checked aria-label="Tampilkan atau sembunyikan Place Names" />
                 <span class="toggle-switch"></span>
               </label>
               <label class="sublayer-item">
                 <div class="sublayer-info">
-                  <span class="sublayer-icon">
+                  <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
                   </span>
                   <span class="sublayer-label">Admin Boundaries</span>
                 </div>
-                <input type="checkbox" id="popover-check-admin_boundaries" class="sublayer-toggle" data-key="admin_boundaries" checked />
+                <input type="checkbox" id="popover-check-admin_boundaries" class="sublayer-toggle" data-key="admin_boundaries" checked aria-label="Tampilkan atau sembunyikan Admin Boundaries" />
                 <span class="toggle-switch"></span>
               </label>
               <label class="sublayer-item">
                 <div class="sublayer-info">
-                  <span class="sublayer-icon">
+                  <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 3 7h6l-5 4 2 7-6-4-6 4 2-7-5-4h6z"/></svg>
                   </span>
                   <span class="sublayer-label">Land Cover</span>
                 </div>
-                <input type="checkbox" id="popover-check-landcover" class="sublayer-toggle" data-key="landcover" checked />
+                <input type="checkbox" id="popover-check-landcover" class="sublayer-toggle" data-key="landcover" checked aria-label="Tampilkan atau sembunyikan Land Cover" />
                 <span class="toggle-switch"></span>
               </label>
               <label class="sublayer-item">
                 <div class="sublayer-info">
-                  <span class="sublayer-icon">
+                  <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
                   </span>
                   <span class="sublayer-label">Water Bodies</span>
                 </div>
-                <input type="checkbox" id="popover-check-water" class="sublayer-toggle" data-key="water" checked />
+                <input type="checkbox" id="popover-check-water" class="sublayer-toggle" data-key="water" checked aria-label="Tampilkan atau sembunyikan Water Bodies" />
                 <span class="toggle-switch"></span>
               </label>
               <label class="sublayer-item">
                 <div class="sublayer-info">
-                  <span class="sublayer-icon">
+                  <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M9 8h1"/><path d="M9 12h1"/><path d="M9 16h1"/><path d="M14 8h1"/><path d="M14 12h1"/><path d="M14 16h1"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
                   </span>
                   <span class="sublayer-label">Buildings</span>
                 </div>
-                <input type="checkbox" id="popover-check-buildings" class="sublayer-toggle" data-key="buildings" checked />
+                <input type="checkbox" id="popover-check-buildings" class="sublayer-toggle" data-key="buildings" checked aria-label="Tampilkan atau sembunyikan Buildings" />
                 <span class="toggle-switch"></span>
               </label>
               <label class="sublayer-item">
                 <div class="sublayer-info">
-                  <span class="sublayer-icon">
+                  <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                   </span>
                   <span class="sublayer-label">Roads</span>
                 </div>
-                <input type="checkbox" id="popover-check-roads" class="sublayer-toggle" data-key="roads" checked />
+                <input type="checkbox" id="popover-check-roads" class="sublayer-toggle" data-key="roads" checked aria-label="Tampilkan atau sembunyikan Roads" />
                 <span class="toggle-switch"></span>
               </label>
             </div>
@@ -895,10 +897,10 @@
         </div>
 
         <!-- Floating 3D Terrain Popover Menu -->
-        <div id="terrain-popover" class="glass-popover terrain-popover" style="display: none;">
+        <div id="terrain-popover" class="glass-popover terrain-popover" style="display: none;" role="dialog" aria-modal="false" aria-label="Pengaturan 3D Terrain Elevasi">
           <div class="popover-header-row">
             <div class="popover-header">3D TERRAIN ELEVATION</div>
-            <button class="popover-close-btn" id="btn-close-terrain-popover" title="Tutup">✕</button>
+            <button class="popover-close-btn" id="btn-close-terrain-popover" title="Tutup" aria-label="Tutup pengaturan 3D terrain">✕</button>
           </div>
 
           <div class="popover-body-scroll">
@@ -906,13 +908,13 @@
             <div class="terrain-section">
               <label class="sublayer-item" style="padding: 6px 0; margin-bottom: 4px;">
                 <div class="sublayer-info">
-                  <span class="sublayer-icon">⛰️</span>
+                  <span class="sublayer-icon" aria-hidden="true">⛰️</span>
                   <div>
                     <span class="sublayer-label" style="font-size: 13px; font-weight: 600;">Mesh Elevasi 3D Terrain</span>
                     <span style="display: block; font-size: 11px; color: var(--text-muted);">AWS Terrarium (30m Global Mesh)</span>
                   </div>
                 </div>
-                <input type="checkbox" id="popover-terrain-master-toggle" class="sublayer-toggle" />
+                <input type="checkbox" id="popover-terrain-master-toggle" class="sublayer-toggle" aria-label="Aktifkan atau nonaktifkan elevasi mesh 3D terrain" />
                 <span class="toggle-switch"></span>
               </label>
             </div>
@@ -920,13 +922,13 @@
             <!-- Vertical Exaggeration Slider Section -->
             <div class="terrain-section" style="margin-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px;">
               <div class="slider-header-row">
-                <span class="terrain-section-label">VERTICAL EXAGGERATION</span>
+                <label for="popover-terrain-exaggeration-slider" class="terrain-section-label">VERTICAL EXAGGERATION</label>
                 <span id="popover-terrain-exaggeration-val" class="exaggeration-value-badge">1.50x</span>
               </div>
               <div class="slider-container">
-                <span class="slider-min-label">0.5x</span>
-                <input type="range" id="popover-terrain-exaggeration-slider" min="0.5" max="3.5" step="0.1" value="1.5" />
-                <span class="slider-max-label">3.5x</span>
+                <span class="slider-min-label" aria-hidden="true">0.5x</span>
+                <input type="range" id="popover-terrain-exaggeration-slider" min="0.5" max="3.5" step="0.1" value="1.5" aria-label="Faktor perbesaran vertikal 3D terrain" />
+                <span class="slider-max-label" aria-hidden="true">3.5x</span>
               </div>
             </div>
           </div>
@@ -934,7 +936,7 @@
       </div>
 
       <!-- Telemetry Status Bar -->
-      <footer class="app-footer">
+      <footer class="app-footer" role="contentinfo" aria-label="Status Telemetri Koordinat Peta">
         <div class="status-group">
           <span class="status-item">LAT: <strong id="stat-lat">0.00000</strong></span>
           <span class="status-item">LNG: <strong id="stat-lng">0.00000</strong></span>
@@ -943,8 +945,8 @@
           <span class="status-item">BEARING: <strong id="stat-bearing">0°</strong></span>
         </div>
         <div class="status-actions">
-          <button id="btn-copy-coords" class="btn-text-sm">Salin Koordinat</button>
-          <span class="status-divider">|</span>
+          <button id="btn-copy-coords" class="btn-text-sm" aria-label="Salin koordinat peta saat ini ke clipboard">Salin Koordinat</button>
+          <span class="status-divider" aria-hidden="true">|</span>
           <span class="status-tag">EPSG:4326</span>
         </div>
       </footer>

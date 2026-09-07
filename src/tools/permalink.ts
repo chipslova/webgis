@@ -2,6 +2,7 @@ import { MapManager } from '../map/map-manager';
 import { PikselLoader } from './piksel-loader';
 import { GEELoader } from './gee-loader';
 import { BasemapCustomizer } from './basemap-customizer';
+import { logger } from '../utils/logger';
 
 export interface URLState {
   lng?: number;
@@ -303,7 +304,7 @@ export class PermalinkManager {
         this.isUpdatingHash = false;
       }
     } catch (e) {
-      console.warn('Permalink update error:', e);
+      logger.warn('Permalink update error:', e);
     }
   }
 }
