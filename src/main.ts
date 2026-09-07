@@ -133,7 +133,7 @@ class WebGISApp {
       this.pikselPanelUI.init();
 
       // Initialize Basemap Customizer Engine & UI
-      this.basemapCustomizer = new BasemapCustomizer(map);
+      this.basemapCustomizer = new BasemapCustomizer(map, this.mapManager);
       this.basemapCustomizerUI = new BasemapCustomizerUI(this.basemapCustomizer, this.mapManager, this.pikselLoader);
 
       // Enforce strict layer order and render initial legend

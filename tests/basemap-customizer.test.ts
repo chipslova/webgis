@@ -109,11 +109,11 @@ describe('Basemap Customizer - Sublayer Detection & State Management', () => {
 
     // Verify key distinct color signatures
     expect(JSON.stringify(customizer.getBuildingColorExpression('esri-dark-grey'))).toContain('#00f0ff');
-    expect(JSON.stringify(customizer.getBuildingColorExpression('esri-ocean'))).toContain('#99f6e4');
+    expect(JSON.stringify(customizer.getBuildingColorExpression('esri-ocean'))).toContain('#14b8a6');
     expect(JSON.stringify(customizer.getBuildingColorExpression('osm-humanitarian'))).toContain('#f43f5e');
     expect(JSON.stringify(customizer.getBuildingColorExpression('big-rbi'))).toContain('#06b6d4');
-    expect(JSON.stringify(customizer.getBuildingColorExpression('esri-colorpencil'))).toContain('#f59e0b');
-    expect(JSON.stringify(customizer.getBuildingColorExpression('open-topo'))).toContain('#16a34a');
+    expect(JSON.stringify(customizer.getBuildingColorExpression('esri-colorpencil'))).toContain('#fb923c');
+    expect(JSON.stringify(customizer.getBuildingColorExpression('open-topo'))).toContain('#10b981');
   });
 
   it('should parse 3D terrain and overlays in PermalinkManager URL hash', () => {

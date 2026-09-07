@@ -43,12 +43,22 @@ export const DEFAULT_CUSTOMIZER_STATE: BasemapCustomizerState = {
 export class BasemapCustomizer {
   private map: maplibregl.Map;
   private currentBasemapId: string = 'google-hybrid';
+  private mapManagerRef?: { getCurrentBasemapId(): string };
   private state: BasemapCustomizerState = { ...DEFAULT_CUSTOMIZER_STATE, sublayers: { ...DEFAULT_CUSTOMIZER_STATE.sublayers } };
   private onChangeCallbacks: Array<(state: BasemapCustomizerState) => void> = [];
 
-  constructor(map: maplibregl.Map) {
+  constructor(map: maplibregl.Map, mapManagerRef?: { getCurrentBasemapId(): string }) {
     this.map = map;
+    this.mapManagerRef = mapManagerRef;
     this.initListeners();
+  }
+
+  public setMapManager(mapManager: { getCurrentBasemapId(): string }) {
+    this.mapManagerRef = mapManager;
+  }
+
+  public getCurrentBasemapId(): string {
+    return this.mapManagerRef ? this.mapManagerRef.getCurrentBasemapId() : this.currentBasemapId;
   }
 
   private initListeners() {
@@ -106,104 +116,104 @@ export class BasemapCustomizer {
   /**
    * Generates a height-interpolated color ramp matching the aesthetic palette of each of the 16 basemaps
    */
-  public getBuildingColorExpression(basemapId: string = this.currentBasemapId): any {
+  public getBuildingColorExpression(basemapId: string = this.getCurrentBasemapId()): any {
     let colors: [string, string, string, string, string];
 
     switch (basemapId) {
-      // 1. Google Satellite
+      // 1. Google Satellite (Realistic Glass-Slate Tint)
       case 'google-satellite':
-        colors = ['#0f172a', '#1e293b', '#334155', '#38bdf8', '#7dd3fc'];
+        colors = ['#0284c7', '#38bdf8', '#7dd3fc', '#bae6fd', '#e0f2fe'];
         break;
 
-      // 2. Google Hybrid
+      // 2. Google Hybrid (Vivid Emerald Slate)
       case 'google-hybrid':
-        colors = ['#064e3b', '#0f766e', '#14b8a6', '#2dd4bf', '#a7f3d0'];
+        colors = ['#0d9488', '#14b8a6', '#2dd4bf', '#5eead4', '#99f6e4'];
         break;
 
-      // 3. Google Streets (Navigation)
+      // 3. Google Streets (Navigation Electric Sky Blue)
       case 'google-streets':
-        colors = ['#f0f9ff', '#bae6fd', '#38bdf8', '#0284c7', '#0369a1'];
+        colors = ['#38bdf8', '#0284c7', '#0369a1', '#1d4ed8', '#1e40af'];
         break;
 
-      // 4. Esri World Imagery
+      // 4. Esri World Imagery (Deep Aerial Cobalt)
       case 'esri-imagery':
-        colors = ['#111827', '#1f2937', '#374151', '#60a5fa', '#93c5fd'];
+        colors = ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#dbeafe'];
         break;
 
-      // 5. Esri World Topographic
+      // 5. Esri World Topographic (Olive Lime Earth Tone)
       case 'esri-topographic':
-        colors = ['#f7fee7', '#d9f99d', '#84cc16', '#65a30d', '#3f6212'];
+        colors = ['#84cc16', '#65a30d', '#4d7c0f', '#365314', '#1a2e05'];
         break;
 
-      // 6. Esri World Streets
+      // 6. Esri World Streets (Royal Cobalt Blue)
       case 'esri-streets':
-        colors = ['#eff6ff', '#bfdbfe', '#60a5fa', '#2563eb', '#1e40af'];
+        colors = ['#60a5fa', '#2563eb', '#1d4ed8', '#1e40af', '#172554'];
         break;
 
-      // 7. Esri National Geographic
+      // 7. Esri National Geographic (NatGeo Warm Ochre & Olive)
       case 'esri-natgeo':
-        colors = ['#fefce8', '#fef08a', '#eab308', '#84cc16', '#4d7c0f'];
+        colors = ['#eab308', '#ca8a04', '#a16207', '#854d0e', '#713f12'];
         break;
 
-      // 8. Esri Light Gray Canvas
+      // 8. Esri Light Gray Canvas (Minimalist Cool Silver / Dark Charcoal)
       case 'esri-light-grey':
-        colors = ['#f8fafc', '#e2e8f0', '#cbd5e1', '#94a3b8', '#64748b'];
+        colors = ['#94a3b8', '#64748b', '#475569', '#334155', '#1e293b'];
         break;
 
-      // 9. Esri Dark Gray Canvas
+      // 9. Esri Dark Gray Canvas (Sleek Cyberpunk Midnight / Glowing Cyan)
       case 'esri-dark-grey':
-        colors = ['#020617', '#0f172a', '#1e293b', '#00f0ff', '#38bdf8'];
+        colors = ['#1e293b', '#0284c7', '#00f0ff', '#38bdf8', '#7dd3fc'];
         break;
 
-      // 10. Esri Ocean Basemap
+      // 10. Esri Ocean Basemap (Deep Aquatic Seafoam & Turquoise)
       case 'esri-ocean':
-        colors = ['#042f2e', '#115e59', '#14b8a6', '#2dd4bf', '#99f6e4'];
+        colors = ['#14b8a6', '#0d9488', '#0f766e', '#115e59', '#134e4a'];
         break;
 
-      // 11. Esri World Shaded Relief
+      // 11. Esri World Shaded Relief (Monochrome Granite Stone)
       case 'esri-relief':
-        colors = ['#fafaf9', '#e7e5e4', '#a8a29e', '#78716c', '#44403c'];
+        colors = ['#78716c', '#57534e', '#44403c', '#292524', '#1c1917'];
         break;
 
-      // 12. Esri Colored Pencil
+      // 12. Esri Colored Pencil (Warm Terracotta & Ochre)
       case 'esri-colorpencil':
-        colors = ['#fffbeb', '#fef3c7', '#fde68a', '#f59e0b', '#d97706'];
+        colors = ['#fb923c', '#ea580c', '#c2410c', '#9a3412', '#7c2d12'];
         break;
 
-      // 13. Rupabumi Indonesia (BIG)
+      // 13. Rupabumi Indonesia (BIG National Azure & Cyan)
       case 'big-rbi':
-        colors = ['#ecfeff', '#cffafe', '#67e8f9', '#06b6d4', '#0e7490'];
+        colors = ['#06b6d4', '#0891b2', '#0e7490', '#155e75', '#164e63'];
         break;
 
-      // 14. OpenStreetMap Standard
+      // 14. OpenStreetMap Standard (OSM Warm Amber & Brick)
       case 'osm-standard':
-        colors = ['#f8fafc', '#e2e8f0', '#fbbf24', '#f59e0b', '#b45309'];
+        colors = ['#f59e0b', '#d97706', '#b45309', '#92400e', '#78350f'];
         break;
 
-      // 15. OpenStreetMap Humanitarian
+      // 15. OpenStreetMap Humanitarian (HOT-OSM Crimson & Rose)
       case 'osm-humanitarian':
-        colors = ['#fff1f2', '#fecdd3', '#fda4af', '#f43f5e', '#be123c'];
+        colors = ['#f43f5e', '#e11d48', '#be123c', '#9f1239', '#881337'];
         break;
 
-      // 16. OpenTopoMap
+      // 16. OpenTopoMap (Alpine Emerald Mountain Green)
       case 'open-topo':
-        colors = ['#f0fdf4', '#bbf7d0', '#4ade80', '#16a34a', '#14532d'];
+        colors = ['#10b981', '#059669', '#047857', '#065f46', '#064e3b'];
         break;
 
       default:
-        colors = ['#1e293b', '#334155', '#0284c7', '#00f0ff', '#38bdf8'];
+        colors = ['#0284c7', '#38bdf8', '#00f0ff', '#7dd3fc', '#bae6fd'];
         break;
     }
 
     return [
       'interpolate',
       ['linear'],
-      ['coalesce', ['to-number', ['get', 'render_height']], ['to-number', ['get', 'height']], ['*', ['to-number', ['coalesce', ['get', 'building:levels'], ['get', 'levels'], 2]], 3.5], 15],
+      ['coalesce', ['to-number', ['get', 'render_height']], ['to-number', ['get', 'height']], ['*', ['to-number', ['coalesce', ['get', 'building:levels'], ['get', 'levels'], 2]], 3.5], 10],
       0, colors[0],
-      25, colors[1],
-      60, colors[2],
-      120, colors[3],
-      250, colors[4]
+      20, colors[1],
+      50, colors[2],
+      100, colors[3],
+      200, colors[4]
     ];
   }
 
