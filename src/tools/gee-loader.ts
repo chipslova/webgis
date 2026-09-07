@@ -190,49 +190,62 @@ export class GEELoader {
 
     // --- 1. ELEVATION LAYER (USGS SRTM) ---
     try {
-      const elvSrc = this.map.getSource('gee-elevation-source') as maplibregl.GeoJSONSource;
-      if (!elvSrc) {
-        this.map.addSource('gee-elevation-source', {
-          type: 'geojson',
-          data: this.elvData
-        });
-      } else if (typeof elvSrc.setData === 'function') {
-        elvSrc.setData(this.elvData);
-      }
+      if (isElvActive) {
+        const elvSrc = this.map.getSource('gee-elevation-source') as maplibregl.GeoJSONSource;
+        if (!elvSrc) {
+          this.map.addSource('gee-elevation-source', {
+            type: 'geojson',
+            data: this.elvData
+          });
+        } else if (typeof elvSrc.setData === 'function') {
+          elvSrc.setData(this.elvData);
+        }
 
-      if (!this.map.getLayer('gee-elevation-fill')) {
-        this.map.addLayer({
-          id: 'gee-elevation-fill',
-          type: 'fill',
-          source: 'gee-elevation-source',
-          layout: { visibility: isElvVis ? 'visible' : 'none' },
-          paint: {
-            'fill-color': [
-              'interpolate',
-              ['linear'],
-              ['coalesce', ['to-number', ['get', 'elevation_m']], 0],
-              0, '#006633',
-              50, '#84cc16',
-              200, '#eab308',
-              600, '#c2410c',
-              1200, '#f5f5f5'
-            ],
-            'fill-opacity': this.getLayerOpacity('elevation')
-          }
-        });
-      }
-      if (!this.map.getLayer('gee-elevation-outline')) {
-        this.map.addLayer({
-          id: 'gee-elevation-outline',
-          type: 'line',
-          source: 'gee-elevation-source',
-          layout: { visibility: isElvVis ? 'visible' : 'none' },
-          paint: {
-            'line-color': '#ffffff',
-            'line-width': 0.6,
-            'line-opacity': 0.6
-          }
-        });
+        if (!this.map.getLayer('gee-elevation-fill')) {
+          this.map.addLayer({
+            id: 'gee-elevation-fill',
+            type: 'fill',
+            source: 'gee-elevation-source',
+            layout: { visibility: isElvVis ? 'visible' : 'none' },
+            paint: {
+              'fill-color': [
+                'interpolate',
+                ['linear'],
+                ['coalesce', ['to-number', ['get', 'elevation_m']], 0],
+                0, '#006633',
+                50, '#84cc16',
+                200, '#eab308',
+                600, '#c2410c',
+                1200, '#f5f5f5'
+              ],
+              'fill-opacity': this.getLayerOpacity('elevation')
+            }
+          });
+        } else {
+          this.map.setLayoutProperty('gee-elevation-fill', 'visibility', isElvVis ? 'visible' : 'none');
+        }
+        if (!this.map.getLayer('gee-elevation-outline')) {
+          this.map.addLayer({
+            id: 'gee-elevation-outline',
+            type: 'line',
+            source: 'gee-elevation-source',
+            layout: { visibility: isElvVis ? 'visible' : 'none' },
+            paint: {
+              'line-color': '#ffffff',
+              'line-width': 0.6,
+              'line-opacity': 0.6
+            }
+          });
+        } else {
+          this.map.setLayoutProperty('gee-elevation-outline', 'visibility', isElvVis ? 'visible' : 'none');
+        }
+      } else {
+        if (this.map.getLayer('gee-elevation-fill')) {
+          this.map.setLayoutProperty('gee-elevation-fill', 'visibility', 'none');
+        }
+        if (this.map.getLayer('gee-elevation-outline')) {
+          this.map.setLayoutProperty('gee-elevation-outline', 'visibility', 'none');
+        }
       }
     } catch (e) {
       logger.warn('Notice adding Elevation layer:', e);
@@ -240,55 +253,68 @@ export class GEELoader {
 
     // --- 2. LAND COVER LAYER (MODIS MCD12Q1) ---
     try {
-      const lcSrc = this.map.getSource('gee-landcover-source') as maplibregl.GeoJSONSource;
-      if (!lcSrc) {
-        this.map.addSource('gee-landcover-source', {
-          type: 'geojson',
-          data: this.lcData
-        });
-      } else if (typeof lcSrc.setData === 'function') {
-        lcSrc.setData(this.lcData);
-      }
+      if (isLcActive) {
+        const lcSrc = this.map.getSource('gee-landcover-source') as maplibregl.GeoJSONSource;
+        if (!lcSrc) {
+          this.map.addSource('gee-landcover-source', {
+            type: 'geojson',
+            data: this.lcData
+          });
+        } else if (typeof lcSrc.setData === 'function') {
+          lcSrc.setData(this.lcData);
+        }
 
-      if (!this.map.getLayer('gee-landcover-fill')) {
-        this.map.addLayer({
-          id: 'gee-landcover-fill',
-          type: 'fill',
-          source: 'gee-landcover-source',
-          layout: { visibility: isLcVis ? 'visible' : 'none' },
-          paint: {
-            'fill-color': [
-              'match',
-              ['coalesce', ['to-number', ['get', 'lc_code']], 0],
-              1, '#004d00',
-              2, '#008000',
-              4, '#2e8b57',
-              5, '#3cb371',
-              8, '#8fbc8f',
-              9, '#d2b48c',
-              10, '#f0e68c',
-              12, '#ffff00',
-              13, '#dc2626',
-              14, '#ff7f50',
-              17, '#0000cd',
-              '#888888'
-            ],
-            'fill-opacity': this.getLayerOpacity('landcover')
-          }
-        });
-      }
-      if (!this.map.getLayer('gee-landcover-outline')) {
-        this.map.addLayer({
-          id: 'gee-landcover-outline',
-          type: 'line',
-          source: 'gee-landcover-source',
-          layout: { visibility: isLcVis ? 'visible' : 'none' },
-          paint: {
-            'line-color': '#ffffff',
-            'line-width': 0.6,
-            'line-opacity': 0.6
-          }
-        });
+        if (!this.map.getLayer('gee-landcover-fill')) {
+          this.map.addLayer({
+            id: 'gee-landcover-fill',
+            type: 'fill',
+            source: 'gee-landcover-source',
+            layout: { visibility: isLcVis ? 'visible' : 'none' },
+            paint: {
+              'fill-color': [
+                'match',
+                ['coalesce', ['to-number', ['get', 'lc_code']], 0],
+                1, '#004d00',
+                2, '#008000',
+                4, '#2e8b57',
+                5, '#3cb371',
+                8, '#8fbc8f',
+                9, '#d2b48c',
+                10, '#f0e68c',
+                12, '#ffff00',
+                13, '#dc2626',
+                14, '#ff7f50',
+                17, '#0000cd',
+                '#888888'
+              ],
+              'fill-opacity': this.getLayerOpacity('landcover')
+            }
+          });
+        } else {
+          this.map.setLayoutProperty('gee-landcover-fill', 'visibility', isLcVis ? 'visible' : 'none');
+        }
+        if (!this.map.getLayer('gee-landcover-outline')) {
+          this.map.addLayer({
+            id: 'gee-landcover-outline',
+            type: 'line',
+            source: 'gee-landcover-source',
+            layout: { visibility: isLcVis ? 'visible' : 'none' },
+            paint: {
+              'line-color': '#ffffff',
+              'line-width': 0.6,
+              'line-opacity': 0.6
+            }
+          });
+        } else {
+          this.map.setLayoutProperty('gee-landcover-outline', 'visibility', isLcVis ? 'visible' : 'none');
+        }
+      } else {
+        if (this.map.getLayer('gee-landcover-fill')) {
+          this.map.setLayoutProperty('gee-landcover-fill', 'visibility', 'none');
+        }
+        if (this.map.getLayer('gee-landcover-outline')) {
+          this.map.setLayoutProperty('gee-landcover-outline', 'visibility', 'none');
+        }
       }
     } catch (e) {
       logger.warn('Notice adding Land Cover layer:', e);
@@ -296,49 +322,62 @@ export class GEELoader {
 
     // --- 3. LST THERMAL GRID LAYER (MODIS MOD11A2) ---
     try {
-      const lstSrc = this.map.getSource('gee-lst-source') as maplibregl.GeoJSONSource;
-      if (!lstSrc) {
-        this.map.addSource('gee-lst-source', {
-          type: 'geojson',
-          data: this.lstData
-        });
-      } else if (typeof lstSrc.setData === 'function') {
-        lstSrc.setData(this.lstData);
-      }
+      if (isLstActive) {
+        const lstSrc = this.map.getSource('gee-lst-source') as maplibregl.GeoJSONSource;
+        if (!lstSrc) {
+          this.map.addSource('gee-lst-source', {
+            type: 'geojson',
+            data: this.lstData
+          });
+        } else if (typeof lstSrc.setData === 'function') {
+          lstSrc.setData(this.lstData);
+        }
 
-      if (!this.map.getLayer('gee-lst-fill')) {
-        this.map.addLayer({
-          id: 'gee-lst-fill',
-          type: 'fill',
-          source: 'gee-lst-source',
-          layout: { visibility: isLstVis ? 'visible' : 'none' },
-          paint: {
-            'fill-color': [
-              'interpolate',
-              ['linear'],
-              ['coalesce', ['to-number', ['get', 'lst_celsius']], 25],
-              22, '#3b82f6', // Blue / Cool (~22°C)
-              25, '#10b981', // Green (~25°C)
-              28, '#f59e0b', // Yellow / Warm (~28°C)
-              31, '#ea580c', // Orange / Hot (~31°C)
-              34, '#dc2626'  // Red / Extreme Heat (~34°C+)
-            ],
-            'fill-opacity': this.getLayerOpacity('lst')
-          }
-        });
-      }
-      if (!this.map.getLayer('gee-lst-outline')) {
-        this.map.addLayer({
-          id: 'gee-lst-outline',
-          type: 'line',
-          source: 'gee-lst-source',
-          layout: { visibility: isLstVis ? 'visible' : 'none' },
-          paint: {
-            'line-color': '#ffffff',
-            'line-width': 0.8,
-            'line-opacity': 0.7
-          }
-        });
+        if (!this.map.getLayer('gee-lst-fill')) {
+          this.map.addLayer({
+            id: 'gee-lst-fill',
+            type: 'fill',
+            source: 'gee-lst-source',
+            layout: { visibility: isLstVis ? 'visible' : 'none' },
+            paint: {
+              'fill-color': [
+                'interpolate',
+                ['linear'],
+                ['coalesce', ['to-number', ['get', 'lst_celsius']], 25],
+                22, '#3b82f6', // Blue / Cool (~22°C)
+                25, '#10b981', // Green (~25°C)
+                28, '#f59e0b', // Yellow / Warm (~28°C)
+                31, '#ea580c', // Orange / Hot (~31°C)
+                34, '#dc2626'  // Red / Extreme Heat (~34°C+)
+              ],
+              'fill-opacity': this.getLayerOpacity('lst')
+            }
+          });
+        } else {
+          this.map.setLayoutProperty('gee-lst-fill', 'visibility', isLstVis ? 'visible' : 'none');
+        }
+        if (!this.map.getLayer('gee-lst-outline')) {
+          this.map.addLayer({
+            id: 'gee-lst-outline',
+            type: 'line',
+            source: 'gee-lst-source',
+            layout: { visibility: isLstVis ? 'visible' : 'none' },
+            paint: {
+              'line-color': '#ffffff',
+              'line-width': 0.8,
+              'line-opacity': 0.7
+            }
+          });
+        } else {
+          this.map.setLayoutProperty('gee-lst-outline', 'visibility', isLstVis ? 'visible' : 'none');
+        }
+      } else {
+        if (this.map.getLayer('gee-lst-fill')) {
+          this.map.setLayoutProperty('gee-lst-fill', 'visibility', 'none');
+        }
+        if (this.map.getLayer('gee-lst-outline')) {
+          this.map.setLayoutProperty('gee-lst-outline', 'visibility', 'none');
+        }
       }
     } catch (e) {
       logger.warn('Notice adding LST layer:', e);
@@ -346,35 +385,43 @@ export class GEELoader {
 
     // --- 4. POI OBSERVATION LAYER ---
     try {
-      const poiSrc = this.map.getSource('gee-poi-source') as maplibregl.GeoJSONSource;
-      if (!poiSrc) {
-        this.map.addSource('gee-poi-source', {
-          type: 'geojson',
-          data: this.poiData
-        });
-      } else if (typeof poiSrc.setData === 'function') {
-        poiSrc.setData(this.poiData);
-      }
+      if (isPoiActive) {
+        const poiSrc = this.map.getSource('gee-poi-source') as maplibregl.GeoJSONSource;
+        if (!poiSrc) {
+          this.map.addSource('gee-poi-source', {
+            type: 'geojson',
+            data: this.poiData
+          });
+        } else if (typeof poiSrc.setData === 'function') {
+          poiSrc.setData(this.poiData);
+        }
 
-      if (!this.map.getLayer('gee-poi-circles')) {
-        this.map.addLayer({
-          id: 'gee-poi-circles',
-          type: 'circle',
-          source: 'gee-poi-source',
-          layout: { visibility: isPoiVis ? 'visible' : 'none' },
-          paint: {
-            'circle-radius': 14,
-            'circle-color': [
-              'match',
-              ['get', 'id'],
-              'urban_poi', '#dc2626',
-              'rural_poi', '#16a34a',
-              '#3b82f6'
-            ],
-            'circle-stroke-width': 3,
-            'circle-stroke-color': '#ffffff'
-          }
-        });
+        if (!this.map.getLayer('gee-poi-circles')) {
+          this.map.addLayer({
+            id: 'gee-poi-circles',
+            type: 'circle',
+            source: 'gee-poi-source',
+            layout: { visibility: isPoiVis ? 'visible' : 'none' },
+            paint: {
+              'circle-radius': 14,
+              'circle-color': [
+                'match',
+                ['get', 'id'],
+                'urban_poi', '#dc2626',
+                'rural_poi', '#16a34a',
+                '#3b82f6'
+              ],
+              'circle-stroke-width': 3,
+              'circle-stroke-color': '#ffffff'
+            }
+          });
+        } else {
+          this.map.setLayoutProperty('gee-poi-circles', 'visibility', isPoiVis ? 'visible' : 'none');
+        }
+      } else {
+        if (this.map.getLayer('gee-poi-circles')) {
+          this.map.setLayoutProperty('gee-poi-circles', 'visibility', 'none');
+        }
       }
     } catch (e) {
       logger.warn('Notice adding POI layer:', e);

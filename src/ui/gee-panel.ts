@@ -141,9 +141,14 @@ export class GEEPanelUI {
     }
   }
 
-  private async renderTimeSeriesChart() {
+  public async renderTimeSeriesChart() {
     this.canvas = document.getElementById('gee-chart-canvas') as HTMLCanvasElement;
     if (!this.canvas) return;
+
+    // Skip drawing if the panel container is currently hidden (e.g. inactive tab on load)
+    if (this.canvas.parentElement && this.canvas.parentElement.clientWidth === 0) {
+      return;
+    }
 
     if (this.timeSeriesData.length === 0) {
       try {

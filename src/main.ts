@@ -69,13 +69,6 @@ class WebGISApp {
     try {
       const map = await this.mapManager.initMap();
 
-      // Remove loading overlay smoothly
-      const overlay = document.getElementById('map-loading-overlay');
-      if (overlay) {
-        overlay.classList.add('fade-out');
-        setTimeout(() => overlay.remove(), 400);
-      }
-
       this.geocoderTool = new GeocoderTool(map);
       this.measureTool = new MeasureTool(map);
       this.geojsonLoader = new GeoJsonLoader(map);
@@ -128,11 +121,18 @@ class WebGISApp {
         (tabId) => this.sidebarUI.setActiveTab(tabId)
       );
 
-      // Load sample cities vector layer, GEE Earth Engine datasets & Piksel EO UI
+      // Load lightweight sample cities vector layer & Piksel EO UI
       await this.geojsonLoader.loadSampleData();
-      await this.geeLoader.loadGEEDatasets();
-      this.geePanelUI.init();
       this.pikselPanelUI.init();
+      this.geePanelUI.init();
+
+      // Lazy-load GEE datasets on-demand when the GEE tab is selected
+      this.sidebarUI.onTabChange((tabId) => {
+        if (tabId === 'gee') {
+          this.geeLoader?.loadGEEDatasets();
+          this.geePanelUI?.renderTimeSeriesChart();
+        }
+      });
 
       // Initialize Basemap Customizer Engine & UI
       this.basemapCustomizer = new BasemapCustomizer(map, this.mapManager);
@@ -182,6 +182,7 @@ class WebGISApp {
         this.pikselLoader.setOpacity(urlState.pikselOpacity);
       }
       if (urlState.geeLayers && this.geeLoader) {
+        await this.geeLoader.loadGEEDatasets();
         ['lst', 'elevation', 'landcover', 'poi'].forEach(k => {
           const shouldBeActive = urlState.geeLayers!.includes(k);
           this.geeLoader?.toggleLayer(k as any, shouldBeActive);
@@ -206,6 +207,13 @@ class WebGISApp {
         this.mapManager.enforceLayerOrder();
         this.updateDynamicLegend();
       });
+
+      // Smoothly dismiss loading overlay now that full system initialization is stable
+      const overlay = document.getElementById('map-loading-overlay');
+      if (overlay) {
+        overlay.classList.add('fade-out');
+        setTimeout(() => overlay.remove(), 400);
+      }
     } catch (err) {
       logger.error('[WebGIS] Map initialization error:', err);
       const mapEl = document.getElementById('map');

@@ -380,6 +380,18 @@ export class BasemapCustomizer {
     }
 
     // 2. Fallback: Dynamically provide global OpenFreeMap 3D Vector Building tiles
+    const currentZoom = typeof this.map.getZoom === 'function' ? this.map.getZoom() : 0;
+    if (currentZoom < 12 && !this.state.terrain3D) {
+      if (typeof this.map.once === 'function') {
+        this.map.once('zoom', () => {
+          if (typeof this.map.getZoom === 'function' && this.map.getZoom() >= 12) {
+            this.apply3DBuildings();
+          }
+        });
+      }
+      return null;
+    }
+
     const globalSourceId = 'global-3d-buildings-source';
     try {
       if (!this.map.getSource(globalSourceId)) {
