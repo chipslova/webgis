@@ -1,6 +1,6 @@
 {
     "version": 8,
-    "sprite": "https://cdn.arcgis.com/sharing/rest/content/items/4cf7e1fb9f254dcda9c8fbadb15cf0f8/resources/styles/../sprites/sprite",
+    "sprite": "/basemap/sprites/colorpencil/sprite",
     "glyphs": "https://basemaps.arcgis.com/arcgis/rest/services/World_Basemap_v2/VectorTileServer/resources/fonts/{fontstack}/{range}.pbf",
     "sources": {
         "esri": {
