@@ -150,15 +150,6 @@ export class BasemapCustomizerUI {
         this.syncUI();
       }
     });
-
-    const btnQuickHeaderTerrain = document.getElementById('btn-quick-3d-terrain');
-    btnQuickHeaderTerrain?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const current = this.customizer.getState().terrain3D;
-      this.customizer.toggle3DTerrain(!current);
-      showToast(!current ? 'Mode 3D Terrain Elevation diaktifkan!' : 'Kembali ke tampilan 2D datar', 'info');
-      this.syncUI();
-    });
   }
 
   /**
@@ -355,9 +346,6 @@ export class BasemapCustomizerUI {
     // 5. Sync Dock Buttons active highlights
     const btnTerrain = document.getElementById('btn-toggle-terrain');
     if (btnTerrain) btnTerrain.classList.toggle('active', state.terrain3D);
-
-    const btnQuickHeaderTerrain = document.getElementById('btn-quick-3d-terrain');
-    if (btnQuickHeaderTerrain) btnQuickHeaderTerrain.classList.toggle('active', state.terrain3D);
 
     const btn3D = document.getElementById('btn-toggle-3d');
     if (btn3D) btn3D.classList.toggle('active', state.buildings3D);
