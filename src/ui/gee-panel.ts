@@ -1,5 +1,4 @@
 import { GEELoader } from '../tools/gee-loader';
-import { GEE_TIMESERIES_DATA } from '../data/gee-datasets';
 import { showToast } from './toast';
 
 interface TimeSeriesRecord {
@@ -14,7 +13,7 @@ interface TimeSeriesRecord {
 
 export class GEEPanelUI {
   private geeLoader: GEELoader;
-  private timeSeriesData: TimeSeriesRecord[] = (GEE_TIMESERIES_DATA.data as any) || [];
+  private timeSeriesData: TimeSeriesRecord[] = [];
   private canvas: HTMLCanvasElement | null = null;
   private isInitialized: boolean = false;
 
@@ -142,9 +141,20 @@ export class GEEPanelUI {
     }
   }
 
-  private renderTimeSeriesChart() {
+  private async renderTimeSeriesChart() {
     this.canvas = document.getElementById('gee-chart-canvas') as HTMLCanvasElement;
-    if (!this.canvas || this.timeSeriesData.length === 0) return;
+    if (!this.canvas) return;
+
+    if (this.timeSeriesData.length === 0) {
+      try {
+        const { GEE_TIMESERIES_DATA } = await import('../data/gee-datasets');
+        this.timeSeriesData = (GEE_TIMESERIES_DATA.data as any) || [];
+      } catch (e) {
+        console.warn('[GEEPanelUI] Could not load timeseries data:', e);
+      }
+    }
+
+    if (this.timeSeriesData.length === 0) return;
 
     const ctx = this.canvas.getContext('2d');
     if (!ctx) return;

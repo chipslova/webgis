@@ -12,7 +12,6 @@ export type VectorSublayerKey =
 
 export interface BasemapCustomizerState {
   // Global Overlays
-  contourLines: boolean;
   terrainHillshade: boolean;
 
   // 3D Terrain & Extrusions
@@ -25,11 +24,10 @@ export interface BasemapCustomizerState {
 }
 
 export const DEFAULT_CUSTOMIZER_STATE: BasemapCustomizerState = {
-  contourLines: false,
   terrainHillshade: false,
   terrain3D: false,
   terrainExaggeration: 1.5,
-  buildings3D: false,
+  buildings3D: true,
   sublayers: {
     poi: true,
     road_names: true,
@@ -44,6 +42,7 @@ export const DEFAULT_CUSTOMIZER_STATE: BasemapCustomizerState = {
 
 export class BasemapCustomizer {
   private map: maplibregl.Map;
+  private currentBasemapId: string = 'google-hybrid';
   private state: BasemapCustomizerState = { ...DEFAULT_CUSTOMIZER_STATE, sublayers: { ...DEFAULT_CUSTOMIZER_STATE.sublayers } };
   private onChangeCallbacks: Array<(state: BasemapCustomizerState) => void> = [];
 
@@ -56,6 +55,11 @@ export class BasemapCustomizer {
     this.map.on('style.load', () => {
       this.reapplyAll();
     });
+  }
+
+  public setBasemapId(basemapId: string) {
+    this.currentBasemapId = basemapId;
+    this.apply3DBuildings();
   }
 
   public onChange(callback: (state: BasemapCustomizerState) => void) {
@@ -91,13 +95,116 @@ export class BasemapCustomizer {
     // 2. Re-apply 3D Terrain
     this.apply3DTerrain();
 
-    // 3. Re-apply Global Overlays (Hillshade & Contours)
+    // 3. Re-apply Global Overlays (Hillshade)
     this.applyHillshadeOverlay();
-    this.applyContourOverlay();
 
     // 4. Re-apply 3D Buildings & Vector Sublayers
     this.apply3DBuildings();
     this.applyVectorSublayers();
+  }
+
+  /**
+   * Generates a height-interpolated color ramp matching the aesthetic palette of each of the 16 basemaps
+   */
+  public getBuildingColorExpression(basemapId: string = this.currentBasemapId): any {
+    let colors: [string, string, string, string, string];
+
+    switch (basemapId) {
+      // 1. Google Satellite
+      case 'google-satellite':
+        colors = ['#0f172a', '#1e293b', '#334155', '#38bdf8', '#7dd3fc'];
+        break;
+
+      // 2. Google Hybrid
+      case 'google-hybrid':
+        colors = ['#064e3b', '#0f766e', '#14b8a6', '#2dd4bf', '#a7f3d0'];
+        break;
+
+      // 3. Google Streets (Navigation)
+      case 'google-streets':
+        colors = ['#f0f9ff', '#bae6fd', '#38bdf8', '#0284c7', '#0369a1'];
+        break;
+
+      // 4. Esri World Imagery
+      case 'esri-imagery':
+        colors = ['#111827', '#1f2937', '#374151', '#60a5fa', '#93c5fd'];
+        break;
+
+      // 5. Esri World Topographic
+      case 'esri-topographic':
+        colors = ['#f7fee7', '#d9f99d', '#84cc16', '#65a30d', '#3f6212'];
+        break;
+
+      // 6. Esri World Streets
+      case 'esri-streets':
+        colors = ['#eff6ff', '#bfdbfe', '#60a5fa', '#2563eb', '#1e40af'];
+        break;
+
+      // 7. Esri National Geographic
+      case 'esri-natgeo':
+        colors = ['#fefce8', '#fef08a', '#eab308', '#84cc16', '#4d7c0f'];
+        break;
+
+      // 8. Esri Light Gray Canvas
+      case 'esri-light-grey':
+        colors = ['#f8fafc', '#e2e8f0', '#cbd5e1', '#94a3b8', '#64748b'];
+        break;
+
+      // 9. Esri Dark Gray Canvas
+      case 'esri-dark-grey':
+        colors = ['#020617', '#0f172a', '#1e293b', '#00f0ff', '#38bdf8'];
+        break;
+
+      // 10. Esri Ocean Basemap
+      case 'esri-ocean':
+        colors = ['#042f2e', '#115e59', '#14b8a6', '#2dd4bf', '#99f6e4'];
+        break;
+
+      // 11. Esri World Shaded Relief
+      case 'esri-relief':
+        colors = ['#fafaf9', '#e7e5e4', '#a8a29e', '#78716c', '#44403c'];
+        break;
+
+      // 12. Esri Colored Pencil
+      case 'esri-colorpencil':
+        colors = ['#fffbeb', '#fef3c7', '#fde68a', '#f59e0b', '#d97706'];
+        break;
+
+      // 13. Rupabumi Indonesia (BIG)
+      case 'big-rbi':
+        colors = ['#ecfeff', '#cffafe', '#67e8f9', '#06b6d4', '#0e7490'];
+        break;
+
+      // 14. OpenStreetMap Standard
+      case 'osm-standard':
+        colors = ['#f8fafc', '#e2e8f0', '#fbbf24', '#f59e0b', '#b45309'];
+        break;
+
+      // 15. OpenStreetMap Humanitarian
+      case 'osm-humanitarian':
+        colors = ['#fff1f2', '#fecdd3', '#fda4af', '#f43f5e', '#be123c'];
+        break;
+
+      // 16. OpenTopoMap
+      case 'open-topo':
+        colors = ['#f0fdf4', '#bbf7d0', '#4ade80', '#16a34a', '#14532d'];
+        break;
+
+      default:
+        colors = ['#1e293b', '#334155', '#0284c7', '#00f0ff', '#38bdf8'];
+        break;
+    }
+
+    return [
+      'interpolate',
+      ['linear'],
+      ['coalesce', ['to-number', ['get', 'render_height']], ['to-number', ['get', 'height']], ['*', ['to-number', ['coalesce', ['get', 'building:levels'], ['get', 'levels'], 2]], 3.5], 15],
+      0, colors[0],
+      25, colors[1],
+      60, colors[2],
+      120, colors[3],
+      250, colors[4]
+    ];
   }
 
   /**
@@ -141,12 +248,12 @@ export class BasemapCustomizer {
         });
       }
     } else {
-      // Return camera smoothly if currently tilted
+      // Revert pitch back to top-down 2D
       const currentPitch = this.map.getPitch();
-      if (currentPitch > 50) {
+      if (currentPitch > 10) {
         this.map.easeTo({
           pitch: 0,
-          duration: 1000
+          duration: 800
         });
       }
     }
@@ -154,8 +261,8 @@ export class BasemapCustomizer {
     this.notify();
   }
 
-  public setTerrainExaggeration(exaggeration: number) {
-    this.state.terrainExaggeration = Math.max(0.1, Math.min(3.5, exaggeration));
+  public setTerrainExaggeration(factor: number) {
+    this.state.terrainExaggeration = Math.max(0.1, Math.min(3.0, factor));
     if (this.state.terrain3D) {
       this.apply3DTerrain();
     }
@@ -168,29 +275,23 @@ export class BasemapCustomizer {
 
     try {
       if (this.state.terrain3D) {
-        (this.map as any).setTerrain({
+        this.map.setTerrain({
           source: 'terrarium-dem-source',
           exaggeration: this.state.terrainExaggeration
         });
       } else {
-        (this.map as any).setTerrain(null);
+        this.map.setTerrain(null as any);
       }
     } catch (e) {
-      console.warn('[BasemapCustomizer] Error setting 3D terrain:', e);
+      console.warn('[BasemapCustomizer] Error applying 3D terrain:', e);
     }
   }
 
-  // --- 2. GLOBAL OVERLAYS (HILLSHADE & CONTOUR LINES) ---
+  // --- 2. GLOBAL OVERLAYS (HILLSHADE) ---
 
   public toggleTerrainHillshade(enabled?: boolean) {
     this.state.terrainHillshade = enabled !== undefined ? enabled : !this.state.terrainHillshade;
     this.applyHillshadeOverlay();
-    this.notify();
-  }
-
-  public toggleContourLines(enabled?: boolean) {
-    this.state.contourLines = enabled !== undefined ? enabled : !this.state.contourLines;
-    this.applyContourOverlay();
     this.notify();
   }
 
@@ -227,48 +328,6 @@ export class BasemapCustomizer {
     }
   }
 
-  private applyContourOverlay() {
-    if (!this.map || !this.map.getStyle()) return;
-
-    const sourceId = 'overlay-contour-source';
-    const layerId = 'overlay-contour-lines';
-
-    try {
-      if (this.state.contourLines) {
-        if (!this.map.getSource(sourceId)) {
-          this.map.addSource(sourceId, {
-            type: 'raster',
-            tiles: [
-              'https://tile.opentopomap.org/{z}/{x}/{y}.png'
-            ],
-            tileSize: 256,
-            maxzoom: 17,
-            attribution: '© OpenTopoMap (CC-BY-SA)'
-          });
-        }
-
-        if (!this.map.getLayer(layerId)) {
-          this.map.addLayer({
-            id: layerId,
-            type: 'raster',
-            source: sourceId,
-            paint: {
-              'raster-opacity': 0.7,
-              'raster-contrast': 0.25,
-              'raster-fade-duration': 200
-            }
-          });
-        } else {
-          this.map.setLayoutProperty(layerId, 'visibility', 'visible');
-        }
-      } else if (this.map.getLayer(layerId)) {
-        this.map.setLayoutProperty(layerId, 'visibility', 'none');
-      }
-    } catch (e) {
-      console.warn('[BasemapCustomizer] Error applying contour overlay:', e);
-    }
-  }
-
   // --- 3. 3D EXTRUDED BUILDINGS ---
 
   public toggle3DBuildings(enabled?: boolean) {
@@ -278,8 +337,9 @@ export class BasemapCustomizer {
   }
 
   /**
-   * Resolves vector building source from current style or dynamically injects
-   * global OpenFreeMap planet vector building tiles (OpenMapTiles schema).
+   * Resolves the best vector building source for the active basemap.
+   * If the basemap style already contains building polygons, it uses its native source.
+   * Otherwise, it loads planet vector tiles from OpenFreeMap.
    */
   private ensureBuildingVectorSource(): { source: string; sourceLayer?: string } | null {
     if (!this.map || !this.map.getStyle()) return null;
@@ -329,6 +389,7 @@ export class BasemapCustomizer {
     const custom3DLayerId = '3d-extruded-buildings-layer';
     const isBuildingSublayerOn = this.state.sublayers.buildings !== false;
     const shouldExtrude = isBuildingSublayerOn && (this.state.terrain3D || this.state.buildings3D);
+    const colorExpr = this.getBuildingColorExpression(this.currentBasemapId);
 
     try {
       if (shouldExtrude) {
@@ -342,16 +403,7 @@ export class BasemapCustomizer {
               source: buildingSrc.source,
               minzoom: 13,
               paint: {
-                'fill-extrusion-color': [
-                  'interpolate',
-                  ['linear'],
-                  ['coalesce', ['to-number', ['get', 'render_height']], ['to-number', ['get', 'height']], ['*', ['to-number', ['coalesce', ['get', 'building:levels'], ['get', 'levels'], 2]], 3.5], 15],
-                  0, '#1e293b',
-                  25, '#334155',
-                  60, '#0284c7',
-                  120, '#00f0ff',
-                  250, '#38bdf8'
-                ],
+                'fill-extrusion-color': colorExpr,
                 'fill-extrusion-height': [
                   'interpolate',
                   ['linear'],
@@ -374,6 +426,7 @@ export class BasemapCustomizer {
             this.map.addLayer(layerDef);
           } else {
             this.map.setLayoutProperty(custom3DLayerId, 'visibility', 'visible');
+            this.map.setPaintProperty(custom3DLayerId, 'fill-extrusion-color', colorExpr);
           }
         }
       } else if (this.map.getLayer(custom3DLayerId)) {

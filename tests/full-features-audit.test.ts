@@ -315,7 +315,7 @@ describe('Full WebGIS Feature & Button Audit', () => {
 
   describe('6. Permalink State Hash Serialization & Parsing', () => {
     it('should serialize and parse map camera, 3D terrain, and overlay states', () => {
-      const hash = '#map=5.50/-2.5000/117.5000/25/45&proj=globe&basemap=osm-standard&product=s2-ndvi&year=2024&p_op=0.90&terrain=1&contour=1&hillshade=1&gee=lst,elevation&g_op=0.75';
+      const hash = '#map=5.50/-2.5000/117.5000/25/45&proj=globe&basemap=osm-standard&product=s2-ndvi&year=2024&p_op=0.90&terrain=1&hillshade=1&gee=lst,elevation&g_op=0.75';
       const parsed = PermalinkManager.parseHash(hash);
 
       expect(parsed.zoom).toBe(5.5);
@@ -329,7 +329,6 @@ describe('Full WebGIS Feature & Button Audit', () => {
       expect(parsed.year).toBe('2024');
       expect(parsed.pikselOpacity).toBe(0.9);
       expect(parsed.terrain3D).toBe(true);
-      expect(parsed.contourLines).toBe(true);
       expect(parsed.terrainHillshade).toBe(true);
       expect(parsed.geeLayers).toContain('lst');
       expect(parsed.geeLayers).toContain('elevation');

@@ -1,21 +1,17 @@
 import * as maplibregl from 'maplibre-gl';
-import {
-  GEE_POI_DATA,
-  GEE_LST_GRID_DATA,
-  GEE_ELEVATION_GRID_DATA,
-  GEE_LANDCOVER_GRID_DATA
-} from '../data/gee-datasets';
 
 export class GEELoader {
   private map: maplibregl.Map;
   private popup: maplibregl.Popup;
   private htmlMarkers: maplibregl.Marker[] = [];
 
-  // In-memory GeoJSON Datasets
-  private poiData: GeoJSON.FeatureCollection = GEE_POI_DATA;
-  private lstData: GeoJSON.FeatureCollection = GEE_LST_GRID_DATA;
-  private elvData: GeoJSON.FeatureCollection = GEE_ELEVATION_GRID_DATA;
-  private lcData: GeoJSON.FeatureCollection = GEE_LANDCOVER_GRID_DATA;
+  // In-memory GeoJSON Datasets (loaded lazily on demand)
+  private poiData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
+  private lstData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
+  private elvData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
+  private lcData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
+  private isDataLoaded: boolean = false;
+  private dataLoadPromise: Promise<void> | null = null;
 
   // Active layers in workspace
   private activeLayers: Set<string> = new Set(['poi']);
@@ -43,6 +39,26 @@ export class GEELoader {
       closeOnClick: false,
       maxWidth: '340px'
     });
+  }
+
+  public async ensureDataLoaded(): Promise<void> {
+    if (this.isDataLoaded) return;
+    if (this.dataLoadPromise) return this.dataLoadPromise;
+
+    this.dataLoadPromise = (async () => {
+      try {
+        const datasets = await import('../data/gee-datasets');
+        this.poiData = datasets.GEE_POI_DATA;
+        this.lstData = datasets.GEE_LST_GRID_DATA;
+        this.elvData = datasets.GEE_ELEVATION_GRID_DATA;
+        this.lcData = datasets.GEE_LANDCOVER_GRID_DATA;
+        this.isDataLoaded = true;
+      } catch (e) {
+        console.error('[GEELoader] Failed to load GEE datasets dynamically:', e);
+      }
+    })();
+
+    return this.dataLoadPromise;
   }
 
   public onLayersChange(callback: () => void) {
@@ -82,8 +98,9 @@ export class GEELoader {
     this.notifyLayersChange();
   }
 
-  public toggleLayer(layerId: string, active: boolean) {
+  public async toggleLayer(layerId: string, active: boolean) {
     if (active) {
+      await this.ensureDataLoaded();
       this.activeLayers.add(layerId);
       this.layerVisibilities.set(layerId, true);
     } else {
@@ -128,6 +145,7 @@ export class GEELoader {
   }
 
   public async loadGEEDatasets() {
+    await this.ensureDataLoaded();
     this.renderAllLayers();
     this.renderHtmlMarkers();
 
@@ -139,6 +157,14 @@ export class GEELoader {
 
   public renderAllLayers() {
     if (!this.map) return;
+
+    if (!this.isDataLoaded) {
+      this.ensureDataLoaded().then(() => {
+        this.renderAllLayers();
+        this.renderHtmlMarkers();
+      });
+      return;
+    }
 
     if (!this.map.getStyle()) {
       this.map.once('style.load', () => this.renderAllLayers());

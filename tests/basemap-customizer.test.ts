@@ -24,9 +24,8 @@ describe('Basemap Customizer - Sublayer Detection & State Management', () => {
     const state = customizer.getState();
     expect(state.terrain3D).toBe(false);
     expect(state.terrainExaggeration).toBe(1.5);
-    expect(state.contourLines).toBe(false);
     expect(state.terrainHillshade).toBe(false);
-    expect(state.buildings3D).toBe(false);
+    expect(state.buildings3D).toBe(true);
 
     expect(state.sublayers.poi).toBe(true);
     expect(state.sublayers.road_names).toBe(true);
@@ -90,8 +89,35 @@ describe('Basemap Customizer - Sublayer Detection & State Management', () => {
     });
   });
 
+  it('should generate distinct aesthetic 3D building color ramps for all 16 basemaps', () => {
+    const all16Basemaps = [
+      'google-satellite', 'google-hybrid', 'google-streets', 'esri-imagery',
+      'esri-topographic', 'esri-streets', 'esri-natgeo', 'esri-light-grey',
+      'esri-dark-grey', 'esri-ocean', 'esri-relief', 'esri-colorpencil',
+      'big-rbi', 'osm-standard', 'osm-humanitarian', 'open-topo'
+    ];
+
+    expect(all16Basemaps.length).toBe(16);
+
+    all16Basemaps.forEach((id) => {
+      const expr = customizer.getBuildingColorExpression(id);
+      expect(expr, `Basemap ${id} should return an interpolation expression`).toBeDefined();
+      expect(expr[0]).toBe('interpolate');
+      expect(expr[1]).toEqual(['linear']);
+      expect(expr.length).toBeGreaterThanOrEqual(13);
+    });
+
+    // Verify key distinct color signatures
+    expect(JSON.stringify(customizer.getBuildingColorExpression('esri-dark-grey'))).toContain('#00f0ff');
+    expect(JSON.stringify(customizer.getBuildingColorExpression('esri-ocean'))).toContain('#99f6e4');
+    expect(JSON.stringify(customizer.getBuildingColorExpression('osm-humanitarian'))).toContain('#f43f5e');
+    expect(JSON.stringify(customizer.getBuildingColorExpression('big-rbi'))).toContain('#06b6d4');
+    expect(JSON.stringify(customizer.getBuildingColorExpression('esri-colorpencil'))).toContain('#f59e0b');
+    expect(JSON.stringify(customizer.getBuildingColorExpression('open-topo'))).toContain('#16a34a');
+  });
+
   it('should parse 3D terrain and overlays in PermalinkManager URL hash', () => {
-    const hash = '#map=9.00/-7.5400/110.4400/60/15&terrain=1&contour=1&hillshade=1';
+    const hash = '#map=9.00/-7.5400/110.4400/60/15&terrain=1&hillshade=1';
     const state = PermalinkManager.parseHash(hash);
 
     expect(state.zoom).toBe(9.0);
@@ -100,7 +126,6 @@ describe('Basemap Customizer - Sublayer Detection & State Management', () => {
     expect(state.pitch).toBe(60);
     expect(state.bearing).toBe(15);
     expect(state.terrain3D).toBe(true);
-    expect(state.contourLines).toBe(true);
     expect(state.terrainHillshade).toBe(true);
   });
 });

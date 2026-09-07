@@ -97,6 +97,7 @@ export class BasemapCustomizerUI {
         if (this.mapManager) {
           this.mapManager.setBasemap(bm.id);
         }
+        this.customizer.setBasemapId(bm.id);
         showToast(`Basemap diubah ke "${bm.name}"`, 'info');
         this.syncUI();
       });
@@ -292,6 +293,12 @@ export class BasemapCustomizerUI {
       const key = input.dataset.key as VectorSublayerKey;
       if (key && state.sublayers[key] !== undefined) {
         input.checked = state.sublayers[key];
+      }
+      input.disabled = isRasterBasemap;
+      const parentLabel = input.closest('.sublayer-item') as HTMLElement | null;
+      if (parentLabel) {
+        parentLabel.style.opacity = isRasterBasemap ? '0.5' : '1';
+        parentLabel.style.pointerEvents = isRasterBasemap ? 'none' : 'auto';
       }
     });
 

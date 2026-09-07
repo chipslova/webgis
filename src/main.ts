@@ -94,6 +94,10 @@ class WebGISApp {
       this.mapManager.onStyleReady(() => this.geojsonLoader?.reattachLayersIfNeeded());
       this.mapManager.onStyleReady(() => this.geeLoader?.restoreAfterStyleChange());
       this.mapManager.onStyleReady(() => this.measureTool?.restoreAfterStyleChange());
+      this.mapManager.onStyleReady(() => {
+        const bmId = this.mapManager.getCurrentBasemapId();
+        this.basemapCustomizer?.setBasemapId(bmId);
+      });
       this.mapManager.onStyleReady(() => this.updateDynamicLegend());
 
       // Auto-enforce layer ordering & legend update on any layer state changes
@@ -159,9 +163,6 @@ class WebGISApp {
       }
       if (urlState.terrain3D && this.basemapCustomizer) {
         this.basemapCustomizer.toggle3DTerrain(true);
-      }
-      if (urlState.contourLines && this.basemapCustomizer) {
-        this.basemapCustomizer.toggleContourLines(true);
       }
       if (urlState.terrainHillshade && this.basemapCustomizer) {
         this.basemapCustomizer.toggleTerrainHillshade(true);
@@ -290,7 +291,6 @@ class WebGISApp {
       // 7. Reset Basemap Customizer (3D terrain & overlays off, all sublayers on)
       if (this.basemapCustomizer) {
         this.basemapCustomizer.toggle3DTerrain(false);
-        this.basemapCustomizer.toggleContourLines(false);
         this.basemapCustomizer.toggleTerrainHillshade(false);
         this.basemapCustomizer.toggle3DBuildings(false);
         this.basemapCustomizer.setAllSublayers(true);

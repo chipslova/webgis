@@ -314,8 +314,10 @@ export class MapManager {
     this.enforceLayerOrder();
   }
 
+  private enforceOrderFrame: number | null = null;
+
   /**
-   * Deterministically orders all custom layers above the basemap in a single pass:
+   * Deterministically orders all custom layers above the basemap in a single pass (debounced with rAF):
    * Basemap (Bottom)
    * -> Piksel WMS Raster Layers (Bottommost Analytical Layer)
    * -> GEE Raster Analysis (MODIS LST, SRTM Elevation, Landcover)
@@ -325,6 +327,16 @@ export class MapManager {
    * -> Measurement / Drawing (Fill, Casing, DashLine, Vertices) (Topmost)
    */
   public enforceLayerOrder() {
+    if (this.enforceOrderFrame !== null) {
+      cancelAnimationFrame(this.enforceOrderFrame);
+    }
+    this.enforceOrderFrame = requestAnimationFrame(() => {
+      this.enforceOrderFrame = null;
+      this.executeEnforceLayerOrder();
+    });
+  }
+
+  public executeEnforceLayerOrder() {
     if (!this.map || !this.map.getStyle()) return;
 
     // 1. Piksel WMS Raster Layers (bottom of analytical stack)

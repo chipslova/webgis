@@ -11,7 +11,6 @@ export interface URLState {
   bearing?: number;
   projection?: 'mercator' | 'globe';
   terrain3D?: boolean;
-  contourLines?: boolean;
   terrainHillshade?: boolean;
   basemapId?: string;
   productId?: string;
@@ -123,10 +122,6 @@ export class PermalinkManager {
 
       if (params.has('terrain')) {
         state.terrain3D = params.get('terrain') === '1' || params.get('terrain') === 'true';
-      }
-
-      if (params.has('contour')) {
-        state.contourLines = params.get('contour') === '1' || params.get('contour') === 'true';
       }
 
       if (params.has('hillshade')) {
@@ -247,9 +242,6 @@ export class PermalinkManager {
       const cState = this.customizer.getState();
       if (cState.terrain3D) {
         params.set('terrain', '1');
-      }
-      if (cState.contourLines) {
-        params.set('contour', '1');
       }
       if (cState.terrainHillshade) {
         params.set('hillshade', '1');
