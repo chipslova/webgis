@@ -297,16 +297,12 @@ describe('Full WebGIS Feature & Button Audit', () => {
       const latEl = document.getElementById('insp-lat');
       const lngEl = document.getElementById('insp-lng');
       const decEl = document.getElementById('insp-coord-decimal');
-      const elvEl = document.getElementById('insp-elevation');
-      const lstEl = document.getElementById('insp-lst');
-
       expect(latEl?.innerText).toContain('6°');
       expect(latEl?.innerText).toContain('S');
       expect(lngEl?.innerText).toContain('106°');
       expect(lngEl?.innerText).toContain('E');
       expect(decEl?.innerText).toContain('-6.2088');
-      expect(elvEl?.innerText).toContain('m');
-      expect(lstEl?.innerText).toContain('°C');
+      expect(document.getElementById('floating-inspector-card')?.classList.contains('active')).toBe(true);
 
       inspector.close();
       expect(document.getElementById('floating-inspector-card')?.classList.contains('active')).toBe(false);

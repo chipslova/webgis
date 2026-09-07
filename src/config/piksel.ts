@@ -77,11 +77,11 @@ export interface PikselPreset {
 }
 
 export const PIKSEL_CATEGORIES: { id: ProductCategory; name: string; icon: string; subtitle: string }[] = [
-  { id: 'geomad', name: 'Sentinel-2 GeoMAD', icon: '🎨', subtitle: 'Komposit Optik & Inframerah 10m Bebas Awan' },
-  { id: 'indices', name: 'Spectral Indices', icon: '🔬', subtitle: 'Indeks Biofisik Klorofil, Air & Lahan' },
-  { id: 'quality', name: 'Data Quality', icon: '📊', subtitle: 'Statistik Observasi Open Data Cube' },
-  { id: 'landsat', name: 'Landsat 9', icon: '🛰️', subtitle: 'Reflektansi Permukaan USGS/NASA 30m' },
-  { id: 'hazard', name: 'Flood Hazard', icon: '🌊', subtitle: 'Model Probabilitas Genangan Banjir Wilayah Studi' }
+  { id: 'geomad', name: 'Sentinel-2 GeoMAD', icon: '', subtitle: 'Komposit Optik & Inframerah 10m Bebas Awan' },
+  { id: 'indices', name: 'Indeks Spektral', icon: '', subtitle: 'Kerapatan Vegetasi & Indeks Air' },
+  { id: 'landsat', name: 'Landsat 9', icon: '', subtitle: 'Observasi Permukaan USGS/NASA 30m' },
+  { id: 'hazard', name: 'Bahaya Banjir', icon: '', subtitle: 'Pemodelan Hidrologi Wilayah Studi' },
+  { id: 'quality', name: 'Kualitas Data', icon: '', subtitle: 'Statistik Observasi Bebas Awan' }
 ];
 
 export const PIKSEL_WMS_BASE_URL = 'https://ows.staging.piksel.big.go.id/wms';
@@ -92,7 +92,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
   // 1. GeoMAD Group
   {
     id: 's2-geomad-rgb',
-    name: 'Sentinel-2 GeoMAD (Warna Alami / RGB)',
+    name: 'Sentinel-2 Warna Alami (RGB)',
     category: 'geomad',
     layer: 's2_geomad_annual_spectral',
     style: 'rgb',
@@ -114,17 +114,17 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
       rightLabel: 'Kanopi Hutan',
       gradientClass: 's2-geomad-gradient',
       swatches: [
-        { label: 'Air (Biru)', color: '#1e40af', icon: '🌊' },
-        { label: 'Lahan Terbuka (Krem)', color: '#d4b285', icon: '🏜️' },
-        { label: 'Kanopi Hutan (Hijau)', color: '#15803d', icon: '🌲' },
-        { label: 'Kota / Bangunan (Abu)', color: '#94a3b8', icon: '🏢' }
+        { label: 'Air (Biru)', color: '#1e40af' },
+        { label: 'Lahan Terbuka (Krem)', color: '#d4b285' },
+        { label: 'Kanopi Hutan (Hijau)', color: '#15803d' },
+        { label: 'Kota / Bangunan (Abu)', color: '#94a3b8' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel / Copernicus Sentinel-2'
   },
   {
     id: 's2-geomad-nir',
-    name: 'Sentinel-2 GeoMAD False Color (NIR)',
+    name: 'Sentinel-2 Inframerah Dekat (NIR)',
     category: 'geomad',
     layer: 's2_geomad_annual_spectral',
     style: 'false_color_nir',
@@ -147,9 +147,9 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
       rightLabel: 'Kanopi Lebat (Klorofil)',
       gradientClass: 's2-nir-gradient',
       swatches: [
-        { label: 'Air / Basah (Hitam/Biru)', color: '#020617', icon: '🌊' },
-        { label: 'Kota / Bangunan (Sian/Abu)', color: '#64748b', icon: '🏢' },
-        { label: 'Klorofil Lebat (Merah/Magenta)', color: '#f43f5e', icon: '🌺' }
+        { label: 'Air / Basah (Hitam/Biru)', color: '#020617' },
+        { label: 'Kota / Bangunan (Sian/Abu)', color: '#64748b' },
+        { label: 'Klorofil Lebat (Merah/Magenta)', color: '#f43f5e' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel / Copernicus Sentinel-2'
@@ -182,9 +182,9 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
       gradientClass: 'ndvi-gradient',
       rangeText: 'Skala Rentang Indeks: -1.0 s.d +1.0',
       swatches: [
-        { label: 'Air / Non-Veg (-1.0)', color: '#0284c7', icon: '💧' },
-        { label: 'Vegetasi Jarang (+0.3)', color: '#fde047', icon: '🌾' },
-        { label: 'Hutan Lebat (+0.8)', color: '#15803d', icon: '🌲' }
+        { label: 'Air / Non-Veg (-1.0)', color: '#0284c7' },
+        { label: 'Vegetasi Jarang (+0.3)', color: '#fde047' },
+        { label: 'Hutan Lebat (+0.8)', color: '#15803d' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
@@ -214,16 +214,16 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
       gradientClass: 'ndwi-gradient',
       rangeText: 'Skala Rentang Indeks: -1.0 s.d +1.0',
       swatches: [
-        { label: 'Daratan Kering (-0.5)', color: '#b45309', icon: '🏜️' },
-        { label: 'Lahan Lembap (0.0)', color: '#67e8f9', icon: '🌾' },
-        { label: 'Badan Air Terbuka (+0.7)', color: '#1e3a8a', icon: '🌊' }
+        { label: 'Daratan Kering (-0.5)', color: '#b45309' },
+        { label: 'Lahan Lembap (0.0)', color: '#67e8f9' },
+        { label: 'Badan Air Terbuka (+0.7)', color: '#1e3a8a' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
   },
   {
     id: 's2-bsi',
-    name: 'Bare Soil Index (BSI)',
+    name: 'Indeks Keterbukaan Lahan (BSI)',
     category: 'indices',
     layer: 's2_geomad_annual_indices',
     style: 'bsi',
@@ -232,7 +232,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     availableYears: S2_YEARS,
     minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'Kombinasi spektral Blue-Red-NIR-SWIR untuk mendeteksi tanah terbuka, pembukaan lahan, tambang, dan proyek konstruksi berskala besar.',
+    description: 'Kombinasi spektral Blue-Red-NIR-SWIR untuk mendeteksi tanah terbuka, pembukaan lahan, tambang, dan proyek konstruksi.',
     whatItShows: 'Tingkat keterbukaan tanah: nilai tinggi menunjukkan lahan gundul atau tambang aktif, nilai rendah menunjukkan kanopi atau badan air.',
     badge: 'Tidak Tersedia',
     color: '#64748b',
@@ -247,9 +247,9 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
       rightLabel: 'Tanah Terbuka / Tambang',
       gradientClass: 'bsi-gradient',
       swatches: [
-        { label: 'Vegetasi Rapat (Hijau)', color: '#064e3b', icon: '🌲' },
-        { label: 'Lahan Campuran (Kuning)', color: '#fde047', icon: '🌾' },
-        { label: 'Tanah Terbuka / Tambang (Merah)', color: '#dc2626', icon: '⛏️' }
+        { label: 'Vegetasi Rapat (Hijau)', color: '#064e3b' },
+        { label: 'Lahan Campuran (Kuning)', color: '#fde047' },
+        { label: 'Tanah Terbuka / Tambang (Merah)', color: '#dc2626' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
@@ -258,7 +258,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
   // 3. Hazard Group
   {
     id: 'flood-hazard-rp02',
-    name: 'Bahaya Banjir Wilayah Studi (Periode Ulang 2 Tahun)',
+    name: 'Model Bahaya Banjir (Wilayah Studi RP 2-Tahun)',
     category: 'hazard',
     layer: 'flood_hazard_rp02',
     style: 'hazard_class',
@@ -275,21 +275,21 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     legend: {
       type: 'categorical',
       items: [
-        { label: 'Kelas Rendah', color: '#fef08a', icon: '🟡' },
-        { label: 'Kelas Sedang', color: '#f97316', icon: '🟠' },
-        { label: 'Kelas Tinggi', color: '#dc2626', icon: '🔴' }
+        { label: 'Kelas Rendah', color: '#fef08a' },
+        { label: 'Kelas Sedang', color: '#f97316' },
+        { label: 'Kelas Tinggi', color: '#dc2626' }
       ],
       swatches: [
-        { label: 'Kelas Rendah', color: '#fef08a', icon: '🟡' },
-        { label: 'Kelas Sedang', color: '#f97316', icon: '🟠' },
-        { label: 'Kelas Tinggi', color: '#dc2626', icon: '🔴' }
+        { label: 'Kelas Rendah', color: '#fef08a' },
+        { label: 'Kelas Sedang', color: '#f97316' },
+        { label: 'Kelas Tinggi', color: '#dc2626' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Ina-Geoportal / Piksel'
   },
   {
     id: 'flood-hazard-rp10',
-    name: 'Bahaya Banjir Wilayah Studi (Periode Ulang 10 Tahun)',
+    name: 'Model Bahaya Banjir (Wilayah Studi RP 10-Tahun)',
     category: 'hazard',
     layer: 'flood_hazard_rp10',
     style: 'hazard_class',
@@ -306,14 +306,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     legend: {
       type: 'categorical',
       items: [
-        { label: 'Kelas Rendah', color: '#fef08a', icon: '🟡' },
-        { label: 'Kelas Sedang', color: '#f97316', icon: '🟠' },
-        { label: 'Kelas Tinggi', color: '#dc2626', icon: '🔴' }
+        { label: 'Kelas Rendah', color: '#fef08a' },
+        { label: 'Kelas Sedang', color: '#f97316' },
+        { label: 'Kelas Tinggi', color: '#dc2626' }
       ],
       swatches: [
-        { label: 'Kelas Rendah', color: '#fef08a', icon: '🟡' },
-        { label: 'Kelas Sedang', color: '#f97316', icon: '🟠' },
-        { label: 'Kelas Tinggi', color: '#dc2626', icon: '🔴' }
+        { label: 'Kelas Rendah', color: '#fef08a' },
+        { label: 'Kelas Sedang', color: '#f97316' },
+        { label: 'Kelas Tinggi', color: '#dc2626' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Ina-Geoportal / Piksel'
@@ -322,7 +322,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
   // 4. Quality & Statistics Group
   {
     id: 's2-count',
-    name: 'Sentinel-2 GeoMAD — Observation Density (Scene Count)',
+    name: 'Kerapatan Observasi Bebas Awan (Scene Count)',
     category: 'quality',
     layer: 's2_geomad_annual_statistics',
     style: 'count',
@@ -333,7 +333,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     serviceUrl: PIKSEL_WMS_BASE_URL,
     description: 'Jumlah akuisisi citra Sentinel-2 bebas awan yang menyusun setiap pixel komposit GeoMAD tahunan.',
     whatItShows: 'Statistik observasi: Menampilkan total scene bebas awan yang digunakan dalam estimasi GeoMAD tahunan.',
-    badge: 'Data Quality',
+    badge: 'Kualitas Data',
     color: '#6366f1',
     resolution: '10 meter',
     sensor: 'Open Data Cube Quality Mask',
@@ -345,9 +345,9 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
       gradientClass: 'count-gradient',
       rangeText: 'Jumlah Scene Bebas Awan per Pixel',
       swatches: [
-        { label: 'Observasi Rendah (<5)', color: '#4c1d95', icon: '🟣' },
-        { label: 'Observasi Sedang (~15)', color: '#06b6d4', icon: '🔵' },
-        { label: 'Observasi Tinggi (>30)', color: '#facc15', icon: '🟡' }
+        { label: 'Observasi Rendah (<5)', color: '#4c1d95' },
+        { label: 'Observasi Sedang (~15)', color: '#06b6d4' },
+        { label: 'Observasi Tinggi (>30)', color: '#facc15' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
@@ -356,7 +356,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
   // 5. Landsat Group
   {
     id: 'ls9-sr',
-    name: 'Landsat 9 OLI-2 Surface Reflectance',
+    name: 'Landsat 9 Reflektansi Permukaan (30m)',
     category: 'landsat',
     layer: 'ls9_c2l2_sr',
     style: 'simple_rgb',
@@ -372,7 +372,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     resolution: '30 meter',
     sensor: 'Landsat 9 OLI-2 (Collection 2 Level-2)',
     isComputeHeavy: true,
-    statusNotice: 'ℹ️ Catatan: Landsat 9 merupakan koleksi scene individual USGS/NASA (area non-lintasan satelit tampak transparan).',
+    statusNotice: 'Catatan: Landsat 9 merupakan koleksi scene individual USGS/NASA (area non-lintasan satelit tampak transparan).',
     legend: {
       type: 'natural',
       leftLabel: 'Air (Biru Tua)',
@@ -380,9 +380,9 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
       rightLabel: 'Kanopi (Hijau)',
       gradientClass: 'ls9-sr-gradient',
       swatches: [
-        { label: 'Air (Biru Tua)', color: '#1e3a8a', icon: '🌊' },
-        { label: 'Lahan / Kota (Krem/Abu)', color: '#a8a29e', icon: '🏜️' },
-        { label: 'Kanopi Hutan (Hijau)', color: '#15803d', icon: '🌲' }
+        { label: 'Air (Biru Tua)', color: '#1e40af' },
+        { label: 'Lahan / Kota (Krem/Abu)', color: '#a8a29e' },
+        { label: 'Kanopi Hutan (Hijau)', color: '#15803d' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) / USGS / NASA'

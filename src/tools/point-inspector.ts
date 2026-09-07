@@ -40,7 +40,7 @@ export class PointInspector {
 
       // Ignore if user clicked on another interactive marker or drawer
       const originalTarget = (e.originalEvent?.target as HTMLElement);
-      if (originalTarget && (originalTarget.closest('.mapboxgl-marker') || originalTarget.closest('.sidebar-drawer') || originalTarget.closest('.floating-inspector-card'))) {
+      if (originalTarget && (originalTarget.closest('.mapboxgl-marker') || originalTarget.closest('.sidebar-drawer') || originalTarget.closest('.floating-inspector-card') || originalTarget.closest('.bottom-tools-dock'))) {
         return;
       }
 
@@ -59,7 +59,7 @@ export class PointInspector {
       const coordsText = document.getElementById('insp-coord-decimal')?.innerText;
       if (coordsText && navigator.clipboard) {
         navigator.clipboard.writeText(coordsText).then(() => {
-          showToast('Koordinat presisi disalin ke clipboard!', 'success');
+          showToast('Koordinat WGS84 disalin ke clipboard!', 'success');
         });
       }
     });
@@ -91,173 +91,65 @@ export class PointInspector {
     return `${deg}° ${min}' ${sec}" ${dir}`;
   }
 
-  /**
-   * Accurate Topographic Elevation across all Indonesian archipelagos (USGS SRTM 30m)
-   */
-  private estimateElevation(lng: number, lat: number): number {
-    // 1. Water / Ocean bodies
-    if (lat > -5.95 && lat < -5.6 && lng > 106.4 && lng < 107.5) return 0; // Java Sea
-
-    // 2. High Mountain Peaks across Indonesia
-    const peaks = [
-      { name: 'Puncak Jaya / Carstensz', lng: 137.1583, lat: -4.0833, elv: 4884, r: 0.25 },
-      { name: 'Gunung Kerinci', lng: 101.2642, lat: -1.6972, elv: 3805, r: 0.18 },
-      { name: 'Gunung Rinjani', lng: 116.4583, lat: -8.4167, elv: 3726, r: 0.16 },
-      { name: 'Gunung Semeru', lng: 112.9222, lat: -8.1083, elv: 3676, r: 0.16 },
-      { name: 'Gunung Slamet', lng: 109.2139, lat: -7.2422, elv: 3432, r: 0.15 },
-      { name: 'Gunung Sumbing / Sindoro', lng: 110.0700, lat: -7.3840, elv: 3371, r: 0.15 },
-      { name: 'Gunung Lawu', lng: 111.1920, lat: -7.6280, elv: 3265, r: 0.15 },
-      { name: 'Gunung Merbabu', lng: 110.4390, lat: -7.4540, elv: 3145, r: 0.14 },
-      { name: 'Gunung Ciremai', lng: 108.4000, lat: -6.8920, elv: 3078, r: 0.14 },
-      { name: 'Gunung Gede Pangrango', lng: 106.9833, lat: -6.7833, elv: 3019, r: 0.15 },
-      { name: 'Gunung Merapi', lng: 110.4463, lat: -7.5407, elv: 2930, r: 0.14 },
-      { name: 'Gunung Bromo Caldera', lng: 112.9485, lat: -7.9514, elv: 2329, r: 0.15 },
-      { name: 'Gunung Salak', lng: 106.7330, lat: -6.7170, elv: 2211, r: 0.12 },
-      { name: 'Dataran Tinggi Dieng', lng: 109.9170, lat: -7.2000, elv: 2050, r: 0.16 },
-      { name: 'Dataran Tinggi Berastagi / Karo', lng: 98.5080, lat: 3.1890, elv: 1320, r: 0.20 },
-      { name: 'Dataran Tinggi Lembang / Bandung', lng: 107.6160, lat: -6.8160, elv: 1280, r: 0.22 },
-      { name: 'Dataran Tinggi Malino', lng: 119.8500, lat: -5.2500, elv: 1050, r: 0.18 },
-      { name: 'Dataran Tinggi Bedugul Bali', lng: 115.1600, lat: -8.2750, elv: 1240, r: 0.16 },
-    ];
-
-    for (const p of peaks) {
-      const d = Math.hypot(lng - p.lng, lat - p.lat);
-      if (d < p.r) {
-        const drop = (d / p.r);
-        return Math.round(p.elv - (p.elv * 0.75 * drop));
-      }
-    }
-
-    // 3. Lowland Plain Corridors (< 25m)
-    if ((lat > -6.40 && lat < -5.95 && lng > 106.0 && lng < 114.5) ||
-        (lat > -4.0 && lat < 2.0 && lng > 101.5 && lng < 105.5) ||
-        (lat > -4.0 && lat < -1.5 && lng > 113.5 && lng < 116.5) ||
-        (lat > -9.0 && lat < -6.5 && lng > 138.0 && lng < 141.0)) {
-      const baseCoast = Math.abs(Math.sin(lng * 20.0 + lat * 30.0)) * 14 + 3;
-      return Math.round(baseCoast);
-    }
-
-    // 4. General Island Topography
-    const noise = Math.abs(Math.sin(lng * 12.9898 + lat * 78.233));
-    return Math.round(35 + noise * 380);
-  }
-
-  /**
-   * Accurate MODIS Daytime LST Thermal Model across all Indonesian geography
-   */
-  private estimateLST(lng: number, lat: number, elv: number): number {
-    // 1. Major Urban Hotspot Corridors across Indonesia (33.5°C - 35.0°C)
-    const urbanNodes = [
-      { name: 'Jakarta Pusat/Monas', lng: 106.8272, lat: -6.1754, temp: 34.2, r: 0.16 },
-      { name: 'Bekasi & Cikarang Industrial', lng: 107.0800, lat: -6.2800, temp: 34.8, r: 0.22 },
-      { name: 'Tangerang & BSD', lng: 106.6500, lat: -6.2400, temp: 34.1, r: 0.18 },
-      { name: 'Depok Urban', lng: 106.8300, lat: -6.3800, temp: 33.2, r: 0.12 },
-      { name: 'Surabaya Metropolitan', lng: 112.7521, lat: -7.2575, temp: 34.5, r: 0.20 },
-      { name: 'Semarang Pesisir', lng: 110.4200, lat: -6.9900, temp: 33.8, r: 0.15 },
-      { name: 'Medan Kota', lng: 98.6722, lat: 3.5952, temp: 33.6, r: 0.18 },
-      { name: 'Palembang Musi', lng: 104.7500, lat: -2.9900, temp: 33.5, r: 0.16 },
-      { name: 'Makassar Pesisir', lng: 119.4327, lat: -5.1477, temp: 33.8, r: 0.16 },
-      { name: 'IKN KIPP & Balikpapan', lng: 116.7800, lat: -1.0500, temp: 32.5, r: 0.22 },
-      { name: 'Denpasar / Kuta Bali', lng: 115.2167, lat: -8.6500, temp: 32.8, r: 0.15 },
-      { name: 'Banjarmasin', lng: 114.5900, lat: -3.3200, temp: 33.2, r: 0.14 }
-    ];
-
-    for (const u of urbanNodes) {
-      const d = Math.hypot(lng - u.lng, lat - u.lat);
-      if (d < u.r) {
-        return Number((u.temp - d * 8).toFixed(1));
-      }
-    }
-
-    // 2. Physics-based Elevation Lapse Rate (-0.0065°C per meter)
-    const ambientLST = 31.2 - (elv * 0.0062);
-    return Number(Math.max(12.0, Math.min(35.5, ambientLST)).toFixed(1));
-  }
-
   public inspectCoordinate(lng: number, lat: number, screenPoint?: maplibregl.PointLike) {
-    const elevation = this.estimateElevation(lng, lat);
-    const lst = this.estimateLST(lng, lat, elevation);
+    // 1. Check Active Layer Information
+    let activeLayerName = 'Peta Dasar (Basemap)';
+    let activeLayerCategory = 'Basemap';
 
-    // 1. Check Active Piksel Product
-    let activeProductInfo: { name: string; value: string; category?: string } | undefined = undefined;
     const pikselProduct = this.pikselLoader?.getActiveProduct();
     if (pikselProduct) {
       const year = this.pikselLoader?.getSelectedYear() || '2025';
-      if (pikselProduct.id === 's2-ndvi') {
-        let baseNdvi = 0.65;
-        if (elevation > 400 || (lng > 113.0 && lng < 118.0) || (lng > 134.0)) baseNdvi = 0.82;
-        if (lst > 33.5) baseNdvi = 0.18;
-        const ndviVal = Math.max(0.05, Math.min(0.92, baseNdvi + Math.sin(lng * 40 + lat * 30) * 0.08)).toFixed(2);
-
-        activeProductInfo = {
-          name: 'NDVI (~Estimasi Spektral)',
-          value: `~${ndviVal} (${Number(ndviVal) > 0.6 ? 'Kanopi Rapat / Hutan' : Number(ndviVal) > 0.3 ? 'Vegetasi Sedang / Pertanian' : 'Non-Vegetasi / Lahan Terbangun'})`,
-          category: 'Indeks Spektral'
-        };
-      } else if (pikselProduct.id === 's2-ndwi') {
-        const isWater = elevation <= 0 || (lat > -5.95 && lat < -5.6);
-        const ndwiVal = isWater ? '~0.52 (Badan Air Terbuka / Laut)' : '~-0.24 (Lahan Daratan Kering)';
-        activeProductInfo = {
-          name: 'NDWI (~Estimasi Spektral)',
-          value: ndwiVal,
-          category: 'Indeks Spektral'
-        };
-      } else if (pikselProduct.id.startsWith('flood-hazard')) {
-        const isFloodPlain = elevation < 15 && lat < -6.15 && lng > 107.0;
-        activeProductInfo = {
-          name: pikselProduct.name,
-          value: isFloodPlain ? 'Zona Potensi Bahaya Tinggi (Genangan >1.5m)' : 'Zona Potensi Rendah / Topografi Aman',
-          category: 'Bahaya Hidrologis'
-        };
-      } else {
-        activeProductInfo = {
-          name: pikselProduct.name,
-          value: `Sentinel-2 GeoMAD ${year} (OGC WMS 10m)`,
-          category: 'Citra Satelit'
-        };
-      }
+      activeLayerName = `${pikselProduct.name} (${year})`;
+      activeLayerCategory = 'Piksel OGC WMS (10m)';
     } else if (this.geeLoader) {
       if (this.geeLoader.isLayerVisible('lst')) {
-        activeProductInfo = {
-          name: 'MODIS LST Day (1km)',
-          value: `~${lst} °C (Spatial Baseline Snapshot)`,
-          category: 'GEE MODIS Snapshot'
-        };
+        activeLayerName = 'MODIS Daytime LST Heatmap (2020–2024)';
+        activeLayerCategory = 'Studi Kasus Termal GEE';
       } else if (this.geeLoader.isLayerVisible('elevation')) {
-        activeProductInfo = {
-          name: 'USGS SRTM DEM (30m)',
-          value: `~${elevation} m dpl (Topographic Baseline)`,
-          category: 'GEE Topografi DEM'
-        };
+        activeLayerName = 'USGS SRTM Ground Elevation DEM (30m)';
+        activeLayerCategory = 'Studi Kasus Elevasi GEE';
+      } else if (this.geeLoader.isLayerVisible('landcover')) {
+        activeLayerName = 'MODIS MCD12Q1 Tutupan Lahan (500m)';
+        activeLayerCategory = 'Studi Kasus Klasifikasi GEE';
       }
     }
 
-    // 2. Query Vector GeoJSON Features at Point
+    // 2. Query Real Vector Features at Point (from custom GeoJSON layers & sample cities)
     let vectorFeatureName: string | undefined = undefined;
+    let vectorProperties: Record<string, any> | undefined = undefined;
+
     if (screenPoint) {
       const px = Array.isArray(screenPoint) ? screenPoint[0] : (screenPoint as maplibregl.Point).x;
       const py = Array.isArray(screenPoint) ? screenPoint[1] : (screenPoint as maplibregl.Point).y;
       const bbox: [maplibregl.PointLike, maplibregl.PointLike] = [
-        [px - 6, py - 6],
-        [px + 6, py + 6]
+        [px - 8, py - 8],
+        [px + 8, py + 8]
       ];
+      
       const customLayers = this.geojsonLoader?.getLayers() || [];
       for (const cl of customLayers) {
         if (!cl.visible) continue;
+        const candidateLayerIds = [`layer-point-${cl.id}`, `layer-fill-${cl.id}`, `layer-line-${cl.id}`]
+          .filter(lId => this.map.getLayer(lId));
+        
+        if (candidateLayerIds.length === 0) continue;
+
         const features = this.map.queryRenderedFeatures(bbox, {
-          layers: [`${cl.id}-fill`, `${cl.id}-circle`, `${cl.id}-line`].filter(lId => this.map.getLayer(lId))
+          layers: candidateLayerIds
         });
-        if (features.length > 0) {
+
+        if (features && features.length > 0) {
           const f = features[0];
           const props = f.properties || {};
-          vectorFeatureName = props.nama_obj || props.name || props.NAMOBJ || props.Kabupaten || props.Kota || cl.name;
+          vectorFeatureName = props.name || props.nama_obj || props.NAMOBJ || props.Kabupaten || props.Kota || cl.name;
+          vectorProperties = props;
           break;
         }
       }
     }
 
     // 3. Render Floating Card UI
-    this.renderInspectorCard(lng, lat, elevation, lst, activeProductInfo, vectorFeatureName);
+    this.renderInspectorCard(lng, lat, activeLayerName, activeLayerCategory, vectorFeatureName, vectorProperties);
 
     // 4. Place Glowing Pin Marker on Map
     this.placePinMarker(lng, lat);
@@ -266,10 +158,10 @@ export class PointInspector {
   private renderInspectorCard(
     lng: number,
     lat: number,
-    elevation: number,
-    lst: number,
-    activeProduct?: { name: string; value: string; category?: string },
-    vectorName?: string
+    activeLayerName: string,
+    activeLayerCategory: string,
+    vectorName?: string,
+    vectorProps?: Record<string, any>
   ) {
     if (!this.containerEl) {
       this.containerEl = document.getElementById('floating-inspector-card');
@@ -282,36 +174,47 @@ export class PointInspector {
     const latEl = document.getElementById('insp-lat');
     const lngEl = document.getElementById('insp-lng');
     const decimalEl = document.getElementById('insp-coord-decimal');
-    const elvEl = document.getElementById('insp-elevation');
-    const lstEl = document.getElementById('insp-lst');
-    const productWrapEl = document.getElementById('insp-active-product-row');
     const productNameEl = document.getElementById('insp-product-name');
     const productValEl = document.getElementById('insp-product-val');
     const vectorWrapEl = document.getElementById('insp-vector-row');
     const vectorValEl = document.getElementById('insp-vector-val');
+    const vectorPropsSlot = document.getElementById('insp-vector-props-slot');
 
     if (latEl) latEl.innerText = latDms;
     if (lngEl) lngEl.innerText = lngDms;
     if (decimalEl) decimalEl.innerText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-    if (elvEl) elvEl.innerText = `~${elevation} m dpl`;
-    if (lstEl) lstEl.innerText = `~${lst} °C`;
 
-    if (productWrapEl && productNameEl && productValEl) {
-      if (activeProduct) {
-        productNameEl.innerText = activeProduct.name;
-        productValEl.innerText = activeProduct.value;
-        productWrapEl.style.display = 'flex';
-      } else {
-        productWrapEl.style.display = 'none';
-      }
+    // Keep hidden fallback elements for legacy test compatibility
+    const elvEl = document.getElementById('insp-elevation');
+    const lstEl = document.getElementById('insp-lst');
+    if (elvEl) elvEl.innerText = 'Tidak tersedia (Query WMS)';
+    if (lstEl) lstEl.innerText = 'Tidak tersedia (Query WMS)';
+
+    if (productNameEl && productValEl) {
+      productNameEl.innerText = 'Lapisan Aktif';
+      productValEl.innerText = `${activeLayerName} · ${activeLayerCategory}`;
     }
 
     if (vectorWrapEl && vectorValEl) {
       if (vectorName) {
         vectorValEl.innerText = vectorName;
-        vectorWrapEl.style.display = 'flex';
+        vectorWrapEl.style.display = 'block';
+
+        if (vectorPropsSlot && vectorProps) {
+          const rows = Object.entries(vectorProps)
+            .filter(([k]) => k !== 'name' && k !== 'nama_obj')
+            .slice(0, 4)
+            .map(([k, v]) => `
+              <div class="insp-row" style="font-size: 11px; padding: 2px 0;">
+                <span class="insp-label" style="color: #64748b;">${k}:</span>
+                <span class="insp-val" style="color: #cbd5e1;">${v}</span>
+              </div>
+            `).join('');
+          vectorPropsSlot.innerHTML = rows;
+        }
       } else {
         vectorWrapEl.style.display = 'none';
+        if (vectorPropsSlot) vectorPropsSlot.innerHTML = '';
       }
     }
 

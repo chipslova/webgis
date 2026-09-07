@@ -40,12 +40,12 @@ An interactive WebGIS for exploring Indonesian Earth Observation datasets and de
   * **NDWI** (Normalized Difference Water Index)
   * **NIR Surface Reflectance**
   * **Observation Density** (Scene acquisition count & data availability)
-* **Landsat 9 Swath Analyses**: USGS/NASA surface reflectance (2022–2025).
-* **National Flood Hazard Modeling**: Hydrological floodplain hazard classifications (`flood_hazard_rp02` & `rp10`).
-* **National 10m Grid Index**: Interactive overlay of 1,631 Open Data Cube tile boundaries.
+* **Landsat 9 Swath Analyses**: USGS/NASA surface reflectance (2021–2026).
+* **Piksel Flood Hazard Modeling (Priority Study Areas)**: Hydrological floodplain hazard classifications (`flood_hazard_rp02` & `rp10`).
+* **Piksel Data Cube Tile Index**: Interactive overlay of 1,631 Open Data Cube tile boundaries across Indonesia.
 
 ### 🌡️ 2. Google Earth Engine (GEE) Urban Heat Island Case Study
-* **MODIS Daytime Land Surface Temperature (LST)**: Interpolated LST continuous gradient visualization ($22^\circ\text{C} \to 34^\circ\text{C}+$) across the Jabodetabek metropolitan region.
+* **MODIS Daytime Land Surface Temperature (LST)**: Interpolated LST continuous gradient visualization ($22^\circ\text{C} \to 34^\circ\text{C}+$) across the Jabodetabek metropolitan region (2020–2024 baseline snapshot).
 * **Spatial Microclimate Comparison**: Analysis comparing Jakarta Urban Core (*Monas, 33.85°C, 14m elev*) and West Java Rural Baseline (*Hutan IPB Bogor, 24.60°C, 680m elev*) displaying a **+9.25°C UHI Delta**.
 * **Harmonic Seasonal Time-Series Dynamics (2020–2026)**: Canvas-rendered sinusoidal curve fits displaying annual dry-season temperature peaks and wet-season cooling patterns.
 * **USGS SRTM 30m Elevation & MODIS MCD12Q1 Land Cover**: Topographic color ramps and land use classifications across the Jabodetabek corridor.
@@ -56,13 +56,11 @@ An interactive WebGIS for exploring Indonesian Earth Observation datasets and de
 * **Independent Layer Control**: Every active dataset features discrete **Hide/Show (👁)**, **Opacity Sliders (0–100%)**, and **Remove (✕)** actions.
 * **16 Vector & Raster Basemaps**: Google Satellite/Hybrid/Streets, Esri World Imagery/Topographic/NatGeo/Canvas/Colored Pencil, BIG Rupabumi Indonesia (RBI), OpenStreetMap, and OpenTopoMap.
 
-### 📍 4. Point Inspector & Surface Query
-* **Geospatial Surface Query**: Click anywhere on the map to query:
-  * Coordinates (Decimal Degrees & DMS).
-  * Topographic Ground Elevation (USGS SRTM 30m).
-  * Land Surface Temperature estimates (MODIS Daytime LST).
-  * Active spectral index / flood hazard classification interpretation.
-  * Vector feature properties and copy-to-clipboard actions.
+### 📍 4. Point Inspector & Vector Query
+* **Geospatial Coordinate & Feature Query**: Click anywhere on the map to query:
+  * High-precision coordinates (Decimal Degrees & DMS).
+  * Interactive vector feature properties and attributes via `map.queryRenderedFeatures()` (Piksel Tile Grid, POIs, custom GeoJSON polygons/lines/points).
+  * Active Earth Observation visualization context with transparent data provenance disclaimers (separating visual WMS maps from direct raster cell values).
 
 ### 📐 5. Spatial Measurement & Vector Tools
 * **Geodesic Path Distance**: Real-time multi-point path calculation with satellite-contrast casing.
@@ -94,9 +92,9 @@ To prevent desynchronized UI states during rapid map panning and zooming, the ap
 | :--- | :--- | :--- | :--- | :--- |
 | **Sentinel-2 GeoMAD** | BIG Piksel / ESA | 10 meters | 2017 – 2025 | OGC WMS 1.3.0 (PNG) |
 | **Spectral Indices (NDVI/NDWI)** | Open Data Cube | 10 meters | Annual Comps | OGC WMS 1.3.0 |
-| **Landsat 9 Analysis** | USGS / NASA | 30 meters | 2022 – 2025 | OGC WMS 1.3.0 Swaths |
-| **Flood Hazard Models** | BIG Hidrologi | 10 meters | RP02 Model | Physical Raster WMS |
-| **MODIS Daytime LST** | NASA LP DAAC / GEE | 1,000 meters | 2020 – 2024 | GeoJSON Analytical |
+| **Landsat 9 Analysis** | USGS / NASA | 30 meters | 2021 – 2026 | OGC WMS 1.3.0 Swaths |
+| **Flood Hazard Models** | BIG Hidrologi | 10 meters | Priority Study Areas | Physical Raster WMS |
+| **MODIS Daytime LST** | NASA LP DAAC / GEE | 1,000 meters | 2020 – 2024 (Baseline) | GeoJSON Analytical |
 | **SRTM Digital Elevation** | USGS / NASA | 30 meters | Static DEM | GeoJSON Analytical |
 | **MCD12Q1 Land Cover** | NASA LP DAAC | 500 meters | Static Class | GeoJSON Analytical |
 | **National Topographic (RBI)** | BIG Indonesia | Vector Tiles | Multi-Scale | WMTS / Vector Tile |
@@ -143,9 +141,9 @@ $$
 
 A transparent understanding of architectural boundaries distinguishes a production-minded WebGIS from a toy project:
 
-1. **Zoom Level Gating (Z6+) for OGC WMS Products**:
-   * *Rationale*: Sentinel-2 GeoMAD has a 10m spatial resolution spanning $>1.9 \text{ million km}^2$ of Indonesian territory. Querying raw 10m rasters at global zoom levels ($Z < 6$) would trigger millions of un-cached server-side pixel calculations on the Open Data Cube cluster.
-   * *Mitigation*: The client enforces Zoom Level 6 gating (Island/Provincial scale) and provides automated one-click zoom guidance buttons (`[Perbesar ke Level 6]`) and interactive HUD alerts.
+1. **Zoom Level Gating (Z8+ for Sentinel-2, Z7+ for Landsat 9)**:
+   * *Rationale*: Sentinel-2 GeoMAD has a 10m spatial resolution spanning $>1.9 \text{ million km}^2$ of Indonesian territory. Querying raw 10m rasters at nationwide zoom levels ($Z < 8$ for Sentinel-2, $Z < 7$ for Landsat 9) would trigger millions of un-cached server-side pixel calculations on the Open Data Cube cluster.
+   * *Mitigation*: The client enforces zoom level gating and provides automated one-click zoom guidance buttons (`[Perbesar ke Level 8]`) and interactive HUD alerts.
 
 2. **Upstream OGC Server Availability (BIG Piksel)**:
    * *Behavior*: Occasional HTTP 500 or request timeouts may occur on experimental derivative products (such as Bare Soil Index for specific historical years) due to upstream backend maintenance at Badan Informasi Geospasial.

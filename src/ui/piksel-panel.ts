@@ -197,10 +197,10 @@ export class PikselPanelUI {
     // 3. Filtered Products Catalog
     const categories = [
       { id: 'all', label: 'Semua' },
-      { id: 'geomad', label: '🌈 Citra & Warna' },
-      { id: 'indices', label: '📊 Indeks' },
-      { id: 'hazard', label: '🌊 Banjir' },
-      { id: 'landsat', label: '🛰️ Landsat 9' }
+      { id: 'geomad', label: 'Sentinel-2 GeoMAD' },
+      { id: 'indices', label: 'Indeks Spektral' },
+      { id: 'hazard', label: 'Bahaya Banjir' },
+      { id: 'landsat', label: 'Landsat 9' }
     ];
 
     const categoryChipsHtml = categories.map(c => `
@@ -240,25 +240,36 @@ export class PikselPanelUI {
       }
 
       return `
-        <div class="clean-product-card ${isActive ? 'is-active' : ''}" data-id="${prod.id}" title="${prod.description}">
+        <div class="clean-product-card ${isActive ? 'is-active' : ''}" data-id="${prod.id}">
           <div class="card-main-info">
             <div class="card-title-line">
               <span class="card-color-dot" style="background:${prod.color};"></span>
               <strong class="card-name">${prod.name}</strong>
             </div>
+            <p class="card-brief-desc" style="font-size: 11.5px; color: var(--text-muted); margin: 4px 0 6px 0; line-height: 1.35;">
+              ${prod.whatItShows || prod.description}
+            </p>
             <div class="card-tags-line">
               <span class="card-tag">${prod.resolution}</span>
-              <span class="card-tag" title="Perbesar ke Zoom Level ${prod.minZoom ?? 6}+">Z${prod.minZoom ?? 6}+</span>
+              <span class="card-tag" title="Tingkat zoom minimal Z${prod.minZoom ?? 8}+">Z${prod.minZoom ?? 8}+</span>
               ${prod.timeEnabled && yearRange ? `<span class="card-tag multi-year">${yearRange}</span>` : ''}
               <span class="card-badge" style="color:${prod.color};">${prod.badge}</span>
             </div>
             <details class="card-about-accordion" data-about="${prod.id}">
-              <summary class="card-about-summary">About this product</summary>
-              <div class="card-about-body">${prod.description}${prod.attribution ? `<span class="card-about-attr">${prod.attribution}</span>` : ''}</div>
+              <summary class="card-about-summary">Detail Teknis Layer</summary>
+              <div class="card-about-body">
+                <div style="display:grid; grid-template-columns: auto 1fr; gap: 3px 8px; font-size: 10.5px; margin-bottom: 6px;">
+                  <span style="color:#64748b;">Protokol:</span><span style="color:#cbd5e1; font-family:monospace;">OGC WMS 1.3.0</span>
+                  <span style="color:#64748b;">Layer WMS:</span><span style="color:#cbd5e1; font-family:monospace;">${prod.layer}</span>
+                  <span style="color:#64748b;">Gaya:</span><span style="color:#cbd5e1; font-family:monospace;">${prod.style}</span>
+                  <span style="color:#64748b;">Sensor:</span><span style="color:#cbd5e1;">${prod.sensor}</span>
+                </div>
+                ${prod.attribution ? `<span class="card-about-attr">${prod.attribution}</span>` : ''}
+              </div>
             </details>
           </div>
           <button class="btn-select-product ${isActive ? 'btn-active-state' : ''}" data-id="${prod.id}">
-            ${isActive ? '\u2713 Aktif' : 'Aktifkan'}
+            ${isActive ? '✓ Aktif' : 'Tampilkan di Peta'}
           </button>
         </div>
       `;
@@ -266,7 +277,7 @@ export class PikselPanelUI {
 
     container.innerHTML = `
       <div class="panel-header">
-        <h2>🛰️ Piksel Earth Observation</h2>
+        <h2>Piksel Earth Observation</h2>
         <p>Layanan OGC WMS resmi Badan Informasi Geospasial (BIG) berbasis Open Data Cube.</p>
       </div>
 
@@ -306,10 +317,10 @@ export class PikselPanelUI {
       <!-- Collapsible Official Links -->
       <details class="clean-accordion" style="margin-top: 14px;">
         <summary>
-          <span>🌐 Dokumentasi & Portal Resmi BIG Piksel</span>
+          <span>Dokumentasi & Portal Resmi BIG Piksel</span>
         </summary>
         <div class="accordion-body">
-          <p style="margin-bottom: 10px; color: var(--text-muted);">
+          <p style="margin-bottom: 10px; color: var(--text-muted); font-size: 11.5px;">
             Layanan OGC WMS didukung oleh Open Data Cube BIG & Geoscience Australia.
           </p>
           <div class="clean-footer-links" style="display: flex; flex-direction: column; gap: 6px;">
