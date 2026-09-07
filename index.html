@@ -68,6 +68,10 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
             <span id="globe-btn-label" class="btn-text-label">Mode 3D Globe</span>
           </button>
+          <button id="btn-quick-3d-terrain" class="btn btn-secondary" title="Aktifkan Mode 3D Terrain Elevasi Topografi">
+            <span style="font-size: 14px;">⛰️</span>
+            <span id="terrain-btn-label" class="btn-text-label">3D Terrain</span>
+          </button>
           <button id="btn-quick-import" class="btn btn-secondary" title="Import File GeoJSON Kustom">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
             <span class="btn-text-label">Import GeoJSON</span>
@@ -130,7 +134,7 @@
             <section id="panel-map" class="sidebar-panel active">
               <div class="panel-header">
                 <h2>🗺️ Peta & Layer Aktif</h2>
-                <p>Kelola tumpukan layer aktif dan pilih dari 15 gaya peta dasar resolusi tinggi.</p>
+                <p>Kelola tumpukan layer aktif, kustomisasi elemen peta, dan pilih dari 15 gaya basemap resolusi tinggi.</p>
               </div>
 
               <!-- Active Layers Manager Container -->
@@ -148,6 +152,11 @@
                 <div id="basemap-grid" class="basemap-grid">
                   <!-- Dynamically populated basemap cards -->
                 </div>
+              </div>
+
+              <!-- Basemap Customization, Global Overlays & 3D Terrain -->
+              <div id="basemap-customizer-container" style="margin-top: 14px;">
+                <!-- Dynamically populated by BasemapCustomizerUI -->
               </div>
             </section>
 

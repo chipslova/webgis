@@ -14,6 +14,8 @@ import { BASEMAPS } from './config/basemaps';
 import { showToast } from './ui/toast';
 import { PermalinkManager } from './tools/permalink';
 import { PointInspector } from './tools/point-inspector';
+import { BasemapCustomizer } from './tools/basemap-customizer';
+import { BasemapCustomizerUI } from './ui/basemap-customizer-panel';
 
 class WebGISApp {
   private mapManager: MapManager;
@@ -29,6 +31,8 @@ class WebGISApp {
   private activeLayersUI: ActiveLayersUI | null = null;
   private permalinkManager: PermalinkManager | null = null;
   private pointInspector: PointInspector | null = null;
+  private basemapCustomizer: BasemapCustomizer | null = null;
+  private basemapCustomizerUI: BasemapCustomizerUI | null = null;
 
   constructor() {
     this.mapManager = new MapManager('map');
@@ -124,12 +128,16 @@ class WebGISApp {
       this.geePanelUI.init();
       this.pikselPanelUI.init();
 
+      // Initialize Basemap Customizer Engine & UI
+      this.basemapCustomizer = new BasemapCustomizer(map);
+      this.basemapCustomizerUI = new BasemapCustomizerUI(this.basemapCustomizer);
+
       // Enforce strict layer order and render initial legend
       this.mapManager.enforceLayerOrder();
       this.updateDynamicLegend();
 
       // Initialize Permalink State Sync
-      this.permalinkManager = new PermalinkManager(this.mapManager, this.pikselLoader, this.geeLoader);
+      this.permalinkManager = new PermalinkManager(this.mapManager, this.pikselLoader, this.geeLoader, this.basemapCustomizer);
       this.permalinkManager.init();
 
       // Check if URL hash has initial parameters
@@ -148,6 +156,15 @@ class WebGISApp {
         const globeBtn = document.getElementById('btn-toggle-globe');
         if (globeLabel) globeLabel.innerText = '3D Globe';
         if (globeBtn) globeBtn.classList.add('active');
+      }
+      if (urlState.terrain3D && this.basemapCustomizer) {
+        this.basemapCustomizer.toggle3DTerrain(true);
+      }
+      if (urlState.contourLines && this.basemapCustomizer) {
+        this.basemapCustomizer.toggleContourLines(true);
+      }
+      if (urlState.terrainHillshade && this.basemapCustomizer) {
+        this.basemapCustomizer.toggleTerrainHillshade(true);
       }
       if (urlState.basemapId && urlState.basemapId !== this.mapManager.getCurrentBasemapId()) {
         this.mapManager.setBasemap(urlState.basemapId);
@@ -227,6 +244,24 @@ class WebGISApp {
     });
   }
 
+  private bindTerrainQuickEvents() {
+    const btn = document.getElementById('btn-quick-3d-terrain');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+      if (this.basemapCustomizer) {
+        this.basemapCustomizer.toggle3DTerrain();
+        const state = this.basemapCustomizer.getState();
+        btn.classList.toggle('active', state.terrain3D);
+        if (state.terrain3D) {
+          showToast('Mode 3D Terrain Elevation diaktifkan!', 'info');
+        } else {
+          showToast('Kembali ke tampilan 2D datar', 'info');
+        }
+      }
+    });
+  }
+
   private bindResetMapEvents() {
     const resetBtn = document.getElementById('btn-reset-map');
     if (!resetBtn) return;
@@ -269,7 +304,17 @@ class WebGISApp {
       if (inspector) inspector.style.display = 'none';
       this.pointInspector?.clear();
 
-      // 7. Refresh Active Layers UI
+      // 7. Reset Basemap Customizer (3D terrain & overlays off, all sublayers on)
+      if (this.basemapCustomizer) {
+        this.basemapCustomizer.toggle3DTerrain(false);
+        this.basemapCustomizer.toggleContourLines(false);
+        this.basemapCustomizer.toggleTerrainHillshade(false);
+        this.basemapCustomizer.toggle3DBuildings(false);
+        this.basemapCustomizer.setAllSublayers(true);
+        this.basemapCustomizerUI?.syncUI();
+      }
+
+      // 8. Refresh Active Layers UI
       this.activeLayersUI?.render();
     });
   }

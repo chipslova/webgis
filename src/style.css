@@ -5254,4 +5254,205 @@ kbd {
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
 }
 
+/* ==========================================================================
+   Basemap Customization, Global Overlays & 3D Terrain
+   ========================================================================== */
+
+.customizer-section-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.customizer-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.customizer-group-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: #ffffff;
+}
+
+.customizer-icon {
+  font-size: 15px;
+}
+
+.customizer-badge-3d {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 240, 255, 0.15);
+  color: #00f0ff;
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.customizer-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.customizer-label-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.customizer-item-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.customizer-item-sub {
+  font-size: 10px;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+.customizer-slider-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  transition: opacity 0.2s ease;
+}
+
+.customizer-slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.customizer-slider-label {
+  font-size: 10.5px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.customizer-slider-val {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: #00f0ff;
+}
+
+.customizer-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 4px 0;
+}
+
+.customizer-actions-mini {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-micro {
+  background: #141f35;
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: #00f0ff;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.btn-micro:hover {
+  background: rgba(0, 240, 255, 0.2);
+}
+
+.btn-micro-mute {
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-micro-mute:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.customizer-sublayers-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.sublayer-item-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  background: #090e1a;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+}
+
+.sublayer-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sublayer-name {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sublayer-desc {
+  font-size: 8.5px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.switch-sm {
+  width: 28px !important;
+  height: 16px !important;
+  min-width: 28px;
+}
+
+.switch-sm .slider:before {
+  height: 12px !important;
+  width: 12px !important;
+  left: 2px !important;
+  bottom: 2px !important;
+}
+
+.switch-sm input:checked + .slider:before {
+  transform: translateX(12px) !important;
+}
+
+
 

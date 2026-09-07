@@ -1,6 +1,7 @@
 import { MapManager } from '../map/map-manager';
 import { PikselLoader } from './piksel-loader';
 import { GEELoader } from './gee-loader';
+import { BasemapCustomizer } from './basemap-customizer';
 
 export interface URLState {
   lng?: number;
@@ -9,6 +10,9 @@ export interface URLState {
   pitch?: number;
   bearing?: number;
   projection?: 'mercator' | 'globe';
+  terrain3D?: boolean;
+  contourLines?: boolean;
+  terrainHillshade?: boolean;
   basemapId?: string;
   productId?: string;
   year?: string;
@@ -21,13 +25,20 @@ export class PermalinkManager {
   private mapManager: MapManager;
   private pikselLoader?: PikselLoader;
   private geeLoader?: GEELoader;
+  private customizer?: BasemapCustomizer;
   private isUpdatingHash: boolean = false;
   private debounceTimer?: any;
 
-  constructor(mapManager: MapManager, pikselLoader?: PikselLoader, geeLoader?: GEELoader) {
+  constructor(
+    mapManager: MapManager,
+    pikselLoader?: PikselLoader,
+    geeLoader?: GEELoader,
+    customizer?: BasemapCustomizer
+  ) {
     this.mapManager = mapManager;
     this.pikselLoader = pikselLoader;
     this.geeLoader = geeLoader;
+    this.customizer = customizer;
   }
 
   public setPikselLoader(loader: PikselLoader) {
@@ -36,6 +47,10 @@ export class PermalinkManager {
 
   public setGEELoader(loader: GEELoader) {
     this.geeLoader = loader;
+  }
+
+  public setBasemapCustomizer(customizer: BasemapCustomizer) {
+    this.customizer = customizer;
   }
 
   /**
@@ -104,6 +119,18 @@ export class PermalinkManager {
         if (projVal === 'globe' || projVal === 'mercator') {
           state.projection = projVal;
         }
+      }
+
+      if (params.has('terrain')) {
+        state.terrain3D = params.get('terrain') === '1' || params.get('terrain') === 'true';
+      }
+
+      if (params.has('contour')) {
+        state.contourLines = params.get('contour') === '1' || params.get('contour') === 'true';
+      }
+
+      if (params.has('hillshade')) {
+        state.terrainHillshade = params.get('hillshade') === '1' || params.get('hillshade') === 'true';
       }
 
       if (params.has('basemap')) {
@@ -213,6 +240,20 @@ export class PermalinkManager {
     // 3D Globe Projection
     if (projection === 'globe') {
       params.set('proj', 'globe');
+    }
+
+    // Basemap Customizer & 3D Terrain
+    if (this.customizer) {
+      const cState = this.customizer.getState();
+      if (cState.terrain3D) {
+        params.set('terrain', '1');
+      }
+      if (cState.contourLines) {
+        params.set('contour', '1');
+      }
+      if (cState.terrainHillshade) {
+        params.set('hillshade', '1');
+      }
     }
 
     // Basemap
