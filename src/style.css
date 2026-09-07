@@ -2231,9 +2231,11 @@ html, body, #app {
   font-weight: 700;
   color: #334155;
   font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 0.5px;
+  font-size: 18px;
+  line-height: 1;
   flex-shrink: 0;
-  width: 20px;
+  width: 24px;
+  text-align: center;
 }
 
 .al-onboard-btn div {
@@ -2243,10 +2245,14 @@ html, body, #app {
 }
 
 .al-onboard-btn strong {
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
-  color: #94a3b8;
+  color: #f1f5f9;
   display: block;
+}
+
+.al-onboard-btn:hover strong {
+  color: #00f0ff;
 }
 
 .al-onboard-btn span {
@@ -5886,6 +5892,200 @@ input:checked + .toggle-switch::after {
 }
 
 /* 5. 3D Terrain Popover */
+/* 3. Basemap Popover List */
+.basemap-section-header,
+.sublayers-section-header,
+.terrain-section-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.basemap-popover-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.basemap-popover-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.basemap-popover-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.basemap-popover-item.active {
+  background: rgba(0, 240, 255, 0.12);
+  border-color: rgba(0, 240, 255, 0.4);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
+}
+
+.popover-item-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.popover-basemap-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+}
+
+.popover-basemap-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.popover-basemap-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.basemap-popover-item.active .popover-basemap-title {
+  color: #00f0ff;
+}
+
+.popover-basemap-cat {
+  font-size: 9px;
+  color: #64748b;
+}
+
+.popover-check-indicator {
+  color: #00f0ff;
+  font-weight: 700;
+  font-size: 12px;
+  display: none;
+}
+
+.basemap-popover-item.active .popover-check-indicator {
+  display: block;
+}
+
+/* 4. Sublayers Popover Items & Switches */
+.sublayer-notice {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 10px;
+  color: #fbbf24;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sublayers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sublayer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.sublayer-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.sublayer-item .sublayer-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sublayer-item .sublayer-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.sublayer-item .sublayer-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+/* Universal Custom Toggle Switch */
+.sublayer-toggle {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.toggle-switch-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 32px;
+  height: 18px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 18px;
+  transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  height: 14px;
+  width: 14px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+input:checked + .toggle-switch {
+  background-color: #00f0ff;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+}
+
+input:checked + .toggle-switch::after {
+  transform: translateX(14px);
+  background-color: #0a101d;
+}
+
+/* 5. 3D Terrain Popover */
 .terrain-section {
   display: flex;
   flex-direction: column;
@@ -5946,4 +6146,87 @@ input:checked + .toggle-switch::after {
 
 .dem-source-option input[type="radio"] {
   accent-color: #00f0ff;
+}
+
+/* ==========================================================================
+   Responsive Design & Breakpoints (Tablet & Mobile UX)
+   ========================================================================== */
+
+@media (max-width: 992px) {
+  .header-actions .btn-text-label {
+    display: none;
+  }
+  
+  .header-actions .btn {
+    padding: 8px;
+  }
+  
+  :root {
+    --sidebar-width: 320px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .header-brand {
+    min-width: auto;
+  }
+
+  .brand-text h1 {
+    font-size: 14px;
+  }
+
+  .header-search {
+    max-width: 220px;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: var(--header-height);
+    bottom: var(--footer-height);
+    left: 0;
+    z-index: 60;
+    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.6);
+  }
+
+  .floating-inspector-card {
+    right: 10px;
+    left: 10px;
+    bottom: calc(var(--footer-height) + 60px);
+    width: auto;
+    max-width: none;
+  }
+
+  .glass-popover {
+    width: calc(100vw - 16px);
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-text {
+    display: none;
+  }
+
+  .header-search {
+    max-width: 100%;
+    flex: 1;
+  }
+
+  .dock-btn-text {
+    display: none;
+  }
+
+  .dock-btn {
+    padding: 6px 10px;
+  }
+
+  .bottom-tools-dock {
+    gap: 2px;
+    padding: 4px;
+  }
 }

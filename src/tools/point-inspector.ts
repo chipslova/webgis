@@ -153,6 +153,103 @@ export class PointInspector {
 
     // 4. Place Glowing Pin Marker on Map
     this.placePinMarker(lng, lat);
+
+    // 5. Asynchronously Query Real OGC WMS GetFeatureInfo (if raster layer active)
+    this.queryWMSGetFeatureInfo(lng, lat, screenPoint);
+  }
+
+  private async queryWMSGetFeatureInfo(lng: number, lat: number, screenPoint?: maplibregl.PointLike) {
+    const rasterStatusEl = document.getElementById('insp-raster-query-status');
+    const pikselProduct = this.pikselLoader?.getActiveProduct();
+    
+    if (!pikselProduct) {
+      if (rasterStatusEl) {
+        rasterStatusEl.innerText = 'Peta visual (Tidak ada citra WMS aktif)';
+        rasterStatusEl.style.color = 'var(--text-muted)';
+      }
+      return;
+    }
+
+    if (rasterStatusEl) {
+      rasterStatusEl.innerText = 'Meminta GetFeatureInfo dari server BIG Piksel...';
+      rasterStatusEl.style.color = '#38bdf8';
+    }
+
+    try {
+      const bounds = this.map.getBounds();
+      const canvas = this.map.getCanvas();
+      const width = canvas.clientWidth || 800;
+      const height = canvas.clientHeight || 600;
+
+      let x = Math.round(width / 2);
+      let y = Math.round(height / 2);
+
+      if (screenPoint) {
+        x = Math.round(Array.isArray(screenPoint) ? screenPoint[0] : (screenPoint as maplibregl.Point).x);
+        y = Math.round(Array.isArray(screenPoint) ? screenPoint[1] : (screenPoint as maplibregl.Point).y);
+      }
+
+      const bboxStr = `${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()}`;
+      const year = this.pikselLoader?.getSelectedYear() || '2025';
+
+      const url = new URL(pikselProduct.serviceUrl || 'https://ows.staging.piksel.big.go.id/wms');
+      url.searchParams.set('SERVICE', 'WMS');
+      url.searchParams.set('VERSION', '1.3.0');
+      url.searchParams.set('REQUEST', 'GetFeatureInfo');
+      url.searchParams.set('LAYERS', pikselProduct.layer);
+      url.searchParams.set('QUERY_LAYERS', pikselProduct.layer);
+      url.searchParams.set('STYLES', pikselProduct.style || '');
+      url.searchParams.set('CRS', 'EPSG:4326');
+      url.searchParams.set('BBOX', bboxStr);
+      url.searchParams.set('WIDTH', String(width));
+      url.searchParams.set('HEIGHT', String(height));
+      url.searchParams.set('I', String(x));
+      url.searchParams.set('J', String(y));
+      url.searchParams.set('INFO_FORMAT', 'application/json');
+      if (pikselProduct.timeEnabled) {
+        url.searchParams.set('TIME', `${year}-01-01`);
+      }
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+      const res = await fetch(url.toString(), { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const text = await res.text();
+      let parsedJson: any = null;
+      try {
+        parsedJson = JSON.parse(text);
+      } catch {}
+
+      if (parsedJson && parsedJson.features && parsedJson.features.length > 0) {
+        const props = parsedJson.features[0].properties;
+        const val = props.value ?? props.gray_index ?? props.band_1 ?? Object.values(props)[0];
+        if (rasterStatusEl) {
+          rasterStatusEl.innerHTML = `<strong style="color: #00f0ff;">Piksel Terdeteksi: ${val}</strong> (GetFeatureInfo)`;
+          rasterStatusEl.style.color = '#00f0ff';
+        }
+      } else if (text && text.trim().length > 0 && !text.includes('<?xml') && !text.includes('ServiceException')) {
+        if (rasterStatusEl) {
+          rasterStatusEl.innerText = `Hasil OGC: ${text.substring(0, 45)}`;
+          rasterStatusEl.style.color = '#cbd5e1';
+        }
+      } else {
+        if (rasterStatusEl) {
+          rasterStatusEl.innerText = 'Visualisasi WMS (Upstream tidak menyajikan cell raster mentah)';
+          rasterStatusEl.style.color = 'var(--text-muted)';
+        }
+      }
+    } catch (e) {
+      if (rasterStatusEl) {
+        rasterStatusEl.innerText = 'Visualisasi WMS (GetFeatureInfo tidak diaktifkan upstream)';
+        rasterStatusEl.style.color = 'var(--text-muted)';
+      }
+    }
   }
 
   private renderInspectorCard(

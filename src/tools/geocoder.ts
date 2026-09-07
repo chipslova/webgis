@@ -20,10 +20,10 @@ export class GeocoderTool {
     if (!query || query.trim().length < 2) return [];
 
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
+      const url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=id&q=${encodeURIComponent(query)}&limit=6`;
       const res = await fetch(url, {
         headers: {
-          'Accept-Language': 'en'
+          'Accept-Language': 'id,en'
         }
       });
       if (!res.ok) return [];

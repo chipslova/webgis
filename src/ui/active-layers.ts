@@ -176,34 +176,37 @@ export class ActiveLayersUI {
     if (layerCount === 0) {
       itemsHtml = `
         <div class="al-empty">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="1.5">
-            <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-            <polyline points="2 17 12 22 22 17"/>
-            <polyline points="2 12 12 17 22 12"/>
-          </svg>
-          <p class="al-empty-title">Belum ada layer aktif</p>
-          <p class="al-empty-sub">Pilih sumber data dari menu di bawah untuk memulai analisis</p>
+          <div class="al-empty-header-badge">🚀 MULAI EKSPLORASI DATA</div>
+          <p class="al-empty-title">Pilih Preset Analisis Cepat</p>
+          <p class="al-empty-sub">Klik salah satu pintasan di bawah untuk langsung memuat citra satelit atau studi analitis ke atas peta:</p>
         </div>
         <div class="al-onboard-grid">
-          <button class="al-onboard-btn" data-go-tab="piksel">
-            <span class="al-onboard-icon">01</span>
+          <button class="al-onboard-btn al-onboard-featured" data-quick-action="sentinel_rgb">
+            <span class="al-onboard-icon">🛰️</span>
             <div>
-              <strong>Piksel EO (BIG × GA)</strong>
-              <span>Sentinel-2 GeoMAD, Landsat 9, NDVI</span>
+              <strong>Citra Sentinel-2 Bebas Awan</strong>
+              <span>Warna Alami 10m · Tahunan 2025 (BIG)</span>
             </div>
           </button>
-          <button class="al-onboard-btn" data-go-tab="gee">
-            <span class="al-onboard-icon">02</span>
+          <button class="al-onboard-btn" data-quick-action="sentinel_ndvi">
+            <span class="al-onboard-icon">🌳</span>
             <div>
-              <strong>Analisis GEE</strong>
-              <span>MODIS LST, Elevasi SRTM, Land Cover</span>
+              <strong>Kerapatan Vegetasi (NDVI)</strong>
+              <span>Indeks Kehijauan Kanopi Tanaman</span>
             </div>
           </button>
-          <button class="al-onboard-btn" data-go-tab="data">
-            <span class="al-onboard-icon">03</span>
+          <button class="al-onboard-btn" data-quick-action="gee_lst">
+            <span class="al-onboard-icon">🌡️</span>
             <div>
-              <strong>Data Spasial Vektor</strong>
-              <span>Upload GeoJSON & Kota Besar</span>
+              <strong>Analisis Suhu Permukaan (UHI)</strong>
+              <span>MODIS LST Jabodetabek & Jawa Barat</span>
+            </div>
+          </button>
+          <button class="al-onboard-btn" data-quick-action="measure">
+            <span class="al-onboard-icon">📐</span>
+            <div>
+              <strong>Ukur Jarak & Luas Area</strong>
+              <span>Kalkulasi Geodesik Turf.js Interaktif</span>
             </div>
           </button>
         </div>
@@ -440,6 +443,46 @@ export class ActiveLayersUI {
 
     container.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
+
+      // Quick action starter presets
+      const quickActionBtn = target.closest('[data-quick-action]') as HTMLElement;
+      if (quickActionBtn?.dataset.quickAction) {
+        const action = quickActionBtn.dataset.quickAction;
+        const map = this.mapManager.getMap();
+
+        if (action === 'sentinel_rgb') {
+          this.pikselLoader.setActiveProduct('s2-geomad-rgb');
+          this.pikselLoader.setSelectedYear('2025');
+          map?.flyTo({ center: [112.953, -7.942], zoom: 9.5, duration: 1600 });
+          this.render();
+        } else if (action === 'sentinel_ndvi') {
+          this.pikselLoader.setActiveProduct('s2-ndvi');
+          this.pikselLoader.setSelectedYear('2025');
+          map?.flyTo({ center: [110.440, -7.540], zoom: 9.5, duration: 1600 });
+          this.render();
+        } else if (action === 'gee_lst') {
+          this.geeLoader.toggleLayer('lst', true);
+          this.geeLoader.toggleLayer('poi', true);
+          this.geeLoader.flyToStudyArea();
+          this.render();
+        } else if (action === 'measure') {
+          if (this.onNavigateTab) {
+            this.onNavigateTab('measure');
+          } else {
+            document.querySelectorAll('.sidebar-tab-btn').forEach(b => {
+              (b as HTMLElement).classList.toggle('active', (b as HTMLElement).dataset.tab === 'measure');
+            });
+            document.querySelectorAll('.sidebar-panel').forEach(p => {
+              (p as HTMLElement).classList.toggle('active', (p as HTMLElement).id === 'panel-measure');
+            });
+          }
+          this.measureTool.setMode('distance');
+          document.getElementById('btn-measure-dist')?.classList.add('active');
+          const instructionBox = document.getElementById('measure-instruction-box');
+          if (instructionBox) instructionBox.style.display = 'block';
+        }
+        return;
+      }
 
       // Onboarding tab navigation
       const goTabBtn = target.closest('[data-go-tab]') as HTMLElement;
