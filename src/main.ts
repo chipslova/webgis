@@ -97,6 +97,7 @@ class WebGISApp {
       this.mapManager.onStyleReady(() => {
         const bmId = this.mapManager.getCurrentBasemapId();
         this.basemapCustomizer?.setBasemapId(bmId);
+        this.updateActiveBasemapCard();
       });
       this.mapManager.onStyleReady(() => this.updateDynamicLegend());
 
@@ -302,7 +303,17 @@ class WebGISApp {
     });
   }
 
+  public updateActiveBasemapCard() {
+    const currentId = this.mapManager.getCurrentBasemapId();
+    const bm = BASEMAPS.find((b) => b.id === currentId);
+    const titleEl = document.getElementById('active-bm-title');
+    const badgeEl = document.getElementById('active-bm-type-badge');
+    if (titleEl && bm) titleEl.textContent = bm.name;
+    if (badgeEl && bm) badgeEl.textContent = bm.category;
+  }
+
   private renderBasemapGallery() {
+    this.updateActiveBasemapCard();
     const grid = document.getElementById('basemap-grid');
     if (!grid) return;
 

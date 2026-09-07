@@ -72,6 +72,8 @@ export class ActiveLayersUI {
     removeBtnClass: string;
     opacitySliderClass?: string;
     details?: { label: string; value: string }[];
+    legendHtml?: string;
+    actionsHtml?: string;
     noEye?: boolean;
     noOpacity?: boolean;
   }): string {
@@ -79,7 +81,7 @@ export class ActiveLayersUI {
     const showOpacity = !params.noOpacity && params.isVisible;
 
     const eyeBtn = params.noEye ? '' : `
-      <button class="al-eye-btn ${params.eyeBtnClass}" data-id="${params.id}" title="${params.isVisible ? 'Hide layer' : 'Show layer'}">
+      <button class="al-eye-btn ${params.eyeBtnClass}" data-id="${params.id}" title="${params.isVisible ? 'Sembunyikan layer' : 'Tampilkan layer'}">
         ${params.isVisible ? this.eyeOnSvg() : this.eyeOffSvg()}
       </button>
     `;
@@ -91,11 +93,24 @@ export class ActiveLayersUI {
 
     const opacitySlider = (params.opacitySliderClass && showOpacity) ? `
       <div class="al-detail-opacity">
-        <span class="al-detail-label">Opacity</span>
+        <span class="al-detail-label">Transparansi</span>
         <div class="al-detail-opacity-ctrl">
           <input type="range" class="active-layer-slider ${params.opacitySliderClass}" data-id="${params.id}" min="0" max="100" value="${params.opacityPct}" />
           <span class="al-opacity-val slider-pct">${params.opacityPct}%</span>
         </div>
+      </div>
+    ` : '';
+
+    const legendBlock = params.legendHtml ? `
+      <div class="al-detail-legend">
+        <span class="al-detail-label">Legenda Simbol</span>
+        ${params.legendHtml}
+      </div>
+    ` : '';
+
+    const actionsBlock = params.actionsHtml ? `
+      <div class="al-detail-actions" style="margin-top: 8px;">
+        ${params.actionsHtml}
       </div>
     ` : '';
 
@@ -109,14 +124,16 @@ export class ActiveLayersUI {
             <span class="al-meta">${params.meta}</span>
           </div>
           ${showOpacity ? `<span class="al-opacity-chip">${params.opacityPct}%</span>` : ''}
-          <button class="al-remove-btn ${params.removeBtnClass}" data-id="${params.id}" title="Remove layer">
+          <button class="al-remove-btn ${params.removeBtnClass}" data-id="${params.id}" title="Hapus dari layer aktif">
             ${this.removeSvg()}
           </button>
         </div>
         ${isExpanded ? `
           <div class="al-row-detail">
             ${detailGrid ? `<div class="al-detail-grid">${detailGrid}</div>` : ''}
+            ${legendBlock}
             ${opacitySlider}
+            ${actionsBlock}
           </div>
         ` : ''}
       </div>
@@ -164,29 +181,29 @@ export class ActiveLayersUI {
             <polyline points="2 17 12 22 22 17"/>
             <polyline points="2 12 12 17 22 12"/>
           </svg>
-          <p class="al-empty-title">No active layers</p>
-          <p class="al-empty-sub">Choose a data source to begin</p>
+          <p class="al-empty-title">Belum ada layer aktif</p>
+          <p class="al-empty-sub">Pilih sumber data dari menu di bawah untuk memulai analisis</p>
         </div>
         <div class="al-onboard-grid">
           <button class="al-onboard-btn" data-go-tab="piksel">
             <span class="al-onboard-icon">01</span>
             <div>
-              <strong>Explore</strong>
-              <span>Piksel EO — Sentinel-2, Landsat, NDVI</span>
+              <strong>Piksel EO (BIG × GA)</strong>
+              <span>Sentinel-2 GeoMAD, Landsat 9, NDVI</span>
             </div>
           </button>
           <button class="al-onboard-btn" data-go-tab="gee">
             <span class="al-onboard-icon">02</span>
             <div>
-              <strong>Analyze</strong>
-              <span>GEE — LST, SRTM, Land Cover</span>
+              <strong>Analisis GEE</strong>
+              <span>MODIS LST, Elevasi SRTM, Land Cover</span>
             </div>
           </button>
           <button class="al-onboard-btn" data-go-tab="data">
             <span class="al-onboard-icon">03</span>
             <div>
-              <strong>Interact</strong>
-              <span>Upload GeoJSON, measure, export</span>
+              <strong>Data Spasial Vektor</strong>
+              <span>Upload GeoJSON & Kota Besar</span>
             </div>
           </button>
         </div>
@@ -196,8 +213,8 @@ export class ActiveLayersUI {
       if (hasMeasure) {
         itemsHtml += this.buildRow({
           id: 'measure',
-          name: 'Measurement',
-          meta: 'Turf.js · Geodesic',
+          name: 'Pengukuran Spasial',
+          meta: 'Turf.js · Geodesik',
           color: '#00f0ff',
           isVisible: true,
           opacityPct: 100,
@@ -206,8 +223,8 @@ export class ActiveLayersUI {
           noEye: true,
           noOpacity: true,
           details: [
-            { label: 'Engine', value: 'Turf.js' },
-            { label: 'Type', value: 'Geodesic (WGS84)' },
+            { label: 'Engine', value: 'Turf.js Geodesic' },
+            { label: 'Datum', value: 'WGS84 (EPSG:4326)' },
           ]
         });
       }
@@ -218,7 +235,7 @@ export class ActiveLayersUI {
         itemsHtml += this.buildRow({
           id: layer.id,
           name: layer.name,
-          meta: `GeoJSON · ${layer.featureCount} features`,
+          meta: `GeoJSON · ${layer.featureCount} fitur`,
           color: layer.color,
           isVisible: layer.visible !== false,
           opacityPct,
@@ -226,10 +243,15 @@ export class ActiveLayersUI {
           removeBtnClass: 'btn-delete-active-geojson',
           opacitySliderClass: 'geojson-opacity-slider',
           details: [
-            { label: 'Source', value: 'GeoJSON' },
-            { label: 'Type', value: layer.type },
-            { label: 'Features', value: String(layer.featureCount) },
-          ]
+            { label: 'Format', value: 'GeoJSON Vektor' },
+            { label: 'Tipe Geometri', value: layer.type.toUpperCase() },
+            { label: 'Jumlah Fitur', value: String(layer.featureCount) },
+          ],
+          actionsHtml: `
+            <button class="btn btn-outline full-width al-zoom-geojson-btn" data-id="${layer.id}" style="font-size: 11px; padding: 5px 8px;">
+              🔍 Zoom ke Cakupan Layer
+            </button>
+          `
         });
       });
 
@@ -237,8 +259,8 @@ export class ActiveLayersUI {
       if (isGeePoiActive) {
         itemsHtml += this.buildRow({
           id: 'gee-poi',
-          name: 'Urban / Rural POI',
-          meta: 'GEE · Observation sites',
+          name: 'Stasiun Observasi UHI',
+          meta: 'GEE · Urban vs Rural',
           color: '#ef4444',
           isVisible: isGeePoiVis,
           opacityPct: 100,
@@ -246,9 +268,15 @@ export class ActiveLayersUI {
           removeBtnClass: 'btn-remove-gee-poi',
           noOpacity: true,
           details: [
-            { label: 'Source', value: 'Google Earth Engine' },
-            { label: 'Sites', value: 'Monas (Jakarta) · IPB Forest (Bogor)' },
-          ]
+            { label: 'Sumber', value: 'Google Earth Engine' },
+            { label: 'Lokasi', value: 'Monas (Jakarta) & IPB Forest (Bogor)' },
+          ],
+          legendHtml: `
+            <div class="poi-tags" style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
+              <span class="poi-tag urban-tag" style="font-size: 10px; padding: 2px 6px;">🔴 Urban Core: Monas Jakarta (33.85°C)</span>
+              <span class="poi-tag rural-tag" style="font-size: 10px; padding: 2px 6px;">🟢 Rural: Hutan IPB Bogor (24.60°C)</span>
+            </div>
+          `
         });
       }
 
@@ -256,8 +284,8 @@ export class ActiveLayersUI {
       if (isPikselGridOn) {
         itemsHtml += this.buildRow({
           id: 'piksel-grid',
-          name: 'Data Cube Grid',
-          meta: 'BIG Piksel · 1,631 tiles',
+          name: 'Tile Grid ODC',
+          meta: 'BIG Piksel · 1.631 tile',
           color: '#10b981',
           isVisible: true,
           opacityPct: 100,
@@ -266,8 +294,8 @@ export class ActiveLayersUI {
           noEye: true,
           noOpacity: true,
           details: [
-            { label: 'Source', value: 'BIG Piksel / Open Data Cube' },
-            { label: 'Coverage', value: '1,631 tile boundaries · 10m' },
+            { label: 'Sumber', value: 'BIG Piksel / Open Data Cube' },
+            { label: 'Cakupan', value: '1.631 tile grid nasional · 10m' },
           ]
         });
       }
@@ -278,7 +306,7 @@ export class ActiveLayersUI {
         itemsHtml += this.buildRow({
           id: 'gee-lst',
           name: 'MODIS LST Heatmap',
-          meta: 'GEE · 1 km · Daytime',
+          meta: 'GEE · 1.000m · Termal Siang',
           color: '#f59e0b',
           isVisible: isGeeLstVis,
           opacityPct: lstOpacityPct,
@@ -286,11 +314,16 @@ export class ActiveLayersUI {
           removeBtnClass: 'btn-remove-gee-lst',
           opacitySliderClass: 'gee-lst-opacity-slider',
           details: [
-            { label: 'Source', value: 'NASA LP DAAC / GEE' },
-            { label: 'Product', value: 'MOD11A2 (MODIS Terra)' },
-            { label: 'Resolution', value: '1,000 m' },
-            { label: 'Coverage', value: 'Jakarta – West Java' },
-          ]
+            { label: 'Sensor', value: 'MODIS Terra (MOD11A2)' },
+            { label: 'Resolusi', value: '1.000 meter' },
+            { label: 'Rentang Waktu', value: '2020–2024 (Rata-rata Musim Kemarau)' },
+          ],
+          legendHtml: `
+            <div class="gee-legend-bar lst-gradient" style="height: 6px; border-radius: 3px; margin: 4px 0;"></div>
+            <div class="gee-legend-labels" style="font-size: 9.5px; color: var(--text-muted); display:flex; justify-content:space-between;">
+              <span>22°C (Sejuk)</span><span>28°C</span><span>34°C+ (Ekstrem)</span>
+            </div>
+          `
         });
       }
 
@@ -299,8 +332,8 @@ export class ActiveLayersUI {
         const elvOpacityPct = Math.round(this.geeLoader.getLayerOpacity('elevation') * 100);
         itemsHtml += this.buildRow({
           id: 'gee-elevation',
-          name: 'SRTM Elevation',
-          meta: 'GEE · 30 m · DEM',
+          name: 'Elevasi SRTM DEM',
+          meta: 'GEE · 30m · USGS Topografi',
           color: '#84cc16',
           isVisible: isGeeElvVis,
           opacityPct: elvOpacityPct,
@@ -308,10 +341,16 @@ export class ActiveLayersUI {
           removeBtnClass: 'btn-remove-gee-elv',
           opacitySliderClass: 'gee-elv-opacity-slider',
           details: [
-            { label: 'Source', value: 'USGS / NASA / GEE' },
-            { label: 'Product', value: 'SRTM Digital Elevation Model' },
-            { label: 'Resolution', value: '30 m' },
-          ]
+            { label: 'Sumber', value: 'USGS / NASA / GEE' },
+            { label: 'Produk', value: 'SRTM V3 (Shuttle Radar Topography)' },
+            { label: 'Resolusi', value: '30 meter' },
+          ],
+          legendHtml: `
+            <div class="gee-legend-bar elv-gradient" style="height: 6px; border-radius: 3px; margin: 4px 0;"></div>
+            <div class="gee-legend-labels" style="font-size: 9.5px; color: var(--text-muted); display:flex; justify-content:space-between;">
+              <span>0m (Pesisir)</span><span>200m</span><span>600m</span><span>1200m+ (Puncak)</span>
+            </div>
+          `
         });
       }
 
@@ -320,8 +359,8 @@ export class ActiveLayersUI {
         const lcOpacityPct = Math.round(this.geeLoader.getLayerOpacity('landcover') * 100);
         itemsHtml += this.buildRow({
           id: 'gee-landcover',
-          name: 'MODIS Land Cover',
-          meta: 'GEE · 500 m · MCD12Q1',
+          name: 'Tutupan Lahan MODIS',
+          meta: 'GEE · 500m · MCD12Q1',
           color: '#22c55e',
           isVisible: isGeeLcVis,
           opacityPct: lcOpacityPct,
@@ -329,10 +368,18 @@ export class ActiveLayersUI {
           removeBtnClass: 'btn-remove-gee-lc',
           opacitySliderClass: 'gee-lc-opacity-slider',
           details: [
-            { label: 'Source', value: 'NASA LP DAAC / GEE' },
-            { label: 'Product', value: 'MCD12Q1 Annual Land Cover' },
-            { label: 'Resolution', value: '500 m' },
-          ]
+            { label: 'Sumber', value: 'NASA LP DAAC / GEE' },
+            { label: 'Produk', value: 'MCD12Q1 Klasifikasi Tahunan' },
+            { label: 'Resolusi', value: '500 meter' },
+          ],
+          legendHtml: `
+            <div class="lc-tags" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;">
+              <span class="lc-chip" style="border-left-color: #0284c7; font-size: 10px; padding: 2px 6px;">Laut / Air</span>
+              <span class="lc-chip" style="border-left-color: #e11d48; font-size: 10px; padding: 2px 6px;">Perkotaan</span>
+              <span class="lc-chip" style="border-left-color: #eab308; font-size: 10px; padding: 2px 6px;">Pertanian</span>
+              <span class="lc-chip" style="border-left-color: #15803d; font-size: 10px; padding: 2px 6px;">Hutan</span>
+            </div>
+          `
         });
       }
 
@@ -351,19 +398,31 @@ export class ActiveLayersUI {
           removeBtnClass: 'btn-remove-active-piksel',
           opacitySliderClass: 'piksel-opacity-slider',
           details: [
-            { label: 'Source', value: 'BIG Piksel / Open Data Cube' },
-            { label: 'Protocol', value: 'OGC WMS 1.3.0' },
-            { label: 'Resolution', value: activePiksel.resolution },
-            ...(yearText ? [{ label: 'Year', value: yearText }] : []),
-          ]
+            { label: 'Portal', value: 'BIG Piksel / Open Data Cube' },
+            { label: 'Protokol', value: 'OGC WMS 1.3.0' },
+            { label: 'Resolusi', value: activePiksel.resolution },
+            ...(yearText ? [{ label: 'Tahun Akuisisi', value: yearText }] : []),
+          ],
+          legendHtml: `
+            <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 4px;">
+              🛰️ Layer OGC WMS resmi BIG Indonesia. Tampilan komposit resolusi ${activePiksel.resolution}.
+            </div>
+          `
         });
       }
     }
 
     container.innerHTML = `
       <div class="al-header">
-        <span class="al-header-label">ACTIVE LAYERS</span>
-        ${layerCount > 0 ? `<span class="al-count">${layerCount}</span>` : ''}
+        <div class="al-header-left">
+          <span class="al-header-label">TUMPUKAN LAYER AKTIF</span>
+          ${layerCount > 0 ? `<span class="al-count">${layerCount}</span>` : ''}
+        </div>
+        ${layerCount > 0 ? `
+          <button id="btn-al-clear-all" class="btn-micro btn-micro-mute" title="Nonaktifkan semua layer overlay">
+            Bersihkan Semua
+          </button>
+        ` : ''}
       </div>
       <div class="al-list">
         ${itemsHtml}
@@ -454,6 +513,27 @@ export class ActiveLayersUI {
           this.geojsonLoader.toggleLayerVisibility(layer.id, layer.visible === false);
           this.render();
         }
+        return;
+      }
+
+      // ── Clear All Overlays button ──────────────────────────────────────────
+      if (target.closest('#btn-al-clear-all')) {
+        this.pikselLoader.setActiveProduct(null);
+        this.pikselLoader.setGridVisible(false);
+        this.geeLoader.toggleLayer('poi', false);
+        this.geeLoader.toggleLayer('lst', false);
+        this.geeLoader.toggleLayer('elevation', false);
+        this.geeLoader.toggleLayer('landcover', false);
+        this.measureTool.clear();
+        this.expandedLayerId = null;
+        this.render();
+        return;
+      }
+
+      // ── Zoom to GeoJSON layer extent ────────────────────────────────────────
+      const zoomGeoJsonBtn = target.closest('.al-zoom-geojson-btn') as HTMLElement;
+      if (zoomGeoJsonBtn?.dataset.id) {
+        this.geojsonLoader.zoomToLayer(zoomGeoJsonBtn.dataset.id);
         return;
       }
 

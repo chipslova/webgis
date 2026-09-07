@@ -118,14 +118,27 @@ export class BasemapCustomizerUI {
     const btnTerrain = document.getElementById('btn-toggle-terrain');
     const btnGrid = document.getElementById('btn-toggle-grid');
 
+    const btnSidebarBasemaps = document.getElementById('btn-sidebar-open-basemaps');
+    const btnSidebarSublayers = document.getElementById('btn-sidebar-open-sublayers');
+
     btnBasemap?.addEventListener('click', (e) => {
       e.stopPropagation();
       this.togglePopover(this.basemapPopoverId, btnBasemap);
     });
 
+    btnSidebarBasemaps?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.togglePopover(this.basemapPopoverId, btnBasemap ?? undefined);
+    });
+
     btnSublayers?.addEventListener('click', (e) => {
       e.stopPropagation();
       this.togglePopover(this.sublayersPopoverId, btnSublayers);
+    });
+
+    btnSidebarSublayers?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.togglePopover(this.sublayersPopoverId, btnSublayers ?? undefined);
     });
 
     btnTerrain?.addEventListener('click', (e) => {
@@ -270,10 +283,16 @@ export class BasemapCustomizerUI {
     const state = this.customizer.getState();
     const currentBasemapId = this.mapManager?.getCurrentBasemapId() || 'google-hybrid';
 
-    // 1. Sync Basemap Popover active states
+    // 1. Sync Basemap Popover active states and sidebar card
     document.querySelectorAll<HTMLElement>('.basemap-popover-item').forEach(item => {
       item.classList.toggle('active', item.dataset.id === currentBasemapId);
     });
+
+    const currentBm = BASEMAPS.find(b => b.id === currentBasemapId);
+    const titleEl = document.getElementById('active-bm-title');
+    const badgeEl = document.getElementById('active-bm-type-badge');
+    if (titleEl && currentBm) titleEl.textContent = currentBm.name;
+    if (badgeEl && currentBm) badgeEl.textContent = currentBm.category;
 
     // 2. Vector Sublayers vs Raster notice badge
     const isRasterBasemap = currentBasemapId === 'google-satellite' || 

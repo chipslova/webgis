@@ -2059,8 +2059,77 @@ html, body, #app {
 }
 
 /* ==========================================================================
-   Active Layers Manager & Priority UX Styles (High Contrast)
+   Active Basemap Summary & Layer Stack UX Styles (Professional GIS)
    ========================================================================== */
+.active-basemap-card {
+  background: linear-gradient(135deg, rgba(16, 25, 44, 0.95), rgba(13, 21, 37, 0.98));
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  margin-bottom: 14px;
+  transition: all 0.2s ease;
+}
+
+.active-basemap-card:hover {
+  border-color: rgba(0, 240, 255, 0.45);
+  box-shadow: 0 6px 24px rgba(0, 240, 255, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.active-bm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.active-bm-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.active-bm-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.active-bm-sub {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #64748b;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+  display: block;
+}
+
+.active-bm-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #00f0ff;
+  margin: 1px 0 0 0;
+  letter-spacing: 0.2px;
+}
+
+.active-bm-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: #38bdf8;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.active-bm-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
 .active-layers-widget {
   background: #10192c;
   border: 1px solid var(--border-color);
@@ -2350,6 +2419,17 @@ html, body, #app {
   flex-shrink: 0;
 }
 
+.al-detail-legend {
+  padding-top: 8px;
+  margin-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.al-detail-actions {
+  padding-top: 8px;
+  margin-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
 
 .active-layer-item {
   background: #131d31;

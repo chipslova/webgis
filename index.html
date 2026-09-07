@@ -126,29 +126,39 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
             </button>
 
-            <!-- Panel: Map & Active Layers & Basemaps -->
+            <!-- Panel: Map & Active Layers -->
             <section id="panel-map" class="sidebar-panel active">
               <div class="panel-header">
-                <h2>🗺️ Peta & Layer Aktif</h2>
-                <p>Kelola tumpukan layer aktif, kustomisasi elemen peta, dan pilih dari 15 gaya basemap resolusi tinggi.</p>
+                <h2>🗺️ Lapisan Aktif (Layer Stack)</h2>
+                <p>Kelola hierarki layer aktif, atur transparansi, visibilitas, dan sinkronisasi tampilan geospasial.</p>
               </div>
 
-              <!-- Active Layers Manager Container -->
-              <div id="active-layers-container" class="active-layers-widget"></div>
-
-              <!-- Basemap Gallery Section -->
-              <div class="piksel-card" style="margin-top: 14px;">
-                <div class="piksel-card-title-row">
-                  <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="font-size: 15px;">🎨</span>
-                    <h3 style="margin:0;">Galeri Peta Dasar (Basemap)</h3>
+              <!-- Active Basemap Summary & Shortcut Card -->
+              <div class="active-basemap-card">
+                <div class="active-bm-header">
+                  <div class="active-bm-info">
+                    <span class="active-bm-icon">🗺️</span>
+                    <div>
+                      <span class="active-bm-sub">PETA DASAR (BASEMAP)</span>
+                      <h4 id="active-bm-title" class="active-bm-name">Google Hybrid</h4>
+                    </div>
                   </div>
-                  <span class="piksel-hint">Pilih tampilan</span>
+                  <span id="active-bm-type-badge" class="active-bm-badge">Satelit</span>
                 </div>
-                <div id="basemap-grid" class="basemap-grid">
-                  <!-- Dynamically populated basemap cards -->
+                <div class="active-bm-actions">
+                  <button id="btn-sidebar-open-basemaps" class="btn btn-secondary btn-sm full-width" title="Buka Galeri 16 Basemap di Floating Dock">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    Ganti Basemap (16 Pilihan)
+                  </button>
+                  <button id="btn-sidebar-open-sublayers" class="btn btn-outline btn-sm" title="Kustomisasi Sublayer Vektor & Relief">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    Sublayer
+                  </button>
                 </div>
               </div>
+
+              <!-- Active Layers Manager Container (TOC) -->
+              <div id="active-layers-container" class="active-layers-widget" style="margin-top: 14px;"></div>
             </section>
 
             <!-- Panel: Piksel Earth Observation (BIG) -->
