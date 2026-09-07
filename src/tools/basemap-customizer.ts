@@ -511,6 +511,7 @@ export class BasemapCustomizer {
       lId.includes('amenity') ||
       sLayer.includes('amenity') ||
       lId.includes('shop') ||
+      sLayer.includes('shop') ||
       lId.includes('attraction') ||
       lId.includes('restaurant') ||
       lId.includes('hotel')
@@ -526,7 +527,8 @@ export class BasemapCustomizer {
         lId.includes('highway') ||
         lId.includes('transportation-name') ||
         sLayer.includes('transportation_name') ||
-        sLayer.includes('road_label'))
+        sLayer.includes('road_label') ||
+        sLayer.includes('transportation'))
     ) {
       return 'road_names';
     }
@@ -540,7 +542,8 @@ export class BasemapCustomizer {
         lId.includes('city-label') ||
         lId.includes('town-label') ||
         lId.includes('country-label') ||
-        lId.includes('state-label'))
+        lId.includes('state-label') ||
+        sLayer.includes('aerodrome_label'))
     ) {
       return 'place_names';
     }
@@ -566,6 +569,7 @@ export class BasemapCustomizer {
         lId.includes('landuse') ||
         sLayer.includes('landuse') ||
         lId.includes('park') ||
+        sLayer.includes('park') ||
         lId.includes('forest') ||
         lId.includes('grass') ||
         lId.includes('wood'))
@@ -577,6 +581,7 @@ export class BasemapCustomizer {
     if (
       lId.includes('water') ||
       sLayer.includes('water') ||
+      sLayer.includes('waterway') ||
       lId.includes('ocean') ||
       lId.includes('river') ||
       lId.includes('lake') ||
@@ -604,6 +609,8 @@ export class BasemapCustomizer {
         lId.includes('street') ||
         lId.includes('transport') ||
         sLayer.includes('transport') ||
+        sLayer.includes('transportation') ||
+        sLayer.includes('aeroway') ||
         lId.includes('bridge') ||
         lId.includes('tunnel') ||
         lId.includes('jalan'))
