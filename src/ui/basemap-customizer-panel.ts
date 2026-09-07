@@ -294,10 +294,19 @@ export class BasemapCustomizerUI {
     if (titleEl && currentBm) titleEl.textContent = currentBm.name;
     if (badgeEl && currentBm) badgeEl.textContent = currentBm.category;
 
-    // 2. Vector Sublayers vs Raster notice badge
-    const isRasterBasemap = currentBasemapId === 'google-satellite' || 
-                            currentBasemapId === 'esri-imagery' ||
-                            currentBasemapId === 'google-hybrid';
+    // 2. Dynamic check: does the active basemap contain discrete vector sublayers?
+    const style = this.mapManager?.getMap()?.getStyle();
+    const hasVectorLayers = !!style?.layers?.some(l => 
+      l.type !== 'raster' && 
+      l.type !== 'background' && 
+      !l.id.startsWith('piksel-') && 
+      !l.id.startsWith('gee-') && 
+      !l.id.startsWith('measure-') && 
+      !l.id.startsWith('geojson-') && 
+      !l.id.startsWith('overlay-') && 
+      l.id !== '3d-extruded-buildings-layer'
+    );
+    const isRasterBasemap = !hasVectorLayers;
     const sublayerNotice = document.getElementById('popover-sublayer-notice');
     if (sublayerNotice) {
       sublayerNotice.style.display = isRasterBasemap ? 'flex' : 'none';
