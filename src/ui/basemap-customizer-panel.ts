@@ -115,7 +115,6 @@ export class BasemapCustomizerUI {
     const btnBasemap = document.getElementById('btn-toggle-basemap');
     const btnSublayers = document.getElementById('btn-toggle-sublayers');
     const btnTerrain = document.getElementById('btn-toggle-terrain');
-    const btn3D = document.getElementById('btn-toggle-3d');
     const btnGrid = document.getElementById('btn-toggle-grid');
 
     btnBasemap?.addEventListener('click', (e) => {
@@ -131,14 +130,6 @@ export class BasemapCustomizerUI {
     btnTerrain?.addEventListener('click', (e) => {
       e.stopPropagation();
       this.togglePopover(this.terrainPopoverId, btnTerrain);
-    });
-
-    btn3D?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const current = this.customizer.getState().buildings3D;
-      this.customizer.toggle3DBuildings(!current);
-      showToast(!current ? '3D Extruded Buildings diaktifkan!' : '3D Buildings dinonaktifkan', 'info');
-      this.syncUI();
     });
 
     btnGrid?.addEventListener('click', (e) => {
@@ -207,12 +198,6 @@ export class BasemapCustomizerUI {
       showToast(checkHillshade.checked ? 'Terrain Hillshade aktif' : 'Terrain Hillshade nonaktif', 'info');
     });
 
-    const checkContours = document.getElementById('popover-check-contours') as HTMLInputElement;
-    checkContours?.addEventListener('change', () => {
-      this.customizer.toggleContourLines(checkContours.checked);
-      showToast(checkContours.checked ? 'Garis Kontur DEM ditampilkan' : 'Garis Kontur DEM disembunyikan', 'info');
-    });
-
     // Vector sublayer toggles
     const sublayerToggles = document.querySelectorAll<HTMLInputElement>('#sublayers-popover .sublayer-toggle[data-key]');
     sublayerToggles.forEach(input => {
@@ -253,20 +238,6 @@ export class BasemapCustomizerUI {
       this.customizer.setTerrainExaggeration(val);
       const valEl = document.getElementById('popover-terrain-exaggeration-val');
       if (valEl) valEl.innerText = `${val.toFixed(2)}x`;
-    });
-
-    const terrain3DBuildings = document.getElementById('popover-terrain-3d-buildings') as HTMLInputElement;
-    terrain3DBuildings?.addEventListener('change', () => {
-      this.customizer.toggle3DBuildings(terrain3DBuildings.checked);
-      showToast(terrain3DBuildings.checked ? '3D Buildings aktif' : '3D Buildings nonaktif', 'info');
-      this.syncUI();
-    });
-
-    const terrainContours = document.getElementById('popover-terrain-contour-toggle') as HTMLInputElement;
-    terrainContours?.addEventListener('change', () => {
-      this.customizer.toggleContourLines(terrainContours.checked);
-      showToast(terrainContours.checked ? 'Garis Kontur DEM aktif' : 'Garis Kontur DEM nonaktif', 'info');
-      this.syncUI();
     });
   }
 
@@ -316,9 +287,6 @@ export class BasemapCustomizerUI {
     const checkHillshade = document.getElementById('popover-check-hillshade') as HTMLInputElement;
     if (checkHillshade) checkHillshade.checked = state.terrainHillshade;
 
-    const checkContours = document.getElementById('popover-check-contours') as HTMLInputElement;
-    if (checkContours) checkContours.checked = state.contourLines;
-
     const sublayerToggles = document.querySelectorAll<HTMLInputElement>('#sublayers-popover .sublayer-toggle[data-key]');
     sublayerToggles.forEach(input => {
       const key = input.dataset.key as VectorSublayerKey;
@@ -337,18 +305,9 @@ export class BasemapCustomizerUI {
     const terrainExagVal = document.getElementById('popover-terrain-exaggeration-val');
     if (terrainExagVal) terrainExagVal.innerText = `${state.terrainExaggeration.toFixed(2)}x`;
 
-    const terrain3DBuildings = document.getElementById('popover-terrain-3d-buildings') as HTMLInputElement;
-    if (terrain3DBuildings) terrain3DBuildings.checked = state.buildings3D;
-
-    const terrainContours = document.getElementById('popover-terrain-contour-toggle') as HTMLInputElement;
-    if (terrainContours) terrainContours.checked = state.contourLines;
-
     // 5. Sync Dock Buttons active highlights
     const btnTerrain = document.getElementById('btn-toggle-terrain');
     if (btnTerrain) btnTerrain.classList.toggle('active', state.terrain3D);
-
-    const btn3D = document.getElementById('btn-toggle-3d');
-    if (btn3D) btn3D.classList.toggle('active', state.buildings3D);
 
     const isGridOn = this.pikselLoader ? this.pikselLoader.isGridVisible() : false;
     const btnGrid = document.getElementById('btn-toggle-grid');
@@ -356,7 +315,7 @@ export class BasemapCustomizerUI {
 
     const btnSublayers = document.getElementById('btn-toggle-sublayers');
     if (btnSublayers) {
-      const isAnyOverlayActive = state.contourLines || state.terrainHillshade;
+      const isAnyOverlayActive = state.terrainHillshade;
       btnSublayers.classList.toggle('active', isAnyOverlayActive);
     }
   }

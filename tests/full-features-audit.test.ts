@@ -41,12 +41,11 @@ describe('Full WebGIS Feature & Button Audit', () => {
     });
 
     it('should contain the Floating Bottom Tools Dock and 3 Glass Popovers', () => {
-      // Dock & Buttons
+      // Dock & Buttons (Clean 4-button tools dock)
       expect(document.getElementById('bottom-layer-tools')).not.toBeNull();
       expect(document.getElementById('btn-toggle-basemap')).not.toBeNull();
       expect(document.getElementById('btn-toggle-sublayers')).not.toBeNull();
       expect(document.getElementById('btn-toggle-terrain')).not.toBeNull();
-      expect(document.getElementById('btn-toggle-3d')).not.toBeNull();
       expect(document.getElementById('btn-toggle-grid')).not.toBeNull();
 
       // Popovers
@@ -62,7 +61,6 @@ describe('Full WebGIS Feature & Button Audit', () => {
 
     it('should contain Sublayers & Global Overlays controls', () => {
       expect(document.getElementById('popover-check-hillshade')).not.toBeNull();
-      expect(document.getElementById('popover-check-contours')).not.toBeNull();
       expect(document.getElementById('btn-popover-sublayers-all')).not.toBeNull();
       expect(document.getElementById('btn-popover-sublayers-mute')).not.toBeNull();
 
@@ -76,8 +74,6 @@ describe('Full WebGIS Feature & Button Audit', () => {
       expect(document.getElementById('popover-terrain-master-toggle')).not.toBeNull();
       expect(document.getElementById('popover-terrain-exaggeration-slider')).not.toBeNull();
       expect(document.getElementById('popover-terrain-exaggeration-val')).not.toBeNull();
-      expect(document.getElementById('popover-terrain-3d-buildings')).not.toBeNull();
-      expect(document.getElementById('popover-terrain-contour-toggle')).not.toBeNull();
     });
 
     it('should contain GEE Analysis controls', () => {
@@ -228,16 +224,15 @@ describe('Full WebGIS Feature & Button Audit', () => {
       expect(dockBtn?.classList.contains('active')).toBe(false);
     });
 
-    it('should sync Global Overlays (Hillshade & Contours)', () => {
-      customizer.toggleContourLines(true);
-      expect(customizer.getState().contourLines).toBe(true);
-      const contourCheck = document.getElementById('popover-check-contours') as HTMLInputElement;
-      expect(contourCheck.checked).toBe(true);
-
+    it('should sync Global Overlays (Hillshade)', () => {
       customizer.toggleTerrainHillshade(true);
       expect(customizer.getState().terrainHillshade).toBe(true);
       const hillshadeCheck = document.getElementById('popover-check-hillshade') as HTMLInputElement;
       expect(hillshadeCheck.checked).toBe(true);
+
+      customizer.toggleTerrainHillshade(false);
+      expect(customizer.getState().terrainHillshade).toBe(false);
+      expect(hillshadeCheck.checked).toBe(false);
     });
 
     it('should sync Vector Sublayer bulk operations (Semua & Mute)', () => {
