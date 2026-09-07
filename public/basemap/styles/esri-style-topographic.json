@@ -17,8 +17,7 @@
       "id": "esri-topo-layer",
       "type": "raster",
       "source": "esri-topo-source",
-      "minzoom": 0,
-      "maxzoom": 19
+      "minzoom": 0
     }
   ]
 }

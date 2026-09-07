@@ -17,8 +17,7 @@
       "id": "big-rbi-layer",
       "type": "raster",
       "source": "big-rbi-source",
-      "minzoom": 0,
-      "maxzoom": 19
+      "minzoom": 0
     }
   ]
 }

@@ -17,8 +17,7 @@
       "id": "opentopo-layer",
       "type": "raster",
       "source": "opentopo-source",
-      "minzoom": 0,
-      "maxzoom": 17
+      "minzoom": 0
     }
   ]
 }

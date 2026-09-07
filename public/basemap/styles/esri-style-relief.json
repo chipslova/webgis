@@ -17,8 +17,7 @@
       "id": "esri-relief-layer",
       "type": "raster",
       "source": "esri-relief-source",
-      "minzoom": 0,
-      "maxzoom": 13
+      "minzoom": 0
     }
   ]
 }

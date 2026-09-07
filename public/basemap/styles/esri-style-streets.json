@@ -17,8 +17,7 @@
       "id": "esri-streets-layer",
       "type": "raster",
       "source": "esri-streets-source",
-      "minzoom": 0,
-      "maxzoom": 19
+      "minzoom": 0
     }
   ]
 }

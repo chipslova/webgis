@@ -25,15 +25,13 @@
       "id": "esri-dark-gray-base-layer",
       "type": "raster",
       "source": "esri-dark-gray-base-source",
-      "minzoom": 0,
-      "maxzoom": 16
+      "minzoom": 0
     },
     {
       "id": "esri-dark-gray-ref-layer",
       "type": "raster",
       "source": "esri-dark-gray-ref-source",
-      "minzoom": 0,
-      "maxzoom": 16
+      "minzoom": 0
     }
   ]
 }

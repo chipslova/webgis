@@ -71,7 +71,8 @@ export class MapManager {
       }
     }
 
-    // 3. Strictly deduplicate layer IDs (Fixes ArcGIS export duplicate layer ID bugs)
+    // 3. Strictly deduplicate layer IDs & remove restrictive layer-level maxzooms
+    // This allows MapLibre GL to automatically overzoom raster basemaps to high zoom levels (zoom 14-22+) without disappearing
     if (style && Array.isArray(style.layers)) {
       const seenIds = new Map<string, number>();
       style.layers.forEach((layer: any, idx: number) => {
@@ -80,6 +81,11 @@ export class MapManager {
           seenIds.set(layer.id, count);
           if (count > 1) {
             layer.id = `${layer.id}_${idx}_${count}`;
+          }
+        }
+        if (layer && (layer.type === 'raster' || layer.type === 'background')) {
+          if (layer.maxzoom !== undefined && layer.maxzoom < 24) {
+            delete layer.maxzoom;
           }
         }
       });

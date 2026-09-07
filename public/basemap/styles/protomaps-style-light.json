@@ -18,8 +18,7 @@
       "id": "osm-hot-layer",
       "type": "raster",
       "source": "osm-hot-source",
-      "minzoom": 0,
-      "maxzoom": 20
+      "minzoom": 0
     }
   ]
 }

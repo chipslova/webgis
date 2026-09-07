@@ -17,8 +17,7 @@
       "id": "esri-natgeo-layer",
       "type": "raster",
       "source": "esri-natgeo-source",
-      "minzoom": 0,
-      "maxzoom": 16
+      "minzoom": 0
     }
   ]
 }

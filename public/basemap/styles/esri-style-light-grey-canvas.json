@@ -25,15 +25,13 @@
       "id": "esri-light-gray-base-layer",
       "type": "raster",
       "source": "esri-light-gray-base-source",
-      "minzoom": 0,
-      "maxzoom": 16
+      "minzoom": 0
     },
     {
       "id": "esri-light-gray-ref-layer",
       "type": "raster",
       "source": "esri-light-gray-ref-source",
-      "minzoom": 0,
-      "maxzoom": 16
+      "minzoom": 0
     }
   ]
 }

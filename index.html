@@ -877,27 +877,27 @@
         <div id="terrain-popover" class="glass-popover terrain-popover" style="display: none;">
           <div class="popover-header-row">
             <div class="popover-header">3D TERRAIN ELEVATION</div>
-            <label class="master-switch toggle-switch-label" title="Toggle 3D Terrain">
-              <input type="checkbox" id="popover-terrain-master-toggle" />
-              <span class="toggle-switch"></span>
-            </label>
             <button class="popover-close-btn" id="btn-close-terrain-popover" title="Tutup">✕</button>
           </div>
 
           <div class="popover-body-scroll">
-            <!-- DEM Source Provider Selection -->
+            <!-- Single Clean 3D Terrain Toggle -->
             <div class="terrain-section">
-              <div class="terrain-section-label">ELEVATION DEM PROVIDER</div>
-              <div class="dem-source-list">
-                <label class="dem-source-option active">
-                  <input type="radio" name="popover-dem-source" value="aws-terrarium" checked />
-                  <span class="dem-source-title">AWS Terrarium (Global 30m Mesh)</span>
-                </label>
-              </div>
+              <label class="sublayer-item" style="padding: 6px 0; margin-bottom: 4px;">
+                <div class="sublayer-info">
+                  <span class="sublayer-icon">⛰️</span>
+                  <div>
+                    <span class="sublayer-label" style="font-size: 13px; font-weight: 600;">Mesh Elevasi 3D Terrain</span>
+                    <span style="display: block; font-size: 11px; color: var(--text-muted);">AWS Terrarium (30m Global Mesh)</span>
+                  </div>
+                </div>
+                <input type="checkbox" id="popover-terrain-master-toggle" class="sublayer-toggle" />
+                <span class="toggle-switch"></span>
+              </label>
             </div>
 
             <!-- Vertical Exaggeration Slider Section -->
-            <div class="terrain-section">
+            <div class="terrain-section" style="margin-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px;">
               <div class="slider-header-row">
                 <span class="terrain-section-label">VERTICAL EXAGGERATION</span>
                 <span id="popover-terrain-exaggeration-val" class="exaggeration-value-badge">1.50x</span>

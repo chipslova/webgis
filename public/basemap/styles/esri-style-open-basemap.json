@@ -17,8 +17,7 @@
       "id": "osm-layer",
       "type": "raster",
       "source": "osm-source",
-      "minzoom": 0,
-      "maxzoom": 19
+      "minzoom": 0
     }
   ]
 }

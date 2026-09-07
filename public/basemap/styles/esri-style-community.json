@@ -17,8 +17,7 @@
       "id": "esri-imagery-layer",
       "type": "raster",
       "source": "esri-imagery-source",
-      "minzoom": 0,
-      "maxzoom": 19
+      "minzoom": 0
     }
   ]
 }
