@@ -117,6 +117,14 @@ export const BASEMAPS: BasemapConfig[] = [
     previewColor: '#78716c'
   },
   {
+    id: 'esri-colorpencil',
+    name: 'Esri Colored Pencil',
+    category: 'Esri',
+    description: 'Unique hand-drawn artistic styling with sketched typography and colored pencil shading',
+    styleUrl: '/basemap/styles/esri-style-colorpencil.json',
+    previewColor: '#e0a96d'
+  },
+  {
     id: 'big-rbi',
     name: 'Rupabumi Indonesia (RBI)',
     category: 'National',

@@ -54,7 +54,7 @@ An interactive WebGIS for exploring Indonesian Earth Observation datasets and de
 * **Deterministic Visual Stacking**: Enforces strict vertical hierarchy:
   $$\text{Measurement} \to \text{Custom GeoJSON} \to \text{GEE POI} \to \text{Piksel Grid} \to \text{GEE Rasters} \to \text{Piksel WMS} \to \text{Basemap}$$
 * **Independent Layer Control**: Every active dataset features discrete **Hide/Show (👁)**, **Opacity Sliders (0–100%)**, and **Remove (✕)** actions.
-* **15 Vector & Raster Basemaps**: Google Satellite/Hybrid/Streets, Esri World Imagery/Topographic/NatGeo/Canvas, BIG Rupabumi Indonesia (RBI), OpenStreetMap, and OpenTopoMap.
+* **16 Vector & Raster Basemaps**: Google Satellite/Hybrid/Streets, Esri World Imagery/Topographic/NatGeo/Canvas/Colored Pencil, BIG Rupabumi Indonesia (RBI), OpenStreetMap, and OpenTopoMap.
 
 ### 📍 4. Point Inspector & Surface Query
 * **Geospatial Surface Query**: Click anywhere on the map to query:
