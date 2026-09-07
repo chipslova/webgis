@@ -19,7 +19,6 @@ export class PikselPanelUI {
 
   constructor(pikselLoader: PikselLoader) {
     this.pikselLoader = pikselLoader;
-    this.init();
   }
 
   public init() {

@@ -93,7 +93,7 @@ export class PikselLoader {
     this.currentStatus = status;
     const prod = this.getActiveProduct();
     const currentZoom = this.map ? Number(this.map.getZoom().toFixed(1)) : 0;
-    const minZoom = prod?.minZoom ?? 6;
+    const minZoom = prod?.minZoom ?? 8;
 
     if (this.requestStartTime > 0 && (status === 'ready' || status === 'degraded' || status === 'partial' || status === 'error')) {
       this.currentLatencyMs = Math.round(performance.now() - this.requestStartTime);
@@ -105,7 +105,7 @@ export class PikselLoader {
         defaultMsg = 'Tidak ada layer citra aktif';
         break;
       case 'zoom_too_low':
-        defaultMsg = `Peta saat ini pada Zoom Level ${currentZoom}. Perbesar peta minimal ke Level ${minZoom} (Skala Pulau/Provinsi) untuk memuat citra satelit resolusi 10m.`;
+        defaultMsg = `Peta saat ini pada Zoom Level ${currentZoom}. Perbesar peta minimal ke Level ${minZoom} (Skala Pulau/Provinsi) untuk memuat citra satelit resolusi tinggi.`;
         break;
       case 'requesting':
         defaultMsg = `Menghubungkan ke layanan OGC WMS ${prod?.name || ''}...`;
@@ -163,8 +163,8 @@ export class PikselLoader {
   public zoomToMinZoom() {
     if (!this.map) return;
     const prod = this.getActiveProduct();
-    const minZ = prod?.minZoom ?? 6;
-    const targetZ = Math.max(minZ, 6.5);
+    const minZ = prod?.minZoom ?? 8;
+    const targetZ = Math.max(minZ, 8.2);
 
     this.map.easeTo({
       zoom: targetZ,
@@ -182,7 +182,10 @@ export class PikselLoader {
       this.tilesFailed = 0;
       this.tilesLoaded = 0;
       this.tilesRequested = 0;
-      this.renderRasterLayer(prod);
+      const currentReqId = ++this.requestCounter;
+      this.activeRequestId = currentReqId;
+      this.cleanupActiveRasterLayer();
+      this.renderRasterLayer(prod, currentReqId);
     }
   }
 
@@ -209,7 +212,7 @@ export class PikselLoader {
       if (!prod) return;
 
       const currentZoom = this.map.getZoom();
-      const minZoom = prod.minZoom ?? 6;
+      const minZoom = prod.minZoom ?? 8;
 
       if (currentZoom < minZoom) {
         this.emitState('zoom_too_low');
@@ -229,7 +232,7 @@ export class PikselLoader {
       if (this.activeSourceId && e.sourceId === this.activeSourceId) {
         const currentZoom = this.map.getZoom();
         const prod = this.getActiveProduct();
-        const minZoom = prod?.minZoom ?? 6;
+        const minZoom = prod?.minZoom ?? 8;
 
         if (currentZoom >= minZoom) {
           this.tilesRequested++;
@@ -246,7 +249,7 @@ export class PikselLoader {
         if (!prod) return;
 
         const currentZoom = this.map.getZoom();
-        const minZoom = prod.minZoom ?? 6;
+        const minZoom = prod.minZoom ?? 8;
 
         if (currentZoom < minZoom) {
           this.emitState('zoom_too_low');
@@ -270,7 +273,7 @@ export class PikselLoader {
         if (!prod) return;
 
         const currentZoom = this.map.getZoom();
-        const minZoom = prod.minZoom ?? 6;
+        const minZoom = prod.minZoom ?? 8;
 
         if (currentZoom < minZoom) {
           this.emitState('zoom_too_low');
@@ -291,7 +294,7 @@ export class PikselLoader {
         if (!prod) return;
 
         const currentZoom = this.map.getZoom();
-        const minZoom = prod.minZoom ?? 6;
+        const minZoom = prod.minZoom ?? 8;
 
         if (currentZoom >= minZoom) {
           this.tilesFailed++;
@@ -337,7 +340,10 @@ export class PikselLoader {
     if (this.activeProductId) {
       const product = this.getActiveProduct();
       if (product && product.timeEnabled) {
-        this.renderRasterLayer(product);
+        const currentReqId = ++this.requestCounter;
+        this.activeRequestId = currentReqId;
+        this.cleanupActiveRasterLayer();
+        this.renderRasterLayer(product, currentReqId);
       }
     }
     this.notifyLayersChange();
@@ -363,7 +369,7 @@ export class PikselLoader {
   public getDiagnostics(): PikselDiagnostics {
     const prod = this.getActiveProduct();
     const currentZoom = this.map ? Number(this.map.getZoom().toFixed(1)) : 0;
-    const minZoom = prod?.minZoom ?? 6;
+    const minZoom = prod?.minZoom ?? 8;
 
     return {
       productId: prod?.id || null,
@@ -412,7 +418,7 @@ export class PikselLoader {
           this.notifyLayersChange();
           return;
         }
-        this.renderRasterLayer(product);
+        this.renderRasterLayer(product, currentReqId);
       }
     } else {
       this.emitState('idle');
@@ -465,22 +471,41 @@ export class PikselLoader {
       const yearToUse = (product.availableYears && product.availableYears.includes(this.selectedYear))
         ? this.selectedYear
         : (product.availableYears ? product.availableYears[0] : this.selectedYear);
-      params.set('TIME', `${yearToUse}-01-01`);
+
+      switch (product.timeMode) {
+        case 'year-range':
+          params.set('TIME', `${yearToUse}-01-01/${yearToUse}-12-31`);
+          break;
+        case 'annual':
+        default:
+          params.set('TIME', `${yearToUse}-01-01`);
+          break;
+      }
     }
 
-    return `${product.serviceUrl}?${params.toString()}&BBOX={bbox-epsg-3857}`;
+    const url = `${product.serviceUrl}?${params.toString()}&BBOX={bbox-epsg-3857}`;
+    console.debug('[Piksel WMS]', {
+      product: product.id,
+      layer: product.layer,
+      style: product.style,
+      year: this.selectedYear,
+      timeMode: product.timeMode,
+      url
+    });
+    return url;
   }
 
   /**
    * Renders the raster layer for a specific OGC satellite product with zoom gating
    */
-  private renderRasterLayer(product: PikselProduct) {
+  private renderRasterLayer(product: PikselProduct, requestId = this.activeRequestId) {
     if (!this.map) return;
+    if (requestId !== this.activeRequestId) return;
 
     const sourceId = `piksel-raster-src-${product.id}`;
     const layerId = `piksel-raster-${product.id}`;
     const tileUrl = this.buildWmsTileUrl(product);
-    const minZoom = product.minZoom ?? 6;
+    const minZoom = product.minZoom ?? 8;
 
     this.activeSourceId = sourceId;
     this.activeLayerId = layerId;

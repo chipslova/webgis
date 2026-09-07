@@ -48,6 +48,7 @@ export interface PikselProduct {
   layer: string;
   style: string;
   timeEnabled?: boolean;
+  timeMode?: 'annual' | 'year-range' | 'none';
   availableYears?: string[];
   serviceUrl: string;
   description: string;
@@ -80,12 +81,12 @@ export const PIKSEL_CATEGORIES: { id: ProductCategory; name: string; icon: strin
   { id: 'indices', name: 'Spectral Indices', icon: '🔬', subtitle: 'Indeks Biofisik Klorofil, Air & Lahan' },
   { id: 'quality', name: 'Data Quality', icon: '📊', subtitle: 'Statistik Observasi Open Data Cube' },
   { id: 'landsat', name: 'Landsat 9', icon: '🛰️', subtitle: 'Reflektansi Permukaan USGS/NASA 30m' },
-  { id: 'hazard', name: 'Flood Hazard', icon: '🌊', subtitle: 'Model Probabilitas Genangan Banjir Nasional' }
+  { id: 'hazard', name: 'Flood Hazard', icon: '🌊', subtitle: 'Model Probabilitas Genangan Banjir Wilayah Studi' }
 ];
 
 export const PIKSEL_WMS_BASE_URL = 'https://ows.staging.piksel.big.go.id/wms';
 export const S2_YEARS = ['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017'];
-export const LS9_YEARS = ['2025', '2024', '2023', '2022'];
+export const LS9_YEARS = ['2026', '2025', '2024', '2023', '2022', '2021'];
 
 export const PIKSEL_PRODUCTS: PikselProduct[] = [
   // 1. GeoMAD Group
@@ -96,7 +97,9 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     layer: 's2_geomad_annual_spectral',
     style: 'rgb',
     timeEnabled: true,
+    timeMode: 'annual',
     availableYears: S2_YEARS,
+    minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
     description: 'Komposit optik tahunan bebas awan 10m resolusi tinggi untuk seluruh daratan Indonesia.',
     whatItShows: 'Warna foto satelit alami (RGB): Hutan hijau alami, perkotaan abu-abu, dan perairan biru tanpa tutupan awan.',
@@ -126,7 +129,9 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     layer: 's2_geomad_annual_spectral',
     style: 'false_color_nir',
     timeEnabled: true,
+    timeMode: 'annual',
     availableYears: S2_YEARS,
+    minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
     description: 'Komposit band Inframerah Dekat (NIR-Red-Green) untuk menonjolkan kesehatan klorofil & biomassa.',
     whatItShows: 'Vegetasi tampak Merah Pekat / Magenta cerah karena pantulan kuat sel klorofil, air tampak hitam-kebiruan, perkotaan sian/abu.',
@@ -158,7 +163,9 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     layer: 's2_geomad_annual_indices',
     style: 'ndvi',
     timeEnabled: true,
+    timeMode: 'annual',
     availableYears: S2_YEARS,
+    minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
     description: 'Normalized Difference Vegetation Index resmi dari Open Data Cube BIG untuk memetakan biomassa & kanopi.',
     whatItShows: 'Tingkat kerapatan klorofil hijau: Warna Hijau Tua menunjukkan hutan hujan lebat/primer, kuning semak/tanah, cokelat non-vegetasi.',
@@ -189,7 +196,9 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     layer: 's2_geomad_annual_indices',
     style: 'ndwi',
     timeEnabled: true,
+    timeMode: 'annual',
     availableYears: S2_YEARS,
+    minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
     description: 'Normalized Difference Water Index untuk memisahkan perairan terbuka, danau, sungai, dan lahan basah dari daratan.',
     whatItShows: 'Pantulan spektral air: Biru tua menunjukkan badan air dalam/jernih, biru muda lahan basah/rawa, warna hangat tanah kering.',
@@ -219,7 +228,9 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     layer: 's2_geomad_annual_indices',
     style: 'bsi',
     timeEnabled: true,
+    timeMode: 'annual',
     availableYears: S2_YEARS,
+    minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
     description: 'Kombinasi spektral Blue-Red-NIR-SWIR untuk mendeteksi tanah terbuka, pembukaan lahan, tambang, dan proyek konstruksi berskala besar.',
     whatItShows: 'Tingkat keterbukaan tanah: nilai tinggi menunjukkan lahan gundul atau tambang aktif, nilai rendah menunjukkan kanopi atau badan air.',
@@ -247,14 +258,16 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
   // 3. Hazard Group
   {
     id: 'flood-hazard-rp02',
-    name: 'Bahaya Banjir Nasional (Periode Ulang 2 Tahun)',
+    name: 'Bahaya Banjir Wilayah Studi (Periode Ulang 2 Tahun)',
     category: 'hazard',
     layer: 'flood_hazard_rp02',
     style: 'hazard_class',
     timeEnabled: false,
+    timeMode: 'none',
+    minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'Peta zonasi bahaya banjir probabilitas 50% tahunan dari pemodelan hidrologi spasial BIG.',
-    whatItShows: 'Zonasi bahaya genangan banjir siklus 2 tahunan berdasarkan pemodelan hidrologi spasial Ina-Geoportal.',
+    description: 'Peta zonasi bahaya banjir probabilitas 50% tahunan dari pemodelan hidrologi spasial BIG pada wilayah studi prioritas.',
+    whatItShows: 'Zonasi bahaya genangan banjir siklus 2 tahunan berdasarkan pemodelan hidrologi spasial Ina-Geoportal pada wilayah studi tervalidasi.',
     badge: 'Banjir RP 2-Thn',
     color: '#3b82f6',
     resolution: '10-30 meter',
@@ -276,14 +289,16 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
   },
   {
     id: 'flood-hazard-rp10',
-    name: 'Bahaya Banjir Nasional (Periode Ulang 10 Tahun)',
+    name: 'Bahaya Banjir Wilayah Studi (Periode Ulang 10 Tahun)',
     category: 'hazard',
     layer: 'flood_hazard_rp10',
     style: 'hazard_class',
     timeEnabled: false,
+    timeMode: 'none',
+    minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'Peta zonasi bahaya banjir probabilitas 10% tahunan untuk analisis kebencanaan dan perencanaan spasial.',
-    whatItShows: 'Zonasi bahaya genangan banjir siklus 10 tahunan pada dataran aluvial dan kawasan pesisir.',
+    description: 'Peta zonasi bahaya banjir probabilitas 10% tahunan untuk analisis kebencanaan dan perencanaan spasial pada wilayah studi prioritas.',
+    whatItShows: 'Zonasi bahaya genangan banjir siklus 10 tahunan pada dataran aluvial dan kawasan pesisir wilayah studi tervalidasi.',
     badge: 'Banjir RP 10-Thn',
     color: '#8b5cf6',
     resolution: '10-30 meter',
@@ -312,7 +327,9 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     layer: 's2_geomad_annual_statistics',
     style: 'count',
     timeEnabled: true,
+    timeMode: 'annual',
     availableYears: S2_YEARS,
+    minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
     description: 'Jumlah akuisisi citra Sentinel-2 bebas awan yang menyusun setiap pixel komposit GeoMAD tahunan.',
     whatItShows: 'Statistik observasi: Menampilkan total scene bebas awan yang digunakan dalam estimasi GeoMAD tahunan.',
@@ -344,7 +361,9 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     layer: 'ls9_c2l2_sr',
     style: 'simple_rgb',
     timeEnabled: true,
+    timeMode: 'year-range',
     availableYears: LS9_YEARS,
+    minZoom: 7,
     serviceUrl: PIKSEL_WMS_BASE_URL,
     description: 'Citra reflektansi permukaan optik multispektral 30m dari satelit USGS/NASA Landsat 9 di Data Cube BIG.',
     whatItShows: 'Reflektansi permukaan tajam: Sangat baik untuk perbandingan tren historis jangka panjang dengan Landsat 5/7/8.',
