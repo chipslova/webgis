@@ -6158,6 +6158,10 @@ input:checked + .toggle-switch::after {
 }
 
 @media (max-width: 768px) {
+  :root {
+    --sidebar-width: min(340px, calc(100vw - 20px));
+  }
+
   .app-header {
     padding: 0 10px;
     gap: 8px;
@@ -6172,16 +6176,40 @@ input:checked + .toggle-switch::after {
   }
 
   .header-search {
-    max-width: 220px;
+    max-width: 200px;
   }
 
   .sidebar {
     position: fixed;
     top: var(--header-height);
     bottom: var(--footer-height);
+    height: auto;
+    max-height: calc(100dvh - var(--header-height) - var(--footer-height));
     left: 0;
     z-index: 60;
     box-shadow: 8px 0 32px rgba(0, 0, 0, 0.6);
+  }
+
+  .sidebar-nav {
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .sidebar-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sidebar-content {
+    width: calc(var(--sidebar-width) - var(--nav-width));
+    max-width: calc(100vw - var(--nav-width) - 10px);
+    height: 100%;
+    min-height: 0;
+  }
+
+  .sidebar-panel {
+    padding: 14px 12px 80px 12px;
   }
 
   .floating-inspector-card {
@@ -6220,4 +6248,23 @@ input:checked + .toggle-switch::after {
     gap: 2px;
     padding: 4px;
   }
+
+  .app-footer {
+    padding: 0 8px;
+  }
+
+  .status-group {
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .status-group::-webkit-scrollbar {
+    display: none;
+  }
+
+  .status-actions {
+    display: none;
+  }
 }
+
