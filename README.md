@@ -150,6 +150,16 @@ bun run preview
 
 ---
 
+## ⚠️ Known Limitations
+
+* **Upstream WMS Availability**: Sentinel-2 and Landsat 9 Earth Observation mosaics are served live via the BIG Piksel OGC WMS staging service (`ows.staging.piksel.big.go.id`). Server response times and uptime are subject to upstream infrastructure availability.
+* **Minimum Zoom Thresholds**: High-resolution 10m Sentinel-2 GeoMAD and 30m Landsat 9 layers require zoom level $\ge 8$ (or $\ge 7$ for Landsat) to render on the map.
+* **GEE Case Study Boundary**: The thermal Land Surface Temperature (LST), SRTM 30m elevation, and MODIS land cover layers represent curated historical spatial baseline snapshots focused on the Jabodetabek and West Java study areas (2020–2024).
+* **3D Hardware Acceleration**: Real-time 3D terrain elevation mesh and building extrusions require WebGL2 support on the client browser.
+* **External Basemap Providers**: Basemaps from Esri, Badan Informasi Geospasial (BIG), and OpenStreetMap depend on their respective public tile infrastructure and usage terms.
+
+---
+
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for details.

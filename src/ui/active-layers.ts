@@ -198,8 +198,8 @@ export class ActiveLayersUI {
           <button class="al-onboard-btn" data-quick-action="gee_lst">
             <span class="al-onboard-icon">🌡️</span>
             <div>
-              <strong>Analisis Suhu Permukaan (UHI)</strong>
-              <span>MODIS LST Jabodetabek & Jawa Barat</span>
+              <strong>Suhu Permukaan (LST)</strong>
+              <span>Analisis Urban Heat Island — Jabodetabek</span>
             </div>
           </button>
           <button class="al-onboard-btn" data-quick-action="measure">
