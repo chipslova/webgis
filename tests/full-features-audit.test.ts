@@ -11,8 +11,10 @@ import { PermalinkManager } from '../src/tools/permalink';
 import * as maplibregl from 'maplibre-gl';
 import { PointInspector } from '../src/tools/point-inspector';
 
-// Read index.html for DOM element verification (stripping script tags for happy-dom parser)
-const indexHtml = fs.readFileSync(path.resolve(__dirname, '../index.html'), 'utf-8').replace(/<script[\s\S]*?<\/script>/gi, '');
+// Read index.html for DOM element verification (stripping script and link tags for happy-dom parser)
+const indexHtml = fs.readFileSync(path.resolve(__dirname, '../index.html'), 'utf-8')
+  .replace(/<script[\s\S]*?<\/script>/gi, '')
+  .replace(/<link[\s\S]*?>/gi, '');
 
 describe('Full WebGIS Feature & Button Audit', () => {
   beforeEach(() => {

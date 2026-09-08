@@ -15,6 +15,7 @@ export class MapManager {
   private currentProjection: 'globe' | 'mercator' = 'mercator';
   private onMoveCallback?: (info: { lat: number; lng: number; zoom: number; pitch: number; bearing: number }) => void;
   private onFeatureClickCallback?: (properties: Record<string, any>, layerName: string, coordinates: [number, number]) => void;
+  private styleSpecCache: Map<string, maplibregl.StyleSpecification> = new Map();
 
   constructor(containerId: string) {
     this.containerId = containerId;
@@ -146,6 +147,7 @@ export class MapManager {
       if (res.ok) {
         const json = await res.json();
         initialStyle = this.normalizeStyleSpecification(json, defaultBasemap.styleUrl);
+        this.styleSpecCache.set(defaultBasemap.id, initialStyle);
       }
     } catch (e) {
       logger.warn('Initial style fetch notice:', e);
@@ -429,13 +431,17 @@ export class MapManager {
     const bearing = this.map.getBearing();
 
     try {
-      const res = await fetch(target.styleUrl);
-      const styleJson: maplibregl.StyleSpecification = await res.json();
-      const normalizedStyle = this.normalizeStyleSpecification(styleJson, target.styleUrl);
-      this.map.setStyle(normalizedStyle, { diff: false });
+      let normalizedStyle = this.styleSpecCache.get(target.id);
+      if (!normalizedStyle) {
+        const res = await fetch(target.styleUrl);
+        const styleJson: maplibregl.StyleSpecification = await res.json();
+        normalizedStyle = this.normalizeStyleSpecification(styleJson, target.styleUrl);
+        this.styleSpecCache.set(target.id, normalizedStyle);
+      }
+      this.map.setStyle(JSON.parse(JSON.stringify(normalizedStyle)), { diff: true });
     } catch (err) {
       logger.warn('Failed to load style JSON directly, fallback to URL:', err);
-      this.map.setStyle(target.styleUrl, { diff: false });
+      this.map.setStyle(target.styleUrl, { diff: true });
     }
 
     this.map.once('style.load', () => {

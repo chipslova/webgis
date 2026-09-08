@@ -58,9 +58,7 @@ html, body, #app {
    ========================================================================== */
 .app-header {
   height: var(--header-height);
-  background: var(--bg-header);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: #0b1120;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
@@ -768,8 +766,7 @@ html, body, #app {
 }
 
 .maplibregl-ctrl-group {
-  background: var(--glass-bg) !important;
-  backdrop-filter: blur(8px) !important;
+  background: #0d1525 !important;
   border: 1px solid var(--glass-border) !important;
   border-radius: var(--radius-md) !important;
   overflow: hidden !important;
@@ -861,8 +858,7 @@ html, body, #app {
    ========================================================================== */
 .app-footer {
   height: var(--footer-height);
-  background: var(--bg-header);
-  backdrop-filter: blur(8px);
+  background: #0b1120;
   border-top: 1px solid var(--border-color);
   display: flex;
   align-items: center;
@@ -1232,14 +1228,13 @@ html, body, #app {
 
 .marker-label {
   margin-top: 4px;
-  background: rgba(15, 23, 42, 0.85);
+  background: #0f172a;
   color: #ffffff;
   font-size: 11px;
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 4px;
   white-space: nowrap;
-  backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
@@ -1979,10 +1974,8 @@ html, body, #app {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(15, 23, 42, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(6, 182, 212, 0.4);
+  background: #0d1525;
+  border: 1px solid rgba(6, 182, 212, 0.45);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(6, 182, 212, 0.2);
   border-radius: 40px;
   padding: 8px 20px;
@@ -1990,6 +1983,7 @@ html, body, #app {
   animation: slideDownHUD 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   transition: all 0.3s ease;
   max-width: 90%;
+  contain: paint;
 }
 
 @keyframes slideDownHUD {
@@ -5122,8 +5116,7 @@ kbd {
   bottom: 46px;
   left: calc(var(--sidebar-width) + 16px);
   width: 320px;
-  background: rgba(13, 21, 37, 0.95);
-  backdrop-filter: blur(14px);
+  background: #0d1525;
   border: 1px solid rgba(0, 240, 255, 0.35);
   border-radius: var(--radius-md);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65), 0 0 20px rgba(0, 240, 255, 0.12);
@@ -5566,13 +5559,12 @@ kbd {
   align-items: center;
   gap: 4px;
   padding: 4px 6px;
-  background: rgba(13, 21, 37, 0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #0d1525;
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 30px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55), 0 0 16px rgba(0, 240, 255, 0.12);
   user-select: none;
+  contain: paint;
 }
 
 .dock-btn {
@@ -5639,9 +5631,7 @@ kbd {
   left: 50%;
   transform: translateX(-50%);
   z-index: 45;
-  background: rgba(10, 16, 29, 0.94);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: #0a101d;
   border: 1px solid rgba(0, 240, 255, 0.35);
   border-radius: 12px;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7), 0 0 24px rgba(0, 240, 255, 0.15);
