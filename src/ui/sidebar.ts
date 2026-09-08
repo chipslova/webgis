@@ -30,25 +30,11 @@ export class SidebarUI {
       });
     });
 
-    // Toggle collapse button inside sidebar drawer
+    // Toggle collapse button
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
     if (toggleBtn) {
       toggleBtn.addEventListener('click', () => {
         this.setOpen(!this.isOpen);
-      });
-    }
-
-    // Header brand logo button (toggles drawer on mobile & desktop)
-    const brandBtn = document.getElementById('header-brand-btn');
-    if (brandBtn) {
-      brandBtn.addEventListener('click', () => {
-        this.setOpen(!this.isOpen);
-      });
-      brandBtn.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          this.setOpen(!this.isOpen);
-        }
       });
     }
   }
