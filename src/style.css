@@ -6159,7 +6159,7 @@ input:checked + .toggle-switch::after {
 
 @media (max-width: 768px) {
   :root {
-    --sidebar-width: min(340px, calc(100vw - 20px));
+    --sidebar-width: min(340px, calc(100vw - 24px));
   }
 
   .app-header {
@@ -6169,28 +6169,63 @@ input:checked + .toggle-switch::after {
 
   .header-brand {
     min-width: auto;
+    cursor: pointer;
+    user-select: none;
+    padding: 2px 4px;
+    border-radius: var(--radius-sm);
+    transition: background 0.15s ease;
+  }
+
+  .header-brand:hover,
+  .header-brand:active {
+    background: rgba(255, 255, 255, 0.08);
   }
 
   .brand-text h1 {
-    font-size: 14px;
+    font-size: 13px;
+    white-space: nowrap;
   }
 
   .header-search {
-    max-width: 200px;
+    max-width: none;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .header-actions {
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .header-actions .btn {
+    padding: 7px;
   }
 
   .sidebar {
     position: fixed;
     top: var(--header-height);
     bottom: var(--footer-height);
+    left: 0;
+    width: var(--sidebar-width);
     height: auto;
     max-height: calc(100dvh - var(--header-height) - var(--footer-height));
-    left: 0;
-    z-index: 60;
-    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.6);
+    z-index: 70;
+    box-shadow: 12px 0 40px rgba(0, 0, 0, 0.85), 0 0 24px rgba(0, 240, 255, 0.2);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateX(0);
+  }
+
+  .sidebar.collapsed {
+    width: var(--sidebar-width);
+    transform: translateX(-100%);
+    pointer-events: none;
+    box-shadow: none;
   }
 
   .sidebar-nav {
+    width: var(--nav-width);
+    min-width: var(--nav-width);
+    height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: none;
@@ -6202,10 +6237,13 @@ input:checked + .toggle-switch::after {
   }
 
   .sidebar-content {
+    flex: 1;
     width: calc(var(--sidebar-width) - var(--nav-width));
     max-width: calc(100vw - var(--nav-width) - 10px);
     height: 100%;
     min-height: 0;
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
 
   .sidebar-panel {
