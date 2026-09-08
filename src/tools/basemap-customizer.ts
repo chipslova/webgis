@@ -126,18 +126,18 @@ export class BasemapCustomizer {
     let colors: [string, string, string, string, string];
 
     switch (basemapId) {
-      // 1. Google Satellite (Realistic Glass-Slate Tint)
-      case 'google-satellite':
+      // 1. Esri Imagery Clarity (High-Resolution Satellite Ice Blue)
+      case 'esri-clarity':
         colors = ['#0284c7', '#38bdf8', '#7dd3fc', '#bae6fd', '#e0f2fe'];
         break;
 
-      // 2. Google Hybrid (Vivid Emerald Slate)
-      case 'google-hybrid':
+      // 2. CARTO Dark Matter (Midnight Emerald Slate)
+      case 'carto-dark':
         colors = ['#0d9488', '#14b8a6', '#2dd4bf', '#5eead4', '#99f6e4'];
         break;
 
-      // 3. Google Streets (Navigation Electric Sky Blue)
-      case 'google-streets':
+      // 3. CARTO Voyager (Navigation Electric Sky Blue)
+      case 'carto-voyager':
         colors = ['#38bdf8', '#0284c7', '#0369a1', '#1d4ed8', '#1e40af'];
         break;
 

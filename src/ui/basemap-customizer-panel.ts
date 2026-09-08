@@ -64,9 +64,8 @@ export class BasemapCustomizerUI {
 
     // Categorize basemaps into Raster/Satellite vs Vector
     const rasterBasemaps = BASEMAPS.filter(b => 
-      b.id === 'google-satellite' || 
-      b.id === 'google-hybrid' || 
       b.id === 'esri-imagery' || 
+      b.id === 'esri-clarity' || 
       b.id === 'esri-relief'
     );
 

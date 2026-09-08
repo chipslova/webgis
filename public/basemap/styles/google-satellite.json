@@ -1,25 +1,22 @@
 {
   "version": 8,
-  "name": "Google Satellite",
+  "name": "Esri Imagery Clarity",
   "sources": {
-    "google-satellite-source": {
+    "esri-clarity-source": {
       "type": "raster",
       "tiles": [
-        "https://mt0.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
-        "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
-        "https://mt2.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
-        "https://mt3.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
+        "https://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
       ],
       "tileSize": 256,
-      "maxzoom": 22,
-      "attribution": "Map imagery © Google"
+      "maxzoom": 19,
+      "attribution": "Source: Esri, Maxar, Earthstar Geographics"
     }
   },
   "layers": [
     {
-      "id": "google-satellite-layer",
+      "id": "esri-clarity-layer",
       "type": "raster",
-      "source": "google-satellite-source",
+      "source": "esri-clarity-source",
       "minzoom": 0
     }
   ]

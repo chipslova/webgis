@@ -91,10 +91,10 @@ describe('Basemap Customizer - Sublayer Detection & State Management', () => {
 
   it('should generate distinct aesthetic 3D building color ramps for all 16 basemaps', () => {
     const all16Basemaps = [
-      'google-satellite', 'google-hybrid', 'google-streets', 'esri-imagery',
-      'esri-topographic', 'esri-streets', 'esri-natgeo', 'esri-light-grey',
-      'esri-dark-grey', 'esri-ocean', 'esri-relief', 'esri-colorpencil',
-      'big-rbi', 'osm-standard', 'osm-humanitarian', 'open-topo'
+      'esri-imagery', 'esri-streets', 'big-rbi', 'osm-standard',
+      'esri-topographic', 'open-topo', 'esri-relief', 'esri-natgeo',
+      'esri-ocean', 'esri-light-grey', 'esri-dark-grey', 'carto-dark',
+      'carto-voyager', 'esri-clarity', 'osm-humanitarian', 'esri-colorpencil'
     ];
 
     expect(all16Basemaps.length).toBe(16);

@@ -3,6 +3,7 @@
 An interactive WebGIS platform for exploring Indonesian Earth Observation datasets and spatial analytics workflows. Integrates BIG Piksel OGC Web Map Services (WMS), Google Earth Engine (GEE) Jabodetabek case study datasets, 3D terrain and building extrusions, and client-side geodesic calculations.
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-webgis--three--iota.vercel.app-00f0ff?style=for-the-badge&logo=vercel)](https://webgis-three-iota.vercel.app/)
+[![CI](https://img.shields.io/badge/CI-Passing-10b981?style=for-the-badge&logo=githubactions)](https://github.com/chipslova/webgis/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v5-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
@@ -53,7 +54,10 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 * **Topography & Land Cover**: USGS SRTM 30m Elevation contours and MODIS MCD12Q1 Land Cover classification for Jabodetabek.
 
 ### 🗺️ 3. Basemaps & 3D Terrain Customization
-* **16 Vector & Raster Basemaps**: Esri World Imagery (Default), Esri World Streets/Topographic/NatGeo/Canvas/Colored Pencil, BIG Rupabumi Indonesia (RBI), OpenStreetMap, OpenTopoMap, and optional Google satellite styles.
+* **16 Official Vector & Raster Basemaps**:
+  * ⭐ **Recommended:** Esri World Imagery (Default), Esri World Streets, Rupabumi Indonesia (BIG RBI), OpenStreetMap Standard.
+  * 🎨 **Topography & Thematic:** Esri Topographic, OpenTopoMap, Esri Shaded Relief, Esri National Geographic, Esri Ocean.
+  * 🌓 **Canvas & Navigation:** Esri Light/Dark Gray Canvas, CARTO Dark Matter, CARTO Voyager, Esri Imagery Clarity, OSM Humanitarian, Esri Colored Pencil.
 * **3D AWS Terrarium Elevation**: Real-time 3D terrain mesh generation with adjustable vertical exaggeration (0.1x – 3.0x).
 * **3D Vector Building Extrusions**: Dynamic OpenFreeMap planet vector building extrusions with smooth perspective camera transitions.
 * **Vector Sublayer Toggles**: Granular control over roads, road labels, place names, admin boundaries, landcover, water, and building polygons.

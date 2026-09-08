@@ -1,25 +1,24 @@
 {
   "version": 8,
-  "name": "Google Streets",
+  "name": "CARTO Voyager",
   "sources": {
-    "google-streets-source": {
+    "carto-voyager-source": {
       "type": "raster",
       "tiles": [
-        "https://mt0.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
-        "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
-        "https://mt2.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
-        "https://mt3.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+        "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
+        "https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
+        "https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png"
       ],
       "tileSize": 256,
-      "maxzoom": 22,
-      "attribution": "Map data © Google"
+      "maxzoom": 19,
+      "attribution": "© OpenStreetMap contributors, © CARTO"
     }
   },
   "layers": [
     {
-      "id": "google-streets-layer",
+      "id": "carto-voyager-layer",
       "type": "raster",
-      "source": "google-streets-source",
+      "source": "carto-voyager-source",
       "minzoom": 0
     }
   ]

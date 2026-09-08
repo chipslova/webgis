@@ -16,6 +16,8 @@ import { PermalinkManager } from './tools/permalink';
 import { PointInspector } from './tools/point-inspector';
 import { BasemapCustomizer } from './tools/basemap-customizer';
 import { BasemapCustomizerUI } from './ui/basemap-customizer-panel';
+import { MapExporter } from './tools/map-exporter';
+import { FeatureInspectorUI } from './ui/feature-inspector';
 import { logger } from './utils/logger';
 
 class WebGISApp {
@@ -34,11 +36,14 @@ class WebGISApp {
   private pointInspector: PointInspector | null = null;
   private basemapCustomizer: BasemapCustomizer | null = null;
   private basemapCustomizerUI: BasemapCustomizerUI | null = null;
+  private mapExporter: MapExporter | null = null;
+  private featureInspectorUI: FeatureInspectorUI;
 
   constructor() {
     this.mapManager = new MapManager('map');
     this.sidebarUI = new SidebarUI();
     this.statusBarUI = new StatusBarUI();
+    this.featureInspectorUI = new FeatureInspectorUI();
 
     this.init();
   }
@@ -53,7 +58,6 @@ class WebGISApp {
     this.bindImportEvents();
     this.bindShareEvents();
     this.bindExportEvents();
-    this.bindInspectorEvents();
     this.bindLegendEvents();
 
     // 2. Connect Telemetry & Feature Inspector
@@ -62,7 +66,7 @@ class WebGISApp {
     });
 
     this.mapManager.onFeatureClick((properties, layerName) => {
-      this.showFeatureInspector(properties, layerName);
+      this.featureInspectorUI.show(properties, layerName);
     });
 
     // 3. Initialize MapLibre GL map (guaranteed to resolve only when map style is loaded)
@@ -76,6 +80,7 @@ class WebGISApp {
       this.geePanelUI = new GEEPanelUI(this.geeLoader);
       this.pikselLoader = new PikselLoader(map);
       this.pikselPanelUI = new PikselPanelUI(this.pikselLoader);
+      this.mapExporter = new MapExporter(map, this.pikselLoader);
 
       // Register tool references for deterministic layer ordering
       this.mapManager.setGeoJsonLoader(this.geojsonLoader);
@@ -871,140 +876,11 @@ class WebGISApp {
   }
 
   private bindExportEvents() {
-    const exportBtn = document.getElementById('btn-export-map');
-    if (!exportBtn) return;
-
-    exportBtn.addEventListener('click', () => {
-      const map = this.mapManager.getMap();
-      if (!map) return;
-
-      const originalHtml = exportBtn.innerHTML;
-      exportBtn.innerHTML = `
-        <svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-        <span class="btn-text-label">Memproses...</span>
-      `;
-      (exportBtn as HTMLButtonElement).disabled = true;
-
-      map.once('render', () => {
-        try {
-          const mapCanvas = map.getCanvas();
-          const w = mapCanvas.width;
-          const h = mapCanvas.height;
-
-          // Create high-res composite canvas
-          const outCanvas = document.createElement('canvas');
-          outCanvas.width = w;
-          outCanvas.height = h;
-          const ctx = outCanvas.getContext('2d');
-
-          if (!ctx) {
-            throw new Error('Canvas context unavailable');
-          }
-
-          // 1. Draw Map Canvas
-          ctx.drawImage(mapCanvas, 0, 0);
-
-          // 2. Draw Top GIS Title Banner
-          const topBarHeight = Math.max(54, Math.round(h * 0.065));
-          ctx.fillStyle = 'rgba(9, 14, 27, 0.88)';
-          ctx.fillRect(0, 0, w, topBarHeight);
-
-          // Top Accent Line
-          ctx.fillStyle = '#00f0ff';
-          ctx.fillRect(0, topBarHeight - 2, w, 2);
-
-          // Title Text
-          ctx.fillStyle = '#ffffff';
-          ctx.font = `bold ${Math.max(14, Math.round(topBarHeight * 0.34))}px "Plus Jakarta Sans", sans-serif`;
-          ctx.textAlign = 'left';
-          ctx.fillText('Digital Earth Indonesia WebGIS', 20, Math.round(topBarHeight * 0.44));
-
-          // Subtitle (Active Layers & Basemap)
-          const activeProduct = this.pikselLoader?.getActiveProduct();
-          const activeYear = this.pikselLoader?.getSelectedYear() || '2025';
-          const prodText = activeProduct ? `${activeProduct.name} (${activeYear}) • OGC WMS (10m)` : 'Peta Analisis Geospasial Nasional';
-          ctx.fillStyle = '#94a3b8';
-          ctx.font = `${Math.max(11, Math.round(topBarHeight * 0.24))}px "Plus Jakarta Sans", sans-serif`;
-          ctx.fillText(prodText, 20, Math.round(topBarHeight * 0.78));
-
-          // 3. Draw Bottom GIS Metadata Strip
-          const bottomBarHeight = Math.max(34, Math.round(h * 0.04));
-          ctx.fillStyle = 'rgba(9, 14, 27, 0.88)';
-          ctx.fillRect(0, h - bottomBarHeight, w, bottomBarHeight);
-
-          // Bottom Accent Line
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-          ctx.fillRect(0, h - bottomBarHeight, w, 1);
-
-          const center = map.getCenter();
-          const zoom = map.getZoom().toFixed(2);
-          const coordsText = `Lat: ${center.lat.toFixed(4)}°, Lng: ${center.lng.toFixed(4)}° | Zoom: ${zoom} | CRS: EPSG:3857`;
-          const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
-
-          ctx.fillStyle = '#cbd5e1';
-          ctx.font = `${Math.max(10, Math.round(bottomBarHeight * 0.36))}px "JetBrains Mono", monospace`;
-          ctx.textAlign = 'left';
-          ctx.fillText(coordsText, 20, h - Math.round(bottomBarHeight * 0.38));
-
-          ctx.textAlign = 'right';
-          ctx.fillStyle = '#94a3b8';
-          ctx.fillText(`Diekspor: ${nowStr} • BIG / Open Data Cube`, w - 20, h - Math.round(bottomBarHeight * 0.38));
-
-          // Trigger download
-          const link = document.createElement('a');
-          link.download = `digital-earth-indonesia-map-${Date.now()}.png`;
-          link.href = outCanvas.toDataURL('image/png');
-          link.click();
-          showToast('Peta grafis berkualitas tinggi berhasil diekspor!', 'success');
-        } catch (e) {
-          logger.error('Export error:', e);
-          showToast('Gagal mengekspor peta ke format gambar.', 'error');
-        } finally {
-          setTimeout(() => {
-            exportBtn.innerHTML = originalHtml;
-            (exportBtn as HTMLButtonElement).disabled = false;
-          }, 1000);
-        }
-      });
-      map.triggerRepaint();
-    });
-  }
-
-  private showFeatureInspector(properties: Record<string, any>, layerName: string) {
-    const card = document.getElementById('feature-inspector');
-    const titleEl = document.getElementById('inspector-layer-name');
-    const contentEl = document.getElementById('inspector-content');
-    if (!card || !titleEl || !contentEl) return;
-
-    titleEl.innerText = `Layer: ${layerName}`;
-
-    let rowsHtml = '<table class="inspector-table">';
-    for (const [k, v] of Object.entries(properties)) {
-      rowsHtml += `
-        <tr>
-          <td class="prop-key">${k}</td>
-          <td class="prop-val">${typeof v === 'object' ? JSON.stringify(v) : v}</td>
-        </tr>
-      `;
-    }
-    rowsHtml += '</table>';
-
-    contentEl.innerHTML = rowsHtml;
-    card.style.display = 'flex';
-  }
-
-  private bindInspectorEvents() {
-    const closeBtn = document.getElementById('inspector-close-btn');
-    const card = document.getElementById('feature-inspector');
-
-    closeBtn?.addEventListener('click', () => {
-      if (card) card.style.display = 'none';
-    });
-
-    // Escape key closes feature inspector modal
-    window.addEventListener('keydown', (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && card && card.style.display !== 'none') {
-        card.style.display = 'none';
+    const exportBtn = document.getElementById('btn-export-map') as HTMLButtonElement | null;
+    exportBtn?.addEventListener('click', () => {
+      if (this.mapExporter) {
+        if (this.pikselLoader) this.mapExporter.setPikselLoader(this.pikselLoader);
+        this.mapExporter.exportPNG(exportBtn);
       }
     });
   }
