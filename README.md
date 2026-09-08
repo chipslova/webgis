@@ -53,7 +53,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 * **Topography & Land Cover**: USGS SRTM 30m Elevation contours and MODIS MCD12Q1 Land Cover classification for Jabodetabek.
 
 ### 🗺️ 3. Basemaps & 3D Terrain Customization
-* **16 Vector & Raster Basemaps**: Google Satellite/Hybrid/Streets, Esri World Imagery/Topographic/NatGeo/Canvas/Colored Pencil, BIG Rupabumi Indonesia (RBI), OpenStreetMap, and OpenTopoMap.
+* **16 Vector & Raster Basemaps**: Esri World Imagery (Default), Esri World Streets/Topographic/NatGeo/Canvas/Colored Pencil, BIG Rupabumi Indonesia (RBI), OpenStreetMap, OpenTopoMap, and optional Google satellite styles.
 * **3D AWS Terrarium Elevation**: Real-time 3D terrain mesh generation with adjustable vertical exaggeration (0.1x – 3.0x).
 * **3D Vector Building Extrusions**: Dynamic OpenFreeMap planet vector building extrusions with smooth perspective camera transitions.
 * **Vector Sublayer Toggles**: Granular control over roads, road labels, place names, admin boundaries, landcover, water, and building polygons.
@@ -80,7 +80,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 * **Bundle Efficiency**: Heavy static GeoJSON datasets are loaded lazily via asynchronous HTTP requests (`/data/*.geojson`), reducing the core JavaScript bundle to ~155 KB for fast initial page load.
 * **Deterministic Layer Stacking**: Centralized `enforceLayerOrder()` maintains visual hierarchy across all basemap switches and layer toggles:
   $$\text{Measurement} \to \text{Custom GeoJSON} \to \text{GEE POI} \to \text{Piksel Grid} \to \text{GEE Rasters} \to \text{Piksel WMS} \to \text{Basemap}$$
-* **Accessibility (WCAG Compliant)**: Full keyboard navigation, `aria-label`, `role`, `aria-expanded`, and `aria-selected` attributes on all interactive controls, drawers, modals, and tab lists.
+* **Keyboard & Screen Reader Accessible**: Comprehensive keyboard navigation, `aria-label`, `role`, `aria-expanded`, and `aria-selected` attributes on interactive controls, drawers, modals, and tab lists.
 * **Production-Safe Logging**: All debug logging and warnings are gated behind `import.meta.env.DEV` to keep production runtime clean.
 * **WebGL Buffer Preservation**: MapLibre GL JS configured with `preserveDrawingBuffer: true` for clean, artifact-free canvas exports.
 

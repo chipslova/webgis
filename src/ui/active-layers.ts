@@ -390,10 +390,36 @@ export class ActiveLayersUI {
       if (activePiksel) {
         const pikselOpacityPct = Math.round(this.pikselLoader.getOpacity() * 100);
         const yearText = activePiksel.timeEnabled ? this.pikselLoader.getSelectedYear() : '';
+
+        let legendPreview = '';
+        if (activePiksel.legend) {
+          if (activePiksel.legend.type === 'continuous' || activePiksel.legend.type === 'natural') {
+            legendPreview = `
+              <div class="active-legend-bar legend-gradient ${activePiksel.legend.gradientClass}" style="height: 6px; border-radius: 3px; margin: 5px 0 3px;"></div>
+              <div class="active-legend-labels" style="font-size: 9.5px; color: var(--text-muted); display:flex; justify-content:space-between;">
+                <span>${activePiksel.legend.leftLabel}</span>
+                ${activePiksel.legend.middleLabel ? `<span>${activePiksel.legend.middleLabel}</span>` : ''}
+                <span>${activePiksel.legend.rightLabel}</span>
+              </div>
+            `;
+          } else if (activePiksel.legend.type === 'categorical') {
+            legendPreview = `
+              <div class="legend-swatches-grid" style="margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px;">
+                ${(activePiksel.legend.items || []).map(it => `
+                  <div class="swatch-pill" style="font-size: 10px; padding: 2px 6px;">
+                    <span class="swatch-color-box" style="background:${it.color};"></span>
+                    <span class="swatch-text">${it.label}</span>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          }
+        }
+
         itemsHtml += this.buildRow({
           id: 'piksel',
           name: activePiksel.name,
-          meta: `OGC WMS · ${activePiksel.resolution}`,
+          meta: `Piksel BIG · ${activePiksel.resolution}${yearText ? ' · ' + yearText : ''}`,
           color: activePiksel.color,
           isVisible: isPikselVisible,
           opacityPct: pikselOpacityPct,
@@ -401,16 +427,13 @@ export class ActiveLayersUI {
           removeBtnClass: 'btn-remove-active-piksel',
           opacitySliderClass: 'piksel-opacity-slider',
           details: [
-            { label: 'Portal', value: 'BIG Piksel / Open Data Cube' },
-            { label: 'Protokol', value: 'OGC WMS 1.3.0' },
-            { label: 'Resolusi', value: activePiksel.resolution },
-            ...(yearText ? [{ label: 'Tahun Akuisisi', value: yearText }] : []),
+            { label: 'Penyedia Data', value: 'Badan Informasi Geospasial (BIG)' },
+            { label: 'Sensor / Misi', value: activePiksel.sensor },
+            { label: 'Resolusi Spasial', value: activePiksel.resolution },
+            ...(yearText ? [{ label: 'Tahun Akuisisi', value: `${yearText} (Komposit Bebas Awan)` }] : []),
+            { label: 'Interpretasi', value: activePiksel.whatItShows || activePiksel.description },
           ],
-          legendHtml: `
-            <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 4px;">
-              🛰️ Layer OGC WMS resmi BIG Indonesia. Tampilan komposit resolusi ${activePiksel.resolution}.
-            </div>
-          `
+          legendHtml: legendPreview
         });
       }
     }
