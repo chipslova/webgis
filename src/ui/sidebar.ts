@@ -13,7 +13,8 @@ export class SidebarUI {
     // Nav tab buttons
     const navButtons = document.querySelectorAll<HTMLButtonElement>('.sidebar-tab-btn');
     navButtons.forEach((btn) => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const tab = btn.dataset.tab as TabId;
         if (tab) {
           if (this.isOpen && this.activeTab === tab) {
@@ -33,7 +34,8 @@ export class SidebarUI {
     // Toggle collapse button
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
     if (toggleBtn) {
-      toggleBtn.addEventListener('click', () => {
+      toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         this.setOpen(!this.isOpen);
       });
     }

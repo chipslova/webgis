@@ -196,19 +196,15 @@ class WebGISApp {
         this.geePanelUI.init();
       }
 
-      // Mobile UX Optimization: auto-collapse sidebar on mobile / touch pan
+      // Mobile UX Optimization: auto-collapse sidebar on initial mobile load
       if (window.innerWidth <= 768) {
         this.sidebarUI.setOpen(false);
       }
 
-      map.on('touchstart', () => {
-        if (window.innerWidth <= 768 && this.sidebarUI.getIsOpen()) {
-          this.sidebarUI.setOpen(false);
-        }
-        this.basemapCustomizerUI?.closeAllPopovers();
-      });
-
-      map.on('dragstart', () => {
+      // Close open sidebar drawer only when user pans/drags the map canvas itself
+      map.on('dragstart', (e: any) => {
+        const origTarget = e.originalEvent?.target as HTMLElement | null;
+        if (origTarget && origTarget.closest('#sidebar')) return;
         if (window.innerWidth <= 768 && this.sidebarUI.getIsOpen()) {
           this.sidebarUI.setOpen(false);
         }
