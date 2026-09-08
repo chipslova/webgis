@@ -201,15 +201,6 @@ class WebGISApp {
         this.sidebarUI.setOpen(false);
       }
 
-      // Close open sidebar drawer only when user pans/drags the map canvas itself
-      map.on('dragstart', (e: any) => {
-        const origTarget = e.originalEvent?.target as HTMLElement | null;
-        if (origTarget && origTarget.closest('#sidebar')) return;
-        if (window.innerWidth <= 768 && this.sidebarUI.getIsOpen()) {
-          this.sidebarUI.setOpen(false);
-        }
-      });
-
       // Instantiate Point Inspector
       this.pointInspector = new PointInspector(map, this.pikselLoader, this.geeLoader, this.geojsonLoader, this.measureTool);
 

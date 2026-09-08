@@ -10,10 +10,19 @@ export class SidebarUI {
   }
 
   private bindEvents() {
+    // Prevent touch & pointer events inside sidebar from propagating to the map canvas
+    const sidebarEl = document.getElementById('sidebar');
+    if (sidebarEl) {
+      sidebarEl.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
+      sidebarEl.addEventListener('touchmove', (e) => e.stopPropagation(), { passive: true });
+      sidebarEl.addEventListener('pointerdown', (e) => e.stopPropagation());
+    }
+
     // Nav tab buttons
     const navButtons = document.querySelectorAll<HTMLButtonElement>('.sidebar-tab-btn');
     navButtons.forEach((btn) => {
       btn.addEventListener('click', (e) => {
+        e.preventDefault();
         e.stopPropagation();
         const tab = btn.dataset.tab as TabId;
         if (tab) {
@@ -23,9 +32,7 @@ export class SidebarUI {
           } else {
             // Open and switch to selected tab
             this.setActiveTab(tab);
-            if (!this.isOpen) {
-              this.setOpen(true);
-            }
+            this.setOpen(true);
           }
         }
       });
@@ -35,6 +42,7 @@ export class SidebarUI {
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
     if (toggleBtn) {
       toggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         e.stopPropagation();
         this.setOpen(!this.isOpen);
       });
@@ -95,18 +103,10 @@ export class SidebarUI {
         : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>`;
     }
 
-    // Continuously trigger resize during transition so MapLibre canvas expands smoothly to full width
-    const start = performance.now();
-    const duration = 350;
-    const animateResize = (now: number) => {
+    window.dispatchEvent(new Event('resize'));
+    setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
-      if (now - start < duration) {
-        requestAnimationFrame(animateResize);
-      } else {
-        window.dispatchEvent(new Event('resize'));
-      }
-    };
-    requestAnimationFrame(animateResize);
+    }, 320);
   }
 
   public getIsOpen(): boolean {

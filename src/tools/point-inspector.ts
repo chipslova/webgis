@@ -38,9 +38,9 @@ export class PointInspector {
       if (!this.isEnabled) return;
       if (this.measureTool && this.measureTool.getMode() !== 'none') return;
 
-      // Ignore if user clicked on another interactive marker or drawer
+      // Ignore if user clicked on another interactive marker, sidebar, or dock
       const originalTarget = (e.originalEvent?.target as HTMLElement);
-      if (originalTarget && (originalTarget.closest('.mapboxgl-marker') || originalTarget.closest('.sidebar-drawer') || originalTarget.closest('.floating-inspector-card') || originalTarget.closest('.bottom-tools-dock'))) {
+      if (originalTarget && (originalTarget.closest('.mapboxgl-marker') || originalTarget.closest('#sidebar') || originalTarget.closest('.sidebar') || originalTarget.closest('.floating-inspector-card') || originalTarget.closest('.bottom-tools-dock') || originalTarget.closest('.glass-popover') || originalTarget.closest('.app-header'))) {
         return;
       }
 
