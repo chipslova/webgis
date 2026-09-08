@@ -103,7 +103,7 @@ export class PointInspector {
       activeLayerCategory = 'Piksel OGC WMS (10m)';
     } else if (this.geeLoader) {
       if (this.geeLoader.isLayerVisible('lst')) {
-        activeLayerName = 'MODIS Daytime LST Heatmap (2020–2024)';
+        activeLayerName = 'MODIS Daytime LST Heatmap (2020–2026)';
         activeLayerCategory = 'Studi Kasus Termal GEE';
       } else if (this.geeLoader.isLayerVisible('elevation')) {
         activeLayerName = 'USGS SRTM Ground Elevation DEM (30m)';

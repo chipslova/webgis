@@ -159,14 +159,15 @@ export class PikselPanelUI {
           <!-- Active Product Legend & Swatches -->
           ${legendHtml}
 
-          <!-- Collapsible Telemetry & Grid Options -->
+          <!-- Collapsible Gated Telemetry & Advanced Server Options -->
           <details class="clean-accordion" style="margin-top: 10px;">
             <summary>
-              <span>Diagnostik OGC WMS</span>
+              <span>⚙️ Pengaturan Lanjutan & Status Server</span>
               <span class="diag-status-pill ${diagnostics?.status || 'idle'}">${(diagnostics?.status || 'idle').toUpperCase()}</span>
             </summary>
             <div class="accordion-body">
               <div class="diagnostics-content">
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Metrik teknis koneksi OGC WMS (khusus analisis server):</p>
                 <div class="diag-row"><span>Permintaan Raster:</span><strong>${diagnostics?.tilesLoaded || 0} selesai</strong></div>
                 <div class="diag-row"><span>Permintaan Gagal:</span><strong class="${(diagnostics?.tilesFailed || 0) > 0 ? 'text-danger' : ''}">${diagnostics?.tilesFailed || 0}</strong></div>
                 <div class="diag-row"><span>Latensi Server:</span><strong>${diagnostics?.latencyMs ? (diagnostics.latencyMs / 1000).toFixed(2) + ' detik' : 'Menunggu...'}</strong></div>
@@ -213,31 +214,15 @@ export class PikselPanelUI {
       ? PIKSEL_PRODUCTS 
       : PIKSEL_PRODUCTS.filter(p => p.category === this.selectedCategory);
 
-    const productCardsHtml = filteredProducts.map(prod => {
+    const availableProducts = filteredProducts.filter(p => !p.isDisabled);
+    const unavailableProducts = filteredProducts.filter(p => p.isDisabled === true);
+
+    const productCardsHtml = availableProducts.map(prod => {
       const isActive = activeProduct?.id === prod.id;
-      const isDisabled = prod.isDisabled === true;
       const years = prod.availableYears;
       const yearRange = years && years.length > 1
         ? `${years[years.length - 1]}–${years[0]}`
         : (years?.[0] ?? '');
-
-      if (isDisabled) {
-        return `
-          <div class="clean-product-card is-disabled" data-id="${prod.id}" title="${prod.statusNotice || 'Produk tidak tersedia'}" aria-disabled="true">
-            <div class="card-main-info">
-              <div class="card-title-line">
-                <span class="card-color-dot" style="background:#475569;" aria-hidden="true"></span>
-                <strong class="card-name" style="color:#64748b;">${prod.name}</strong>
-              </div>
-              <div class="card-tags-line">
-                <span class="card-tag" style="color:#475569;">${prod.resolution}</span>
-                <span class="card-tag card-tag-unavailable">Tidak Tersedia</span>
-              </div>
-            </div>
-            <div class="btn-disabled-product" aria-hidden="true">Tidak Tersedia</div>
-          </div>
-        `;
-      }
 
       return `
         <div class="clean-product-card ${isActive ? 'is-active' : ''}" data-id="${prod.id}">
@@ -275,9 +260,39 @@ export class PikselPanelUI {
       `;
     }).join('');
 
+    const unavailableSectionHtml = unavailableProducts.length > 0 ? `
+      <details class="clean-accordion" style="margin-top: 12px; border: 1px dashed rgba(100, 116, 139, 0.4); background: rgba(15, 23, 42, 0.4);">
+        <summary style="font-size: 11.5px; color: var(--text-muted);">
+          <span>⚠️ Produk Eksperimental / Dalam Pemeliharaan (${unavailableProducts.length})</span>
+        </summary>
+        <div class="accordion-body">
+          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
+            Produk berikut sedang dalam pemeliharaan server upstream dan belum dipublikasikan pada endpoint resmi:
+          </p>
+          ${unavailableProducts.map(prod => `
+            <div class="clean-product-card is-disabled" data-id="${prod.id}" title="${prod.statusNotice || 'Produk tidak tersedia'}" aria-disabled="true" style="margin-bottom: 6px;">
+              <div class="card-main-info">
+                <div class="card-title-line">
+                  <span class="card-color-dot" style="background:#475569;" aria-hidden="true"></span>
+                  <strong class="card-name" style="color:#64748b;">${prod.name}</strong>
+                </div>
+                <p class="card-brief-desc" style="font-size: 11px; color: #64748b; margin: 3px 0;">
+                  ${prod.statusNotice || 'Layanan server upstream belum tersedia.'}
+                </p>
+                <div class="card-tags-line">
+                  <span class="card-tag" style="color:#475569;">${prod.resolution}</span>
+                  <span class="card-tag card-tag-unavailable">Tidak Tersedia</span>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </details>
+    ` : '';
+
     container.innerHTML = `
       <div class="panel-header">
-        <h2>Piksel Earth Observation</h2>
+        <h2>Citra Satelit BIG Piksel</h2>
         <p>Layanan OGC WMS resmi Badan Informasi Geospasial (BIG) berbasis Open Data Cube.</p>
       </div>
 
@@ -300,7 +315,7 @@ export class PikselPanelUI {
       <div class="clean-section" style="margin-top: 12px;">
         <div class="clean-section-header">
           <span>Katalog Produk Citra Satelit</span>
-          <span class="count-tag">${filteredProducts.length} Produk</span>
+          <span class="count-tag">${availableProducts.length} Tersedia</span>
         </div>
 
         <!-- Category Filter Tabs -->
@@ -312,6 +327,9 @@ export class PikselPanelUI {
         <div class="clean-products-container">
           ${productCardsHtml}
         </div>
+
+        <!-- Unavailable / Experimental Products Accordion -->
+        ${unavailableSectionHtml}
       </div>
 
       <!-- Collapsible Official Links -->

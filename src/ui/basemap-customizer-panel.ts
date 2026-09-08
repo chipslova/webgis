@@ -53,23 +53,17 @@ export class BasemapCustomizerUI {
    * Renders the basemap choices into the floating Basemap Popover gallery
    */
   private renderBasemapPopoverGallery() {
-    const rasterContainer = document.getElementById('popover-basemap-raster-list');
-    const vectorContainer = document.getElementById('popover-basemap-vector-list');
-    if (!rasterContainer || !vectorContainer) return;
+    const recContainer = document.getElementById('popover-basemap-rec-list');
+    const thematicContainer = document.getElementById('popover-basemap-thematic-list');
+    const canvasContainer = document.getElementById('popover-basemap-canvas-list');
 
-    rasterContainer.innerHTML = '';
-    vectorContainer.innerHTML = '';
+    if (!recContainer || !thematicContainer || !canvasContainer) return;
+
+    recContainer.innerHTML = '';
+    thematicContainer.innerHTML = '';
+    canvasContainer.innerHTML = '';
 
     const currentId = this.mapManager?.getCurrentBasemapId() || DEFAULT_BASEMAP_ID;
-
-    // Categorize basemaps into Raster/Satellite vs Vector
-    const rasterBasemaps = BASEMAPS.filter(b => 
-      b.id === 'esri-imagery' || 
-      b.id === 'esri-clarity' || 
-      b.id === 'esri-relief'
-    );
-
-    const vectorBasemaps = BASEMAPS.filter(b => !rasterBasemaps.some(rb => rb.id === b.id));
 
     const createItem = (bm: typeof BASEMAPS[0]) => {
       const item = document.createElement('div');
@@ -117,8 +111,17 @@ export class BasemapCustomizerUI {
       return item;
     };
 
-    rasterBasemaps.forEach(bm => rasterContainer.appendChild(createItem(bm)));
-    vectorBasemaps.forEach(bm => vectorContainer.appendChild(createItem(bm)));
+    BASEMAPS.forEach(bm => {
+      const group = bm.group || 'recommended';
+      const item = createItem(bm);
+      if (group === 'recommended') {
+        recContainer.appendChild(item);
+      } else if (group === 'thematic') {
+        thematicContainer.appendChild(item);
+      } else if (group === 'canvas') {
+        canvasContainer.appendChild(item);
+      }
+    });
   }
 
   /**

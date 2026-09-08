@@ -256,7 +256,7 @@ class WebGISApp {
 
     const updateLabel = () => {
       const current = this.mapManager.getProjection();
-      label.innerText = current === 'globe' ? '3D Globe' : '2D Mercator';
+      label.innerText = current === 'globe' ? 'Mode 3D Bola Dunia' : 'Mode 2D Mercator';
       btn.classList.toggle('active', current === 'globe');
     };
 
@@ -342,31 +342,71 @@ class WebGISApp {
     grid.innerHTML = '';
     const currentId = this.mapManager.getCurrentBasemapId();
 
-    BASEMAPS.forEach((bm) => {
-      const card = document.createElement('div');
-      card.className = `basemap-card ${bm.id === currentId ? 'active' : ''}`;
-      card.dataset.id = bm.id;
+    const groups: { key: 'recommended' | 'thematic' | 'canvas'; title: string; desc: string }[] = [
+      { key: 'recommended', title: '⭐ Rekomendasi Utama', desc: 'Peta dasar satelit, jalan, dan peta resmi nasional BIG' },
+      { key: 'thematic', title: '🎨 Tematik & Topografi', desc: 'Kontur elevasi, batimetri laut, dan gaya artistik' },
+      { key: 'canvas', title: '🌓 Kanvas & Navigasi', desc: 'Latar kontras tinggi untuk visualisasi overlay data' }
+    ];
 
-      card.innerHTML = `
-        <div class="basemap-thumb" style="background-color: ${bm.previewColor};">
-          ${bm.name.substring(0, 2).toUpperCase()}
-        </div>
-        <div class="basemap-info">
-          <div class="basemap-header-row">
-            <div class="basemap-title" title="${bm.name}">${bm.name}</div>
-            <span class="basemap-tag">${bm.category}</span>
-          </div>
-          <div class="basemap-desc">${bm.description}</div>
+    groups.forEach((grp) => {
+      const groupBasemaps = BASEMAPS.filter((b) => (b.group || 'recommended') === grp.key);
+      if (groupBasemaps.length === 0) return;
+
+      const groupHeader = document.createElement('div');
+      groupHeader.className = 'basemap-gallery-group-header';
+      groupHeader.innerHTML = `
+        <div class="group-title-row" style="display:flex; justify-content:space-between; align-items:baseline; margin: 12px 0 6px 0; border-bottom: 1px solid var(--border-subtle); padding-bottom: 4px;">
+          <h4 style="margin:0; font-size: 12.5px; font-weight:700; color: var(--text-main);">${grp.title}</h4>
+          <span style="font-size: 10.5px; color: var(--text-muted);">${groupBasemaps.length} Pilihan</span>
         </div>
       `;
+      grid.appendChild(groupHeader);
 
-      card.addEventListener('click', () => {
-        document.querySelectorAll('.basemap-card').forEach((c) => c.classList.remove('active'));
-        card.classList.add('active');
-        this.mapManager.setBasemap(bm.id);
+      const groupContainer = document.createElement('div');
+      groupContainer.className = 'basemap-group-cards-grid';
+      groupContainer.style.display = 'grid';
+      groupContainer.style.gap = '8px';
+      groupContainer.style.marginBottom = '12px';
+
+      groupBasemaps.forEach((bm) => {
+        const card = document.createElement('div');
+        card.className = `basemap-card ${bm.id === currentId ? 'active' : ''}`;
+        card.dataset.id = bm.id;
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-label', `Pilih basemap ${bm.name} kategori ${bm.category}`);
+
+        card.innerHTML = `
+          <div class="basemap-thumb" style="background-color: ${bm.previewColor};">
+            ${bm.name.substring(0, 2).toUpperCase()}
+          </div>
+          <div class="basemap-info">
+            <div class="basemap-header-row">
+              <div class="basemap-title" title="${bm.name}">${bm.name}</div>
+              <span class="basemap-tag">${bm.category}</span>
+            </div>
+            <div class="basemap-desc">${bm.description}</div>
+          </div>
+        `;
+
+        const selectBm = () => {
+          document.querySelectorAll('.basemap-card').forEach((c) => c.classList.remove('active'));
+          card.classList.add('active');
+          this.mapManager.setBasemap(bm.id);
+        };
+
+        card.addEventListener('click', selectBm);
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            selectBm();
+          }
+        });
+
+        groupContainer.appendChild(card);
       });
 
-      grid.appendChild(card);
+      grid.appendChild(groupContainer);
     });
   }
 

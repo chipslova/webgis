@@ -17,19 +17,21 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 **Digital Earth Indonesia WebGIS** is built with modern web mapping technologies to provide accessible Earth Observation data visualization and spatial analysis tools for Indonesia. The application connects directly to official geospatial services, renders multi-source analytical layers, and offers interactive inspection tools in a responsive interface.
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          Digital Earth WebGIS Client                        │
-│             (MapLibre GL JS • 2D Mercator & 3D Globe Projection)            │
-└───────┬───────────────────────────────┬──────────────────────────────┬──────┘
-        │ OGC WMS 1.3.0                 │ Lazy GeoJSON                 │ Geodesics
-        ▼                               ▼                              ▼
-┌───────────────────────────────┐ ┌──────────────────────────┐ ┌──────────────┐
-│        BIG Piksel ODC         │ │   Google Earth Engine    │ │   Turf.js    │
-│  • Sentinel-2 GeoMAD (10m)    │ │  • MODIS Daytime LST     │ │  • Distance  │
-│  • USGS Landsat 9 (30m)       │ │  • Urban Heat Island     │ │  • Area      │
-│  • Flood Hazard Models        │ │  • SRTM Ground Elevation │ │  • Centroid  │
-│  • 1,631 Tile Grid Boundaries │ │  • MODIS Land Cover      │ │  • Buffer    │
-└───────────────────────────────┘ └──────────────────────────┘ └──────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                       Digital Earth WebGIS Application                                   │
+│  [🔍 Cari Lokasi...]              [↺ Reset Tampilan] [🌐 Mode 3D] [⬆ Impor GeoJSON] [🔗 Bagikan] [📷 Simpan] │
+├───────────────┬─────────────────────────────────────────────────────────────────────────────────────────┤
+│ BILAH SAMPING │                                  MAPLIBRE GL CANVAS                                     │
+│ ───────────── │                                                                                         │
+│ 🗺️ Peta       │  🛰️  Sentinel-2 GeoMAD 10m Mosaics & Spectral Indices (BIG Piksel OGC WMS)              │
+│ 🛰️ Satelit    │  🌡️  MODIS Land Surface Temp Thermal Gradient & Urban Heat Island Analysis              │
+│ 📈 Analisis   │  ⛰️  3D Terrarium Elevation Mesh & 3D Building Vector Extrusions (WebGL2)               │
+│ 📏 Ukur       │  📍  Interactive Geodesic Distance & Area Geometries (Turf.js)                          │
+│ 📁 Data       │                                                                                         │
+│ 📋 Legenda    │  ┌───────────────────────────────────────────────────────────────────────────────────┐  │
+│ ℹ️ Tentang    │  │ 🧭 DOCK: [🗺️ 16 Basemaps] [🎛️ Sublayers] [⛰️ 3D Terrain] [📐 Grid ODC]              │  │
+│               │  └───────────────────────────────────────────────────────────────────────────────────┘  │
+└───────────────┴─────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -48,9 +50,9 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 * **Piksel Data Cube Tile Index**: Interactive overlay of 1,631 Open Data Cube tile boundaries across Indonesian territory.
 
 ### 🌡️ 2. Google Earth Engine (GEE) Urban Heat Island Case Study
-* **MODIS Daytime Land Surface Temperature (LST)**: Interpolated continuous thermal gradient ($22^\circ\text{C} \to 34^\circ\text{C}+$) for the Jabodetabek metropolitan region (2020–2024 baseline snapshot).
+* **MODIS Daytime Land Surface Temperature (LST)**: Interpolated continuous thermal gradient ($22^\circ\text{C} \to 34^\circ\text{C}+$) for the Jabodetabek metropolitan region (2020–2026 baseline & time-series snapshot).
 * **Urban vs. Rural Microclimate Analysis**: Comparative study between Jakarta Urban Core (*Monas: 33.85°C, 14m elev*) and West Java Rural Baseline (*Hutan IPB Bogor: 24.60°C, 680m elev*) displaying a **+9.25°C UHI Delta**.
-* **Harmonic Seasonal Time-Series**: Dynamic canvas charts showing annual dry-season temperature peaks and wet-season cooling patterns.
+* **Harmonic Seasonal Time-Series**: Dynamic canvas charts showing annual dry-season temperature peaks and wet-season cooling patterns (2020–2026).
 * **Topography & Land Cover**: USGS SRTM 30m Elevation contours and MODIS MCD12Q1 Land Cover classification for Jabodetabek.
 
 ### 🗺️ 3. Basemaps & 3D Terrain Customization
@@ -98,7 +100,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 | **Spectral Indices (NDVI/NDWI)** | Open Data Cube | 10 meters | Annual Composites | OGC WMS 1.3.0 |
 | **Landsat 9 Analysis** | USGS / NASA | 30 meters | 2021 – 2026 | OGC WMS 1.3.0 |
 | **Flood Hazard Models** | BIG Hidrologi | 10 meters | Priority Study Areas | OGC WMS 1.3.0 |
-| **MODIS Daytime LST** | NASA LP DAAC / GEE | 1,000 meters | 2020 – 2024 (Baseline) | GeoJSON (Lazy Fetch) |
+| **MODIS Daytime LST** | NASA LP DAAC / GEE | 1,000 meters | 2020 – 2026 (Baseline & Time-Series) | GeoJSON (Lazy Fetch) |
 | **SRTM Digital Elevation** | USGS / NASA | 30 meters | Static DEM Grid | GeoJSON (Lazy Fetch) |
 | **MCD12Q1 Land Cover** | NASA LP DAAC | 500 meters | Static Classification | GeoJSON (Lazy Fetch) |
 | **3D Terrarium DEM** | Mapzen / AWS Open Data | Global DEM | Continuous | Raster DEM TileJSON |
@@ -158,7 +160,7 @@ bun run preview
 
 * **Upstream WMS Availability**: Sentinel-2 and Landsat 9 Earth Observation mosaics are served live via the BIG Piksel OGC WMS staging service (`ows.staging.piksel.big.go.id`). Server response times and uptime are subject to upstream infrastructure availability.
 * **Minimum Zoom Thresholds**: High-resolution 10m Sentinel-2 GeoMAD and 30m Landsat 9 layers require zoom level $\ge 8$ (or $\ge 7$ for Landsat) to render on the map.
-* **GEE Case Study Boundary**: The thermal Land Surface Temperature (LST), SRTM 30m elevation, and MODIS land cover layers represent curated historical spatial baseline snapshots focused on the Jabodetabek and West Java study areas (2020–2024).
+* **GEE Case Study Boundary**: The thermal Land Surface Temperature (LST), SRTM 30m elevation, and MODIS land cover layers represent curated historical spatial baseline snapshots focused on the Jabodetabek and West Java study areas (2020–2026).
 * **3D Hardware Acceleration**: Real-time 3D terrain elevation mesh and building extrusions require WebGL2 support on the client browser.
 * **External Basemap Providers**: Basemaps from Esri, Badan Informasi Geospasial (BIG), and OpenStreetMap depend on their respective public tile infrastructure and usage terms.
 

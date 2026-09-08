@@ -319,7 +319,7 @@ export class ActiveLayersUI {
           details: [
             { label: 'Sensor', value: 'MODIS Terra (MOD11A2)' },
             { label: 'Resolusi', value: '1.000 meter' },
-            { label: 'Rentang Waktu', value: '2020–2024 (Rata-rata Musim Kemarau)' },
+            { label: 'Rentang Waktu', value: '2020–2026 (Komposit Multitahunan & Deret Waktu)' },
           ],
           legendHtml: `
             <div class="gee-legend-bar lst-gradient" style="height: 6px; border-radius: 3px; margin: 4px 0;"></div>

@@ -63,15 +63,15 @@
         <div class="header-actions">
           <button id="btn-reset-map" class="btn btn-secondary" title="Reset Pandangan Peta & Layer Analisis" aria-label="Reset pandangan peta ke Indonesia">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-            <span class="btn-text-label">Reset View</span>
+            <span class="btn-text-label">Reset Tampilan</span>
           </button>
-          <button id="btn-toggle-globe" class="btn btn-secondary" title="Beralih Mode 3D Globe / 2D Mercator" aria-label="Beralih antara mode 3D Globe dan 2D Mercator">
+          <button id="btn-toggle-globe" class="btn btn-secondary" title="Beralih Mode 3D Bola Dunia / 2D Mercator" aria-label="Beralih antara mode 3D Bola Dunia dan 2D Mercator">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-            <span id="globe-btn-label" class="btn-text-label">Mode 3D Globe</span>
+            <span id="globe-btn-label" class="btn-text-label">Mode 3D Bola Dunia</span>
           </button>
-          <button id="btn-quick-import" class="btn btn-secondary" title="Import File GeoJSON Kustom" aria-label="Unggah file GeoJSON kustom">
+          <button id="btn-quick-import" class="btn btn-secondary" title="Impor File GeoJSON Kustom" aria-label="Unggah file GeoJSON kustom">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-            <span class="btn-text-label">Import GeoJSON</span>
+            <span class="btn-text-label">Impor GeoJSON</span>
           </button>
           <button id="btn-share-map" class="btn btn-secondary" title="Salin Tautan Peta & Analisis Aktif (Permalink)" aria-label="Salin tautan permalink analisis peta">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
@@ -94,13 +94,13 @@
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
               <span>Peta</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="piksel" id="tab-piksel" role="tab" aria-selected="false" aria-controls="panel-piksel" aria-label="Piksel Earth Observation BIG" title="Piksel Earth Observation (BIG × GA)">
+            <button class="sidebar-tab-btn" data-tab="piksel" id="tab-piksel" role="tab" aria-selected="false" aria-controls="panel-piksel" aria-label="Citra Satelit BIG Piksel" title="Citra Satelit BIG Piksel">
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
-              <span>Piksel EO</span>
+              <span>Citra Satelit</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="gee" id="tab-gee" role="tab" aria-selected="false" aria-controls="panel-gee" aria-label="Analisis Termal dan Elevasi GEE" title="Analisis Termal & Elevasi GEE">
+            <button class="sidebar-tab-btn" data-tab="gee" id="tab-gee" role="tab" aria-selected="false" aria-controls="panel-gee" aria-label="Analisis Spasial dan Termal GEE" title="Analisis Spasial & Termal GEE">
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
-              <span>GEE Analysis</span>
+              <span>Analisis Spasial</span>
             </button>
             <button class="sidebar-tab-btn" data-tab="measure" id="tab-measure" role="tab" aria-selected="false" aria-controls="panel-measure" aria-label="Alat Ukur Jarak dan Luas" title="Alat Ukur Jarak & Luas">
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12h20"/><path d="M6 12V8"/><path d="M12 12V8"/><path d="M18 12V8"/></svg>
@@ -215,7 +215,7 @@
             <section id="panel-gee" class="sidebar-panel">
               <div class="panel-header">
                 <h2>Studi Kasus Analisis Termal GEE</h2>
-                <p>Analisis MODIS Land Surface Temp & Elevasi SRTM (Wilayah Kajian Jabodetabek & Jawa Barat 2020–2024).</p>
+                <p>Analisis MODIS Land Surface Temp & Elevasi SRTM (Wilayah Kajian Jabodetabek & Jawa Barat 2020–2026).</p>
               </div>
 
               <!-- Case Study Disclaimer Banner -->
@@ -224,7 +224,7 @@
                   <span>📌 <strong>Studi Kasus Analisis Spasial</strong></span>
                   <span class="gee-disclaimer-tag">Snapshot Analitis</span>
                 </div>
-                <p>Data hasil olahan komputasi Google Earth Engine (MODIS MOD11A2 & USGS SRTM 2020–2024) untuk wilayah kajian aglomerasi Jabodetabek & Jawa Barat.</p>
+                <p>Data hasil olahan komputasi Google Earth Engine (MODIS MOD11A2 & USGS SRTM 2020–2026) untuk wilayah kajian aglomerasi Jabodetabek & Jawa Barat.</p>
               </div>
 
               <!-- Quick Focus Area Button -->
@@ -329,7 +329,7 @@
 
               <!-- Metrics Cards with Reference Label -->
               <div class="gee-reference-label">
-                📌 Nilai Acuan Studi — MODIS MOD11A2 Rata-rata 2020–2024
+                📌 Nilai Acuan Studi — MODIS MOD11A2 Rata-rata 2020–2026
               </div>
               <div class="gee-metrics-grid">
                 <div class="gee-metric-card urban">
@@ -463,9 +463,9 @@
 
               <div class="legend-tip-box" style="margin-top: 16px;">
                 <div class="legend-tip-title">🛰️ Eksplorasi Citra Satelit Lainnya</div>
-                <p>Buka katalog <strong>Piksel EO</strong> untuk memilih citra Sentinel-2 GeoMAD, Landsat, indeks spektral, atau pemodelan bahaya banjir nasional.</p>
+                <p>Buka katalog <strong>Citra Satelit</strong> untuk memilih citra Sentinel-2 GeoMAD, Landsat, indeks spektral, atau pemodelan bahaya banjir nasional.</p>
                 <button id="btn-goto-piksel-tab" class="btn btn-secondary full-width" style="margin-top: 8px;">
-                  Buka Katalog Piksel EO →
+                  Buka Katalog Citra Satelit →
                 </button>
               </div>
             </section>
@@ -482,22 +482,22 @@
                 <div class="pillar">
                   <span class="pillar-number">01</span>
                   <div>
-                    <strong>Explore</strong>
-                    <p>Sentinel-2 GeoMAD, Landsat 9, NDVI, NDWI, flood hazard &mdash; via BIG Piksel OGC WMS.</p>
+                    <strong>Eksplorasi</strong>
+                    <p>Sentinel-2 GeoMAD, Landsat 9, NDVI, NDWI, bahaya banjir &mdash; via BIG Piksel OGC WMS.</p>
                   </div>
                 </div>
                 <div class="pillar">
                   <span class="pillar-number">02</span>
                   <div>
-                    <strong>Analyze</strong>
+                    <strong>Analisis</strong>
                     <p>MODIS land surface temperature, urban heat island, SRTM elevation &mdash; via Google Earth Engine.</p>
                   </div>
                 </div>
                 <div class="pillar">
                   <span class="pillar-number">03</span>
                   <div>
-                    <strong>Interact</strong>
-                    <p>Geodesic measurement, GeoJSON upload, layer management, basemap switching, map export.</p>
+                    <strong>Interaksi</strong>
+                    <p>Pengukuran geodesik, unggah GeoJSON, manajemen layer, pemilihan basemap, ekspor peta.</p>
                   </div>
                 </div>
               </div>
@@ -512,7 +512,7 @@
                     <div class="qs-step-num">1</div>
                     <div class="qs-step-body">
                       <strong>Pilih Citra Satelit</strong>
-                      <span>Buka tab <b>Piksel EO</b>, pilih produk (Sentinel-2, NDVI, dll), klik <b>Aktifkan</b>.</span>
+                      <span>Buka tab <b>Citra Satelit</b>, pilih produk (Sentinel-2, NDVI, dll), klik untuk mengaktifkan.</span>
                     </div>
                   </div>
                   <div class="qs-step">
@@ -788,13 +788,18 @@
               </div>
             </div>
 
-            <div class="basemap-section-header">SATELLITE & RASTER</div>
-            <div class="basemap-popover-list" id="popover-basemap-raster-list">
+            <div class="basemap-section-header">⭐ PILIHAN REKOMENDASI</div>
+            <div class="basemap-popover-list" id="popover-basemap-rec-list">
               <!-- Populated dynamically -->
             </div>
 
-            <div class="basemap-section-header" style="margin-top: 10px;">VECTOR MAPS</div>
-            <div class="basemap-popover-list" id="popover-basemap-vector-list">
+            <div class="basemap-section-header" style="margin-top: 10px;">🎨 TEMATIK & TOPOGRAFI</div>
+            <div class="basemap-popover-list" id="popover-basemap-thematic-list">
+              <!-- Populated dynamically -->
+            </div>
+
+            <div class="basemap-section-header" style="margin-top: 10px;">🌓 KANVAS & NAVIGASI</div>
+            <div class="basemap-popover-list" id="popover-basemap-canvas-list">
               <!-- Populated dynamically -->
             </div>
           </div>
