@@ -1,7 +1,7 @@
 import { BasemapCustomizer, VectorSublayerKey } from '../tools/basemap-customizer';
 import { MapManager } from '../map/map-manager';
 import { PikselLoader } from '../tools/piksel-loader';
-import { BASEMAPS } from '../config/basemaps';
+import { BASEMAPS, DEFAULT_BASEMAP_ID } from '../config/basemaps';
 import { showToast } from './toast';
 
 export class BasemapCustomizerUI {
@@ -60,7 +60,7 @@ export class BasemapCustomizerUI {
     rasterContainer.innerHTML = '';
     vectorContainer.innerHTML = '';
 
-    const currentId = this.mapManager?.getCurrentBasemapId() || 'google-hybrid';
+    const currentId = this.mapManager?.getCurrentBasemapId() || DEFAULT_BASEMAP_ID;
 
     // Categorize basemaps into Raster/Satellite vs Vector
     const rasterBasemaps = BASEMAPS.filter(b => 

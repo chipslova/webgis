@@ -13,46 +13,10 @@ export interface BasemapConfig {
 
 export const BASEMAPS: BasemapConfig[] = [
   {
-    id: 'google-satellite',
-    name: 'Google Satellite',
-    category: 'Google',
-    description: 'High-resolution global satellite imagery provided by Google Maps',
-    styleUrl: '/basemap/styles/google-satellite.json',
-    previewColor: '#1e3a8a',
-    initialBounds: {
-      center: [117.89, -2.55],
-      zoom: 4.5
-    }
-  },
-  {
-    id: 'google-hybrid',
-    name: 'Google Satellite Hybrid',
-    category: 'Google',
-    description: 'High-resolution satellite imagery with overlay of roads, places, and boundaries',
-    styleUrl: '/basemap/styles/google-hybrid.json',
-    previewColor: '#0f766e',
-    initialBounds: {
-      center: [117.89, -2.55],
-      zoom: 4.5
-    }
-  },
-  {
-    id: 'google-streets',
-    name: 'Google Streets (Navigation)',
-    category: 'Google',
-    description: 'High-contrast street map with road networks, city labels, and transit lines',
-    styleUrl: '/basemap/styles/esri-style-navigation.json',
-    previewColor: '#0ea5e9',
-    initialBounds: {
-      center: [117.89, -2.55],
-      zoom: 4.5
-    }
-  },
-  {
     id: 'esri-imagery',
     name: 'Esri World Imagery',
     category: 'Esri',
-    description: 'Esri high-resolution global satellite & aerial imagery (No API Key Required)',
+    description: 'Esri high-resolution global satellite & aerial imagery (Official ArcGIS Rest Tile Service)',
     styleUrl: '/basemap/styles/esri-style-community.json',
     previewColor: '#1e293b',
     initialBounds: {
@@ -61,20 +25,20 @@ export const BASEMAPS: BasemapConfig[] = [
     }
   },
   {
-    id: 'esri-topographic',
-    name: 'Esri World Topographic',
-    category: 'Esri',
-    description: 'Official Esri world topographic map with contours and physical landforms',
-    styleUrl: '/basemap/styles/esri-style-topographic.json',
-    previewColor: '#688e57'
-  },
-  {
     id: 'esri-streets',
     name: 'Esri World Streets',
     category: 'Esri',
     description: 'Detailed Esri global street map with road networks and city landmarks',
     styleUrl: '/basemap/styles/esri-style-streets.json',
     previewColor: '#3b82f6'
+  },
+  {
+    id: 'esri-topographic',
+    name: 'Esri World Topographic',
+    category: 'Esri',
+    description: 'Official Esri world topographic map with contours and physical landforms',
+    styleUrl: '/basemap/styles/esri-style-topographic.json',
+    previewColor: '#688e57'
   },
   {
     id: 'esri-natgeo',
@@ -159,7 +123,43 @@ export const BASEMAPS: BasemapConfig[] = [
     description: 'Topographic map derived from OpenStreetMap and SRTM elevation contours',
     styleUrl: '/basemap/styles/esri-style-open-topographic.json',
     previewColor: '#15803d'
+  },
+  {
+    id: 'google-satellite',
+    name: 'Google Satellite',
+    category: 'Google',
+    description: 'High-resolution global satellite imagery provided by Google Maps',
+    styleUrl: '/basemap/styles/google-satellite.json',
+    previewColor: '#1e3a8a',
+    initialBounds: {
+      center: [117.89, -2.55],
+      zoom: 4.5
+    }
+  },
+  {
+    id: 'google-hybrid',
+    name: 'Google Satellite Hybrid',
+    category: 'Google',
+    description: 'High-resolution satellite imagery with overlay of roads, places, and boundaries',
+    styleUrl: '/basemap/styles/google-hybrid.json',
+    previewColor: '#0f766e',
+    initialBounds: {
+      center: [117.89, -2.55],
+      zoom: 4.5
+    }
+  },
+  {
+    id: 'google-streets',
+    name: 'Google Streets (Navigation)',
+    category: 'Google',
+    description: 'High-contrast street map with road networks, city labels, and transit lines',
+    styleUrl: '/basemap/styles/esri-style-navigation.json',
+    previewColor: '#0ea5e9',
+    initialBounds: {
+      center: [117.89, -2.55],
+      zoom: 4.5
+    }
   }
 ];
 
-export const DEFAULT_BASEMAP_ID = 'google-hybrid';
+export const DEFAULT_BASEMAP_ID = 'esri-imagery';

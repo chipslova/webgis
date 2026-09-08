@@ -1,4 +1,5 @@
 import * as maplibregl from 'maplibre-gl';
+import { DEFAULT_BASEMAP_ID } from '../config/basemaps';
 import { logger } from '../utils/logger';
 
 export type VectorSublayerKey =
@@ -43,7 +44,7 @@ export const DEFAULT_CUSTOMIZER_STATE: BasemapCustomizerState = {
 
 export class BasemapCustomizer {
   private map: maplibregl.Map;
-  private currentBasemapId: string = 'google-hybrid';
+  private currentBasemapId: string = DEFAULT_BASEMAP_ID;
   private mapManagerRef?: { getCurrentBasemapId(): string };
   private state: BasemapCustomizerState = { ...DEFAULT_CUSTOMIZER_STATE, sublayers: { ...DEFAULT_CUSTOMIZER_STATE.sublayers } };
   private onChangeCallbacks: Array<(state: BasemapCustomizerState) => void> = [];
