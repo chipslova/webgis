@@ -259,13 +259,13 @@ export class PointInspector {
         }
       } else {
         if (rasterStatusEl) {
-          rasterStatusEl.innerText = 'Visualisasi WMS (Upstream tidak menyajikan cell raster mentah)';
+          rasterStatusEl.innerText = 'Visualisasi Citra WMS (Disajikan sebagai layer peta)';
           rasterStatusEl.style.color = 'var(--text-muted)';
         }
       }
     } catch (e) {
       if (rasterStatusEl) {
-        rasterStatusEl.innerText = 'Visualisasi WMS (GetFeatureInfo tidak diaktifkan upstream)';
+        rasterStatusEl.innerText = 'Visualisasi Citra WMS (Disajikan sebagai layer peta)';
         rasterStatusEl.style.color = 'var(--text-muted)';
       }
     }

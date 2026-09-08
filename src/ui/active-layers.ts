@@ -455,6 +455,11 @@ export class ActiveLayersUI {
       </div>
     `;
 
+    const statusPill = document.getElementById('map-status-pill');
+    if (statusPill) {
+      statusPill.style.display = layerCount === 0 ? 'flex' : 'none';
+    }
+
     this.mapManager.enforceLayerOrder();
   }
 

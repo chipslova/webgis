@@ -132,6 +132,27 @@ export class MeasureTool {
       this.finishMeasurement();
     });
 
+    // Double-click to finalize measurement on desktop/trackpad
+    this.map.on('dblclick', (e: maplibregl.MapMouseEvent) => {
+      if (this.mode === 'none') return;
+      e.preventDefault();
+      this.finishMeasurement();
+    });
+
+    // Double-tap on mobile touch screen to finalize measurement
+    let lastTouchTime = 0;
+    try {
+      const canvas = this.map.getCanvas();
+      canvas.addEventListener('touchend', () => {
+        if (this.mode === 'none') return;
+        const now = Date.now();
+        if (now - lastTouchTime < 350 && this.points.length >= 2) {
+          this.finishMeasurement();
+        }
+        lastTouchTime = now;
+      }, { passive: true });
+    } catch (_) {}
+
     // Keyboard support: Escape cancels measuring
     window.addEventListener('keydown', (e: KeyboardEvent) => {
       if (e.key === 'Escape' && this.mode !== 'none') {
@@ -161,6 +182,10 @@ export class MeasureTool {
     return this.mode;
   }
 
+  public isDrawingActive(): boolean {
+    return this.mode !== 'none' && this.points.length > 0 && !this.isFinished;
+  }
+
   private addPoint(coord: [number, number]) {
     if (this.isFinished) {
       this.clear();
@@ -178,7 +203,7 @@ export class MeasureTool {
     this.updateTooltip(currentHover, tempPoints);
   }
 
-  private finishMeasurement() {
+  public finishMeasurement() {
     if (this.points.length > 0) {
       this.isFinished = true;
       this.renderFeatures(this.points, true);

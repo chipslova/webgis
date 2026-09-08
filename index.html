@@ -416,16 +416,19 @@
               <div id="measure-instruction-box" class="measure-instruction-box" style="display: none;">
                 <div class="measure-instruction-title">Panduan Pengukuran Aktif:</div>
                 <ul class="measure-instruction-list">
-                  <li><strong>Klik Kiri:</strong> Tambah titik simpul (waypoint) di peta.</li>
-                  <li><strong>Klik Kanan:</strong> Selesaikan jalur pengukuran atau tutup poligon.</li>
-                  <li><strong>Tombol <kbd>Esc</kbd>:</strong> Batalkan atau selesaikan pengukuran yang sedang berjalan.</li>
+                  <li><strong>Klik / Ketuk:</strong> Tambah titik simpul (waypoint) di peta.</li>
+                  <li><strong>Klik Ganda / Double-Tap / Klik Kanan:</strong> Selesaikan pengukuran.</li>
+                  <li><strong>Tombol <kbd>Esc</kbd>:</strong> Batalkan pengukuran.</li>
                 </ul>
               </div>
 
               <div id="measure-result-card" class="result-card" style="display:none;" role="status" aria-live="polite">
                 <div class="result-title">Hasil Pengukuran</div>
                 <div id="measure-result-value" class="result-value">0 km</div>
-                <div class="result-help">Klik kanan pada peta atau tekan Esc untuk menyelesaikan pengukuran</div>
+                <div class="result-help">Klik ganda pada peta atau klik tombol di bawah untuk menyelesaikan jalur:</div>
+                <button id="btn-measure-finish" class="btn btn-secondary btn-sm full-width" style="margin-top: 8px;" aria-label="Selesaikan pengukuran saat ini">
+                  ✓ Selesai Mengukur
+                </button>
               </div>
             </section>
 
@@ -644,6 +647,12 @@
               <span class="hud-title" id="hud-title">🛰️ Memuat Layer Citra Satelit Piksel...</span>
               <span class="hud-subtitle" id="hud-subtitle">Sentinel-2 GeoMAD</span>
             </div>
+          </div>
+
+          <!-- Subtle Floating Map State Indicator (Shows when map is on basemap-only mode) -->
+          <div id="map-status-pill" class="map-status-pill" style="display: none;" role="status" aria-live="polite">
+            <span class="map-status-dot" aria-hidden="true"></span>
+            <span id="map-status-text">Peta Dasar Aktif · Pilih citra satelit atau analisis dari menu</span>
           </div>
         </main>
 

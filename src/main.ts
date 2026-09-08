@@ -537,6 +537,11 @@ class WebGISApp {
       this.updateDynamicLegend();
     });
 
+    const finishBtn = document.getElementById('btn-measure-finish');
+    finishBtn?.addEventListener('click', () => {
+      this.measureTool?.finishMeasurement();
+    });
+
     clearBtn?.addEventListener('click', () => {
       this.measureTool?.clear();
       distBtn?.classList.remove('active');
