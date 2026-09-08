@@ -131,7 +131,7 @@ export const BASEMAPS: BasemapConfig[] = [
     category: 'Carto',
     group: 'canvas',
     description: 'High-contrast dark cartographic basemap optimized for overlay visualization',
-    styleUrl: '/basemap/styles/google-hybrid.json',
+    styleUrl: '/basemap/styles/carto-style-dark-matter.json',
     previewColor: '#0f172a'
   },
   {
@@ -140,7 +140,7 @@ export const BASEMAPS: BasemapConfig[] = [
     category: 'Carto',
     group: 'canvas',
     description: 'Clean modern navigation basemap powered by OpenStreetMap & CARTO',
-    styleUrl: '/basemap/styles/esri-style-navigation.json',
+    styleUrl: '/basemap/styles/carto-style-voyager.json',
     previewColor: '#0ea5e9'
   },
   {
@@ -149,7 +149,7 @@ export const BASEMAPS: BasemapConfig[] = [
     category: 'Esri',
     group: 'canvas',
     description: 'High-clarity satellite archive imagery for clear ground feature resolution',
-    styleUrl: '/basemap/styles/google-satellite.json',
+    styleUrl: '/basemap/styles/esri-style-imagery-clarity.json',
     previewColor: '#1e3a8a'
   },
   {
@@ -158,7 +158,7 @@ export const BASEMAPS: BasemapConfig[] = [
     category: 'OpenData',
     group: 'canvas',
     description: 'High-contrast humanitarian OpenStreetMap styling detailing roads, rivers, and topography',
-    styleUrl: '/basemap/styles/protomaps-style-light.json',
+    styleUrl: '/basemap/styles/osm-style-humanitarian.json',
     previewColor: '#e11d48'
   },
   {
