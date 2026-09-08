@@ -158,7 +158,7 @@ export class PointInspector {
     this.queryWMSGetFeatureInfo(lng, lat, screenPoint);
   }
 
-  private async queryWMSGetFeatureInfo(_lng: number, _lat: number, screenPoint?: maplibregl.PointLike) {
+  private async queryWMSGetFeatureInfo(lng: number, lat: number, screenPoint?: maplibregl.PointLike) {
     const rasterStatusEl = document.getElementById('insp-raster-query-status');
     const pikselProduct = this.pikselLoader?.getActiveProduct();
     
@@ -181,13 +181,20 @@ export class PointInspector {
       const width = canvas.clientWidth || 800;
       const height = canvas.clientHeight || 600;
 
-      let x = Math.round(width / 2);
-      let y = Math.round(height / 2);
-
+      let x = 0;
+      let y = 0;
       if (screenPoint) {
         x = Math.round(Array.isArray(screenPoint) ? screenPoint[0] : (screenPoint as maplibregl.Point).x);
         y = Math.round(Array.isArray(screenPoint) ? screenPoint[1] : (screenPoint as maplibregl.Point).y);
+      } else {
+        const pt = this.map.project([lng, lat]);
+        x = Math.round(pt.x);
+        y = Math.round(pt.y);
       }
+
+      // Clamp coordinate within viewport bounds
+      x = Math.max(0, Math.min(width, x));
+      y = Math.max(0, Math.min(height, y));
 
       const bboxStr = `${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()}`;
       const year = this.pikselLoader?.getSelectedYear() || '2025';
@@ -227,15 +234,27 @@ export class PointInspector {
       } catch {}
 
       if (parsedJson && parsedJson.features && parsedJson.features.length > 0) {
-        const props = parsedJson.features[0].properties;
-        const val = props.value ?? props.gray_index ?? props.band_1 ?? Object.values(props)[0];
-        if (rasterStatusEl) {
-          rasterStatusEl.innerHTML = `<strong style="color: #00f0ff;">Piksel Terdeteksi: ${val}</strong> (GetFeatureInfo)`;
-          rasterStatusEl.style.color = '#00f0ff';
+        const props = parsedJson.features[0].properties || {};
+        const entries = Object.entries(props);
+        if (entries.length > 0) {
+          const summary = entries
+            .slice(0, 3)
+            .map(([k, v]) => `<span style="color:#00f0ff;">${k}:</span> ${v}`)
+            .join(' · ');
+          if (rasterStatusEl) {
+            rasterStatusEl.innerHTML = `<strong>Data Piksel:</strong> ${summary}`;
+            rasterStatusEl.style.color = '#00f0ff';
+          }
+        } else {
+          const val = props.value ?? props.gray_index ?? props.band_1 ?? 'Data terdeteksi';
+          if (rasterStatusEl) {
+            rasterStatusEl.innerHTML = `<strong style="color: #00f0ff;">Piksel Terdeteksi: ${val}</strong> (GetFeatureInfo)`;
+            rasterStatusEl.style.color = '#00f0ff';
+          }
         }
       } else if (text && text.trim().length > 0 && !text.includes('<?xml') && !text.includes('ServiceException')) {
         if (rasterStatusEl) {
-          rasterStatusEl.innerText = `Hasil OGC: ${text.substring(0, 45)}`;
+          rasterStatusEl.innerText = `Hasil OGC: ${text.substring(0, 50)}`;
           rasterStatusEl.style.color = '#cbd5e1';
         }
       } else {

@@ -14,6 +14,7 @@ export interface URLState {
   terrain3D?: boolean;
   terrainHillshade?: boolean;
   basemapId?: string;
+  basemapOpacity?: number;
   productId?: string;
   year?: string;
   pikselOpacity?: number;
@@ -143,6 +144,13 @@ export class PermalinkManager {
         if (geeList.length > 0) state.geeLayers = geeList;
       }
 
+      if (params.has('bm_op')) {
+        const opVal = parseFloat(params.get('bm_op') || '');
+        if (!isNaN(opVal) && opVal >= 0 && opVal <= 1) {
+          state.basemapOpacity = opVal;
+        }
+      }
+
       if (params.has('p_op')) {
         const opVal = parseFloat(params.get('p_op') || '');
         if (!isNaN(opVal) && opVal >= 0 && opVal <= 1) {
@@ -202,6 +210,8 @@ export class PermalinkManager {
     map.on('pitchend', update);
     map.on('rotateend', update);
 
+    this.mapManager.onBasemapOpacityChange(update);
+
     this.scheduleHashUpdate();
   }
 
@@ -223,6 +233,7 @@ export class PermalinkManager {
     const bearing = Math.round(map.getBearing());
     const projection = this.mapManager.getProjection();
     const basemapId = this.mapManager.getCurrentBasemapId();
+    const basemapOpacity = this.mapManager.getBasemapOpacity();
     const activeProduct = this.pikselLoader?.getActiveProduct();
     const year = this.pikselLoader?.getSelectedYear();
 
@@ -249,9 +260,12 @@ export class PermalinkManager {
       }
     }
 
-    // Basemap
+    // Basemap & Basemap Opacity
     if (basemapId && basemapId !== 'osm-standard') {
       params.set('basemap', basemapId);
+    }
+    if (basemapOpacity !== undefined && basemapOpacity < 0.999) {
+      params.set('bm_op', basemapOpacity.toFixed(2));
     }
 
     // Piksel EO Product

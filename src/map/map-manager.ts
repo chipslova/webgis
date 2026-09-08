@@ -13,6 +13,8 @@ export class MapManager {
   private containerId: string;
   private currentBasemapId: string = DEFAULT_BASEMAP_ID;
   private currentProjection: 'globe' | 'mercator' = 'mercator';
+  private currentBasemapOpacity: number = 1.0;
+  private onBasemapOpacityChangeCallbacks: Array<(opacity: number) => void> = [];
   private onMoveCallback?: (info: { lat: number; lng: number; zoom: number; pitch: number; bearing: number }) => void;
   private onFeatureClickCallback?: (properties: Record<string, any>, layerName: string, coordinates: [number, number]) => void;
   private styleSpecCache: Map<string, maplibregl.StyleSpecification> = new Map();
@@ -328,6 +330,7 @@ export class MapManager {
   }
 
   private fireStyleReadyCallbacks() {
+    this.applyBasemapOpacity();
     this.styleReadyCallbacks.forEach((cb) => {
       try {
         cb();
@@ -480,6 +483,58 @@ export class MapManager {
     return this.currentBasemapId;
   }
 
+  public getBasemapOpacity(): number {
+    return this.currentBasemapOpacity;
+  }
+
+  public setBasemapOpacity(opacity: number) {
+    const clamped = Math.max(0, Math.min(1, opacity));
+    this.currentBasemapOpacity = clamped;
+    this.applyBasemapOpacity();
+    this.onBasemapOpacityChangeCallbacks.forEach(cb => {
+      try {
+        cb(this.currentBasemapOpacity);
+      } catch (e) {
+        logger.warn('[MapManager] Error in basemap opacity callback:', e);
+      }
+    });
+  }
+
+  public onBasemapOpacityChange(callback: (opacity: number) => void) {
+    this.onBasemapOpacityChangeCallbacks.push(callback);
+  }
+
+  public applyBasemapOpacity() {
+    if (!this.map || !this.map.getStyle()) return;
+    const style = this.map.getStyle();
+    const layers = style?.layers || [];
+    const opacity = this.currentBasemapOpacity;
+
+    layers.forEach(layer => {
+      // Exclude custom application, analytical, and tool layers
+      if (
+        layer.id.startsWith('piksel-') ||
+        layer.id.startsWith('gee-') ||
+        layer.id.startsWith('layer-') ||
+        layer.id.startsWith('measure-') ||
+        layer.id.startsWith('overlay-') ||
+        layer.id.startsWith('3d-extruded-')
+      ) {
+        return;
+      }
+
+      try {
+        if (layer.type === 'raster') {
+          this.map!.setPaintProperty(layer.id, 'raster-opacity', opacity);
+        } else if (layer.type === 'background') {
+          this.map!.setPaintProperty(layer.id, 'background-opacity', opacity);
+        } else if (layer.type === 'fill') {
+          this.map!.setPaintProperty(layer.id, 'fill-opacity', opacity);
+        }
+      } catch (_) {}
+    });
+  }
+
   public onMouseMove(callback: (info: { lat: number; lng: number; zoom: number; pitch: number; bearing: number }) => void) {
     this.onMoveCallback = callback;
   }
@@ -488,3 +543,4 @@ export class MapManager {
     this.onFeatureClickCallback = callback;
   }
 }
+

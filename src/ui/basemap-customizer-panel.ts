@@ -35,6 +35,9 @@ export class BasemapCustomizerUI {
       this.mapManager.onStyleReady(() => {
         this.syncUI();
       });
+      this.mapManager.onBasemapOpacityChange(() => {
+        this.syncUI();
+      });
     }
 
     if (this.pikselLoader) {
@@ -215,6 +218,28 @@ export class BasemapCustomizerUI {
       this.closeAllPopovers();
     });
 
+    // --- Basemap Popover Controls ---
+    const basemapOpacitySlider = document.getElementById('popover-basemap-opacity-slider') as HTMLInputElement;
+    basemapOpacitySlider?.addEventListener('input', () => {
+      const val = parseInt(basemapOpacitySlider.value, 10);
+      const opacity = isNaN(val) ? 1.0 : val / 100;
+      if (this.mapManager) {
+        this.mapManager.setBasemapOpacity(opacity);
+      }
+      const valEl = document.getElementById('popover-basemap-opacity-val');
+      if (valEl) valEl.innerText = `${val}%`;
+    });
+
+    document.getElementById('btn-reset-basemap-opacity')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (this.mapManager) {
+        this.mapManager.setBasemapOpacity(1.0);
+      }
+      if (basemapOpacitySlider) basemapOpacitySlider.value = '100';
+      const valEl = document.getElementById('popover-basemap-opacity-val');
+      if (valEl) valEl.innerText = '100%';
+    });
+
     // --- Sublayers Popover Controls ---
     const checkHillshade = document.getElementById('popover-check-hillshade') as HTMLInputElement;
     checkHillshade?.addEventListener('change', () => {
@@ -303,6 +328,16 @@ export class BasemapCustomizerUI {
     const badgeEl = document.getElementById('active-bm-type-badge');
     if (titleEl && currentBm) titleEl.textContent = currentBm.name;
     if (badgeEl && currentBm) badgeEl.textContent = currentBm.category;
+
+    // Sync Basemap Opacity slider
+    const currentOpacity = this.mapManager?.getBasemapOpacity() ?? 1.0;
+    const opacityPct = Math.round(currentOpacity * 100);
+    const opacitySlider = document.getElementById('popover-basemap-opacity-slider') as HTMLInputElement;
+    if (opacitySlider && document.activeElement !== opacitySlider) {
+      opacitySlider.value = String(opacityPct);
+    }
+    const opacityVal = document.getElementById('popover-basemap-opacity-val');
+    if (opacityVal) opacityVal.innerText = `${opacityPct}%`;
 
     // 2. Dynamic check: does the active basemap contain discrete vector sublayers?
     const style = this.mapManager?.getMap()?.getStyle();

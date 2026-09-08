@@ -34,13 +34,14 @@ describe('PermalinkManager - URL Hash Parsing & Serialization', () => {
     expect(state.projection).toBe('globe');
   });
 
-  it('should parse layer opacities and GEE active layer lists', () => {
-    const hash = '#map=6.00/-2.5500/117.8900&gee=lst,elevation,poi&p_op=0.75&g_op=0.60';
+  it('should parse layer opacities, basemap opacity, and GEE active layer lists', () => {
+    const hash = '#map=6.00/-2.5500/117.8900&gee=lst,elevation,poi&p_op=0.75&g_op=0.60&bm_op=0.50';
     const state = PermalinkManager.parseHash(hash);
 
     expect(state.geeLayers).toEqual(['lst', 'elevation', 'poi']);
     expect(state.pikselOpacity).toBe(0.75);
     expect(state.geeOpacity).toBe(0.6);
+    expect(state.basemapOpacity).toBe(0.5);
   });
 
   it('should parse legacy slash format correctly', () => {

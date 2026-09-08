@@ -172,6 +172,9 @@ class WebGISApp {
       if (urlState.basemapId && urlState.basemapId !== this.mapManager.getCurrentBasemapId()) {
         this.mapManager.setBasemap(urlState.basemapId);
       }
+      if (urlState.basemapOpacity !== undefined) {
+        this.mapManager.setBasemapOpacity(urlState.basemapOpacity);
+      }
       if (urlState.year && this.pikselLoader) {
         this.pikselLoader.setSelectedYear(urlState.year);
       }
@@ -192,6 +195,24 @@ class WebGISApp {
         }
         this.geePanelUI.init();
       }
+
+      // Mobile UX Optimization: auto-collapse sidebar on mobile / touch pan
+      if (window.innerWidth <= 768) {
+        this.sidebarUI.setOpen(false);
+      }
+
+      map.on('touchstart', () => {
+        if (window.innerWidth <= 768 && this.sidebarUI.getIsOpen()) {
+          this.sidebarUI.setOpen(false);
+        }
+        this.basemapCustomizerUI?.closeAllPopovers();
+      });
+
+      map.on('dragstart', () => {
+        if (window.innerWidth <= 768 && this.sidebarUI.getIsOpen()) {
+          this.sidebarUI.setOpen(false);
+        }
+      });
 
       // Instantiate Point Inspector
       this.pointInspector = new PointInspector(map, this.pikselLoader, this.geeLoader, this.geojsonLoader, this.measureTool);

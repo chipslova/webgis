@@ -763,6 +763,22 @@
           </div>
 
           <div class="popover-body-scroll">
+            <!-- Global Basemap Opacity Slider -->
+            <div class="basemap-opacity-control" style="padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+              <div class="slider-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label for="popover-basemap-opacity-slider" class="basemap-section-header" style="margin: 0; font-size: 11px; text-transform: uppercase;">TRANSPARANSI BASEMAP</label>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span id="popover-basemap-opacity-val" class="exaggeration-value-badge" style="font-size: 11px; font-weight: 600;">100%</span>
+                  <button id="btn-reset-basemap-opacity" class="btn-micro" title="Reset transparansi basemap ke 100%" aria-label="Reset transparansi basemap">Reset</button>
+                </div>
+              </div>
+              <div class="slider-container">
+                <span class="slider-min-label" aria-hidden="true">0%</span>
+                <input type="range" id="popover-basemap-opacity-slider" min="0" max="100" step="1" value="100" aria-label="Transparansi basemap global" />
+                <span class="slider-max-label" aria-hidden="true">100%</span>
+              </div>
+            </div>
+
             <div class="basemap-section-header">SATELLITE & RASTER</div>
             <div class="basemap-popover-list" id="popover-basemap-raster-list">
               <!-- Populated dynamically -->

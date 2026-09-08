@@ -107,7 +107,12 @@ export class SidebarUI {
     requestAnimationFrame(animateResize);
   }
 
+  public getIsOpen(): boolean {
+    return this.isOpen;
+  }
+
   public onTabChange(callback: (tabId: TabId) => void) {
     this.onTabChangeCallback = callback;
   }
 }
+

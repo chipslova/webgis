@@ -6075,7 +6075,8 @@ input:checked + .toggle-switch::after {
   background-color: #0a101d;
 }
 
-/* 5. 3D Terrain Popover */
+/* 5. 3D Terrain Popover & Opacity Controls */
+.basemap-opacity-control,
 .terrain-section {
   display: flex;
   flex-direction: column;
