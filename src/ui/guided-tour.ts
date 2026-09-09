@@ -60,8 +60,12 @@ export class GuidedTourUI {
           // Disable other layers
           this.geeLoader?.clearAllLayers();
           if (this.basemapCustomizer) {
-            this.basemapCustomizer.toggle3DTerrain(false);
+            this.basemapCustomizer.toggle3DTerrain(false, false);
           }
+
+          // Activate Sentinel-2 True Color
+          this.pikselLoader?.setActiveProduct('s2-geomad-rgb');
+          this.sidebarUI.setActiveTab('piksel');
 
           // Fly camera to Bromo
           map.flyTo({
@@ -69,13 +73,9 @@ export class GuidedTourUI {
             zoom: 12.2,
             pitch: 35,
             bearing: 15,
-            duration: 2000,
+            duration: 1800,
             essential: true
           });
-
-          // Activate Sentinel-2 True Color
-          this.pikselLoader?.setActiveProduct('s2-geomad-rgb');
-          this.sidebarUI.setActiveTab('piksel');
         }
       },
       {
@@ -92,18 +92,8 @@ export class GuidedTourUI {
           // Clear Piksel raster
           this.pikselLoader?.setActiveProduct(null);
           if (this.basemapCustomizer) {
-            this.basemapCustomizer.toggle3DTerrain(false);
+            this.basemapCustomizer.toggle3DTerrain(false, false);
           }
-
-          // Fly camera to Jakarta/Jabodetabek
-          map.flyTo({
-            center: [106.8456, -6.2088],
-            zoom: 10.8,
-            pitch: 0,
-            bearing: 0,
-            duration: 2000,
-            essential: true
-          });
 
           // Load GEE and enable LST & POI
           if (this.geeLoader) {
@@ -115,6 +105,16 @@ export class GuidedTourUI {
           }
 
           this.sidebarUI.setActiveTab('gee');
+
+          // Fly camera to Jakarta/Jabodetabek
+          map.flyTo({
+            center: [106.8456, -6.2088],
+            zoom: 10.8,
+            pitch: 0,
+            bearing: 0,
+            duration: 1800,
+            essential: true
+          });
         }
       },
       {
@@ -132,25 +132,25 @@ export class GuidedTourUI {
           this.geeLoader?.clearAllLayers();
           this.pikselLoader?.setActiveProduct(null);
 
-          // Fly camera to Bandung Urban Core (Gedung Sate & Asia Afrika high-density 3D cluster)
-          map.flyTo({
-            center: [107.6186, -6.9024],
-            zoom: 14.8,
-            pitch: 62,
-            bearing: -20,
-            duration: 2200,
-            essential: true
-          });
-
-          // Enable 3D Terrain & 3D buildings
+          // Enable 3D Terrain & 3D buildings WITHOUT overriding flyTo pitch/bearing
           if (this.basemapCustomizer) {
-            this.basemapCustomizer.toggle3DTerrain(true);
+            this.basemapCustomizer.toggle3DTerrain(true, false);
             this.basemapCustomizer.setTerrainExaggeration(1.8);
             this.basemapCustomizer.toggleTerrainHillshade(true);
             this.basemapCustomizer.toggle3DBuildings(true);
           }
 
           this.sidebarUI.setActiveTab('map');
+
+          // Fly camera directly to Bandung Urban Core (Gedung Sate & Asia Afrika high-density 3D cluster)
+          map.flyTo({
+            center: [107.6186, -6.9024],
+            zoom: 14.8,
+            pitch: 62,
+            bearing: -20,
+            duration: 2000,
+            essential: true
+          });
         }
       }
     ];

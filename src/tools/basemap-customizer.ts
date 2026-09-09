@@ -249,28 +249,30 @@ export class BasemapCustomizer {
 
   // --- 1. 3D TERRAIN CONTROLS ---
 
-  public toggle3DTerrain(enabled?: boolean) {
+  public toggle3DTerrain(enabled?: boolean, autoTiltCamera: boolean = true) {
     this.state.terrain3D = enabled !== undefined ? enabled : !this.state.terrain3D;
     this.apply3DTerrain();
     this.apply3DBuildings();
 
-    if (this.state.terrain3D) {
-      // Smoothly tilt camera into dramatic 3D perspective
-      const currentPitch = this.map.getPitch();
-      if (currentPitch < 40) {
-        this.map.easeTo({
-          pitch: 60,
-          duration: 1200
-        });
-      }
-    } else {
-      // Revert pitch back to top-down 2D
-      const currentPitch = this.map.getPitch();
-      if (currentPitch > 10) {
-        this.map.easeTo({
-          pitch: 0,
-          duration: 800
-        });
+    if (autoTiltCamera) {
+      if (this.state.terrain3D) {
+        // Smoothly tilt camera into dramatic 3D perspective
+        const currentPitch = this.map.getPitch();
+        if (currentPitch < 40) {
+          this.map.easeTo({
+            pitch: 60,
+            duration: 1200
+          });
+        }
+      } else {
+        // Revert pitch back to top-down 2D
+        const currentPitch = this.map.getPitch();
+        if (currentPitch > 10) {
+          this.map.easeTo({
+            pitch: 0,
+            duration: 800
+          });
+        }
       }
     }
 
