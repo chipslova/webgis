@@ -5,6 +5,7 @@ import { showToast } from './toast';
 export class SwipeCompareUI {
   private manager: SwipeCompareManager;
   private isDragging: boolean = false;
+  private isCardCollapsed: boolean = false;
 
   constructor(manager: SwipeCompareManager) {
     this.manager = manager;
@@ -89,72 +90,99 @@ export class SwipeCompareUI {
     `
     ).join('');
 
-    uiRoot.innerHTML = `
-      <!-- Single Unified Glass Floating Comparison Card -->
-      <div class="swipe-unified-card glass-panel" role="toolbar" aria-label="Kontrol Komparasi Citra Satelit">
-        <div class="swipe-header-row">
-          <!-- Left Layer Selector -->
-          <div class="swipe-side-box left">
-            <div class="swipe-side-tag left">
-              <span class="swipe-tag-dot left"></span>
-              <span>SISI KIRI</span>
-            </div>
-            <div class="swipe-select-group">
-              <select id="swipe-left-prod" class="swipe-select" aria-label="Pilih layer sisi kiri">
-                ${leftOptionsHtml}
-              </select>
-              <select id="swipe-left-year" class="swipe-select year" aria-label="Pilih tahun sisi kiri">
-                ${leftYearHtml}
-              </select>
-            </div>
+    const cardContentHtml = this.isCardCollapsed
+      ? `
+        <!-- Collapsed Mini Pill Toolbar (Maximum Map Visibility) -->
+        <div class="swipe-mini-pill glass-panel" role="toolbar" aria-label="Status Komparasi Citra">
+          <div class="mini-pill-info">
+            <span class="mini-pill-dot"></span>
+            <span>Komparasi: <strong>${leftProd?.name || 'Kiri'} (${leftConfig.year})</strong> vs <strong>${rightProd?.name || 'Kanan'} (${rightConfig.year})</strong></span>
           </div>
-
-          <!-- VS Badge -->
-          <div class="swipe-vs-badge" aria-hidden="true">VS</div>
-
-          <!-- Right Layer Selector -->
-          <div class="swipe-side-box right">
-            <div class="swipe-select-group">
-              <select id="swipe-right-prod" class="swipe-select" aria-label="Pilih layer sisi kanan">
-                ${rightOptionsHtml}
-              </select>
-              <select id="swipe-right-year" class="swipe-select year" aria-label="Pilih tahun sisi kanan">
-                ${rightYearHtml}
-              </select>
-            </div>
-            <div class="swipe-side-tag right">
-              <span>SISI KANAN</span>
-              <span class="swipe-tag-dot right"></span>
-            </div>
-          </div>
-
-          <!-- Close / Exit Button -->
-          <button id="btn-close-swipe" class="btn-close-swipe" title="Keluar dari mode komparasi" aria-label="Tutup mode komparasi" type="button">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            <span>Selesai</span>
-          </button>
-        </div>
-
-        <!-- Integrated Preset Chips Row -->
-        <div class="swipe-presets-row">
-          <span class="presets-row-label">⚡ Studi:</span>
-          <div class="presets-chips-scroll">
-            ${presetsHtml}
-          </div>
-        </div>
-
-        ${this.manager.getPrimaryMapZoom() < 8 ? `
-          <div class="swipe-zoom-alert" id="swipe-zoom-alert">
-            <div class="swipe-zoom-alert-text">
-              <span class="alert-icon" aria-hidden="true">💡</span>
-              <span>Zoom saat ini (${this.manager.getPrimaryMapZoom().toFixed(1)}). Citra satelit memerlukan Zoom ≥ 8 agar muncul.</span>
-            </div>
-            <button id="btn-swipe-autozoom" class="btn-swipe-autozoom" type="button" aria-label="Perbesar otomatis ke zoom 9.5">
-              Perbesar Otomatis (9.5) →
+          <div class="mini-pill-actions">
+            <button id="btn-toggle-swipe-card" class="btn-micro" title="Buka Menu Pengaturan Layer Komparasi" aria-label="Buka Pengaturan">
+              ⚙️ Pengaturan
+            </button>
+            <button id="btn-close-swipe" class="btn-micro btn-micro-danger" title="Keluar Mode Komparasi" aria-label="Keluar Mode Komparasi">
+              ✕ Selesai
             </button>
           </div>
-        ` : ''}
-      </div>
+        </div>
+      `
+      : `
+        <!-- Expanded Full Control Card -->
+        <div class="swipe-unified-card glass-panel" role="toolbar" aria-label="Kontrol Komparasi Citra Satelit">
+          <div class="swipe-header-row">
+            <!-- Left Layer Selector -->
+            <div class="swipe-side-box left">
+              <div class="swipe-side-tag left">
+                <span class="swipe-tag-dot left"></span>
+                <span>SISI KIRI</span>
+              </div>
+              <div class="swipe-select-group">
+                <select id="swipe-left-prod" class="swipe-select" aria-label="Pilih layer sisi kiri">
+                  ${leftOptionsHtml}
+                </select>
+                <select id="swipe-left-year" class="swipe-select year" aria-label="Pilih tahun sisi kiri">
+                  ${leftYearHtml}
+                </select>
+              </div>
+            </div>
+
+            <!-- VS Badge -->
+            <div class="swipe-vs-badge" aria-hidden="true">VS</div>
+
+            <!-- Right Layer Selector -->
+            <div class="swipe-side-box right">
+              <div class="swipe-select-group">
+                <select id="swipe-right-prod" class="swipe-select" aria-label="Pilih layer sisi kanan">
+                  ${rightOptionsHtml}
+                </select>
+                <select id="swipe-right-year" class="swipe-select year" aria-label="Pilih tahun sisi kanan">
+                  ${rightYearHtml}
+                </select>
+              </div>
+              <div class="swipe-side-tag right">
+                <span>SISI KANAN</span>
+                <span class="swipe-tag-dot right"></span>
+              </div>
+            </div>
+
+            <!-- Action Buttons: Minimize & Close -->
+            <div class="swipe-card-actions">
+              <button id="btn-toggle-swipe-card" class="btn-icon-swipe" title="Sembunyikan Menu (Lihat Peta Penuh)" aria-label="Ciutkan Menu Komparasi" type="button">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+              </button>
+              <button id="btn-close-swipe" class="btn-close-swipe" title="Keluar dari mode komparasi" aria-label="Tutup mode komparasi" type="button">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <span>Selesai</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Integrated Preset Chips Row -->
+          <div class="swipe-presets-row">
+            <span class="presets-row-label">⚡ Studi:</span>
+            <div class="presets-chips-scroll">
+              ${presetsHtml}
+            </div>
+          </div>
+
+          ${this.manager.getPrimaryMapZoom() < 8 ? `
+            <div class="swipe-zoom-alert" id="swipe-zoom-alert">
+              <div class="swipe-zoom-alert-text">
+                <span class="alert-icon" aria-hidden="true">💡</span>
+                <span>Zoom saat ini (${this.manager.getPrimaryMapZoom().toFixed(1)}). Citra satelit memerlukan Zoom ≥ 8 agar muncul.</span>
+              </div>
+              <button id="btn-swipe-autozoom" class="btn-swipe-autozoom" type="button" aria-label="Perbesar otomatis ke zoom 9.5">
+                Perbesar Otomatis (9.5) →
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+
+    uiRoot.innerHTML = `
+      ${cardContentHtml}
 
       <!-- Draggable Split Divider Line & Handle Knob -->
       <div id="swipe-divider-handle" class="swipe-divider-line" style="left: ${sliderPos}%;" role="separator" aria-valuenow="${sliderPos}" aria-valuemin="0" aria-valuemax="100" tabindex="0" aria-label="Geser untuk membandingkan citra kiri dan kanan">
@@ -168,23 +196,18 @@ export class SwipeCompareUI {
           </svg>
         </div>
       </div>
-
-      <!-- Pinned Floating Side Badges -->
-      <div class="swipe-map-badge left">
-        <span class="badge-tag">⬅ KIRI (${leftConfig.year})</span>
-        <strong>${leftProd?.name || 'Layer Kiri'}</strong>
-      </div>
-
-      <div class="swipe-map-badge right">
-        <span class="badge-tag">KANAN (${rightConfig.year}) ➡</span>
-        <strong>${rightProd?.name || 'Layer Kanan'}</strong>
-      </div>
     `;
 
     this.bindEvents(uiRoot);
   }
 
   private bindEvents(root: HTMLElement) {
+    // 0. Toggle Collapse/Expand Toolbar
+    root.querySelector('#btn-toggle-swipe-card')?.addEventListener('click', () => {
+      this.isCardCollapsed = !this.isCardCollapsed;
+      this.render();
+    });
+
     // 1. Select changes
     const leftProd = root.querySelector('#swipe-left-prod') as HTMLSelectElement;
     leftProd?.addEventListener('change', () => {
@@ -219,9 +242,11 @@ export class SwipeCompareUI {
     });
 
     // 3. Close button
-    root.querySelector('#btn-close-swipe')?.addEventListener('click', () => {
-      this.manager.deactivate();
-      showToast('Mode komparasi ditutup', 'info');
+    root.querySelectorAll('#btn-close-swipe').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        this.manager.deactivate();
+        showToast('Mode komparasi ditutup', 'info');
+      });
     });
 
     // 4. Auto-zoom button if zoom < 8
@@ -230,7 +255,7 @@ export class SwipeCompareUI {
       showToast('Memperbesar peta ke Zoom Level 9.5...', 'info');
     });
 
-    // 4. Draggable Divider Handle Events (Mouse & Touch)
+    // 5. Draggable Divider Handle Events (Mouse & Touch)
     const handle = root.querySelector('#swipe-divider-handle') as HTMLElement;
     if (!handle) return;
 

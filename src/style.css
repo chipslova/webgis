@@ -6943,46 +6943,83 @@ body.swipe-mode-active #dynamic-legend-container {
   margin: 0 1px;
 }
 
-/* Pinned Side Badges */
-.swipe-map-badge {
-  position: absolute;
-  top: 96px;
-  background: rgba(10, 17, 32, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(10px);
-  padding: 5px 10px;
-  border-radius: 8px;
+.swipe-card-actions {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  pointer-events: none;
-  z-index: 25;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  align-items: center;
+  gap: 4px;
 }
 
-.swipe-map-badge.left {
-  left: 14px;
-  border-left: 3px solid #38bdf8;
-}
-
-.swipe-map-badge.right {
-  right: 14px;
-  border-right: 3px solid #34d399;
-  text-align: right;
-}
-
-.swipe-map-badge .badge-tag {
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+.btn-icon-swipe {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   color: #94a3b8;
-  font-family: 'JetBrains Mono', monospace;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.swipe-map-badge strong {
+.btn-icon-swipe:hover {
+  background: rgba(56, 189, 248, 0.2);
+  color: #00f0ff;
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+/* Collapsed Mini Pill Toolbar */
+.swipe-mini-pill {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(10, 17, 32, 0.94);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(0, 240, 255, 0.1);
+  backdrop-filter: blur(16px);
+  pointer-events: auto;
+  z-index: 50;
+  animation: dropIn 0.18s ease-out;
+}
+
+.mini-pill-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 11px;
-  color: #f1f5f9;
-  white-space: nowrap;
+  color: #cbd5e1;
+}
+
+.mini-pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00f0ff;
+  box-shadow: 0 0 6px #00f0ff;
+}
+
+.mini-pill-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-micro-danger {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.btn-micro-danger:hover {
+  background: rgba(239, 68, 68, 0.4);
+  color: #ffffff;
 }
 
 @media (max-width: 768px) {
