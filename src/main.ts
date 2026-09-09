@@ -707,10 +707,11 @@ class WebGISApp {
     setupUniversalEscapeHandler([
       () => {
         // 1. Command Palette
-        if (this.commandPaletteUI?.isOpen()) {
+        if (this.commandPaletteUI?.isPaletteOpen()) {
           this.commandPaletteUI.close();
           return true;
         }
+        return false;
       },
       () => {
         // 2. Header More Dropdown
@@ -720,6 +721,7 @@ class WebGISApp {
           document.getElementById('btn-header-more-actions')?.setAttribute('aria-expanded', 'false');
           return true;
         }
+        return false;
       },
       () => {
         // 3. Popovers
@@ -732,6 +734,7 @@ class WebGISApp {
           }
         });
         if (closed) return true;
+        return false;
       },
       () => {
         // 4. Feature Inspector & Floating Inspector
@@ -745,6 +748,7 @@ class WebGISApp {
           floatInsp.classList.remove('active');
           return true;
         }
+        return false;
       },
       () => {
         // 5. Cancel active measurement
@@ -759,6 +763,7 @@ class WebGISApp {
           showToast('Mode pengukuran dibatalkan', 'info');
           return true;
         }
+        return false;
       }
     ]);
   }

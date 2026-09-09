@@ -74,6 +74,14 @@ export class CommandPaletteUI {
     }
   }
 
+  public isPaletteOpen(): boolean {
+    return this.isOpen;
+  }
+
+  public getIsOpen(): boolean {
+    return this.isOpen;
+  }
+
   public toggle() {
     if (this.isOpen) {
       this.close();

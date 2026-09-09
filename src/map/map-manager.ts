@@ -217,7 +217,10 @@ export class MapManager {
       });
       canvas.addEventListener('webglcontextrestored', () => {
         logger.info('[MapManager] WebGL Context Restored.');
-        this.triggerStyleReady();
+        if (this.map) {
+          this.map.resize();
+          this.map.triggerRepaint();
+        }
       });
     }
 
