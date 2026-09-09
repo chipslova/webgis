@@ -185,7 +185,12 @@ class WebGISApp {
       );
 
       // Initialize Swipe / Split-Screen Comparison Mode
-      this.swipeCompareManager = new SwipeCompareManager(map);
+      this.swipeCompareManager = new SwipeCompareManager(
+        map,
+        this.mapManager,
+        this.sidebarUI,
+        this.pikselLoader
+      );
       this.swipeCompareUI = new SwipeCompareUI(this.swipeCompareManager);
 
       // Initialize Spotlight Command Palette

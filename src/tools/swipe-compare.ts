@@ -1,6 +1,9 @@
 import * as maplibregl from 'maplibre-gl';
 import { PIKSEL_PRODUCTS, PikselProduct } from '../config/piksel';
 import { BASEMAPS, DEFAULT_BASEMAP_ID } from '../config/basemaps';
+import { MapManager } from '../map/map-manager';
+import { SidebarUI } from '../ui/sidebar';
+import { PikselLoader } from './piksel-loader';
 import { logger } from '../utils/logger';
 
 export interface CompareSideConfig {
@@ -28,8 +31,8 @@ export const SWIPE_PRESETS: SwipePreset[] = [
     locationName: 'Kalimantan Timur',
     center: [116.7050, -0.9700],
     zoom: 12.0,
-    pitch: 20,
-    description: 'Bandingkan tutupan hutan lebat 2018 (Kiri) vs Progres Infrastruktur & Indeks Vegetasi 2025 (Kanan).',
+    pitch: 0,
+    description: 'Bandingkan tutupan hutan 2018 (Kiri) vs Progres Infrastruktur & Indeks Vegetasi 2025 (Kanan).',
     left: { productId: 's2-geomad-rgb', year: '2018' },
     right: { productId: 's2-ndvi', year: '2025' }
   },
@@ -39,7 +42,7 @@ export const SWIPE_PRESETS: SwipePreset[] = [
     locationName: 'Jawa Timur',
     center: [112.9485, -7.9514],
     zoom: 12.5,
-    pitch: 35,
+    pitch: 0,
     description: 'Bandingkan Warna Alami RGB (Kiri) vs Klorofil Inframerah Dekat NIR (Kanan).',
     left: { productId: 's2-geomad-rgb', year: '2025' },
     right: { productId: 's2-geomad-nir', year: '2025' }
@@ -50,8 +53,8 @@ export const SWIPE_PRESETS: SwipePreset[] = [
     locationName: 'Sumatera Utara',
     center: [98.8052, 2.5819],
     zoom: 11.0,
-    pitch: 15,
-    description: 'Bandingkan kenampakan optik pulau Samosir (Kiri) vs Pemisahan Indeks Badan Air NDWI (Kanan).',
+    pitch: 0,
+    description: 'Bandingkan kenampakan optik Samosir (Kiri) vs Indeks Badan Air NDWI (Kanan).',
     left: { productId: 's2-geomad-rgb', year: '2025' },
     right: { productId: 's2-ndwi', year: '2025' }
   },
@@ -61,8 +64,8 @@ export const SWIPE_PRESETS: SwipePreset[] = [
     locationName: 'D.I. Yogyakarta',
     center: [110.4463, -7.5407],
     zoom: 12.2,
-    pitch: 30,
-    description: 'Bandingkan morfologi kubah lava dan alur lahar erupsi tahun 2018 vs kondisi 2025.',
+    pitch: 0,
+    description: 'Bandingkan kubah lava & alur lahar erupsi tahun 2018 vs kondisi 2025.',
     left: { productId: 's2-geomad-rgb', year: '2018' },
     right: { productId: 's2-geomad-rgb', year: '2025' }
   }
@@ -70,9 +73,14 @@ export const SWIPE_PRESETS: SwipePreset[] = [
 
 export class SwipeCompareManager {
   private primaryMap: maplibregl.Map;
+  private mapManager: MapManager | null = null;
+  private sidebarUI: SidebarUI | null = null;
+  private pikselLoader: PikselLoader | null = null;
+
   private compareMap: maplibregl.Map | null = null;
   private isCompareActive: boolean = false;
   private sliderPositionPercent: number = 50; // 0 to 100%
+  private wasSidebarOpen: boolean = false;
 
   private leftConfig: CompareSideConfig = {
     productId: 's2-geomad-rgb',
@@ -88,9 +96,18 @@ export class SwipeCompareManager {
 
   private onStateChangeCallbacks: Array<() => void> = [];
   private syncListener: (() => void) | null = null;
+  private resizeListener: (() => void) | null = null;
 
-  constructor(primaryMap: maplibregl.Map) {
+  constructor(
+    primaryMap: maplibregl.Map,
+    mapManager?: MapManager | null,
+    sidebarUI?: SidebarUI | null,
+    pikselLoader?: PikselLoader | null
+  ) {
     this.primaryMap = primaryMap;
+    this.mapManager = mapManager || null;
+    this.sidebarUI = sidebarUI || null;
+    this.pikselLoader = pikselLoader || null;
   }
 
   public isActive(): boolean {
@@ -104,6 +121,15 @@ export class SwipeCompareManager {
   public setSliderPosition(percent: number) {
     this.sliderPositionPercent = Math.max(0, Math.min(100, percent));
     this.updateClipPath();
+
+    if (typeof document !== 'undefined') {
+      const handle = document.getElementById('swipe-divider-handle');
+      if (handle) {
+        handle.style.left = `${this.sliderPositionPercent}%`;
+        handle.setAttribute('aria-valuenow', `${Math.round(this.sliderPositionPercent)}`);
+      }
+    }
+
     this.notify();
   }
 
@@ -160,9 +186,35 @@ export class SwipeCompareManager {
     this.isCompareActive = true;
     this.sliderPositionPercent = 50;
 
-    // Create container elements
+    if (typeof document !== 'undefined') {
+      document.body.classList.add('swipe-mode-active');
+      // Close popovers if open
+      const bmPop = document.getElementById('basemap-popover');
+      if (bmPop) bmPop.style.display = 'none';
+      const subPop = document.getElementById('sublayers-popover');
+      if (subPop) subPop.style.display = 'none';
+    }
+
+    // Auto-collapse sidebar for an uncluttered full-map comparison view
+    if (this.sidebarUI) {
+      this.wasSidebarOpen = this.sidebarUI.getIsOpen();
+      this.sidebarUI.setOpen(false);
+    }
+
+    // Suppress standalone piksel layer to avoid overlay conflict
+    if (this.pikselLoader) {
+      this.pikselLoader.setActiveProduct(null);
+    }
+
+    // Sync basemap id
+    const currentBm = this.mapManager?.getCurrentBasemapId() || DEFAULT_BASEMAP_ID;
+    this.leftConfig.basemapId = currentBm;
+    this.rightConfig.basemapId = currentBm;
+
+    // Create container elements & init secondary map
     this.ensureOverlayElements();
     this.initCompareMap();
+    this.renderRightLayer();
 
     if (preset) {
       this.primaryMap.flyTo({
@@ -175,16 +227,43 @@ export class SwipeCompareManager {
       });
     }
 
+    // Trigger map canvas resize
+    setTimeout(() => {
+      this.primaryMap.resize();
+      this.compareMap?.resize();
+    }, 150);
+
     this.notify();
   }
 
   /**
-   * Deactivates Swipe Comparison Mode and tears down the secondary canvas cleanly
+   * Deactivates Swipe Comparison Mode and cleans up both maps and overlays
    */
   public deactivate() {
     if (!this.isCompareActive) return;
 
     this.isCompareActive = false;
+
+    if (typeof document !== 'undefined') {
+      document.body.classList.remove('swipe-mode-active');
+    }
+
+    // Remove primary map swipe layers
+    const rightSrcId = 'swipe-right-raster-src';
+    const rightLayerId = 'swipe-right-raster-layer';
+
+    if (this.primaryMap && this.primaryMap.getStyle()) {
+      if (this.primaryMap.getLayer(rightLayerId)) {
+        try {
+          this.primaryMap.removeLayer(rightLayerId);
+        } catch (_) {}
+      }
+      if (this.primaryMap.getSource(rightSrcId)) {
+        try {
+          this.primaryMap.removeSource(rightSrcId);
+        } catch (_) {}
+      }
+    }
 
     // Remove event listeners
     if (this.syncListener) {
@@ -192,6 +271,12 @@ export class SwipeCompareManager {
       this.syncListener = null;
     }
 
+    if (this.resizeListener && typeof window !== 'undefined') {
+      window.removeEventListener('resize', this.resizeListener);
+      this.resizeListener = null;
+    }
+
+    // Remove secondary map
     if (this.compareMap) {
       try {
         this.compareMap.remove();
@@ -199,12 +284,23 @@ export class SwipeCompareManager {
       this.compareMap = null;
     }
 
+    // Remove DOM overlays
     if (typeof document !== 'undefined') {
       const container = document.getElementById('swipe-compare-overlay');
-      if (container) {
-        container.remove();
-      }
+      if (container) container.remove();
+
+      const uiRoot = document.getElementById('swipe-ui-root');
+      if (uiRoot) uiRoot.remove();
     }
+
+    // Restore previous sidebar state
+    if (this.wasSidebarOpen && this.sidebarUI) {
+      this.sidebarUI.setOpen(true);
+    }
+
+    setTimeout(() => {
+      this.primaryMap.resize();
+    }, 150);
 
     this.notify();
   }
@@ -275,11 +371,12 @@ export class SwipeCompareManager {
       pitch: this.primaryMap.getPitch(),
       bearing: this.primaryMap.getBearing(),
       attributionControl: false,
-      interactive: false // Primary map drives interaction
+      interactive: false // Primary map drives camera
     });
 
     this.compareMap.on('load', () => {
       this.renderLeftLayer();
+      this.compareMap?.resize();
     });
 
     // Synchronize camera movement seamlessly
@@ -294,6 +391,13 @@ export class SwipeCompareManager {
     };
 
     this.primaryMap.on('move', this.syncListener);
+
+    if (typeof window !== 'undefined') {
+      this.resizeListener = () => {
+        this.compareMap?.resize();
+      };
+      window.addEventListener('resize', this.resizeListener);
+    }
   }
 
   private buildWmsTileUrl(product: PikselProduct, year: string): string {

@@ -13,7 +13,10 @@ export class SwipeCompareUI {
 
   private init() {
     this.manager.onStateChange(() => {
-      this.render();
+      // Avoid destroying and rebuilding DOM while actively dragging
+      if (!this.isDragging) {
+        this.render();
+      }
     });
   }
 
@@ -28,11 +31,16 @@ export class SwipeCompareUI {
       return;
     }
 
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) return;
+
     if (!uiRoot) {
       uiRoot = document.createElement('div');
       uiRoot.id = 'swipe-ui-root';
       uiRoot.className = 'swipe-ui-root';
-      document.body.appendChild(uiRoot);
+      mapContainer.appendChild(uiRoot);
+    } else if (!mapContainer.contains(uiRoot)) {
+      mapContainer.appendChild(uiRoot);
     }
 
     const leftConfig = this.manager.getLeftConfig();
@@ -60,74 +68,89 @@ export class SwipeCompareUI {
 
     const presetsHtml = SWIPE_PRESETS.map(
       (preset) => `
-      <button class="swipe-preset-chip" data-id="${preset.id}" title="${preset.description}">
+      <button class="swipe-preset-chip" data-id="${preset.id}" title="${preset.description}" type="button">
         ${preset.name}
       </button>
     `
     ).join('');
 
     uiRoot.innerHTML = `
-      <!-- Top Floating Swipe Control Bar -->
-      <div class="swipe-control-bar glass-panel" role="toolbar" aria-label="Kontrol Komparasi Citra Satelit">
-        <div class="swipe-side-select left">
-          <span class="swipe-side-badge left">⬅ SISI KIRI</span>
-          <select id="swipe-left-prod" class="swipe-select" aria-label="Pilih layer sisi kiri">
-            ${leftOptionsHtml}
-          </select>
-          <select id="swipe-left-year" class="swipe-select year" aria-label="Pilih tahun sisi kiri">
-            ${leftYearHtml}
-          </select>
+      <!-- Single Unified Glass Floating Comparison Card -->
+      <div class="swipe-unified-card glass-panel" role="toolbar" aria-label="Kontrol Komparasi Citra Satelit">
+        <div class="swipe-header-row">
+          <!-- Left Layer Selector -->
+          <div class="swipe-side-box left">
+            <div class="swipe-side-tag left">
+              <span class="swipe-tag-dot left"></span>
+              <span>SISI KIRI</span>
+            </div>
+            <div class="swipe-select-group">
+              <select id="swipe-left-prod" class="swipe-select" aria-label="Pilih layer sisi kiri">
+                ${leftOptionsHtml}
+              </select>
+              <select id="swipe-left-year" class="swipe-select year" aria-label="Pilih tahun sisi kiri">
+                ${leftYearHtml}
+              </select>
+            </div>
+          </div>
+
+          <!-- VS Badge -->
+          <div class="swipe-vs-badge" aria-hidden="true">VS</div>
+
+          <!-- Right Layer Selector -->
+          <div class="swipe-side-box right">
+            <div class="swipe-select-group">
+              <select id="swipe-right-prod" class="swipe-select" aria-label="Pilih layer sisi kanan">
+                ${rightOptionsHtml}
+              </select>
+              <select id="swipe-right-year" class="swipe-select year" aria-label="Pilih tahun sisi kanan">
+                ${rightYearHtml}
+              </select>
+            </div>
+            <div class="swipe-side-tag right">
+              <span>SISI KANAN</span>
+              <span class="swipe-tag-dot right"></span>
+            </div>
+          </div>
+
+          <!-- Close / Exit Button -->
+          <button id="btn-close-swipe" class="btn-close-swipe" title="Keluar dari mode komparasi" aria-label="Tutup mode komparasi" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <span>Selesai</span>
+          </button>
         </div>
 
-        <div class="swipe-divider-badge">
-          <span>VS</span>
+        <!-- Integrated Preset Chips Row -->
+        <div class="swipe-presets-row">
+          <span class="presets-row-label">⚡ Studi:</span>
+          <div class="presets-chips-scroll">
+            ${presetsHtml}
+          </div>
         </div>
-
-        <div class="swipe-side-select right">
-          <span class="swipe-side-badge right">SISI KANAN ➡</span>
-          <select id="swipe-right-prod" class="swipe-select" aria-label="Pilih layer sisi kanan">
-            ${rightOptionsHtml}
-          </select>
-          <select id="swipe-right-year" class="swipe-select year" aria-label="Pilih tahun sisi kanan">
-            ${rightYearHtml}
-          </select>
-        </div>
-
-        <button id="btn-close-swipe" class="btn-close-swipe" title="Keluar dari mode komparasi" aria-label="Tutup mode komparasi">
-          ✕ Keluar
-        </button>
       </div>
 
-      <!-- Quick Preset Selector Bar -->
-      <div class="swipe-presets-bar">
-        <span class="presets-label">⚡ Studi Komparasi:</span>
-        ${presetsHtml}
-      </div>
-
-      <!-- Draggable Split Divider Line & Handle -->
+      <!-- Draggable Split Divider Line & Handle Knob -->
       <div id="swipe-divider-handle" class="swipe-divider-line" style="left: ${sliderPos}%;" role="separator" aria-valuenow="${sliderPos}" aria-valuemin="0" aria-valuemax="100" tabindex="0" aria-label="Geser untuk membandingkan citra kiri dan kanan">
         <div class="swipe-handle-knob">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="15 18 9 12 15 6"/>
-            <polyline points="9 18 3 12 9 6"/>
           </svg>
           <span class="swipe-handle-bar"></span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="9 18 15 12 9 6"/>
-            <polyline points="15 18 21 12 15 6"/>
           </svg>
         </div>
       </div>
 
-      <!-- Floating Side Badges on Map -->
-      <div class="swipe-map-badge left" style="left: 16px;">
-        <strong>${leftProd?.name || 'Citra Kiri'}</strong>
-        <span>Tahun ${leftConfig.year}</span>
+      <!-- Pinned Floating Side Badges -->
+      <div class="swipe-map-badge left">
+        <span class="badge-tag">⬅ KIRI (${leftConfig.year})</span>
+        <strong>${leftProd?.name || 'Layer Kiri'}</strong>
       </div>
 
-      <div class="swipe-map-badge right" style="right: 16px;">
-        <strong>${rightProd?.name || 'Citra Kanan'}</strong>
-        <span>Tahun ${rightConfig.year}</span>
+      <div class="swipe-map-badge right">
+        <span class="badge-tag">KANAN (${rightConfig.year}) ➡</span>
+        <strong>${rightProd?.name || 'Layer Kanan'}</strong>
       </div>
     `;
 
@@ -174,7 +197,7 @@ export class SwipeCompareUI {
       showToast('Mode komparasi ditutup', 'info');
     });
 
-    // 4. Draggable Handle Events (Mouse & Touch)
+    // 4. Draggable Divider Handle Events (Mouse & Touch)
     const handle = root.querySelector('#swipe-divider-handle') as HTMLElement;
     if (!handle) return;
 
@@ -183,13 +206,13 @@ export class SwipeCompareUI {
       if (!mapEl) return;
       const rect = mapEl.getBoundingClientRect();
       const relativeX = clientX - rect.left;
-      const pct = (relativeX / rect.width) * 100;
+      const pct = Math.max(0, Math.min(100, (relativeX / rect.width) * 100));
       this.manager.setSliderPosition(pct);
     };
 
     const onPointerDown = (e: MouseEvent | TouchEvent) => {
       if (e.cancelable && 'touches' in e) {
-        // Prevent default touch scroll when starting slider drag
+        e.preventDefault();
       }
       this.isDragging = true;
       document.body.style.userSelect = 'none';
@@ -213,14 +236,14 @@ export class SwipeCompareUI {
 
       window.addEventListener('mousemove', moveHandler);
       window.addEventListener('mouseup', upHandler);
-      window.addEventListener('touchmove', moveHandler, { passive: true });
+      window.addEventListener('touchmove', moveHandler, { passive: false });
       window.addEventListener('touchend', upHandler);
     };
 
     handle.addEventListener('mousedown', onPointerDown);
-    handle.addEventListener('touchstart', onPointerDown, { passive: true });
+    handle.addEventListener('touchstart', onPointerDown, { passive: false });
 
-    // Keyboard support for separator
+    // Keyboard navigation for accessibility
     handle.addEventListener('keydown', (e) => {
       const cur = this.manager.getSliderPosition();
       if (e.key === 'ArrowLeft') {

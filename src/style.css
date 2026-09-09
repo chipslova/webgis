@@ -6612,6 +6612,16 @@ input:checked + .toggle-switch::after {
    Swipe / Split-Screen Comparison Mode
    ========================================================================== */
 
+/* Distraction-free mode when swipe comparison is active */
+body.swipe-mode-active #bottom-layer-tools,
+body.swipe-mode-active #floating-inspector-card,
+body.swipe-mode-active #feature-inspector,
+body.swipe-mode-active #basemap-popover,
+body.swipe-mode-active #sublayers-popover,
+body.swipe-mode-active #dynamic-legend-container {
+  display: none !important;
+}
+
 .swipe-compare-overlay {
   position: absolute;
   top: 0;
@@ -6637,34 +6647,36 @@ input:checked + .toggle-switch::after {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 40;
+  z-index: 30;
   pointer-events: none;
+  overflow: hidden;
 }
 
-.swipe-control-bar {
+/* Unified Floating Card */
+.swipe-unified-card {
   position: absolute;
-  top: 14px;
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 16px;
-  border-radius: 30px;
-  background: rgba(13, 22, 39, 0.92);
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 16px;
+  background: rgba(10, 17, 32, 0.94);
   border: 1px solid rgba(56, 189, 248, 0.35);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 240, 255, 0.12);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7), 0 0 24px rgba(0, 240, 255, 0.12);
   backdrop-filter: blur(16px);
   pointer-events: auto;
   z-index: 50;
-  max-width: calc(100vw - 32px);
-  animation: dropIn 0.25s ease-out;
+  max-width: calc(100% - 24px);
+  animation: dropIn 0.22s ease-out;
 }
 
 @keyframes dropIn {
   from {
     opacity: 0;
-    transform: translate(-50%, -12px);
+    transform: translate(-50%, -10px);
   }
   to {
     opacity: 1;
@@ -6672,49 +6684,80 @@ input:checked + .toggle-switch::after {
   }
 }
 
-.swipe-side-select {
+.swipe-header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.swipe-side-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.swipe-side-tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.swipe-side-tag.left {
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+.swipe-side-tag.right {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.swipe-tag-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.swipe-tag-dot.left {
+  background: #38bdf8;
+  box-shadow: 0 0 6px #38bdf8;
+}
+
+.swipe-tag-dot.right {
+  background: #34d399;
+  box-shadow: 0 0 6px #34d399;
+}
+
+.swipe-select-group {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.swipe-side-badge {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 12px;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-}
-
-.swipe-side-badge.left {
-  background: rgba(56, 189, 248, 0.2);
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.35);
-}
-
-.swipe-side-badge.right {
-  background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.35);
-}
-
 .swipe-select {
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   color: #f1f5f9;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 500;
   padding: 5px 8px;
-  border-radius: 8px;
+  border-radius: 7px;
   outline: none;
   cursor: pointer;
   transition: all 0.15s ease;
-  max-width: 140px;
+  max-width: 150px;
 }
 
 .swipe-select.year {
-  max-width: 72px;
+  max-width: 70px;
   font-family: 'JetBrains Mono', monospace;
   font-weight: 600;
 }
@@ -6724,93 +6767,101 @@ input:checked + .toggle-switch::after {
   box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.2);
 }
 
-.swipe-divider-badge {
-  font-size: 11px;
+.swipe-vs-badge {
+  font-size: 10px;
   font-weight: 800;
   color: #94a3b8;
-  background: rgba(255, 255, 255, 0.06);
-  padding: 3px 8px;
-  border-radius: 8px;
-  letter-spacing: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 3px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
 }
 
 .btn-close-swipe {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.4);
   color: #fca5a5;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
-  padding: 5px 12px;
-  border-radius: 16px;
+  padding: 5px 10px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
+  margin-left: 2px;
 }
 
 .btn-close-swipe:hover {
-  background: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.35);
   color: #ffffff;
   border-color: #ef4444;
 }
 
-.swipe-presets-bar {
-  position: absolute;
-  top: 66px;
-  left: 50%;
-  transform: translateX(-50%);
+/* Preset Chips Row */
+.swipe-presets-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  pointer-events: auto;
-  z-index: 45;
-  background: rgba(13, 22, 39, 0.85);
-  padding: 4px 10px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  max-width: calc(100vw - 32px);
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   overflow-x: auto;
   scrollbar-width: none;
 }
 
-.swipe-presets-bar::-webkit-scrollbar {
+.swipe-presets-row::-webkit-scrollbar {
   display: none;
 }
 
-.presets-label {
-  font-size: 10.5px;
+.presets-row-label {
+  font-size: 10px;
   font-weight: 700;
   color: #94a3b8;
   white-space: nowrap;
-  margin-right: 2px;
+}
+
+.presets-chips-scroll {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.presets-chips-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .swipe-preset-chip {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #cbd5e1;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 500;
-  padding: 3px 10px;
-  border-radius: 14px;
+  padding: 3px 8px;
+  border-radius: 12px;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.15s ease;
 }
 
 .swipe-preset-chip:hover {
-  background: rgba(0, 240, 255, 0.15);
-  border-color: rgba(0, 240, 255, 0.4);
+  background: rgba(0, 240, 255, 0.18);
+  border-color: rgba(0, 240, 255, 0.5);
   color: #00f0ff;
 }
 
+/* Divider Line & Knob */
 .swipe-divider-line {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 3px;
+  width: 2px;
   background: #00f0ff;
-  box-shadow: 0 0 12px rgba(0, 240, 255, 0.7);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.8), 0 0 20px rgba(0, 240, 255, 0.4);
   z-index: 35;
   cursor: ew-resize;
   pointer-events: auto;
@@ -6823,12 +6874,12 @@ input:checked + .toggle-switch::after {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: rgba(13, 22, 39, 0.95);
+  background: rgba(10, 17, 32, 0.95);
   border: 2px solid #00f0ff;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 16px rgba(0, 240, 255, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 14px rgba(0, 240, 255, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6838,51 +6889,91 @@ input:checked + .toggle-switch::after {
 }
 
 .swipe-handle-knob:hover, .swipe-divider-line:active .swipe-handle-knob {
-  transform: translate(-50%, -50%) scale(1.1);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.7), 0 0 24px rgba(0, 240, 255, 0.8);
+  transform: translate(-50%, -50%) scale(1.12);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8), 0 0 22px rgba(0, 240, 255, 0.9);
 }
 
 .swipe-handle-bar {
   width: 2px;
-  height: 14px;
+  height: 12px;
   background: rgba(0, 240, 255, 0.4);
   margin: 0 1px;
 }
 
+/* Pinned Side Badges */
 .swipe-map-badge {
   position: absolute;
-  bottom: calc(var(--footer-height) + 64px);
-  background: rgba(13, 22, 39, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  top: 96px;
+  background: rgba(10, 17, 32, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   backdrop-filter: blur(10px);
-  padding: 6px 12px;
-  border-radius: 10px;
+  padding: 5px 10px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   gap: 2px;
   pointer-events: none;
   z-index: 25;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
 .swipe-map-badge.left {
+  left: 14px;
   border-left: 3px solid #38bdf8;
 }
 
 .swipe-map-badge.right {
+  right: 14px;
   border-right: 3px solid #34d399;
   text-align: right;
 }
 
-.swipe-map-badge strong {
-  font-size: 11.5px;
-  color: #f1f5f9;
-}
-
-.swipe-map-badge span {
-  font-size: 10.5px;
+.swipe-map-badge .badge-tag {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
   color: #94a3b8;
   font-family: 'JetBrains Mono', monospace;
+}
+
+.swipe-map-badge strong {
+  font-size: 11px;
+  color: #f1f5f9;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .swipe-unified-card {
+    padding: 8px 10px;
+    gap: 6px;
+    top: 8px;
+  }
+
+  .swipe-header-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .swipe-side-tag {
+    display: none;
+  }
+
+  .swipe-select {
+    max-width: 105px;
+    font-size: 10.5px;
+    padding: 4px 6px;
+  }
+
+  .swipe-select.year {
+    max-width: 55px;
+  }
+
+  .swipe-map-badge {
+    top: auto;
+    bottom: calc(var(--footer-height) + 12px);
+    padding: 4px 8px;
+  }
 }
 
 /* ==========================================================================
