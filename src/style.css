@@ -23,8 +23,8 @@
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
-  --sidebar-width: 360px;
-  --nav-width: 58px;
+  --sidebar-width: 380px;
+  --nav-width: 60px;
   --header-height: 56px;
   --footer-height: 34px;
   --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -313,15 +313,17 @@ html, body, #app {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 14px 0;
-  gap: 10px;
+  padding: 12px 0;
+  gap: 8px;
   z-index: 2;
   flex-shrink: 0;
 }
 
 .sidebar-tab-btn {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   background: transparent;
@@ -330,15 +332,23 @@ html, body, #app {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  padding: 4px 2px;
+  gap: 3px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
 }
 
 .sidebar-tab-btn span {
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: -0.1px;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
+  max-width: 44px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar-tab-btn:hover {
@@ -404,7 +414,7 @@ html, body, #app {
 
 .sidebar-panel {
   display: none;
-  padding: 16px 16px 64px 16px;
+  padding: 16px 16px 24px 16px;
   height: 100%;
   max-height: 100%;
   min-height: 0;
@@ -6470,7 +6480,7 @@ input:checked + .toggle-switch::after {
   }
 
   .sidebar-panel {
-    padding: 14px 12px 80px 12px;
+    padding: 14px 12px 28px 12px;
   }
 
   .floating-inspector-card {
