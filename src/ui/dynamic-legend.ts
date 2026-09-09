@@ -223,7 +223,7 @@ export class DynamicLegendUI {
       <div class="dynamic-legend-card">
         <div class="dynamic-legend-swatches">
           <div class="dynamic-legend-item">
-            <span class="legend-symbol point" style="background-color: #f59e0b; width: 12px; height: 12px; border-radius: 50%; display: inline-block;"></span>
+            <span class="legend-symbol point" style="background-color: #f59e0b; width: 12px; height: 12px; min-width: 12px; min-height: 12px; aspect-ratio: 1 / 1; border-radius: 50%; display: inline-block; flex-shrink: 0;"></span>
             <span class="dynamic-legend-label"><strong>Kota Utama</strong> (Sampel Titik Vektor Ibukota & Kota Besar)</span>
           </div>
           <div class="dynamic-legend-item">

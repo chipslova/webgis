@@ -728,22 +728,34 @@ html, body, #app {
 }
 
 .legend-symbol {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   display: inline-block;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .legend-symbol.line {
   height: 0;
   width: 20px;
+  min-width: 20px;
   border-bottom: 3px dashed;
   border-radius: 0;
+  aspect-ratio: auto;
 }
 
 .legend-symbol.polygon {
   border-radius: 2px;
   border: 1px solid;
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
+  aspect-ratio: 1 / 1;
 }
 
 .about-card {
@@ -2342,10 +2354,15 @@ html, body, #app {
 }
 
 .al-color-dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  min-height: 8px;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   flex-shrink: 0;
+  display: inline-block;
+  box-sizing: border-box;
 }
 
 .al-row-body {
@@ -3690,8 +3707,13 @@ html, body, #app {
 .card-color-dot {
   width: 8px;
   height: 8px;
+  min-width: 8px;
+  min-height: 8px;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   flex-shrink: 0;
+  display: inline-block;
+  box-sizing: border-box;
 }
 
 .card-name {
@@ -4652,9 +4674,14 @@ kbd {
 .dynamic-color-box {
   width: 14px;
   height: 14px;
+  min-width: 14px;
+  min-height: 14px;
+  aspect-ratio: 1 / 1;
   border-radius: 3px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   flex-shrink: 0;
+  display: inline-block;
+  box-sizing: border-box;
 }
 
 .dynamic-legend-label {
