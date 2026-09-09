@@ -1,6 +1,7 @@
 import * as maplibregl from 'maplibre-gl';
 import { PikselProduct, PikselPreset, PIKSEL_PRODUCTS, PIKSEL_PRESETS } from '../config/piksel';
 import { logger } from '../utils/logger';
+import { ErrorHandler } from '../utils/error-handler';
 
 export type PikselStatusCode = 'idle' | 'zoom_too_low' | 'requesting' | 'loading' | 'ready' | 'degraded' | 'partial' | 'error';
 
@@ -599,6 +600,7 @@ export class PikselLoader {
         }
       });
     } catch (e) {
+      ErrorHandler.getInstance().showThrottledError(`Gagal memuat layer citra ${product.name}.`);
       logger.warn(`[PikselLoader] Layer error for ${product.id}:`, e);
       this.emitState('error', `Gagal menambahkan layer WMS: ${(e as Error).message}`);
     }

@@ -8,7 +8,11 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v5-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-37%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-58%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+
+<p align="center">
+  <img src="docs/preview.jpg" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
+</p>
 
 ---
 
@@ -43,7 +47,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
   1. **Bromo Tengger Semeru**: 10m Sentinel-2 GeoMAD true-color optical mosaic.
   2. **Jabodetabek & Jawa Barat**: Google Earth Engine MODIS thermal Land Surface Temp (LST) & Urban Heat Island (UHI) analysis.
   3. **Bandung Basin**: 3D Terrarium terrain elevation mesh & OpenFreeMap 3D building extrusions.
-* **Smart Auto-Navigation**: When selecting high-resolution satellite products at low zoom levels ($Z < 8$), the camera automatically flies smoothly into the optimal study area preset (e.g. Bromo, IKN, Toba) with an informative toast notification.
+* **Smart Auto-Navigation**: When selecting high-resolution satellite products at low zoom levels ($Z < 8$), the camera automatically flies smoothly into the optimal study area preset (e.g. Bromo, IKN, Toba) with an informative toast notification and one-click undo.
 
 ### 🛰️ 2. Piksel Earth Observation (BIG × Geoscience Australia)
 * **Sentinel-2 GeoMAD Mosaics (10m)**: Annual cloud-free Median Absolute Deviation composites across Indonesia (2017–2025).
@@ -63,7 +67,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 * **Topography & Land Cover**: USGS SRTM 30m Elevation contours and MODIS MCD12Q1 Land Cover classification for Jabodetabek.
 
 ### 🗺️ 4. Basemaps & 3D Terrain Customization
-* **16 Official Vector & Raster Basemaps**:
+* **16 Vector & Raster Basemaps**:
   * ⭐ **Recommended:** Esri World Imagery (Default), Esri World Streets, Rupabumi Indonesia (BIG RBI), OpenStreetMap Standard.
   * 🎨 **Topography & Thematic:** Esri Topographic, OpenTopoMap, Esri Shaded Relief, Esri National Geographic, Esri Ocean.
   * 🌓 **Canvas & Navigation:** Esri Light/Dark Gray Canvas, CARTO Dark Matter, CARTO Voyager, Esri Imagery Clarity, OSM Humanitarian, Esri Colored Pencil.
@@ -93,7 +97,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 * **Bundle Efficiency**: Heavy static GeoJSON datasets are loaded lazily via asynchronous HTTP requests (`/data/*.geojson`), reducing the core JavaScript bundle to ~155 KB for fast initial page load.
 * **Deterministic Layer Stacking**: Centralized `enforceLayerOrder()` maintains visual hierarchy across all basemap switches and layer toggles:
   $$\text{Measurement} \to \text{Custom GeoJSON} \to \text{GEE POI} \to \text{Piksel Grid} \to \text{GEE Rasters} \to \text{Piksel WMS} \to \text{Basemap}$$
-* **Keyboard & Screen Reader Accessible**: Comprehensive keyboard navigation, `aria-label`, `role`, `aria-expanded`, and `aria-selected` attributes on interactive controls, drawers, modals, and tab lists.
+* **Keyboard & Screen Reader Accessible**: Keyboard-accessible controls and screen-reader announcements via aria-live regions, alongside `aria-label`, `role`, `aria-expanded`, and `aria-selected` attributes on interactive controls, drawers, modals, and tab lists.
 * **Production-Safe Logging**: All debug logging and warnings are gated behind `import.meta.env.DEV` to keep production runtime clean.
 * **WebGL Buffer Preservation**: MapLibre GL JS configured with `preserveDrawingBuffer: true` for clean, artifact-free canvas exports.
 

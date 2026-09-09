@@ -1,5 +1,6 @@
 import * as maplibregl from 'maplibre-gl';
 import { logger } from '../utils/logger';
+import { ErrorHandler } from '../utils/error-handler';
 
 export interface CustomLayerItem {
   id: string;
@@ -304,6 +305,7 @@ export class GeoJsonLoader {
       // NOTE: Layer ordering is handled centrally by MapManager.bringCustomLayersToTop()
       this.bindClickPopup(layerId);
     } catch (e) {
+      ErrorHandler.getInstance().showThrottledError(`Gagal menambahkan layer geospasial "${item.name}".`);
       logger.warn(`[GeoJsonLoader] Notice attaching layer "${item.name}":`, e);
     }
   }

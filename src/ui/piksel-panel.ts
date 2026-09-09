@@ -591,10 +591,36 @@ export class PikselPanelUI {
         if (current?.id === clickedId) {
           this.pikselLoader.setActiveProduct(null);
         } else {
+          const map = this.pikselLoader.getMap();
+          const prevCenter = map ? map.getCenter() : null;
+          const prevZoom = map ? map.getZoom() : null;
+          const prevPitch = map ? map.getPitch() : 0;
+          const prevBearing = map ? map.getBearing() : 0;
+
           this.pikselLoader.setActiveProduct(clickedId);
           const targetNav = this.pikselLoader.autoFlyToOptimalView(clickedId);
           if (targetNav) {
-            showToast(`🚀 Peta diarahkan ke kawasan pantauan (${targetNav}) agar citra satelit langsung tampil.`, 'info');
+            showToast(
+              `🚀 Peta diarahkan ke kawasan pantauan (${targetNav}) agar citra satelit langsung tampil.`,
+              {
+                type: 'info',
+                durationMs: 7000,
+                action: prevCenter && prevZoom !== null ? {
+                  label: '↩️ Kembali',
+                  onClick: () => {
+                    map?.flyTo({
+                      center: prevCenter,
+                      zoom: prevZoom,
+                      pitch: prevPitch,
+                      bearing: prevBearing,
+                      duration: 1500,
+                      essential: true
+                    });
+                    showToast('Kembali ke tampilan sebelumnya', 'info', 2000);
+                  }
+                } : undefined
+              }
+            );
           }
         }
         this.render();

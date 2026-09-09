@@ -1,5 +1,6 @@
 import * as maplibregl from 'maplibre-gl';
 import { logger } from '../utils/logger';
+import { ErrorHandler } from '../utils/error-handler';
 
 export class GEELoader {
   private map: maplibregl.Map;
@@ -64,6 +65,7 @@ export class GEELoader {
         // Reset so next call can retry
         this.dataLoadPromise = null;
         this.isDataLoaded = false;
+        ErrorHandler.getInstance().showThrottledError('Gagal memuat dataset GEE. Periksa koneksi internet Anda.');
         logger.warn('[GEELoader] Gagal memuat dataset GEE:', e);
         // Notify UI via custom event so panels can show a user-friendly error
         if (typeof window !== 'undefined') {

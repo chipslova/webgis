@@ -4494,6 +4494,33 @@ html, body, #app {
 
 .toast-msg {
   line-height: 1.4;
+  flex: 1;
+}
+
+.toast-action-btn {
+  margin-left: 8px;
+  padding: 4px 10px;
+  background: rgba(0, 240, 255, 0.15);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  border-radius: 4px;
+  color: #00f0ff;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.toast-action-btn:hover {
+  background: rgba(0, 240, 255, 0.3);
+  border-color: #00f0ff;
+  color: #ffffff;
+  transform: scale(1.03);
+}
+
+.toast-action-btn:active {
+  transform: scale(0.97);
 }
 
 /* ==========================================================================
