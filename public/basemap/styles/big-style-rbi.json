@@ -8,7 +8,7 @@
         "https://geoservices.big.go.id/rbi/rest/services/BASEMAP/Rupabumi_Indonesia/MapServer/tile/{z}/{y}/{x}"
       ],
       "tileSize": 256,
-      "maxzoom": 19,
+      "maxzoom": 18,
       "attribution": "© <a href=\"https://geoportal.big.go.id/\" target=\"_blank\">Badan Informasi Geospasial (BIG) Indonesia</a>"
     }
   },

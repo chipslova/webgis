@@ -8,7 +8,7 @@
         "https://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
       ],
       "tileSize": 256,
-      "maxzoom": 19,
+      "maxzoom": 18,
       "attribution": "Source: Esri, Maxar, Earthstar Geographics"
     }
   },
