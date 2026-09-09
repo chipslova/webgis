@@ -61,7 +61,14 @@ export class GEELoader {
         if (lcRes.ok) this.lcData = await lcRes.json();
         this.isDataLoaded = true;
       } catch (e) {
-        // Silently handle offline/mock test environments
+        // Reset so next call can retry
+        this.dataLoadPromise = null;
+        this.isDataLoaded = false;
+        logger.warn('[GEELoader] Gagal memuat dataset GEE:', e);
+        // Notify UI via custom event so panels can show a user-friendly error
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('gee-load-error'));
+        }
       }
     })();
 

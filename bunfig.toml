@@ -1,0 +1,5 @@
+[test]
+# Redirect 'bun test' to use vitest (via npm scripts) instead of bun's native test runner.
+# This ensures full happy-dom DOM environment is available for all test files.
+# Use: npm test  OR  bunx vitest run
+preload = []

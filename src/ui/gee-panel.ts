@@ -43,6 +43,11 @@ export class GEEPanelUI {
         this.renderTimeSeriesChart();
       });
 
+      // Listen for GEE data load failures (dispatched by gee-loader on fetch error)
+      window.addEventListener('gee-load-error', () => {
+        showToast('Gagal memuat data analisis GEE. Periksa koneksi internet.', 'error');
+      }, { once: false });
+
       this.isInitialized = true;
     }
 

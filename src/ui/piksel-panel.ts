@@ -296,6 +296,17 @@ export class PikselPanelUI {
         <p>Layanan OGC WMS resmi Badan Informasi Geospasial (BIG) berbasis Open Data Cube.</p>
       </div>
 
+      <!-- Staging WMS Notice -->
+      <div class="clean-alert alert-info" style="margin-bottom: 10px;">
+        <div class="alert-icon-title">
+          <span style="font-size: 14px;">⚙️</span>
+          <strong>Layanan WMS Staging BIG</strong>
+        </div>
+        <p class="alert-desc" style="margin: 4px 0 0 0;">
+          Data citra menggunakan endpoint <em>staging</em> BIG Piksel. Jika tiles tidak muncul, server mungkin memerlukan akses jaringan BIG atau VPN. Endpoint produksi: <code style="font-size: 10px; color: var(--accent-cyan);">piksel.big.go.id</code>
+        </p>
+      </div>
+
       <!-- Quick Preset Navigation -->
       <div class="clean-section">
         <div class="clean-section-header">
