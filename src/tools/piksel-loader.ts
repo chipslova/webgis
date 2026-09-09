@@ -161,17 +161,61 @@ export class PikselLoader {
   /**
    * Quick helper to smoothly zoom the map to the minimum level required for the active product
    */
-  public zoomToMinZoom() {
+  public zoomToMinZoom(targetPreset?: PikselPreset) {
     if (!this.map) return;
+    if (targetPreset) {
+      this.flyToPreset(targetPreset);
+      return;
+    }
     const prod = this.getActiveProduct();
     const minZ = prod?.minZoom ?? 8;
-    const targetZ = Math.max(minZ, 8.2);
+    const targetZ = Math.max(minZ, 8.5);
 
     this.map.easeTo({
       zoom: targetZ,
       duration: 1200,
       essential: true
     });
+  }
+
+  /**
+   * Intelligently flies or zooms the map to ensure satellite imagery is immediately visible
+   */
+  public autoFlyToOptimalView(productId?: string): string | null {
+    if (!this.map) return null;
+    const targetId = productId || this.activeProductId;
+    if (!targetId) return null;
+
+    const currentZoom = this.map.getZoom();
+    const prod = PIKSEL_PRODUCTS.find((p) => p.id === targetId);
+    const minZoom = prod?.minZoom ?? 8;
+
+    if (currentZoom >= minZoom) {
+      return null;
+    }
+
+    const matchingPreset = PIKSEL_PRESETS.find((p) => p.recommendedProduct === targetId)
+      || PIKSEL_PRESETS.find((p) => p.id === 'bromo')
+      || PIKSEL_PRESETS[0];
+
+    if (currentZoom <= 6.8 && matchingPreset) {
+      this.map.flyTo({
+        center: matchingPreset.center,
+        zoom: matchingPreset.zoom,
+        pitch: matchingPreset.pitch || 0,
+        bearing: 0,
+        duration: 1800,
+        essential: true
+      });
+      return matchingPreset.name;
+    } else {
+      this.map.easeTo({
+        zoom: Math.max(minZoom, 8.5),
+        duration: 1200,
+        essential: true
+      });
+      return `Level ${Math.max(minZoom, 8.5)}`;
+    }
   }
 
   /**

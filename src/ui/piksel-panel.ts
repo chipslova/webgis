@@ -581,6 +581,10 @@ export class PikselPanelUI {
           this.pikselLoader.setActiveProduct(null);
         } else {
           this.pikselLoader.setActiveProduct(clickedId);
+          const targetNav = this.pikselLoader.autoFlyToOptimalView(clickedId);
+          if (targetNav) {
+            showToast(`🚀 Peta diarahkan ke kawasan pantauan (${targetNav}) agar citra satelit langsung tampil.`, 'info');
+          }
         }
         this.render();
         return;

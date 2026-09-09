@@ -10,6 +10,8 @@ import { SidebarUI, TabId } from '../src/ui/sidebar';
 import { PermalinkManager } from '../src/tools/permalink';
 import * as maplibregl from 'maplibre-gl';
 import { PointInspector } from '../src/tools/point-inspector';
+import { GuidedTourUI } from '../src/ui/guided-tour';
+import { PikselLoader } from '../src/tools/piksel-loader';
 
 // Read index.html for DOM element verification (stripping script and link tags for happy-dom parser)
 const indexHtml = fs.readFileSync(path.resolve(__dirname, '../index.html'), 'utf-8')
@@ -23,6 +25,8 @@ describe('Full WebGIS Feature & Button Audit', () => {
 
   describe('1. HTML DOM Structure & Interactive Element IDs', () => {
     it('should contain all required Header & Toolbar buttons', () => {
+      expect(document.getElementById('btn-start-tour')).not.toBeNull();
+      expect(document.getElementById('btn-quick-tour')).not.toBeNull();
       expect(document.getElementById('btn-toggle-globe')).not.toBeNull();
       expect(document.getElementById('btn-reset-map')).not.toBeNull();
       expect(document.getElementById('btn-export-map')).not.toBeNull();
@@ -331,6 +335,75 @@ describe('Full WebGIS Feature & Button Audit', () => {
       expect(parsed.geeLayers).toContain('lst');
       expect(parsed.geeLayers).toContain('elevation');
       expect(parsed.geeOpacity).toBe(0.75);
+    });
+  });
+
+  describe('7. Smart Navigation & Interactive Guided Tour (9.8/10 Standards)', () => {
+    it('should have autoFlyToOptimalView on PikselLoader for low-zoom imagery selection', () => {
+      const flyToMock = vi.fn();
+      const easeToMock = vi.fn();
+      const mockMap: any = {
+        getZoom: () => 4.5,
+        flyTo: flyToMock,
+        easeTo: easeToMock,
+        on: vi.fn(),
+        getStyle: () => ({}),
+        getLayer: vi.fn(),
+        getSource: vi.fn()
+      };
+
+      const loader = new PikselLoader(mockMap);
+      const target = loader.autoFlyToOptimalView('s2-geomad-rgb');
+      expect(target).toBe('Bromo Tengger Semeru');
+      expect(flyToMock).toHaveBeenCalled();
+    });
+
+    it('should initialize and progress through the 3-step Guided Tour', async () => {
+      const flyToMock = vi.fn();
+      const mockMap: any = {
+        getZoom: () => 4.5,
+        flyTo: flyToMock,
+        easeTo: vi.fn(),
+        on: vi.fn(),
+        getStyle: () => ({}),
+        getLayer: vi.fn(),
+        getSource: vi.fn()
+      };
+
+      const mockMapManager: any = {
+        getMap: () => mockMap,
+        getCurrentBasemapId: () => 'esri-imagery',
+        setBasemap: vi.fn()
+      };
+
+      const mockSidebar: any = {
+        setActiveTab: vi.fn()
+      };
+
+      const tour = new GuidedTourUI(mockMapManager, null, null, null, mockSidebar);
+      const steps = tour.getSteps();
+      expect(steps.length).toBe(3);
+      expect(steps[0].title).toContain('Bromo');
+      expect(steps[1].title).toContain('Urban Heat Island');
+      expect(steps[2].title).toContain('Bandung');
+
+      // Start Tour
+      await tour.startTour();
+      const tourCard = document.getElementById('webgis-tour-card');
+      expect(tourCard).not.toBeNull();
+      expect(tourCard?.querySelector('.tour-title')?.textContent).toContain('Bromo');
+
+      // Step Next
+      await tour.nextStep();
+      expect(tourCard?.querySelector('.tour-title')?.textContent).toContain('Urban Heat Island');
+
+      // Step Next to 3
+      await tour.nextStep();
+      expect(tourCard?.querySelector('.tour-title')?.textContent).toContain('Bandung');
+
+      // End Tour
+      tour.endTour();
+      expect(document.getElementById('webgis-tour-card')).toBeNull();
     });
   });
 });

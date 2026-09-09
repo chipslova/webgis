@@ -5582,7 +5582,7 @@ kbd {
 /* 1. Bottom Floating Tools Dock */
 .bottom-tools-dock {
   position: fixed;
-  bottom: calc(var(--footer-height) + 12px);
+  bottom: calc(var(--footer-height) + env(safe-area-inset-bottom, 0px) + 12px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 40;
@@ -6171,6 +6171,235 @@ input:checked + .toggle-switch::after {
 }
 
 /* ==========================================================================
+   Guided Tour & Demo Walkthrough UI
+   ========================================================================== */
+
+.btn-tour {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(6, 182, 212, 0.25));
+  border: 1px solid rgba(6, 182, 212, 0.5);
+  color: #38bdf8;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-tour:hover {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.45), rgba(6, 182, 212, 0.45));
+  border-color: #00f0ff;
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-tour-banner {
+  background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+}
+
+.btn-tour-banner:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
+  transform: translateY(-1px);
+}
+
+.webgis-tour-card {
+  position: fixed;
+  bottom: calc(var(--footer-height) + env(safe-area-inset-bottom, 0px) + 72px);
+  right: 24px;
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  z-index: 55;
+  background: #090e1a;
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 28px rgba(0, 240, 255, 0.2);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: tourCardFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes tourCardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.tour-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tour-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tour-step-badge {
+  font-size: 10px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  color: #00f0ff;
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.tour-counter {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.tour-close-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.tour-close-btn:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.tour-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tour-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.tour-subtitle {
+  font-size: 11px;
+  color: #38bdf8;
+  font-weight: 500;
+}
+
+.tour-desc {
+  font-size: 11.5px;
+  color: #cbd5e1;
+  line-height: 1.45;
+  margin: 6px 0 8px 0;
+}
+
+.tour-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tour-tag {
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.tour-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tour-dots-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tour-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: all 0.2s;
+}
+
+.tour-dot.active {
+  width: 16px;
+  border-radius: 4px;
+  background: #00f0ff;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+}
+
+.tour-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-tour-action {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+}
+
+.btn-tour-action.secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+}
+
+.btn-tour-action.secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.btn-tour-action.primary {
+  background: linear-gradient(135deg, #0284c7, #06b6d4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(6, 182, 212, 0.3);
+}
+
+.btn-tour-action.primary:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.5);
+}
+
+/* ==========================================================================
    Responsive Design & Breakpoints (Tablet & Mobile UX)
    ========================================================================== */
 
@@ -6181,6 +6410,7 @@ input:checked + .toggle-switch::after {
   
   .header-actions .btn {
     padding: 8px;
+    min-height: 38px;
   }
   
   :root {
@@ -6246,13 +6476,22 @@ input:checked + .toggle-switch::after {
   .floating-inspector-card {
     right: 10px;
     left: 10px;
-    bottom: calc(var(--footer-height) + 60px);
+    bottom: calc(var(--footer-height) + env(safe-area-inset-bottom, 0px) + 60px);
     width: auto;
     max-width: none;
   }
 
   .glass-popover {
     width: calc(100vw - 16px);
+    max-width: none;
+    bottom: calc(var(--footer-height) + env(safe-area-inset-bottom, 0px) + 64px);
+  }
+
+  .webgis-tour-card {
+    right: 12px;
+    left: 12px;
+    bottom: calc(var(--footer-height) + env(safe-area-inset-bottom, 0px) + 64px);
+    width: auto;
     max-width: none;
   }
 }
@@ -6293,12 +6532,20 @@ input:checked + .toggle-switch::after {
   }
 
   .dock-btn {
-    padding: 6px 10px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 8px;
+    justify-content: center;
+  }
+
+  .sidebar-tab-btn {
+    min-height: 44px;
   }
 
   .bottom-tools-dock {
-    gap: 2px;
-    padding: 4px;
+    bottom: calc(var(--footer-height) + env(safe-area-inset-bottom, 0px) + 10px);
+    gap: 4px;
+    padding: 3px 6px;
   }
 
   .app-footer {
@@ -6317,6 +6564,13 @@ input:checked + .toggle-switch::after {
 
   .status-actions {
     display: none;
+  }
+
+  .webgis-tour-card {
+    bottom: calc(var(--footer-height) + env(safe-area-inset-bottom, 0px) + 64px);
+    left: 8px;
+    right: 8px;
+    padding: 12px;
   }
 }
 

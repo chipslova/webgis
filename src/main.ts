@@ -21,6 +21,7 @@ import { FeatureInspectorUI } from './ui/feature-inspector';
 import { DynamicLegendUI } from './ui/dynamic-legend';
 import { DataPanelUI } from './ui/data-panel';
 import { SearchUI } from './ui/search-ui';
+import { GuidedTourUI } from './ui/guided-tour';
 import { logger } from './utils/logger';
 
 class WebGISApp {
@@ -43,6 +44,7 @@ class WebGISApp {
   private basemapCustomizerUI: BasemapCustomizerUI | null = null;
   private mapExporter: MapExporter | null = null;
   private featureInspectorUI: FeatureInspectorUI;
+  private guidedTourUI: GuidedTourUI | null = null;
 
   constructor() {
     this.mapManager = new MapManager('map');
@@ -63,6 +65,7 @@ class WebGISApp {
     this.bindShareEvents();
     this.bindExportEvents();
     this.bindLegendEvents();
+    this.bindTourEvents();
 
     // 2. Connect Telemetry & Feature Inspector
     this.mapManager.onMouseMove((info) => {
@@ -163,6 +166,15 @@ class WebGISApp {
       // Initialize Basemap Customizer Engine & UI
       this.basemapCustomizer = new BasemapCustomizer(map, this.mapManager);
       this.basemapCustomizerUI = new BasemapCustomizerUI(this.basemapCustomizer, this.mapManager, this.pikselLoader);
+
+      // Initialize Interactive Guided Tour
+      this.guidedTourUI = new GuidedTourUI(
+        this.mapManager,
+        this.pikselLoader,
+        this.geeLoader,
+        this.basemapCustomizer,
+        this.sidebarUI
+      );
 
       // Enforce strict layer order and render initial legend
       this.mapManager.enforceLayerOrder();
@@ -516,6 +528,20 @@ class WebGISApp {
         this.mapExporter.exportPNG(exportBtn);
       }
     });
+  }
+
+  private bindTourEvents() {
+    const startTourBtn = document.getElementById('btn-start-tour');
+    const quickTourBtn = document.getElementById('btn-quick-tour');
+
+    const handleStartTour = () => {
+      if (this.guidedTourUI) {
+        this.guidedTourUI.startTour();
+      }
+    };
+
+    startTourBtn?.addEventListener('click', handleStartTour);
+    quickTourBtn?.addEventListener('click', handleStartTour);
   }
 }
 
