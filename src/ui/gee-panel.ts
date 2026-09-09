@@ -31,6 +31,11 @@ export class GEEPanelUI {
       this.bindOpacityEvents();
       this.bindDownloadEvents();
 
+      // Listen to geeLoader state changes (layer added/removed/cleared anywhere)
+      this.geeLoader.onLayersChange(() => {
+        this.syncCheckboxStates();
+      });
+
       const map = this.geeLoader.getMap();
       if (map) {
         map.on('style.load', () => {

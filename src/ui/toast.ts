@@ -1,16 +1,21 @@
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 export function showToast(message: string, type: ToastType = 'info', durationMs: number = 3500): void {
+  if (typeof document === 'undefined') return;
+
   let container = document.getElementById('toast-container');
   if (!container) {
     container = document.createElement('div');
     container.id = 'toast-container';
     container.className = 'toast-container';
+    container.setAttribute('aria-label', 'Pemberitahuan');
     document.body.appendChild(container);
   }
 
   const toast = document.createElement('div');
   toast.className = `toast-item toast-${type}`;
+  toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+  toast.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
 
   const iconMap: Record<ToastType, string> = {
     success: '✅',
@@ -20,7 +25,7 @@ export function showToast(message: string, type: ToastType = 'info', durationMs:
   };
 
   toast.innerHTML = `
-    <span class="toast-icon">${iconMap[type]}</span>
+    <span class="toast-icon" aria-hidden="true">${iconMap[type]}</span>
     <span class="toast-msg">${message}</span>
   `;
 

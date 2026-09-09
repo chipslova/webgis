@@ -155,6 +155,9 @@ export class GEELoader {
   public clearAllLayers() {
     this.activeLayers.clear();
     this.updateLayerVisibilities();
+    if (this.popup.isOpen()) {
+      this.popup.remove();
+    }
     this.notifyLayersChange();
   }
 

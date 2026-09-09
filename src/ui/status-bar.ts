@@ -1,4 +1,5 @@
 import { showToast } from './toast';
+import { announceToScreenReader } from '../utils/a11y';
 
 export class StatusBarUI {
   private latEl: HTMLElement | null;
@@ -8,6 +9,8 @@ export class StatusBarUI {
   private bearingEl: HTMLElement | null;
   private copyBtn: HTMLButtonElement | null;
   private coordGroup: HTMLElement | null;
+  private netStatusDot: HTMLElement | null = null;
+  private netStatusText: HTMLElement | null = null;
 
   private currentLat: number = 0;
   private currentLng: number = 0;
@@ -26,14 +29,27 @@ export class StatusBarUI {
     this.bearingEl = document.getElementById('stat-bearing');
     this.copyBtn = document.getElementById('btn-copy-coords') as HTMLButtonElement;
     this.coordGroup = document.querySelector('.status-group');
+    this.netStatusDot = document.getElementById('net-status-dot');
+    this.netStatusText = document.getElementById('net-status-text');
 
     this.bindEvents();
+  }
+
+  public setOnlineStatus(online: boolean) {
+    if (this.netStatusDot) {
+      this.netStatusDot.className = `status-dot ${online ? 'online' : 'offline'}`;
+      this.netStatusDot.setAttribute('title', online ? 'Koneksi Online' : 'Koneksi Terputus (Offline)');
+    }
+    if (this.netStatusText) {
+      this.netStatusText.textContent = online ? 'Online' : 'Offline';
+    }
   }
 
   private copyCurrentCoordinates() {
     const text = `${this.currentLat.toFixed(6)}, ${this.currentLng.toFixed(6)}`;
     navigator.clipboard.writeText(text).then(() => {
       showToast(`✓ Koordinat ${text} (WGS84) berhasil disalin`, 'success');
+      announceToScreenReader(`Koordinat ${text} derajat WGS84 berhasil disalin ke clipboard`);
       if (this.copyBtn) {
         const orig = this.copyBtn.innerHTML;
         this.copyBtn.innerText = '✓ Tersalin!';
@@ -43,6 +59,7 @@ export class StatusBarUI {
       }
     }).catch(() => {
       showToast(`Koordinat: ${text}`, 'info');
+      announceToScreenReader(`Koordinat ${text} derajat WGS84`);
     });
   }
 

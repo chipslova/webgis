@@ -7317,4 +7317,207 @@ body.swipe-mode-active #dynamic-legend-container {
   }
 }
 
+/* ==========================================================================
+   Accessibility, Offline Banner, Mobile & Keyboard UX Enhancements
+   ========================================================================== */
+
+/* 1. Skip to Content Link (Keyboard A11y) */
+.skip-to-content {
+  position: absolute;
+  top: -100px;
+  left: 14px;
+  background: var(--accent-cyan);
+  color: var(--bg-dark);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  z-index: 10000;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(0, 240, 255, 0.4);
+  transition: top 0.2s ease;
+}
+
+.skip-to-content:focus {
+  top: 12px;
+  outline: 2px solid #ffffff;
+}
+
+/* 2. Screen Reader Only Utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 3. High-Contrast Focus Visible Rings */
+:focus-visible {
+  outline: 2px solid var(--accent-cyan) !important;
+  outline-offset: 2px !important;
+}
+
+/* 4. Offline Network Banner */
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 38px;
+  background: linear-gradient(90deg, #991b1b, #ef4444);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  z-index: 9999;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  padding: 0 16px;
+}
+
+.offline-icon {
+  font-size: 16px;
+}
+
+/* 5. Header Actions Overflow Menu (Responsive) */
+.header-more-wrapper {
+  position: relative;
+  display: none;
+}
+
+.btn-header-more {
+  padding: 6px 10px;
+  min-height: 36px;
+  min-width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-more-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 6px;
+  min-width: 230px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1000;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(16px);
+}
+
+.header-more-dropdown .more-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 12.5px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.header-more-dropdown .more-item:hover,
+.header-more-dropdown .more-item:focus-visible {
+  background: var(--bg-card-hover);
+  color: var(--accent-cyan);
+}
+
+/* 6. Search Dropdown Keyboard Selection Highlight */
+.search-result-item.selected {
+  background: var(--bg-card-hover);
+  color: var(--accent-cyan);
+  outline: 1px solid var(--border-active);
+}
+
+/* 7. Status Bar Network Indicator */
+.status-net {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.status-dot.online {
+  background-color: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+.status-dot.offline {
+  background-color: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+}
+
+/* 8. Dynamic Viewport Height & Mobile Touch Optimization */
+html, body, #app {
+  height: 100%;
+  height: 100dvh;
+}
+
+@media (max-width: 1024px) {
+  .header-actions .header-action-btn:not(#btn-toggle-globe) {
+    display: none !important;
+  }
+
+  .header-more-wrapper {
+    display: block;
+  }
+}
+
+@media (max-width: 768px) {
+  .dock-btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 6px 8px;
+  }
+
+  .sidebar-tab-btn {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  .app-footer {
+    padding-bottom: max(6px, env(safe-area-inset-bottom));
+  }
+}
+
+/* 9. Prefers Reduced Motion (Vestibular Accessibility) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
 

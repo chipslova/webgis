@@ -203,6 +203,24 @@ export class MapManager {
       'bottom-right'
     );
 
+    // Error & WebGL Context Resilience Handlers
+    this.map.on('error', (e) => {
+      const err = e.error || (e as any);
+      logger.warn('[MapManager] Map engine event notice:', err);
+    });
+
+    const canvas = this.map.getCanvas();
+    if (canvas) {
+      canvas.addEventListener('webglcontextlost', (e) => {
+        e.preventDefault();
+        logger.error('[MapManager] WebGL Context Lost! Attempting recovery.');
+      });
+      canvas.addEventListener('webglcontextrestored', () => {
+        logger.info('[MapManager] WebGL Context Restored.');
+        this.triggerStyleReady();
+      });
+    }
+
     // Track mouse position and map view state with rAF throttling (prevents DOM layout thrashing)
     let moveRaf: number | null = null;
     let pendingMoveInfo: { lat: number; lng: number; zoom: number; pitch: number; bearing: number } | null = null;

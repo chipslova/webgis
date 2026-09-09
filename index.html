@@ -27,6 +27,20 @@
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
+    <!-- Accessibility Skip Link -->
+    <a href="#map" class="skip-to-content">Loncat ke Peta Utama</a>
+
+    <!-- Screen Reader Live Announcer -->
+    <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Offline Network Banner -->
+    <div id="offline-banner" class="offline-banner" style="display: none;" role="alert">
+      <span class="offline-icon" aria-hidden="true">⚠️</span>
+      <div class="offline-text">
+        <strong>Mode Offline</strong> — Koneksi internet terputus. Data citra dan layer baru tidak dapat dimuat hingga koneksi pulih.
+      </div>
+    </div>
+
     <div id="app">
       <!-- Header Bar -->
       <header class="app-header" role="banner">
@@ -64,30 +78,59 @@
 
         <!-- Header Actions -->
         <div class="header-actions">
-          <button id="btn-start-tour" class="btn btn-tour" title="Jelajahi Demo Fitur Unggulan (30 Detik)" aria-label="Mulai tur demo interaktif 30 detik">
+          <button id="btn-start-tour" class="btn btn-tour header-action-btn" title="Jelajahi Demo Fitur Unggulan (30 Detik)" aria-label="Mulai tur demo interaktif 30 detik">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             <span class="btn-text-label">Demo Singkat</span>
           </button>
-          <button id="btn-reset-map" class="btn btn-secondary" title="Reset Pandangan Peta & Layer Analisis" aria-label="Reset pandangan peta ke Indonesia">
+          <button id="btn-reset-map" class="btn btn-secondary header-action-btn" title="Reset Pandangan Peta & Layer Analisis" aria-label="Reset pandangan peta ke Indonesia">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
             <span class="btn-text-label">Reset Tampilan</span>
           </button>
-          <button id="btn-toggle-globe" class="btn btn-secondary" title="Beralih Mode 3D Bola Dunia / 2D Mercator" aria-label="Beralih antara mode 3D Bola Dunia dan 2D Mercator">
+          <button id="btn-toggle-globe" class="btn btn-secondary header-action-btn" title="Beralih Mode 3D Bola Dunia / 2D Mercator" aria-label="Beralih antara mode 3D Bola Dunia dan 2D Mercator">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
             <span id="globe-btn-label" class="btn-text-label">Mode 3D Bola Dunia</span>
           </button>
-          <button id="btn-quick-import" class="btn btn-secondary" title="Impor File GeoJSON Kustom" aria-label="Unggah file GeoJSON kustom">
+          <button id="btn-quick-import" class="btn btn-secondary header-action-btn" title="Impor File GeoJSON Kustom" aria-label="Unggah file GeoJSON kustom">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
             <span class="btn-text-label">Impor GeoJSON</span>
           </button>
-          <button id="btn-share-map" class="btn btn-secondary" title="Salin Tautan Peta & Analisis Aktif (Permalink)" aria-label="Salin tautan permalink analisis peta">
+          <button id="btn-share-map" class="btn btn-secondary header-action-btn" title="Salin Tautan Peta & Analisis Aktif (Permalink)" aria-label="Salin tautan permalink analisis peta">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             <span class="btn-text-label">Bagikan</span>
           </button>
-          <button id="btn-export-map" class="btn btn-secondary" title="Simpan Tangkapan Layar Peta" aria-label="Simpan dan unduh tangkapan layar peta dalam format PNG">
+          <button id="btn-export-map" class="btn btn-secondary header-action-btn" title="Simpan Tangkapan Layar Peta" aria-label="Simpan dan unduh tangkapan layar peta dalam format PNG">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             <span class="btn-text-label">Simpan Peta</span>
           </button>
+
+          <!-- Mobile & Compact Overflow Menu Button -->
+          <div class="header-more-wrapper">
+            <button id="btn-header-more-actions" class="btn btn-secondary btn-header-more" title="Menu Aksi Tambahan" aria-label="Buka menu aksi tambahan" aria-expanded="false" aria-haspopup="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+            </button>
+            <div id="header-more-dropdown" class="header-more-dropdown" style="display: none;" role="menu" aria-label="Menu Aksi">
+              <button class="more-item" id="more-item-tour" role="menuitem">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <span>Demo Fitur (30 Detik)</span>
+              </button>
+              <button class="more-item" id="more-item-reset" role="menuitem">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span>Reset Pandangan Peta</span>
+              </button>
+              <button class="more-item" id="more-item-import" role="menuitem">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                <span>Impor GeoJSON</span>
+              </button>
+              <button class="more-item" id="more-item-share" role="menuitem">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                <span>Bagikan Tautan Peta</span>
+              </button>
+              <button class="more-item" id="more-item-export" role="menuitem">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                <span>Simpan Tangkapan Layar (PNG)</span>
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -1000,6 +1043,11 @@
           <span class="status-item">BEARING: <strong id="stat-bearing">0°</strong></span>
         </div>
         <div class="status-actions">
+          <span class="status-net" title="Status Jaringan Realtime">
+            <span id="net-status-dot" class="status-dot online"></span>
+            <span id="net-status-text">Online</span>
+          </span>
+          <span class="status-divider" aria-hidden="true">|</span>
           <button id="btn-copy-coords" class="btn-text-sm" aria-label="Salin koordinat peta saat ini ke clipboard">Salin Koordinat</button>
           <span class="status-divider" aria-hidden="true">|</span>
           <span class="status-tag">EPSG:4326</span>

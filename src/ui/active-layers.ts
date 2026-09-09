@@ -591,10 +591,8 @@ export class ActiveLayersUI {
       if (target.closest('#btn-al-clear-all')) {
         this.pikselLoader.setActiveProduct(null);
         this.pikselLoader.setGridVisible(false);
-        this.geeLoader.toggleLayer('poi', false);
-        this.geeLoader.toggleLayer('lst', false);
-        this.geeLoader.toggleLayer('elevation', false);
-        this.geeLoader.toggleLayer('landcover', false);
+        this.geeLoader.clearAllLayers();
+        this.geojsonLoader.clearAllLayers();
         this.measureTool.clear();
         this.expandedLayerId = null;
         this.render();

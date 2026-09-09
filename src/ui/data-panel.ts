@@ -17,6 +17,10 @@ export class DataPanelUI {
     this.onLayerChange = onLayerChange;
     this.bindEvents();
     this.render();
+
+    this.geojsonLoader.onLayersChange(() => {
+      this.render();
+    });
   }
 
   public render() {
@@ -142,22 +146,46 @@ export class DataPanelUI {
   }
 
   private handleGeoJSONFile(file: File) {
+    // 1. File size limit guard (25MB)
+    const MAX_SIZE_BYTES = 25 * 1024 * 1024;
+    if (file.size > MAX_SIZE_BYTES) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      showToast(`Ukuran file (${sizeMB} MB) melebihi batas maksimum 25 MB untuk kestabilan browser.`, 'error', 5000);
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const json = JSON.parse(e.target?.result as string) as GeoJSON.FeatureCollection;
-        if (!json || (!json.type && !Array.isArray((json as any).features))) {
-          throw new Error('Invalid GeoJSON');
+        const rawText = e.target?.result as string;
+        let parsed: any;
+        try {
+          parsed = JSON.parse(rawText);
+        } catch {
+          showToast('File tidak berformat JSON valid. Pastikan sintaks kurung kurawal/tanda kutip benar.', 'error', 4500);
+          return;
         }
+
+        const validation = GeoJsonLoader.normalizeAndValidate(parsed);
+        if (!validation.valid || !validation.data) {
+          showToast(validation.error || 'Format GeoJSON tidak valid.', 'error', 5000);
+          return;
+        }
+
         const layerId = `custom-${Date.now()}`;
         const name = file.name.replace(/\.[^/.]+$/, '');
-        this.geojsonLoader.addGeoJSONLayer(layerId, name, json, '#10b981');
-        this.render();
-        this.sidebarUI.setActiveTab('data');
-        this.onLayerChange();
-        showToast(`Layer "${name}" berhasil ditambahkan ke peta!`, 'success');
-      } catch (err) {
-        showToast('Format GeoJSON tidak valid. Pastikan file berformat FeatureCollection yang benar.', 'error');
+        const success = this.geojsonLoader.addGeoJSONLayer(layerId, name, validation.data, '#10b981');
+        
+        if (success) {
+          this.render();
+          this.sidebarUI.setActiveTab('data');
+          this.onLayerChange();
+          showToast(`Layer "${name}" (${validation.data.features.length} objek) berhasil ditambahkan!`, 'success');
+        } else {
+          showToast(`Gagal menambahkan layer "${name}" ke peta.`, 'error');
+        }
+      } catch (err: any) {
+        showToast(`Kendala memproses file: ${err.message || 'Format tidak valid'}`, 'error');
       }
     };
     reader.onerror = () => {

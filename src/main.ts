@@ -25,6 +25,8 @@ import { GuidedTourUI } from './ui/guided-tour';
 import { SwipeCompareManager } from './tools/swipe-compare';
 import { SwipeCompareUI } from './ui/swipe-compare-ui';
 import { CommandPaletteUI } from './ui/command-palette';
+import { ErrorHandler } from './utils/error-handler';
+import { setupUniversalEscapeHandler, announceToScreenReader } from './utils/a11y';
 import { logger } from './utils/logger';
 
 class WebGISApp {
@@ -51,13 +53,20 @@ class WebGISApp {
   private swipeCompareManager: SwipeCompareManager | null = null;
   private swipeCompareUI: SwipeCompareUI | null = null;
   private commandPaletteUI: CommandPaletteUI | null = null;
+  private errorHandler: ErrorHandler;
 
   constructor() {
+    this.errorHandler = ErrorHandler.getInstance();
     this.mapManager = new MapManager('map');
     this.sidebarUI = new SidebarUI();
     this.statusBarUI = new StatusBarUI();
     this.featureInspectorUI = new FeatureInspectorUI();
     this.dynamicLegendUI = new DynamicLegendUI('dynamic-legend-container', null, null, null);
+
+    // Bind network changes to status bar
+    this.errorHandler.onNetworkChange((online) => {
+      this.statusBarUI.setOnlineStatus(online);
+    });
 
     this.init();
   }
@@ -74,6 +83,8 @@ class WebGISApp {
     this.bindTourEvents();
     this.bindSwipeEvents();
     this.bindCommandPaletteEvents();
+    this.bindHeaderMoreEvents();
+    this.bindUniversalEscape();
 
     // 2. Connect Telemetry & Feature Inspector
     this.mapManager.onMouseMove((info) => {
@@ -464,6 +475,7 @@ class WebGISApp {
           document.querySelectorAll('.basemap-card').forEach((c) => c.classList.remove('active'));
           card.classList.add('active');
           this.mapManager.setBasemap(bm.id);
+          announceToScreenReader(`Peta dasar diubah ke ${bm.name} (${bm.category})`);
         };
 
         card.addEventListener('click', selectBm);
@@ -550,28 +562,37 @@ class WebGISApp {
     if (!shareBtn) return;
 
     shareBtn.addEventListener('click', () => {
-      if (!this.permalinkManager) return;
-      const url = this.permalinkManager.getShareableUrl();
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(url).then(() => {
-          showToast('Tautan peta & analisis aktif disalin ke clipboard!', 'success');
-        }).catch(() => {
-          prompt('Salin tautan peta berikut:', url);
-        });
-      } else {
-        prompt('Salin tautan peta berikut:', url);
-      }
+      this.handleShare();
     });
+  }
+
+  private handleShare() {
+    if (!this.permalinkManager) return;
+    const url = this.permalinkManager.getShareableUrl();
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => {
+        showToast('Tautan peta & analisis aktif disalin ke clipboard!', 'success');
+        announceToScreenReader('Tautan peta dan analisis aktif berhasil disalin ke clipboard.');
+      }).catch(() => {
+        prompt('Salin tautan peta berikut:', url);
+      });
+    } else {
+      prompt('Salin tautan peta berikut:', url);
+    }
   }
 
   private bindExportEvents() {
     const exportBtn = document.getElementById('btn-export-map') as HTMLButtonElement | null;
     exportBtn?.addEventListener('click', () => {
-      if (this.mapExporter) {
-        if (this.pikselLoader) this.mapExporter.setPikselLoader(this.pikselLoader);
-        this.mapExporter.exportPNG(exportBtn);
-      }
+      this.handleExport(exportBtn);
     });
+  }
+
+  private handleExport(exportBtn?: HTMLButtonElement | null) {
+    if (this.mapExporter) {
+      if (this.pikselLoader) this.mapExporter.setPikselLoader(this.pikselLoader);
+      this.mapExporter.exportPNG(exportBtn);
+    }
   }
 
   private bindTourEvents() {
@@ -624,6 +645,122 @@ class WebGISApp {
     cmdBtn?.addEventListener('click', () => {
       this.commandPaletteUI?.toggle();
     });
+  }
+
+  private bindHeaderMoreEvents() {
+    const moreBtn = document.getElementById('btn-header-more-actions');
+    const dropdown = document.getElementById('header-more-dropdown');
+    if (!moreBtn || !dropdown) return;
+
+    const toggleDropdown = () => {
+      const isOpen = dropdown.style.display !== 'none';
+      dropdown.style.display = isOpen ? 'none' : 'flex';
+      moreBtn.setAttribute('aria-expanded', String(!isOpen));
+    };
+
+    moreBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleDropdown();
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (!moreBtn.contains(e.target as Node) && !dropdown.contains(e.target as Node)) {
+        dropdown.style.display = 'none';
+        moreBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Items
+    document.getElementById('more-item-tour')?.addEventListener('click', () => {
+      dropdown.style.display = 'none';
+      moreBtn.setAttribute('aria-expanded', 'false');
+      document.getElementById('btn-start-tour')?.click();
+    });
+
+    document.getElementById('more-item-reset')?.addEventListener('click', () => {
+      dropdown.style.display = 'none';
+      moreBtn.setAttribute('aria-expanded', 'false');
+      document.getElementById('btn-reset-map')?.click();
+    });
+
+    document.getElementById('more-item-import')?.addEventListener('click', () => {
+      dropdown.style.display = 'none';
+      moreBtn.setAttribute('aria-expanded', 'false');
+      document.getElementById('btn-quick-import')?.click();
+    });
+
+    document.getElementById('more-item-share')?.addEventListener('click', () => {
+      dropdown.style.display = 'none';
+      moreBtn.setAttribute('aria-expanded', 'false');
+      this.handleShare();
+    });
+
+    document.getElementById('more-item-export')?.addEventListener('click', () => {
+      dropdown.style.display = 'none';
+      moreBtn.setAttribute('aria-expanded', 'false');
+      this.handleExport();
+    });
+  }
+
+  private bindUniversalEscape() {
+    setupUniversalEscapeHandler([
+      () => {
+        // 1. Command Palette
+        if (this.commandPaletteUI?.isOpen()) {
+          this.commandPaletteUI.close();
+          return true;
+        }
+      },
+      () => {
+        // 2. Header More Dropdown
+        const dropdown = document.getElementById('header-more-dropdown');
+        if (dropdown && dropdown.style.display !== 'none') {
+          dropdown.style.display = 'none';
+          document.getElementById('btn-header-more-actions')?.setAttribute('aria-expanded', 'false');
+          return true;
+        }
+      },
+      () => {
+        // 3. Popovers
+        let closed = false;
+        ['basemap-popover', 'sublayers-popover', 'terrain-popover'].forEach((id) => {
+          const pop = document.getElementById(id);
+          if (pop && pop.style.display !== 'none') {
+            pop.style.display = 'none';
+            closed = true;
+          }
+        });
+        if (closed) return true;
+      },
+      () => {
+        // 4. Feature Inspector & Floating Inspector
+        const insp = document.getElementById('feature-inspector');
+        if (insp && insp.style.display !== 'none') {
+          insp.style.display = 'none';
+          return true;
+        }
+        const floatInsp = document.getElementById('floating-inspector-card');
+        if (floatInsp && floatInsp.classList.contains('active')) {
+          floatInsp.classList.remove('active');
+          return true;
+        }
+      },
+      () => {
+        // 5. Cancel active measurement
+        if (this.measureTool && this.measureTool.getMode() !== 'none') {
+          this.measureTool.clear();
+          document.getElementById('btn-measure-dist')?.classList.remove('active');
+          document.getElementById('btn-measure-area')?.classList.remove('active');
+          const card = document.getElementById('measure-result-card');
+          if (card) card.style.display = 'none';
+          const instructionBox = document.getElementById('measure-instruction-box');
+          if (instructionBox) instructionBox.style.display = 'none';
+          showToast('Mode pengukuran dibatalkan', 'info');
+          return true;
+        }
+      }
+    ]);
   }
 
   public getSwipeCompareUI(): SwipeCompareUI | null {

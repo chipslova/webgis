@@ -108,15 +108,86 @@ export class GeoJsonLoader {
     return this.addGeoJSONLayer('sample-indonesia-cities', 'Major Cities of Indonesia', sampleCitiesGeoJSON, '#f59e0b');
   }
 
-  public addGeoJSONLayer(layerId: string, layerName: string, geojson: GeoJSON.FeatureCollection, color: string = '#3b82f6'): boolean {
-    if (!geojson || !Array.isArray(geojson.features) || geojson.features.length === 0) {
-      logger.warn(`[GeoJsonLoader] GeoJSON for layer "${layerName}" is empty or invalid.`);
+  /**
+   * Normalizes raw GeoJSON structures (single Feature, Feature arrays, raw Geometry)
+   * and strictly validates WGS84 coordinates.
+   */
+  public static normalizeAndValidate(raw: any): { valid: boolean; data?: GeoJSON.FeatureCollection; error?: string } {
+    if (!raw || typeof raw !== 'object') {
+      return { valid: false, error: 'File bukan objek JSON/GeoJSON yang valid.' };
+    }
+
+    let fc: GeoJSON.FeatureCollection;
+
+    if (raw.type === 'FeatureCollection' && Array.isArray(raw.features)) {
+      fc = raw as GeoJSON.FeatureCollection;
+    } else if (raw.type === 'Feature' && raw.geometry) {
+      fc = { type: 'FeatureCollection', features: [raw] };
+    } else if (Array.isArray(raw)) {
+      // Array of features
+      fc = { type: 'FeatureCollection', features: raw.filter((f: any) => f && f.geometry) };
+    } else if (raw.type && ['Point', 'MultiPoint', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon', 'GeometryCollection'].includes(raw.type)) {
+      fc = { type: 'FeatureCollection', features: [{ type: 'Feature', geometry: raw, properties: {} }] };
+    } else if (Array.isArray(raw.features)) {
+      fc = { type: 'FeatureCollection', features: raw.features };
+    } else {
+      return { valid: false, error: 'Format data tidak dikenali sebagai GeoJSON (FeatureCollection atau Feature).' };
+    }
+
+    if (!fc.features || fc.features.length === 0) {
+      return { valid: false, error: 'GeoJSON tidak memiliki objek fitur (features kosong).' };
+    }
+
+    // Validate coordinates bounds (prevent out-of-bounds UTM projection issues)
+    let outOfBounds = false;
+
+    const checkCoord = (c: any): boolean => {
+      if (Array.isArray(c)) {
+        if (typeof c[0] === 'number' && typeof c[1] === 'number') {
+          const [lon, lat] = c;
+          if (Math.abs(lon) > 180 || Math.abs(lat) > 90) {
+            outOfBounds = true;
+            return false;
+          }
+          return true;
+        } else {
+          for (const sub of c) {
+            if (!checkCoord(sub)) return false;
+          }
+        }
+      }
+      return true;
+    };
+
+    for (const feat of fc.features) {
+      if (feat && feat.geometry && (feat.geometry as any).coordinates) {
+        checkCoord((feat.geometry as any).coordinates);
+        if (outOfBounds) break;
+      }
+    }
+
+    if (outOfBounds) {
+      return {
+        valid: false,
+        error: 'Koordinat di luar batas geografis WGS84 (derajat bujur [-180, 180] / lintang [-90, 90]). Pastikan data tidak menggunakan proyeksi UTM meter.'
+      };
+    }
+
+    return { valid: true, data: fc };
+  }
+
+  public addGeoJSONLayer(layerId: string, layerName: string, geojson: any, color: string = '#3b82f6'): boolean {
+    const validated = GeoJsonLoader.normalizeAndValidate(geojson);
+    if (!validated.valid || !validated.data) {
+      logger.warn(`[GeoJsonLoader] GeoJSON for layer "${layerName}" is invalid: ${validated.error}`);
       return false;
     }
 
+    const cleanGeoJSON = validated.data;
+
     // Determine primary geometry type robustly
     let primaryType: 'point' | 'line' | 'polygon' = 'point';
-    for (const feat of geojson.features) {
+    for (const feat of cleanGeoJSON.features) {
       if (!feat || !feat.geometry) continue;
       const t = feat.geometry.type;
       if (t.includes('Polygon')) {
@@ -135,8 +206,8 @@ export class GeoJsonLoader {
       type: primaryType,
       visible: true,
       color,
-      featureCount: geojson.features.length,
-      data: geojson
+      featureCount: cleanGeoJSON.features.length,
+      data: cleanGeoJSON
     });
 
     this.attachLayerToMap(layerId);
