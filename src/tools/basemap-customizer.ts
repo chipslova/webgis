@@ -429,20 +429,20 @@ export class BasemapCustomizer {
               id: custom3DLayerId,
               type: 'fill-extrusion',
               source: buildingSrc.source,
-              minzoom: 12.5,
+              minzoom: 12.0,
               paint: {
                 'fill-extrusion-color': colorExpr,
                 'fill-extrusion-height': [
                   'interpolate',
                   ['linear'],
                   ['zoom'],
-                  12.5, 0,
-                  14.5, [
+                  12.0, 0,
+                  13.8, [
                     'coalesce',
                     ['to-number', ['get', 'render_height']],
                     ['to-number', ['get', 'height']],
                     ['*', ['to-number', ['coalesce', ['get', 'building:levels'], ['get', 'levels'], 2]], 4.0],
-                    16
+                    18
                   ]
                 ],
                 'fill-extrusion-base': [
