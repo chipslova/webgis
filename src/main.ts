@@ -17,11 +17,14 @@ import { PointInspector } from './tools/point-inspector';
 import { BasemapCustomizer } from './tools/basemap-customizer';
 import { BasemapCustomizerUI } from './ui/basemap-customizer-panel';
 import { MapExporter } from './tools/map-exporter';
-import { FeatureInspectorUI } from './ui/feature-inspector';
-import { DynamicLegendUI } from './ui/dynamic-legend';
 import { DataPanelUI } from './ui/data-panel';
+import { DynamicLegendUI } from './ui/dynamic-legend';
+import { FeatureInspectorUI } from './ui/feature-inspector';
 import { SearchUI } from './ui/search-ui';
 import { GuidedTourUI } from './ui/guided-tour';
+import { SwipeCompareManager } from './tools/swipe-compare';
+import { SwipeCompareUI } from './ui/swipe-compare-ui';
+import { CommandPaletteUI } from './ui/command-palette';
 import { logger } from './utils/logger';
 
 class WebGISApp {
@@ -45,6 +48,9 @@ class WebGISApp {
   private mapExporter: MapExporter | null = null;
   private featureInspectorUI: FeatureInspectorUI;
   private guidedTourUI: GuidedTourUI | null = null;
+  private swipeCompareManager: SwipeCompareManager | null = null;
+  private swipeCompareUI: SwipeCompareUI | null = null;
+  private commandPaletteUI: CommandPaletteUI | null = null;
 
   constructor() {
     this.mapManager = new MapManager('map');
@@ -66,6 +72,8 @@ class WebGISApp {
     this.bindExportEvents();
     this.bindLegendEvents();
     this.bindTourEvents();
+    this.bindSwipeEvents();
+    this.bindCommandPaletteEvents();
 
     // 2. Connect Telemetry & Feature Inspector
     this.mapManager.onMouseMove((info) => {
@@ -174,6 +182,21 @@ class WebGISApp {
         this.geeLoader,
         this.basemapCustomizer,
         this.sidebarUI
+      );
+
+      // Initialize Swipe / Split-Screen Comparison Mode
+      this.swipeCompareManager = new SwipeCompareManager(map);
+      this.swipeCompareUI = new SwipeCompareUI(this.swipeCompareManager);
+
+      // Initialize Spotlight Command Palette
+      this.commandPaletteUI = new CommandPaletteUI(
+        this.mapManager,
+        this.pikselLoader,
+        this.geeLoader,
+        this.measureTool,
+        this.sidebarUI,
+        this.swipeCompareManager,
+        this.guidedTourUI
       );
 
       // Enforce strict layer order and render initial legend
@@ -352,7 +375,10 @@ class WebGISApp {
         this.basemapCustomizerUI?.syncUI();
       }
 
-      // 8. Refresh Active Layers UI & Legend
+      // 8. Deactivate Swipe Comparison Mode if active
+      this.swipeCompareManager?.deactivate();
+
+      // 9. Refresh Active Layers UI & Legend
       this.activeLayersUI?.render();
       this.dynamicLegendUI?.render();
     });
@@ -542,6 +568,40 @@ class WebGISApp {
 
     startTourBtn?.addEventListener('click', handleStartTour);
     quickTourBtn?.addEventListener('click', handleStartTour);
+  }
+
+  private bindSwipeEvents() {
+    const toggleSwipeBtn = document.getElementById('btn-toggle-swipe');
+    const dockSwipeBtn = document.getElementById('btn-dock-swipe');
+
+    const handleToggleSwipe = () => {
+      if (!this.swipeCompareManager) return;
+      if (this.swipeCompareManager.isActive()) {
+        this.swipeCompareManager.deactivate();
+        showToast('Mode komparasi swipe ditutup', 'info');
+      } else {
+        this.swipeCompareManager.activate();
+        showToast('Mode komparasi swipe aktif. Geser slider untuk membandingkan.', 'info');
+      }
+    };
+
+    toggleSwipeBtn?.addEventListener('click', handleToggleSwipe);
+    dockSwipeBtn?.addEventListener('click', handleToggleSwipe);
+  }
+
+  private bindCommandPaletteEvents() {
+    const cmdBtn = document.getElementById('btn-open-cmd-palette');
+    cmdBtn?.addEventListener('click', () => {
+      this.commandPaletteUI?.toggle();
+    });
+  }
+
+  public getSwipeCompareUI(): SwipeCompareUI | null {
+    return this.swipeCompareUI;
+  }
+
+  public getCommandPaletteUI(): CommandPaletteUI | null {
+    return this.commandPaletteUI;
   }
 }
 
