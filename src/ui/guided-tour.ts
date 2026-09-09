@@ -120,24 +120,24 @@ export class GuidedTourUI {
       {
         id: 3,
         badge: '3. TOPOGRAFI & 3D TERRAIN',
-        title: 'Elevasi Medan 3D & Bangunan (Bandung Basin)',
+        title: 'Elevasi Medan 3D & Ekstrusi Bangunan (Bandung)',
         subtitle: 'Mesh 3D Terrarium & Ekstrusi Vektor WebGL2',
-        description: 'Peta dirender dalam perspektif 3D WebGL dengan elevasi mesh topografi AWS Terrarium dan ekstrusi gedung vektor OpenFreeMap untuk analisis morfologi cekungan dan lereng.',
-        tags: ['3D WebGL2', 'Mesh Elevasi 30m', 'Ekstrusi Gedung 3D'],
+        description: 'Peta dirender dalam perspektif 3D WebGL dengan elevasi mesh topografi AWS Terrarium dan ekstrusi volume gedung nyata OpenFreeMap di kawasan perkotaan Bandung dengan latar belakang lereng Cekungan Bandung.',
+        tags: ['3D WebGL2', 'Mesh Elevasi 30m', 'Ekstrusi Gedung 3D', 'Zoom Detail Z15.8'],
         action: async () => {
           const map = this.mapManager.getMap();
           if (!map) return;
 
-          // Clear GEE layers
+          // Clear GEE layers & Piksel layers
           this.geeLoader?.clearAllLayers();
           this.pikselLoader?.setActiveProduct(null);
 
-          // Fly camera to Bandung
+          // Fly camera to Bandung Urban Core (Gedung Sate & Asia Afrika high-density 3D cluster)
           map.flyTo({
-            center: [107.6098, -6.8500],
-            zoom: 13.0,
-            pitch: 62,
-            bearing: -25,
+            center: [107.6186, -6.9024],
+            zoom: 15.8,
+            pitch: 65,
+            bearing: -22,
             duration: 2200,
             essential: true
           });
