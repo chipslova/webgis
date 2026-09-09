@@ -404,8 +404,7 @@ export class CommandPaletteUI {
           e.preventDefault();
           const targetCmd = filtered[this.selectedIndex];
           if (targetCmd) {
-            this.close();
-            targetCmd.action();
+            this.executeCommand(targetCmd);
           }
         }
       });
@@ -418,11 +417,18 @@ export class CommandPaletteUI {
         const filtered = this.filterCommands();
         const targetCmd = filtered[idx];
         if (targetCmd) {
-          this.close();
-          targetCmd.action();
+          this.executeCommand(targetCmd);
         }
       });
     });
+  }
+
+  private executeCommand(cmd: CommandItem) {
+    this.close();
+    if (cmd.id !== 'tool-swipe' && this.swipeCompareManager?.isActive()) {
+      this.swipeCompareManager.deactivate();
+    }
+    cmd.action();
   }
 
   private scrollToSelected() {

@@ -9,6 +9,7 @@ export class SwipeCompareUI {
   constructor(manager: SwipeCompareManager) {
     this.manager = manager;
     this.init();
+    this.bindGlobalShortcuts();
   }
 
   private init() {
@@ -16,6 +17,20 @@ export class SwipeCompareUI {
       // Avoid destroying and rebuilding DOM while actively dragging
       if (!this.isDragging) {
         this.render();
+      }
+    });
+  }
+
+  private bindGlobalShortcuts() {
+    if (typeof window === 'undefined') return;
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.manager.isActive()) {
+        const cmdModal = document.getElementById('cmd-palette-backdrop');
+        if (!cmdModal) {
+          e.preventDefault();
+          this.manager.deactivate();
+          showToast('Mode komparasi ditutup (ESC)', 'info');
+        }
       }
     });
   }

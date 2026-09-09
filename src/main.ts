@@ -81,6 +81,7 @@ class WebGISApp {
     });
 
     this.mapManager.onFeatureClick((properties, layerName) => {
+      if (this.swipeCompareManager?.isActive()) return;
       this.featureInspectorUI.show(properties, layerName);
     });
 
@@ -165,6 +166,9 @@ class WebGISApp {
 
       // Lazy-load GEE datasets on-demand when the GEE tab is selected
       this.sidebarUI.onTabChange((tabId) => {
+        if (this.swipeCompareManager?.isActive()) {
+          this.swipeCompareManager.deactivate();
+        }
         if (tabId === 'gee') {
           this.geeLoader?.loadGEEDatasets();
           this.geePanelUI?.renderTimeSeriesChart();
@@ -324,6 +328,9 @@ class WebGISApp {
     updateLabel();
 
     btn.addEventListener('click', () => {
+      if (this.swipeCompareManager?.isActive()) {
+        this.swipeCompareManager.deactivate();
+      }
       this.mapManager.toggleProjection();
       updateLabel();
     });
@@ -489,6 +496,9 @@ class WebGISApp {
 
     distBtn?.addEventListener('click', () => {
       if (!this.measureTool) return;
+      if (this.swipeCompareManager?.isActive()) {
+        this.swipeCompareManager.deactivate();
+      }
       const current = this.measureTool.getMode();
       this.measureTool.setMode(current === 'distance' ? 'none' : 'distance');
       distBtn.classList.toggle('active', this.measureTool.getMode() === 'distance');
@@ -499,6 +509,9 @@ class WebGISApp {
 
     areaBtn?.addEventListener('click', () => {
       if (!this.measureTool) return;
+      if (this.swipeCompareManager?.isActive()) {
+        this.swipeCompareManager.deactivate();
+      }
       const current = this.measureTool.getMode();
       this.measureTool.setMode(current === 'area' ? 'none' : 'area');
       areaBtn.classList.toggle('active', this.measureTool.getMode() === 'area');
@@ -564,8 +577,12 @@ class WebGISApp {
   private bindTourEvents() {
     const startTourBtn = document.getElementById('btn-start-tour');
     const quickTourBtn = document.getElementById('btn-quick-tour');
+    const importBtn = document.getElementById('btn-quick-import');
 
     const handleStartTour = () => {
+      if (this.swipeCompareManager?.isActive()) {
+        this.swipeCompareManager.deactivate();
+      }
       if (this.guidedTourUI) {
         this.guidedTourUI.startTour();
       }
@@ -573,6 +590,14 @@ class WebGISApp {
 
     startTourBtn?.addEventListener('click', handleStartTour);
     quickTourBtn?.addEventListener('click', handleStartTour);
+
+    importBtn?.addEventListener('click', () => {
+      if (this.swipeCompareManager?.isActive()) {
+        this.swipeCompareManager.deactivate();
+      }
+      this.sidebarUI.setActiveTab('data');
+      this.sidebarUI.setOpen(true);
+    });
   }
 
   private bindSwipeEvents() {
