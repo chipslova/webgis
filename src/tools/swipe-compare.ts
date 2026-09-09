@@ -141,14 +141,33 @@ export class SwipeCompareManager {
     return { ...this.rightConfig };
   }
 
+  public getPrimaryMapZoom(): number {
+    return this.primaryMap?.getZoom ? this.primaryMap.getZoom() : 10;
+  }
+
+  public autoZoomIfLow(targetZoom: number = 9.5) {
+    if (this.primaryMap && typeof this.primaryMap.getZoom === 'function') {
+      const cur = this.primaryMap.getZoom();
+      if (cur < 8) {
+        this.primaryMap.flyTo({
+          zoom: targetZoom,
+          duration: 1400,
+          essential: true
+        });
+      }
+    }
+  }
+
   public setLeftConfig(config: Partial<CompareSideConfig>) {
     this.leftConfig = { ...this.leftConfig, ...config };
+    this.autoZoomIfLow();
     this.renderLeftLayer();
     this.notify();
   }
 
   public setRightConfig(config: Partial<CompareSideConfig>) {
     this.rightConfig = { ...this.rightConfig, ...config };
+    this.autoZoomIfLow();
     this.renderRightLayer();
     this.notify();
   }
@@ -225,6 +244,15 @@ export class SwipeCompareManager {
         duration: 1600,
         essential: true
       });
+    } else {
+      // Smart Auto-Zoom: If user opens comparison while at national view (zoom < 6), launch flagship IKN preset.
+      // If at intermediate zoom (6-7.9), smoothly zoom in to 9.5 to trigger WMS tile loading automatically.
+      const curZoom = this.getPrimaryMapZoom();
+      if (curZoom < 6) {
+        this.applyPreset(SWIPE_PRESETS[0]);
+      } else if (curZoom < 8) {
+        this.autoZoomIfLow(9.5);
+      }
     }
 
     // Trigger map canvas resize

@@ -127,6 +127,18 @@ export class SwipeCompareUI {
             ${presetsHtml}
           </div>
         </div>
+
+        ${this.manager.getPrimaryMapZoom() < 8 ? `
+          <div class="swipe-zoom-alert" id="swipe-zoom-alert">
+            <div class="swipe-zoom-alert-text">
+              <span class="alert-icon" aria-hidden="true">💡</span>
+              <span>Zoom saat ini (${this.manager.getPrimaryMapZoom().toFixed(1)}). Citra satelit memerlukan Zoom ≥ 8 agar muncul.</span>
+            </div>
+            <button id="btn-swipe-autozoom" class="btn-swipe-autozoom" type="button" aria-label="Perbesar otomatis ke zoom 9.5">
+              Perbesar Otomatis (9.5) →
+            </button>
+          </div>
+        ` : ''}
       </div>
 
       <!-- Draggable Split Divider Line & Handle Knob -->
@@ -195,6 +207,12 @@ export class SwipeCompareUI {
     root.querySelector('#btn-close-swipe')?.addEventListener('click', () => {
       this.manager.deactivate();
       showToast('Mode komparasi ditutup', 'info');
+    });
+
+    // 4. Auto-zoom button if zoom < 8
+    root.querySelector('#btn-swipe-autozoom')?.addEventListener('click', () => {
+      this.manager.autoZoomIfLow(9.5);
+      showToast('Memperbesar peta ke Zoom Level 9.5...', 'info');
     });
 
     // 4. Draggable Divider Handle Events (Mouse & Touch)
