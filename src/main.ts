@@ -576,8 +576,8 @@ class WebGISApp {
   }
 
   private bindSwipeEvents() {
-    const toggleSwipeBtn = document.getElementById('btn-toggle-swipe');
     const dockSwipeBtn = document.getElementById('btn-dock-swipe');
+    const sidebarSwipeBtn = document.getElementById('btn-sidebar-start-swipe');
 
     const handleToggleSwipe = () => {
       if (!this.swipeCompareManager) return;
@@ -590,8 +590,8 @@ class WebGISApp {
       }
     };
 
-    toggleSwipeBtn?.addEventListener('click', handleToggleSwipe);
     dockSwipeBtn?.addEventListener('click', handleToggleSwipe);
+    sidebarSwipeBtn?.addEventListener('click', handleToggleSwipe);
   }
 
   private bindCommandPaletteEvents() {

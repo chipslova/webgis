@@ -68,10 +68,6 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             <span class="btn-text-label">Demo Singkat</span>
           </button>
-          <button id="btn-toggle-swipe" class="btn btn-secondary" title="Bandingkan Citra Sebelum & Sesudah (Swipe Split-Screen)" aria-label="Buka mode komparasi citra satelit split-screen">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="8 8 4 12 8 16"/><polyline points="16 8 20 12 16 16"/></svg>
-            <span class="btn-text-label">Komparasi</span>
-          </button>
           <button id="btn-reset-map" class="btn btn-secondary" title="Reset Pandangan Peta & Layer Analisis" aria-label="Reset pandangan peta ke Indonesia">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
             <span class="btn-text-label">Reset Tampilan</span>
@@ -182,6 +178,12 @@
                 </div>
                 <p>Data citra satelit nasional & produk turunan OGC WMS resmi Badan Informasi Geospasial berbasis Open Data Cube.</p>
               </div>
+
+              <!-- Quick Launch Comparison Mode -->
+              <button id="btn-sidebar-start-swipe" class="btn btn-secondary full-width" style="margin-bottom: 12px; gap: 8px; justify-content: center;" title="Buka Mode Komparasi Split-Screen (Sebelum vs Sesudah)" aria-label="Buka Mode Komparasi Split-Screen">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="8 8 4 12 8 16"/><polyline points="16 8 20 12 16 16"/></svg>
+                <span>Mode Komparasi Citra (Swipe)</span>
+              </button>
 
               <!-- Study Area Presets -->
               <div class="piksel-card">
