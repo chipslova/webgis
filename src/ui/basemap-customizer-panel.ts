@@ -215,6 +215,24 @@ export class BasemapCustomizerUI {
   }
 
   /**
+   * Helper to fly smoothly to Jakarta Monas demo location at Z14.5
+   */
+  public flyToDemoLocation(message?: string) {
+    const map = this.mapManager?.getMap();
+    if (map && typeof map.flyTo === 'function') {
+      map.flyTo({
+        center: [106.8272, -6.1754],
+        zoom: 14.5,
+        duration: 1500,
+        essential: true
+      });
+      if (message) {
+        showToast(message, 'info');
+      }
+    }
+  }
+
+  /**
    * Binds popover close buttons and interaction controls
    */
   private bindPopoverEvents() {
@@ -261,6 +279,21 @@ export class BasemapCustomizerUI {
       showToast(checkHillshade.checked ? 'Terrain Hillshade aktif' : 'Terrain Hillshade nonaktif', 'info');
     });
 
+    // Zoom Focus Demo Button
+    document.getElementById('btn-popover-focus-demo')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const currentBm = BASEMAPS.find(b => b.id === (this.mapManager?.getCurrentBasemapId() || DEFAULT_BASEMAP_ID));
+      if (currentBm?.format !== 'vector') {
+        const targetVectorBm = 'openfreemap-liberty';
+        if (this.mapManager) {
+          this.mapManager.setBasemap(targetVectorBm);
+        }
+        this.customizer.setBasemapId(targetVectorBm);
+      }
+      this.flyToDemoLocation('🎯 Kamera terbang ke Jakarta Monas (Z14.5)! Coba toggle sublayer jalan & label sekarang.');
+      this.syncUI();
+    });
+
     // Vector sublayer toggles
     const sublayerToggles = document.querySelectorAll<HTMLInputElement>('#sublayers-popover .sublayer-toggle[data-key]');
     sublayerToggles.forEach(input => {
@@ -268,6 +301,11 @@ export class BasemapCustomizerUI {
         const key = input.dataset.key as VectorSublayerKey;
         if (key) {
           this.customizer.toggleSublayer(key, input.checked);
+          const map = this.mapManager?.getMap();
+          const currentZoom = map && typeof map.getZoom === 'function' ? map.getZoom() : 14;
+          if (currentZoom < 11) {
+            this.flyToDemoLocation(`Auto-zoom ke Jakarta (Z14.5) agar perubahan sublayer "${key}" terlihat jelas!`);
+          }
         }
       });
     });
@@ -281,7 +319,13 @@ export class BasemapCustomizerUI {
         return;
       }
       this.customizer.setAllSublayers(true);
-      showToast('Semua sublayer vektor diaktifkan', 'info');
+      const map = this.mapManager?.getMap();
+      const currentZoom = map && typeof map.getZoom === 'function' ? map.getZoom() : 14;
+      if (currentZoom < 11) {
+        this.flyToDemoLocation('Auto-zoom ke Jakarta (Z14.5) untuk menampilkan seluruh sublayer!');
+      } else {
+        showToast('Semua sublayer vektor diaktifkan', 'info');
+      }
       this.syncUI();
     });
 
@@ -293,7 +337,13 @@ export class BasemapCustomizerUI {
         return;
       }
       this.customizer.setAllSublayers(false);
-      showToast('Peta Bersih: semua sublayer dimatikan', 'info');
+      const map = this.mapManager?.getMap();
+      const currentZoom = map && typeof map.getZoom === 'function' ? map.getZoom() : 14;
+      if (currentZoom < 11) {
+        this.flyToDemoLocation('Auto-zoom ke Jakarta (Z14.5) untuk melihat Peta Bersih!');
+      } else {
+        showToast('Peta Bersih: semua sublayer dimatikan (Clean Map Canvas)', 'info');
+      }
       this.syncUI();
     });
 
@@ -394,7 +444,7 @@ export class BasemapCustomizerUI {
             this.mapManager.setBasemap(targetVectorBm);
           }
           this.customizer.setBasemapId(targetVectorBm);
-          showToast('Beralih ke Basemap Vektor OpenFreeMap Liberty! Kustomisasi sublayer kini aktif.', 'success');
+          this.flyToDemoLocation('⚡ Beralih ke OpenFreeMap Vektor & auto-zoom ke Jakarta Monas (Z14.5)! Kustomisasi sublayer kini aktif.');
           this.syncUI();
         });
       }
