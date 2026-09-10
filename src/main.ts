@@ -1,6 +1,6 @@
 import './style.css';
 import { MapManager } from './map/map-manager';
-import { SidebarUI } from './ui/sidebar';
+import { SidebarUI, type TabId } from './ui/sidebar';
 import { StatusBarUI } from './ui/status-bar';
 import { GeocoderTool } from './tools/geocoder';
 import { MeasureTool } from './tools/measure';
@@ -10,7 +10,6 @@ import { GEEPanelUI } from './ui/gee-panel';
 import { PikselLoader } from './tools/piksel-loader';
 import { PikselPanelUI } from './ui/piksel-panel';
 import { ActiveLayersUI } from './ui/active-layers';
-import { BASEMAPS } from './config/basemaps';
 import { showToast } from './ui/toast';
 import { PermalinkManager } from './tools/permalink';
 import { PointInspector } from './tools/point-inspector';
@@ -169,7 +168,7 @@ class WebGISApp {
         this.geeLoader,
         this.geojsonLoader,
         this.measureTool,
-        (tabId) => this.sidebarUI.setActiveTab(tabId)
+        (tabId: TabId) => this.sidebarUI.setActiveTab(tabId)
       );
 
       // Load lightweight sample cities vector layer & Piksel EO UI
