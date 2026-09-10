@@ -107,7 +107,8 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'Esri',
     group: 'thematic',
-    maxZoom: 16,
+    maxZoom: 11,
+    zoomWarning: 'Maksimal Zoom Level 11 (Kartografi NatGeo)',
     description: 'Gaya kartografi khas National Geographic dengan shading relief pegunungan',
     styleUrl: '/basemap/styles/esri-style-natgeo.json',
     previewColor: '#84cc16'
@@ -118,8 +119,8 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'Esri',
     group: 'thematic',
-    maxZoom: 13,
-    zoomWarning: 'Maksimal Zoom Level 13 (Batimetri Lautan & Kedalaman)',
+    maxZoom: 9,
+    zoomWarning: 'Maksimal Zoom Level 9 (Batimetri Kedalaman Samudra)',
     description: 'Peta batimetri lautan Esri/NOAA dengan data kedalaman palung dan dasar laut',
     styleUrl: '/basemap/styles/esri-style-ocean.json',
     previewColor: '#0284c7'

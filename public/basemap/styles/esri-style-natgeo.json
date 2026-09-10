@@ -8,7 +8,7 @@
         "https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}"
       ],
       "tileSize": 256,
-      "maxzoom": 16,
+      "maxzoom": 11,
       "attribution": "National Geographic, Esri, DeLorme, HERE, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, increment P Corp."
     }
   },
