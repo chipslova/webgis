@@ -91,7 +91,13 @@ describe('E2E WebGIS Exhaustive Buttons & Interaction Flow Audit', () => {
       getCanvas: vi.fn().mockReturnValue(document.createElement('canvas')),
       getCanvasContainer: vi.fn().mockReturnValue(document.createElement('div')),
       project: vi.fn().mockReturnValue(new maplibregl.Point(100, 100)),
-      addControl: vi.fn()
+      addControl: vi.fn(),
+      setStyle: vi.fn(),
+      setMaxZoom: vi.fn(),
+      setZoom: vi.fn(),
+      setCenter: vi.fn(),
+      setPitch: vi.fn(),
+      setBearing: vi.fn()
     };
 
     mapManager = new MapManager('map');
@@ -101,7 +107,7 @@ describe('E2E WebGIS Exhaustive Buttons & Interaction Flow Audit', () => {
     geeLoader = new GEELoader(mockMap);
     geojsonLoader = new GeoJsonLoader(mockMap);
     measureTool = new MeasureTool(mockMap);
-    customizer = new BasemapCustomizer(mockMap);
+    customizer = new BasemapCustomizer(mockMap, mapManager);
     swipeManager = new SwipeCompareManager(mockMap);
     sidebarUI = new SidebarUI();
 
@@ -116,7 +122,7 @@ describe('E2E WebGIS Exhaustive Buttons & Interaction Flow Audit', () => {
     legendUI = new DynamicLegendUI('legend-content', pikselLoader, geeLoader, geojsonLoader);
     legendUI.render();
 
-    customizerUI = new BasemapCustomizerUI(customizer);
+    customizerUI = new BasemapCustomizerUI(customizer, mapManager, pikselLoader);
     customizerUI.init();
 
     swipeUI = new SwipeCompareUI(swipeManager);
@@ -342,6 +348,63 @@ describe('E2E WebGIS Exhaustive Buttons & Interaction Flow Audit', () => {
       window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
       expect(cmdPaletteUI.isPaletteOpen()).toBe(false);
       cleanup();
+    });
+  });
+
+  describe('E. Basemap Gallery Badges & Sublayer Limitation Workflows', () => {
+    it('1. Vector basemap allows full sublayer toggles and bulk mute/unmute', () => {
+      // Set to vector basemap
+      mapManager.setBasemap('openfreemap-liberty');
+      customizer.setBasemapId('openfreemap-liberty');
+      customizerUI.syncUI();
+
+      const notice = document.getElementById('popover-sublayer-notice');
+      expect(notice?.style.display).toBe('none');
+
+      const btnMute = document.getElementById('btn-popover-sublayers-mute') as HTMLButtonElement;
+      const btnAll = document.getElementById('btn-popover-sublayers-all') as HTMLButtonElement;
+      expect(btnMute.disabled).toBe(false);
+      expect(btnAll.disabled).toBe(false);
+
+      // Click Mute (Clean map)
+      btnMute.click();
+      const stateMuted = customizer.getState();
+      expect(stateMuted.sublayers.roads).toBe(false);
+      expect(stateMuted.sublayers.poi).toBe(false);
+      expect(stateMuted.sublayers.place_names).toBe(false);
+
+      // Click All (Restore)
+      btnAll.click();
+      const stateAll = customizer.getState();
+      expect(stateAll.sublayers.roads).toBe(true);
+      expect(stateAll.sublayers.poi).toBe(true);
+      expect(stateAll.sublayers.place_names).toBe(true);
+    });
+
+    it('2. Raster basemap locks sublayer toggles, displays notice, and provides quick-switch button', () => {
+      // Switch to raster basemap
+      mapManager.setBasemap('esri-imagery');
+      customizer.setBasemapId('esri-imagery');
+      customizerUI.syncUI();
+
+      const notice = document.getElementById('popover-sublayer-notice');
+      expect(notice?.style.display).toBe('block');
+      expect(notice?.textContent).toContain('Sublayer Khusus Basemap Vektor');
+
+      const btnMute = document.getElementById('btn-popover-sublayers-mute') as HTMLButtonElement;
+      const btnAll = document.getElementById('btn-popover-sublayers-all') as HTMLButtonElement;
+      expect(btnMute.disabled).toBe(true);
+      expect(btnAll.disabled).toBe(true);
+
+      const roadsToggle = document.getElementById('popover-check-roads') as HTMLInputElement;
+      expect(roadsToggle.disabled).toBe(true);
+
+      // Quick switch button exists in notice
+      const quickSwitchBtn = document.getElementById('btn-notice-switch-vector') as HTMLButtonElement;
+      expect(quickSwitchBtn).not.toBeNull();
+
+      quickSwitchBtn.click();
+      expect(mapManager.getCurrentBasemapId()).toBe('openfreemap-liberty');
     });
   });
 });
