@@ -275,6 +275,11 @@ export class BasemapCustomizerUI {
     // Bulk sublayer buttons
     document.getElementById('btn-popover-sublayers-all')?.addEventListener('click', (e) => {
       e.stopPropagation();
+      const currentBm = BASEMAPS.find(b => b.id === (this.mapManager?.getCurrentBasemapId() || DEFAULT_BASEMAP_ID));
+      if (currentBm && currentBm.format !== 'vector') {
+        showToast(`Kustomisasi sublayer hanya aktif pada Basemap Vektor (${currentBm.name} berformat Raster)`, 'warning');
+        return;
+      }
       this.customizer.setAllSublayers(true);
       showToast('Semua sublayer vektor diaktifkan', 'info');
       this.syncUI();
@@ -282,6 +287,11 @@ export class BasemapCustomizerUI {
 
     document.getElementById('btn-popover-sublayers-mute')?.addEventListener('click', (e) => {
       e.stopPropagation();
+      const currentBm = BASEMAPS.find(b => b.id === (this.mapManager?.getCurrentBasemapId() || DEFAULT_BASEMAP_ID));
+      if (currentBm && currentBm.format !== 'vector') {
+        showToast(`Kustomisasi sublayer hanya aktif pada Basemap Vektor (${currentBm.name} berformat Raster)`, 'warning');
+        return;
+      }
       this.customizer.setAllSublayers(false);
       showToast('Peta Bersih: semua sublayer dimatikan', 'info');
       this.syncUI();
@@ -359,29 +369,61 @@ export class BasemapCustomizerUI {
     if (opacityVal) opacityVal.innerText = `${opacityPct}%`;
 
     // 2. Dynamic check: does the active basemap contain discrete vector sublayers?
-    const style = this.mapManager?.getMap()?.getStyle();
-    const hasVectorLayers = !!style?.layers?.some(l => 
-      l.type !== 'raster' && 
-      l.type !== 'background' && 
-      !l.id.startsWith('piksel-') && 
-      !l.id.startsWith('gee-') && 
-      !l.id.startsWith('measure-') && 
-      !l.id.startsWith('geojson-') && 
-      !l.id.startsWith('overlay-') && 
-      l.id !== '3d-extruded-buildings-layer'
-    );
-    const isRasterBasemap = !hasVectorLayers;
+    const isRasterBasemap = currentBm ? currentBm.format !== 'vector' : true;
     const sublayerNotice = document.getElementById('popover-sublayer-notice');
     if (sublayerNotice) {
-      sublayerNotice.style.display = isRasterBasemap ? 'flex' : 'none';
+      sublayerNotice.style.display = isRasterBasemap ? 'block' : 'none';
       if (isRasterBasemap) {
-        sublayerNotice.innerHTML = `<span>ℹ️ <strong>Basemap Raster Aktif</strong>: Kustomisasi sublayer (jalan, batas admin, label) hanya aktif untuk basemap <strong>Vektor</strong>. Pada basemap Raster, elemen visual telah menyatu dalam gambar piksel citra.</span>`;
+        sublayerNotice.innerHTML = `
+          <div class="sublayer-notice-content">
+            <div class="sublayer-notice-header">
+              <span class="lock-icon" aria-hidden="true">🔒</span>
+              <span>Sublayer Khusus Basemap Vektor</span>
+            </div>
+            <p>Basemap aktif (<strong>${currentBm?.name || 'Raster'}</strong>) berupa gambar citra piksel. Tombol jalan, batas wilayah, dan label hanya aktif pada basemap <strong>Vektor</strong>.</p>
+            <button type="button" class="btn-notice-switch-vector" id="btn-notice-switch-vector" aria-label="Beralih ke Basemap Vektor OpenFreeMap Liberty">
+              ⚡ Ganti ke OpenFreeMap Vektor
+            </button>
+          </div>
+        `;
+
+        document.getElementById('btn-notice-switch-vector')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const targetVectorBm = 'openfreemap-liberty';
+          if (this.mapManager) {
+            this.mapManager.setBasemap(targetVectorBm);
+          }
+          this.customizer.setBasemapId(targetVectorBm);
+          showToast('Beralih ke Basemap Vektor OpenFreeMap Liberty! Kustomisasi sublayer kini aktif.', 'success');
+          this.syncUI();
+        });
       }
     }
 
-    // 3. Sync Sublayer Popover Checkboxes
+    // 3. Disable bulk action buttons for raster basemaps
+    const btnSubAll = document.getElementById('btn-popover-sublayers-all') as HTMLButtonElement | null;
+    const btnSubMute = document.getElementById('btn-popover-sublayers-mute') as HTMLButtonElement | null;
+    if (btnSubAll) {
+      btnSubAll.disabled = isRasterBasemap;
+      btnSubAll.style.opacity = isRasterBasemap ? '0.35' : '1';
+      btnSubAll.style.cursor = isRasterBasemap ? 'not-allowed' : 'pointer';
+      btnSubAll.title = isRasterBasemap ? 'Hanya tersedia untuk basemap Vektor' : 'Aktifkan semua sublayer';
+    }
+    if (btnSubMute) {
+      btnSubMute.disabled = isRasterBasemap;
+      btnSubMute.style.opacity = isRasterBasemap ? '0.35' : '1';
+      btnSubMute.style.cursor = isRasterBasemap ? 'not-allowed' : 'pointer';
+      btnSubMute.title = isRasterBasemap ? 'Hanya tersedia untuk basemap Vektor' : 'Matikan semua sublayer';
+    }
+
+    // 4. Sync Sublayer Popover Checkboxes (dimmed and locked for raster basemaps)
     const checkHillshade = document.getElementById('popover-check-hillshade') as HTMLInputElement;
     if (checkHillshade) checkHillshade.checked = state.terrainHillshade;
+
+    const vectorList = document.querySelector('.vector-sublayers-list') as HTMLElement | null;
+    if (vectorList) {
+      vectorList.classList.toggle('is-disabled-for-raster', isRasterBasemap);
+    }
 
     const sublayerToggles = document.querySelectorAll<HTMLInputElement>('#sublayers-popover .sublayer-toggle[data-key]');
     sublayerToggles.forEach(input => {
@@ -392,8 +434,10 @@ export class BasemapCustomizerUI {
       input.disabled = isRasterBasemap;
       const parentLabel = input.closest('.sublayer-item') as HTMLElement | null;
       if (parentLabel) {
-        parentLabel.style.opacity = isRasterBasemap ? '0.5' : '1';
+        parentLabel.style.opacity = isRasterBasemap ? '0.35' : '1';
         parentLabel.style.pointerEvents = isRasterBasemap ? 'none' : 'auto';
+        parentLabel.style.cursor = isRasterBasemap ? 'not-allowed' : 'pointer';
+        parentLabel.title = isRasterBasemap ? 'Hanya dapat diubah pada basemap Vektor' : '';
       }
     });
 
