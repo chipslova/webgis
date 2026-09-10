@@ -34,20 +34,20 @@ export const BASEMAPS: BasemapConfig[] = [
   {
     id: 'esri-streets',
     name: 'Esri World Streets',
-    format: 'vector',
+    format: 'raster',
     category: 'Esri',
     group: 'recommended',
-    description: 'Peta jalan vektor global Esri dengan detail jaringan transportasi dan landmark kota',
+    description: 'Peta jalan global Esri dengan detail jaringan transportasi dan landmark kota',
     styleUrl: '/basemap/styles/esri-style-streets.json',
     previewColor: '#3b82f6'
   },
   {
     id: 'big-rbi',
     name: 'Rupabumi Indonesia (RBI)',
-    format: 'vector',
+    format: 'raster',
     category: 'National',
     group: 'recommended',
-    description: 'Peta dasar topografi vektor nasional resmi Badan Informasi Geospasial (BIG)',
+    description: 'Peta dasar topografi nasional resmi Badan Informasi Geospasial (BIG)',
     styleUrl: '/basemap/styles/big-style-rbi.json',
     previewColor: '#4fa8d8',
     initialBounds: {
@@ -83,6 +83,8 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'OpenData',
     group: 'thematic',
+    maxZoom: 17,
+    zoomWarning: 'Maksimal Zoom Level 17 (Kontur SRTM)',
     description: 'Peta topografi berbasis OpenStreetMap dan garis kontur elevasi SRTM',
     styleUrl: '/basemap/styles/esri-style-open-topographic.json',
     previewColor: '#15803d'
@@ -93,6 +95,8 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'Esri',
     group: 'thematic',
+    maxZoom: 13,
+    zoomWarning: 'Maksimal Zoom Level 13 (Model Relief)',
     description: 'Model permukaan medan bumi dengan bayangan relief elevasi dan pegunungan',
     styleUrl: '/basemap/styles/esri-style-relief.json',
     previewColor: '#78716c'
@@ -103,6 +107,7 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'Esri',
     group: 'thematic',
+    maxZoom: 16,
     description: 'Gaya kartografi khas National Geographic dengan shading relief pegunungan',
     styleUrl: '/basemap/styles/esri-style-natgeo.json',
     previewColor: '#84cc16'
@@ -114,7 +119,7 @@ export const BASEMAPS: BasemapConfig[] = [
     category: 'Esri',
     group: 'thematic',
     maxZoom: 13,
-    zoomWarning: 'Khusus Batimetri Lautan & Kedalaman',
+    zoomWarning: 'Maksimal Zoom Level 13 (Batimetri Lautan & Kedalaman)',
     description: 'Peta batimetri lautan Esri/NOAA dengan data kedalaman palung dan dasar laut',
     styleUrl: '/basemap/styles/esri-style-ocean.json',
     previewColor: '#0284c7'
@@ -124,20 +129,22 @@ export const BASEMAPS: BasemapConfig[] = [
   {
     id: 'esri-light-grey',
     name: 'Esri Light Gray Canvas',
-    format: 'vector',
+    format: 'raster',
     category: 'Esri',
     group: 'canvas',
-    description: 'Kanvas abu-abu terang minimalis vektor untuk visualisasi layer tematik',
+    maxZoom: 16,
+    description: 'Kanvas abu-abu terang minimalis untuk visualisasi layer tematik',
     styleUrl: '/basemap/styles/esri-style-light-grey-canvas.json',
     previewColor: '#e2e8f0'
   },
   {
     id: 'esri-dark-grey',
     name: 'Esri Dark Gray Canvas',
-    format: 'vector',
+    format: 'raster',
     category: 'Esri',
     group: 'canvas',
-    description: 'Kanvas gelap minimalis vektor dengan kontras tinggi untuk data analitis',
+    maxZoom: 16,
+    description: 'Kanvas gelap minimalis kontras tinggi untuk data analitis spasial',
     styleUrl: '/basemap/styles/esri-style-cleanmap.json',
     previewColor: '#1e293b'
   },
@@ -184,10 +191,10 @@ export const BASEMAPS: BasemapConfig[] = [
   {
     id: 'esri-colorpencil',
     name: 'Esri Colored Pencil',
-    format: 'raster',
+    format: 'vector',
     category: 'Esri',
     group: 'canvas',
-    description: 'Gaya artistik pensil warna unik dengan tipografi sketsa tangan',
+    description: 'Gaya artistik vektor pensil warna unik dengan tipografi sketsa tangan',
     styleUrl: '/basemap/styles/esri-style-colorpencil.json',
     previewColor: '#e0a96d'
   }
