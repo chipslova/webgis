@@ -149,24 +149,24 @@ export const BASEMAPS: BasemapConfig[] = [
     previewColor: '#1e293b'
   },
   {
-    id: 'carto-dark',
-    name: 'CARTO Dark Matter',
-    format: 'raster',
-    category: 'Carto',
+    id: 'openfreemap-liberty',
+    name: 'OpenFreeMap Liberty',
+    format: 'vector',
+    category: 'OpenData',
     group: 'canvas',
-    description: 'Peta gelap kontras tinggi dari CARTO untuk visualisasi spasial malam hari',
-    styleUrl: '/basemap/styles/carto-style-dark-matter.json',
-    previewColor: '#0f172a'
+    description: 'Peta jalan vektor global modern kaya detail OpenFreeMap (Bebas Watermark & API Key)',
+    styleUrl: 'https://tiles.openfreemap.org/styles/liberty',
+    previewColor: '#0284c7'
   },
   {
-    id: 'carto-voyager',
-    name: 'CARTO Voyager',
-    format: 'raster',
-    category: 'Carto',
+    id: 'openfreemap-positron',
+    name: 'OpenFreeMap Positron',
+    format: 'vector',
+    category: 'OpenData',
     group: 'canvas',
-    description: 'Peta navigasi modern dan bersih ditenagai oleh OpenStreetMap & CARTO',
-    styleUrl: '/basemap/styles/carto-style-voyager.json',
-    previewColor: '#0ea5e9'
+    description: 'Kanvas vektor minimalis terang berbasis OpenFreeMap (Bebas Watermark & API Key)',
+    styleUrl: 'https://tiles.openfreemap.org/styles/positron',
+    previewColor: '#334155'
   },
   {
     id: 'esri-clarity',

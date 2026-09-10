@@ -93,8 +93,8 @@ describe('Basemap Customizer - Sublayer Detection & State Management', () => {
     const all16Basemaps = [
       'esri-imagery', 'esri-streets', 'big-rbi', 'osm-standard',
       'esri-topographic', 'open-topo', 'esri-relief', 'esri-natgeo',
-      'esri-ocean', 'esri-light-grey', 'esri-dark-grey', 'carto-dark',
-      'carto-voyager', 'esri-clarity', 'osm-humanitarian', 'esri-colorpencil'
+      'esri-ocean', 'esri-light-grey', 'esri-dark-grey', 'openfreemap-liberty',
+      'openfreemap-positron', 'esri-clarity', 'osm-humanitarian', 'esri-colorpencil'
     ];
 
     expect(all16Basemaps.length).toBe(16);
