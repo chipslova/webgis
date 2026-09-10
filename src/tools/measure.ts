@@ -218,7 +218,7 @@ export class MeasureTool {
     this.geojson = { type: 'FeatureCollection', features: [] };
     this.initLayers();
     const source = this.map.getSource('measure-source') as maplibregl.GeoJSONSource;
-    if (source) {
+    if (source && typeof source.setData === 'function') {
       source.setData(this.geojson);
     }
     if (this.tooltip) {
@@ -276,7 +276,7 @@ export class MeasureTool {
 
     this.geojson = { type: 'FeatureCollection', features };
     const source = this.map.getSource('measure-source') as maplibregl.GeoJSONSource;
-    if (source) {
+    if (source && typeof source.setData === 'function') {
       source.setData(this.geojson);
     }
     // NOTE: Layer ordering is handled centrally by MapManager.bringCustomLayersToTop()

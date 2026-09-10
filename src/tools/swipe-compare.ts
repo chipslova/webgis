@@ -257,8 +257,12 @@ export class SwipeCompareManager {
 
     // Trigger map canvas resize
     setTimeout(() => {
-      this.primaryMap.resize();
-      this.compareMap?.resize();
+      try {
+        if (typeof this.primaryMap?.resize === 'function') this.primaryMap.resize();
+        if (typeof this.compareMap?.resize === 'function') this.compareMap.resize();
+      } catch (_) {
+        // Safe resize
+      }
     }, 150);
 
     this.notify();
