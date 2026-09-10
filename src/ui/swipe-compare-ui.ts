@@ -13,7 +13,7 @@ export class SwipeCompareUI {
     this.bindGlobalShortcuts();
   }
 
-  private init() {
+  public init() {
     this.manager.onStateChange(() => {
       // Avoid destroying and rebuilding DOM while actively dragging
       if (!this.isDragging) {
