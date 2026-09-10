@@ -2,13 +2,13 @@
 
 An interactive WebGIS platform for exploring Indonesian Earth Observation datasets and spatial analytics workflows. Integrates BIG Piksel OGC Web Map Services (WMS), Google Earth Engine (GEE) Jabodetabek case study datasets, 3D terrain and building extrusions, and client-side geodesic calculations.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-webgis--three--iota.vercel.app-00f0ff?style=for-the-badge&logo=vercel)](https://webgis-three-iota.vercel.app/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-webgis--lulu--6ab7.vercel.app-00f0ff?style=for-the-badge&logo=vercel)](https://webgis-lulu-6ab7.vercel.app/)
 [![CI](https://img.shields.io/badge/CI-Passing-10b981?style=for-the-badge&logo=githubactions)](https://github.com/chipslova/webgis/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v5-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-58%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-73%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
   <img src="docs/preview.jpg" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
@@ -70,7 +70,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 * **16 Vector & Raster Basemaps**:
   * ⭐ **Recommended:** Esri World Imagery (Default), Esri World Streets, Rupabumi Indonesia (BIG RBI), OpenStreetMap Standard.
   * 🎨 **Topography & Thematic:** Esri Topographic, OpenTopoMap, Esri Shaded Relief, Esri National Geographic, Esri Ocean.
-  * 🌓 **Canvas & Navigation:** Esri Light/Dark Gray Canvas, CARTO Dark Matter, CARTO Voyager, Esri Imagery Clarity, OSM Humanitarian, Esri Colored Pencil.
+  * 🌓 **Canvas & Minimalist:** Esri Light/Dark Gray Canvas, OpenFreeMap Liberty (Vector), OpenFreeMap Positron (Vector), Esri Imagery Clarity, OSM Humanitarian, Esri Colored Pencil (Vector).
 * **3D AWS Terrarium Elevation**: Real-time 3D terrain mesh generation with adjustable vertical exaggeration (0.1x – 3.0x).
 * **3D Vector Building Extrusions**: Dynamic OpenFreeMap planet vector building extrusions with smooth perspective camera transitions.
 * **Vector Sublayer Toggles**: Granular control over roads, road labels, place names, admin boundaries, landcover, water, and building polygons.
@@ -94,7 +94,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 
 ## 🏗️ Technical Architecture
 
-* **Bundle Efficiency**: Heavy static GeoJSON datasets are loaded lazily via asynchronous HTTP requests (`/data/*.geojson`), reducing the core JavaScript bundle to ~155 KB for fast initial page load.
+* **Bundle Efficiency**: Heavy static GeoJSON datasets are loaded lazily via asynchronous HTTP requests (`/data/*.geojson`), keeping the core minified JavaScript bundle to ~223 KB (~59 KB gzipped) with vendor chunk splitting for MapLibre, Turf.js, and PMTiles for fast initial page load.
 * **Deterministic Layer Stacking**: Centralized `enforceLayerOrder()` maintains visual hierarchy across all basemap switches and layer toggles:
   $$\text{Measurement} \to \text{Custom GeoJSON} \to \text{GEE POI} \to \text{Piksel Grid} \to \text{GEE Rasters} \to \text{Piksel WMS} \to \text{Basemap}$$
 * **Keyboard & Screen Reader Accessible**: Keyboard-accessible controls and screen-reader announcements via aria-live regions, alongside `aria-label`, `role`, `aria-expanded`, and `aria-selected` attributes on interactive controls, drawers, modals, and tab lists.
@@ -128,7 +128,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 * **Mapping Engine**: [MapLibre GL JS](https://maplibre.org/)
 * **Spatial Calculations**: [@turf/turf](https://turfjs.org/)
 * **Raster / Vector Protocols**: OGC WMS 1.3.0, PMTiles, GeoJSON, TileJSON
-* **Testing Framework**: [Vitest](https://vitest.dev/) (35 unit & integration tests)
+* **Testing Framework**: [Vitest](https://vitest.dev/) (73 unit, integration & E2E tests — 100% passing)
 * **Build Tool**: [Vite 6](https://vitejs.dev/)
 * **Package Manager / Runtime**: [Bun](https://bun.sh/)
 

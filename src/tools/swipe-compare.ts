@@ -5,6 +5,9 @@ import { MapManager } from '../map/map-manager';
 import { SidebarUI } from '../ui/sidebar';
 import { PikselLoader } from './piksel-loader';
 import { logger } from '../utils/logger';
+import { ErrorHandler } from '../utils/error-handler';
+
+export type MapFactory = (options: maplibregl.MapOptions) => maplibregl.Map;
 
 export interface CompareSideConfig {
   productId: string | null;
@@ -38,35 +41,35 @@ export const SWIPE_PRESETS: SwipePreset[] = [
   },
   {
     id: 'bromo-spectral',
-    name: 'Kaldera Bromo (RGB vs NIR)',
+    name: 'Kawah Bromo & Vegetasi Tengger',
     locationName: 'Jawa Timur',
-    center: [112.9485, -7.9514],
-    zoom: 12.5,
+    center: [112.9530, -7.9425],
+    zoom: 13.0,
     pitch: 0,
-    description: 'Bandingkan Warna Alami RGB (Kiri) vs Klorofil Inframerah Dekat NIR (Kanan).',
-    left: { productId: 's2-geomad-rgb', year: '2025' },
-    right: { productId: 's2-geomad-nir', year: '2025' }
+    description: 'Bandingkan komposit spektral vegetasi (Kiri) vs True Color RGB (Kanan) di kaldera Bromo.',
+    left: { productId: 's2-ndvi', year: '2025' },
+    right: { productId: 's2-geomad-rgb', year: '2025' }
   },
   {
-    id: 'toba-water',
-    name: 'Danau Toba (True Color vs NDWI)',
-    locationName: 'Sumatera Utara',
-    center: [98.8052, 2.5819],
-    zoom: 11.0,
+    id: 'jakarta-urban',
+    name: 'Ekspansi Urban Pesisir Jakarta',
+    locationName: 'DKI Jakarta & Teluk Jakarta',
+    center: [106.8272, -6.1754],
+    zoom: 12.0,
     pitch: 0,
-    description: 'Bandingkan kenampakan optik Samosir (Kiri) vs Indeks Badan Air NDWI (Kanan).',
-    left: { productId: 's2-geomad-rgb', year: '2025' },
-    right: { productId: 's2-ndwi', year: '2025' }
-  },
-  {
-    id: 'merapi-history',
-    name: 'Gunung Merapi (2018 vs 2025)',
-    locationName: 'D.I. Yogyakarta',
-    center: [110.4463, -7.5407],
-    zoom: 12.2,
-    pitch: 0,
-    description: 'Bandingkan kubah lava & alur lahar erupsi tahun 2018 vs kondisi 2025.',
+    description: 'Perkembangan pulau reklamasi & densitas terbangun 2018 (Kiri) vs 2025 (Kanan).',
     left: { productId: 's2-geomad-rgb', year: '2018' },
+    right: { productId: 's2-geomad-rgb', year: '2025' }
+  },
+  {
+    id: 'danau-toba',
+    name: 'Kualitas Air & Pesisir Danau Toba',
+    locationName: 'Sumatera Utara',
+    center: [98.8800, 2.6800],
+    zoom: 11.5,
+    pitch: 0,
+    description: 'Indeks Air (NDWI) 2025 (Kiri) vs Komposit Warna Alami 2025 (Kanan).',
+    left: { productId: 's2-ndwi', year: '2025' },
     right: { productId: 's2-geomad-rgb', year: '2025' }
   }
 ];
@@ -76,7 +79,7 @@ export class SwipeCompareManager {
   private mapManager: MapManager | null = null;
   private sidebarUI: SidebarUI | null = null;
   private pikselLoader: PikselLoader | null = null;
-
+  private mapFactory: MapFactory;
   private compareMap: maplibregl.Map | null = null;
   private isCompareActive: boolean = false;
   private sliderPositionPercent: number = 50; // 0 to 100%
@@ -102,12 +105,14 @@ export class SwipeCompareManager {
     primaryMap: maplibregl.Map,
     mapManager?: MapManager | null,
     sidebarUI?: SidebarUI | null,
-    pikselLoader?: PikselLoader | null
+    pikselLoader?: PikselLoader | null,
+    mapFactory?: MapFactory
   ) {
     this.primaryMap = primaryMap;
     this.mapManager = mapManager || null;
     this.sidebarUI = sidebarUI || null;
     this.pikselLoader = pikselLoader || null;
+    this.mapFactory = mapFactory || ((opts) => new maplibregl.Map(opts));
   }
 
   public isActive(): boolean {
@@ -233,6 +238,10 @@ export class SwipeCompareManager {
     // Create container elements & init secondary map
     this.ensureOverlayElements();
     this.initCompareMap();
+    if (!this.compareMap) {
+      this.deactivate();
+      return;
+    }
     this.renderRightLayer();
 
     if (preset) {
@@ -390,43 +399,64 @@ export class SwipeCompareManager {
   }
 
   private initCompareMap() {
+    if (typeof document === 'undefined') return;
     const compareMapDiv = document.getElementById('swipe-compare-map');
     if (!compareMapDiv) return;
 
     const bm = BASEMAPS.find((b) => b.id === this.leftConfig.basemapId) || BASEMAPS[0];
 
-    this.compareMap = new maplibregl.Map({
-      container: compareMapDiv,
-      style: bm.styleUrl,
-      center: this.primaryMap.getCenter(),
-      zoom: this.primaryMap.getZoom(),
-      pitch: this.primaryMap.getPitch(),
-      bearing: this.primaryMap.getBearing(),
-      attributionControl: false,
-      interactive: false // Primary map drives camera
-    });
+    try {
+      this.compareMap = this.mapFactory({
+        container: compareMapDiv,
+        style: bm.styleUrl,
+        center: this.primaryMap.getCenter ? this.primaryMap.getCenter() : { lng: 117.89, lat: -2.55 } as any,
+        zoom: this.primaryMap.getZoom ? this.primaryMap.getZoom() : 5,
+        pitch: this.primaryMap.getPitch ? this.primaryMap.getPitch() : 0,
+        bearing: this.primaryMap.getBearing ? this.primaryMap.getBearing() : 0,
+        attributionControl: false,
+        interactive: false // Primary map drives camera
+      });
+    } catch (e) {
+      logger.warn('[SwipeCompare] Gagal inisialisasi peta komparasi kedua:', e);
+      ErrorHandler.getInstance().showThrottledError(
+        'Perangkat atau browser Anda tidak mendukung Mode Komparasi (WebGL2 diperlukan).'
+      );
+      this.deactivate();
+      return;
+    }
 
-    this.compareMap.on('load', () => {
-      this.renderLeftLayer();
-      this.compareMap?.resize();
-    });
+    if (!this.compareMap) {
+      this.deactivate();
+      return;
+    }
+
+    if (typeof this.compareMap.on === 'function') {
+      this.compareMap.on('load', () => {
+        this.renderLeftLayer();
+        this.compareMap?.resize();
+      });
+    }
 
     // Synchronize camera movement seamlessly
     this.syncListener = () => {
-      if (!this.compareMap) return;
+      if (!this.compareMap || typeof this.compareMap.jumpTo !== 'function') return;
       this.compareMap.jumpTo({
-        center: this.primaryMap.getCenter(),
-        zoom: this.primaryMap.getZoom(),
-        pitch: this.primaryMap.getPitch(),
-        bearing: this.primaryMap.getBearing()
+        center: this.primaryMap.getCenter ? this.primaryMap.getCenter() : { lng: 117.89, lat: -2.55 } as any,
+        zoom: this.primaryMap.getZoom ? this.primaryMap.getZoom() : 5,
+        pitch: this.primaryMap.getPitch ? this.primaryMap.getPitch() : 0,
+        bearing: this.primaryMap.getBearing ? this.primaryMap.getBearing() : 0
       });
     };
 
-    this.primaryMap.on('move', this.syncListener);
+    if (this.primaryMap && typeof this.primaryMap.on === 'function') {
+      this.primaryMap.on('move', this.syncListener);
+    }
 
     if (typeof window !== 'undefined') {
       this.resizeListener = () => {
-        this.compareMap?.resize();
+        if (this.compareMap && typeof this.compareMap.resize === 'function') {
+          this.compareMap.resize();
+        }
       };
       window.addEventListener('resize', this.resizeListener);
     }

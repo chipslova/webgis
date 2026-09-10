@@ -197,6 +197,78 @@ export class PermalinkManager {
   }
 
   /**
+   * Applies parsed URL state to the application components
+   */
+  public static async applyInitialState(
+    urlState: URLState,
+    deps: {
+      mapManager: MapManager;
+      pikselLoader?: PikselLoader | null;
+      geeLoader?: GEELoader | null;
+      basemapCustomizer?: BasemapCustomizer | null;
+      geePanelUI?: { init: () => void } | null;
+    }
+  ): Promise<void> {
+    const { mapManager, pikselLoader, geeLoader, basemapCustomizer, geePanelUI } = deps;
+    const map = mapManager.getMap();
+
+    if (map && urlState.lng !== undefined && urlState.lat !== undefined && urlState.zoom !== undefined) {
+      map.jumpTo({
+        center: [urlState.lng, urlState.lat],
+        zoom: urlState.zoom,
+        pitch: urlState.pitch ?? 0,
+        bearing: urlState.bearing ?? 0
+      });
+    }
+
+    if (urlState.projection === 'globe' && mapManager.getProjection() !== 'globe') {
+      mapManager.toggleProjection();
+      const globeLabel = document.getElementById('globe-btn-label');
+      const globeBtn = document.getElementById('btn-toggle-globe');
+      if (globeLabel) globeLabel.innerText = 'Mode 3D Bola Dunia';
+      if (globeBtn) globeBtn.classList.add('active');
+    }
+
+    if (urlState.terrain3D && basemapCustomizer) {
+      basemapCustomizer.toggle3DTerrain(true);
+    }
+    if (urlState.terrainHillshade && basemapCustomizer) {
+      basemapCustomizer.toggleTerrainHillshade(true);
+    }
+
+    if (urlState.basemapId && urlState.basemapId !== mapManager.getCurrentBasemapId()) {
+      mapManager.setBasemap(urlState.basemapId);
+    }
+    if (urlState.basemapOpacity !== undefined) {
+      mapManager.setBasemapOpacity(urlState.basemapOpacity);
+    }
+
+    if (urlState.year && pikselLoader) {
+      pikselLoader.setSelectedYear(urlState.year);
+    }
+    if (urlState.productId && pikselLoader) {
+      pikselLoader.setActiveProduct(urlState.productId);
+    }
+    if (urlState.pikselOpacity !== undefined && pikselLoader) {
+      pikselLoader.setOpacity(urlState.pikselOpacity);
+    }
+
+    if (urlState.geeLayers && geeLoader) {
+      await geeLoader.loadGEEDatasets();
+      ['lst', 'elevation', 'landcover', 'poi'].forEach((k) => {
+        const shouldBeActive = urlState.geeLayers!.includes(k);
+        geeLoader?.toggleLayer(k as any, shouldBeActive);
+      });
+      if (urlState.geeOpacity !== undefined) {
+        geeLoader.setOpacity(urlState.geeOpacity);
+      }
+      if (geePanelUI) {
+        geePanelUI.init();
+      }
+    }
+  }
+
+  /**
    * Start listening to map and state changes to keep URL hash in sync
    */
   public init() {

@@ -26,7 +26,7 @@ import { SwipeCompareManager } from './tools/swipe-compare';
 import { SwipeCompareUI } from './ui/swipe-compare-ui';
 import { CommandPaletteUI } from './ui/command-palette';
 import { ErrorHandler } from './utils/error-handler';
-import { setupUniversalEscapeHandler, announceToScreenReader } from './utils/a11y';
+import { setupUniversalEscapeHandler, announceToScreenReader, closeMenu, toggleMenu } from './utils/a11y';
 import { logger } from './utils/logger';
 
 class WebGISApp {
@@ -72,8 +72,11 @@ class WebGISApp {
   }
 
   private async init() {
-    // 1. Build UI Component Views & Basemap Gallery immediately
-    this.renderBasemapGallery();
+    // 1. Initialize Basemap Customizer Engine & UI immediately
+    this.basemapCustomizer = new BasemapCustomizer(null, this.mapManager);
+    this.basemapCustomizerUI = new BasemapCustomizerUI(this.basemapCustomizer, this.mapManager);
+
+    // 2. Build UI Component Views & Event Bindings
     this.bindProjectionEvents();
     this.bindResetMapEvents();
     this.bindMeasureEvents();
@@ -86,7 +89,7 @@ class WebGISApp {
     this.bindHeaderMoreEvents();
     this.bindUniversalEscape();
 
-    // 2. Connect Telemetry & Feature Inspector
+    // 3. Connect Telemetry & Feature Inspector
     this.mapManager.onMouseMove((info) => {
       this.statusBarUI.update(info);
     });
@@ -186,9 +189,8 @@ class WebGISApp {
         }
       });
 
-      // Initialize Basemap Customizer Engine & UI
-      this.basemapCustomizer = new BasemapCustomizer(map, this.mapManager);
-      this.basemapCustomizerUI = new BasemapCustomizerUI(this.basemapCustomizer, this.mapManager, this.pikselLoader);
+      // Connect Map instance to Basemap Customizer
+      this.basemapCustomizer?.setMap(map);
 
       // Initialize Interactive Guided Tour
       this.guidedTourUI = new GuidedTourUI(
@@ -223,59 +225,18 @@ class WebGISApp {
       this.mapManager.enforceLayerOrder();
       this.dynamicLegendUI?.render();
 
-      // Initialize Permalink State Sync
+      // Initialize Permalink State Sync & Apply URL state
       this.permalinkManager = new PermalinkManager(this.mapManager, this.pikselLoader, this.geeLoader, this.basemapCustomizer);
       this.permalinkManager.init();
 
-      // Check if URL hash has initial parameters
       const urlState = PermalinkManager.parseHash();
-      if (urlState.lng !== undefined && urlState.lat !== undefined && urlState.zoom !== undefined) {
-        map.jumpTo({
-          center: [urlState.lng, urlState.lat],
-          zoom: urlState.zoom,
-          pitch: urlState.pitch ?? 0,
-          bearing: urlState.bearing ?? 0
-        });
-      }
-      if (urlState.projection === 'globe' && this.mapManager.getProjection() !== 'globe') {
-        this.mapManager.toggleProjection();
-        const globeLabel = document.getElementById('globe-btn-label');
-        const globeBtn = document.getElementById('btn-toggle-globe');
-        if (globeLabel) globeLabel.innerText = 'Mode 3D Bola Dunia';
-        if (globeBtn) globeBtn.classList.add('active');
-      }
-      if (urlState.terrain3D && this.basemapCustomizer) {
-        this.basemapCustomizer.toggle3DTerrain(true);
-      }
-      if (urlState.terrainHillshade && this.basemapCustomizer) {
-        this.basemapCustomizer.toggleTerrainHillshade(true);
-      }
-      if (urlState.basemapId && urlState.basemapId !== this.mapManager.getCurrentBasemapId()) {
-        this.mapManager.setBasemap(urlState.basemapId);
-      }
-      if (urlState.basemapOpacity !== undefined) {
-        this.mapManager.setBasemapOpacity(urlState.basemapOpacity);
-      }
-      if (urlState.year && this.pikselLoader) {
-        this.pikselLoader.setSelectedYear(urlState.year);
-      }
-      if (urlState.productId && this.pikselLoader) {
-        this.pikselLoader.setActiveProduct(urlState.productId);
-      }
-      if (urlState.pikselOpacity !== undefined && this.pikselLoader) {
-        this.pikselLoader.setOpacity(urlState.pikselOpacity);
-      }
-      if (urlState.geeLayers && this.geeLoader) {
-        await this.geeLoader.loadGEEDatasets();
-        ['lst', 'elevation', 'landcover', 'poi'].forEach(k => {
-          const shouldBeActive = urlState.geeLayers!.includes(k);
-          this.geeLoader?.toggleLayer(k as any, shouldBeActive);
-        });
-        if (urlState.geeOpacity !== undefined) {
-          this.geeLoader.setOpacity(urlState.geeOpacity);
-        }
-        this.geePanelUI.init();
-      }
+      await PermalinkManager.applyInitialState(urlState, {
+        mapManager: this.mapManager,
+        pikselLoader: this.pikselLoader,
+        geeLoader: this.geeLoader,
+        basemapCustomizer: this.basemapCustomizer,
+        geePanelUI: this.geePanelUI
+      });
 
       // Mobile UX Optimization: auto-collapse sidebar on initial mobile load
       if (window.innerWidth <= 768) {
@@ -408,103 +369,7 @@ class WebGISApp {
   }
 
   public updateActiveBasemapCard() {
-    const currentId = this.mapManager.getCurrentBasemapId();
-    const bm = BASEMAPS.find((b) => b.id === currentId);
-    const titleEl = document.getElementById('active-bm-title');
-    const badgeEl = document.getElementById('active-bm-type-badge');
-    if (titleEl && bm) titleEl.textContent = bm.name;
-    if (badgeEl && bm) badgeEl.textContent = bm.category;
-  }
-
-  private renderBasemapGallery() {
-    this.updateActiveBasemapCard();
-    const grid = document.getElementById('basemap-grid');
-    if (!grid) return;
-
-    grid.innerHTML = '';
-    const currentId = this.mapManager.getCurrentBasemapId();
-
-    const groups: { key: 'recommended' | 'thematic' | 'canvas'; title: string; desc: string }[] = [
-      { key: 'recommended', title: '⭐ Rekomendasi Utama', desc: 'Peta dasar satelit, jalan, dan peta resmi nasional BIG' },
-      { key: 'thematic', title: '🎨 Tematik & Topografi', desc: 'Kontur elevasi, batimetri laut, dan gaya artistik' },
-      { key: 'canvas', title: '🌓 Kanvas & Navigasi', desc: 'Latar kontras tinggi untuk visualisasi overlay data' }
-    ];
-
-    groups.forEach((grp) => {
-      const groupBasemaps = BASEMAPS.filter((b) => (b.group || 'recommended') === grp.key);
-      if (groupBasemaps.length === 0) return;
-
-      const groupHeader = document.createElement('div');
-      groupHeader.className = 'basemap-gallery-group-header';
-      groupHeader.innerHTML = `
-        <div class="group-title-row" style="display:flex; justify-content:space-between; align-items:baseline; margin: 12px 0 6px 0; border-bottom: 1px solid var(--border-subtle); padding-bottom: 4px;">
-          <h4 style="margin:0; font-size: 12.5px; font-weight:700; color: var(--text-main);">${grp.title}</h4>
-          <span style="font-size: 10.5px; color: var(--text-muted);">${groupBasemaps.length} Pilihan</span>
-        </div>
-      `;
-      grid.appendChild(groupHeader);
-
-      const groupContainer = document.createElement('div');
-      groupContainer.className = 'basemap-group-cards-grid';
-      groupContainer.style.display = 'grid';
-      groupContainer.style.gap = '8px';
-      groupContainer.style.marginBottom = '12px';
-
-      groupBasemaps.forEach((bm) => {
-        const card = document.createElement('div');
-        card.className = `basemap-card ${bm.id === currentId ? 'active' : ''}`;
-        card.dataset.id = bm.id;
-        card.setAttribute('role', 'button');
-        card.setAttribute('tabindex', '0');
-        card.setAttribute('aria-label', `Pilih basemap ${bm.name} kategori ${bm.category}`);
-
-        const formatBadge = bm.format === 'vector'
-          ? `<span class="bm-tag-badge vector">🔷 Vektor</span>`
-          : `<span class="bm-tag-badge raster">🖼️ Raster</span>`;
-        const maxZoomBadge = bm.maxZoom
-          ? `<span class="bm-tag-badge maxzoom">⚠️ Maks Z${bm.maxZoom}</span>`
-          : '';
-
-        card.innerHTML = `
-          <div class="basemap-thumb" style="background-color: ${bm.previewColor};">
-            ${bm.name.substring(0, 2).toUpperCase()}
-          </div>
-          <div class="basemap-info">
-            <div class="basemap-header-row">
-              <div class="basemap-title" title="${bm.name}">${bm.name}</div>
-              <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
-                ${formatBadge}
-                ${maxZoomBadge}
-                <span class="basemap-tag">${bm.category}</span>
-              </div>
-            </div>
-            <div class="basemap-desc">${bm.description}</div>
-          </div>
-        `;
-
-        const selectBm = () => {
-          document.querySelectorAll('.basemap-card').forEach((c) => c.classList.remove('active'));
-          card.classList.add('active');
-          this.mapManager.setBasemap(bm.id);
-          if (this.basemapCustomizer) {
-            this.basemapCustomizer.setBasemapId(bm.id);
-          }
-          announceToScreenReader(`Peta dasar diubah ke ${bm.name} (${bm.category})`);
-        };
-
-        card.addEventListener('click', selectBm);
-        card.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            selectBm();
-          }
-        });
-
-        groupContainer.appendChild(card);
-      });
-
-      grid.appendChild(groupContainer);
-    });
+    this.basemapCustomizerUI?.syncUI();
   }
 
   private bindMeasureEvents() {
@@ -666,55 +531,31 @@ class WebGISApp {
     const dropdown = document.getElementById('header-more-dropdown');
     if (!moreBtn || !dropdown) return;
 
-    const toggleDropdown = () => {
-      const isOpen = dropdown.style.display !== 'none';
-      dropdown.style.display = isOpen ? 'none' : 'flex';
-      moreBtn.setAttribute('aria-expanded', String(!isOpen));
-    };
-
     moreBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      toggleDropdown();
+      toggleMenu(moreBtn, dropdown, 'flex');
     });
 
     // Close on outside click
     document.addEventListener('click', (e) => {
       if (!moreBtn.contains(e.target as Node) && !dropdown.contains(e.target as Node)) {
-        dropdown.style.display = 'none';
-        moreBtn.setAttribute('aria-expanded', 'false');
+        closeMenu(moreBtn, dropdown);
       }
     });
 
-    // Items
-    document.getElementById('more-item-tour')?.addEventListener('click', () => {
-      dropdown.style.display = 'none';
-      moreBtn.setAttribute('aria-expanded', 'false');
-      document.getElementById('btn-start-tour')?.click();
-    });
+    // Sub-items
+    const bindItem = (id: string, action: () => void) => {
+      document.getElementById(id)?.addEventListener('click', () => {
+        closeMenu(moreBtn, dropdown);
+        action();
+      });
+    };
 
-    document.getElementById('more-item-reset')?.addEventListener('click', () => {
-      dropdown.style.display = 'none';
-      moreBtn.setAttribute('aria-expanded', 'false');
-      document.getElementById('btn-reset-map')?.click();
-    });
-
-    document.getElementById('more-item-import')?.addEventListener('click', () => {
-      dropdown.style.display = 'none';
-      moreBtn.setAttribute('aria-expanded', 'false');
-      document.getElementById('btn-quick-import')?.click();
-    });
-
-    document.getElementById('more-item-share')?.addEventListener('click', () => {
-      dropdown.style.display = 'none';
-      moreBtn.setAttribute('aria-expanded', 'false');
-      this.handleShare();
-    });
-
-    document.getElementById('more-item-export')?.addEventListener('click', () => {
-      dropdown.style.display = 'none';
-      moreBtn.setAttribute('aria-expanded', 'false');
-      this.handleExport();
-    });
+    bindItem('more-item-tour', () => document.getElementById('btn-start-tour')?.click());
+    bindItem('more-item-reset', () => document.getElementById('btn-reset-map')?.click());
+    bindItem('more-item-import', () => document.getElementById('btn-quick-import')?.click());
+    bindItem('more-item-share', () => this.handleShare());
+    bindItem('more-item-export', () => this.handleExport());
   }
 
   private bindUniversalEscape() {

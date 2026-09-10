@@ -56,3 +56,24 @@ export function setupUniversalEscapeHandler(handlers: Array<() => boolean | void
   window.addEventListener('keydown', onKeyDown);
   return () => window.removeEventListener('keydown', onKeyDown);
 }
+
+/**
+ * Closes a dropdown/menu element and resets the trigger's aria-expanded attribute.
+ */
+export function closeMenu(triggerBtn: HTMLElement | null, menu: HTMLElement | null): void {
+  if (menu) menu.style.display = 'none';
+  if (triggerBtn) triggerBtn.setAttribute('aria-expanded', 'false');
+}
+
+/**
+ * Toggles a dropdown/menu element and synchronizes the trigger's aria-expanded attribute.
+ */
+export function toggleMenu(triggerBtn: HTMLElement | null, menu: HTMLElement | null, displayStyle: string = 'flex'): boolean {
+  if (!menu) return false;
+  const isCurrentlyOpen = menu.style.display !== 'none';
+  menu.style.display = isCurrentlyOpen ? 'none' : displayStyle;
+  if (triggerBtn) {
+    triggerBtn.setAttribute('aria-expanded', String(!isCurrentlyOpen));
+  }
+  return !isCurrentlyOpen;
+}

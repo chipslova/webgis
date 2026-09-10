@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { describe, it, expect, vi } from 'vitest';
 import { SwipeCompareManager, SWIPE_PRESETS } from '../src/tools/swipe-compare';
 
@@ -75,5 +76,15 @@ describe('Swipe / Split-Screen Comparison Mode', () => {
 
     manager.setSliderPosition(40);
     expect(cb).toHaveBeenCalled();
+  });
+
+  it('should safely handle WebGL2 initialization errors without crashing', () => {
+    document.body.innerHTML = '<div id="map"></div>';
+    const failingFactory = () => {
+      throw new Error('GPUInitializationError: WebGL2 not supported');
+    };
+    const manager = new SwipeCompareManager(mockMap, null, null, null, failingFactory);
+    manager.activate();
+    expect(manager.isActive()).toBe(false);
   });
 });

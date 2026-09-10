@@ -293,7 +293,7 @@ export class PikselPanelUI {
     container.innerHTML = `
       <div class="panel-header">
         <h2>Citra Satelit BIG Piksel</h2>
-        <p>Layanan OGC WMS resmi Badan Informasi Geospasial (BIG) berbasis Open Data Cube.</p>
+        <p>Data BIG Piksel · OGC WMS — endpoint staging untuk pengembangan & demonstrasi berbasis Open Data Cube.</p>
       </div>
 
       <!-- Staging WMS Notice -->

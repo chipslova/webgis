@@ -49,9 +49,14 @@ export class BasemapCustomizer {
   private state: BasemapCustomizerState = { ...DEFAULT_CUSTOMIZER_STATE, sublayers: { ...DEFAULT_CUSTOMIZER_STATE.sublayers } };
   private onChangeCallbacks: Array<(state: BasemapCustomizerState) => void> = [];
 
-  constructor(map: maplibregl.Map, mapManagerRef?: { getCurrentBasemapId(): string }) {
-    this.map = map;
+  constructor(map?: maplibregl.Map | null, mapManagerRef?: { getCurrentBasemapId(): string }) {
+    this.map = (map as any) || null;
     this.mapManagerRef = mapManagerRef;
+    this.initListeners();
+  }
+
+  public setMap(map: maplibregl.Map) {
+    this.map = map;
     this.initListeners();
   }
 
@@ -64,9 +69,11 @@ export class BasemapCustomizer {
   }
 
   private initListeners() {
-    this.map.on('style.load', () => {
-      this.reapplyAll();
-    });
+    if (this.map && typeof this.map.on === 'function') {
+      this.map.on('style.load', () => {
+        this.reapplyAll();
+      });
+    }
   }
 
   public setBasemapId(basemapId: string) {

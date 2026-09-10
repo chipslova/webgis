@@ -3,6 +3,7 @@ import { MapManager } from '../map/map-manager';
 import { PikselLoader } from '../tools/piksel-loader';
 import { BASEMAPS, DEFAULT_BASEMAP_ID } from '../config/basemaps';
 import { showToast } from './toast';
+import { announceToScreenReader } from '../utils/a11y';
 
 export class BasemapCustomizerUI {
   private customizer: BasemapCustomizer;
@@ -23,6 +24,7 @@ export class BasemapCustomizerUI {
 
   public init() {
     this.renderBasemapPopoverGallery();
+    this.renderSidebarBasemapGrid();
     this.bindDockEvents();
     this.bindPopoverEvents();
     this.bindOutsideClickEvents();
@@ -133,6 +135,97 @@ export class BasemapCustomizerUI {
       } else if (group === 'canvas') {
         canvasContainer.appendChild(item);
       }
+    });
+  }
+
+  /**
+   * Renders the full basemap gallery into the sidebar panel
+   */
+  public renderSidebarBasemapGrid() {
+    const grid = document.getElementById('basemap-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const currentId = this.mapManager?.getCurrentBasemapId() || DEFAULT_BASEMAP_ID;
+
+    const groups = [
+      { key: 'recommended', title: 'Pilihan Utama & Populer' },
+      { key: 'thematic', title: 'Topografi, Samudra & Relief' },
+      { key: 'canvas', title: 'Kanvas Minimalis & Navigasi' }
+    ];
+
+    groups.forEach((grp) => {
+      const groupBasemaps = BASEMAPS.filter((b) => (b.group || 'recommended') === grp.key);
+      if (groupBasemaps.length === 0) return;
+
+      const groupHeader = document.createElement('div');
+      groupHeader.className = 'basemap-group-header';
+      groupHeader.innerHTML = `
+        <div class="group-title-row">
+          <h4>${grp.title}</h4>
+          <span>${groupBasemaps.length} Pilihan</span>
+        </div>
+      `;
+      grid.appendChild(groupHeader);
+
+      const groupContainer = document.createElement('div');
+      groupContainer.className = 'basemap-group-cards-grid';
+
+      groupBasemaps.forEach((bm) => {
+        const card = document.createElement('div');
+        card.className = `basemap-card ${bm.id === currentId ? 'active' : ''}`;
+        card.dataset.id = bm.id;
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-label', `Pilih basemap ${bm.name} kategori ${bm.category}`);
+
+        const formatBadge = bm.format === 'vector'
+          ? `<span class="bm-tag-badge vector">🔷 Vektor</span>`
+          : `<span class="bm-tag-badge raster">🖼️ Raster</span>`;
+        const maxZoomBadge = bm.maxZoom
+          ? `<span class="bm-tag-badge maxzoom">⚠️ Maks Z${bm.maxZoom}</span>`
+          : '';
+
+        card.innerHTML = `
+          <div class="basemap-thumb" style="background-color: ${bm.previewColor};">
+            ${bm.name.substring(0, 2).toUpperCase()}
+          </div>
+          <div class="basemap-info">
+            <div class="basemap-header-row">
+              <div class="basemap-title" title="${bm.name}">${bm.name}</div>
+              <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+                ${formatBadge}
+                ${maxZoomBadge}
+                <span class="basemap-tag">${bm.category}</span>
+              </div>
+            </div>
+            <div class="basemap-desc">${bm.description}</div>
+          </div>
+        `;
+
+        const selectBm = () => {
+          document.querySelectorAll('.basemap-card').forEach((c) => c.classList.remove('active'));
+          card.classList.add('active');
+          if (this.mapManager) {
+            this.mapManager.setBasemap(bm.id);
+          }
+          this.customizer.setBasemapId(bm.id);
+          announceToScreenReader(`Peta dasar diubah ke ${bm.name} (${bm.category})`);
+          this.syncUI();
+        };
+
+        card.addEventListener('click', selectBm);
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            selectBm();
+          }
+        });
+
+        groupContainer.appendChild(card);
+      });
+
+      grid.appendChild(groupContainer);
     });
   }
 

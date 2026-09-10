@@ -466,6 +466,36 @@ html, body, #app {
   box-sizing: border-box;
 }
 
+.basemap-group-header {
+  margin: 12px 0 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 4px;
+}
+
+.basemap-group-header .group-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.basemap-group-header h4 {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.basemap-group-header span {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.basemap-group-cards-grid {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
 .basemap-card {
   display: flex;
   align-items: center;

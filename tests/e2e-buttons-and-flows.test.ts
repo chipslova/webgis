@@ -108,8 +108,8 @@ describe('E2E WebGIS Exhaustive Buttons & Interaction Flow Audit', () => {
     geojsonLoader = new GeoJsonLoader(mockMap);
     measureTool = new MeasureTool(mockMap);
     customizer = new BasemapCustomizer(mockMap, mapManager);
-    swipeManager = new SwipeCompareManager(mockMap);
     sidebarUI = new SidebarUI();
+    swipeManager = new SwipeCompareManager(mockMap, mapManager, sidebarUI, pikselLoader, () => mockMap);
 
     pikselPanelUI = new PikselPanelUI(pikselLoader);
     pikselPanelUI.init();
