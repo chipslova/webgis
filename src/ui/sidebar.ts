@@ -4,9 +4,64 @@ export class SidebarUI {
   private activeTab: TabId = 'map';
   private isOpen: boolean = true;
   private onTabChangeCallback?: (tabId: TabId) => void;
+  private mobileScrim: HTMLDivElement | null = null;
+  private isMobileSheetOpen: boolean = false;
 
   constructor() {
     this.bindEvents();
+    this.bindMobileSheet();
+  }
+
+  private isMobile(): boolean {
+    return window.matchMedia('(max-width: 640px)').matches;
+  }
+
+  private bindMobileSheet(): void {
+    // Create and inject scrim element
+    const scrim = document.createElement('div');
+    scrim.className = 'mobile-sheet-scrim';
+    scrim.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(scrim);
+    this.mobileScrim = scrim;
+
+    // Scrim click → close sheet
+    scrim.addEventListener('click', () => this.closeMobileSheet());
+
+    // Sidebar toggle button closes on mobile too
+    const toggleBtn = document.getElementById('sidebar-toggle-btn');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        if (this.isMobile()) this.closeMobileSheet();
+      });
+    }
+
+    // On resize from mobile → desktop, clean up sheet state
+    window.addEventListener('resize', () => {
+      if (!this.isMobile() && this.isMobileSheetOpen) {
+        this.closeMobileSheet(false);
+      }
+    });
+  }
+
+  private openMobileSheet(): void {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar || !this.mobileScrim) return;
+    sidebar.classList.add('mobile-open');
+    this.mobileScrim.classList.add('visible');
+    this.isMobileSheetOpen = true;
+    // Prevent body scroll while sheet is open
+    document.body.style.overflow = 'hidden';
+  }
+
+  private closeMobileSheet(restoreScroll: boolean = true): void {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar || !this.mobileScrim) return;
+    sidebar.classList.remove('mobile-open');
+    this.mobileScrim.classList.remove('visible');
+    this.isMobileSheetOpen = false;
+    if (restoreScroll) document.body.style.overflow = '';
+    // Trigger map resize after sheet closes
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 360);
   }
 
   private bindEvents() {
@@ -25,12 +80,22 @@ export class SidebarUI {
         e.preventDefault();
         e.stopPropagation();
         const tab = btn.dataset.tab as TabId;
-        if (tab) {
+        if (!tab) return;
+
+        if (this.isMobile()) {
+          // Mobile: toggle bottom sheet
+          if (this.isMobileSheetOpen && this.activeTab === tab) {
+            // Same tab clicked again → close
+            this.closeMobileSheet();
+          } else {
+            this.setActiveTab(tab);
+            this.openMobileSheet();
+          }
+        } else {
+          // Desktop: existing collapse behavior
           if (this.isOpen && this.activeTab === tab) {
-            // Clicking active tab toggles panel closed
             this.setOpen(false);
           } else {
-            // Open and switch to selected tab
             this.setActiveTab(tab);
             this.setOpen(true);
           }
@@ -38,13 +103,15 @@ export class SidebarUI {
       });
     });
 
-    // Toggle collapse button
+    // Toggle collapse button (desktop only)
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
     if (toggleBtn) {
       toggleBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.setOpen(!this.isOpen);
+        if (!this.isMobile()) {
+          this.setOpen(!this.isOpen);
+        }
       });
     }
   }
@@ -117,4 +184,6 @@ export class SidebarUI {
     this.onTabChangeCallback = callback;
   }
 }
+
+
 
