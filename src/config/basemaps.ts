@@ -1,11 +1,14 @@
 export interface BasemapConfig {
   id: string;
   name: string;
+  format: 'vector' | 'raster';
   category: 'Esri' | 'National' | 'OpenData' | 'Carto';
   group?: 'recommended' | 'thematic' | 'canvas';
   description: string;
   styleUrl: string;
   previewColor: string;
+  maxZoom?: number;
+  zoomWarning?: string;
   initialBounds?: {
     center: [number, number];
     zoom: number;
@@ -17,9 +20,10 @@ export const BASEMAPS: BasemapConfig[] = [
   {
     id: 'esri-imagery',
     name: 'Esri World Imagery',
+    format: 'raster',
     category: 'Esri',
     group: 'recommended',
-    description: 'Esri high-resolution global satellite & aerial imagery (Official ArcGIS Rest Tile Service)',
+    description: 'Citra satelit global resolusi tinggi resmi ArcGIS World Imagery',
     styleUrl: '/basemap/styles/esri-style-community.json',
     previewColor: '#1e293b',
     initialBounds: {
@@ -30,18 +34,20 @@ export const BASEMAPS: BasemapConfig[] = [
   {
     id: 'esri-streets',
     name: 'Esri World Streets',
+    format: 'vector',
     category: 'Esri',
     group: 'recommended',
-    description: 'Detailed Esri global street map with road networks and city landmarks',
+    description: 'Peta jalan vektor global Esri dengan detail jaringan transportasi dan landmark kota',
     styleUrl: '/basemap/styles/esri-style-streets.json',
     previewColor: '#3b82f6'
   },
   {
     id: 'big-rbi',
     name: 'Rupabumi Indonesia (RBI)',
+    format: 'vector',
     category: 'National',
     group: 'recommended',
-    description: 'Official National Topographic Basemap from BIG (Badan Informasi Geospasial)',
+    description: 'Peta dasar topografi vektor nasional resmi Badan Informasi Geospasial (BIG)',
     styleUrl: '/basemap/styles/big-style-rbi.json',
     previewColor: '#4fa8d8',
     initialBounds: {
@@ -52,9 +58,10 @@ export const BASEMAPS: BasemapConfig[] = [
   {
     id: 'osm-standard',
     name: 'OpenStreetMap Standard',
+    format: 'raster',
     category: 'OpenData',
     group: 'recommended',
-    description: 'Global community-driven OpenStreetMap street data and land cover',
+    description: 'Peta jalan dan tutupan lahan global komunitas OpenStreetMap',
     styleUrl: '/basemap/styles/esri-style-open-basemap.json',
     previewColor: '#d97706'
   },
@@ -63,45 +70,52 @@ export const BASEMAPS: BasemapConfig[] = [
   {
     id: 'esri-topographic',
     name: 'Esri World Topographic',
+    format: 'raster',
     category: 'Esri',
     group: 'thematic',
-    description: 'Official Esri world topographic map with contours and physical landforms',
+    description: 'Peta topografi dunia Esri dengan kontur elevasi dan bentang alam fisik',
     styleUrl: '/basemap/styles/esri-style-topographic.json',
     previewColor: '#688e57'
   },
   {
     id: 'open-topo',
     name: 'OpenTopoMap',
+    format: 'raster',
     category: 'OpenData',
     group: 'thematic',
-    description: 'Topographic map derived from OpenStreetMap and SRTM elevation contours',
+    description: 'Peta topografi berbasis OpenStreetMap dan garis kontur elevasi SRTM',
     styleUrl: '/basemap/styles/esri-style-open-topographic.json',
     previewColor: '#15803d'
   },
   {
     id: 'esri-relief',
     name: 'Esri World Shaded Relief',
+    format: 'raster',
     category: 'Esri',
     group: 'thematic',
-    description: 'Esri terrain surface model with shaded elevation relief and mountain contours',
+    description: 'Model permukaan medan bumi dengan bayangan relief elevasi dan pegunungan',
     styleUrl: '/basemap/styles/esri-style-relief.json',
     previewColor: '#78716c'
   },
   {
     id: 'esri-natgeo',
     name: 'Esri National Geographic',
+    format: 'raster',
     category: 'Esri',
     group: 'thematic',
-    description: 'Distinctive National Geographic world cartographic styling and shaded relief',
+    description: 'Gaya kartografi khas National Geographic dengan shading relief pegunungan',
     styleUrl: '/basemap/styles/esri-style-natgeo.json',
     previewColor: '#84cc16'
   },
   {
     id: 'esri-ocean',
     name: 'Esri Ocean Basemap',
+    format: 'raster',
     category: 'Esri',
     group: 'thematic',
-    description: 'Esri marine and ocean bathymetry basemap detailing seafloor features and depths',
+    maxZoom: 13,
+    zoomWarning: 'Khusus Batimetri Lautan & Kedalaman',
+    description: 'Peta batimetri lautan Esri/NOAA dengan data kedalaman palung dan dasar laut',
     styleUrl: '/basemap/styles/esri-style-ocean.json',
     previewColor: '#0284c7'
   },
@@ -110,63 +124,70 @@ export const BASEMAPS: BasemapConfig[] = [
   {
     id: 'esri-light-grey',
     name: 'Esri Light Gray Canvas',
+    format: 'vector',
     category: 'Esri',
     group: 'canvas',
-    description: 'Official Esri minimalist neutral backdrop with labels for thematic spatial analysis',
+    description: 'Kanvas abu-abu terang minimalis vektor untuk visualisasi layer tematik',
     styleUrl: '/basemap/styles/esri-style-light-grey-canvas.json',
     previewColor: '#e2e8f0'
   },
   {
     id: 'esri-dark-grey',
     name: 'Esri Dark Gray Canvas',
+    format: 'vector',
     category: 'Esri',
     group: 'canvas',
-    description: 'Official Esri sleek dark canvas with high-contrast road and place labels',
+    description: 'Kanvas gelap minimalis vektor dengan kontras tinggi untuk data analitis',
     styleUrl: '/basemap/styles/esri-style-cleanmap.json',
     previewColor: '#1e293b'
   },
   {
     id: 'carto-dark',
     name: 'CARTO Dark Matter',
+    format: 'raster',
     category: 'Carto',
     group: 'canvas',
-    description: 'High-contrast dark cartographic basemap optimized for overlay visualization',
+    description: 'Peta gelap kontras tinggi dari CARTO untuk visualisasi spasial malam hari',
     styleUrl: '/basemap/styles/carto-style-dark-matter.json',
     previewColor: '#0f172a'
   },
   {
     id: 'carto-voyager',
     name: 'CARTO Voyager',
+    format: 'raster',
     category: 'Carto',
     group: 'canvas',
-    description: 'Clean modern navigation basemap powered by OpenStreetMap & CARTO',
+    description: 'Peta navigasi modern dan bersih ditenagai oleh OpenStreetMap & CARTO',
     styleUrl: '/basemap/styles/carto-style-voyager.json',
     previewColor: '#0ea5e9'
   },
   {
     id: 'esri-clarity',
     name: 'Esri Imagery Clarity',
+    format: 'raster',
     category: 'Esri',
     group: 'canvas',
-    description: 'High-clarity satellite archive imagery for clear ground feature resolution',
+    description: 'Arsip citra satelit tanpa awan beresolusi tinggi untuk kejelasan objek daratan',
     styleUrl: '/basemap/styles/esri-style-imagery-clarity.json',
     previewColor: '#1e3a8a'
   },
   {
     id: 'osm-humanitarian',
     name: 'OpenStreetMap Humanitarian',
+    format: 'raster',
     category: 'OpenData',
     group: 'canvas',
-    description: 'High-contrast humanitarian OpenStreetMap styling detailing roads, rivers, and topography',
+    description: 'Gaya visual kemanusiaan OpenStreetMap dengan penekanan pada sungai dan jalan',
     styleUrl: '/basemap/styles/osm-style-humanitarian.json',
     previewColor: '#e11d48'
   },
   {
     id: 'esri-colorpencil',
     name: 'Esri Colored Pencil',
+    format: 'raster',
     category: 'Esri',
     group: 'canvas',
-    description: 'Unique hand-drawn artistic styling with sketched typography and colored pencil shading',
+    description: 'Gaya artistik pensil warna unik dengan tipografi sketsa tangan',
     styleUrl: '/basemap/styles/esri-style-colorpencil.json',
     previewColor: '#e0a96d'
   }

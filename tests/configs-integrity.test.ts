@@ -15,8 +15,14 @@ describe('Configuration & Data Schema Integrity', () => {
 
       expect(bm.name).toBeDefined();
       expect(bm.category).toBeDefined();
+      expect(['vector', 'raster']).toContain(bm.format);
       expect(bm.styleUrl).toBeDefined();
       expect(bm.styleUrl.startsWith('/') || bm.styleUrl.startsWith('http')).toBe(true);
+
+      if (bm.maxZoom !== undefined) {
+        expect(bm.maxZoom).toBeGreaterThanOrEqual(1);
+        expect(bm.maxZoom).toBeLessThanOrEqual(24);
+      }
 
       if (bm.initialBounds) {
         expect(bm.initialBounds.center).toHaveLength(2);

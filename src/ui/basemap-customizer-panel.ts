@@ -71,14 +71,26 @@ export class BasemapCustomizerUI {
       item.dataset.id = bm.id;
       item.setAttribute('role', 'button');
       item.setAttribute('tabindex', '0');
-      item.setAttribute('aria-label', `Pilih basemap ${bm.name} kategori ${bm.category}`);
+      item.setAttribute('aria-label', `Pilih basemap ${bm.name} format ${bm.format} kategori ${bm.category}`);
+
+      const formatBadge = bm.format === 'vector'
+        ? `<span class="bm-tag-badge vector" title="Basemap Vektor: Mendukung kustomisasi sublayer (jalan, batas admin, label)">🔷 Vektor</span>`
+        : `<span class="bm-tag-badge raster" title="Basemap Raster: Citra/Peta komposit piksel">🖼️ Raster</span>`;
+      
+      const maxZoomBadge = bm.maxZoom
+        ? `<span class="bm-tag-badge maxzoom" title="Maksimal zoom level ${bm.maxZoom} (Batimetri Kedalaman Laut)">⚠️ Maks Z${bm.maxZoom}</span>`
+        : '';
 
       item.innerHTML = `
         <div class="popover-item-left">
           <div class="popover-basemap-dot" style="background-color: ${bm.previewColor};" aria-hidden="true"></div>
           <div class="popover-basemap-text">
-            <span class="popover-basemap-title">${bm.name}</span>
-            <span class="popover-basemap-cat">${bm.category}</span>
+            <div class="popover-basemap-title-row">
+              <span class="popover-basemap-title">${bm.name}</span>
+              ${formatBadge}
+              ${maxZoomBadge}
+            </div>
+            <span class="popover-basemap-cat">${bm.category} &bull; ${bm.description}</span>
           </div>
         </div>
         <div class="popover-check-indicator" aria-hidden="true">✓</div>
@@ -329,7 +341,12 @@ export class BasemapCustomizerUI {
     const titleEl = document.getElementById('active-bm-title');
     const badgeEl = document.getElementById('active-bm-type-badge');
     if (titleEl && currentBm) titleEl.textContent = currentBm.name;
-    if (badgeEl && currentBm) badgeEl.textContent = currentBm.category;
+    if (badgeEl && currentBm) {
+      const formatIcon = currentBm.format === 'vector' ? '🔷 Vektor' : '🖼️ Raster';
+      const zoomText = currentBm.maxZoom ? ` • Maks Z${currentBm.maxZoom}` : '';
+      badgeEl.textContent = `${currentBm.category} • ${formatIcon}${zoomText}`;
+      badgeEl.className = `basemap-type-badge ${currentBm.format}`;
+    }
 
     // Sync Basemap Opacity slider
     const currentOpacity = this.mapManager?.getBasemapOpacity() ?? 1.0;
@@ -357,6 +374,9 @@ export class BasemapCustomizerUI {
     const sublayerNotice = document.getElementById('popover-sublayer-notice');
     if (sublayerNotice) {
       sublayerNotice.style.display = isRasterBasemap ? 'flex' : 'none';
+      if (isRasterBasemap) {
+        sublayerNotice.innerHTML = `<span>ℹ️ <strong>Basemap Raster Aktif</strong>: Kustomisasi sublayer (jalan, batas admin, label) hanya aktif untuk basemap <strong>Vektor</strong>. Pada basemap Raster, elemen visual telah menyatu dalam gambar piksel citra.</span>`;
+      }
     }
 
     // 3. Sync Sublayer Popover Checkboxes

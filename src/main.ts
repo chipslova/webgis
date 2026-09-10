@@ -458,6 +458,13 @@ class WebGISApp {
         card.setAttribute('tabindex', '0');
         card.setAttribute('aria-label', `Pilih basemap ${bm.name} kategori ${bm.category}`);
 
+        const formatBadge = bm.format === 'vector'
+          ? `<span class="bm-tag-badge vector">🔷 Vektor</span>`
+          : `<span class="bm-tag-badge raster">🖼️ Raster</span>`;
+        const maxZoomBadge = bm.maxZoom
+          ? `<span class="bm-tag-badge maxzoom">⚠️ Maks Z${bm.maxZoom}</span>`
+          : '';
+
         card.innerHTML = `
           <div class="basemap-thumb" style="background-color: ${bm.previewColor};">
             ${bm.name.substring(0, 2).toUpperCase()}
@@ -465,7 +472,11 @@ class WebGISApp {
           <div class="basemap-info">
             <div class="basemap-header-row">
               <div class="basemap-title" title="${bm.name}">${bm.name}</div>
-              <span class="basemap-tag">${bm.category}</span>
+              <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+                ${formatBadge}
+                ${maxZoomBadge}
+                <span class="basemap-tag">${bm.category}</span>
+              </div>
             </div>
             <div class="basemap-desc">${bm.description}</div>
           </div>
@@ -475,6 +486,9 @@ class WebGISApp {
           document.querySelectorAll('.basemap-card').forEach((c) => c.classList.remove('active'));
           card.classList.add('active');
           this.mapManager.setBasemap(bm.id);
+          if (this.basemapCustomizer) {
+            this.basemapCustomizer.setBasemapId(bm.id);
+          }
           announceToScreenReader(`Peta dasar diubah ke ${bm.name} (${bm.category})`);
         };
 

@@ -4,6 +4,7 @@ import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import * as pmtiles from 'pmtiles';
 import { BASEMAPS, DEFAULT_BASEMAP_ID } from '../config/basemaps';
+import { showToast } from '../ui/toast';
 import { logger } from '../utils/logger';
 
 setWorkerUrl(workerUrl);
@@ -155,11 +156,14 @@ export class MapManager {
       logger.warn('Initial style fetch notice:', e);
     }
 
+    const initialMaxZoom = defaultBasemap.maxZoom !== undefined ? defaultBasemap.maxZoom : 22;
+
     this.map = new maplibregl.Map({
       container: this.containerId,
       style: initialStyle,
       center: initialCenter,
       zoom: initialZoom,
+      maxZoom: initialMaxZoom,
       pitch: 0,
       bearing: 0,
       attributionControl: false
@@ -448,11 +452,22 @@ export class MapManager {
 
     this.currentBasemapId = basemapId;
 
-    // Retain view parameters
+    // Enforce maxZoom capability constraints on the map viewport
+    const effectiveMaxZoom = target.maxZoom !== undefined ? target.maxZoom : 22;
+    if (typeof this.map.setMaxZoom === 'function') {
+      this.map.setMaxZoom(effectiveMaxZoom);
+    }
+
+    // Retain view parameters, clamping zoom if target basemap has lower ceiling
     const center = this.map.getCenter();
-    const zoom = this.map.getZoom();
+    const currentZoom = this.map.getZoom();
+    const targetZoom = target.maxZoom !== undefined ? Math.min(currentZoom, target.maxZoom) : currentZoom;
     const pitch = this.map.getPitch();
     const bearing = this.map.getBearing();
+
+    if (target.maxZoom !== undefined && currentZoom > target.maxZoom) {
+      showToast(`Zoom disesuaikan ke level maksimum basemap (Z${target.maxZoom})`, 'warning');
+    }
 
     try {
       let normalizedStyle = this.styleSpecCache.get(target.id);
@@ -471,7 +486,7 @@ export class MapManager {
     this.map.once('style.load', () => {
       if (!this.map) return;
       this.map.setCenter(center);
-      this.map.setZoom(zoom);
+      this.map.setZoom(targetZoom);
       this.map.setPitch(pitch);
       this.map.setBearing(bearing);
     });
