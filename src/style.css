@@ -7755,6 +7755,34 @@ html, body, #app {
     font-size: 10px;
   }
 
+  /* Mobile Bottom Sheet Card for Point & Feature Inspection */
+  .floating-inspector-card,
+  .feature-inspector-card {
+    position: fixed !important;
+    left: 8px !important;
+    right: 8px !important;
+    bottom: calc(var(--footer-height) + 12px) !important;
+    width: auto !important;
+    max-width: calc(100vw - 16px) !important;
+    max-height: 48dvh !important;
+    border-radius: var(--radius-md) !important;
+    z-index: 95 !important;
+    box-shadow: 0 10px 36px rgba(0, 0, 0, 0.75), 0 0 16px rgba(0, 240, 255, 0.2) !important;
+  }
+
+  .floating-inspector-card.active,
+  .feature-inspector-card.active {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .insp-body {
+    overflow-y: auto !important;
+    max-height: calc(48dvh - 44px) !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 10px 12px !important;
+  }
+
   .app-footer {
     padding: 0 10px;
     font-size: 10px;

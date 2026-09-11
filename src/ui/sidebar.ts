@@ -111,9 +111,33 @@ export class SidebarUI {
     return this.isOpen;
   }
 
+  public collapseIfMobile(): void {
+    if (typeof window !== 'undefined' && window.innerWidth <= 768 && this.isOpen) {
+      this.setOpen(false);
+    }
+  }
+
   public onTabChange(callback: (tabId: TabId) => void) {
     this.onTabChangeCallback = callback;
   }
+}
+
+// Global listener for automatic mobile context collapse
+if (typeof window !== 'undefined') {
+  window.addEventListener('webgis:collapse-sidebar-if-mobile', () => {
+    const sidebarEl = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebar-toggle-btn');
+    if (sidebarEl && window.innerWidth <= 768 && !sidebarEl.classList.contains('collapsed')) {
+      sidebarEl.classList.add('collapsed');
+      sidebarEl.setAttribute('aria-expanded', 'false');
+      if (toggleBtn) {
+        toggleBtn.setAttribute('aria-label', 'Bentangkan bilah samping');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        toggleBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>`;
+      }
+      window.dispatchEvent(new Event('resize'));
+    }
+  });
 }
 
 

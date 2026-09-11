@@ -557,6 +557,9 @@ export class PikselPanelUI {
           this.pikselLoader.flyToPreset(preset);
           const prod = PIKSEL_PRODUCTS.find(p => p.id === preset.recommendedProduct);
           showToast(`Menampilkan lokasi ${preset.name} (${prod?.name || 'Citra Satelit'})`, 'info');
+          if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+            window.dispatchEvent(new CustomEvent('webgis:collapse-sidebar-if-mobile'));
+          }
         }
         return;
       }
@@ -598,6 +601,9 @@ export class PikselPanelUI {
           const prevBearing = map ? map.getBearing() : 0;
 
           this.pikselLoader.setActiveProduct(clickedId);
+          if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+            window.dispatchEvent(new CustomEvent('webgis:collapse-sidebar-if-mobile'));
+          }
           const targetNav = this.pikselLoader.autoFlyToOptimalView(clickedId);
           if (targetNav) {
             showToast(

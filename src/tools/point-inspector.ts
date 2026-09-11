@@ -45,6 +45,11 @@ export class PointInspector {
         return;
       }
 
+      // Automatically collapse sidebar on mobile when inspecting a point
+      if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+        window.dispatchEvent(new CustomEvent('webgis:collapse-sidebar-if-mobile'));
+      }
+
       this.inspectCoordinate(e.lngLat.lng, e.lngLat.lat, e.point);
     });
   }

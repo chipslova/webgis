@@ -117,6 +117,9 @@ export class SearchUI {
       if (this.clearBtn) this.clearBtn.style.display = 'block';
     }
     this.geocoderTool.flyToResult(res);
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+      window.dispatchEvent(new CustomEvent('webgis:collapse-sidebar-if-mobile'));
+    }
     announceToScreenReader(`Menuju lokasi: ${res.display_name}`);
   }
 

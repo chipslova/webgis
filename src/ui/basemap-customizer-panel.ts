@@ -210,6 +210,9 @@ export class BasemapCustomizerUI {
             this.mapManager.setBasemap(bm.id);
           }
           this.customizer.setBasemapId(bm.id);
+          if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+            window.dispatchEvent(new CustomEvent('webgis:collapse-sidebar-if-mobile'));
+          }
           announceToScreenReader(`Peta dasar diubah ke ${bm.name} (${bm.category})`);
           this.syncUI();
         };
