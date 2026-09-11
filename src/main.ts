@@ -18,7 +18,6 @@ import { BasemapCustomizerUI } from './ui/basemap-customizer-panel';
 import { MapExporter } from './tools/map-exporter';
 import { DataPanelUI } from './ui/data-panel';
 import { DynamicLegendUI } from './ui/dynamic-legend';
-import { FeatureInspectorUI } from './ui/feature-inspector';
 import { SearchUI } from './ui/search-ui';
 import { GuidedTourUI } from './ui/guided-tour';
 import { SwipeCompareManager } from './tools/swipe-compare';
@@ -47,7 +46,6 @@ class WebGISApp {
   private basemapCustomizer: BasemapCustomizer | null = null;
   private basemapCustomizerUI: BasemapCustomizerUI | null = null;
   private mapExporter: MapExporter | null = null;
-  private featureInspectorUI: FeatureInspectorUI;
   private guidedTourUI: GuidedTourUI | null = null;
   private swipeCompareManager: SwipeCompareManager | null = null;
   private swipeCompareUI: SwipeCompareUI | null = null;
@@ -59,7 +57,6 @@ class WebGISApp {
     this.mapManager = new MapManager('map');
     this.sidebarUI = new SidebarUI();
     this.statusBarUI = new StatusBarUI();
-    this.featureInspectorUI = new FeatureInspectorUI();
     this.dynamicLegendUI = new DynamicLegendUI('dynamic-legend-container', null, null, null);
 
     // Bind network changes to status bar
@@ -67,15 +64,12 @@ class WebGISApp {
       this.statusBarUI.setOnlineStatus(online);
     });
 
+    this.bindGlobalEvents();
     this.init();
   }
 
-  private async init() {
-    // 1. Initialize Basemap Customizer Engine & UI immediately
-    this.basemapCustomizer = new BasemapCustomizer(null, this.mapManager);
-    this.basemapCustomizerUI = new BasemapCustomizerUI(this.basemapCustomizer, this.mapManager);
-
-    // 2. Build UI Component Views & Event Bindings
+  private bindGlobalEvents() {
+    this.bindThemeEvents();
     this.bindProjectionEvents();
     this.bindResetMapEvents();
     this.bindMeasureEvents();
@@ -88,15 +82,23 @@ class WebGISApp {
     this.bindHeaderMoreEvents();
     this.bindUniversalEscape();
 
-    // 3. Connect Telemetry & Feature Inspector
+    // 3. Connect Telemetry & Unified Point Inspector
     this.mapManager.onMouseMove((info) => {
       this.statusBarUI.update(info);
     });
 
-    this.mapManager.onFeatureClick((properties, layerName) => {
+    this.mapManager.onFeatureClick((_properties, _layerName, coordinates) => {
       if (this.swipeCompareManager?.isActive()) return;
-      this.featureInspectorUI.show(properties, layerName);
+      if (this.pointInspector && coordinates) {
+        this.pointInspector.inspectCoordinate(coordinates[0], coordinates[1]);
+      }
     });
+  }
+
+  private async init() {
+    // 1. Initialize Basemap Customizer Engine & UI immediately
+    this.basemapCustomizer = new BasemapCustomizer(null, this.mapManager);
+    this.basemapCustomizerUI = new BasemapCustomizerUI(this.basemapCustomizer, this.mapManager);
 
     // 3. Initialize MapLibre GL map (guaranteed to resolve only when map style is loaded)
     try {
@@ -343,9 +345,7 @@ class WebGISApp {
       const measureCard = document.getElementById('measure-result-card');
       if (measureCard) measureCard.style.display = 'none';
 
-      // 5. Hide feature inspector & point inspector
-      const inspector = document.getElementById('feature-inspector');
-      if (inspector) inspector.style.display = 'none';
+      // 5. Hide floating point & feature inspector
       this.pointInspector?.clear();
 
       // 6. Reset Basemap Customizer (3D terrain & overlays off, all sublayers on)
@@ -592,15 +592,10 @@ class WebGISApp {
         return false;
       },
       () => {
-        // 4. Feature Inspector & Floating Inspector
-        const insp = document.getElementById('feature-inspector');
-        if (insp && insp.style.display !== 'none') {
-          insp.style.display = 'none';
-          return true;
-        }
+        // 4. Floating Point & Feature Inspector
         const floatInsp = document.getElementById('floating-inspector-card');
         if (floatInsp && floatInsp.classList.contains('active')) {
-          floatInsp.classList.remove('active');
+          this.pointInspector?.clear();
           return true;
         }
         return false;

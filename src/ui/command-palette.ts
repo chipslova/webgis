@@ -262,6 +262,45 @@ export class CommandPaletteUI {
         }
       },
       {
+        id: 'tool-terrain-3d',
+        category: 'tools',
+        categoryLabel: '⚡ Fitur & Analisis',
+        title: 'Buka Pengaturan 3D Terrain & Relief',
+        subtitle: 'Atur elevasi 3D, hillshade, dan pembesaran vertikal (Dock Bawah)',
+        icon: '🏔️',
+        keywords: ['terrain', '3d', 'elevasi', 'hillshade', 'relief', 'topografi'],
+        action: () => {
+          const btn = document.getElementById('btn-toggle-terrain');
+          btn?.click();
+        }
+      },
+      {
+        id: 'tool-tile-grid',
+        category: 'tools',
+        categoryLabel: '⚡ Fitur & Analisis',
+        title: 'Toggle Grid Data Cube (1.631 Tile)',
+        subtitle: 'Tampilkan / sembunyikan batas grid tile Open Data Cube Indonesia (Dock Bawah)',
+        icon: '🔲',
+        keywords: ['grid', 'tile', 'data cube', 'odc', 'batas', 'indonesia'],
+        action: () => {
+          const btn = document.getElementById('btn-toggle-grid');
+          btn?.click();
+        }
+      },
+      {
+        id: 'tool-sublayers-popover',
+        category: 'tools',
+        categoryLabel: '⚡ Fitur & Analisis',
+        title: 'Kustomisasi Sublayer Basemap',
+        subtitle: 'Atur visibilitas jalan, label, batas administrasi, dan kontur (Dock Bawah)',
+        icon: '📑',
+        keywords: ['sublayer', 'layer', 'jalan', 'label', 'batas', 'kontur'],
+        action: () => {
+          const btn = document.getElementById('btn-toggle-sublayers');
+          btn?.click();
+        }
+      },
+      {
         id: 'tool-reset',
         category: 'tools',
         categoryLabel: '⚡ Fitur & Analisis',
