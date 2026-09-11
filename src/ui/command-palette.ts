@@ -305,9 +305,9 @@ export class CommandPaletteUI {
         category: 'tools',
         categoryLabel: '⚡ Fitur & Analisis',
         title: 'Reset Tampilan Peta',
-        subtitle: 'Kembalikan kamera ke skala nusantara Indonesia dan bersihkan layer aktif',
+        subtitle: 'Kembalikan kamera, basemap, dan proyeksi ke tampilan default',
         icon: '↺',
-        keywords: ['reset', 'kembali', 'awal', 'bersihkan', 'clear'],
+        keywords: ['reset', 'kembali', 'awal', 'kamera', 'default', 'proyeksi'],
         action: () => {
           const resetBtn = document.getElementById('btn-reset-map');
           resetBtn?.click();

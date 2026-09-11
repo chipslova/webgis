@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --bg-dark: #070b14;
   --bg-header: rgba(11, 17, 32, 0.95);
   --bg-sidebar: #0b1120;
@@ -824,73 +824,6 @@ html, body, #app {
   filter: invert(1) brightness(1.5) !important;
 }
 
-/* ==========================================================================
-   Feature Inspector Card
-   ========================================================================== */
-.feature-inspector-card {
-  position: absolute;
-  bottom: 48px;
-  right: 16px;
-  width: 320px;
-  max-height: 360px;
-  background: var(--bg-sidebar);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  box-shadow: var(--glass-shadow);
-  z-index: 40;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.inspector-header {
-  padding: 10px 14px;
-  background: rgba(15, 23, 42, 0.8);
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.inspector-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--accent-cyan);
-}
-
-.inspector-table-wrapper {
-  padding: 10px;
-  overflow-y: auto;
-  font-size: 12px;
-}
-
-.inspector-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.inspector-table td {
-  padding: 6px 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.inspector-table tr:last-child td {
-  border-bottom: none;
-}
-
-.inspector-table td.prop-key {
-  font-weight: 600;
-  color: var(--text-muted);
-  width: 40%;
-}
-
-.inspector-table td.prop-val {
-  color: #fff;
-  word-break: break-word;
-}
 
 /* ==========================================================================
    Status Footer
@@ -1371,7 +1304,11 @@ html, body, #app {
 }
 
 /* Product Cards */
-/* [Consolidated] .piksel-products-list */
+.piksel-products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
 .piksel-product-card {
   background: rgba(15, 23, 42, 0.6);
@@ -1640,7 +1577,6 @@ html, body, #app {
   margin-bottom: 8px;
 }
 
-/* [Consolidated] .piksel-products-list */
 
 .piksel-radio-wrap {
   display: flex;
@@ -4602,7 +4538,7 @@ kbd {
   aside#sidebar,
   .app-footer,
   #piksel-map-hud,
-  .feature-inspector-card,
+  .floating-inspector-card,
   .toast-container,
   .maplibre-gl-ctrl-top-right,
   .maplibre-gl-ctrl-bottom-left {
@@ -6092,7 +6028,6 @@ kbd {
 /* Distraction-free mode when swipe comparison is active */
 body.swipe-mode-active #bottom-layer-tools,
 body.swipe-mode-active #floating-inspector-card,
-body.swipe-mode-active #feature-inspector,
 body.swipe-mode-active #basemap-popover,
 body.swipe-mode-active #sublayers-popover,
 body.swipe-mode-active #dynamic-legend-container {
@@ -7197,8 +7132,7 @@ html, body, #app {
   }
 
   /* Mobile Bottom Sheet Card for Point & Feature Inspection */
-  .floating-inspector-card,
-  .feature-inspector-card {
+  .floating-inspector-card {
     position: fixed !important;
     left: 8px !important;
     right: 8px !important;
@@ -7211,8 +7145,7 @@ html, body, #app {
     box-shadow: 0 10px 36px rgba(0, 0, 0, 0.75), 0 0 16px rgba(0, 240, 255, 0.2) !important;
   }
 
-  .floating-inspector-card.active,
-  .feature-inspector-card.active {
+  .floating-inspector-card.active {
     display: flex !important;
     flex-direction: column !important;
   }
