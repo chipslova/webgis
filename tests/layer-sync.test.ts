@@ -96,14 +96,20 @@ describe('Layer & Checkbox UI State Synchronization', () => {
     );
   });
 
-  it('should have toggle-gee-poi checked initially because POI is active by default', () => {
+  it('should have toggle-gee-poi unchecked initially because POI is not active by default', () => {
     const poiCheckbox = document.getElementById('toggle-gee-poi') as HTMLInputElement;
-    expect(poiCheckbox.checked).toBe(true);
+    expect(poiCheckbox.checked).toBe(false);
   });
 
-  it('should automatically uncheck toggle-gee-poi when POI layer is removed from Active Layers', () => {
+  it('should automatically sync toggle-gee-poi when POI layer is toggled and removed', async () => {
     const poiCheckbox = document.getElementById('toggle-gee-poi') as HTMLInputElement;
+    expect(poiCheckbox.checked).toBe(false);
+
+    // Activate POI layer explicitly
+    await geeLoader.toggleLayer('poi', true);
+    activeLayersUI.render();
     expect(poiCheckbox.checked).toBe(true);
+    expect(geeLoader.isLayerActive('poi')).toBe(true);
 
     // Simulate clicking remove button on POI layer in Active Layers
     const removeBtn = document.querySelector('.btn-remove-gee-poi') as HTMLButtonElement;
@@ -120,8 +126,10 @@ describe('Layer & Checkbox UI State Synchronization', () => {
     const poiCheckbox = document.getElementById('toggle-gee-poi') as HTMLInputElement;
     const lstCheckbox = document.getElementById('toggle-gee-lst') as HTMLInputElement;
 
-    // Activate LST as well
+    // Activate POI and LST
+    await geeLoader.toggleLayer('poi', true);
     await geeLoader.toggleLayer('lst', true);
+    activeLayersUI.render();
     expect(lstCheckbox.checked).toBe(true);
     expect(poiCheckbox.checked).toBe(true);
 
@@ -143,6 +151,7 @@ describe('Layer & Checkbox UI State Synchronization', () => {
 
   it('should sync checkbox when geeLoader.clearAllLayers is invoked directly', async () => {
     const poiCheckbox = document.getElementById('toggle-gee-poi') as HTMLInputElement;
+    await geeLoader.toggleLayer('poi', true);
     expect(poiCheckbox.checked).toBe(true);
 
     geeLoader.clearAllLayers();

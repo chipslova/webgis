@@ -74,13 +74,23 @@ export class SwipeCompareUI {
       (p) => `<option value="${p.id}" ${p.id === rightConfig.productId ? 'selected' : ''}>${p.name}</option>`
     ).join('');
 
-    const leftYearHtml = S2_YEARS.map(
-      (y) => `<option value="${y}" ${y === leftConfig.year ? 'selected' : ''}>${y}</option>`
-    ).join('');
+    const leftYears = leftProd?.availableYears ?? (leftProd?.timeEnabled !== false ? S2_YEARS : []);
+    const rightYears = rightProd?.availableYears ?? (rightProd?.timeEnabled !== false ? S2_YEARS : []);
 
-    const rightYearHtml = S2_YEARS.map(
-      (y) => `<option value="${y}" ${y === rightConfig.year ? 'selected' : ''}>${y}</option>`
-    ).join('');
+    const showLeftYear = (leftProd?.timeEnabled !== false) && leftYears.length > 0;
+    const showRightYear = (rightProd?.timeEnabled !== false) && rightYears.length > 0;
+
+    const leftYearHtml = showLeftYear
+      ? `<select id="swipe-left-year" class="swipe-select year" aria-label="Pilih tahun sisi kiri">
+          ${leftYears.map((y) => `<option value="${y}" ${y === leftConfig.year ? 'selected' : ''}>${y}</option>`).join('')}
+        </select>`
+      : '';
+
+    const rightYearHtml = showRightYear
+      ? `<select id="swipe-right-year" class="swipe-select year" aria-label="Pilih tahun sisi kanan">
+          ${rightYears.map((y) => `<option value="${y}" ${y === rightConfig.year ? 'selected' : ''}>${y}</option>`).join('')}
+        </select>`
+      : '';
 
     const presetsHtml = SWIPE_PRESETS.map(
       (preset) => `
@@ -90,13 +100,16 @@ export class SwipeCompareUI {
     `
     ).join('');
 
+    const leftLabelText = `${leftProd?.name || 'Kiri'}${showLeftYear && leftConfig.year ? ` (${leftConfig.year})` : ''}`;
+    const rightLabelText = `${rightProd?.name || 'Kanan'}${showRightYear && rightConfig.year ? ` (${rightConfig.year})` : ''}`;
+
     const cardContentHtml = this.isCardCollapsed
       ? `
         <!-- Collapsed Mini Pill Toolbar (Maximum Map Visibility) -->
         <div class="swipe-mini-pill glass-panel" role="toolbar" aria-label="Status Komparasi Citra">
           <div class="mini-pill-info">
             <span class="mini-pill-dot"></span>
-            <span>Komparasi: <strong>${leftProd?.name || 'Kiri'} (${leftConfig.year})</strong> vs <strong>${rightProd?.name || 'Kanan'} (${rightConfig.year})</strong></span>
+            <span>Komparasi: <strong>${leftLabelText}</strong> vs <strong>${rightLabelText}</strong></span>
           </div>
           <div class="mini-pill-actions">
             <button id="btn-toggle-swipe-card" class="btn-micro" title="Buka Menu Pengaturan Layer Komparasi" aria-label="Buka Pengaturan">
@@ -122,9 +135,7 @@ export class SwipeCompareUI {
                 <select id="swipe-left-prod" class="swipe-select" aria-label="Pilih layer sisi kiri">
                   ${leftOptionsHtml}
                 </select>
-                <select id="swipe-left-year" class="swipe-select year" aria-label="Pilih tahun sisi kiri">
-                  ${leftYearHtml}
-                </select>
+                ${leftYearHtml}
               </div>
             </div>
 
@@ -137,9 +148,7 @@ export class SwipeCompareUI {
                 <select id="swipe-right-prod" class="swipe-select" aria-label="Pilih layer sisi kanan">
                   ${rightOptionsHtml}
                 </select>
-                <select id="swipe-right-year" class="swipe-select year" aria-label="Pilih tahun sisi kanan">
-                  ${rightYearHtml}
-                </select>
+                ${rightYearHtml}
               </div>
               <div class="swipe-side-tag right">
                 <span>SISI KANAN</span>
@@ -211,7 +220,11 @@ export class SwipeCompareUI {
     // 1. Select changes
     const leftProd = root.querySelector('#swipe-left-prod') as HTMLSelectElement;
     leftProd?.addEventListener('change', () => {
-      this.manager.setLeftConfig({ productId: leftProd.value });
+      const prod = PIKSEL_PRODUCTS.find((p) => p.id === leftProd.value);
+      const years = prod?.availableYears ?? (prod?.timeEnabled !== false ? S2_YEARS : []);
+      const currentYear = this.manager.getLeftConfig().year;
+      const nextYear = years.length > 0 ? (years.includes(currentYear) ? currentYear : years[0]) : '';
+      this.manager.setLeftConfig({ productId: leftProd.value, year: nextYear });
     });
 
     const leftYear = root.querySelector('#swipe-left-year') as HTMLSelectElement;
@@ -221,7 +234,11 @@ export class SwipeCompareUI {
 
     const rightProd = root.querySelector('#swipe-right-prod') as HTMLSelectElement;
     rightProd?.addEventListener('change', () => {
-      this.manager.setRightConfig({ productId: rightProd.value });
+      const prod = PIKSEL_PRODUCTS.find((p) => p.id === rightProd.value);
+      const years = prod?.availableYears ?? (prod?.timeEnabled !== false ? S2_YEARS : []);
+      const currentYear = this.manager.getRightConfig().year;
+      const nextYear = years.length > 0 ? (years.includes(currentYear) ? currentYear : years[0]) : '';
+      this.manager.setRightConfig({ productId: rightProd.value, year: nextYear });
     });
 
     const rightYear = root.querySelector('#swipe-right-year') as HTMLSelectElement;

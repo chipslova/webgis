@@ -469,6 +469,19 @@ export class ActiveLayersUI {
     const container = document.getElementById(this.containerId);
     if (!container) return;
 
+    container.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const target = e.target as HTMLElement;
+        const rowBody = target.closest('.al-row-body') as HTMLElement;
+        if (rowBody?.dataset.expandId) {
+          e.preventDefault();
+          const id = rowBody.dataset.expandId;
+          this.expandedLayerId = this.expandedLayerId === id ? null : id;
+          this.render();
+        }
+      }
+    });
+
     container.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
 

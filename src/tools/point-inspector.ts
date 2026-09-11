@@ -63,11 +63,43 @@ export class PointInspector {
     const copyBtn = document.getElementById('btn-insp-copy-coords');
     copyBtn?.addEventListener('click', () => {
       const coordsText = document.getElementById('insp-coord-decimal')?.innerText;
-      if (coordsText && navigator.clipboard) {
-        navigator.clipboard.writeText(coordsText).then(() => {
-          showToast('Koordinat WGS84 disalin ke clipboard!', 'success');
-        });
-      }
+      if (!coordsText) return;
+
+      const doCopy = () => {
+        // Primary: modern Clipboard API
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(coordsText).then(() => {
+            showToast('Koordinat WGS84 disalin ke clipboard!', 'success');
+          }).catch(() => {
+            fallbackCopy();
+          });
+        } else {
+          fallbackCopy();
+        }
+      };
+
+      const fallbackCopy = () => {
+        // Fallback: temporary textarea + execCommand (works on mobile browsers & WebViews)
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = coordsText;
+          ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          const success = document.execCommand('copy');
+          document.body.removeChild(ta);
+          if (success) {
+            showToast('Koordinat WGS84 disalin ke clipboard!', 'success');
+          } else {
+            showToast('Salin koordinat gagal — salin manual: ' + coordsText, 'warning');
+          }
+        } catch {
+          showToast('Salin koordinat gagal — salin manual: ' + coordsText, 'warning');
+        }
+      };
+
+      doCopy();
     });
   }
 

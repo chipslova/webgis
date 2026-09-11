@@ -33,6 +33,7 @@ export class CommandPaletteUI {
   private selectedIndex: number = 0;
   private searchQuery: string = '';
   private modalEl: HTMLElement | null = null;
+  private previousActiveElement: HTMLElement | null = null;
 
   constructor(
     mapManager: MapManager,
@@ -55,6 +56,7 @@ export class CommandPaletteUI {
   }
 
   public open() {
+    this.previousActiveElement = document.activeElement as HTMLElement | null;
     this.isOpen = true;
     this.searchQuery = '';
     this.selectedIndex = 0;
@@ -71,6 +73,11 @@ export class CommandPaletteUI {
     if (this.modalEl) {
       this.modalEl.remove();
       this.modalEl = null;
+    }
+    if (this.previousActiveElement && typeof this.previousActiveElement.focus === 'function') {
+      const el = this.previousActiveElement;
+      setTimeout(() => el.focus(), 20);
+      this.previousActiveElement = null;
     }
   }
 
@@ -373,6 +380,26 @@ export class CommandPaletteUI {
 
   private bindModalEvents() {
     if (!this.modalEl) return;
+
+    // Focus trap inside modal
+    this.modalEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        const focusable = this.modalEl?.querySelectorAll<HTMLElement>(
+          'input, button, [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusable || focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
 
     // Backdrop click to close
     this.modalEl.addEventListener('click', (e) => {

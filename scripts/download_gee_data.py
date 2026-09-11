@@ -207,7 +207,7 @@ for dt in dates:
 # Save JSON time series
 ts_payload = {
     "metadata": {
-        "dataset": "MODIS/061/MOD11A1 (LST Day 1km)",
+        "dataset": "MODIS/061/MOD11A2 (LST 8-Day 1km)",
         "period": "2020-01-01 to 2026-05-01",
         "urban_point": {"lat": u_lat, "lon": u_lon, "name": "Jakarta Monas"},
         "rural_point": {"lat": r_lat, "lon": r_lon, "name": "West Java / Bogor"},

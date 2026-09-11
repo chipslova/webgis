@@ -232,8 +232,11 @@ describe('E2E WebGIS Exhaustive Buttons & Interaction Flow Audit', () => {
     });
 
     it('3. GEE Panel: Layers toggle on and off and reflect in active layer set', async () => {
-      expect(geeLoader.isLayerActive('poi')).toBe(true);
+      expect(geeLoader.isLayerActive('poi')).toBe(false);
       expect(geeLoader.isLayerActive('lst')).toBe(false);
+
+      await geeLoader.toggleLayer('poi', true);
+      expect(geeLoader.isLayerActive('poi')).toBe(true);
 
       await geeLoader.toggleLayer('lst', true);
       expect(geeLoader.isLayerActive('lst')).toBe(true);
@@ -319,7 +322,7 @@ describe('E2E WebGIS Exhaustive Buttons & Interaction Flow Audit', () => {
       expect(swipeManager.getSliderPosition()).toBe(75);
 
       // Apply preset
-      const iknPreset = SWIPE_PRESETS.find((p) => p.id === 'ikn-development');
+      const iknPreset = SWIPE_PRESETS.find((p) => p.id === 'ikn-dev');
       if (iknPreset) {
         swipeManager.applyPreset(iknPreset);
         expect(swipeManager.getLeftConfig().year).toBe('2018');

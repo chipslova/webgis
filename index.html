@@ -276,11 +276,11 @@
                 <div class="gee-disclaimer-banner">
                   <div class="gee-disclaimer-header">
                     <span>📌 <strong>Studi Kasus Analisis Spasial</strong></span>
-                    <span class="gee-disclaimer-tag">Jabodetabek Only</span>
+                    <span class="gee-disclaimer-tag">Wilayah Kajian: Jabodetabek-Jabar</span>
                   </div>
-                  <p>Data hasil olahan komputasi Google Earth Engine (MODIS MOD11A2 & USGS SRTM 2020–2026) untuk wilayah kajian aglomerasi Jabodetabek & Jawa Barat.</p>
+                  <p>Dataset demonstrasi sintetis terinspirasi GEE — nilai dibangkitkan secara lokal untuk keperluan demonstrasi alur kerja (MODIS MOD11A2 & USGS SRTM), bukan output langsung Google Earth Engine.</p>
                   <p style="margin-top: 6px; font-size: 11px; color: var(--accent-yellow, #f59e0b); font-weight: 600;">
-                    ⚠️ Data layer GEE hanya tersedia untuk wilayah Jabodetabek. Di luar area ini, layer tidak akan tampil di peta.
+                    ⚠️ Data layer studi kasus hanya mencakup wilayah Jabodetabek & Jawa Barat.
                   </p>
                 </div>
               </div>
@@ -403,8 +403,9 @@
               </div>
 
               <div class="gee-metric-card highlight">
-                <div class="metric-title">Urban Heat Island (UHI) Delta</div>
+                <div class="metric-title">Kontras LST Urban–Rural</div>
                 <div class="metric-val">+9.25 °C Kontras Termal</div>
+                <div class="metric-sub" style="font-size: 10px; opacity: 0.85; margin-top: 3px;">Indikator studi kasus, bukan estimasi intensitas UHI penuh.</div>
               </div>
 
               <!-- Time Series Canvas Chart (Collapsible Accordion) -->
@@ -570,7 +571,7 @@
                     <div class="qs-step-num">1</div>
                     <div class="qs-step-body">
                       <strong>Pilih Citra Satelit</strong>
-                      <span>Buka tab <b>Citra Satelit</b>, pilih produk (Sentinel-2, NDVI, dll), klik untuk mengaktifkan.</span>
+                      <span>Buka tab <b>Satelit</b>, pilih produk (Sentinel-2, NDVI, dll), klik untuk mengaktifkan.</span>
                     </div>
                   </div>
                   <div class="qs-step">
@@ -584,14 +585,14 @@
                     <div class="qs-step-num">3</div>
                     <div class="qs-step-body">
                       <strong>Analisis & Ukur</strong>
-                      <span>Tab <b>Ukur</b> untuk jarak/luas, tab <b>GEE Data</b> untuk analisis suhu.</span>
+                      <span>Tab <b>Ukur</b> untuk jarak/luas, tab <b>Analisis</b> untuk studi kasus suhu.</span>
                     </div>
                   </div>
                   <div class="qs-step">
                     <div class="qs-step-num">4</div>
                     <div class="qs-step-body">
                       <strong>Export Hasil</strong>
-                      <span>Header → <b>Simpan Peta</b> untuk screenshot PNG, atau unduh dataset dari tab GEE.</span>
+                      <span>Header → <b>Simpan Peta</b> untuk screenshot PNG, atau unduh dataset dari tab <b>Analisis</b>.</span>
                     </div>
                   </div>
                 </div>
@@ -690,6 +691,9 @@
             </section>
           </div>
         </aside>
+
+        <!-- Mobile Backdrop Overlay when Sidebar Drawer is Open -->
+        <div id="mobile-sidebar-backdrop" class="mobile-sidebar-backdrop" aria-hidden="true"></div>
 
         <!-- Map Container -->
         <main id="map" class="map-container">

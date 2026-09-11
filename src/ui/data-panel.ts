@@ -113,6 +113,13 @@ export class DataPanelUI {
       fileInput?.click();
     });
 
+    dropzone?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        fileInput?.click();
+      }
+    });
+
     fileInput?.addEventListener('change', (e) => {
       const files = (e.target as HTMLInputElement).files;
       if (files && files.length > 0) {

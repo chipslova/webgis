@@ -159,6 +159,13 @@ export class GuidedTourUI {
   public async startTour(): Promise<void> {
     this.isTourActive = true;
     this.currentStepIndex = 0;
+
+    // Close the floating inspector card if open, to prevent overlap on mobile
+    const inspectorCard = document.getElementById('floating-inspector-card');
+    if (inspectorCard) {
+      inspectorCard.classList.remove('active');
+    }
+
     this.renderTourCard();
     showToast('🚀 Tur Jelajah Nusantara dimulai (3 Langkah)', 'info');
     await this.executeCurrentStep();

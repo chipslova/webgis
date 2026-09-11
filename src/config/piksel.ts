@@ -1,3 +1,15 @@
+/**
+ * ============================================================================
+ * STANDARD TERMINOLOGY & ARCHITECTURAL GLOSSARY (DAFTAR ISTILAH BAKU):
+ * ============================================================================
+ * 1. Layer         : Lapisan data spasial aktif di canvas peta (Piksel WMS, GeoJSON, GEE Raster/POI).
+ * 2. Sublayer      : Lapisan vektor tematik turunan dari basemap (Jalan, Bangunan, Kontur, Label).
+ * 3. Tile Grid     : Kisi batas petak (tile boundary) Open Data Cube (1.631 tile nasional).
+ * 4. Data Cube     : Sistem repositori data spasial multiband berbasis ODC (BIG Piksel).
+ * 5. Studi Kasus   : Analisis analitis terfokus (mis. Analisis Suhu Termal GEE Jabodetabek & Jabar).
+ * ============================================================================
+ */
+
 export type LegendType = 'continuous' | 'categorical' | 'natural';
 
 export interface LegendSwatch {

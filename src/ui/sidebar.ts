@@ -1,4 +1,4 @@
-export type TabId = 'map' | 'piksel' | 'gee' | 'measure' | 'data' | 'legend' | 'about';
+﻿export type TabId = 'map' | 'piksel' | 'gee' | 'measure' | 'data' | 'legend' | 'about';
 
 export class SidebarUI {
   private activeTab: TabId = 'map';
@@ -7,6 +7,7 @@ export class SidebarUI {
 
   constructor() {
     this.bindEvents();
+    this.bindGlobalCollapseEvent();
   }
 
   private bindEvents() {
@@ -45,6 +46,29 @@ export class SidebarUI {
         this.setOpen(!this.isOpen);
       });
     }
+
+    // Mobile sidebar backdrop click to close
+    const backdrop = document.getElementById('mobile-sidebar-backdrop');
+    if (backdrop) {
+      backdrop.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.setOpen(false);
+      });
+    }
+  }
+
+  /**
+   * Bind the global custom event for auto-collapsing the sidebar on mobile.
+   * Uses this.setOpen(false) to keep internal state and DOM in sync â€”
+   * prevents the isOpen state drift that occurred when manipulating DOM directly.
+   */
+  private bindGlobalCollapseEvent() {
+    if (typeof window === 'undefined') return;
+    window.addEventListener('webgis:collapse-sidebar-if-mobile', () => {
+      if (window.innerWidth <= 768 && this.isOpen) {
+        this.setOpen(false);
+      }
+    });
   }
 
   public setActiveTab(tabId: TabId) {
@@ -83,6 +107,11 @@ export class SidebarUI {
     this.isOpen = isOpen;
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
+    const backdrop = document.getElementById('mobile-sidebar-backdrop');
+
+    if (backdrop) {
+      backdrop.classList.toggle('active', isOpen);
+    }
 
     if (sidebar) {
       sidebar.setAttribute('aria-expanded', String(isOpen));
@@ -121,24 +150,3 @@ export class SidebarUI {
     this.onTabChangeCallback = callback;
   }
 }
-
-// Global listener for automatic mobile context collapse
-if (typeof window !== 'undefined') {
-  window.addEventListener('webgis:collapse-sidebar-if-mobile', () => {
-    const sidebarEl = document.getElementById('sidebar');
-    const toggleBtn = document.getElementById('sidebar-toggle-btn');
-    if (sidebarEl && window.innerWidth <= 768 && !sidebarEl.classList.contains('collapsed')) {
-      sidebarEl.classList.add('collapsed');
-      sidebarEl.setAttribute('aria-expanded', 'false');
-      if (toggleBtn) {
-        toggleBtn.setAttribute('aria-label', 'Bentangkan bilah samping');
-        toggleBtn.setAttribute('aria-expanded', 'false');
-        toggleBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>`;
-      }
-      window.dispatchEvent(new Event('resize'));
-    }
-  });
-}
-
-
-

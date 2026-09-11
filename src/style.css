@@ -3079,21 +3079,11 @@ html, body, #app {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .floating-inspector-card {
-    left: 12px !important;
-    right: 12px !important;
-    width: auto !important;
-    max-width: calc(100vw - 24px) !important;
-    bottom: 48px !important;
-  }
+  /* .floating-inspector-card mobile positioning is handled by the 640px block below
+     to avoid conflicting !important rules across breakpoints. */
 }
 
 @media (max-width: 480px) {
-  .sidebar-nav-btn {
-    width: 44px;
-    height: 44px;
-  }
-
   .active-layers-title-row h3 {
     font-size: 12px;
   }
@@ -4456,6 +4446,8 @@ html, body, #app {
   flex-direction: column;
   gap: 8px;
   pointer-events: none;
+  /* Prevent overflow on very wide toasts */
+  max-width: calc(100vw - 40px);
 }
 
 .toast-item {
@@ -4474,7 +4466,7 @@ html, body, #app {
   opacity: 0;
   transform: translateX(30px) scale(0.96);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  max-width: 380px;
+  max-width: min(380px, calc(100vw - 40px));
 }
 
 .toast-item.toast-visible {
@@ -7559,6 +7551,11 @@ html, body, #app {
   height: 100dvh;
 }
 
+/* Mobile sidebar backdrop overlay */
+.mobile-sidebar-backdrop {
+  display: none;
+}
+
 @media (max-width: 1024px) {
   .header-actions .header-action-btn:not(#btn-toggle-globe) {
     display: none !important;
@@ -7570,6 +7567,43 @@ html, body, #app {
 }
 
 @media (max-width: 768px) {
+  .mobile-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    top: 52px;
+    left: 0;
+    right: 0;
+    bottom: var(--footer-height);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 75;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .mobile-sidebar-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .search-cmd-pill {
+    padding: 6px 8px;
+    min-height: 36px;
+    min-width: 36px;
+  }
+
+  .search-cmd-pill kbd {
+    display: none;
+  }
+
+  .search-cmd-pill::after {
+    content: "âŒ˜";
+    font-size: 13px;
+    color: #94a3b8;
+  }
+
   .dock-btn {
     min-height: 44px;
     min-width: 44px;
@@ -7747,7 +7781,8 @@ html, body, #app {
   }
 
   .dock-btn {
-    min-height: 38px;
+    min-height: 42px;
+    min-width: 42px;
     padding: 4px 8px;
   }
 
@@ -7794,3 +7829,27 @@ html, body, #app {
 }
 
 
+/* ==========================================================================
+   Globe Button Active State on Mobile (Icon-only, needs visual indicator)
+   ========================================================================== */
+@media (max-width: 640px) {
+  /* When globe mode is active, show a cyan ring on the icon-only button */
+  #btn-toggle-globe.active {
+    box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.7), 0 0 10px rgba(0, 240, 255, 0.35);
+    border-color: rgba(0, 240, 255, 0.5);
+    color: #00f0ff;
+    background: rgba(0, 240, 255, 0.12);
+  }
+
+  /* Hide PITCH and BEARING on mobile — they're cut off in the invisible scroll.
+     LAT / LNG / ZOOM are sufficient for mobile usage. */
+  #stat-pitch,
+  #stat-bearing {
+    display: none;
+  }
+  /* Also hide the parent .status-item wrapper elements for those values */
+  .status-item:has(#stat-pitch),
+  .status-item:has(#stat-bearing) {
+    display: none;
+  }
+}

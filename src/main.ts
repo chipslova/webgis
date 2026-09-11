@@ -324,32 +324,31 @@ class WebGISApp {
         duration: 1500
       });
 
-      // 2. Clear active Piksel EO product and grid
-      this.pikselLoader?.setActiveProduct(null);
-      this.pikselLoader?.setGridVisible(false);
-      this.pikselPanelUI?.syncUIStates();
+      // 2. Reset projection to 2D Mercator
+      this.mapManager.setProjection('mercator');
+      const globeBtn = document.getElementById('btn-toggle-globe');
+      const globeLabel = document.getElementById('globe-btn-label');
+      if (globeBtn) globeBtn.classList.remove('active');
+      if (globeLabel) globeLabel.innerText = 'Mode 3D Bola Dunia';
 
-      // 3. Reset all GEE layers (Rasters and POIs off)
-      this.geeLoader?.clearAllLayers();
-      this.geePanelUI?.init();
+      // 3. Reset basemap to default OSM and opacity to 100%
+      this.mapManager.setBasemap('osm');
+      this.mapManager.setBasemapOpacity(1.0);
+      this.updateActiveBasemapCard();
 
-      // 4. Clear all custom GeoJSON layers & sample cities
-      this.geojsonLoader?.clearAllLayers();
-      this.dataPanelUI?.render();
-
-      // 5. Clear active measurement
+      // 4. Clear active measurement
       this.measureTool?.clear();
       document.getElementById('btn-measure-dist')?.classList.remove('active');
       document.getElementById('btn-measure-area')?.classList.remove('active');
       const measureCard = document.getElementById('measure-result-card');
       if (measureCard) measureCard.style.display = 'none';
 
-      // 6. Hide feature inspector & point inspector
+      // 5. Hide feature inspector & point inspector
       const inspector = document.getElementById('feature-inspector');
       if (inspector) inspector.style.display = 'none';
       this.pointInspector?.clear();
 
-      // 7. Reset Basemap Customizer (3D terrain & overlays off, all sublayers on)
+      // 6. Reset Basemap Customizer (3D terrain & overlays off, all sublayers on)
       if (this.basemapCustomizer) {
         this.basemapCustomizer.toggle3DTerrain(false);
         this.basemapCustomizer.toggleTerrainHillshade(false);
@@ -358,12 +357,14 @@ class WebGISApp {
         this.basemapCustomizerUI?.syncUI();
       }
 
-      // 8. Deactivate Swipe Comparison Mode if active
+      // 7. Deactivate Swipe Comparison Mode if active
       this.swipeCompareManager?.deactivate();
 
-      // 9. Refresh Active Layers UI & Legend
+      // 8. Refresh Active Layers UI & Legend
       this.activeLayersUI?.render();
       this.dynamicLegendUI?.render();
+
+      showToast('Tampilan peta direset ke tampilan default', 'info');
     });
   }
 

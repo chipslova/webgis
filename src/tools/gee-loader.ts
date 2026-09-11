@@ -16,7 +16,7 @@ export class GEELoader {
   private dataLoadPromise: Promise<void> | null = null;
 
   // Active layers in workspace
-  private activeLayers: Set<string> = new Set(['poi']);
+  private activeLayers: Set<string> = new Set<string>();
   // Visibility states (whether layer is hidden/shown on map)
   private layerVisibilities: Map<string, boolean> = new Map([
     ['poi', true],

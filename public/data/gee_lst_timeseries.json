@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "dataset": "MODIS/061/MOD11A1 (LST Day 1km)",
+    "dataset": "MODIS/061/MOD11A2 (LST 8-Day 1km)",
     "period": "2020-01-01 to 2026-05-01",
     "urban_point": {
       "lat": -6.1754,
