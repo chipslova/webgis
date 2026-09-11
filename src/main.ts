@@ -69,7 +69,6 @@ class WebGISApp {
   }
 
   private bindGlobalEvents() {
-    this.bindThemeEvents();
     this.bindProjectionEvents();
     this.bindResetMapEvents();
     this.bindMeasureEvents();
