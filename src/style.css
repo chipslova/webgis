@@ -6190,11 +6190,109 @@ kbd {
 }
 
 /* 6. Terrain Popover & Opacity Controls */
-.basemap-opacity-control,
+.basemap-opacity-control {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .terrain-section {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+}
+
+.slider-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.slider-min-label,
+.slider-max-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+  min-width: 26px;
+  text-align: center;
+  user-select: none;
+}
+
+/* Custom Range Input Track & Thumb */
+.slider-container input[type="range"],
+.basemap-opacity-control input[type="range"],
+.terrain-section input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.slider-container input[type="range"]:hover,
+.basemap-opacity-control input[type="range"]:hover,
+.terrain-section input[type="range"]:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.slider-container input[type="range"]::-webkit-slider-thumb,
+.basemap-opacity-control input[type="range"]::-webkit-slider-thumb,
+.terrain-section input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #00f0ff;
+  border: 2px solid #090e1a;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.slider-container input[type="range"]::-webkit-slider-thumb:hover,
+.basemap-opacity-control input[type="range"]::-webkit-slider-thumb:hover,
+.terrain-section input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 16px #00f0ff;
+}
+
+.slider-container input[type="range"]::-moz-range-thumb,
+.basemap-opacity-control input[type="range"]::-moz-range-thumb,
+.terrain-section input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #00f0ff;
+  border: 2px solid #090e1a;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+  cursor: pointer;
+}
+
+.slider-container input[type="range"]::-moz-range-track,
+.basemap-opacity-control input[type="range"]::-moz-range-track,
+.terrain-section input[type="range"]::-moz-range-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
 }
 
 .exaggeration-value-badge {
@@ -6207,6 +6305,7 @@ kbd {
   border-radius: 4px;
   font-family: 'JetBrains Mono', monospace;
 }
+
 
 
 
