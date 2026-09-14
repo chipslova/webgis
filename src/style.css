@@ -5222,28 +5222,31 @@ kbd {
 
 .floating-inspector-card {
   position: fixed;
-  bottom: 46px;
+  top: calc(var(--header-height) + 14px);
   left: calc(var(--sidebar-width) + 16px);
   width: 320px;
-  background: rgba(9, 15, 28, 0.90);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  max-height: calc(100vh - var(--header-height) - var(--footer-height) - 100px);
+  background: rgba(9, 15, 28, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(0, 240, 255, 0.35);
   border-radius: var(--radius-md);
-  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 240, 255, 0.12), 0 0 1px 1px rgba(255, 255, 255, 0.05);
-  z-index: 40;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.75), 0 0 20px rgba(0, 240, 255, 0.15), 0 0 1px 1px rgba(255, 255, 255, 0.06);
+  z-index: 42;
   display: none;
-  animation: slideUpInsp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slideDownInsp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
+  transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .floating-inspector-card.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
-@keyframes slideUpInsp {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes slideDownInsp {
+  from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .insp-header {
@@ -7983,9 +7986,10 @@ html, body, #app {
   /* Mobile Bottom Sheet Card for Point & Feature Inspection */
   .floating-inspector-card {
     position: fixed !important;
+    top: auto !important;
     left: 8px !important;
     right: 8px !important;
-    bottom: calc(var(--footer-height) + 12px) !important;
+    bottom: calc(var(--footer-height) + 60px) !important;
     width: auto !important;
     max-width: calc(100vw - 16px) !important;
     max-height: 48dvh !important;
