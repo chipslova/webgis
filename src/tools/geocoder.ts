@@ -181,7 +181,10 @@ export class GeocoderTool {
       .setLngLat([lon, lat])
       .setPopup(
         new maplibregl.Popup({ offset: 25 }).setHTML(
-          `<div style="font-weight: 600; font-size: 13px; color: var(--text-main, #f1f5f9); background: var(--bg-surface, #1e293b); padding: 4px 6px; border-radius: 4px;">${result.display_name}</div>`
+          `<div class="gee-popup-card">
+            <h4>📍 Lokasi Terpilih</h4>
+            <p style="font-size: 12px; color: #cbd5e1; line-height: 1.4;">${result.display_name}</p>
+          </div>`
         )
       )
       .addTo(this.map);

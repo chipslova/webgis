@@ -321,12 +321,12 @@ export class GeoJsonLoader {
         this.map.off('click', lid, (this as any)[`_popupClick_${lid}`]);
         const clickHandler = (e: any) => {
           if (!e.features || e.features.length === 0) return;
-          const props = e.features[0].properties;
-          let content = `<div style="padding: 6px 10px; font-family: sans-serif;">`;
-          content += `<h4 style="margin: 0 0 6px 0; color: #0f172a; font-weight: 700; font-size: 14px;">📍 ${props.name || 'Feature'}</h4>`;
-          content += `<table style="width: 100%; border-collapse: collapse; font-size: 12px; color: #334155;">`;
+          const props = e.features[0].properties || {};
+          let content = `<div class="gee-popup-card">`;
+          content += `<h4>📍 ${props.name || props.title || 'Fitur Geospasial'}</h4>`;
+          content += `<table class="gee-popup-table">`;
           for (const [k, v] of Object.entries(props)) {
-            content += `<tr><td style="padding: 2px 4px; font-weight: 600; color: #64748b;">${k}:</td><td style="padding: 2px 4px; font-weight: 500;">${v}</td></tr>`;
+            content += `<tr><td>${k}</td><td><strong>${v}</strong></td></tr>`;
           }
           content += `</table></div>`;
           popup.setLngLat(e.lngLat).setHTML(content).addTo(this.map);

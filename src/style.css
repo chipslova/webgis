@@ -1135,47 +1135,171 @@ html, body, #app {
   gap: 6px;
 }
 
-/* Map Popups */
-.gee-popup-card {
-  padding: 4px;
+/* ==========================================================================
+   MapLibre GL Popup (Modern Dark Glassmorphism & Accessible Close Button)
+   ========================================================================== */
+.maplibregl-popup {
+  z-index: 50;
+  max-width: 340px !important;
   font-family: var(--font-family);
-  color: #0f172a;
+}
+
+.maplibregl-popup-anchor-top .maplibregl-popup-tip {
+  border-bottom-color: rgba(11, 17, 32, 0.95) !important;
+}
+.maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
+  border-top-color: rgba(11, 17, 32, 0.95) !important;
+}
+.maplibregl-popup-anchor-left .maplibregl-popup-tip {
+  border-right-color: rgba(11, 17, 32, 0.95) !important;
+}
+.maplibregl-popup-anchor-right .maplibregl-popup-tip {
+  border-left-color: rgba(11, 17, 32, 0.95) !important;
+}
+.maplibregl-popup-anchor-top-left .maplibregl-popup-tip {
+  border-bottom-color: rgba(11, 17, 32, 0.95) !important;
+}
+.maplibregl-popup-anchor-top-right .maplibregl-popup-tip {
+  border-bottom-color: rgba(11, 17, 32, 0.95) !important;
+}
+.maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip {
+  border-top-color: rgba(11, 17, 32, 0.95) !important;
+}
+.maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip {
+  border-top-color: rgba(11, 17, 32, 0.95) !important;
+}
+
+.maplibregl-popup-content {
+  background: rgba(11, 17, 32, 0.94) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(0, 240, 255, 0.35) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 14px 16px !important;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.75), 0 0 20px rgba(0, 240, 255, 0.15), 0 0 1px 1px rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-main) !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+}
+
+/* Modern Accessible Round Close Button */
+.maplibregl-popup-close-button {
+  position: absolute !important;
+  top: 10px !important;
+  right: 10px !important;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  min-height: 26px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 50% !important;
+  color: #94a3b8 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  outline: none !important;
+  z-index: 10 !important;
+}
+
+.maplibregl-popup-close-button:hover {
+  background: rgba(239, 68, 68, 0.25) !important;
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  color: #f87171 !important;
+  transform: scale(1.1) !important;
+}
+
+.maplibregl-popup-close-button:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent-cyan) !important;
+}
+
+/* GEE & General Popup Cards */
+.gee-popup-card {
+  padding: 0;
+  font-family: var(--font-family);
+  color: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .gee-popup-badge {
-  display: inline-block;
-  font-size: 9px;
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  font-size: 9.5px;
   font-weight: 700;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
-  padding: 2px 6px;
-  border-radius: 3px;
-  color: #fff;
-  margin-bottom: 4px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  color: #ffffff;
+  font-family: 'JetBrains Mono', monospace;
 }
 
-.gee-popup-badge.urban_poi { background: #dc2626; }
-.gee-popup-badge.rural_poi { background: #16a34a; }
+.gee-popup-badge.urban_poi {
+  background: rgba(239, 68, 68, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  color: #fca5a5;
+}
+.gee-popup-badge.rural_poi {
+  background: rgba(16, 185, 129, 0.25);
+  border: 1px solid rgba(16, 185, 129, 0.6);
+  color: #6ee7b7;
+}
 
 .gee-popup-card h4 {
-  font-size: 13px;
-  margin: 0 0 6px 0;
-  color: #0f172a;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin: 0;
+  padding-right: 28px;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.gee-popup-card p {
+  font-size: 12px;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.4;
 }
 
 .gee-popup-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 11px;
+  font-size: 11.5px;
+  margin-top: 4px;
+}
+
+.gee-popup-table tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gee-popup-table tr:last-child {
+  border-bottom: none;
 }
 
 .gee-popup-table td {
-  padding: 2px 4px;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 5px 4px;
+  color: #cbd5e1;
+}
+
+.gee-popup-table td:first-child {
+  color: #94a3b8;
+  font-weight: 600;
+  width: 45%;
 }
 
 .highlight-temp {
-  color: #dc2626;
+  color: #00f0ff;
   font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 /* ==========================================================================
