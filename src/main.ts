@@ -431,6 +431,18 @@ class WebGISApp {
       }
     });
 
+    const exportKmlBtn = document.getElementById('btn-measure-download-kml');
+    exportKmlBtn?.addEventListener('click', () => {
+      if (!this.measureTool || !this.measureTool.hasActiveMeasurement()) {
+        showToast('Tidak ada geometri pengukuran untuk diunduh.', 'warning');
+        return;
+      }
+      const ok = this.measureTool.exportKML();
+      if (ok) {
+        showToast('Geometri pengukuran berhasil diunduh sebagai KML!', 'success');
+      }
+    });
+
     clearBtn?.addEventListener('click', () => {
       this.measureTool?.clear();
       distBtn?.classList.remove('active');

@@ -464,5 +464,25 @@ export class GeoJsonLoader {
       return false;
     }
   }
+
+  /**
+   * Exports a loaded vector layer as a downloadable KML file
+   */
+  public exportLayerKML(layerId: string): boolean {
+    const item = this.customLayers.get(layerId);
+    if (!item || !item.data) return false;
+
+    try {
+      import('../utils/kml-exporter').then(({ geoJsonToKml, downloadKml }) => {
+        const kmlString = geoJsonToKml(item.data, item.name || 'Custom Layer');
+        const safeName = (item.name || 'custom-layer').toLowerCase().replace(/[^a-z0-9]/g, '_');
+        downloadKml(kmlString, `${safeName}-${Date.now()}.kml`);
+      });
+      return true;
+    } catch (err) {
+      logger.error('Failed to export layer KML:', err);
+      return false;
+    }
+  }
 }
 

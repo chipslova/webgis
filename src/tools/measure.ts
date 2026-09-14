@@ -359,5 +359,21 @@ export class MeasureTool {
     URL.revokeObjectURL(url);
     return true;
   }
+
+  public exportKML() {
+    if (!this.geojson || this.geojson.features.length === 0) {
+      return false;
+    }
+
+    try {
+      import('../utils/kml-exporter').then(({ geoJsonToKml, downloadKml }) => {
+        const kmlString = geoJsonToKml(this.geojson, `Pengukuran ${this.mode || 'Geodesik'}`);
+        downloadKml(kmlString, `pengukuran-${this.mode || 'geodesik'}-${Date.now()}.kml`);
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }
 

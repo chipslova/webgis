@@ -518,10 +518,16 @@
                 <button id="btn-measure-finish" class="btn btn-secondary btn-sm full-width" style="margin-top: 8px;" aria-label="Selesaikan pengukuran saat ini">
                   ✓ Selesai Mengukur
                 </button>
-                <button id="btn-measure-download-geojson" class="btn btn-outline btn-sm full-width" style="margin-top: 6px; gap: 6px; justify-content: center;" aria-label="Unduh geometri hasil ukur sebagai file GeoJSON">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                  <span>Unduh GeoJSON Hasil Ukur</span>
-                </button>
+                <div style="display: flex; gap: 6px; margin-top: 6px;">
+                  <button id="btn-measure-download-geojson" class="btn btn-outline btn-sm" style="flex: 1; gap: 4px; justify-content: center; font-size: 11px; padding: 6px;" aria-label="Unduh geometri hasil ukur sebagai file GeoJSON">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                    <span>.GeoJSON</span>
+                  </button>
+                  <button id="btn-measure-download-kml" class="btn btn-outline btn-sm" style="flex: 1; gap: 4px; justify-content: center; font-size: 11px; padding: 6px;" aria-label="Unduh geometri hasil ukur sebagai file KML untuk Google Earth dan ArcGIS">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+                    <span>.KML (Earth)</span>
+                  </button>
+                </div>
               </div>
             </section>
 
