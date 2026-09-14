@@ -278,14 +278,15 @@ export class PointInspector {
         if (entries.length > 0) {
           const summary = entries
             .slice(0, 3)
-            .map(([k, v]) => `<span style="color:#00f0ff;">${k}:</span> ${v}`)
+            .map(([k, v]) => `<span style="color:#00f0ff;">${escapeHtml(k)}:</span> ${escapeHtml(String(v))}`)
             .join(' · ');
           if (rasterStatusEl) {
             rasterStatusEl.innerHTML = `<strong>Data Piksel:</strong> ${summary}`;
             rasterStatusEl.style.color = '#00f0ff';
           }
         } else {
-          const val = props.value ?? props.gray_index ?? props.band_1 ?? 'Data terdeteksi';
+          const rawVal = props.value ?? props.gray_index ?? props.band_1 ?? 'Data terdeteksi';
+          const val = escapeHtml(String(rawVal));
           if (rasterStatusEl) {
             rasterStatusEl.innerHTML = `<strong style="color: #00f0ff;">Piksel Terdeteksi: ${val}</strong> (GetFeatureInfo)`;
             rasterStatusEl.style.color = '#00f0ff';

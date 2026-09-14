@@ -5,7 +5,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-webgis--lulu--6ab7.vercel.app-00f0ff?style=for-the-badge&logo=vercel)](https://webgis-lulu-6ab7.vercel.app/)
 [![CI](https://img.shields.io/badge/CI-Passing-10b981?style=for-the-badge&logo=githubactions)](https://github.com/chipslova/webgis/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v5-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
+[![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.3.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
 [![Vitest](https://img.shields.io/badge/Vitest-79%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
@@ -113,7 +113,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 | **Spectral Indices (NDVI/NDWI)** | Open Data Cube | 10 meters | Annual Composites | OGC WMS 1.3.0 |
 | **Landsat 9 Analysis** | USGS / NASA | 30 meters | 2021 – 2026 | OGC WMS 1.3.0 |
 | **Flood Hazard Models** | BIG Hidrologi | 10 meters | Priority Study Areas | OGC WMS 1.3.0 |
-| **MODIS Daytime LST** | NASA LP DAAC / GEE | 1,000 meters | 2020 – 2026 (Baseline & Time-Series) | GeoJSON (Lazy Fetch) |
+| **MODIS Daytime LST** | Model Analisis Sintetis (Metode GEE) | 1,000 meters | 2020 – 2026 (Baseline & Time-Series) | GeoJSON (Lazy Fetch) |
 | **SRTM Digital Elevation** | USGS / NASA | 30 meters | Static DEM Grid | GeoJSON (Lazy Fetch) |
 | **MCD12Q1 Land Cover** | NASA LP DAAC | 500 meters | Static Classification | GeoJSON (Lazy Fetch) |
 | **3D Terrarium DEM** | Mapzen / AWS Open Data | Global DEM | Continuous | Raster DEM TileJSON |
@@ -127,10 +127,10 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 ## 💻 Tech Stack
 
 * **Language**: TypeScript 5.x
-* **Mapping Engine**: [MapLibre GL JS](https://maplibre.org/)
+* **Mapping Engine**: [MapLibre GL JS](https://maplibre.org/) (v6.3.0)
 * **Spatial Calculations**: [@turf/turf](https://turfjs.org/)
 * **Raster / Vector Protocols**: OGC WMS 1.3.0, PMTiles, GeoJSON, TileJSON
-* **Testing Framework**: [Vitest](https://vitest.dev/) (73 unit, integration & E2E tests — 100% passing)
+* **Testing Framework**: [Vitest](https://vitest.dev/) (79 unit, integration & E2E tests — 100% passing)
 * **Build Tool**: [Vite 6](https://vitejs.dev/)
 * **Package Manager / Runtime**: [Bun](https://bun.sh/)
 

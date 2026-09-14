@@ -15,6 +15,7 @@ import { PermalinkManager } from './tools/permalink';
 import { PointInspector } from './tools/point-inspector';
 import { BasemapCustomizer } from './tools/basemap-customizer';
 import { BasemapCustomizerUI } from './ui/basemap-customizer-panel';
+import { DEFAULT_BASEMAP_ID } from './config/basemaps';
 import { MapExporter } from './tools/map-exporter';
 import { DataPanelUI } from './ui/data-panel';
 import { DynamicLegendUI } from './ui/dynamic-legend';
@@ -335,8 +336,8 @@ class WebGISApp {
       if (globeBtn) globeBtn.classList.remove('active');
       if (globeLabel) globeLabel.innerText = 'Mode 3D Bola Dunia';
 
-      // 3. Reset basemap to default OSM and opacity to 100%
-      this.mapManager.setBasemap('osm');
+      // 3. Reset basemap to default Esri Imagery and opacity to 100%
+      this.mapManager.setBasemap(DEFAULT_BASEMAP_ID);
       this.mapManager.setBasemapOpacity(1.0);
       this.updateActiveBasemapCard();
 
