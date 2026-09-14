@@ -2,6 +2,7 @@ import * as maplibregl from 'maplibre-gl';
 import { logger } from '../utils/logger';
 import { ErrorHandler } from '../utils/error-handler';
 import { parseKMLToGeoJSON } from '../utils/kml-parser';
+import { parseCSVToGeoJSON } from '../utils/csv-parser';
 import { SpatialBufferAnalyzer } from './spatial-buffer';
 
 export interface CustomLayerItem {
@@ -492,23 +493,32 @@ export class GeoJsonLoader {
   }
 
   /**
-   * Loads a vector layer from string content (supports GeoJSON and OGC KML 2.2)
+   * Loads a vector layer from string content (supports GeoJSON, OGC KML 2.2, and Spatial CSV/TSV)
    */
   public loadFromFileText(
     fileName: string,
     content: string,
     color?: string
-  ): { success: boolean; layerId?: string; error?: string; featureCount?: number } {
+  ): { success: boolean; layerId?: string; error?: string; featureCount?: number; detectedColumns?: any } {
     const isKML = fileName.toLowerCase().endsWith('.kml') || content.trim().startsWith('<?xml') || content.includes('<kml');
+    const isCSV = fileName.toLowerCase().endsWith('.csv') || fileName.toLowerCase().endsWith('.tsv') || fileName.toLowerCase().endsWith('.txt');
     const layerName = fileName.replace(/\.[^/.]+$/, '').trim() || 'Layer Spasial';
     const layerId = `layer-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     const layerColor = color || '#3b82f6';
 
     try {
       let geojson: GeoJSON.FeatureCollection;
+      let detectedCols: any = undefined;
 
       if (isKML) {
         geojson = parseKMLToGeoJSON(content);
+      } else if (isCSV) {
+        const csvRes = parseCSVToGeoJSON(content);
+        if (!csvRes.success || !csvRes.data) {
+          return { success: false, error: csvRes.error || 'Gagal memproses file CSV' };
+        }
+        geojson = csvRes.data;
+        detectedCols = csvRes.detectedColumns;
       } else {
         geojson = JSON.parse(content);
       }
@@ -522,7 +532,8 @@ export class GeoJsonLoader {
       return {
         success: true,
         layerId,
-        featureCount: item?.featureCount || 0
+        featureCount: item?.featureCount || 0,
+        detectedColumns: detectedCols
       };
     } catch (err: any) {
       logger.error('[GeoJsonLoader] Error parsing file content:', err);

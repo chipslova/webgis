@@ -271,7 +271,8 @@ export class DataPanelUI {
           this.render();
           this.sidebarUI.setActiveTab('data');
           this.onLayerChange();
-          showToast(`Layer "${file.name}" (${result.featureCount} objek) berhasil ditambahkan!`, 'success');
+          const colInfo = result.detectedColumns ? ` [${result.detectedColumns.lat}, ${result.detectedColumns.lon}]` : '';
+          showToast(`Layer "${file.name}" (${result.featureCount} objek${colInfo}) berhasil ditambahkan!`, 'success');
         } else {
           showToast(result.error || `Gagal menambahkan layer "${file.name}".`, 'error', 5000);
         }
