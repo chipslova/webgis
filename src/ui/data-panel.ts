@@ -45,28 +45,43 @@ export class DataPanelUI {
       const item = document.createElement('div');
       item.className = 'layer-item';
       const safeName = escapeHtml(layer.name);
+      const layerTypeLabel = layer.type ? layer.type.toUpperCase() : 'VEKTOR';
+
       item.innerHTML = `
-        <div class="layer-left" style="cursor: pointer;" title="Klik untuk menuju ke lokasi layer">
-          <input type="checkbox" id="check-${layer.id}" ${layer.visible ? 'checked' : ''} />
-          <span class="legend-symbol" style="background-color: ${layer.color};"></span>
-          <span class="layer-title">${safeName} (${layer.featureCount})</span>
+        <div class="layer-card-main">
+          <div class="layer-card-left">
+            <input type="checkbox" id="check-${layer.id}" class="layer-checkbox" ${layer.visible ? 'checked' : ''} aria-label="Tampilkan layer ${safeName}" />
+            <span class="legend-symbol" style="background-color: ${layer.color};"></span>
+            <div class="layer-title-group" style="cursor: pointer;" title="Klik untuk menuju ke lokasi layer">
+              <span class="layer-title">${safeName}</span>
+              <span class="layer-meta">${layer.featureCount} Fitur · ${layerTypeLabel}</span>
+            </div>
+          </div>
+          <div class="layer-top-actions">
+            <button class="icon-btn-sm btn-zoom-layer" data-id="${layer.id}" title="Pusatkan peta ke layer" aria-label="Pusatkan peta ke ${safeName}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </button>
+            <button class="icon-btn-sm btn-delete-layer" data-id="${layer.id}" title="Hapus layer" aria-label="Hapus layer ${safeName}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </button>
+          </div>
         </div>
-        <div class="layer-actions" style="display: flex; gap: 4px; align-items: center;">
-          <button class="icon-btn-sm btn-open-table" data-id="${layer.id}" title="Buka Tabel Atribut Spasial layer ini">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+
+        <div class="layer-card-toolbar">
+          <button class="btn-layer-pill btn-open-table" data-id="${layer.id}" title="Buka Tabel Atribut Spasial layer ${safeName}">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+            <span>Tabel Atribut</span>
           </button>
-          <button class="icon-btn-sm btn-zoom-layer" data-id="${layer.id}" title="Pusatkan peta ke layer">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          </button>
-          <button class="icon-btn-sm btn-export-layer" data-id="${layer.id}" title="Unduh layer sebagai GeoJSON">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          </button>
-          <button class="icon-btn-sm btn-export-kml" data-id="${layer.id}" title="Unduh layer sebagai KML (Google Earth / ArcGIS)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
-          </button>
-          <button class="icon-btn-sm btn-delete-layer" data-id="${layer.id}" title="Hapus layer">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-          </button>
+          <div class="layer-export-btns">
+            <button class="btn-layer-pill-ghost btn-export-layer" data-id="${layer.id}" title="Unduh layer sebagai GeoJSON">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>GeoJSON</span>
+            </button>
+            <button class="btn-layer-pill-ghost btn-export-kml" data-id="${layer.id}" title="Unduh layer sebagai KML (Google Earth / ArcGIS)">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/></svg>
+              <span>KML</span>
+            </button>
+          </div>
         </div>
       `;
 
@@ -100,6 +115,14 @@ export class DataPanelUI {
         });
       }
 
+      // Click title group to zoom
+      const titleGroup = item.querySelector<HTMLElement>('.layer-title-group');
+      if (titleGroup) {
+        titleGroup.addEventListener('click', () => {
+          this.geojsonLoader.zoomToLayer(layer.id);
+        });
+      }
+
       // Export layer button
       const exportBtn = item.querySelector<HTMLButtonElement>('.btn-export-layer');
       if (exportBtn) {
@@ -125,14 +148,6 @@ export class DataPanelUI {
           } else {
             showToast(`Gagal mengunduh KML layer "${layer.name}".`, 'error');
           }
-        });
-      }
-
-      // Click title to zoom
-      const titleEl = item.querySelector<HTMLElement>('.layer-title');
-      if (titleEl) {
-        titleEl.addEventListener('click', () => {
-          this.geojsonLoader.zoomToLayer(layer.id);
         });
       }
 
