@@ -440,4 +440,29 @@ export class GeoJsonLoader {
   public getLayers(): CustomLayerItem[] {
     return Array.from(this.customLayers.values());
   }
+
+  /**
+   * Exports a loaded vector layer as a downloadable GeoJSON file
+   */
+  public exportLayerGeoJSON(layerId: string): boolean {
+    const item = this.customLayers.get(layerId);
+    if (!item || !item.data) return false;
+
+    try {
+      const jsonStr = JSON.stringify(item.data, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/geo+json' });
+      const url = URL.createObjectURL(blob);
+      const safeName = (item.name || 'custom-layer').toLowerCase().replace(/[^a-z0-9]/g, '_');
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${safeName}-${Date.now()}.geojson`;
+      link.click();
+      URL.revokeObjectURL(url);
+      return true;
+    } catch (err) {
+      logger.error('Failed to export layer GeoJSON:', err);
+      return false;
+    }
+  }
 }
+

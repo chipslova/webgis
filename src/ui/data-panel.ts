@@ -48,6 +48,9 @@ export class DataPanelUI {
           <button class="icon-btn-sm btn-zoom-layer" data-id="${layer.id}" title="Pusatkan peta ke layer">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           </button>
+          <button class="icon-btn-sm btn-export-layer" data-id="${layer.id}" title="Unduh layer sebagai GeoJSON">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
           <button class="icon-btn-sm btn-delete-layer" data-id="${layer.id}" title="Hapus layer">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
           </button>
@@ -70,6 +73,20 @@ export class DataPanelUI {
         zoomBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           this.geojsonLoader.zoomToLayer(layer.id);
+        });
+      }
+
+      // Export layer button
+      const exportBtn = item.querySelector<HTMLButtonElement>('.btn-export-layer');
+      if (exportBtn) {
+        exportBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const success = this.geojsonLoader.exportLayerGeoJSON(layer.id);
+          if (success) {
+            showToast(`Layer "${layer.name}" berhasil diunduh sebagai GeoJSON!`, 'success');
+          } else {
+            showToast(`Gagal mengunduh layer "${layer.name}".`, 'error');
+          }
         });
       }
 
