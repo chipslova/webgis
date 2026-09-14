@@ -24,6 +24,8 @@ import { GuidedTourUI } from './ui/guided-tour';
 import { SwipeCompareManager } from './tools/swipe-compare';
 import { SwipeCompareUI } from './ui/swipe-compare-ui';
 import { CommandPaletteUI } from './ui/command-palette';
+import { AttributeTableUI } from './ui/attribute-table-panel';
+import { ShortcutsModalUI } from './ui/shortcuts-modal';
 import { ErrorHandler } from './utils/error-handler';
 import { setupUniversalEscapeHandler, announceToScreenReader, closeMenu, toggleMenu } from './utils/a11y';
 import { escapeHtml } from './utils/sanitize';
@@ -52,6 +54,8 @@ class WebGISApp {
   private swipeCompareManager: SwipeCompareManager | null = null;
   private swipeCompareUI: SwipeCompareUI | null = null;
   private commandPaletteUI: CommandPaletteUI | null = null;
+  private attributeTableUI: AttributeTableUI | null = null;
+  private shortcutsModalUI: ShortcutsModalUI | null = null;
   private errorHandler: ErrorHandler;
 
   constructor() {
@@ -82,6 +86,8 @@ class WebGISApp {
     this.bindSavedProjectsEvents();
     this.bindCommandPaletteEvents();
     this.bindHeaderMoreEvents();
+    this.bindGlobalKeyboardShortcuts();
+    this.initServiceWorkerAndOfflineSync();
     this.bindUniversalEscape();
 
     // 3. Connect Telemetry & Unified Point Inspector
@@ -224,6 +230,14 @@ class WebGISApp {
         this.swipeCompareManager,
         this.guidedTourUI
       );
+
+      // Instantiate Attribute Table & Shortcuts Modal
+      this.attributeTableUI = new AttributeTableUI(map, this.geojsonLoader);
+      this.shortcutsModalUI = new ShortcutsModalUI();
+
+      this.dataPanelUI.onOpenAttributeTable((layerId) => this.attributeTableUI?.open(layerId));
+      this.commandPaletteUI.setAttributeTableUI(this.attributeTableUI);
+      this.commandPaletteUI.setShortcutsModalUI(this.shortcutsModalUI);
 
       // Enforce strict layer order and render initial legend
       this.mapManager.enforceLayerOrder();
@@ -653,11 +667,96 @@ class WebGISApp {
     bindItem('more-item-reset', () => document.getElementById('btn-reset-map')?.click());
     bindItem('more-item-import', () => document.getElementById('btn-quick-import')?.click());
     bindItem('more-item-share', () => this.handleShare());
+    bindItem('more-item-attr-table', () => this.attributeTableUI?.open());
+    bindItem('more-item-shortcuts', () => this.shortcutsModalUI?.open());
     bindItem('more-item-export', () => this.handleExport());
+  }
+
+  private bindGlobalKeyboardShortcuts() {
+    window.addEventListener('keydown', (e) => {
+      const activeTag = document.activeElement?.tagName.toLowerCase();
+      if (
+        activeTag === 'input' ||
+        activeTag === 'textarea' ||
+        activeTag === 'select' ||
+        (document.activeElement as HTMLElement)?.isContentEditable
+      ) {
+        return;
+      }
+
+      const key = e.key.toLowerCase();
+      if (key === 'm' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        const distBtn = document.getElementById('btn-measure-dist');
+        distBtn?.click();
+      } else if (key === 'i' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        this.sidebarUI.setActiveTab('map');
+        showToast('Mode Inspeksi Titik aktif: klik pada peta untuk memeriksa nilai piksel & koordinat', 'info');
+      } else if (key === 's' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        const dockSwipe = document.getElementById('btn-dock-swipe');
+        dockSwipe?.click();
+      } else if (key === 't' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        this.attributeTableUI?.toggle();
+      } else if (key === 'b' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        this.sidebarUI.setActiveTab('map');
+      } else if (key === 'l' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        this.sidebarUI.setActiveTab('data');
+      } else if (key === 'p' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        this.sidebarUI.setActiveTab('gee');
+      }
+    });
+  }
+
+  private initServiceWorkerAndOfflineSync() {
+    // 1. Offline banner network listener
+    const updateOfflineBanner = (online: boolean) => {
+      const banner = document.getElementById('offline-banner');
+      if (banner) {
+        banner.style.display = online ? 'none' : 'flex';
+      }
+    };
+
+    updateOfflineBanner(navigator.onLine);
+    this.errorHandler.onNetworkChange((online) => {
+      updateOfflineBanner(online);
+      if (online) {
+        showToast('Koneksi internet kembali pulih', 'success');
+      } else {
+        showToast('Mode offline aktif — koneksi terputus', 'warning');
+      }
+    });
+
+    // 2. Service Worker registration for offline shell caching
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker
+          .register('/sw.js')
+          .then((reg) => {
+            logger.info('[ServiceWorker] Berhasil terdaftar dengan scope:', reg.scope);
+          })
+          .catch((err) => {
+            logger.warn('[ServiceWorker] Registrasi gagal:', err);
+          });
+      });
+    }
   }
 
   private bindUniversalEscape() {
     setupUniversalEscapeHandler([
+      () => {
+        // 0. Spatial Attribute Table
+        if (this.attributeTableUI?.isVisible()) {
+          this.attributeTableUI.close();
+          return true;
+        }
+        return false;
+      },
       () => {
         // 1. Command Palette
         if (this.commandPaletteUI?.isPaletteOpen()) {

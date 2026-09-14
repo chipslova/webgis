@@ -28,6 +28,8 @@ export class CommandPaletteUI {
   private sidebarUI: SidebarUI;
   private swipeCompareManager: SwipeCompareManager | null;
   private guidedTourUI: GuidedTourUI | null;
+  private attributeTableUI: any = null;
+  private shortcutsModalUI: any = null;
 
   private isOpen: boolean = false;
   private selectedIndex: number = 0;
@@ -53,6 +55,14 @@ export class CommandPaletteUI {
     this.guidedTourUI = guidedTourUI;
 
     this.bindGlobalShortcuts();
+  }
+
+  public setAttributeTableUI(ui: any) {
+    this.attributeTableUI = ui;
+  }
+
+  public setShortcutsModalUI(ui: any) {
+    this.shortcutsModalUI = ui;
   }
 
   public open() {
@@ -245,6 +255,36 @@ export class CommandPaletteUI {
           this.sidebarUI.setActiveTab('measure');
           this.measureTool?.setMode('area');
           showToast('Klik pada peta untuk membuat poligon pengukuran luas', 'info');
+        }
+      },
+      {
+        id: 'tool-attr-table',
+        category: 'tools',
+        categoryLabel: '⚡ Fitur & Analisis',
+        title: 'Buka Tabel Atribut Spasial (Attribute Table)',
+        subtitle: 'Inspeksi tabular data layer vektor, filter kolom, dan zoom ke fitur',
+        icon: '📊',
+        keywords: ['tabel', 'atribut', 'attribute', 'table', 'data', 'csv', 'fitur', 'rows'],
+        action: () => {
+          if (this.attributeTableUI) {
+            this.attributeTableUI.open();
+          } else {
+            showToast('Tabel Atribut Spasial belum siap', 'info');
+          }
+        }
+      },
+      {
+        id: 'tool-shortcuts-help',
+        category: 'tools',
+        categoryLabel: '⚡ Fitur & Analisis',
+        title: 'Buku Pintar Pintasan Keyboard (Shortcuts ?)',
+        subtitle: 'Lihat daftar tombol pintas navigasi dan alat geospasial',
+        icon: '⌨️',
+        keywords: ['shortcut', 'shortcuts', 'keyboard', 'hotkey', 'bantuan', 'help', 'cheat'],
+        action: () => {
+          if (this.shortcutsModalUI) {
+            this.shortcutsModalUI.open();
+          }
         }
       },
       {

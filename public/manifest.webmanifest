@@ -1,0 +1,24 @@
+{
+  "name": "Digital Earth Indonesia WebGIS",
+  "short_name": "DE Indonesia",
+  "description": "Platform WebGIS Interaktif Citra Satelit Sentinel-2, Landsat 9, NDVI, LST & Geospasial Indonesia",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070b14",
+  "theme_color": "#070b14",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/og-preview.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg"
+    }
+  ],
+  "categories": ["utilities", "productivity", "education"]
+}
