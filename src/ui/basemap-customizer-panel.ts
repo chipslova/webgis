@@ -51,6 +51,14 @@ export class BasemapCustomizerUI {
     this.syncUI();
   }
 
+  public setPikselLoader(loader: PikselLoader) {
+    this.pikselLoader = loader;
+    this.pikselLoader.onLayersChange(() => {
+      this.syncUI();
+    });
+    this.syncUI();
+  }
+
   /**
    * Renders the basemap choices into the floating Basemap Popover gallery
    */

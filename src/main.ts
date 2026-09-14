@@ -110,6 +110,7 @@ class WebGISApp {
       this.geeLoader = new GEELoader(map);
       this.geePanelUI = new GEEPanelUI(this.geeLoader);
       this.pikselLoader = new PikselLoader(map);
+      this.basemapCustomizerUI?.setPikselLoader(this.pikselLoader);
       this.pikselPanelUI = new PikselPanelUI(this.pikselLoader);
       this.mapExporter = new MapExporter(map, this.pikselLoader);
 
