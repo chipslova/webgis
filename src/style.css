@@ -1182,41 +1182,41 @@ html, body, #app {
   box-sizing: border-box !important;
 }
 
-/* Modern Accessible Round Close Button */
+/* Modern Clean Borderless Close Button */
 .maplibregl-popup-close-button {
   position: absolute !important;
-  top: 10px !important;
-  right: 10px !important;
-  width: 26px !important;
-  height: 26px !important;
-  min-width: 26px !important;
-  min-height: 26px !important;
+  top: 8px !important;
+  right: 8px !important;
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   padding: 0 !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  border-radius: 50% !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 4px !important;
   color: #94a3b8 !important;
-  font-size: 14px !important;
-  font-weight: 700 !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
   line-height: 1 !important;
   cursor: pointer !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: all 0.15s ease !important;
   outline: none !important;
   z-index: 10 !important;
 }
 
 .maplibregl-popup-close-button:hover {
-  background: rgba(239, 68, 68, 0.25) !important;
-  border-color: rgba(239, 68, 68, 0.5) !important;
-  color: #f87171 !important;
-  transform: scale(1.1) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: none !important;
+  color: #ef4444 !important;
+  transform: scale(1.15) !important;
 }
 
 .maplibregl-popup-close-button:focus-visible {
-  box-shadow: 0 0 0 2px var(--accent-cyan) !important;
+  color: #00f0ff !important;
 }
 
 /* GEE & General Popup Cards */
