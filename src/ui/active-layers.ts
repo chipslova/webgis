@@ -4,6 +4,7 @@ import { GEELoader } from '../tools/gee-loader';
 import { GeoJsonLoader } from '../tools/geojson-loader';
 import { MeasureTool } from '../tools/measure';
 import { TabId } from './sidebar';
+import { escapeHtml } from '../utils/sanitize';
 
 export class ActiveLayersUI {
   private mapManager: MapManager;
@@ -80,22 +81,25 @@ export class ActiveLayersUI {
     const isExpanded = this.expandedLayerId === params.id;
     const showOpacity = !params.noOpacity && params.isVisible;
 
+    const safeName = escapeHtml(params.name);
+    const safeMeta = escapeHtml(params.meta);
+
     const eyeBtn = params.noEye ? '' : `
-      <button class="al-eye-btn ${params.eyeBtnClass}" data-id="${params.id}" aria-label="${params.isVisible ? 'Sembunyikan layer ' + params.name : 'Tampilkan layer ' + params.name}" title="${params.isVisible ? 'Sembunyikan layer' : 'Tampilkan layer'}">
+      <button class="al-eye-btn ${params.eyeBtnClass}" data-id="${params.id}" aria-label="${params.isVisible ? 'Sembunyikan layer ' + safeName : 'Tampilkan layer ' + safeName}" title="${params.isVisible ? 'Sembunyikan layer' : 'Tampilkan layer'}">
         ${params.isVisible ? this.eyeOnSvg() : this.eyeOffSvg()}
       </button>
     `;
 
     const detailGrid = (params.details || []).map(d => `
-      <span class="al-detail-label">${d.label}</span>
-      <span class="al-detail-val">${d.value}</span>
+      <span class="al-detail-label">${escapeHtml(d.label)}</span>
+      <span class="al-detail-val">${escapeHtml(d.value)}</span>
     `).join('');
 
     const opacitySlider = (params.opacitySliderClass && showOpacity) ? `
       <div class="al-detail-opacity">
         <span class="al-detail-label">Transparansi</span>
         <div class="al-detail-opacity-ctrl">
-          <input type="range" class="active-layer-slider ${params.opacitySliderClass}" data-id="${params.id}" min="0" max="100" value="${params.opacityPct}" aria-label="Transparansi ${params.name}" />
+          <input type="range" class="active-layer-slider ${params.opacitySliderClass}" data-id="${params.id}" min="0" max="100" value="${params.opacityPct}" aria-label="Transparansi ${safeName}" />
           <span class="al-opacity-val slider-pct">${params.opacityPct}%</span>
         </div>
       </div>
@@ -119,17 +123,17 @@ export class ActiveLayersUI {
         <div class="al-row-compact">
           ${eyeBtn}
           <span class="al-color-dot" style="background:${params.color};" aria-hidden="true"></span>
-          <div class="al-row-body" data-expand-id="${params.id}" role="button" tabindex="0" aria-expanded="${isExpanded}" aria-label="Buka detail layer ${params.name}">
-            <span class="al-name">${params.name}</span>
-            <span class="al-meta">${params.meta}</span>
+          <div class="al-row-body" data-expand-id="${params.id}" role="button" tabindex="0" aria-expanded="${isExpanded}" aria-label="Buka detail layer ${safeName}">
+            <span class="al-name">${safeName}</span>
+            <span class="al-meta">${safeMeta}</span>
           </div>
           ${showOpacity ? `<span class="al-opacity-chip" aria-label="Transparansi ${params.opacityPct} persen">${params.opacityPct}%</span>` : ''}
-          <button class="al-remove-btn ${params.removeBtnClass}" data-id="${params.id}" aria-label="Hapus layer ${params.name}" title="Hapus dari layer aktif">
+          <button class="al-remove-btn ${params.removeBtnClass}" data-id="${params.id}" aria-label="Hapus layer ${safeName}" title="Hapus dari layer aktif">
             ${this.removeSvg()}
           </button>
         </div>
         ${isExpanded ? `
-          <div class="al-row-detail" role="region" aria-label="Detail opsi ${params.name}">
+          <div class="al-row-detail" role="region" aria-label="Detail opsi ${safeName}">
             ${detailGrid ? `<div class="al-detail-grid">${detailGrid}</div>` : ''}
             ${legendBlock}
             ${opacitySlider}

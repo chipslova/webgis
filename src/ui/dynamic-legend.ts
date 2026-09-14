@@ -1,6 +1,7 @@
 import { PikselLoader } from '../tools/piksel-loader';
 import { GEELoader } from '../tools/gee-loader';
 import { GeoJsonLoader } from '../tools/geojson-loader';
+import { escapeHtml } from '../utils/sanitize';
 
 export class DynamicLegendUI {
   private container: HTMLElement | null = null;
@@ -189,7 +190,7 @@ export class DynamicLegendUI {
             ${visibleCustomLayers.map((l: any) => `
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: ${l.color};"></span>
-                <span class="dynamic-legend-label">${l.name} (${l.featureCount} fitur)</span>
+                <span class="dynamic-legend-label">${escapeHtml(l.name)} (${l.featureCount} fitur)</span>
               </div>
             `).join('')}
           </div>

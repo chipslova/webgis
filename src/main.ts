@@ -25,6 +25,7 @@ import { SwipeCompareUI } from './ui/swipe-compare-ui';
 import { CommandPaletteUI } from './ui/command-palette';
 import { ErrorHandler } from './utils/error-handler';
 import { setupUniversalEscapeHandler, announceToScreenReader, closeMenu, toggleMenu } from './utils/a11y';
+import { escapeHtml } from './utils/sanitize';
 import { logger } from './utils/logger';
 
 class WebGISApp {
@@ -77,6 +78,7 @@ class WebGISApp {
     this.bindLegendEvents();
     this.bindTourEvents();
     this.bindSwipeEvents();
+    this.bindSavedProjectsEvents();
     this.bindCommandPaletteEvents();
     this.bindHeaderMoreEvents();
     this.bindUniversalEscape();
@@ -470,6 +472,77 @@ class WebGISApp {
     } else {
       prompt('Salin tautan peta berikut:', url);
     }
+  }
+
+  private bindSavedProjectsEvents() {
+    const saveBtn = document.getElementById('btn-save-current-project');
+    const nameInput = document.getElementById('input-save-project-name') as HTMLInputElement | null;
+
+    const renderProjects = () => {
+      const container = document.getElementById('saved-projects-list');
+      const countEl = document.getElementById('saved-projects-count');
+      if (!container) return;
+
+      const projects = PermalinkManager.getSavedProjects();
+      if (countEl) countEl.innerText = `${projects.length} Proyek`;
+
+      if (projects.length === 0) {
+        container.innerHTML = `<div style="color: var(--text-muted); font-size: 11px; padding: 6px 0; text-align: center;">Belum ada proyek disimpan.</div>`;
+        return;
+      }
+
+      container.innerHTML = projects.map(p => `
+        <div class="saved-project-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px; padding: 6px 8px;">
+          <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 8px;">
+            <strong style="font-size: 11.5px; color: #f1f5f9; display: block;">${escapeHtml(p.name)}</strong>
+            <span style="font-size: 10px; color: #64748b;">${escapeHtml(p.dateFormatted)}</span>
+          </div>
+          <div style="display: flex; gap: 4px; align-items: center; flex-shrink: 0;">
+            <button class="btn btn-secondary btn-sm btn-load-project" data-id="${p.id}" title="Buka proyek ini" style="font-size: 10.5px; padding: 3px 6px;">Buka</button>
+            <button class="icon-btn-sm btn-del-project" data-id="${p.id}" title="Hapus proyek" style="color: #ef4444;">✕</button>
+          </div>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.btn-load-project').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = (btn as HTMLElement).dataset.id;
+          if (id && this.permalinkManager) {
+            const ok = await this.permalinkManager.loadSavedProject(id);
+            if (ok) showToast('Proyek berhasil dimuat!', 'success');
+          }
+        });
+      });
+
+      container.querySelectorAll('.btn-del-project').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = (btn as HTMLElement).dataset.id;
+          if (id) {
+            PermalinkManager.deleteSavedProject(id);
+            renderProjects();
+            showToast('Proyek dihapus.', 'info');
+          }
+        });
+      });
+    };
+
+    saveBtn?.addEventListener('click', () => {
+      const val = nameInput?.value?.trim();
+      if (!val) {
+        showToast('Masukkan nama proyek terlebih dahulu.', 'warning');
+        return;
+      }
+      if (this.permalinkManager) {
+        const p = this.permalinkManager.saveCurrentAsProject(val);
+        if (p) {
+          if (nameInput) nameInput.value = '';
+          renderProjects();
+          showToast(`Proyek "${val}" berhasil disimpan!`, 'success');
+        }
+      }
+    });
+
+    renderProjects();
   }
 
   private bindExportEvents() {

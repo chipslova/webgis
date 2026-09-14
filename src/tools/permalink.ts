@@ -377,6 +377,74 @@ export class PermalinkManager {
     return `${window.location.origin}${window.location.pathname}#${params.toString()}`;
   }
 
+  public static getSavedProjects(): SavedProject[] {
+    try {
+      if (typeof window === 'undefined' || typeof localStorage === 'undefined') return [];
+      const raw = localStorage.getItem('webgis_saved_projects');
+      if (!raw) return [];
+      return JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+
+  public saveCurrentAsProject(name: string): SavedProject | null {
+    if (!name || !name.trim()) return null;
+    const params = this.buildParams();
+    const hash = `#${params.toString()}`;
+    const project: SavedProject = {
+      id: `proj-${Date.now()}`,
+      name: name.trim(),
+      timestamp: Date.now(),
+      dateFormatted: new Date().toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      hash
+    };
+
+    const existing = PermalinkManager.getSavedProjects();
+    const updated = [project, ...existing.filter(p => p.name.toLowerCase() !== project.name.toLowerCase())].slice(0, 20);
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('webgis_saved_projects', JSON.stringify(updated));
+      }
+    } catch (e) {
+      logger.warn('[PermalinkManager] Failed saving project to localStorage:', e);
+    }
+    return project;
+  }
+
+  public static deleteSavedProject(id: string): boolean {
+    try {
+      if (typeof window === 'undefined' || typeof localStorage === 'undefined') return false;
+      const existing = PermalinkManager.getSavedProjects();
+      const updated = existing.filter(p => p.id !== id);
+      localStorage.setItem('webgis_saved_projects', JSON.stringify(updated));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  public async loadSavedProject(id: string): Promise<boolean> {
+    const projects = PermalinkManager.getSavedProjects();
+    const target = projects.find(p => p.id === id);
+    if (!target) return false;
+    window.location.hash = target.hash;
+    const urlState = PermalinkManager.parseHash(target.hash);
+    await PermalinkManager.applyInitialState(urlState, {
+      mapManager: this.mapManager,
+      pikselLoader: this.pikselLoader,
+      geeLoader: this.geeLoader,
+      basemapCustomizer: this.customizer
+    });
+    return true;
+  }
+
   private updateHash() {
     if (this.isUpdatingHash) return;
 
@@ -394,4 +462,14 @@ export class PermalinkManager {
     }
   }
 }
+
+export interface SavedProject {
+  id: string;
+  name: string;
+  timestamp: number;
+  dateFormatted: string;
+  hash: string;
+  description?: string;
+}
+
 

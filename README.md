@@ -8,7 +8,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v5-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-73%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-79%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
   <img src="docs/preview.jpg" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
@@ -63,7 +63,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 ### 🌡️ 3. Google Earth Engine (GEE) Urban Heat Island Case Study
 * **MODIS Daytime Land Surface Temperature (LST)**: Interpolated continuous thermal gradient ($22^\circ\text{C} \to 34^\circ\text{C}+$) for the Jabodetabek metropolitan region (2020–2026 baseline & time-series snapshot).
 * **Urban vs. Rural Microclimate Analysis**: Comparative study between Jakarta Urban Core (*Monas: 33.85°C, 14m elev*) and West Java Rural Baseline (*Hutan IPB Bogor: 24.60°C, 680m elev*) displaying a **+9.25°C UHI Delta**.
-* **Harmonic Seasonal Time-Series**: Dynamic canvas charts showing annual dry-season temperature peaks and wet-season cooling patterns (2020–2026).
+* **Harmonic Seasonal Time-Series**: Dynamic canvas charts with accessible data tables showing annual dry-season temperature peaks and wet-season cooling patterns (2020–2026).
 * **Topography & Land Cover**: USGS SRTM 30m Elevation contours and MODIS MCD12Q1 Land Cover classification for Jabodetabek.
 
 ### 🗺️ 4. Basemaps & 3D Terrain Customization
@@ -81,20 +81,22 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
   * Rendered vector feature properties (Piksel Tile Grid, POI stations, custom uploaded GeoJSON features).
   * Visualization context notes clarifying the distinction between visual WMS map representations and raw raster values.
 
-### 📐 6. Spatial Measurement & Data Upload
-* **Geodesic Distance**: Real-time multi-point path distance measurement with high-contrast line casing.
-* **Geodesic Area**: Spherical polygon area calculations powered by Turf.js.
+### 📐 6. Spatial Measurement & Data Export
+* **Geodesic Distance & Area**: Spherical geodesic calculations powered by Turf.js.
+* **Vector GeoJSON Export**: Direct `.geojson` download for custom uploaded layers and completed measurement geometries.
 * **Custom GeoJSON Upload**: Drag-and-drop or file selection for points, lines, and polygons with automatic bounding box zoom and layer styling.
 
-### 🔗 7. State Sharing & Layout Export
+### 🔗 7. State Sharing, Saved Projects & Cartographic Export
 * **Stateful Permalink URL**: Automatically synchronizes coordinates, zoom, pitch, bearing, active basemap, Sentinel-2 product/year, and GEE layers directly to the URL hash.
-* **Cartographic PNG Export**: Exports high-resolution PNG map layouts including header title, active dataset name, coordinate metadata, EPSG:3857 reference system, and timestamped attribution.
+* **Saved Projects Persistence**: Save, manage, and restore named project workspaces locally via `localStorage`.
+* **Cartographic PNG Export**: High-resolution map export featuring a dynamic bearing-synchronized **North Arrow**, geodesic **Metric Scale Bar** (meters/km), title banner, coordinate metadata, EPSG:3857 CRS tag, and timestamped attribution.
 
 ---
 
 ## 🏗️ Technical Architecture
 
-* **Bundle Efficiency**: Heavy static GeoJSON datasets are loaded lazily via asynchronous HTTP requests (`/data/*.geojson`), keeping the core minified JavaScript bundle to ~223 KB (~59 KB gzipped) with vendor chunk splitting for MapLibre, Turf.js, and PMTiles for fast initial page load.
+* **XSS Defense-in-Depth**: Strict HTML sanitization on all user-controlled strings (GeoJSON feature properties, filenames, layer labels) combined with strict HTTP Content-Security-Policy headers in `vercel.json`.
+* **Bundle Efficiency**: Heavy static GeoJSON datasets are loaded lazily via asynchronous HTTP requests (`/data/*.geojson`), keeping the core minified JavaScript bundle to ~229 KB (~61 KB gzipped) with vendor chunk splitting for MapLibre, Turf.js, and PMTiles.
 * **Deterministic Layer Stacking**: Centralized `enforceLayerOrder()` maintains visual hierarchy across all basemap switches and layer toggles:
   $$\text{Measurement} \to \text{Custom GeoJSON} \to \text{GEE POI} \to \text{Piksel Grid} \to \text{GEE Rasters} \to \text{Piksel WMS} \to \text{Basemap}$$
 * **Keyboard & Screen Reader Accessible**: Keyboard-accessible controls and screen-reader announcements via aria-live regions, alongside `aria-label`, `role`, `aria-expanded`, and `aria-selected` attributes on interactive controls, drawers, modals, and tab lists.

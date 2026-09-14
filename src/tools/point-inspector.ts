@@ -4,6 +4,7 @@ import { GEELoader } from './gee-loader';
 import { GeoJsonLoader } from './geojson-loader';
 import { MeasureTool } from './measure';
 import { showToast } from '../ui/toast';
+import { escapeHtml } from '../utils/sanitize';
 
 export class PointInspector {
   private map: maplibregl.Map;
@@ -360,8 +361,8 @@ export class PointInspector {
             .slice(0, 4)
             .map(([k, v]) => `
               <div class="insp-row" style="font-size: 11px; padding: 2px 0;">
-                <span class="insp-label" style="color: #64748b;">${k}:</span>
-                <span class="insp-val" style="color: #cbd5e1;">${v}</span>
+                <span class="insp-label" style="color: #64748b;">${escapeHtml(k)}:</span>
+                <span class="insp-val" style="color: #cbd5e1;">${escapeHtml(String(v))}</span>
               </div>
             `).join('');
           vectorPropsSlot.innerHTML = rows;

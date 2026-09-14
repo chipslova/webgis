@@ -1,6 +1,7 @@
 import { GeoJsonLoader } from '../tools/geojson-loader';
 import { SidebarUI } from './sidebar';
 import { showToast } from './toast';
+import { escapeHtml } from '../utils/sanitize';
 
 export class DataPanelUI {
   private geojsonLoader: GeoJsonLoader;
@@ -38,11 +39,12 @@ export class DataPanelUI {
     layers.forEach((layer: any) => {
       const item = document.createElement('div');
       item.className = 'layer-item';
+      const safeName = escapeHtml(layer.name);
       item.innerHTML = `
         <div class="layer-left" style="cursor: pointer;" title="Klik untuk menuju ke lokasi layer">
           <input type="checkbox" id="check-${layer.id}" ${layer.visible ? 'checked' : ''} />
           <span class="legend-symbol" style="background-color: ${layer.color};"></span>
-          <span class="layer-title">${layer.name} (${layer.featureCount})</span>
+          <span class="layer-title">${safeName} (${layer.featureCount})</span>
         </div>
         <div class="layer-actions" style="display: flex; gap: 4px; align-items: center;">
           <button class="icon-btn-sm btn-zoom-layer" data-id="${layer.id}" title="Pusatkan peta ke layer">
