@@ -97,7 +97,100 @@ export class MapExporter {
       ctx.font = `${Math.max(11, Math.round(topBarHeight * 0.24))}px "Plus Jakarta Sans", sans-serif`;
       ctx.fillText(prodText, 20, Math.round(topBarHeight * 0.78));
 
-      // 3. Draw Bottom GIS Metadata Strip
+      // 3. Draw Cartographic North Arrow (Top-Right)
+      const bearing = this.map.getBearing();
+      const naX = w - 50;
+      const naY = topBarHeight + 45;
+      const naSize = 22;
+
+      ctx.save();
+      ctx.translate(naX, naY);
+      ctx.rotate((-bearing * Math.PI) / 180);
+
+      // Draw North Pointer (Cyan)
+      ctx.beginPath();
+      ctx.moveTo(0, -naSize);
+      ctx.lineTo(naSize * 0.4, 0);
+      ctx.lineTo(0, -naSize * 0.2);
+      ctx.closePath();
+      ctx.fillStyle = '#00f0ff';
+      ctx.fill();
+
+      // Draw North Pointer Left Shade (White)
+      ctx.beginPath();
+      ctx.moveTo(0, -naSize);
+      ctx.lineTo(-naSize * 0.4, 0);
+      ctx.lineTo(0, -naSize * 0.2);
+      ctx.closePath();
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+
+      // Draw South Pointer (Dark Slate)
+      ctx.beginPath();
+      ctx.moveTo(0, naSize * 0.8);
+      ctx.lineTo(naSize * 0.35, 0);
+      ctx.lineTo(0, -naSize * 0.2);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(100, 116, 139, 0.8)';
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(0, naSize * 0.8);
+      ctx.lineTo(-naSize * 0.35, 0);
+      ctx.lineTo(0, -naSize * 0.2);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(148, 163, 184, 0.8)';
+      ctx.fill();
+
+      // North 'N' letter
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 11px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('N', 0, -naSize - 4);
+      ctx.restore();
+
+      // 4. Draw Dynamic Cartographic Scale Bar (Bottom-Left above metadata)
+      const center = this.map.getCenter();
+      const zoomNum = this.map.getZoom();
+      const metersPerPixel = (156543.03392 * Math.cos((center.lat * Math.PI) / 180)) / Math.pow(2, zoomNum);
+      const targetPixels = Math.min(180, Math.max(80, Math.round(w * 0.15)));
+      const rawDistance = metersPerPixel * targetPixels;
+
+      // Find round distance threshold
+      const magnitudes = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000];
+      let chosenDistance = magnitudes[0];
+      for (const m of magnitudes) {
+        if (m <= rawDistance) chosenDistance = m;
+        else break;
+      }
+
+      const scaleBarPixels = chosenDistance / metersPerPixel;
+      const sbX = 24;
+      const sbY = h - Math.max(34, Math.round(h * 0.04)) - 28;
+      const distLabel = chosenDistance >= 1000 ? `${chosenDistance / 1000} km` : `${chosenDistance} m`;
+
+      // Background plate for scale bar
+      ctx.fillStyle = 'rgba(9, 14, 27, 0.85)';
+      ctx.fillRect(sbX - 6, sbY - 14, scaleBarPixels + 12, 24);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(sbX - 6, sbY - 14, scaleBarPixels + 12, 24);
+
+      // Alternating scale bar lines
+      ctx.fillStyle = '#00f0ff';
+      ctx.fillRect(sbX, sbY, scaleBarPixels / 2, 4);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(sbX + scaleBarPixels / 2, sbY, scaleBarPixels / 2, 4);
+
+      // Labels
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '9px "JetBrains Mono", monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText('0', sbX, sbY - 4);
+      ctx.textAlign = 'right';
+      ctx.fillText(distLabel, sbX + scaleBarPixels, sbY - 4);
+
+      // 5. Draw Bottom GIS Metadata Strip
       const bottomBarHeight = Math.max(34, Math.round(h * 0.04));
       ctx.fillStyle = 'rgba(9, 14, 27, 0.88)';
       ctx.fillRect(0, h - bottomBarHeight, w, bottomBarHeight);
@@ -106,9 +199,7 @@ export class MapExporter {
       ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
       ctx.fillRect(0, h - bottomBarHeight, w, 1);
 
-      const center = this.map.getCenter();
-      const zoom = this.map.getZoom().toFixed(2);
-      const coordsText = `Lat: ${center.lat.toFixed(4)}°, Lng: ${center.lng.toFixed(4)}° | Zoom: ${zoom} | CRS: EPSG:3857`;
+      const coordsText = `Lat: ${center.lat.toFixed(4)}°, Lng: ${center.lng.toFixed(4)}° | Zoom: ${zoomNum.toFixed(2)} | CRS: EPSG:3857`;
       const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
 
       ctx.fillStyle = '#cbd5e1';

@@ -337,4 +337,27 @@ export class MeasureTool {
   public hasActiveMeasurement(): boolean {
     return this.geojson.features.length > 0 || this.points.length > 0;
   }
+
+  public getGeoJSON(): GeoJSON.FeatureCollection {
+    return this.geojson;
+  }
+
+  public exportGeoJSON() {
+    if (!this.geojson || this.geojson.features.length === 0) {
+      return false;
+    }
+
+    const jsonStr = JSON.stringify(this.geojson, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/geo+json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pengukuran-${this.mode || 'geodesik'}-${Date.now()}.geojson`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    return true;
+  }
 }
+

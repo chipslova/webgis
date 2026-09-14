@@ -416,6 +416,18 @@ class WebGISApp {
       this.measureTool?.finishMeasurement();
     });
 
+    const exportGeoJsonBtn = document.getElementById('btn-measure-download-geojson');
+    exportGeoJsonBtn?.addEventListener('click', () => {
+      if (!this.measureTool || !this.measureTool.hasActiveMeasurement()) {
+        showToast('Tidak ada geometri pengukuran untuk diunduh.', 'warning');
+        return;
+      }
+      const ok = this.measureTool.exportGeoJSON();
+      if (ok) {
+        showToast('Geometri pengukuran berhasil diunduh sebagai GeoJSON!', 'success');
+      }
+    });
+
     clearBtn?.addEventListener('click', () => {
       this.measureTool?.clear();
       distBtn?.classList.remove('active');
