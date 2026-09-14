@@ -6011,45 +6011,60 @@ kbd {
   transform: scale(1);
 }
 
-/* 5. Sublayers Popover Items & iOS Toggles */
+/* 5. Sublayers Popover Items & iOS Toggles (2-Column Grid Layout) */
+.sublayers-popover {
+  min-width: 360px;
+  max-width: 480px;
+}
+
 .sublayers-list {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
+.vector-sublayers-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
 .sublayer-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 8px 10px;
+  gap: 8px;
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 9px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
+  min-width: 0;
 }
 
 .sublayer-item:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(0, 240, 255, 0.3);
+  background: rgba(255, 255, 255, 0.075);
+  border-color: rgba(0, 240, 255, 0.35);
   transform: translateY(-0.5px);
 }
 
 .sublayer-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
+  min-width: 0;
+  flex: 1;
 }
 
 .sublayer-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
   background: rgba(255, 255, 255, 0.04);
   color: #38bdf8;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -6057,15 +6072,18 @@ kbd {
 }
 
 .sublayer-icon svg {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   display: block;
 }
 
 .sublayer-label {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
   color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sublayer-toggle {
@@ -6079,10 +6097,10 @@ kbd {
 .toggle-switch {
   position: relative;
   display: inline-block;
-  width: 36px;
-  height: 20px;
+  width: 30px;
+  height: 17px;
   background-color: rgba(255, 255, 255, 0.16);
-  border-radius: 20px;
+  border-radius: 17px;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   flex-shrink: 0;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -6091,8 +6109,8 @@ kbd {
 .toggle-switch::after {
   content: '';
   position: absolute;
-  height: 14px;
-  width: 14px;
+  height: 11px;
+  width: 11px;
   left: 2px;
   bottom: 2px;
   background-color: #cbd5e1;
@@ -6104,13 +6122,19 @@ kbd {
 .sublayer-toggle:checked + .toggle-switch {
   background-color: #00f0ff;
   border-color: #00f0ff;
-  box-shadow: 0 0 12px rgba(0, 240, 255, 0.45);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.45);
 }
 
 .sublayer-toggle:checked + .toggle-switch::after {
-  transform: translateX(16px);
+  transform: translateX(13px);
   background-color: #070b14;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 400px) {
+  .vector-sublayers-list {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Sublayer Raster Warning Notice */
