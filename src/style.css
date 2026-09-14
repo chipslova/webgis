@@ -5729,36 +5729,47 @@ kbd {
   box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
 }
 
-/* 2. Glass Popover Cards */
+/* 2. Floating Glass Popover Menus (Basemap Gallery, Sublayers, 3D Terrain) */
 .glass-popover {
   position: fixed;
   bottom: calc(var(--footer-height) + 54px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 45;
-  background: rgba(10, 16, 29, 0.94);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: rgba(9, 14, 26, 0.95);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
   border: 1px solid rgba(0, 240, 255, 0.35);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 18px 52px rgba(0, 0, 0, 0.75), 0 0 24px rgba(0, 240, 255, 0.15), 0 0 1px 1px rgba(255, 255, 255, 0.06);
-  min-width: 330px;
-  max-width: 420px;
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 28px rgba(0, 240, 255, 0.15), 0 0 1px 1px rgba(255, 255, 255, 0.08);
+  min-width: 340px;
+  max-width: 440px;
   width: calc(100vw - 32px);
-  max-height: 450px;
+  max-height: 480px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: popoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: popoverFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
 }
 
 .popover-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
+  padding: 11px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.025);
 }
 
 .popover-header {
@@ -5768,49 +5779,412 @@ kbd {
   color: #00f0ff;
   text-transform: uppercase;
   font-family: 'JetBrains Mono', monospace;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .popover-close-btn {
-  background: transparent;
-  border: none;
-  color: #64748b;
-  font-size: 13px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
   cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 4px;
-  transition: all 0.15s;
+  padding: 0;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
 }
 
 .popover-close-btn:hover {
-  color: #ef4444;
-  background: rgba(239, 68, 68, 0.15);
+  color: #ffffff;
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.5);
+  transform: scale(1.05);
 }
 
 .popover-body-scroll {
   padding: 12px 14px;
   overflow-y: auto;
-  max-height: 380px;
+  max-height: 400px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-/* 3. Basemap Popover List */
+/* Custom scrollbar for popovers */
+.popover-body-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+.popover-body-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+.popover-body-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 3px;
+}
+.popover-body-scroll::-webkit-scrollbar-thumb:hover {
+  background: #00f0ff;
+}
+
+/* 3. Section Headers & Micro Controls */
 .basemap-section-header,
 .sublayers-section-header,
 .terrain-section-label {
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.8px;
-  color: #64748b;
+  letter-spacing: 0.7px;
+  color: #94a3b8;
   text-transform: uppercase;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-/* duplicate popover block consolidated */
+.sublayers-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-micro {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  background: rgba(0, 240, 255, 0.1);
+  color: #00f0ff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+}
+
+.btn-micro:hover {
+  background: rgba(0, 240, 255, 0.25);
+  border-color: #00f0ff;
+  color: #ffffff;
+  transform: translateY(-0.5px);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+}
+
+.btn-micro-mute {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+}
+
+.btn-micro-mute:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+/* 4. Basemap Popover Items */
+.basemap-popover-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.basemap-popover-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.basemap-popover-item:hover {
+  background: rgba(255, 255, 255, 0.075);
+  border-color: rgba(0, 240, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.basemap-popover-item.active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.16), rgba(2, 132, 199, 0.12));
+  border-color: #00f0ff;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.22);
+}
+
+.popover-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.popover-basemap-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.popover-basemap-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.popover-basemap-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.popover-basemap-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.popover-basemap-cat {
+  font-size: 10px;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.bm-tag-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1.5px 6px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1.2;
+}
+
+.bm-tag-badge.vector {
+  background: rgba(0, 240, 255, 0.12);
+  color: #00f0ff;
+  border: 1px solid rgba(0, 240, 255, 0.35);
+}
+
+.bm-tag-badge.raster {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.bm-tag-badge.maxzoom {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.popover-check-indicator {
+  color: #00f0ff;
+  font-weight: 800;
+  font-size: 14px;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+  flex-shrink: 0;
+}
+
+.basemap-popover-item.active .popover-check-indicator {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 5. Sublayers Popover Items & iOS Toggles */
+.sublayers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sublayer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.sublayer-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(0, 240, 255, 0.3);
+  transform: translateY(-0.5px);
+}
+
+.sublayer-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sublayer-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #38bdf8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.sublayer-icon svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
+.sublayer-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.sublayer-toggle {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  background-color: rgba(255, 255, 255, 0.16);
+  border-radius: 20px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  height: 14px;
+  width: 14px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #cbd5e1;
+  border-radius: 50%;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.sublayer-toggle:checked + .toggle-switch {
+  background-color: #00f0ff;
+  border-color: #00f0ff;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.45);
+}
+
+.sublayer-toggle:checked + .toggle-switch::after {
+  transform: translateX(16px);
+  background-color: #070b14;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* Sublayer Raster Warning Notice */
+.sublayer-notice {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 9px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.sublayer-notice-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sublayer-notice-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+.sublayer-notice p {
+  font-size: 10.5px;
+  color: #cbd5e1;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.btn-notice-switch-vector {
+  width: 100%;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 12px;
+  margin-top: 4px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 240, 255, 0.5);
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(2, 132, 199, 0.2));
+  color: #00f0ff;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-notice-switch-vector:hover {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.35), rgba(2, 132, 199, 0.35));
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
+  transform: translateY(-0.5px);
+}
+
+/* 6. Terrain Popover & Opacity Controls */
+.basemap-opacity-control,
+.terrain-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.exaggeration-value-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #00f0ff;
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+
 
 .btn-tour {
   background: linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(6, 182, 212, 0.25));
