@@ -32,6 +32,21 @@
   --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --transition-fast: 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Unified Layer & UI Stacking Context (Z-Index Design System) */
+  --z-map: 0;
+  --z-controls: 10;
+  --z-telemetry: 30;
+  --z-sidebar: 40;
+  --z-header: 40;
+  --z-inspector: 42;
+  --z-dock: 44;
+  --z-popover: 45;
+  --z-popup: 50;
+  --z-tour: 55;
+  --z-swipe: 60;
+  --z-modal: 1000;
+  --z-toast: 10000;
 }
 
 * {
