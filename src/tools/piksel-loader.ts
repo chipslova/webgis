@@ -720,9 +720,7 @@ export class PikselLoader {
 
       const html = `
         <div class="gee-popup-card">
-          <div class="piksel-badge" style="background-color: #10b98122; color: #10b981; border: 1px solid #10b98166; margin-bottom: 6px;">
-            Piksel Data Cube Grid
-          </div>
+          <span class="gee-popup-badge piksel_tilegrid">Piksel Data Cube Grid</span>
           <h4>🛰️ Tile Grid: <code>${regionCode}</code></h4>
           <table class="gee-popup-table">
             <tr><td><strong>Dataset:</strong></td><td>Sentinel-2 MSI Surface Reflectance</td></tr>
