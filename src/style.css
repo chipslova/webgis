@@ -142,6 +142,7 @@ html, body, #app {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .search-icon {
@@ -149,6 +150,7 @@ html, body, #app {
   left: 12px;
   color: var(--text-muted);
   pointer-events: none;
+  z-index: 2;
 }
 
 .search-input-wrapper input {
@@ -159,7 +161,7 @@ html, body, #app {
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 0 36px 0 38px;
+  padding: 0 54px 0 38px;
   color: var(--text-main);
   font-size: 13px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -2104,6 +2106,7 @@ html, body, #app {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   margin-bottom: 10px;
 }
 
@@ -2111,15 +2114,18 @@ html, body, #app {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+  flex: 1;
 }
 
 .active-bm-icon {
   font-size: 20px;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .active-bm-sub {
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.8px;
   color: #64748b;
@@ -2129,22 +2135,40 @@ html, body, #app {
 }
 
 .active-bm-name {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 700;
   color: #00f0ff;
   margin: 1px 0 0 0;
   letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .active-bm-badge {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 12px;
-  background: rgba(0, 240, 255, 0.12);
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  color: #38bdf8;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  white-space: nowrap;
+  flex-shrink: 0;
   font-family: 'JetBrains Mono', monospace;
+  line-height: 1.2;
+}
+
+.active-bm-badge.vector {
+  background: rgba(0, 240, 255, 0.14);
+  border: 1px solid rgba(0, 240, 255, 0.45);
+  color: #00f0ff;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+}
+
+.active-bm-badge.raster {
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: #fbbf24;
 }
 
 .active-bm-actions {
@@ -4374,10 +4398,12 @@ html, body, #app {
    GEE Case Study Disclaimer Banner
    ========================================================================== */
 .gee-disclaimer-banner {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(217, 119, 6, 0.06));
+  width: 100%;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.10), rgba(217, 119, 6, 0.05));
   border: 1px solid rgba(245, 158, 11, 0.35);
   border-radius: var(--radius-md);
-  padding: 10px 14px;
+  padding: 12px 14px;
   margin-bottom: 14px;
 }
 
@@ -4385,7 +4411,8 @@ html, body, #app {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 4px;
+  gap: 8px;
+  margin-bottom: 6px;
   font-size: 12px;
   color: #fbbf24;
 }
@@ -4394,18 +4421,31 @@ html, body, #app {
   background: rgba(245, 158, 11, 0.2);
   border: 1px solid rgba(245, 158, 11, 0.4);
   color: #fde68a;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
-  padding: 1px 6px;
+  padding: 2px 7px;
   border-radius: 999px;
   text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
 }
 
 .gee-disclaimer-banner p {
   font-size: 11.5px;
   color: #cbd5e1;
-  line-height: 1.45;
+  line-height: 1.5;
   margin: 0;
+}
+
+.gee-disclaimer-notice {
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: rgba(245, 158, 11, 0.12);
+  border-radius: 6px;
+  font-size: 11px;
+  color: #fbbf24;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 /* ==========================================================================
@@ -4969,30 +5009,37 @@ kbd {
   background: linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(0, 240, 255, 0.08));
   border: 1px solid rgba(0, 240, 255, 0.45);
   color: #00f0ff;
-  padding: 9px 14px;
-  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   width: 100%;
   box-sizing: border-box;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+  margin-bottom: 14px;
 }
 
 .btn-focus-gee:hover {
-  background: rgba(0, 240, 255, 0.2);
+  background: rgba(0, 240, 255, 0.22);
   border-color: #00f0ff;
-  box-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.4);
   transform: translateY(-1px);
+}
+
+.btn-focus-icon {
+  font-size: 16px;
+  line-height: 1;
 }
 
 .btn-focus-gee-text {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   line-height: 1.25;
 }
 
 .btn-focus-title {
-  font-size: 12px;
   font-weight: 700;
   color: #ffffff;
 }
@@ -6046,16 +6093,28 @@ kbd {
    ========================================================================== */
 
 .search-cmd-pill {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 6px;
-  padding: 2px 6px;
+  padding: 2px 7px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.15s ease;
-  margin-right: 4px;
+  z-index: 2;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 48px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
 }
 
 .search-cmd-pill kbd {

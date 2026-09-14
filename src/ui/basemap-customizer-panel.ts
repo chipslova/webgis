@@ -498,10 +498,10 @@ export class BasemapCustomizerUI {
     const badgeEl = document.getElementById('active-bm-type-badge');
     if (titleEl && currentBm) titleEl.textContent = currentBm.name;
     if (badgeEl && currentBm) {
-      const formatIcon = currentBm.format === 'vector' ? '🔷 Vektor' : '🖼️ Raster';
-      const zoomText = currentBm.maxZoom ? ` • Maks Z${currentBm.maxZoom}` : '';
-      badgeEl.textContent = `${currentBm.category} • ${formatIcon}${zoomText}`;
-      badgeEl.className = `basemap-type-badge ${currentBm.format}`;
+      const isVector = currentBm.format === 'vector';
+      badgeEl.textContent = isVector ? 'VEKTOR' : 'RASTER';
+      badgeEl.className = `active-bm-badge ${currentBm.format}`;
+      badgeEl.title = `${currentBm.name} (${currentBm.category}) • Format: ${isVector ? 'Vektor' : 'Raster'}${currentBm.maxZoom ? ` (Maks Z${currentBm.maxZoom})` : ''}`;
     }
 
     // Sync Basemap Opacity slider

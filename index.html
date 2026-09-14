@@ -69,7 +69,7 @@
             <button id="btn-open-cmd-palette" class="search-cmd-pill" title="Buka Command Palette (Ctrl + K)" aria-label="Buka Command Palette">
               <kbd>⌘K</kbd>
             </button>
-            <button id="search-clear-btn" class="icon-btn-sm" style="display:none;" title="Bersihkan pencarian" aria-label="Hapus teks pencarian">
+            <button id="search-clear-btn" class="icon-btn-sm search-clear-btn" style="display:none;" title="Bersihkan pencarian" aria-label="Hapus teks pencarian">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
             </button>
           </div>
@@ -272,22 +272,23 @@
               <div class="panel-header">
                 <h2>Studi Kasus Analisis Termal GEE</h2>
                 <p>Analisis MODIS Land Surface Temp & Elevasi SRTM (Wilayah Kajian Jabodetabek & Jawa Barat 2020–2026).</p>
-                <!-- Case Study Disclaimer Banner -->
-                <div class="gee-disclaimer-banner">
-                  <div class="gee-disclaimer-header">
-                    <span>📌 <strong>Studi Kasus Analisis Spasial</strong></span>
-                    <span class="gee-disclaimer-tag">Wilayah Kajian: Jabodetabek-Jabar</span>
-                  </div>
-                  <p>Dataset demonstrasi sintetis terinspirasi GEE — nilai dibangkitkan secara lokal untuk keperluan demonstrasi alur kerja (MODIS MOD11A2 & USGS SRTM), bukan output langsung Google Earth Engine.</p>
-                  <p style="margin-top: 6px; font-size: 11px; color: var(--accent-yellow, #f59e0b); font-weight: 600;">
-                    ⚠️ Data layer studi kasus hanya mencakup wilayah Jabodetabek & Jawa Barat.
-                  </p>
+              </div>
+
+              <!-- Case Study Disclaimer Banner (Full Width) -->
+              <div class="gee-disclaimer-banner">
+                <div class="gee-disclaimer-header">
+                  <span>📌 <strong>Studi Kasus Analisis Spasial</strong></span>
+                  <span class="gee-disclaimer-tag">Jabodetabek – Jabar</span>
+                </div>
+                <p>Dataset demonstrasi sintetis terinspirasi GEE — nilai dibangkitkan secara lokal untuk keperluan demonstrasi alur kerja (MODIS MOD11A2 & USGS SRTM), bukan output langsung Google Earth Engine.</p>
+                <div class="gee-disclaimer-notice">
+                  <span>⚠️ Data layer studi kasus mencakup wilayah Jabodetabek & Jawa Barat.</span>
                 </div>
               </div>
 
               <!-- Quick Focus Area Button -->
-              <button id="btn-focus-gee-area" class="btn-focus-gee full-width" style="margin-bottom: 12px;" aria-label="Fokus wilayah studi Jakarta dan Jawa Barat">
-                <span style="font-size: 16px;" aria-hidden="true">🎯</span>
+              <button id="btn-focus-gee-area" class="btn-focus-gee full-width" aria-label="Fokus wilayah studi Jakarta dan Jawa Barat">
+                <span class="btn-focus-icon" aria-hidden="true">🎯</span>
                 <div class="btn-focus-gee-text">
                   <span class="btn-focus-title">Fokus Wilayah Studi</span>
                   <span class="btn-focus-sub">(Jakarta – Jawa Barat)</span>
