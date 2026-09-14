@@ -519,14 +519,14 @@ class WebGISApp {
       }
 
       container.innerHTML = projects.map(p => `
-        <div class="saved-project-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px; padding: 6px 8px;">
-          <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 8px;">
-            <strong style="font-size: 11.5px; color: #f1f5f9; display: block;">${escapeHtml(p.name)}</strong>
-            <span style="font-size: 10px; color: #64748b;">${escapeHtml(p.dateFormatted)}</span>
+        <div class="saved-project-item">
+          <div class="saved-project-item-info">
+            <strong class="saved-project-name">${escapeHtml(p.name)}</strong>
+            <span class="saved-project-date">${escapeHtml(p.dateFormatted)}</span>
           </div>
-          <div style="display: flex; gap: 4px; align-items: center; flex-shrink: 0;">
-            <button class="btn btn-secondary btn-sm btn-load-project" data-id="${p.id}" title="Buka proyek ini" style="font-size: 10.5px; padding: 3px 6px;">Buka</button>
-            <button class="icon-btn-sm btn-del-project" data-id="${p.id}" title="Hapus proyek" style="color: #ef4444;">✕</button>
+          <div class="saved-project-actions">
+            <button class="btn btn-secondary btn-sm btn-load-project" data-id="${p.id}" title="Buka proyek ini">Buka</button>
+            <button class="icon-btn-sm btn-del-project" data-id="${p.id}" title="Hapus proyek" aria-label="Hapus proyek ${escapeHtml(p.name)}">✕</button>
           </div>
         </div>
       `).join('');
