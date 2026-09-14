@@ -1,6 +1,8 @@
 import * as maplibregl from 'maplibre-gl';
 import { logger } from '../utils/logger';
 import { ErrorHandler } from '../utils/error-handler';
+import { parseKMLToGeoJSON } from '../utils/kml-parser';
+import { SpatialBufferAnalyzer } from './spatial-buffer';
 
 export interface CustomLayerItem {
   id: string;
@@ -441,6 +443,10 @@ export class GeoJsonLoader {
     return Array.from(this.customLayers.values());
   }
 
+  public getLayer(layerId: string): CustomLayerItem | undefined {
+    return this.customLayers.get(layerId);
+  }
+
   /**
    * Exports a loaded vector layer as a downloadable GeoJSON file
    */
@@ -484,5 +490,86 @@ export class GeoJsonLoader {
       return false;
     }
   }
+
+  /**
+   * Loads a vector layer from string content (supports GeoJSON and OGC KML 2.2)
+   */
+  public loadFromFileText(
+    fileName: string,
+    content: string,
+    color?: string
+  ): { success: boolean; layerId?: string; error?: string; featureCount?: number } {
+    const isKML = fileName.toLowerCase().endsWith('.kml') || content.trim().startsWith('<?xml') || content.includes('<kml');
+    const layerName = fileName.replace(/\.[^/.]+$/, '').trim() || 'Layer Spasial';
+    const layerId = `layer-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const layerColor = color || '#3b82f6';
+
+    try {
+      let geojson: GeoJSON.FeatureCollection;
+
+      if (isKML) {
+        geojson = parseKMLToGeoJSON(content);
+      } else {
+        geojson = JSON.parse(content);
+      }
+
+      const added = this.addGeoJSONLayer(layerId, layerName, geojson, layerColor);
+      if (!added) {
+        return { success: false, error: 'Format data spasial tidak valid atau koordinat di luar jangkauan.' };
+      }
+
+      const item = this.customLayers.get(layerId);
+      return {
+        success: true,
+        layerId,
+        featureCount: item?.featureCount || 0
+      };
+    } catch (err: any) {
+      logger.error('[GeoJsonLoader] Error parsing file content:', err);
+      return {
+        success: false,
+        error: `Gagal membaca file: ${err?.message || 'Format tidak dikenali'}`
+      };
+    }
+  }
+
+  /**
+   * Creates a geodesic proximity buffer around an existing custom layer
+   */
+  public createBufferForLayer(
+    sourceLayerId: string,
+    radius: number,
+    units: 'meters' | 'kilometers' | 'miles' = 'kilometers'
+  ): { success: boolean; bufferLayerId?: string; error?: string; areaKm2?: number } {
+    const sourceItem = this.customLayers.get(sourceLayerId);
+    if (!sourceItem || !sourceItem.data) {
+      return { success: false, error: 'Layer sumber tidak ditemukan.' };
+    }
+
+    const bufferRes = SpatialBufferAnalyzer.createBuffer(sourceItem.data, { radius, units });
+    if (!bufferRes.success || !bufferRes.data) {
+      return { success: false, error: bufferRes.error || 'Gagal menghitung zona buffer.' };
+    }
+
+    const bufferLayerId = `buffer-${Date.now()}`;
+    const bufferLayerName = `Buffer (${radius} ${units}) - ${sourceItem.name}`;
+    const bufferColor = '#a855f7'; // Distinctive purple-violet for buffer zones
+
+    const added = this.addGeoJSONLayer(bufferLayerId, bufferLayerName, bufferRes.data, bufferColor);
+    if (!added) {
+      return { success: false, error: 'Gagal menambahkan layer buffer ke peta.' };
+    }
+
+    // Set gentle fill opacity for buffer zones
+    this.setLayerOpacity(bufferLayerId, 0.45);
+    this.notifyLayersChange();
+
+    return {
+      success: true,
+      bufferLayerId,
+      areaKm2: bufferRes.areaKm2
+    };
+  }
 }
+
 

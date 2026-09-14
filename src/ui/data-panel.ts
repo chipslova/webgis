@@ -70,7 +70,11 @@ export class DataPanelUI {
         <div class="layer-card-toolbar">
           <button class="btn-layer-pill btn-open-table" data-id="${layer.id}" title="Buka Tabel Atribut Spasial layer ${safeName}">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
-            <span>Tabel Atribut</span>
+            <span>Tabel</span>
+          </button>
+          <button class="btn-layer-pill-ghost btn-buffer-layer" data-id="${layer.id}" title="Buat analisis zona buffer spasial di sekitar layer ${safeName}">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+            <span>Buffer</span>
           </button>
           <div class="layer-export-btns">
             <button class="btn-layer-pill-ghost btn-export-layer" data-id="${layer.id}" title="Unduh layer sebagai GeoJSON">
@@ -102,6 +106,33 @@ export class DataPanelUI {
           e.stopPropagation();
           if (this.onOpenAttributeTableCb) {
             this.onOpenAttributeTableCb(layer.id);
+          }
+        });
+      }
+
+      // Buffer layer button
+      const bufferBtn = item.querySelector<HTMLButtonElement>('.btn-buffer-layer');
+      if (bufferBtn) {
+        bufferBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const input = prompt(`Masukkan radius zona buffer untuk layer "${layer.name}" dalam kilometer (contoh: 1, 5, 10, 25):`, '5');
+          if (input === null) return;
+          const radius = parseFloat(input);
+          if (isNaN(radius) || radius <= 0) {
+            showToast('Radius buffer harus berupa angka positif lebih dari 0.', 'warning');
+            return;
+          }
+          if (radius > 500) {
+            showToast('Maksimum radius buffer adalah 500 km.', 'warning');
+            return;
+          }
+          const res = this.geojsonLoader.createBufferForLayer(layer.id, radius, 'kilometers');
+          if (res.success) {
+            this.render();
+            this.onLayerChange();
+            showToast(`Zona Buffer ${radius} km berhasil dibuat (Total luas: ${res.areaKm2} km²)!`, 'success');
+          } else {
+            showToast(res.error || 'Gagal membuat zona buffer.', 'error');
           }
         });
       }
@@ -235,31 +266,14 @@ export class DataPanelUI {
     reader.onload = (e) => {
       try {
         const rawText = e.target?.result as string;
-        let parsed: any;
-        try {
-          parsed = JSON.parse(rawText);
-        } catch {
-          showToast('File tidak berformat JSON valid. Pastikan sintaks kurung kurawal/tanda kutip benar.', 'error', 4500);
-          return;
-        }
-
-        const validation = GeoJsonLoader.normalizeAndValidate(parsed);
-        if (!validation.valid || !validation.data) {
-          showToast(validation.error || 'Format GeoJSON tidak valid.', 'error', 5000);
-          return;
-        }
-
-        const layerId = `custom-${Date.now()}`;
-        const name = file.name.replace(/\.[^/.]+$/, '');
-        const success = this.geojsonLoader.addGeoJSONLayer(layerId, name, validation.data, '#10b981');
-        
-        if (success) {
+        const result = this.geojsonLoader.loadFromFileText(file.name, rawText);
+        if (result.success) {
           this.render();
           this.sidebarUI.setActiveTab('data');
           this.onLayerChange();
-          showToast(`Layer "${name}" (${validation.data.features.length} objek) berhasil ditambahkan!`, 'success');
+          showToast(`Layer "${file.name}" (${result.featureCount} objek) berhasil ditambahkan!`, 'success');
         } else {
-          showToast(`Gagal menambahkan layer "${name}" ke peta.`, 'error');
+          showToast(result.error || `Gagal menambahkan layer "${file.name}".`, 'error', 5000);
         }
       } catch (err: any) {
         showToast(`Kendala memproses file: ${err.message || 'Format tidak valid'}`, 'error');
