@@ -14,6 +14,7 @@ export class BasemapCustomizerUI {
   private basemapPopoverId = 'basemap-popover';
   private sublayersPopoverId = 'sublayers-popover';
   private terrainPopoverId = 'terrain-popover';
+  private locatorPopoverId = 'locator-popover';
 
   constructor(customizer: BasemapCustomizer, mapManager?: MapManager, pikselLoader?: PikselLoader) {
     this.customizer = customizer;
@@ -308,7 +309,7 @@ export class BasemapCustomizerUI {
   }
 
   public closeAllPopovers() {
-    [this.basemapPopoverId, this.sublayersPopoverId, this.terrainPopoverId].forEach(id => {
+    [this.basemapPopoverId, this.sublayersPopoverId, this.terrainPopoverId, this.locatorPopoverId].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });

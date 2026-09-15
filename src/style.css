@@ -8805,140 +8805,80 @@ html, body, #app {
 }
 
 /* ===================================================================
-   Overview / Inset Locator Map (Step 3) - Positioned at Bottom-Left
+   Overview Inset Locator Popover & Quick Island Jump Chips
    =================================================================== */
-.overview-locator-map {
-  position: absolute;
-  left: 16px;
-  right: auto;
-  bottom: 44px;
-  z-index: 15;
-  width: 248px;
-  background: rgba(10, 15, 29, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
-  overflow: hidden;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+.locator-popover {
+  width: 290px;
+  max-width: calc(100vw - 32px);
 }
 
-/* MapLibre Attribution & Scale Bar Spacing & Legibility */
-.maplibregl-ctrl-bottom-right {
-  bottom: 8px !important;
-  right: 12px !important;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
+.locator-regions-section {
+  margin-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 10px;
 }
 
-.maplibregl-ctrl-attrib {
-  background: rgba(10, 15, 29, 0.82) !important;
-  backdrop-filter: blur(8px);
-  border-radius: 4px;
-  padding: 3px 8px !important;
-  color: #94a3b8 !important;
-  font-size: 10px !important;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.maplibregl-ctrl-attrib a {
-  color: #38bdf8 !important;
-  text-decoration: none;
-}
-
-.maplibregl-ctrl-attrib a:hover {
-  text-decoration: underline;
-}
-
-.overview-locator-map:hover {
-  border-color: rgba(56, 189, 248, 0.35);
-}
-
-.overview-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 7px 10px;
-  background: rgba(15, 23, 42, 0.75);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  user-select: none;
-}
-
-.overview-title-group {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.overview-icon {
-  font-size: 12px;
-}
-
-.overview-title {
+.locator-regions-title {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.06em;
   color: #94a3b8;
   text-transform: uppercase;
+  margin-bottom: 7px;
 }
 
-.overview-toggle-btn {
-  background: transparent;
-  border: none;
-  color: #94a3b8;
-  cursor: pointer;
-  padding: 2px 4px;
-  border-radius: 4px;
+.locator-chips-grid {
   display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.locator-chip-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: #cbd5e1;
+  font-size: 11px;
+  font-family: inherit;
+  font-weight: 500;
+  padding: 4px 9px;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
 }
 
-.overview-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+.locator-chip-btn:hover {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: rgba(56, 189, 248, 0.6);
   color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.2);
 }
 
-.overview-chevron {
-  transition: transform 0.25s ease;
+.locator-chip-btn:active {
+  transform: translateY(0);
+  background: rgba(56, 189, 248, 0.28);
 }
 
 .overview-body {
-  padding: 6px 8px 8px 8px;
-  max-height: 160px;
-  opacity: 1;
-  transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.25s ease;
-}
-
-.overview-locator-map.collapsed {
-  width: auto;
-}
-
-.overview-locator-map.collapsed .overview-body {
-  max-height: 0;
-  opacity: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  pointer-events: none;
-}
-
-.overview-locator-map.collapsed .overview-chevron {
-  transform: rotate(180deg);
+  padding: 2px 0 0 0;
 }
 
 .overview-svg {
   width: 100%;
-  height: 94px;
+  height: 98px;
   display: block;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: crosshair;
   background: #081226;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: border-color 0.2s ease;
+}
+
+.overview-svg:hover {
+  border-color: rgba(56, 189, 248, 0.4);
 }
 
 .overview-bg-ocean {
@@ -8946,7 +8886,7 @@ html, body, #app {
 }
 
 .overview-equator-line {
-  stroke: rgba(255, 255, 255, 0.12);
+  stroke: rgba(255, 255, 255, 0.14);
   stroke-width: 0.8;
 }
 
@@ -8966,37 +8906,56 @@ html, body, #app {
 }
 
 .overview-viewport-rect {
-  fill: rgba(239, 68, 68, 0.22);
-  stroke: #ef4444;
+  fill: rgba(0, 240, 255, 0.18);
+  stroke: #00f0ff;
   stroke-width: 1.5;
-  filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.6));
+  filter: drop-shadow(0 0 4px rgba(0, 240, 255, 0.6));
   pointer-events: none;
 }
 
 .overview-center-dot {
   fill: #f59e0b;
   stroke: #ffffff;
-  stroke-width: 0.8;
+  stroke-width: 1.0;
   filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.8));
   pointer-events: none;
 }
 
 .overview-footer-hint {
-  font-size: 9px;
+  font-size: 10px;
   color: #64748b;
   text-align: center;
-  margin-top: 4px;
+  margin-top: 5px;
   letter-spacing: 0.02em;
 }
 
-@media (max-width: 768px) {
-  .overview-locator-map {
-    left: 8px;
-    right: auto;
-    bottom: 44px;
-    width: 175px;
-  }
-  .overview-svg {
-    height: 70px;
-  }
+/* MapLibre Attribution & Scale Bar Spacing & Clean Legibility */
+.maplibregl-ctrl-bottom-right {
+  bottom: 8px !important;
+  right: 12px !important;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.maplibregl-ctrl-attrib {
+  background: rgba(10, 15, 29, 0.82) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 4px;
+  padding: 3px 8px !important;
+  color: #94a3b8 !important;
+  font-size: 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.maplibregl-ctrl-attrib a {
+  color: #38bdf8 !important;
+  text-decoration: none;
+}
+
+.maplibregl-ctrl-attrib a:hover {
+  text-decoration: underline;
 }

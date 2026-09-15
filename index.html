@@ -929,6 +929,12 @@
             </span>
             <span class="dock-btn-text">Tile Grid</span>
           </button>
+          <button id="btn-toggle-locator" class="dock-btn" type="button" aria-label="Peta Lokator Inset Nusantara" title="Peta Lokator Inset Nusantara">
+            <span class="dock-btn-icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+            </span>
+            <span class="dock-btn-text">Lokator</span>
+          </button>
           <button id="btn-dock-swipe" class="dock-btn" type="button" aria-label="Komparasi Citra Split-Screen" title="Komparasi Citra (Split-Screen Swipe)">
             <span class="dock-btn-icon" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="8 8 4 12 8 16"/><polyline points="16 8 20 12 16 16"/></svg>
@@ -1133,6 +1139,63 @@
                 <span class="slider-min-label" aria-hidden="true">0.5x</span>
                 <input type="range" id="popover-terrain-exaggeration-slider" min="0.5" max="3.5" step="0.1" value="1.5" aria-label="Faktor perbesaran vertikal 3D terrain" />
                 <span class="slider-max-label" aria-hidden="true">3.5x</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Inset Locator Popover Menu -->
+        <div id="locator-popover" class="glass-popover locator-popover" style="display: none;" role="dialog" aria-modal="false" aria-label="Peta Lokator Inset Nusantara">
+          <div class="popover-header-row">
+            <div class="popover-header">LOKATOR INSET NUSANTARA</div>
+            <button class="popover-close-btn" id="btn-close-locator-popover" title="Tutup" aria-label="Tutup peta lokator">✕</button>
+          </div>
+
+          <div class="popover-body-scroll">
+            <div class="overview-body">
+              <svg id="overview-svg" class="overview-svg" viewBox="0 0 240 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                <!-- Background & Ocean -->
+                <rect width="240" height="100" class="overview-bg-ocean" rx="4"></rect>
+                <!-- Equator Line -->
+                <line x1="0" y1="36.1" x2="240" y2="36.1" class="overview-equator-line" stroke-dasharray="2,2"></line>
+                
+                <!-- Simplified Archipelagic Landmass Contours -->
+                <g class="overview-islands" fill="currentColor">
+                  <!-- Sumatra -->
+                  <path class="overview-island" d="M 12,32 L 20,24 L 38,40 L 52,58 L 57,68 L 50,71 L 32,53 L 15,36 Z"></path>
+                  <!-- Java -->
+                  <path class="overview-island" d="M 52,72 L 75,74 L 98,76 L 98,80 L 75,79 L 52,76 Z"></path>
+                  <!-- Bali & Nusa Tenggara -->
+                  <path class="overview-island" d="M 100,77 L 105,77 L 110,78 L 120,77 L 132,80 L 134,83 L 122,81 L 100,80 Z"></path>
+                  <!-- Kalimantan (Borneo) -->
+                  <path class="overview-island" d="M 68,30 L 88,24 L 105,32 L 108,48 L 98,62 L 78,63 L 68,50 Z"></path>
+                  <!-- Sulawesi -->
+                  <path class="overview-island" d="M 118,34 L 130,34 L 132,40 L 124,44 L 130,52 L 138,58 L 134,64 L 122,63 L 120,50 L 116,40 Z"></path>
+                  <!-- Maluku Islands -->
+                  <path class="overview-island" d="M 142,38 L 148,38 L 146,45 L 142,43 Z M 140,55 L 150,56 L 148,64 L 140,62 Z"></path>
+                  <!-- Papua -->
+                  <path class="overview-island" d="M 160,40 L 180,36 L 225,48 L 225,78 L 195,78 L 180,62 L 165,56 L 158,45 Z"></path>
+                </g>
+
+                <!-- Dynamic Viewport Bounds Polygon -->
+                <rect id="overview-viewport-rect" class="overview-viewport-rect" x="0" y="0" width="0" height="0" rx="2"></rect>
+                <!-- Center Crosshair / Point Indicator -->
+                <circle id="overview-center-dot" class="overview-center-dot" cx="0" cy="0" r="2.5"></circle>
+              </svg>
+              <div class="overview-footer-hint">Klik peta mini untuk navigasi cepat</div>
+            </div>
+
+            <!-- Quick Region Jump Chips -->
+            <div class="locator-regions-section">
+              <div class="locator-regions-title">PINTASAN WILAYAH KEPULAUAN</div>
+              <div class="locator-chips-grid">
+                <button type="button" class="locator-chip-btn" data-lng="101.5" data-lat="0.5" data-zoom="6.2">Sumatra</button>
+                <button type="button" class="locator-chip-btn" data-lng="110.0" data-lat="-7.2" data-zoom="6.5">Jawa</button>
+                <button type="button" class="locator-chip-btn" data-lng="114.5" data-lat="0.5" data-zoom="6.0">Kalimantan</button>
+                <button type="button" class="locator-chip-btn" data-lng="121.5" data-lat="-2.0" data-zoom="6.2">Sulawesi</button>
+                <button type="button" class="locator-chip-btn" data-lng="119.0" data-lat="-8.6" data-zoom="6.8">Bali & NT</button>
+                <button type="button" class="locator-chip-btn" data-lng="128.0" data-lat="-3.0" data-zoom="6.2">Maluku</button>
+                <button type="button" class="locator-chip-btn" data-lng="136.5" data-lat="-4.2" data-zoom="5.8">Papua</button>
               </div>
             </div>
           </div>

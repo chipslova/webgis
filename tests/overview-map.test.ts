@@ -2,16 +2,26 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { OverviewMapUI } from '../src/ui/overview-map';
 
-describe('Interactive Inset Overview Locator Map', () => {
+describe('Interactive Inset Overview Locator Map (Docked Popover)', () => {
   beforeEach(() => {
     document.body.innerHTML = `
       <div id="app">
         <main id="map"></main>
+        <button id="btn-toggle-locator" class="dock-btn">Lokator</button>
+        <div id="locator-popover" class="glass-popover" style="display: none;">
+          <button id="btn-close-locator-popover">✕</button>
+          <svg id="overview-svg" viewBox="0 0 240 100">
+            <rect id="overview-viewport-rect" x="0" y="0" width="0" height="0"></rect>
+            <circle id="overview-center-dot" cx="0" cy="0" r="2.5"></circle>
+          </svg>
+          <button class="locator-chip-btn" data-lng="101.5" data-lat="0.5" data-zoom="6.2">Sumatra</button>
+          <button class="locator-chip-btn" data-lng="110.0" data-lat="-7.2" data-zoom="6.5">Jawa</button>
+        </div>
       </div>
     `;
   });
 
-  it('should initialize and insert locator map into DOM', () => {
+  it('should initialize and bind popover controls and map listeners', () => {
     const mockMap: any = {
       on: vi.fn(),
       off: vi.fn(),
@@ -26,10 +36,9 @@ describe('Interactive Inset Overview Locator Map', () => {
       flyTo: vi.fn(),
     };
 
-    const overview = new OverviewMapUI(mockMap);
-    const container = document.getElementById('overview-locator-map');
-    expect(container).not.toBeNull();
-    expect(container?.getAttribute('role')).toBe('region');
+    new OverviewMapUI(mockMap);
+    const popover = document.getElementById('locator-popover');
+    expect(popover).not.toBeNull();
 
     const viewportRect = document.getElementById('overview-viewport-rect');
     expect(viewportRect).not.toBeNull();
@@ -42,7 +51,7 @@ describe('Interactive Inset Overview Locator Map', () => {
     expect(mockMap.on).toHaveBeenCalledWith('zoom', expect.any(Function));
   });
 
-  it('should toggle collapse state smoothly', () => {
+  it('should toggle popover visibility smoothly via toggle button and close button', () => {
     const mockMap: any = {
       on: vi.fn(),
       off: vi.fn(),
@@ -51,14 +60,18 @@ describe('Interactive Inset Overview Locator Map', () => {
     };
 
     const overview = new OverviewMapUI(mockMap);
-    const container = document.getElementById('overview-locator-map');
-    const toggleBtn = document.getElementById('btn-toggle-overview-collapse') as HTMLButtonElement;
+    const popover = document.getElementById('locator-popover');
+    const toggleBtn = document.getElementById('btn-toggle-locator') as HTMLButtonElement;
+    const closeBtn = document.getElementById('btn-close-locator-popover') as HTMLButtonElement;
 
-    expect(container?.classList.contains('collapsed')).toBe(false);
+    expect(popover?.style.display).toBe('none');
     toggleBtn?.click();
-    expect(container?.classList.contains('collapsed')).toBe(true);
-    toggleBtn?.click();
-    expect(container?.classList.contains('collapsed')).toBe(false);
+    expect(popover?.style.display).toBe('block');
+    expect(toggleBtn?.classList.contains('popover-open')).toBe(true);
+
+    closeBtn?.click();
+    expect(popover?.style.display).toBe('none');
+    expect(toggleBtn?.classList.contains('popover-open')).toBe(false);
   });
 
   it('should update viewport coordinates accurately when map moves', () => {
@@ -133,6 +146,38 @@ describe('Interactive Inset Overview Locator Map', () => {
     }
   });
 
+  it('should trigger map flyTo when clicking quick region jump chips', () => {
+    const flyToMock = vi.fn();
+    const mockMap: any = {
+      on: vi.fn(),
+      off: vi.fn(),
+      getBounds: vi.fn().mockReturnValue(null),
+      getCenter: vi.fn().mockReturnValue(null),
+      getZoom: vi.fn().mockReturnValue(6),
+      flyTo: flyToMock,
+    };
+
+    new OverviewMapUI(mockMap);
+    const chipBtns = document.querySelectorAll<HTMLButtonElement>('.locator-chip-btn');
+    expect(chipBtns.length).toBeGreaterThanOrEqual(2);
+
+    chipBtns[0].click(); // Sumatra
+    expect(flyToMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        center: [101.5, 0.5],
+        zoom: 6.2,
+      })
+    );
+
+    chipBtns[1].click(); // Jawa
+    expect(flyToMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        center: [110.0, -7.2],
+        zoom: 6.5,
+      })
+    );
+  });
+
   it('should toggle visibility and destroy cleanly without leaking listeners', () => {
     const offMock = vi.fn();
     const mockMap: any = {
@@ -143,17 +188,16 @@ describe('Interactive Inset Overview Locator Map', () => {
     };
 
     const overview = new OverviewMapUI(mockMap);
-    const container = document.getElementById('overview-locator-map');
+    const popover = document.getElementById('locator-popover');
 
     overview.setVisible(false);
-    expect(container?.style.display).toBe('none');
+    expect(popover?.style.display).toBe('none');
 
     overview.setVisible(true);
-    expect(container?.style.display).toBe('flex');
+    expect(popover?.style.display).toBe('block');
 
     overview.destroy();
     expect(offMock).toHaveBeenCalledWith('move', expect.any(Function));
     expect(offMock).toHaveBeenCalledWith('zoom', expect.any(Function));
-    expect(document.getElementById('overview-locator-map')).toBeNull();
   });
 });
