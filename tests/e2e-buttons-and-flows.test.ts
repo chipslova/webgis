@@ -271,12 +271,17 @@ describe('E2E WebGIS Exhaustive Buttons & Interaction Flow Audit', () => {
       expect(geojsonLoader.getLayers().length).toBe(0);
     });
 
-    it('5. Measure Tool: Distance and Area modes activate and clear without crashes', () => {
+    it('5. Measure Tool: Distance, Area modes and undoLastPoint work without crashes', () => {
       measureTool.setMode('distance');
       expect(measureTool.getMode()).toBe('distance');
 
+      // Test undoing points safely when no points exist
+      expect(() => measureTool.undoLastPoint()).not.toThrow();
+
       measureTool.setMode('area');
       expect(measureTool.getMode()).toBe('area');
+
+      expect(() => measureTool.undoLastPoint()).not.toThrow();
 
       measureTool.clear();
       measureTool.setMode('none');

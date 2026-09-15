@@ -1,5 +1,7 @@
 import * as maplibregl from 'maplibre-gl';
-import * as turf from '@turf/turf';
+import { lineString, polygon } from '@turf/helpers';
+import { length } from '@turf/length';
+import { area } from '@turf/area';
 import { logger } from '../utils/logger';
 
 export type MeasureMode = 'none' | 'distance' | 'area';
@@ -153,11 +155,18 @@ export class MeasureTool {
       }, { passive: true });
     } catch (_) {}
 
-    // Keyboard support: Escape cancels measuring
+    // Keyboard support: Escape cancels measuring, 'z'/'Z' undoes last vertex
     window.addEventListener('keydown', (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && this.mode !== 'none') {
+      if (this.mode === 'none') return;
+      const activeEl = document.activeElement;
+      const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.getAttribute('contenteditable') === 'true');
+      if (isInput) return;
+
+      if (e.key === 'Escape') {
         this.setMode('none');
         this.clear();
+      } else if ((e.key === 'z' || e.key === 'Z') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        this.undoLastPoint();
       }
     });
   }
@@ -230,6 +239,18 @@ export class MeasureTool {
     }
   }
 
+  /** Remove the last placed vertex (Undo). Triggers re-render and tooltip update. */
+  public undoLastPoint() {
+    if (this.isFinished || this.points.length === 0) return;
+    this.points.pop();
+    if (this.points.length === 0) {
+      this.clear();
+    } else {
+      this.renderFeatures(this.points);
+      this.updateTooltip(this.points[this.points.length - 1], this.points);
+    }
+  }
+
   private renderFeatures(coords: [number, number][], _isFinal: boolean = false) {
     this.initLayers();
     const features: GeoJSON.Feature[] = [];
@@ -286,12 +307,12 @@ export class MeasureTool {
     let text = '';
 
     if (this.mode === 'distance' && coords.length >= 2) {
-      const line = turf.lineString(coords);
-      const lengthKm = turf.length(line, { units: 'kilometers' });
+      const line = lineString(coords);
+      const lengthKm = length(line, { units: 'kilometers' });
       text = lengthKm >= 1 ? `${lengthKm.toFixed(2)} km` : `${(lengthKm * 1000).toFixed(0)} m`;
     } else if (this.mode === 'area' && coords.length >= 3) {
-      const polygon = turf.polygon([[...coords, coords[0]]]);
-      const areaSqM = turf.area(polygon);
+      const poly = polygon([[...coords, coords[0]]]);
+      const areaSqM = area(poly);
       if (areaSqM >= 1000000) {
         text = `${(areaSqM / 1000000).toFixed(2)} km²`;
       } else if (areaSqM >= 10000) {

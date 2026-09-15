@@ -10,6 +10,7 @@ export const GIS_SHORTCUTS: ShortcutGroup[] = [
     category: 'Alat & Analisis Spasial',
     items: [
       { key: 'M', description: 'Buka / Aktifkan Alat Pengukuran (Measure Tool)' },
+      { key: 'Z', description: 'Batalkan / hapus titik terakhir saat mengukur (Undo)' },
       { key: 'I', description: 'Buka / Aktifkan Inspeksi Titik (Point Inspector)' },
       { key: 'S', description: 'Buka / Aktifkan Komparasi Tirai (Swipe / Split-Screen)' },
       { key: 'T', description: 'Buka / Tutup Tabel Atribut Spasial (Attribute Table)' },

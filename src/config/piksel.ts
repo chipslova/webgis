@@ -96,7 +96,15 @@ export const PIKSEL_CATEGORIES: { id: ProductCategory; name: string; icon: strin
   { id: 'quality', name: 'Kualitas Data', icon: '', subtitle: 'Statistik Observasi Bebas Awan' }
 ];
 
-export const PIKSEL_WMS_BASE_URL = 'https://ows.staging.piksel.big.go.id/wms';
+// In production (Vercel) route all WMS requests through the Edge proxy so we get
+// retry logic, 8s timeout, transparent-PNG fallback, and edge-level caching.
+// In local dev we hit the upstream directly to avoid proxy confusion.
+const IS_LOCAL_DEV =
+  typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+export const PIKSEL_WMS_BASE_URL = IS_LOCAL_DEV
+  ? 'https://ows.staging.piksel.big.go.id/wms'
+  : '/api/wms-proxy';
 export const S2_YEARS = ['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017'];
 export const LS9_YEARS = ['2026', '2025', '2024', '2023', '2022', '2021'];
 

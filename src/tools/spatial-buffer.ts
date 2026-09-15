@@ -1,4 +1,5 @@
-import * as turf from '@turf/turf';
+import { buffer } from '@turf/buffer';
+import { area } from '@turf/area';
 import { logger } from '../utils/logger';
 
 export interface BufferOptions {
@@ -30,10 +31,10 @@ export class SpatialBufferAnalyzer {
         const feat = sourceGeoJSON.features[i];
         if (!feat || !feat.geometry) continue;
 
-        const buffered = turf.buffer(feat, radius, { units, steps });
+        const buffered = buffer(feat, radius, { units, steps });
         if (buffered) {
           const origName = feat.properties?.name || `Fitur #${i + 1}`;
-          const bufferedArea = turf.area(buffered) / 1_000_000; // in km²
+          const bufferedArea = area(buffered) / 1_000_000; // in km²
 
           buffered.properties = {
             ...(feat.properties || {}),
@@ -55,7 +56,7 @@ export class SpatialBufferAnalyzer {
         features: bufferFeatures
       };
 
-      const totalArea = turf.area(resultFC) / 1_000_000;
+      const totalArea = area(resultFC) / 1_000_000;
 
       return {
         success: true,

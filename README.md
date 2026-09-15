@@ -3,12 +3,12 @@
 An interactive WebGIS platform for exploring Indonesian Earth Observation datasets and spatial analytics workflows. Integrates BIG Piksel OGC Web Map Services (WMS), Google Earth Engine (GEE) Jabodetabek case study datasets, 3D terrain and building extrusions, and client-side geodesic calculations.
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-webgis--lulu--6ab7.vercel.app-00f0ff?style=for-the-badge&logo=vercel)](https://webgis-lulu-6ab7.vercel.app/)
-[![CI](https://img.shields.io/badge/CI-Passing-10b981?style=for-the-badge&logo=githubactions)](https://github.com/chipslova/webgis/actions)
+[![CI](https://github.com/chipslova/webgis/actions/workflows/ci.yml/badge.svg)](https://github.com/chipslova/webgis/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.3.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-79%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-112%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
   <img src="docs/preview.jpg" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
@@ -81,22 +81,27 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
   * Rendered vector feature properties (Piksel Tile Grid, POI stations, custom uploaded GeoJSON features).
   * Visualization context notes clarifying the distinction between visual WMS map representations and raw raster values.
 
-### 📐 6. Spatial Measurement & Data Export
-* **Geodesic Distance & Area**: Spherical geodesic calculations powered by Turf.js.
-* **Vector GeoJSON Export**: Direct `.geojson` download for custom uploaded layers and completed measurement geometries.
-* **Custom GeoJSON Upload**: Drag-and-drop or file selection for points, lines, and polygons with automatic bounding box zoom and layer styling.
+### 📐 6. Spatial Measurement, Buffer & Data Hub
+* **Geodesic Measurement with Vertex Undo**: Spherical geodesic distance and area calculations powered by Turf.js, featuring single-vertex undo (<kbd>Z</kbd>), finish measurement actions, and dynamic tooltip measurements.
+* **Multi-Format Data Import & Export**:
+  * **Import**: Drag-and-drop or file selection for `.geojson`, `.json`, `.kml`, `.csv`, `.tsv`, and `.txt` with automatic coordinate column detection.
+  * **Export**: One-click download to both `.geojson` and XML-sanitized `.kml` formats.
+* **Spatial Proximity Buffer Analysis**: Real-time geodesic buffer polygon generation around points, lines, and polygons with calculated total area (km²).
+* **Spatial Attribute Table Panel**: Full-featured tabular data inspector for custom layers with real-time text search, feature highlighting, and safe HTML escaping.
 
-### 🔗 7. State Sharing, Saved Projects & Cartographic Export
+### 🔗 7. State Sharing, Tampilan Tersimpan (Saved Views) & Cartographic Export
 * **Stateful Permalink URL**: Automatically synchronizes coordinates, zoom, pitch, bearing, active basemap, Sentinel-2 product/year, and GEE layers directly to the URL hash.
-* **Saved Projects Persistence**: Save, manage, and restore named project workspaces locally via `localStorage`.
+* **Tampilan Tersimpan (Saved Views)**: Save, name, and restore custom camera viewpoints, basemaps, and Piksel satellite products locally via `localStorage`.
 * **Cartographic PNG Export**: High-resolution map export featuring a dynamic bearing-synchronized **North Arrow**, geodesic **Metric Scale Bar** (meters/km), title banner, coordinate metadata, EPSG:3857 CRS tag, and timestamped attribution.
+* **Resilient Edge WMS Proxy**: Edge proxy (`/api/wms-proxy`) featuring 8-second timeouts, single retry on 5xx upstream failures, transparent 1x1 PNG fallback, and edge caching headers.
+* **PWA Offline Support**: Progressive Web App service worker with network-first navigation and cache-first static style strategies.
 
 ---
 
 ## 🏗️ Technical Architecture
 
 * **XSS Defense-in-Depth**: Strict HTML sanitization on all user-controlled strings (GeoJSON feature properties, filenames, layer labels) combined with strict HTTP Content-Security-Policy headers in `vercel.json`.
-* **Bundle Efficiency**: Heavy static GeoJSON datasets are loaded lazily via asynchronous HTTP requests (`/data/*.geojson`), keeping the core minified JavaScript bundle to ~229 KB (~61 KB gzipped) with vendor chunk splitting for MapLibre, Turf.js, and PMTiles.
+* **Bundle Efficiency**: Heavy static GeoJSON datasets are loaded lazily via asynchronous HTTP requests (`/data/*.geojson`), keeping the core minified JavaScript bundle to ~263 KB (~70 KB gzipped) with modular chunk splitting for MapLibre, Turf.js (`turf-measure` at 6.2 KB), and PMTiles.
 * **Deterministic Layer Stacking**: Centralized `enforceLayerOrder()` maintains visual hierarchy across all basemap switches and layer toggles:
   $$\text{Measurement} \to \text{Custom GeoJSON} \to \text{GEE POI} \to \text{Piksel Grid} \to \text{GEE Rasters} \to \text{Piksel WMS} \to \text{Basemap}$$
 * **Keyboard & Screen Reader Accessible**: Keyboard-accessible controls and screen-reader announcements via aria-live regions, alongside `aria-label`, `role`, `aria-expanded`, and `aria-selected` attributes on interactive controls, drawers, modals, and tab lists.
@@ -109,7 +114,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 
 | Dataset | Provider / Source | Spatial Resolution | Temporal Coverage | Access Protocol |
 | :--- | :--- | :--- | :--- | :--- |
-| **Sentinel-2 GeoMAD** | BIG Piksel / ESA | 10 meters | 2017 – 2025 | OGC WMS 1.3.0 (PNG) |
+| **Sentinel-2 GeoMAD** | BIG Piksel / ESA | 10 meters | 2017 – 2025 | OGC WMS 1.3.0 (PNG / Edge Proxy) |
 | **Spectral Indices (NDVI/NDWI)** | Open Data Cube | 10 meters | Annual Composites | OGC WMS 1.3.0 |
 | **Landsat 9 Analysis** | USGS / NASA | 30 meters | 2021 – 2026 | OGC WMS 1.3.0 |
 | **Flood Hazard Models** | BIG Hidrologi | 10 meters | Priority Study Areas | OGC WMS 1.3.0 |
@@ -120,7 +125,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 | **3D Buildings** | OpenFreeMap / OSM | Global Vector | Continuous | Vector Tiles |
 | **National Topographic (RBI)** | BIG Indonesia | Vector Tiles | Multi-Scale | TileJSON / Vector |
 
-> **Note on Piksel OGC Service**: Satellite imagery products are accessed via the BIG Piksel OGC Web Map Service staging environment (`ows.staging.piksel.big.go.id`), used for development and demonstration during the internship research period.
+> **Note on Piksel OGC Service**: Satellite imagery products are accessed via the BIG Piksel OGC Web Map Service staging environment (`ows.staging.piksel.big.go.id`) routed through `/api/wms-proxy` on production.
 
 ---
 
@@ -128,9 +133,9 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 
 * **Language**: TypeScript 5.x
 * **Mapping Engine**: [MapLibre GL JS](https://maplibre.org/) (v6.3.0)
-* **Spatial Calculations**: [@turf/turf](https://turfjs.org/)
+* **Spatial Calculations**: [@turf/turf](https://turfjs.org/) (Modular imports: `@turf/helpers`, `@turf/length`, `@turf/area`, `@turf/buffer`, `@turf/distance`)
 * **Raster / Vector Protocols**: OGC WMS 1.3.0, PMTiles, GeoJSON, TileJSON
-* **Testing Framework**: [Vitest](https://vitest.dev/) (79 unit, integration & E2E tests — 100% passing)
+* **Testing Framework**: [Vitest](https://vitest.dev/) (112 unit, integration & E2E tests — 100% passing)
 * **Build Tool**: [Vite 6](https://vitejs.dev/)
 * **Package Manager / Runtime**: [Bun](https://bun.sh/)
 

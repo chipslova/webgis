@@ -457,6 +457,11 @@ class WebGISApp {
       }
     });
 
+    const undoBtn = document.getElementById('btn-measure-undo');
+    undoBtn?.addEventListener('click', () => {
+      this.measureTool?.undoLastPoint();
+    });
+
     clearBtn?.addEventListener('click', () => {
       this.measureTool?.clear();
       distBtn?.classList.remove('active');
@@ -511,10 +516,10 @@ class WebGISApp {
       if (!container) return;
 
       const projects = PermalinkManager.getSavedProjects();
-      if (countEl) countEl.innerText = `${projects.length} Proyek`;
+      if (countEl) countEl.innerText = `${projects.length} Tampilan`;
 
       if (projects.length === 0) {
-        container.innerHTML = `<div style="color: var(--text-muted); font-size: 11px; padding: 6px 0; text-align: center;">Belum ada proyek disimpan.</div>`;
+        container.innerHTML = `<div style="color: var(--text-muted); font-size: 11px; padding: 6px 0; text-align: center;">Belum ada tampilan disimpan.</div>`;
         return;
       }
 
@@ -525,8 +530,8 @@ class WebGISApp {
             <span class="saved-project-date">${escapeHtml(p.dateFormatted)}</span>
           </div>
           <div class="saved-project-actions">
-            <button class="btn btn-secondary btn-sm btn-load-project" data-id="${p.id}" title="Buka proyek ini">Buka</button>
-            <button class="icon-btn-sm btn-del-project" data-id="${p.id}" title="Hapus proyek" aria-label="Hapus proyek ${escapeHtml(p.name)}">✕</button>
+            <button class="btn btn-secondary btn-sm btn-load-project" data-id="${p.id}" title="Buka tampilan ini">Buka</button>
+            <button class="icon-btn-sm btn-del-project" data-id="${p.id}" title="Hapus tampilan" aria-label="Hapus tampilan ${escapeHtml(p.name)}">✕</button>
           </div>
         </div>
       `).join('');
@@ -536,7 +541,7 @@ class WebGISApp {
           const id = (btn as HTMLElement).dataset.id;
           if (id && this.permalinkManager) {
             const ok = await this.permalinkManager.loadSavedProject(id);
-            if (ok) showToast('Proyek berhasil dimuat!', 'success');
+            if (ok) showToast('Tampilan peta berhasil dimuat!', 'success');
           }
         });
       });
@@ -547,7 +552,7 @@ class WebGISApp {
           if (id) {
             PermalinkManager.deleteSavedProject(id);
             renderProjects();
-            showToast('Proyek dihapus.', 'info');
+            showToast('Tampilan peta dihapus.', 'info');
           }
         });
       });
@@ -556,7 +561,7 @@ class WebGISApp {
     saveBtn?.addEventListener('click', () => {
       const val = nameInput?.value?.trim();
       if (!val) {
-        showToast('Masukkan nama proyek terlebih dahulu.', 'warning');
+        showToast('Masukkan nama tampilan terlebih dahulu.', 'warning');
         return;
       }
       if (this.permalinkManager) {
@@ -564,7 +569,7 @@ class WebGISApp {
         if (p) {
           if (nameInput) nameInput.value = '';
           renderProjects();
-          showToast(`Proyek "${val}" berhasil disimpan!`, 'success');
+          showToast(`Tampilan "${val}" berhasil disimpan!`, 'success');
         }
       }
     });

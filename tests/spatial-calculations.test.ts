@@ -1,14 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import * as turf from '@turf/turf';
+import { point, polygon } from '@turf/helpers';
+import { distance } from '@turf/distance';
+import { area } from '@turf/area';
 
 describe('Spatial & Geodetic Calculations (Turf.js)', () => {
   it('should calculate accurate geodesic distance between Jakarta and Bogor (~45 km)', () => {
     const jakarta: [number, number] = [106.8272, -6.1754]; // Monas
     const bogor: [number, number] = [106.7972, -6.5950];   // Kebun Raya Bogor
 
-    const from = turf.point(jakarta);
-    const to = turf.point(bogor);
-    const distanceKm = turf.distance(from, to, { units: 'kilometers' });
+    const from = point(jakarta);
+    const to = point(bogor);
+    const distanceKm = distance(from, to, { units: 'kilometers' });
 
     // Actual geodesic distance is approx ~46.6 km
     expect(distanceKm).toBeGreaterThan(45);
@@ -19,9 +21,9 @@ describe('Spatial & Geodetic Calculations (Turf.js)', () => {
     const jakarta: [number, number] = [106.8272, -6.1754];
     const semarang: [number, number] = [110.4200, -6.9900];
 
-    const from = turf.point(jakarta);
-    const to = turf.point(semarang);
-    const distanceKm = turf.distance(from, to, { units: 'kilometers' });
+    const from = point(jakarta);
+    const to = point(semarang);
+    const distanceKm = distance(from, to, { units: 'kilometers' });
 
     expect(distanceKm).toBeGreaterThan(395);
     expect(distanceKm).toBeLessThan(420);
@@ -29,7 +31,7 @@ describe('Spatial & Geodetic Calculations (Turf.js)', () => {
 
   it('should calculate polygon area correctly in square kilometers and hectares', () => {
     // 0.01 deg x 0.01 deg approx 1.1 km x 1.1 km = ~1.2 km^2 = ~120 hectares near equator
-    const bboxPolygon = turf.polygon([[
+    const bboxPolygon = polygon([[
       [106.80, -6.20],
       [106.81, -6.20],
       [106.81, -6.19],
@@ -37,7 +39,7 @@ describe('Spatial & Geodetic Calculations (Turf.js)', () => {
       [106.80, -6.20]
     ]]);
 
-    const areaSqMeters = turf.area(bboxPolygon);
+    const areaSqMeters = area(bboxPolygon);
     const areaSqKm = areaSqMeters / 1_000_000;
     const areaHectares = areaSqMeters / 10_000;
 

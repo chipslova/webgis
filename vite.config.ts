@@ -19,7 +19,8 @@ export default defineConfig({
       output: {
         manualChunks: {
           maplibre: ['maplibre-gl'],
-          turf: ['@turf/turf'],
+          'turf-measure': ['@turf/area', '@turf/length', '@turf/helpers'],
+          'spatial-buffer': ['@turf/buffer', '@/tools/spatial-buffer'],
           pmtiles: ['pmtiles']
         }
       }

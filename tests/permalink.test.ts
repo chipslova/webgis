@@ -71,4 +71,29 @@ describe('PermalinkManager - URL Hash Parsing & Serialization', () => {
     expect(state.lng).toBeUndefined();
     expect(state.zoom).toBeUndefined();
   });
+
+  it('should manage saved views (tampilan tersimpan) in localStorage correctly', () => {
+    let store: Record<string, string> = {};
+    (globalThis as any).window = globalThis;
+    (globalThis as any).localStorage = {
+      getItem: (key: string) => store[key] || null,
+      setItem: (key: string, value: string) => { store[key] = value; },
+      removeItem: (key: string) => { delete store[key]; },
+      clear: () => { store = {}; }
+    };
+
+    expect(PermalinkManager.getSavedProjects()).toEqual([]);
+
+    localStorage.setItem('webgis_saved_projects', JSON.stringify([
+      { id: 'proj-1', name: 'IKN Nusantara', timestamp: Date.now(), dateFormatted: '15 Sep 2026', hash: '#map=12/-0.97/116.7' }
+    ]));
+
+    const list = PermalinkManager.getSavedProjects();
+    expect(list.length).toBe(1);
+    expect(list[0].name).toBe('IKN Nusantara');
+
+    const deleted = PermalinkManager.deleteSavedProject('proj-1');
+    expect(deleted).toBe(true);
+    expect(PermalinkManager.getSavedProjects().length).toBe(0);
+  });
 });
