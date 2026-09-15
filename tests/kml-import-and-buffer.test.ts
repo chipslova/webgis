@@ -206,7 +206,7 @@ describe('GeoJsonLoader File Import & Buffer Workflow', () => {
     expect(layer?.type).toBe('point');
   });
 
-  it('should load KML string correctly via loadFromFileText and generate a buffer', () => {
+  it('should load KML string correctly via loadFromFileText and generate a buffer', async () => {
     const mockMap = createMockMap();
     const loader = new GeoJsonLoader(mockMap);
     const kmlString = `<?xml version="1.0" encoding="UTF-8"?>
@@ -232,7 +232,7 @@ describe('GeoJsonLoader File Import & Buffer Workflow', () => {
     expect(layer?.type).toBe('point');
 
     // Test buffer generation from this loaded layer
-    const bufRes = loader.createBufferForLayer(res.layerId!, 2, 'kilometers');
+    const bufRes = await loader.createBufferForLayer(res.layerId!, 2, 'kilometers');
     expect(bufRes.success).toBe(true);
     expect(bufRes.bufferLayerId).toBeDefined();
     expect(bufRes.areaKm2).toBeGreaterThan(10); // ~12.56 km²

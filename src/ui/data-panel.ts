@@ -113,7 +113,7 @@ export class DataPanelUI {
       // Buffer layer button
       const bufferBtn = item.querySelector<HTMLButtonElement>('.btn-buffer-layer');
       if (bufferBtn) {
-        bufferBtn.addEventListener('click', (e) => {
+        bufferBtn.addEventListener('click', async (e) => {
           e.stopPropagation();
           const input = prompt(`Masukkan radius zona buffer untuk layer "${layer.name}" dalam kilometer (contoh: 1, 5, 10, 25):`, '5');
           if (input === null) return;
@@ -126,7 +126,7 @@ export class DataPanelUI {
             showToast('Maksimum radius buffer adalah 500 km.', 'warning');
             return;
           }
-          const res = this.geojsonLoader.createBufferForLayer(layer.id, radius, 'kilometers');
+          const res = await this.geojsonLoader.createBufferForLayer(layer.id, radius, 'kilometers');
           if (res.success) {
             this.render();
             this.onLayerChange();

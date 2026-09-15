@@ -3,7 +3,6 @@ import { logger } from '../utils/logger';
 import { ErrorHandler } from '../utils/error-handler';
 import { parseKMLToGeoJSON } from '../utils/kml-parser';
 import { parseCSVToGeoJSON } from '../utils/csv-parser';
-import { SpatialBufferAnalyzer } from './spatial-buffer';
 
 export interface CustomLayerItem {
   id: string;
@@ -545,41 +544,47 @@ export class GeoJsonLoader {
   }
 
   /**
-   * Creates a geodesic proximity buffer around an existing custom layer
+   * Creates a geodesic proximity buffer around an existing custom layer (lazily loaded)
    */
-  public createBufferForLayer(
+  public async createBufferForLayer(
     sourceLayerId: string,
     radius: number,
     units: 'meters' | 'kilometers' | 'miles' = 'kilometers'
-  ): { success: boolean; bufferLayerId?: string; error?: string; areaKm2?: number } {
+  ): Promise<{ success: boolean; bufferLayerId?: string; error?: string; areaKm2?: number }> {
     const sourceItem = this.customLayers.get(sourceLayerId);
     if (!sourceItem || !sourceItem.data) {
       return { success: false, error: 'Layer sumber tidak ditemukan.' };
     }
 
-    const bufferRes = SpatialBufferAnalyzer.createBuffer(sourceItem.data, { radius, units });
-    if (!bufferRes.success || !bufferRes.data) {
-      return { success: false, error: bufferRes.error || 'Gagal menghitung zona buffer.' };
+    try {
+      const { SpatialBufferAnalyzer } = await import('./spatial-buffer');
+      const bufferRes = SpatialBufferAnalyzer.createBuffer(sourceItem.data, { radius, units });
+      if (!bufferRes.success || !bufferRes.data) {
+        return { success: false, error: bufferRes.error || 'Gagal menghitung zona buffer.' };
+      }
+
+      const bufferLayerId = `buffer-${Date.now()}`;
+      const bufferLayerName = `Buffer (${radius} ${units}) - ${sourceItem.name}`;
+      const bufferColor = '#a855f7'; // Distinctive purple-violet for buffer zones
+
+      const added = this.addGeoJSONLayer(bufferLayerId, bufferLayerName, bufferRes.data, bufferColor);
+      if (!added) {
+        return { success: false, error: 'Gagal menambahkan layer buffer ke peta.' };
+      }
+
+      // Set gentle fill opacity for buffer zones
+      this.setLayerOpacity(bufferLayerId, 0.45);
+      this.notifyLayersChange();
+
+      return {
+        success: true,
+        bufferLayerId,
+        areaKm2: bufferRes.areaKm2
+      };
+    } catch (err: any) {
+      logger.error('Failed to dynamically load spatial buffer analyzer:', err);
+      return { success: false, error: 'Gagal memuat modul analisis buffer.' };
     }
-
-    const bufferLayerId = `buffer-${Date.now()}`;
-    const bufferLayerName = `Buffer (${radius} ${units}) - ${sourceItem.name}`;
-    const bufferColor = '#a855f7'; // Distinctive purple-violet for buffer zones
-
-    const added = this.addGeoJSONLayer(bufferLayerId, bufferLayerName, bufferRes.data, bufferColor);
-    if (!added) {
-      return { success: false, error: 'Gagal menambahkan layer buffer ke peta.' };
-    }
-
-    // Set gentle fill opacity for buffer zones
-    this.setLayerOpacity(bufferLayerId, 0.45);
-    this.notifyLayersChange();
-
-    return {
-      success: true,
-      bufferLayerId,
-      areaKm2: bufferRes.areaKm2
-    };
   }
 }
 
