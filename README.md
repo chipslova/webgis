@@ -2,7 +2,7 @@
 
 An interactive WebGIS platform for exploring Indonesian Earth Observation datasets and spatial analytics workflows. Integrates BIG Piksel OGC Web Map Services (WMS), Google Earth Engine (GEE) Jabodetabek case study datasets, 3D terrain and building extrusions, and client-side geodesic calculations.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-webgis--lulu--6ab7.vercel.app-00f0ff?style=for-the-badge&logo=vercel)](https://webgis-lulu-6ab7.vercel.app/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-webgis--three--iota.vercel.app-00f0ff?style=for-the-badge&logo=vercel)](https://webgis-three-iota.vercel.app/)
 [![CI](https://github.com/chipslova/webgis/actions/workflows/ci.yml/badge.svg)](https://github.com/chipslova/webgis/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.3.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
