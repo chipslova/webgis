@@ -50,6 +50,11 @@
       <div class="offline-text">
         <strong>Mode Offline</strong> — Koneksi internet terputus. Data citra dan layer baru tidak dapat dimuat hingga koneksi pulih.
       </div>
+    <!-- Presentation Mode Exit Floating Chip -->
+    <div id="presentation-exit-chip" class="presentation-exit-chip hidden" role="region" aria-label="Kontrol Mode Presentasi">
+      <span class="presentation-pill-label">🎯 Mode Presentasi Aktif</span>
+      <span class="presentation-pill-hint">Tekan <kbd>Esc</kbd> atau <kbd>F</kbd></span>
+      <button id="btn-exit-presentation" class="btn-exit-pres-pill" aria-label="Keluar dari mode presentasi">✕ Keluar</button>
     </div>
 
     <div id="app">
@@ -109,6 +114,10 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             <span class="btn-text-label">Bagikan</span>
           </button>
+          <button id="btn-toggle-presentation" class="btn btn-secondary header-action-btn" title="Mode Presentasi Bersih / Layar Penuh (F)" aria-label="Aktifkan mode presentasi layar penuh">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            <span class="btn-text-label">Presentasi (<kbd>F</kbd>)</span>
+          </button>
           <button id="btn-export-map" class="btn btn-secondary header-action-btn" title="Simpan Tangkapan Layar Peta" aria-label="Simpan dan unduh tangkapan layar peta dalam format PNG">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             <span class="btn-text-label">Simpan Peta</span>
@@ -120,6 +129,10 @@
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
             </button>
             <div id="header-more-dropdown" class="header-more-dropdown" style="display: none;" role="menu" aria-label="Menu Aksi">
+              <button class="more-item" id="more-item-presentation" role="menuitem">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                <span>Mode Presentasi (F)</span>
+              </button>
               <button class="more-item" id="more-item-tour" role="menuitem">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                 <span>Demo Fitur (30 Detik)</span>
@@ -756,6 +769,48 @@
                         </tr>
                       </tbody>
                     </table>
+                  </div>
+                </div>
+              </details>
+
+              <!-- Scientific Citation & BibTeX Box -->
+              <details class="clean-accordion" open style="margin-top: 12px;">
+                <summary>
+                  <span>📜 Format Sitasi & Bibliografi (APA & BibTeX)</span>
+                </summary>
+                <div class="accordion-body">
+                  <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">
+                    Gunakan format sitasi berikut untuk keperluan publikasi ilmiah, skripsi, atau laporan teknis yang memanfaatkan platform ini:
+                  </p>
+                  
+                  <!-- APA Format -->
+                  <div class="citation-block">
+                    <div class="citation-header">
+                      <span class="citation-format-tag">Format APA (7th Ed.)</span>
+                      <button class="btn-copy-citation icon-btn-sm" data-target="citation-apa-text" title="Salin format APA" aria-label="Salin sitasi format APA">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        <span>Salin APA</span>
+                      </button>
+                    </div>
+                    <pre id="citation-apa-text" class="citation-text">Badan Informasi Geospasial, & Geoscience Australia. (2025). Digital Earth Indonesia: Sentinel-2 GeoMAD and Landsat Earth Observation Services. OGC Web Map Service. https://webgis-three-iota.vercel.app/</pre>
+                  </div>
+
+                  <!-- BibTeX Format -->
+                  <div class="citation-block" style="margin-top: 8px;">
+                    <div class="citation-header">
+                      <span class="citation-format-tag">Format BibTeX</span>
+                      <button class="btn-copy-citation icon-btn-sm" data-target="citation-bibtex-text" title="Salin format BibTeX" aria-label="Salin sitasi format BibTeX">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        <span>Salin BibTeX</span>
+                      </button>
+                    </div>
+                    <pre id="citation-bibtex-text" class="citation-text">@software{DigitalEarthIndonesia2025,
+  author = {{Badan Informasi Geospasial} and {Geoscience Australia}},
+  title = {Digital Earth Indonesia WebGIS Platform},
+  year = {2025},
+  url = {https://webgis-three-iota.vercel.app/},
+  note = {Earth Observation & Geospatial Analytics}
+}</pre>
                   </div>
                 </div>
               </details>

@@ -8,7 +8,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.3.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-112%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-120%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
   <img src="docs/preview.jpg" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
@@ -48,14 +48,16 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
   2. **Jabodetabek & Jawa Barat**: Google Earth Engine MODIS thermal Land Surface Temp (LST) & Urban Heat Island (UHI) analysis.
   3. **Bandung Basin**: 3D Terrarium terrain elevation mesh & OpenFreeMap 3D building extrusions.
 * **Smart Auto-Navigation**: When selecting high-resolution satellite products at low zoom levels ($Z < 8$), the camera automatically flies smoothly into the optimal study area preset (e.g. Bromo, IKN, Toba) with an informative toast notification and one-click undo.
+* **Interactive Inset Locator Map**: Miniature overview map of the Indonesian archipelago positioned at the bottom viewport, rendering the live camera bounding box and offering click-to-fly navigation.
 
-### 🛰️ 2. Piksel Earth Observation (BIG × Geoscience Australia)
+### 🛰️ 2. Piksel Earth Observation & Spectral Filter Adjustments
 * **Sentinel-2 GeoMAD Mosaics (10m)**: Annual cloud-free Median Absolute Deviation composites across Indonesia (2017–2025).
 * **Spectral Indices**: Computed server-side via Open Data Cube and rendered via OGC WMS:
   * **NDVI** (Normalized Difference Vegetation Index)
   * **NDWI** (Normalized Difference Water Index)
   * **NIR Surface Reflectance**
   * **Observation Density** (Scene acquisition count & coverage)
+* **Real-Time Spectral & Visual Filter Controls**: Non-destructive client-side adjustment of Brightness, Contrast, and Saturation sliders for enhanced optical feature extraction.
 * **Landsat 9 Swath Analyses**: USGS/NASA surface reflectance (2021–2026).
 * **Piksel Flood Hazard Modeling**: Hydrological floodplain classifications (`flood_hazard_rp02` & `rp10`) for priority study areas.
 * **Piksel Data Cube Tile Index**: Interactive overlay of 1,631 Open Data Cube tile boundaries across Indonesian territory.
@@ -89,7 +91,9 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 * **Spatial Proximity Buffer Analysis**: Real-time geodesic buffer polygon generation around points, lines, and polygons with calculated total area (km²).
 * **Spatial Attribute Table Panel**: Full-featured tabular data inspector for custom layers with real-time text search, feature highlighting, and safe HTML escaping.
 
-### 🔗 7. State Sharing, Tampilan Tersimpan (Saved Views) & Cartographic Export
+### 🎯 7. Presentation Mode, State Sharing & Academic Citations
+* **Presentation Mode (<kbd>F</kbd>)**: Distraction-free full-canvas display mode with a minimalist floating exit chip.
+* **Academic Data Citations**: Formatted APA (7th Ed.) and BibTeX citations with one-click copy buttons in the About panel.
 * **Stateful Permalink URL**: Automatically synchronizes coordinates, zoom, pitch, bearing, active basemap, Sentinel-2 product/year, and GEE layers directly to the URL hash.
 * **Tampilan Tersimpan (Saved Views)**: Save, name, and restore custom camera viewpoints, basemaps, and Piksel satellite products locally via `localStorage`.
 * **Cartographic PNG Export**: High-resolution map export featuring a dynamic bearing-synchronized **North Arrow**, geodesic **Metric Scale Bar** (meters/km), title banner, coordinate metadata, EPSG:3857 CRS tag, and timestamped attribution.
@@ -99,6 +103,30 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 ---
 
 ## 🏗️ Technical Architecture
+
+```mermaid
+graph TD
+    subgraph Client Browser
+        UI[Antarmuka WebGIS / UI Controls] --> MM[MapManager / MapLibre GL v6.3]
+        MM --> Canvas[WebGL2 Interactive Canvas]
+        MM --> Overview[OverviewMapUI / Inset Locator]
+        MM --> Turf[Turf.js Geodesic Engine]
+    end
+
+    subgraph Data & Tile Pipeline
+        MM -->|Raster WMS Tiles| Proxy[Vercel Edge Proxy /api/wms-proxy]
+        Proxy -->|OGC WMS 1.3.0| BIG[BIG Piksel Open Data Cube Server]
+        MM -->|Vector & Basemap Tiles| BasemapSrc[Esri / OpenFreeMap / BIG RBI Tile Endpoints]
+        MM -->|Raster DEM Mesh| AWSDEM[AWS Terrarium 30m Global Mesh]
+        MM -->|Lazy Asynchronous Fetch| LocalData[/data/*.geojson GEE Datasets & Index]
+    end
+
+    subgraph Storage & Sync
+        MM <--> Hash[URL Hash Permalink Sync]
+        UI <--> LStorage[localStorage Saved Views]
+        ServiceWorker[Service Worker Cache] -.-> UI
+    end
+```
 
 * **XSS Defense-in-Depth**: Strict HTML sanitization on all user-controlled strings (GeoJSON feature properties, filenames, layer labels) combined with strict HTTP Content-Security-Policy headers in `vercel.json`.
 * **Bundle Efficiency**: Heavy static GeoJSON datasets are loaded lazily via asynchronous HTTP requests (`/data/*.geojson`), keeping the core minified JavaScript bundle to ~263 KB (~70 KB gzipped) with modular chunk splitting for MapLibre, Turf.js (`turf-measure` at 6.2 KB), and PMTiles.
@@ -135,7 +163,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 * **Mapping Engine**: [MapLibre GL JS](https://maplibre.org/) (v6.3.0)
 * **Spatial Calculations**: [@turf/turf](https://turfjs.org/) (Modular imports: `@turf/helpers`, `@turf/length`, `@turf/area`, `@turf/buffer`, `@turf/distance`)
 * **Raster / Vector Protocols**: OGC WMS 1.3.0, PMTiles, GeoJSON, TileJSON
-* **Testing Framework**: [Vitest](https://vitest.dev/) (112 unit, integration & E2E tests — 100% passing)
+* **Testing Framework**: [Vitest](https://vitest.dev/) (120 unit, integration & E2E tests — 100% passing)
 * **Build Tool**: [Vite 6](https://vitejs.dev/)
 * **Package Manager / Runtime**: [Bun](https://bun.sh/)
 

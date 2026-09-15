@@ -21,6 +21,7 @@ export const GIS_SHORTCUTS: ShortcutGroup[] = [
     category: 'Navigasi & Tampilan',
     items: [
       { key: 'Ctrl + K / ⌘K', description: 'Buka Command Palette / Pencarian Cepat' },
+      { key: 'F', description: 'Mode Presentasi / Kanvas Peta Layar Penuh (Fullscreen)' },
       { key: 'B', description: 'Buka Galeri Basemap' },
       { key: 'L', description: 'Buka Tab Manajemen Layer & Citra Satelit' },
       { key: 'P', description: 'Buka Analisis Studi Kasus Termal GEE' },

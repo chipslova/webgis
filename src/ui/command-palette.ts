@@ -193,6 +193,18 @@ export class CommandPaletteUI {
     // 4. Tools & Actions
     commands.push(
       {
+        id: 'tool-presentation',
+        category: 'tools',
+        categoryLabel: '⚡ Fitur & Analisis',
+        title: 'Mode Presentasi / Layar Penuh (F)',
+        subtitle: 'Sembunyikan panel untuk tampilan kanvas peta bersih tanpa distraksi',
+        icon: '🎯',
+        keywords: ['presentation', 'presentasi', 'fullscreen', 'layar penuh', 'bersih', 'kanvas', 'f'],
+        action: () => {
+          document.getElementById('btn-toggle-presentation')?.click();
+        }
+      },
+      {
         id: 'tool-swipe',
         category: 'tools',
         categoryLabel: '⚡ Fitur & Analisis',

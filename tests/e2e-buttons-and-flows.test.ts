@@ -414,5 +414,16 @@ describe('E2E WebGIS Exhaustive Buttons & Interaction Flow Audit', () => {
       quickSwitchBtn.click();
       expect(mapManager.getCurrentBasemapId()).toBe('openfreemap-liberty');
     });
+
+    it('3. Presentation Mode: toggle button and exit chip exist in DOM', () => {
+      const presBtn = document.getElementById('btn-toggle-presentation');
+      const exitChip = document.getElementById('presentation-exit-chip');
+      const morePresItem = document.getElementById('more-item-presentation');
+
+      expect(presBtn).not.toBeNull();
+      expect(exitChip).not.toBeNull();
+      expect(morePresItem).not.toBeNull();
+      expect(exitChip?.classList.contains('hidden')).toBe(true);
+    });
   });
 });

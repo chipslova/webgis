@@ -37,6 +37,9 @@ export class PikselLoader {
   private activeProductId: string | null = null;
   private selectedYear: string = '2025';
   private currentOpacity: number = 0.85;
+  private currentBrightness: number = 0;
+  private currentContrast: number = 0;
+  private currentSaturation: number = 0;
   private gridVisible: boolean = false;
   private popup: maplibregl.Popup;
   private isEventsBound: boolean = false;
@@ -596,7 +599,11 @@ export class PikselLoader {
         layout: { visibility: 'visible' },
         paint: {
           'raster-opacity': this.currentOpacity,
-          'raster-fade-duration': 250
+          'raster-fade-duration': 250,
+          'raster-brightness-min': this.currentBrightness > 0 ? this.currentBrightness * 0.5 : 0,
+          'raster-brightness-max': this.currentBrightness < 0 ? Math.max(0.2, 1 + this.currentBrightness * 0.5) : 1,
+          'raster-contrast': this.currentContrast,
+          'raster-saturation': this.currentSaturation
         }
       });
     } catch (e) {
@@ -633,6 +640,52 @@ export class PikselLoader {
       this.map.setPaintProperty(layerId, 'raster-opacity', opacity);
     }
     this.notifyLayersChange();
+  }
+
+  public getFilters() {
+    return {
+      brightness: this.currentBrightness,
+      contrast: this.currentContrast,
+      saturation: this.currentSaturation
+    };
+  }
+
+  public setBrightness(val: number) {
+    this.currentBrightness = Math.max(-1, Math.min(1, val));
+    this.applyRasterFilters();
+  }
+
+  public setContrast(val: number) {
+    this.currentContrast = Math.max(-1, Math.min(1, val));
+    this.applyRasterFilters();
+  }
+
+  public setSaturation(val: number) {
+    this.currentSaturation = Math.max(-1, Math.min(1, val));
+    this.applyRasterFilters();
+  }
+
+  public resetFilters() {
+    this.currentBrightness = 0;
+    this.currentContrast = 0;
+    this.currentSaturation = 0;
+    this.applyRasterFilters();
+  }
+
+  private applyRasterFilters() {
+    if (!this.map || !this.activeProductId) return;
+    const layerId = `piksel-raster-${this.activeProductId}`;
+    if (!this.map.getLayer(layerId)) return;
+
+    const bMin = this.currentBrightness > 0 ? this.currentBrightness * 0.5 : 0;
+    const bMax = this.currentBrightness < 0 ? Math.max(0.2, 1 + this.currentBrightness * 0.5) : 1;
+
+    try {
+      this.map.setPaintProperty(layerId, 'raster-brightness-min', bMin);
+      this.map.setPaintProperty(layerId, 'raster-brightness-max', bMax);
+      this.map.setPaintProperty(layerId, 'raster-contrast', this.currentContrast);
+      this.map.setPaintProperty(layerId, 'raster-saturation', this.currentSaturation);
+    } catch (_) {}
   }
 
   public setGridVisible(visible: boolean) {

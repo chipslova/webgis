@@ -42,6 +42,10 @@ export class PikselPanelUI {
 
     const activeProduct = this.pikselLoader.getActiveProduct();
     const opacityPct = Math.round(this.pikselLoader.getOpacity() * 100);
+    const filters = this.pikselLoader.getFilters();
+    const brightnessPct = Math.round(filters.brightness * 100);
+    const contrastPct = Math.round(filters.contrast * 100);
+    const saturationPct = Math.round(filters.saturation * 100);
     const isGridOn = this.pikselLoader.isGridVisible();
     const currentYear = this.pikselLoader.getSelectedYear();
     const diagnostics = this.pikselLoader.getDiagnostics();
@@ -155,6 +159,48 @@ export class PikselPanelUI {
             </div>
             <input type="range" id="piksel-master-opacity" min="0" max="100" value="${opacityPct}" class="clean-range-slider" aria-label="Transparansi layer ${activeProduct.name}" />
           </div>
+
+          <!-- Satellite Image Adjustments (Koreksi Spektral & Visual) -->
+          <details class="clean-accordion" style="margin-top: 8px;">
+            <summary>
+              <span>🎨 Koreksi Spektral & Penyesuaian Citra</span>
+              <span style="font-size: 10px; color: var(--accent-cyan); font-weight: 600;">FILTER</span>
+            </summary>
+            <div class="accordion-body" style="display: flex; flex-direction: column; gap: 8px; padding-top: 8px;">
+              <!-- Brightness -->
+              <div class="active-slider-field" style="margin-bottom: 0;">
+                <div class="slider-label-row">
+                  <label for="piksel-filter-brightness" style="font-size: 11px;">Kecerahan (Brightness)</label>
+                  <strong id="piksel-brightness-val" style="font-size: 11px;">${brightnessPct > 0 ? '+' : ''}${brightnessPct}%</strong>
+                </div>
+                <input type="range" id="piksel-filter-brightness" min="-100" max="100" step="5" value="${brightnessPct}" class="clean-range-slider" aria-label="Penyesuaian Kecerahan Citra Satelit" />
+              </div>
+
+              <!-- Contrast -->
+              <div class="active-slider-field" style="margin-bottom: 0;">
+                <div class="slider-label-row">
+                  <label for="piksel-filter-contrast" style="font-size: 11px;">Kontras (Contrast)</label>
+                  <strong id="piksel-contrast-val" style="font-size: 11px;">${contrastPct > 0 ? '+' : ''}${contrastPct}%</strong>
+                </div>
+                <input type="range" id="piksel-filter-contrast" min="-100" max="100" step="5" value="${contrastPct}" class="clean-range-slider" aria-label="Penyesuaian Kontras Citra Satelit" />
+              </div>
+
+              <!-- Saturation -->
+              <div class="active-slider-field" style="margin-bottom: 0;">
+                <div class="slider-label-row">
+                  <label for="piksel-filter-saturation" style="font-size: 11px;">Saturasi Warna</label>
+                  <strong id="piksel-saturation-val" style="font-size: 11px;">${saturationPct > 0 ? '+' : ''}${saturationPct}%</strong>
+                </div>
+                <input type="range" id="piksel-filter-saturation" min="-100" max="100" step="5" value="${saturationPct}" class="clean-range-slider" aria-label="Penyesuaian Saturasi Citra Satelit" />
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; margin-top: 2px;">
+                <button type="button" id="btn-reset-piksel-filters" class="btn-micro" style="padding: 3px 8px;" title="Kembalikan nilai koreksi citra ke bawaan">
+                  Reset Penyesuaian
+                </button>
+              </div>
+            </div>
+          </details>
 
           <!-- Active Product Legend & Swatches -->
           ${legendHtml}
@@ -659,6 +705,14 @@ export class PikselPanelUI {
         this.render();
         return;
       }
+
+      // 8. Reset filters button
+      if (target.closest('#btn-reset-piksel-filters')) {
+        this.pikselLoader.resetFilters();
+        this.render();
+        showToast('Koreksi spektral citra direset ke nilai awal', 'info');
+        return;
+      }
     });
 
     container.addEventListener('input', (e) => {
@@ -668,6 +722,21 @@ export class PikselPanelUI {
         const text = document.getElementById('piksel-opacity-text');
         if (text) text.innerText = `${val}%`;
         this.pikselLoader.setOpacity(val / 100);
+      } else if (target.id === 'piksel-filter-brightness') {
+        const val = Number(target.value);
+        const text = document.getElementById('piksel-brightness-val');
+        if (text) text.innerText = `${val > 0 ? '+' : ''}${val}%`;
+        this.pikselLoader.setBrightness(val / 100);
+      } else if (target.id === 'piksel-filter-contrast') {
+        const val = Number(target.value);
+        const text = document.getElementById('piksel-contrast-val');
+        if (text) text.innerText = `${val > 0 ? '+' : ''}${val}%`;
+        this.pikselLoader.setContrast(val / 100);
+      } else if (target.id === 'piksel-filter-saturation') {
+        const val = Number(target.value);
+        const text = document.getElementById('piksel-saturation-val');
+        if (text) text.innerText = `${val > 0 ? '+' : ''}${val}%`;
+        this.pikselLoader.setSaturation(val / 100);
       }
     });
 

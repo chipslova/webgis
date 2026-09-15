@@ -8744,3 +8744,323 @@ html, body, #app {
   border-radius: 4px;
   color: #fff;
 }
+
+/* ==========================================================================
+   Presentation / Clean Fullscreen Canvas Mode
+   ========================================================================== */
+body.presentation-mode .app-header {
+  transform: translateY(-100%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+body.presentation-mode .sidebar {
+  transform: translateX(-100%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+body.presentation-mode .dock-container,
+body.presentation-mode .app-footer,
+body.presentation-mode .offline-banner {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(20px) !important;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+body.presentation-mode #map {
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+.presentation-exit-chip {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 18px;
+  background: rgba(13, 21, 38, 0.94);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--accent-cyan);
+  border-radius: var(--radius-full);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 16px var(--accent-cyan-glow);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+  animation: slideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.presentation-exit-chip.hidden {
+  display: none !important;
+}
+
+.presentation-pill-label {
+  font-weight: 600;
+  color: var(--accent-cyan);
+}
+
+.presentation-pill-hint {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.presentation-pill-hint kbd {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-family: inherit;
+  color: #ffffff;
+}
+
+.btn-exit-pres-pill {
+  background: rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-exit-pres-pill:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   Scientific Citations & BibTeX Block
+   ========================================================================== */
+.citation-block {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  position: relative;
+}
+
+.citation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.citation-format-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+}
+
+.btn-copy-citation {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-copy-citation:hover {
+  background: var(--accent-cyan);
+  color: #070b14;
+  border-color: var(--accent-cyan);
+}
+
+.citation-text {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  line-height: 1.5;
+  color: #cbd5e1;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  user-select: all;
+}
+
+/* ===================================================================
+   Overview / Inset Locator Map (Step 3)
+   =================================================================== */
+.overview-locator-map {
+  position: absolute;
+  right: 16px;
+  bottom: 40px;
+  z-index: 15;
+  width: 248px;
+  background: rgba(10, 15, 29, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.overview-locator-map:hover {
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.overview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  background: rgba(15, 23, 42, 0.75);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  user-select: none;
+}
+
+.overview-title-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.overview-icon {
+  font-size: 12px;
+}
+
+.overview-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.overview-toggle-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.overview-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.overview-chevron {
+  transition: transform 0.25s ease;
+}
+
+.overview-body {
+  padding: 6px 8px 8px 8px;
+  max-height: 160px;
+  opacity: 1;
+  transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.25s ease;
+}
+
+.overview-locator-map.collapsed {
+  width: auto;
+}
+
+.overview-locator-map.collapsed .overview-body {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  pointer-events: none;
+}
+
+.overview-locator-map.collapsed .overview-chevron {
+  transform: rotate(180deg);
+}
+
+.overview-svg {
+  width: 100%;
+  height: 94px;
+  display: block;
+  border-radius: 6px;
+  cursor: crosshair;
+  background: #081226;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.overview-bg-ocean {
+  fill: #081329;
+}
+
+.overview-equator-line {
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 0.8;
+}
+
+.overview-islands {
+  fill: #1e293b;
+  stroke: #334155;
+  stroke-width: 0.6;
+}
+
+.overview-island {
+  transition: fill 0.15s ease;
+}
+
+.overview-svg:hover .overview-islands {
+  fill: #253348;
+  stroke: #38bdf8;
+}
+
+.overview-viewport-rect {
+  fill: rgba(239, 68, 68, 0.22);
+  stroke: #ef4444;
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.6));
+  pointer-events: none;
+}
+
+.overview-center-dot {
+  fill: #f59e0b;
+  stroke: #ffffff;
+  stroke-width: 0.8;
+  filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.8));
+  pointer-events: none;
+}
+
+.overview-footer-hint {
+  font-size: 9px;
+  color: #64748b;
+  text-align: center;
+  margin-top: 4px;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 768px) {
+  .overview-locator-map {
+    right: 10px;
+    bottom: 38px;
+    width: 180px;
+  }
+  .overview-svg {
+    height: 72px;
+  }
+}

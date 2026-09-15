@@ -26,6 +26,7 @@ import { SwipeCompareUI } from './ui/swipe-compare-ui';
 import { CommandPaletteUI } from './ui/command-palette';
 import { AttributeTableUI } from './ui/attribute-table-panel';
 import { ShortcutsModalUI } from './ui/shortcuts-modal';
+import { OverviewMapUI } from './ui/overview-map';
 import { ErrorHandler } from './utils/error-handler';
 import { setupUniversalEscapeHandler, announceToScreenReader, closeMenu, toggleMenu } from './utils/a11y';
 import { escapeHtml } from './utils/sanitize';
@@ -56,6 +57,8 @@ class WebGISApp {
   private commandPaletteUI: CommandPaletteUI | null = null;
   private attributeTableUI: AttributeTableUI | null = null;
   private shortcutsModalUI: ShortcutsModalUI | null = null;
+  private overviewMapUI: OverviewMapUI | null = null;
+  private isPresentationMode: boolean = false;
   private errorHandler: ErrorHandler;
 
   constructor() {
@@ -80,6 +83,8 @@ class WebGISApp {
     this.bindMeasureEvents();
     this.bindShareEvents();
     this.bindExportEvents();
+    this.bindPresentationEvents();
+    this.bindCitationEvents();
     this.bindLegendEvents();
     this.bindTourEvents();
     this.bindSwipeEvents();
@@ -262,8 +267,9 @@ class WebGISApp {
         this.sidebarUI.setOpen(false);
       }
 
-      // Instantiate Point Inspector
+      // Instantiate Point Inspector & Overview Locator Inset Map
       this.pointInspector = new PointInspector(map, this.pikselLoader, this.geeLoader, this.geojsonLoader, this.measureTool);
+      this.overviewMapUI = new OverviewMapUI(map);
 
       // Bind measurement callbacks
       this.measureTool.onResult((res) => {
@@ -592,6 +598,28 @@ class WebGISApp {
     }
   }
 
+  private bindCitationEvents() {
+    document.querySelectorAll('.btn-copy-citation').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const targetId = (btn as HTMLElement).dataset.target;
+        if (!targetId) return;
+        const targetEl = document.getElementById(targetId);
+        if (!targetEl) return;
+        const text = targetEl.textContent || '';
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(() => {
+            showToast('Sitasi berhasil disalin ke clipboard!', 'success');
+            announceToScreenReader('Format sitasi berhasil disalin.');
+          }).catch(() => {
+            prompt('Salin teks sitasi:', text);
+          });
+        } else {
+          prompt('Salin teks sitasi:', text);
+        }
+      });
+    });
+  }
+
   private bindTourEvents() {
     const startTourBtn = document.getElementById('btn-start-tour');
     const quickTourBtn = document.getElementById('btn-quick-tour');
@@ -644,6 +672,60 @@ class WebGISApp {
     });
   }
 
+  private bindPresentationEvents() {
+    const presBtn = document.getElementById('btn-toggle-presentation');
+    const exitChipBtn = document.getElementById('btn-exit-presentation');
+
+    presBtn?.addEventListener('click', () => {
+      this.togglePresentationMode();
+    });
+
+    exitChipBtn?.addEventListener('click', () => {
+      this.togglePresentationMode();
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement && this.isPresentationMode) {
+        this.togglePresentationMode();
+      }
+    });
+  }
+
+  private togglePresentationMode() {
+    this.isPresentationMode = !this.isPresentationMode;
+    const body = document.body;
+    const exitChip = document.getElementById('presentation-exit-chip');
+
+    if (this.isPresentationMode) {
+      body.classList.add('presentation-mode');
+      exitChip?.classList.remove('hidden');
+      this.overviewMapUI?.setVisible(false);
+      showToast('Mode Presentasi Aktif. Tekan Esc atau F untuk keluar.', 'info', 3000);
+      announceToScreenReader('Mode presentasi aktif. Seluruh panel disembunyikan untuk tampilan kanvas peta penuh.');
+      try {
+        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+      } catch (_) {}
+    } else {
+      body.classList.remove('presentation-mode');
+      exitChip?.classList.add('hidden');
+      this.overviewMapUI?.setVisible(true);
+      showToast('Keluar dari Mode Presentasi', 'info', 2000);
+      announceToScreenReader('Keluar dari mode presentasi. Panel antarmuka ditampilkan kembali.');
+      try {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      } catch (_) {}
+    }
+
+    // Trigger map resize after CSS layout transitions
+    setTimeout(() => {
+      this.mapManager?.getMap()?.resize();
+    }, 250);
+  }
+
   private bindHeaderMoreEvents() {
     const moreBtn = document.getElementById('btn-header-more-actions');
     const dropdown = document.getElementById('header-more-dropdown');
@@ -669,6 +751,7 @@ class WebGISApp {
       });
     };
 
+    bindItem('more-item-presentation', () => this.togglePresentationMode());
     bindItem('more-item-tour', () => document.getElementById('btn-start-tour')?.click());
     bindItem('more-item-reset', () => document.getElementById('btn-reset-map')?.click());
     bindItem('more-item-import', () => document.getElementById('btn-quick-import')?.click());
@@ -691,7 +774,10 @@ class WebGISApp {
       }
 
       const key = e.key.toLowerCase();
-      if (key === 'm' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (key === 'f' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        this.togglePresentationMode();
+      } else if (key === 'm' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         const distBtn = document.getElementById('btn-measure-dist');
         distBtn?.click();
@@ -755,6 +841,14 @@ class WebGISApp {
 
   private bindUniversalEscape() {
     setupUniversalEscapeHandler([
+      () => {
+        // Presentation Mode
+        if (this.isPresentationMode) {
+          this.togglePresentationMode();
+          return true;
+        }
+        return false;
+      },
       () => {
         // 0. Spatial Attribute Table
         if (this.attributeTableUI?.isVisible()) {
