@@ -8809,8 +8809,8 @@ html, body, #app {
    =================================================================== */
 .overview-locator-map {
   position: absolute;
-  right: 16px;
-  bottom: 40px;
+  right: 14px;
+  bottom: 68px;
   z-index: 15;
   width: 248px;
   background: rgba(10, 15, 29, 0.88);
@@ -8821,6 +8821,36 @@ html, body, #app {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
   overflow: hidden;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* MapLibre Attribution & Scale Bar Spacing & Legibility */
+.maplibregl-ctrl-bottom-right {
+  bottom: 8px !important;
+  right: 12px !important;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.maplibregl-ctrl-attrib {
+  background: rgba(10, 15, 29, 0.82) !important;
+  backdrop-filter: blur(8px);
+  border-radius: 4px;
+  padding: 3px 8px !important;
+  color: #94a3b8 !important;
+  font-size: 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.maplibregl-ctrl-attrib a {
+  color: #38bdf8 !important;
+  text-decoration: none;
+}
+
+.maplibregl-ctrl-attrib a:hover {
+  text-decoration: underline;
 }
 
 .overview-locator-map:hover {
@@ -8960,11 +8990,11 @@ html, body, #app {
 
 @media (max-width: 768px) {
   .overview-locator-map {
-    right: 10px;
-    bottom: 38px;
-    width: 180px;
+    right: 8px;
+    bottom: 54px;
+    width: 175px;
   }
   .overview-svg {
-    height: 72px;
+    height: 70px;
   }
 }
