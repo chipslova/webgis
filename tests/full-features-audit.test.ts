@@ -91,7 +91,6 @@ describe('Full WebGIS Feature & Button Audit', () => {
       expect(document.getElementById('toggle-gee-landcover')).not.toBeNull();
       expect(document.getElementById('btn-download-geojson')).not.toBeNull();
       expect(document.getElementById('btn-download-csv')).not.toBeNull();
-      expect(document.getElementById('btn-download-geotiff')).not.toBeNull();
     });
 
     it('should contain Spatial Measurement (Turf.js) controls', () => {

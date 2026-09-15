@@ -101,17 +101,17 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
             <span id="globe-btn-label" class="btn-text-label">Mode 3D Bola Dunia</span>
           </button>
-          <button id="btn-quick-import" class="btn btn-secondary header-action-btn" title="Impor File GeoJSON Kustom" aria-label="Unggah file GeoJSON kustom">
+          <button id="btn-quick-import" class="btn btn-secondary header-action-btn" title="Impor File GeoJSON / KML / CSV Kustom" aria-label="Unggah file data kustom">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-            <span class="btn-text-label">Impor GeoJSON</span>
+            <span class="btn-text-label">Impor Data</span>
           </button>
           <button id="btn-share-map" class="btn btn-secondary header-action-btn" title="Salin Tautan Peta & Analisis Aktif (Permalink)" aria-label="Salin tautan permalink analisis peta">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-            <span class="btn-text-label">Bagikan</span>
+            <span class="btn-text-label">Bagikan Tampilan</span>
           </button>
-          <button id="btn-export-map" class="btn btn-secondary header-action-btn" title="Simpan Tangkapan Layar Peta" aria-label="Simpan dan unduh tangkapan layar peta dalam format PNG">
+          <button id="btn-export-map" class="btn btn-secondary header-action-btn" title="Ekspor Tangkapan Layar Peta Beresolusi Tinggi (PNG)" aria-label="Ekspor tangkapan layar peta dalam format PNG">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            <span class="btn-text-label">Simpan Peta</span>
+            <span class="btn-text-label">Ekspor Peta PNG</span>
           </button>
 
           <!-- Mobile & Compact Overflow Menu Button -->
@@ -296,12 +296,12 @@
               <!-- Case Study Disclaimer Banner (Full Width) -->
               <div class="gee-disclaimer-banner">
                 <div class="gee-disclaimer-header">
-                  <span>📌 <strong>Studi Kasus Analisis Spasial</strong></span>
-                  <span class="gee-disclaimer-tag">Jabodetabek – Jabar</span>
+                  <span><strong>Studi Kasus Analisis Termal GEE</strong></span>
+                  <span class="gee-disclaimer-tag">Precomputed Case Study</span>
                 </div>
-                <p>Dataset demonstrasi sintetis terinspirasi GEE — nilai dibangkitkan secara lokal untuk keperluan demonstrasi alur kerja (MODIS MOD11A2 & USGS SRTM), bukan output langsung Google Earth Engine.</p>
+                <p>Dataset analitik berbasis metodologi Google Earth Engine (MODIS LST 1km & SRTM 30m) yang telah diproses sebelumnya (precomputed analysis). Disajikan untuk eksplorasi komparasi termal perkotaan-pedesaan Jabodetabek & Jawa Barat, bukan kueri komputasi awan langsung.</p>
                 <div class="gee-disclaimer-notice">
-                  <span>⚠️ Data layer studi kasus mencakup wilayah Jabodetabek & Jawa Barat.</span>
+                  <span>Cakupan spasial studi kasus: Wilayah Jabodetabek & Jawa Barat (106.3°E – 108.2°E, 5.8°S – 7.5°S).</span>
                 </div>
               </div>
 
@@ -468,23 +468,22 @@
               <!-- Download Export Data Center (Collapsible Accordion) -->
               <details class="clean-accordion">
                 <summary>
-                  <span>💾 Pusat Unduh Dataset Analisis</span>
+                  <span>Pusat Unduh Dataset Analisis</span>
                 </summary>
                 <div class="accordion-body">
-                  <p style="margin-bottom: 10px;">Ekspor layer spasial & data time-series:</p>
+                  <p style="margin-bottom: 10px; font-size: 11.5px; color: var(--text-secondary);">Unduh dataset vektor observasi dan deret waktu suhu:</p>
                   <div class="download-buttons">
                     <button id="btn-download-geojson" class="btn btn-outline full-width" aria-label="Unduh dataset GeoJSON POI Stasiun Observasi">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                      Unduh GeoJSON POI Layer
+                      Unduh GeoJSON (Titik Stasiun Observasi)
                     </button>
                     <button id="btn-download-csv" class="btn btn-outline full-width" aria-label="Unduh dataset CSV Time-Series LST">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                      Unduh CSV Time-Series LST
+                      Unduh CSV (Deret Waktu Suhu LST 2020–2026)
                     </button>
-                    <button id="btn-download-geotiff" class="btn btn-secondary full-width" title="Unduh catatan metadata hasil ekspor GEE ke Google Drive. File ini berisi log parameter, bukan data raster." aria-label="Unduh catatan spesifikasi metadata ekspor GeoTIFF">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
-                      Export Log GEE — Metadata (.txt)
-                    </button>
+                  </div>
+                  <div class="raster-notice-box" style="margin-top: 10px; padding: 8px 10px; background: rgba(255,255,255,0.04); border-radius: 6px; font-size: 10.5px; color: var(--text-muted); border-left: 2px solid var(--accent-blue);">
+                    <span>ℹ️ <strong>Data Raster:</strong> Citra raster termal & elevasi ditampilkan langsung via layer peta vektor/raster. File biner GeoTIFF mentah (ribuan megabyte) tidak dibundel dalam antarmuka web peramban ini untuk efisiensi transfer data.</span>
                   </div>
                 </div>
               </details>

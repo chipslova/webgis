@@ -118,7 +118,6 @@ export class GEEPanelUI {
   private bindDownloadEvents() {
     const btnGeoJSON = document.getElementById('btn-download-geojson');
     const btnCSV = document.getElementById('btn-download-csv');
-    const btnTIFF = document.getElementById('btn-download-geotiff');
 
     if (btnGeoJSON) {
       btnGeoJSON.addEventListener('click', () => {
@@ -137,16 +136,6 @@ export class GEEPanelUI {
         link.download = 'gee_lst_timeseries_jakarta.csv';
         link.click();
         showToast('Mengunduh data deret waktu suhu LST (CSV)...', 'info');
-      });
-    }
-
-    if (btnTIFF) {
-      btnTIFF.addEventListener('click', () => {
-        const link = document.createElement('a');
-        link.href = '/downloads/my_export_jakarta_elevation.geotiff.txt';
-        link.download = 'elevation_near_jakarta_export_log.txt';
-        link.click();
-        showToast('Mengunduh log metadata & spesifikasi ekspor GeoTIFF (TXT)...', 'info');
       });
     }
   }
