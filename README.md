@@ -105,25 +105,25 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 
 ```mermaid
 graph TD
-    subgraph Client Browser
-        UI[Antarmuka WebGIS / UI Controls] --> MM[MapManager / MapLibre GL v6.3]
-        MM --> Canvas[WebGL2 Interactive Canvas]
-        MM --> Overview[OverviewMapUI / Inset Locator]
-        MM --> Turf[Turf.js Geodesic Engine]
+    subgraph Client_Browser["Client Browser"]
+        UI["Antarmuka WebGIS / UI Controls"] --> MM["MapManager / MapLibre GL v6.3"]
+        MM --> Canvas["WebGL2 Interactive Canvas"]
+        MM --> Overview["OverviewMapUI / Inset Locator"]
+        MM --> Turf["Turf.js Geodesic Engine"]
     end
 
-    subgraph Data & Tile Pipeline
-        MM -->|Raster WMS Tiles| Proxy[Vercel Edge Proxy /api/wms-proxy]
-        Proxy -->|OGC WMS 1.3.0| BIG[BIG Piksel Open Data Cube Server]
-        MM -->|Vector & Basemap Tiles| BasemapSrc[Esri / OpenFreeMap / BIG RBI Tile Endpoints]
-        MM -->|Raster DEM Mesh| AWSDEM[AWS Terrarium 30m Global Mesh]
-        MM -->|Lazy Asynchronous Fetch| LocalData[/data/*.geojson GEE Datasets & Index]
+    subgraph Data_Pipeline["Data & Tile Pipeline"]
+        MM -->|Raster WMS Tiles| Proxy["Vercel Edge Proxy /api/wms-proxy"]
+        Proxy -->|OGC WMS 1.3.0| BIG["BIG Piksel Open Data Cube Server"]
+        MM -->|Vector & Basemap Tiles| BasemapSrc["Esri / OpenFreeMap / BIG RBI Tile Endpoints"]
+        MM -->|Raster DEM Mesh| AWSDEM["AWS Terrarium 30m Global Mesh"]
+        MM -->|Lazy Asynchronous Fetch| LocalData["/data/*.geojson GEE Datasets & Index"]
     end
 
-    subgraph Storage & Sync
-        MM <--> Hash[URL Hash Permalink Sync]
-        UI <--> LStorage[localStorage Saved Views]
-        ServiceWorker[Service Worker Cache] -.-> UI
+    subgraph Storage_Sync["Storage & Sync"]
+        MM <--> Hash["URL Hash Permalink Sync"]
+        UI <--> LStorage["localStorage Saved Views"]
+        ServiceWorker["Service Worker Cache"] -.-> UI
     end
 ```
 
