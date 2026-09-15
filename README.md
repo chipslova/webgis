@@ -8,7 +8,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.3.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-120%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-119%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
   <img src="docs/preview.jpg" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
@@ -91,8 +91,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 * **Spatial Proximity Buffer Analysis**: Real-time geodesic buffer polygon generation around points, lines, and polygons with calculated total area (km²).
 * **Spatial Attribute Table Panel**: Full-featured tabular data inspector for custom layers with real-time text search, feature highlighting, and safe HTML escaping.
 
-### 🎯 7. Presentation Mode, State Sharing & Academic Citations
-* **Presentation Mode (<kbd>F</kbd>)**: Distraction-free full-canvas display mode with a minimalist floating exit chip.
+### 🔗 7. State Sharing, Academic Citations & Cartographic Export
 * **Academic Data Citations**: Formatted APA (7th Ed.) and BibTeX citations with one-click copy buttons in the About panel.
 * **Stateful Permalink URL**: Automatically synchronizes coordinates, zoom, pitch, bearing, active basemap, Sentinel-2 product/year, and GEE layers directly to the URL hash.
 * **Tampilan Tersimpan (Saved Views)**: Save, name, and restore custom camera viewpoints, basemaps, and Piksel satellite products locally via `localStorage`.

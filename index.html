@@ -52,13 +52,6 @@
       </div>
     </div>
 
-    <!-- Presentation Mode Exit Floating Chip -->
-    <div id="presentation-exit-chip" class="presentation-exit-chip hidden" role="region" aria-label="Kontrol Mode Presentasi">
-      <span class="presentation-pill-label">🎯 Mode Presentasi Aktif</span>
-      <span class="presentation-pill-hint">Tekan <kbd>Esc</kbd> atau <kbd>F</kbd></span>
-      <button id="btn-exit-presentation" class="btn-exit-pres-pill" aria-label="Keluar dari mode presentasi">✕ Keluar</button>
-    </div>
-
     <div id="app">
       <!-- Header Bar -->
       <header class="app-header" role="banner">
@@ -116,10 +109,6 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             <span class="btn-text-label">Bagikan</span>
           </button>
-          <button id="btn-toggle-presentation" class="btn btn-secondary header-action-btn" title="Mode Presentasi Bersih / Layar Penuh (F)" aria-label="Aktifkan mode presentasi layar penuh">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-            <span class="btn-text-label">Presentasi (<kbd>F</kbd>)</span>
-          </button>
           <button id="btn-export-map" class="btn btn-secondary header-action-btn" title="Simpan Tangkapan Layar Peta" aria-label="Simpan dan unduh tangkapan layar peta dalam format PNG">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             <span class="btn-text-label">Simpan Peta</span>
@@ -131,10 +120,6 @@
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
             </button>
             <div id="header-more-dropdown" class="header-more-dropdown" style="display: none;" role="menu" aria-label="Menu Aksi">
-              <button class="more-item" id="more-item-presentation" role="menuitem">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-                <span>Mode Presentasi (F)</span>
-              </button>
               <button class="more-item" id="more-item-tour" role="menuitem">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                 <span>Demo Fitur (30 Detik)</span>
