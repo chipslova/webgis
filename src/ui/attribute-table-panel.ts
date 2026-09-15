@@ -16,6 +16,8 @@ export class AttributeTableUI {
   private isMinimized: boolean = false;
   private highlightMarker: maplibregl.Marker | null = null;
 
+  private onSwitchToDataTabCb: (() => void) | null = null;
+
   constructor(map: maplibregl.Map, geojsonLoader: GeoJsonLoader) {
     this.map = map;
     this.geojsonLoader = geojsonLoader;
@@ -27,6 +29,10 @@ export class AttributeTableUI {
         this.render();
       }
     });
+  }
+
+  public setOnSwitchToDataTab(cb: () => void) {
+    this.onSwitchToDataTabCb = cb;
   }
 
   private initDOM() {
@@ -45,7 +51,10 @@ export class AttributeTableUI {
   public open(layerId?: string) {
     const layers = this.geojsonLoader.getLayers();
     if (layers.length === 0) {
-      showToast('Belum ada layer vektor kustom yang diunggah. Silakan unggah GeoJSON terlebih dahulu.', 'info');
+      showToast('Belum ada layer vektor kustom. Membuka Tab Data untuk unggah GeoJSON/CSV/KML atau muat data sampel.', 'info', 4000);
+      if (this.onSwitchToDataTabCb) {
+        this.onSwitchToDataTabCb();
+      }
       return;
     }
 

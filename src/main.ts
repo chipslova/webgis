@@ -233,6 +233,7 @@ class WebGISApp {
 
       // Instantiate Attribute Table & Shortcuts Modal
       this.attributeTableUI = new AttributeTableUI(map, this.geojsonLoader);
+      this.attributeTableUI.setOnSwitchToDataTab(() => this.sidebarUI.setActiveTab('data'));
       this.shortcutsModalUI = new ShortcutsModalUI();
 
       this.dataPanelUI.onOpenAttributeTable((layerId) => this.attributeTableUI?.open(layerId));
