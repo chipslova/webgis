@@ -8805,12 +8805,13 @@ html, body, #app {
 }
 
 /* ===================================================================
-   Overview / Inset Locator Map (Step 3)
+   Overview / Inset Locator Map (Step 3) - Positioned at Bottom-Left
    =================================================================== */
 .overview-locator-map {
   position: absolute;
-  right: 14px;
-  bottom: 68px;
+  left: 16px;
+  right: auto;
+  bottom: 44px;
   z-index: 15;
   width: 248px;
   background: rgba(10, 15, 29, 0.88);
@@ -8990,8 +8991,9 @@ html, body, #app {
 
 @media (max-width: 768px) {
   .overview-locator-map {
-    right: 8px;
-    bottom: 54px;
+    left: 8px;
+    right: auto;
+    bottom: 44px;
     width: 175px;
   }
   .overview-svg {
