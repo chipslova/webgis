@@ -1,5 +1,6 @@
 import * as maplibregl from 'maplibre-gl';
 import { logger } from '../utils/logger';
+import { escapeHtml } from '../utils/sanitize';
 
 export interface SearchResult {
   display_name: string;
@@ -183,7 +184,7 @@ export class GeocoderTool {
         new maplibregl.Popup({ offset: 25 }).setHTML(
           `<div class="gee-popup-card">
             <h4>📍 Lokasi Terpilih</h4>
-            <p style="font-size: 12px; color: #cbd5e1; line-height: 1.4;">${result.display_name}</p>
+            <p style="font-size: 12px; color: #cbd5e1; line-height: 1.4;">${escapeHtml(result.display_name)}</p>
           </div>`
         )
       )

@@ -2,6 +2,8 @@
 
 An interactive WebGIS platform for exploring Indonesian Earth Observation datasets and spatial analytics workflows. Integrates BIG Piksel OGC Web Map Services (WMS), Google Earth Engine (GEE) Jabodetabek case study datasets, 3D terrain and building extrusions, and client-side geodesic calculations.
 
+> **Disclaimer**: Aplikasi peraga independen (*independent demonstration prototype*). Bukan merupakan aplikasi resmi dari Badan Informasi Geospasial (BIG) maupun Geoscience Australia (GA).
+
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-webgis--three--iota.vercel.app-00f0ff?style=for-the-badge&logo=vercel)](https://webgis-three-iota.vercel.app/)
 [![CI](https://github.com/chipslova/webgis/actions/workflows/ci.yml/badge.svg)](https://github.com/chipslova/webgis/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
@@ -52,13 +54,13 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 
 ### 🛰️ 2. Piksel Earth Observation & Spectral Filter Adjustments
 * **Sentinel-2 GeoMAD Mosaics (10m)**: Annual cloud-free Median Absolute Deviation composites across Indonesia (2017–2025).
-* **Spectral Indices**: Computed server-side via Open Data Cube and rendered via OGC WMS:
+* **Spectral Indices**: Rendered via BIG Piksel OGC Web Map Services:
   * **NDVI** (Normalized Difference Vegetation Index)
   * **NDWI** (Normalized Difference Water Index)
   * **NIR Surface Reflectance**
   * **Observation Density** (Scene acquisition count & coverage)
 * **Real-Time Spectral & Visual Filter Controls**: Non-destructive client-side adjustment of Brightness, Contrast, and Saturation sliders for enhanced optical feature extraction.
-* **Landsat 9 Swath Analyses**: USGS/NASA surface reflectance (2021–2026).
+* **Landsat 9 Surface Reflectance (30m)**: USGS/NASA surface reflectance (2021–2026).
 * **Piksel Flood Hazard Modeling**: Hydrological floodplain classifications (`flood_hazard_rp02` & `rp10`) for priority study areas.
 * **Piksel Data Cube Tile Index**: Interactive overlay of 1,631 Open Data Cube tile boundaries across Indonesian territory.
 

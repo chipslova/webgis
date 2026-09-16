@@ -244,18 +244,6 @@ export class PikselLoader {
   private attachMapZoomListeners() {
     if (!this.map) return;
 
-    this.map.on('zoomstart', () => {
-      if (this.activeSourceId) {
-        this.tilesFailed = 0;
-      }
-    });
-
-    this.map.on('movestart', () => {
-      if (this.activeSourceId) {
-        this.tilesFailed = 0;
-      }
-    });
-
     this.map.on('zoomend', () => {
       const prod = this.getActiveProduct();
       if (!prod) return;
