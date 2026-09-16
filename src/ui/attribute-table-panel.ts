@@ -42,7 +42,7 @@ export class AttributeTableUI {
       container.id = 'attribute-table-container';
       container.className = 'attribute-table-container hidden';
       container.setAttribute('role', 'region');
-      container.setAttribute('aria-label', 'Tabel Atribut Spasial');
+      container.setAttribute('aria-label', 'Spatial Attribute Table');
       document.body.appendChild(container);
     }
     this.containerEl = container;
@@ -51,7 +51,7 @@ export class AttributeTableUI {
   public open(layerId?: string) {
     const layers = this.geojsonLoader.getLayers();
     if (layers.length === 0) {
-      showToast('Belum ada layer vektor kustom. Membuka Tab Data untuk unggah GeoJSON/CSV/KML atau muat data sampel.', 'info', 4000);
+      showToast('No custom vector layers added yet. Opening Data Hub to upload GeoJSON/CSV/KML or load sample data.', 'info', 4000);
       if (this.onSwitchToDataTabCb) {
         this.onSwitchToDataTabCb();
       }
@@ -150,16 +150,16 @@ export class AttributeTableUI {
           }
         }
       }
-      showToast('Berhasil menyorot fitur di peta', 'info');
+      showToast('Feature highlighted on map', 'info');
     } catch (err) {
       logger.error('Error zooming to feature:', err);
-      showToast('Gagal memusatkan ke geometri fitur', 'error');
+      showToast('Failed to center on feature geometry', 'error');
     }
   }
 
   private exportCurrentToCSV(layer: CustomLayerItem, filteredFeatures: GeoJSON.Feature[]) {
     if (filteredFeatures.length === 0) {
-      showToast('Tidak ada data fitur untuk diekspor', 'warning');
+      showToast('No feature data to export', 'warning');
       return;
     }
 
@@ -203,7 +203,7 @@ export class AttributeTableUI {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    showToast(`Tabel atribut berhasil diunduh sebagai CSV (${filteredFeatures.length} baris)`, 'success');
+    showToast(`Attribute table downloaded as CSV (${filteredFeatures.length} rows)`, 'success');
   }
 
   private render() {
@@ -268,19 +268,19 @@ export class AttributeTableUI {
     const layerOptionsHtml = layers
       .map(
         (l) =>
-          `<option value="${escapeHtml(l.id)}" ${l.id === this.activeLayerId ? 'selected' : ''}>${escapeHtml(l.name)} (${l.featureCount} fitur)</option>`
+          `<option value="${escapeHtml(l.id)}" ${l.id === this.activeLayerId ? 'selected' : ''}>${escapeHtml(l.name)} (${l.featureCount} features)</option>`
       )
       .join('');
 
     const headersHtml = `
       <th class="col-idx">#</th>
-      <th class="col-action">Aksi</th>
-      <th class="col-geom">Geometri</th>
+      <th class="col-action">Action</th>
+      <th class="col-geom">Geometry</th>
       ${propertyKeys
         .map((k) => {
           const isSorted = this.sortColumn === k;
           const sortIcon = isSorted ? (this.sortAsc ? ' ▲' : ' ▼') : '';
-          return `<th class="sortable-th" data-col="${escapeHtml(k)}" title="Klik untuk mengurutkan">${escapeHtml(k)}${sortIcon}</th>`;
+          return `<th class="sortable-th" data-col="${escapeHtml(k)}" title="Click to sort">${escapeHtml(k)}${sortIcon}</th>`;
         })
         .join('')}
     `;
@@ -304,7 +304,7 @@ export class AttributeTableUI {
         <tr data-row-idx="${idx}">
           <td class="col-idx">${idx + 1}</td>
           <td class="col-action">
-            <button class="btn-zoom-feature" data-row-idx="${idx}" title="Zoom ke fitur ini di peta" aria-label="Zoom ke fitur">
+            <button class="btn-zoom-feature" data-row-idx="${idx}" title="Zoom to this feature on map" aria-label="Zoom to feature">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -334,12 +334,12 @@ export class AttributeTableUI {
             </svg>
           </div>
           <div class="attr-table-info">
-            <h3>Tabel Atribut Spasial</h3>
-            <span class="attr-table-subtitle">Menampilkan ${filtered.length} dari ${rawFeatures.length} fitur</span>
+            <h3>Spatial Attribute Table</h3>
+            <span class="attr-table-subtitle">Showing ${filtered.length} of ${rawFeatures.length} features</span>
           </div>
           <div class="attr-layer-select-wrap">
-            <label for="attr-layer-select" class="sr-only">Pilih Layer</label>
-            <select id="attr-layer-select" class="attr-layer-select" aria-label="Pilih Layer Aktif">
+            <label for="attr-layer-select" class="sr-only">Select Layer</label>
+            <select id="attr-layer-select" class="attr-layer-select" aria-label="Select Active Layer">
               ${layerOptionsHtml}
             </select>
           </div>
@@ -351,26 +351,26 @@ export class AttributeTableUI {
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <input type="text" id="attr-table-search" placeholder="Cari data atribut..." value="${escapeHtml(this.searchQuery)}" aria-label="Cari data atribut" />
-            ${this.searchQuery ? `<button id="btn-clear-attr-search" class="btn-clear-search" title="Hapus pencarian">×</button>` : ''}
+            <input type="text" id="attr-table-search" placeholder="Search attribute data..." value="${escapeHtml(this.searchQuery)}" aria-label="Search attribute data" />
+            ${this.searchQuery ? `<button id="btn-clear-attr-search" class="btn-clear-search" title="Clear search">×</button>` : ''}
           </div>
 
-          <button id="btn-export-attr-csv" class="btn-attr-action" title="Unduh data tabel terfilter sebagai format CSV">
+          <button id="btn-export-attr-csv" class="btn-attr-action" title="Download filtered table as CSV format">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="7 10 12 15 17 10"></polyline>
               <line x1="12" y1="15" x2="12" y2="3"></line>
             </svg>
-            <span>Ekspor CSV</span>
+            <span>Export CSV</span>
           </button>
 
-          <button id="btn-minimize-attr-table" class="btn-attr-icon" title="${this.isMinimized ? 'Perbesar' : 'Kecilkan'}" aria-label="Minimize Table">
+          <button id="btn-minimize-attr-table" class="btn-attr-icon" title="${this.isMinimized ? 'Expand' : 'Minimize'}" aria-label="Minimize Table">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               ${this.isMinimized ? '<polyline points="18 15 12 9 6 15"></polyline>' : '<polyline points="6 9 12 15 18 9"></polyline>'}
             </svg>
           </button>
 
-          <button id="btn-close-attr-table" class="btn-attr-icon btn-close" title="Tutup Tabel Atribut (Esc)" aria-label="Tutup Tabel Atribut">
+          <button id="btn-close-attr-table" class="btn-attr-icon btn-close" title="Close Attribute Table (Esc)" aria-label="Close Attribute Table">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -382,7 +382,7 @@ export class AttributeTableUI {
       <div class="attr-table-body-wrap">
         ${
           filtered.length === 0
-            ? `<div class="attr-table-empty">Tidak ada fitur yang cocok dengan kata kunci pencarian "${escapeHtml(this.searchQuery)}"</div>`
+            ? `<div class="attr-table-empty">No features match the search query "${escapeHtml(this.searchQuery)}"</div>`
             : `
           <table class="attr-table">
             <thead>

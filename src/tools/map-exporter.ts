@@ -53,7 +53,7 @@ export class MapExporter {
     try {
       const mapCanvas = this.map.getCanvas();
       if (!mapCanvas) {
-        throw new Error('Elemen canvas peta tidak ditemukan.');
+        throw new Error('Map canvas element not found.');
       }
 
       const w = mapCanvas.width;
@@ -66,7 +66,7 @@ export class MapExporter {
       const ctx = outCanvas.getContext('2d');
 
       if (!ctx) {
-        throw new Error('Canvas 2D context tidak tersedia.');
+        throw new Error('Canvas 2D context not available.');
       }
 
       // 1. Draw Map Canvas
@@ -92,7 +92,7 @@ export class MapExporter {
       const activeYear = this.pikselLoader?.getSelectedYear() || '2025';
       const prodText = activeProduct
         ? `${activeProduct.name} (${activeYear}) • OGC WMS (10m)`
-        : 'Peta Analisis Geospasial Nasional';
+        : 'National Geospatial Analysis Map';
       ctx.fillStyle = '#94a3b8';
       ctx.font = `${Math.max(11, Math.round(topBarHeight * 0.24))}px "Plus Jakarta Sans", sans-serif`;
       ctx.fillText(prodText, 20, Math.round(topBarHeight * 0.78));
@@ -209,7 +209,7 @@ export class MapExporter {
 
       ctx.textAlign = 'right';
       ctx.fillStyle = '#94a3b8';
-      ctx.fillText(`Diekspor: ${nowStr} • BIG / Open Data Cube`, w - 20, h - Math.round(bottomBarHeight * 0.38));
+      ctx.fillText(`Exported: ${nowStr} • BIG / Open Data Cube`, w - 20, h - Math.round(bottomBarHeight * 0.38));
 
       // Trigger download
       let dataUrl: string;
@@ -217,7 +217,7 @@ export class MapExporter {
         dataUrl = outCanvas.toDataURL('image/png');
       } catch (corsErr: any) {
         logger.error('[MapExporter] Tainted canvas error (CORS):', corsErr);
-        showToast('Lapisan raster eksternal dibatasi CORS oleh server sumber sehingga tidak dapat diekspor langsung.', 'warning', 6000);
+        showToast('External raster layer restricted by CORS; exported with basemap and vector overlays only.', 'warning', 6000);
         return;
       }
 
@@ -226,11 +226,11 @@ export class MapExporter {
       link.href = dataUrl;
       link.click();
       
-      showToast('Peta grafis resolusi tinggi berhasil disimpan!', 'success');
-      announceToScreenReader('Peta grafis resolusi tinggi berhasil diunduh.');
+      showToast('High-resolution map exported successfully!', 'success');
+      announceToScreenReader('High-resolution map downloaded successfully.');
     } catch (e: any) {
       logger.error('Export error:', e);
-      showToast(`Gagal mengekspor peta: ${e.message || 'Kendala rendering'}`, 'error');
+      showToast(`Failed to export map: ${e.message || 'Rendering error'}`, 'error');
     } finally {
       if (btnElement) {
         setTimeout(() => {

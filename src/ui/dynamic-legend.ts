@@ -69,7 +69,7 @@ export class DynamicLegendUI {
             <span class="legend-card-icon">🛰️</span>
             <div>
               <div class="dynamic-legend-title">${activeProduct.name}</div>
-              <div class="dynamic-legend-sub">${activeProduct.category} • Resolusi ${activeProduct.resolution} • OGC WMS (BIG)</div>
+              <div class="dynamic-legend-sub">${activeProduct.category} • Resolution ${activeProduct.resolution} • OGC WMS (BIG)</div>
             </div>
           </div>
           ${swatchesHtml}
@@ -87,16 +87,16 @@ export class DynamicLegendUI {
               <span class="legend-card-icon">🌡️</span>
               <div>
                 <div class="dynamic-legend-title">MODIS Daytime Land Surface Temperature</div>
-                <div class="dynamic-legend-sub">Wilayah Kajian Jabodetabek - Jawa Barat (2020–2026)</div>
+                <div class="dynamic-legend-sub">Study Area: Greater Jakarta - West Java (2020–2026)</div>
               </div>
             </div>
             <div class="gee-legend-bar lst-gradient" style="margin-top: 8px;"></div>
             <div class="gee-legend-labels">
-              <span>22°C (Sejuk)</span>
+              <span>22°C (Cool)</span>
               <span>25°C</span>
               <span>28°C</span>
               <span>31°C</span>
-              <span>34°C+ (Ekstrem Panas)</span>
+              <span>34°C+ (Extreme Heat)</span>
             </div>
           </div>
         `;
@@ -110,16 +110,16 @@ export class DynamicLegendUI {
               <span class="legend-card-icon">⛰️</span>
               <div>
                 <div class="dynamic-legend-title">USGS SRTM Ground Elevation Grid</div>
-                <div class="dynamic-legend-sub">Elevasi Permukaan Tanah (mdpl)</div>
+                <div class="dynamic-legend-sub">Ground Surface Elevation (m ASL)</div>
               </div>
             </div>
             <div class="gee-legend-bar elv-gradient" style="margin-top: 8px;"></div>
             <div class="gee-legend-labels">
-              <span>0m (Pesisir)</span>
+              <span>0m (Coastal)</span>
               <span>50m</span>
               <span>200m</span>
               <span>600m</span>
-              <span>1200m+ (Puncak)</span>
+              <span>1200m+ (Peak)</span>
             </div>
           </div>
         `;
@@ -132,8 +132,8 @@ export class DynamicLegendUI {
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">📍</span>
               <div>
-                <div class="dynamic-legend-title">Stasiun Observasi Suhu Urban vs Rural</div>
-                <div class="dynamic-legend-sub">Titik Referensi MODIS LST</div>
+                <div class="dynamic-legend-title">Urban vs. Rural Temperature Observation Stations</div>
+                <div class="dynamic-legend-sub">MODIS LST Reference Points</div>
               </div>
             </div>
             <div class="dynamic-legend-swatches" style="margin-top: 8px;">
@@ -158,14 +158,14 @@ export class DynamicLegendUI {
               <span class="legend-card-icon">🌳</span>
               <div>
                 <div class="dynamic-legend-title">MODIS Land Cover Classification</div>
-                <div class="dynamic-legend-sub">Klasifikasi Tutupan Lahan</div>
+                <div class="dynamic-legend-sub">Land Cover Classification</div>
               </div>
             </div>
             <div class="dynamic-legend-swatches" style="margin-top: 8px;">
-              <div class="dynamic-legend-item"><span class="dynamic-color-box" style="background-color: #0284c7;"></span><span class="dynamic-legend-label">Laut / Air</span></div>
-              <div class="dynamic-legend-item"><span class="dynamic-color-box" style="background-color: #e11d48;"></span><span class="dynamic-legend-label">Perkotaan</span></div>
-              <div class="dynamic-legend-item"><span class="dynamic-color-box" style="background-color: #eab308;"></span><span class="dynamic-legend-label">Pertanian</span></div>
-              <div class="dynamic-legend-item"><span class="dynamic-color-box" style="background-color: #15803d;"></span><span class="dynamic-legend-label">Hutan Lebat</span></div>
+              <div class="dynamic-legend-item"><span class="dynamic-color-box" style="background-color: #0284c7;"></span><span class="dynamic-legend-label">Sea / Water</span></div>
+              <div class="dynamic-legend-item"><span class="dynamic-color-box" style="background-color: #e11d48;"></span><span class="dynamic-legend-label">Urban</span></div>
+              <div class="dynamic-legend-item"><span class="dynamic-color-box" style="background-color: #eab308;"></span><span class="dynamic-legend-label">Agriculture</span></div>
+              <div class="dynamic-legend-item"><span class="dynamic-color-box" style="background-color: #15803d;"></span><span class="dynamic-legend-label">Dense Forest</span></div>
             </div>
           </div>
         `;
@@ -182,15 +182,15 @@ export class DynamicLegendUI {
           <div class="dynamic-legend-card-header">
             <span class="legend-card-icon">📂</span>
             <div>
-              <div class="dynamic-legend-title">Layer Vektor Kustom (GeoJSON)</div>
-              <div class="dynamic-legend-sub">${visibleCustomLayers.length} layer vektor aktif</div>
+              <div class="dynamic-legend-title">Custom Vector Layers (GeoJSON)</div>
+              <div class="dynamic-legend-sub">${visibleCustomLayers.length} active vector layers</div>
             </div>
           </div>
           <div class="dynamic-legend-swatches" style="margin-top: 8px;">
             ${visibleCustomLayers.map((l: any) => `
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: ${l.color};"></span>
-                <span class="dynamic-legend-label">${escapeHtml(l.name)} (${l.featureCount} fitur)</span>
+                <span class="dynamic-legend-label">${escapeHtml(l.name)} (${l.featureCount} features)</span>
               </div>
             `).join('')}
           </div>
@@ -202,7 +202,7 @@ export class DynamicLegendUI {
     if (activeLayersCount > 0) {
       html += `
         <div class="legend-section-header">
-          <span class="section-title">🛰️ Layer Tematik & Citra Aktif (${activeLayersCount})</span>
+          <span class="section-title">🛰️ Active Thematic & Imagery Layers (${activeLayersCount})</span>
         </div>
         ${thematicHtml}
       `;
@@ -210,8 +210,8 @@ export class DynamicLegendUI {
       html += `
         <div class="dynamic-legend-empty">
           <div class="empty-icon">🛰️</div>
-          <div class="empty-title">Belum Ada Layer Citra / Analisis Aktif</div>
-          <p class="empty-desc">Aktifkan citra di tab <strong>Citra Satelit</strong> atau analisis spasial di tab <strong>Analisis Spasial</strong> untuk memuat legenda spektral otomatis di sini.</p>
+          <div class="empty-title">No Active Imagery or Analysis Layers</div>
+          <p class="empty-desc">Activate imagery in the <strong>Satellite</strong> tab or spatial analysis in the <strong>Analysis</strong> tab to display dynamic legends automatically here.</p>
         </div>
       `;
     }
@@ -219,31 +219,31 @@ export class DynamicLegendUI {
     // --- SECTION 2: PERMANENT GENERAL MAP & TOOL SYMBOLS ---
     html += `
       <div class="legend-section-header" style="margin-top: 14px;">
-        <span class="section-title">🗺️ Simbol Peta & Fitur Standar</span>
+        <span class="section-title">🗺️ Map Symbols & Standard Features</span>
       </div>
       <div class="dynamic-legend-card">
         <div class="dynamic-legend-swatches">
           <div class="dynamic-legend-item">
             <span class="legend-symbol point" style="background-color: #f59e0b; width: 12px; height: 12px; min-width: 12px; min-height: 12px; aspect-ratio: 1 / 1; border-radius: 50%; display: inline-block; flex-shrink: 0;"></span>
-            <span class="dynamic-legend-label"><strong>Kota Utama</strong> (Sampel Titik Vektor Ibukota & Kota Besar)</span>
+            <span class="dynamic-legend-label"><strong>Major Cities</strong> (Sample Capital & Provincial Cities)</span>
           </div>
           <div class="dynamic-legend-item">
             <span class="legend-symbol line" style="border-top: 2px dashed #10b981; width: 18px; display: inline-block;"></span>
-            <span class="dynamic-legend-label"><strong>Grid Data Cube Nasional</strong> (Indeks Petak Scene 10m BIG)</span>
+            <span class="dynamic-legend-label"><strong>National Data Cube Grid</strong> (BIG 10m Scene Tile Index)</span>
           </div>
           <div class="dynamic-legend-item">
             <span class="legend-symbol line" style="border-top: 2.5px solid #00f0ff; width: 18px; display: inline-block;"></span>
-            <span class="dynamic-legend-label"><strong>Jalur Pengukuran Jarak</strong> (Turf.js Geodesik)</span>
+            <span class="dynamic-legend-label"><strong>Distance Measurement Route</strong> (Turf.js Geodesic)</span>
           </div>
           <div class="dynamic-legend-item">
             <span class="legend-symbol polygon" style="background-color: rgba(0,240,255,0.3); border: 1.5px solid #00f0ff; width: 14px; height: 14px; border-radius: 3px; display: inline-block;"></span>
-            <span class="dynamic-legend-label"><strong>Area Pengukuran Luas</strong> (Poligon Geodesik)</span>
+            <span class="dynamic-legend-label"><strong>Area Measurement Polygon</strong> (Turf.js Geodesic)</span>
           </div>
           <div class="dynamic-legend-item">
             <span style="display: flex; align-items: center; justify-content: center; width: 16px;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
             </span>
-            <span class="dynamic-legend-label"><strong>Penanda Lokasi</strong> (Hasil Pencarian Geocoder)</span>
+            <span class="dynamic-legend-label"><strong>Location Marker</strong> (Geocoder Search Result)</span>
           </div>
         </div>
       </div>

@@ -7,7 +7,7 @@ export function parseKMLToGeoJSON(kmlText: string): GeoJSON.FeatureCollection {
 
   const parseError = xmlDoc.querySelector('parsererror');
   if (parseError) {
-    throw new Error('Format XML / KML tidak valid atau rusak: ' + parseError.textContent?.slice(0, 100));
+    throw new Error('Invalid or corrupted XML / KML format: ' + parseError.textContent?.slice(0, 100));
   }
 
   const placemarks = xmlDoc.querySelectorAll('Placemark');

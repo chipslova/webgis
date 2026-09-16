@@ -134,11 +134,11 @@ export class GeoJsonLoader {
     } else if (Array.isArray(raw.features)) {
       fc = { type: 'FeatureCollection', features: raw.features };
     } else {
-      return { valid: false, error: 'Format data tidak dikenali sebagai GeoJSON (FeatureCollection atau Feature).' };
+      return { valid: false, error: 'Data format is not recognized as GeoJSON (FeatureCollection or Feature).' };
     }
 
     if (!fc.features || fc.features.length === 0) {
-      return { valid: false, error: 'GeoJSON tidak memiliki objek fitur (features kosong).' };
+      return { valid: false, error: 'GeoJSON has no feature objects (features empty).' };
     }
 
     // Validate coordinates bounds (prevent out-of-bounds UTM projection issues)
@@ -172,7 +172,7 @@ export class GeoJsonLoader {
     if (outOfBounds) {
       return {
         valid: false,
-        error: 'Koordinat di luar batas geografis WGS84 (derajat bujur [-180, 180] / lintang [-90, 90]). Pastikan data tidak menggunakan proyeksi UTM meter.'
+        error: 'Coordinates exceed WGS84 geographic bounds (longitude [-180, 180] / latitude [-90, 90]). Ensure data does not use planar UTM meter coordinates.'
       };
     }
 
@@ -307,7 +307,7 @@ export class GeoJsonLoader {
       // NOTE: Layer ordering is handled centrally by MapManager.bringCustomLayersToTop()
       this.bindClickPopup(layerId);
     } catch (e) {
-      ErrorHandler.getInstance().showThrottledError(`Gagal menambahkan layer geospasial "${item.name}".`);
+      ErrorHandler.getInstance().showThrottledError(`Failed to load geospatial layer "${item.name}".`);
       logger.warn(`[GeoJsonLoader] Notice attaching layer "${item.name}":`, e);
     }
   }
@@ -325,7 +325,7 @@ export class GeoJsonLoader {
           if (!e.features || e.features.length === 0) return;
           const props = e.features[0].properties || {};
           let content = `<div class="gee-popup-card">`;
-          content += `<h4>📍 ${props.name || props.title || 'Fitur Geospasial'}</h4>`;
+          content += `<h4>📍 ${props.name || props.title || 'Geospatial Feature'}</h4>`;
           content += `<table class="gee-popup-table">`;
           for (const [k, v] of Object.entries(props)) {
             content += `<tr><td>${k}</td><td><strong>${v}</strong></td></tr>`;
@@ -514,7 +514,7 @@ export class GeoJsonLoader {
       } else if (isCSV) {
         const csvRes = parseCSVToGeoJSON(content);
         if (!csvRes.success || !csvRes.data) {
-          return { success: false, error: csvRes.error || 'Gagal memproses file CSV' };
+          return { success: false, error: csvRes.error || 'Failed to process CSV file' };
         }
         geojson = csvRes.data;
         detectedCols = csvRes.detectedColumns;
@@ -524,7 +524,7 @@ export class GeoJsonLoader {
 
       const added = this.addGeoJSONLayer(layerId, layerName, geojson, layerColor);
       if (!added) {
-        return { success: false, error: 'Format data spasial tidak valid atau koordinat di luar jangkauan.' };
+        return { success: false, error: 'Invalid spatial data format or coordinates out of bounds.' };
       }
 
       const item = this.customLayers.get(layerId);
@@ -538,7 +538,7 @@ export class GeoJsonLoader {
       logger.error('[GeoJsonLoader] Error parsing file content:', err);
       return {
         success: false,
-        error: `Gagal membaca file: ${err?.message || 'Format tidak dikenali'}`
+        error: `Failed to read file: ${err?.message || 'Unrecognized format'}`
       };
     }
   }
@@ -553,14 +553,14 @@ export class GeoJsonLoader {
   ): Promise<{ success: boolean; bufferLayerId?: string; error?: string; areaKm2?: number }> {
     const sourceItem = this.customLayers.get(sourceLayerId);
     if (!sourceItem || !sourceItem.data) {
-      return { success: false, error: 'Layer sumber tidak ditemukan.' };
+      return { success: false, error: 'Source layer not found.' };
     }
 
     try {
       const { SpatialBufferAnalyzer } = await import('./spatial-buffer');
       const bufferRes = SpatialBufferAnalyzer.createBuffer(sourceItem.data, { radius, units });
       if (!bufferRes.success || !bufferRes.data) {
-        return { success: false, error: bufferRes.error || 'Gagal menghitung zona buffer.' };
+        return { success: false, error: bufferRes.error || 'Failed to calculate buffer zone.' };
       }
 
       const bufferLayerId = `buffer-${Date.now()}`;
@@ -569,7 +569,7 @@ export class GeoJsonLoader {
 
       const added = this.addGeoJSONLayer(bufferLayerId, bufferLayerName, bufferRes.data, bufferColor);
       if (!added) {
-        return { success: false, error: 'Gagal menambahkan layer buffer ke peta.' };
+        return { success: false, error: 'Failed to add buffer layer to map.' };
       }
 
       // Set gentle fill opacity for buffer zones
@@ -583,7 +583,7 @@ export class GeoJsonLoader {
       };
     } catch (err: any) {
       logger.error('Failed to dynamically load spatial buffer analyzer:', err);
-      return { success: false, error: 'Gagal memuat modul analisis buffer.' };
+      return { success: false, error: 'Failed to load buffer analysis module.' };
     }
   }
 }

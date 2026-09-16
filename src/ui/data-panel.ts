@@ -37,7 +37,7 @@ export class DataPanelUI {
     list.innerHTML = '';
 
     if (layers.length === 0) {
-      list.innerHTML = '<div style="color: var(--text-muted); font-size: 12px; padding: 12px; text-align: center;">Belum ada layer vektor kustom. Unggah file GeoJSON atau muat data sampel.</div>';
+      list.innerHTML = '<div style="color: var(--text-muted); font-size: 12px; padding: 12px; text-align: center;">No custom vector layers added yet. Upload a GeoJSON/KML file or load sample data.</div>';
       return;
     }
 
@@ -45,43 +45,43 @@ export class DataPanelUI {
       const item = document.createElement('div');
       item.className = 'layer-item';
       const safeName = escapeHtml(layer.name);
-      const layerTypeLabel = layer.type ? layer.type.toUpperCase() : 'VEKTOR';
+      const layerTypeLabel = layer.type ? layer.type.toUpperCase() : 'VECTOR';
 
       item.innerHTML = `
         <div class="layer-card-main">
           <div class="layer-card-left">
-            <input type="checkbox" id="check-${layer.id}" class="layer-checkbox" ${layer.visible ? 'checked' : ''} aria-label="Tampilkan layer ${safeName}" />
+            <input type="checkbox" id="check-${layer.id}" class="layer-checkbox" ${layer.visible ? 'checked' : ''} aria-label="Toggle layer ${safeName}" />
             <span class="legend-symbol" style="background-color: ${layer.color};"></span>
-            <div class="layer-title-group" style="cursor: pointer;" title="Klik untuk menuju ke lokasi layer">
+            <div class="layer-title-group" style="cursor: pointer;" title="Click to zoom to layer">
               <span class="layer-title">${safeName}</span>
-              <span class="layer-meta">${layer.featureCount} Fitur · ${layerTypeLabel}</span>
+              <span class="layer-meta">${layer.featureCount} Features · ${layerTypeLabel}</span>
             </div>
           </div>
           <div class="layer-top-actions">
-            <button class="icon-btn-sm btn-zoom-layer" data-id="${layer.id}" title="Pusatkan peta ke layer" aria-label="Pusatkan peta ke ${safeName}">
+            <button class="icon-btn-sm btn-zoom-layer" data-id="${layer.id}" title="Zoom map to layer" aria-label="Zoom map to ${safeName}">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             </button>
-            <button class="icon-btn-sm btn-delete-layer" data-id="${layer.id}" title="Hapus layer" aria-label="Hapus layer ${safeName}">
+            <button class="icon-btn-sm btn-delete-layer" data-id="${layer.id}" title="Delete layer" aria-label="Delete layer ${safeName}">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
             </button>
           </div>
         </div>
 
         <div class="layer-card-toolbar">
-          <button class="btn-layer-pill btn-open-table" data-id="${layer.id}" title="Buka Tabel Atribut Spasial layer ${safeName}">
+          <button class="btn-layer-pill btn-open-table" data-id="${layer.id}" title="Open Attribute Table for ${safeName}">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
-            <span>Tabel</span>
+            <span>Table</span>
           </button>
-          <button class="btn-layer-pill-ghost btn-buffer-layer" data-id="${layer.id}" title="Buat analisis zona buffer spasial di sekitar layer ${safeName}">
+          <button class="btn-layer-pill-ghost btn-buffer-layer" data-id="${layer.id}" title="Generate spatial buffer zone around ${safeName}">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
             <span>Buffer</span>
           </button>
           <div class="layer-export-btns">
-            <button class="btn-layer-pill-ghost btn-export-layer" data-id="${layer.id}" title="Unduh layer sebagai GeoJSON">
+            <button class="btn-layer-pill-ghost btn-export-layer" data-id="${layer.id}" title="Export layer as GeoJSON">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               <span>GeoJSON</span>
             </button>
-            <button class="btn-layer-pill-ghost btn-export-kml" data-id="${layer.id}" title="Unduh layer sebagai KML (Google Earth / ArcGIS)">
+            <button class="btn-layer-pill-ghost btn-export-kml" data-id="${layer.id}" title="Export layer as KML (Google Earth / ArcGIS)">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/></svg>
               <span>KML</span>
             </button>
@@ -115,24 +115,24 @@ export class DataPanelUI {
       if (bufferBtn) {
         bufferBtn.addEventListener('click', async (e) => {
           e.stopPropagation();
-          const input = prompt(`Masukkan radius zona buffer untuk layer "${layer.name}" dalam kilometer (contoh: 1, 5, 10, 25):`, '5');
+          const input = prompt(`Enter buffer zone radius for layer "${layer.name}" in kilometers (e.g. 1, 5, 10, 25):`, '5');
           if (input === null) return;
           const radius = parseFloat(input);
           if (isNaN(radius) || radius <= 0) {
-            showToast('Radius buffer harus berupa angka positif lebih dari 0.', 'warning');
+            showToast('Buffer radius must be a positive number greater than 0.', 'warning');
             return;
           }
           if (radius > 500) {
-            showToast('Maksimum radius buffer adalah 500 km.', 'warning');
+            showToast('Maximum buffer radius is 500 km.', 'warning');
             return;
           }
           const res = await this.geojsonLoader.createBufferForLayer(layer.id, radius, 'kilometers');
           if (res.success) {
             this.render();
             this.onLayerChange();
-            showToast(`Zona Buffer ${radius} km berhasil dibuat (Total luas: ${res.areaKm2} km²)!`, 'success');
+            showToast(`Buffer zone of ${radius} km created (Total area: ${res.areaKm2} km²)!`, 'success');
           } else {
-            showToast(res.error || 'Gagal membuat zona buffer.', 'error');
+            showToast(res.error || 'Failed to generate buffer zone.', 'error');
           }
         });
       }
@@ -161,9 +161,9 @@ export class DataPanelUI {
           e.stopPropagation();
           const success = this.geojsonLoader.exportLayerGeoJSON(layer.id);
           if (success) {
-            showToast(`Layer "${layer.name}" berhasil diunduh sebagai GeoJSON!`, 'success');
+            showToast(`Layer "${layer.name}" exported as GeoJSON successfully!`, 'success');
           } else {
-            showToast(`Gagal mengunduh layer "${layer.name}".`, 'error');
+            showToast(`Failed to export layer "${layer.name}".`, 'error');
           }
         });
       }
@@ -175,9 +175,9 @@ export class DataPanelUI {
           e.stopPropagation();
           const success = this.geojsonLoader.exportLayerKML(layer.id);
           if (success) {
-            showToast(`Layer "${layer.name}" berhasil diunduh sebagai KML!`, 'success');
+            showToast(`Layer "${layer.name}" exported as KML successfully!`, 'success');
           } else {
-            showToast(`Gagal mengunduh KML layer "${layer.name}".`, 'error');
+            showToast(`Failed to export KML for layer "${layer.name}".`, 'error');
           }
         });
       }
@@ -258,7 +258,7 @@ export class DataPanelUI {
     const MAX_SIZE_BYTES = 25 * 1024 * 1024;
     if (file.size > MAX_SIZE_BYTES) {
       const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-      showToast(`Ukuran file (${sizeMB} MB) melebihi batas maksimum 25 MB untuk kestabilan browser.`, 'error', 5000);
+      showToast(`File size (${sizeMB} MB) exceeds maximum limit of 25 MB for browser stability.`, 'error', 5000);
       return;
     }
 
@@ -272,16 +272,16 @@ export class DataPanelUI {
           this.sidebarUI.setActiveTab('data');
           this.onLayerChange();
           const colInfo = result.detectedColumns ? ` [${result.detectedColumns.lat}, ${result.detectedColumns.lon}]` : '';
-          showToast(`Layer "${file.name}" (${result.featureCount} objek${colInfo}) berhasil ditambahkan!`, 'success');
+          showToast(`Layer "${file.name}" (${result.featureCount} features${colInfo}) added successfully!`, 'success');
         } else {
-          showToast(result.error || `Gagal menambahkan layer "${file.name}".`, 'error', 5000);
+          showToast(result.error || `Failed to add layer "${file.name}".`, 'error', 5000);
         }
       } catch (err: any) {
-        showToast(`Kendala memproses file: ${err.message || 'Format tidak valid'}`, 'error');
+        showToast(`Error processing file: ${err.message || 'Invalid format'}`, 'error');
       }
     };
     reader.onerror = () => {
-      showToast('Gagal membaca file dari sistem lokal.', 'error');
+      showToast('Failed to read file from local system.', 'error');
     };
     reader.readAsText(file);
   }

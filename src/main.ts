@@ -297,10 +297,10 @@ class WebGISApp {
               <line x1="12" y1="8" x2="12" y2="12"/>
               <line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
-            <h2>Gagal Memuat Peta WebGIS</h2>
-            <p>Pastikan browser Anda mendukung akselerasi perangkat keras WebGL dan terhubung ke internet.</p>
+            <h2>Failed to Load WebGIS Map</h2>
+            <p>Please verify that your browser supports WebGL hardware acceleration and has an active internet connection.</p>
             <button class="btn btn-primary" onclick="window.location.reload()">
-              🔄 Muat Ulang Halaman
+              🔄 Reload Page
             </button>
           </div>
         `;
@@ -315,7 +315,7 @@ class WebGISApp {
 
     const updateLabel = () => {
       const current = this.mapManager.getProjection();
-      label.innerText = current === 'globe' ? 'Mode 3D Bola Dunia' : 'Mode 2D Mercator';
+      label.innerText = current === 'globe' ? '3D Globe Mode' : '2D Mercator Mode';
       btn.classList.toggle('active', current === 'globe');
     };
 
@@ -352,7 +352,7 @@ class WebGISApp {
       const globeBtn = document.getElementById('btn-toggle-globe');
       const globeLabel = document.getElementById('globe-btn-label');
       if (globeBtn) globeBtn.classList.remove('active');
-      if (globeLabel) globeLabel.innerText = 'Mode 3D Bola Dunia';
+      if (globeLabel) globeLabel.innerText = '3D Globe Mode';
 
       // 3. Reset basemap to default Esri Imagery and opacity to 100%
       this.mapManager.setBasemap(DEFAULT_BASEMAP_ID);
@@ -385,7 +385,7 @@ class WebGISApp {
       this.activeLayersUI?.render();
       this.dynamicLegendUI?.render();
 
-      showToast('Tampilan peta direset ke tampilan default', 'info');
+      showToast('Map view reset to default', 'info');
     });
   }
 
@@ -440,24 +440,24 @@ class WebGISApp {
     const exportGeoJsonBtn = document.getElementById('btn-measure-download-geojson');
     exportGeoJsonBtn?.addEventListener('click', () => {
       if (!this.measureTool || !this.measureTool.hasActiveMeasurement()) {
-        showToast('Tidak ada geometri pengukuran untuk diunduh.', 'warning');
+        showToast('No measurement geometry to download.', 'warning');
         return;
       }
       const ok = this.measureTool.exportGeoJSON();
       if (ok) {
-        showToast('Geometri pengukuran berhasil diunduh sebagai GeoJSON!', 'success');
+        showToast('Measurement geometry exported as GeoJSON successfully!', 'success');
       }
     });
 
     const exportKmlBtn = document.getElementById('btn-measure-download-kml');
     exportKmlBtn?.addEventListener('click', () => {
       if (!this.measureTool || !this.measureTool.hasActiveMeasurement()) {
-        showToast('Tidak ada geometri pengukuran untuk diunduh.', 'warning');
+        showToast('No measurement geometry to download.', 'warning');
         return;
       }
       const ok = this.measureTool.exportKML();
       if (ok) {
-        showToast('Geometri pengukuran berhasil diunduh sebagai KML!', 'success');
+        showToast('Measurement geometry exported as KML successfully!', 'success');
       }
     });
 
@@ -500,13 +500,13 @@ class WebGISApp {
     const url = this.permalinkManager.getShareableUrl();
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url).then(() => {
-        showToast('Tautan peta & analisis aktif disalin ke clipboard!', 'success');
-        announceToScreenReader('Tautan peta dan analisis aktif berhasil disalin ke clipboard.');
+        showToast('Active map view and analysis link copied to clipboard!', 'success');
+        announceToScreenReader('Active map view and analysis link copied to clipboard.');
       }).catch(() => {
-        prompt('Salin tautan peta berikut:', url);
+        prompt('Copy map share link:', url);
       });
     } else {
-      prompt('Salin tautan peta berikut:', url);
+      prompt('Copy map share link:', url);
     }
   }
 
@@ -520,10 +520,10 @@ class WebGISApp {
       if (!container) return;
 
       const projects = PermalinkManager.getSavedProjects();
-      if (countEl) countEl.innerText = `${projects.length} Tampilan`;
+      if (countEl) countEl.innerText = `${projects.length} Views`;
 
       if (projects.length === 0) {
-        container.innerHTML = `<div style="color: var(--text-muted); font-size: 11px; padding: 6px 0; text-align: center;">Belum ada tampilan disimpan.</div>`;
+        container.innerHTML = `<div style="color: var(--text-muted); font-size: 11px; padding: 6px 0; text-align: center;">No saved views yet.</div>`;
         return;
       }
 
@@ -534,8 +534,8 @@ class WebGISApp {
             <span class="saved-project-date">${escapeHtml(p.dateFormatted)}</span>
           </div>
           <div class="saved-project-actions">
-            <button class="btn btn-secondary btn-sm btn-load-project" data-id="${p.id}" title="Buka tampilan ini">Buka</button>
-            <button class="icon-btn-sm btn-del-project" data-id="${p.id}" title="Hapus tampilan" aria-label="Hapus tampilan ${escapeHtml(p.name)}">✕</button>
+            <button class="btn btn-secondary btn-sm btn-load-project" data-id="${p.id}" title="Load this view">Open</button>
+            <button class="icon-btn-sm btn-del-project" data-id="${p.id}" title="Delete view" aria-label="Delete view ${escapeHtml(p.name)}">✕</button>
           </div>
         </div>
       `).join('');
@@ -545,7 +545,7 @@ class WebGISApp {
           const id = (btn as HTMLElement).dataset.id;
           if (id && this.permalinkManager) {
             const ok = await this.permalinkManager.loadSavedProject(id);
-            if (ok) showToast('Tampilan peta berhasil dimuat!', 'success');
+            if (ok) showToast('Saved map view loaded!', 'success');
           }
         });
       });
@@ -556,7 +556,7 @@ class WebGISApp {
           if (id) {
             PermalinkManager.deleteSavedProject(id);
             renderProjects();
-            showToast('Tampilan peta dihapus.', 'info');
+            showToast('Saved view removed.', 'info');
           }
         });
       });
@@ -565,7 +565,7 @@ class WebGISApp {
     saveBtn?.addEventListener('click', () => {
       const val = nameInput?.value?.trim();
       if (!val) {
-        showToast('Masukkan nama tampilan terlebih dahulu.', 'warning');
+        showToast('Please enter a view name first.', 'warning');
         return;
       }
       if (this.permalinkManager) {
@@ -573,7 +573,7 @@ class WebGISApp {
         if (p) {
           if (nameInput) nameInput.value = '';
           renderProjects();
-          showToast(`Tampilan "${val}" berhasil disimpan!`, 'success');
+          showToast(`View "${val}" saved successfully!`, 'success');
         }
       }
     });
@@ -605,13 +605,13 @@ class WebGISApp {
         const text = targetEl.textContent || '';
         if (navigator.clipboard) {
           navigator.clipboard.writeText(text).then(() => {
-            showToast('Sitasi berhasil disalin ke clipboard!', 'success');
-            announceToScreenReader('Format sitasi berhasil disalin.');
+            showToast('Citation copied to clipboard!', 'success');
+            announceToScreenReader('Citation format copied to clipboard.');
           }).catch(() => {
-            prompt('Salin teks sitasi:', text);
+            prompt('Copy citation text:', text);
           });
         } else {
-          prompt('Salin teks sitasi:', text);
+          prompt('Copy citation text:', text);
         }
       });
     });
@@ -651,10 +651,10 @@ class WebGISApp {
       if (!this.swipeCompareManager) return;
       if (this.swipeCompareManager.isActive()) {
         this.swipeCompareManager.deactivate();
-        showToast('Mode komparasi swipe ditutup', 'info');
+        showToast('Swipe comparison mode closed', 'info');
       } else {
         this.swipeCompareManager.activate();
-        showToast('Mode komparasi swipe aktif. Geser slider untuk membandingkan.', 'info');
+        showToast('Swipe comparison mode active. Drag divider handle to compare.', 'info');
       }
     };
 
@@ -723,7 +723,7 @@ class WebGISApp {
       } else if (key === 'i' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         this.sidebarUI.setActiveTab('map');
-        showToast('Mode Inspeksi Titik aktif: klik pada peta untuk memeriksa nilai piksel & koordinat', 'info');
+        showToast('Point Inspection mode active: click on map to inspect pixel values & coordinates', 'info');
       } else if (key === 's' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         const dockSwipe = document.getElementById('btn-dock-swipe');
@@ -757,9 +757,9 @@ class WebGISApp {
     this.errorHandler.onNetworkChange((online) => {
       updateOfflineBanner(online);
       if (online) {
-        showToast('Koneksi internet kembali pulih', 'success');
+        showToast('Internet connection restored', 'success');
       } else {
-        showToast('Mode offline aktif — koneksi terputus', 'warning');
+        showToast('Offline mode active — connection lost', 'warning');
       }
     });
 
@@ -769,10 +769,10 @@ class WebGISApp {
         navigator.serviceWorker
           .register('/sw.js')
           .then((reg) => {
-            logger.info('[ServiceWorker] Berhasil terdaftar dengan scope:', reg.scope);
+            logger.info('[ServiceWorker] Successfully registered with scope:', reg.scope);
           })
           .catch((err) => {
-            logger.warn('[ServiceWorker] Registrasi gagal:', err);
+            logger.warn('[ServiceWorker] Registration failed:', err);
           });
       });
     }
@@ -838,7 +838,7 @@ class WebGISApp {
           if (card) card.style.display = 'none';
           const instructionBox = document.getElementById('measure-instruction-box');
           if (instructionBox) instructionBox.style.display = 'none';
-          showToast('Mode pengukuran dibatalkan', 'info');
+          showToast('Measurement mode cancelled', 'info');
           return true;
         }
         return false;

@@ -111,7 +111,7 @@ describe('Spatial CSV / TSV Parser Utility', () => {
 
       const res = parseCSVToGeoJSON(csv);
       expect(res.success).toBe(false);
-      expect(res.error).toContain('Kolom koordinat tidak ditemukan');
+      expect(res.error).toContain('Coordinate columns not found');
     });
 
     it('should return failure for empty text', () => {

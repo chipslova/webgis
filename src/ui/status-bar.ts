@@ -38,7 +38,7 @@ export class StatusBarUI {
   public setOnlineStatus(online: boolean) {
     if (this.netStatusDot) {
       this.netStatusDot.className = `status-dot ${online ? 'online' : 'offline'}`;
-      this.netStatusDot.setAttribute('title', online ? 'Koneksi Online' : 'Koneksi Terputus (Offline)');
+      this.netStatusDot.setAttribute('title', online ? 'Network Online' : 'Network Offline (Cached)');
     }
     if (this.netStatusText) {
       this.netStatusText.textContent = online ? 'Online' : 'Offline';
@@ -48,18 +48,18 @@ export class StatusBarUI {
   private copyCurrentCoordinates() {
     const text = `${this.currentLat.toFixed(6)}, ${this.currentLng.toFixed(6)}`;
     navigator.clipboard.writeText(text).then(() => {
-      showToast(`✓ Koordinat ${text} (WGS84) berhasil disalin`, 'success');
-      announceToScreenReader(`Koordinat ${text} derajat WGS84 berhasil disalin ke clipboard`);
+      showToast(`✓ Coordinates ${text} (WGS84) copied to clipboard`, 'success');
+      announceToScreenReader(`Coordinates ${text} degrees WGS84 copied to clipboard`);
       if (this.copyBtn) {
         const orig = this.copyBtn.innerHTML;
-        this.copyBtn.innerText = '✓ Tersalin!';
+        this.copyBtn.innerText = '✓ Copied!';
         setTimeout(() => {
           this.copyBtn!.innerHTML = orig;
         }, 1800);
       }
     }).catch(() => {
-      showToast(`Koordinat: ${text}`, 'info');
-      announceToScreenReader(`Koordinat ${text} derajat WGS84`);
+      showToast(`Coordinates: ${text}`, 'info');
+      announceToScreenReader(`Coordinates ${text} degrees WGS84`);
     });
   }
 
@@ -72,7 +72,7 @@ export class StatusBarUI {
 
     if (this.coordGroup) {
       this.coordGroup.style.cursor = 'pointer';
-      this.coordGroup.title = 'Klik untuk menyalin koordinat saat ini';
+      this.coordGroup.title = 'Click to copy current coordinates';
       this.coordGroup.addEventListener('click', () => {
         this.copyCurrentCoordinates();
       });

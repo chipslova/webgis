@@ -183,7 +183,7 @@ export class GeocoderTool {
       .setPopup(
         new maplibregl.Popup({ offset: 25 }).setHTML(
           `<div class="gee-popup-card">
-            <h4>📍 Lokasi Terpilih</h4>
+            <h4>📍 Selected Location</h4>
             <p style="font-size: 12px; color: #cbd5e1; line-height: 1.4;">${escapeHtml(result.display_name)}</p>
           </div>`
         )

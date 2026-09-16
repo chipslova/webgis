@@ -183,7 +183,7 @@ export function parseCSVToGeoJSON(csvText: string, options?: CSVParseOptions): C
   const rows = parseCSVRows(csvText, delimiter);
 
   if (rows.length < 2) {
-    return { success: false, error: 'File CSV harus memiliki setidaknya baris header dan 1 baris data.' };
+    return { success: false, error: 'CSV file must contain at least a header row and 1 data row.' };
   }
 
   const headers = rows[0];
@@ -210,7 +210,7 @@ export function parseCSVToGeoJSON(csvText: string, options?: CSVParseOptions): C
   if (latIndex === -1 || lonIndex === -1) {
     return {
       success: false,
-      error: `Kolom koordinat tidak ditemukan. Pastikan CSV memiliki kolom latitude (lat/lintang/y) dan longitude (lon/lng/bujur/x). Kolom yang terdeteksi: ${headers.join(', ')}`
+      error: `Coordinate columns not found. Ensure CSV contains latitude (lat/latitude/y) and longitude (lon/lng/longitude/x) columns. Detected columns: ${headers.join(', ')}`
     };
   }
 
@@ -262,7 +262,7 @@ export function parseCSVToGeoJSON(csvText: string, options?: CSVParseOptions): C
   if (features.length === 0) {
     return {
       success: false,
-      error: 'Tidak ada baris dengan koordinat Latitude/Longitude yang valid dalam file CSV ini.'
+      error: 'No rows with valid Latitude/Longitude coordinates found in this CSV file.'
     };
   }
 

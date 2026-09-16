@@ -65,8 +65,8 @@ export class GEELoader {
         // Reset so next call can retry
         this.dataLoadPromise = null;
         this.isDataLoaded = false;
-        ErrorHandler.getInstance().showThrottledError('Gagal memuat dataset GEE. Periksa koneksi internet Anda.');
-        logger.warn('[GEELoader] Gagal memuat dataset GEE:', e);
+        ErrorHandler.getInstance().showThrottledError('Failed to load GEE dataset. Please check your internet connection.');
+        logger.warn('[GEELoader] Failed to load GEE dataset:', e);
         // Notify UI via custom event so panels can show a user-friendly error
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('gee-load-error'));

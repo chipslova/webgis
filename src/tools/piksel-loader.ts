@@ -107,26 +107,26 @@ export class PikselLoader {
     let defaultMsg = '';
     switch (status) {
       case 'idle':
-        defaultMsg = 'Tidak ada layer citra aktif';
+        defaultMsg = 'No active satellite raster layer';
         break;
       case 'zoom_too_low':
-        defaultMsg = `Peta saat ini pada Zoom Level ${currentZoom}. Perbesar peta minimal ke Level ${minZoom} (Skala Pulau/Provinsi) untuk memuat citra satelit resolusi tinggi.`;
+        defaultMsg = `Current map zoom level is ${currentZoom}. Zoom in to at least Level ${minZoom} (Island/Province scale) to render high-resolution satellite imagery.`;
         break;
       case 'requesting':
-        defaultMsg = `Menghubungkan ke layanan OGC WMS ${prod?.name || ''}...`;
+        defaultMsg = `Connecting to OGC WMS service for ${prod?.name || ''}...`;
         break;
       case 'loading':
-        defaultMsg = `Memproses permintaan raster di Open Data Cube BIG...`;
+        defaultMsg = `Processing raster request at BIG Open Data Cube...`;
         break;
       case 'ready':
-        defaultMsg = `Citra ${prod?.name || ''} siap ditampilkan`;
+        defaultMsg = `${prod?.name || ''} imagery rendered successfully`;
         break;
       case 'degraded':
       case 'partial':
-        defaultMsg = `Sebagian raster berhasil dimuat. Beberapa bagian mengalami kendala respons dari server ODC upstream.`;
+        defaultMsg = `Partial raster loaded. Upstream ODC server experienced high latency on some tiles.`;
         break;
       case 'error':
-        defaultMsg = `Layanan OGC WMS ${prod?.name || ''} mengalami kendala dari server penyedia (Timeout / HTTP 500).`;
+        defaultMsg = `OGC WMS service for ${prod?.name || ''} encountered an upstream error (Timeout / HTTP 500).`;
         break;
     }
 
@@ -595,9 +595,9 @@ export class PikselLoader {
         }
       });
     } catch (e) {
-      ErrorHandler.getInstance().showThrottledError(`Gagal memuat layer citra ${product.name}.`);
+      ErrorHandler.getInstance().showThrottledError(`Failed to load satellite layer ${product.name}.`);
       logger.warn(`[PikselLoader] Layer error for ${product.id}:`, e);
-      this.emitState('error', `Gagal menambahkan layer WMS: ${(e as Error).message}`);
+      this.emitState('error', `Failed to add WMS layer: ${(e as Error).message}`);
     }
   }
 

@@ -50,7 +50,7 @@ export class GEEPanelUI {
 
       // Listen for GEE data load failures (dispatched by gee-loader on fetch error)
       window.addEventListener('gee-load-error', () => {
-        showToast('Gagal memuat data analisis GEE. Periksa koneksi internet.', 'error');
+        showToast('Failed to load GEE analysis data. Please check your network connection.', 'error');
       }, { once: false });
 
       this.isInitialized = true;
@@ -125,7 +125,7 @@ export class GEEPanelUI {
         link.href = '/data/gee_jakarta_poi.geojson';
         link.download = 'gee_jakarta_urban_rural_poi.geojson';
         link.click();
-        showToast('Mengunduh dataset POI Stasiun Observasi GeoJSON...', 'info');
+        showToast('Downloading GeoJSON Observation Stations dataset...', 'info');
       });
     }
 
@@ -135,7 +135,7 @@ export class GEEPanelUI {
         link.href = '/downloads/gee_lst_timeseries_jakarta.csv';
         link.download = 'gee_lst_timeseries_jakarta.csv';
         link.click();
-        showToast('Mengunduh data deret waktu suhu LST (CSV)...', 'info');
+        showToast('Downloading LST temperature time series data (CSV)...', 'info');
       });
     }
   }

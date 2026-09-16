@@ -120,7 +120,7 @@ export class SearchUI {
     if (typeof window !== 'undefined' && window.innerWidth <= 768) {
       window.dispatchEvent(new CustomEvent('webgis:collapse-sidebar-if-mobile'));
     }
-    announceToScreenReader(`Menuju lokasi: ${res.display_name}`);
+    announceToScreenReader(`Navigating to location: ${res.display_name}`);
   }
 
   private renderSearchResults(results: SearchResult[], query: string) {
@@ -132,10 +132,10 @@ export class SearchUI {
     dropdown.innerHTML = '';
 
     if (results.length === 0) {
-      dropdown.innerHTML = '<div class="search-result-item empty-result" style="color: var(--text-muted); cursor: default;">Lokasi tidak ditemukan</div>';
+      dropdown.innerHTML = '<div class="search-result-item empty-result" style="color: var(--text-muted); cursor: default;">Location not found</div>';
       dropdown.classList.add('active');
       this.input?.setAttribute('aria-expanded', 'true');
-      announceToScreenReader(`Tidak ada lokasi ditemukan untuk ${query}`);
+      announceToScreenReader(`No locations found for ${query}`);
       return;
     }
 
@@ -161,6 +161,6 @@ export class SearchUI {
 
     dropdown.classList.add('active');
     this.input?.setAttribute('aria-expanded', 'true');
-    announceToScreenReader(`${results.length} lokasi ditemukan untuk pencarian ${query}`);
+    announceToScreenReader(`${results.length} locations found for query ${query}`);
   }
 }

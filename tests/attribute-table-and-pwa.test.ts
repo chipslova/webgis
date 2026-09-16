@@ -52,7 +52,7 @@ describe('Spatial Attribute Table UI & PWA Suite', () => {
 
       const container = document.getElementById('attribute-table-container');
       expect(container?.classList.contains('hidden')).toBe(false);
-      expect(container?.innerHTML).toContain('Tabel Atribut Spasial');
+      expect(container?.innerHTML).toContain('Spatial Attribute Table');
       expect(container?.innerHTML).toContain('Jakarta');
       expect(container?.innerHTML).toContain('Surabaya');
       expect(container?.innerHTML).toContain('Bandung');
@@ -111,7 +111,7 @@ describe('Spatial Attribute Table UI & PWA Suite', () => {
       shortcutsUI.open();
       const modal = document.getElementById('shortcuts-cheat-modal');
       expect(modal?.classList.contains('hidden')).toBe(false);
-      expect(modal?.innerHTML).toContain('Buku Pintar Pintasan Keyboard');
+      expect(modal?.innerHTML).toContain('Keyboard Shortcuts Cheatsheet');
       expect(modal?.innerHTML).toContain('Measure Tool');
 
       shortcutsUI.close();

@@ -177,6 +177,6 @@ describe('Layer & Checkbox UI State Synchronization', () => {
 
     // Remove layer
     geojsonLoader.clearAllLayers();
-    expect(list?.innerHTML).toContain('Belum ada layer vektor kustom');
+    expect(list?.innerHTML).toContain('No custom vector layers added yet');
   });
 });

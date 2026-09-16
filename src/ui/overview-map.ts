@@ -85,7 +85,7 @@ export class OverviewMapUI {
             duration: 1000,
             essential: true
           });
-          showToast(`Navigasi ke koordinat [${lat.toFixed(2)}, ${lng.toFixed(2)}]`, 'info');
+          showToast(`Navigating to coordinates [${lat.toFixed(2)}, ${lng.toFixed(2)}]`, 'info');
         } catch (err) {
           logger.warn('[OverviewMap] flyTo failed:', err);
         }
@@ -100,7 +100,7 @@ export class OverviewMapUI {
         const lng = parseFloat(btn.dataset.lng || '0');
         const lat = parseFloat(btn.dataset.lat || '0');
         const zoom = parseFloat(btn.dataset.zoom || '6.0');
-        const name = btn.textContent?.trim() || 'Wilayah';
+        const name = btn.textContent?.trim() || 'Region';
 
         if (this.map && typeof this.map.flyTo === 'function') {
           this.map.flyTo({
@@ -109,8 +109,8 @@ export class OverviewMapUI {
             duration: 1200,
             essential: true
           });
-          announceToScreenReader(`Navigasi peta ke wilayah ${name}`);
-          showToast(`Terbang ke wilayah ${name}`, 'info');
+          announceToScreenReader(`Navigating map to ${name}`);
+          showToast(`Flying to ${name}`, 'info');
         }
       });
     });
@@ -138,7 +138,7 @@ export class OverviewMapUI {
       this.popover.style.display = 'block';
       this.toggleBtn?.classList.add('popover-open');
       this.updateViewport();
-      announceToScreenReader('Peta Lokator Inset Nusantara dibuka');
+      announceToScreenReader('Archipelago Locator Inset Map opened');
     } else {
       this.popover.style.display = 'none';
       this.toggleBtn?.classList.remove('popover-open');

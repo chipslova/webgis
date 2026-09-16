@@ -52,7 +52,7 @@ export class PikselPanelUI {
 
     // 1. Presets HTML
     const presetsHtml = PIKSEL_PRESETS.map((preset: PikselPreset) => `
-      <button class="piksel-preset-chip" data-id="${preset.id}" aria-label="Jelajahi kawasan ${preset.name}, ${preset.locationName}" title="${preset.description}">
+      <button class="piksel-preset-chip" data-id="${preset.id}" aria-label="Explore ${preset.name}, ${preset.locationName}" title="${preset.description}">
         <span class="preset-chip-title">${preset.name}</span>
         <span class="preset-chip-sub">${preset.locationName}</span>
       </button>
@@ -77,7 +77,7 @@ export class PikselPanelUI {
         if (activeProduct.legend.type === 'continuous' || activeProduct.legend.type === 'natural') {
           legendHtml = `
             <div class="active-legend-block">
-              <div class="legend-section-title">Legenda Warna</div>
+              <div class="legend-section-title">Color Legend</div>
               <div class="active-legend-bar legend-gradient ${activeProduct.legend.gradientClass}"></div>
               <div class="active-legend-labels">
                 <span>${activeProduct.legend.leftLabel}</span>
@@ -94,7 +94,7 @@ export class PikselPanelUI {
         } else if (activeProduct.legend.type === 'categorical') {
           legendHtml = `
             <div class="active-legend-block">
-              <div class="legend-section-title">Klasifikasi</div>
+              <div class="legend-section-title">Classification</div>
               <div class="legend-swatches-grid">
                 ${(activeProduct.legend.items || []).map(it => `
                   <div class="swatch-pill">
@@ -109,7 +109,7 @@ export class PikselPanelUI {
       }
 
       activeControlHtml = `
-        <div class="piksel-active-box" role="region" aria-label="Kontrol layer ${activeProduct.name}">
+        <div class="piksel-active-box" role="region" aria-label="Controls for ${activeProduct.name}">
           <div class="active-box-header">
             <div class="active-box-title-wrap">
               <span class="active-live-dot ${this.currentLoadingState.status}" aria-hidden="true"></span>
@@ -118,8 +118,8 @@ export class PikselPanelUI {
                 <span class="active-box-badge" style="border-color:${activeProduct.color}66; color:${activeProduct.color};">${activeProduct.badge}</span>
               </div>
             </div>
-            <button id="btn-clear-piksel-layer" class="btn-deactivate-chip" aria-label="Nonaktifkan layer ${activeProduct.name}" title="Nonaktifkan layer ini">
-              ✕ Lepas Layer
+            <button id="btn-clear-piksel-layer" class="btn-deactivate-chip" aria-label="Remove layer ${activeProduct.name}" title="Remove this active layer">
+              ✕ Remove Layer
             </button>
           </div>
 
@@ -132,71 +132,71 @@ export class PikselPanelUI {
           <div class="active-controls-grid">
             ${activeProduct.timeEnabled ? `
               <div class="control-field">
-                <label for="piksel-year-select">Tahun</label>
-                <select id="piksel-year-select" class="clean-select" aria-label="Pilih tahun citra satelit ${activeProduct.name}">
+                <label for="piksel-year-select">Year</label>
+                <select id="piksel-year-select" class="clean-select" aria-label="Select satellite acquisition year for ${activeProduct.name}">
                   ${yearOptionsHtml}
                 </select>
               </div>
             ` : ''}
             <div class="control-field">
-              <label>Resolusi</label>
+              <label>Resolution</label>
               <div class="static-val">${activeProduct.resolution} &middot; ${activeProduct.sensor.split(' ')[0]} ${activeProduct.sensor.split(' ')[1] || ''}</div>
             </div>
           </div>
 
           <!-- Dedicated Direct Zoom to Level 6 Button -->
-          <button class="btn-zoom-product-action full-width" id="btn-zoom-to-product" aria-label="Perbesar peta ke Zoom Level ${activeProduct.minZoom ?? 6} agar citra satelit muncul" title="Perbesar peta ke Zoom Level ${activeProduct.minZoom ?? 6} agar citra satelit muncul">
+          <button class="btn-zoom-product-action full-width" id="btn-zoom-to-product" aria-label="Zoom map to Level ${activeProduct.minZoom ?? 8} for satellite imagery" title="Zoom map to Level ${activeProduct.minZoom ?? 8}">
             <span style="font-size: 14px;" aria-hidden="true">🔍</span>
-            <span>Perbesar ke Level ${activeProduct.minZoom ?? 6} (Skala Pulau)</span>
+            <span>Zoom to Level ${activeProduct.minZoom ?? 8} (Regional Scale)</span>
             <span style="font-size: 13px; font-weight: 800;" aria-hidden="true">→</span>
           </button>
 
           <!-- Opacity Slider -->
           <div class="active-slider-field">
             <div class="slider-label-row">
-              <label for="piksel-master-opacity">Transparansi Layer</label>
+              <label for="piksel-master-opacity">Layer Opacity</label>
               <strong id="piksel-opacity-text">${opacityPct}%</strong>
             </div>
-            <input type="range" id="piksel-master-opacity" min="0" max="100" value="${opacityPct}" class="clean-range-slider" aria-label="Transparansi layer ${activeProduct.name}" />
+            <input type="range" id="piksel-master-opacity" min="0" max="100" value="${opacityPct}" class="clean-range-slider" aria-label="Opacity for layer ${activeProduct.name}" />
           </div>
 
-          <!-- Satellite Image Adjustments (Koreksi Spektral & Visual) -->
+          <!-- Satellite Image Adjustments (Spectral & Visual Filters) -->
           <details class="clean-accordion" style="margin-top: 8px;">
             <summary>
-              <span>🎨 Koreksi Spektral & Penyesuaian Citra</span>
-              <span style="font-size: 10px; color: var(--accent-cyan); font-weight: 600;">FILTER</span>
+              <span>🎨 Spectral & Visual Display Adjustments</span>
+              <span style="font-size: 10px; color: var(--accent-cyan); font-weight: 600;">FILTERS</span>
             </summary>
             <div class="accordion-body" style="display: flex; flex-direction: column; gap: 8px; padding-top: 8px;">
               <!-- Brightness -->
               <div class="active-slider-field" style="margin-bottom: 0;">
                 <div class="slider-label-row">
-                  <label for="piksel-filter-brightness" style="font-size: 11px;">Kecerahan (Brightness)</label>
+                  <label for="piksel-filter-brightness" style="font-size: 11px;">Brightness</label>
                   <strong id="piksel-brightness-val" style="font-size: 11px;">${brightnessPct > 0 ? '+' : ''}${brightnessPct}%</strong>
                 </div>
-                <input type="range" id="piksel-filter-brightness" min="-100" max="100" step="5" value="${brightnessPct}" class="clean-range-slider" aria-label="Penyesuaian Kecerahan Citra Satelit" />
+                <input type="range" id="piksel-filter-brightness" min="-100" max="100" step="5" value="${brightnessPct}" class="clean-range-slider" aria-label="Satellite Imagery Brightness Adjustment" />
               </div>
 
               <!-- Contrast -->
               <div class="active-slider-field" style="margin-bottom: 0;">
                 <div class="slider-label-row">
-                  <label for="piksel-filter-contrast" style="font-size: 11px;">Kontras (Contrast)</label>
+                  <label for="piksel-filter-contrast" style="font-size: 11px;">Contrast</label>
                   <strong id="piksel-contrast-val" style="font-size: 11px;">${contrastPct > 0 ? '+' : ''}${contrastPct}%</strong>
                 </div>
-                <input type="range" id="piksel-filter-contrast" min="-100" max="100" step="5" value="${contrastPct}" class="clean-range-slider" aria-label="Penyesuaian Kontras Citra Satelit" />
+                <input type="range" id="piksel-filter-contrast" min="-100" max="100" step="5" value="${contrastPct}" class="clean-range-slider" aria-label="Satellite Imagery Contrast Adjustment" />
               </div>
 
               <!-- Saturation -->
               <div class="active-slider-field" style="margin-bottom: 0;">
                 <div class="slider-label-row">
-                  <label for="piksel-filter-saturation" style="font-size: 11px;">Saturasi Warna</label>
+                  <label for="piksel-filter-saturation" style="font-size: 11px;">Color Saturation</label>
                   <strong id="piksel-saturation-val" style="font-size: 11px;">${saturationPct > 0 ? '+' : ''}${saturationPct}%</strong>
                 </div>
-                <input type="range" id="piksel-filter-saturation" min="-100" max="100" step="5" value="${saturationPct}" class="clean-range-slider" aria-label="Penyesuaian Saturasi Citra Satelit" />
+                <input type="range" id="piksel-filter-saturation" min="-100" max="100" step="5" value="${saturationPct}" class="clean-range-slider" aria-label="Satellite Imagery Color Saturation Adjustment" />
               </div>
 
               <div style="display: flex; justify-content: flex-end; margin-top: 2px;">
-                <button type="button" id="btn-reset-piksel-filters" class="btn-micro" style="padding: 3px 8px;" title="Kembalikan nilai koreksi citra ke bawaan">
-                  Reset Penyesuaian
+                <button type="button" id="btn-reset-piksel-filters" class="btn-micro" style="padding: 3px 8px;" title="Reset filters to default">
+                  Reset Adjustments
                 </button>
               </div>
             </div>
@@ -208,21 +208,21 @@ export class PikselPanelUI {
           <!-- Collapsible Gated Telemetry & Advanced Server Options -->
           <details class="clean-accordion" style="margin-top: 10px;">
             <summary>
-              <span>⚙️ Pengaturan Lanjutan & Status Server</span>
+              <span>⚙️ Advanced Settings & Server Status</span>
               <span class="diag-status-pill ${diagnostics?.status || 'idle'}">${(diagnostics?.status || 'idle').toUpperCase()}</span>
             </summary>
             <div class="accordion-body">
               <div class="diagnostics-content">
-                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Metrik teknis koneksi OGC WMS (khusus analisis server):</p>
-                <div class="diag-row"><span>Permintaan Raster:</span><strong>${diagnostics?.tilesLoaded || 0} selesai</strong></div>
-                <div class="diag-row"><span>Permintaan Gagal:</span><strong class="${(diagnostics?.tilesFailed || 0) > 0 ? 'text-danger' : ''}">${diagnostics?.tilesFailed || 0}</strong></div>
-                <div class="diag-row"><span>Latensi Server:</span><strong>${diagnostics?.latencyMs ? (diagnostics.latencyMs / 1000).toFixed(2) + ' detik' : 'Menunggu...'}</strong></div>
-                <div class="diag-row"><span>Protokol:</span><strong>OGC WMS 1.3.0 (EPSG:3857)</strong></div>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">OGC WMS connection metrics (diagnostics):</p>
+                <div class="diag-row"><span>Raster Requests:</span><strong>${diagnostics?.tilesLoaded || 0} completed</strong></div>
+                <div class="diag-row"><span>Failed Requests:</span><strong class="${(diagnostics?.tilesFailed || 0) > 0 ? 'text-danger' : ''}">${diagnostics?.tilesFailed || 0}</strong></div>
+                <div class="diag-row"><span>Server Latency:</span><strong>${diagnostics?.latencyMs ? (diagnostics.latencyMs / 1000).toFixed(2) + ' sec' : 'Waiting...'}</strong></div>
+                <div class="diag-row"><span>Protocol:</span><strong>OGC WMS 1.3.0 (EPSG:3857)</strong></div>
               </div>
               <div style="margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 8px;">
                 <label class="toggle-checkbox-label">
-                  <input type="checkbox" id="toggle-piksel-grid" ${isGridOn ? 'checked' : ''} aria-label="Tampilkan Grid Indeks Data Cube 1.631 Tile" />
-                  <span>Tampilkan Grid Indeks Data Cube (1.631 Tile)</span>
+                  <input type="checkbox" id="toggle-piksel-grid" ${isGridOn ? 'checked' : ''} aria-label="Show Open Data Cube Tile Grid (1,631 Tiles)" />
+                  <span>Show Data Cube Tile Grid (1,631 Tiles)</span>
                 </label>
               </div>
             </div>
@@ -234,8 +234,8 @@ export class PikselPanelUI {
         <div class="piksel-empty-prompt">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
           <div>
-            <strong>Belum ada layer citra yang aktif</strong>
-            <p>Pilih salah satu produk di katalog bawah untuk menampilkan citra di atas peta.</p>
+            <strong>No active satellite layer</strong>
+            <p>Select a product from the catalog below to render satellite imagery on the map.</p>
           </div>
         </div>
       `;
@@ -243,15 +243,15 @@ export class PikselPanelUI {
 
     // 3. Filtered Products Catalog
     const categories = [
-      { id: 'all', label: 'Semua' },
+      { id: 'all', label: 'All' },
       { id: 'geomad', label: 'Sentinel-2 GeoMAD' },
-      { id: 'indices', label: 'Indeks Spektral' },
-      { id: 'hazard', label: 'Bahaya Banjir' },
+      { id: 'indices', label: 'Spectral Indices' },
+      { id: 'hazard', label: 'Flood Hazard' },
       { id: 'landsat', label: 'Landsat 9' }
     ];
 
     const categoryChipsHtml = categories.map(c => `
-      <button class="cat-filter-btn ${this.selectedCategory === c.id ? 'active' : ''}" data-cat="${c.id}" role="tab" aria-selected="${this.selectedCategory === c.id}" aria-label="Filter kategori ${c.label}">
+      <button class="cat-filter-btn ${this.selectedCategory === c.id ? 'active' : ''}" data-cat="${c.id}" role="tab" aria-selected="${this.selectedCategory === c.id}" aria-label="Filter category ${c.label}">
         ${c.label}
       </button>
     `).join('');
@@ -282,25 +282,25 @@ export class PikselPanelUI {
             </p>
             <div class="card-tags-line">
               <span class="card-tag">${prod.resolution}</span>
-              <span class="card-tag" title="Tingkat zoom minimal Z${prod.minZoom ?? 8}+">Z${prod.minZoom ?? 8}+</span>
+              <span class="card-tag" title="Minimum Zoom Level Z${prod.minZoom ?? 8}+">Z${prod.minZoom ?? 8}+</span>
               ${prod.timeEnabled && yearRange ? `<span class="card-tag multi-year">${yearRange}</span>` : ''}
               <span class="card-badge" style="color:${prod.color};">${prod.badge}</span>
             </div>
             <details class="card-about-accordion" data-about="${prod.id}">
-              <summary class="card-about-summary">Detail Teknis Layer</summary>
+              <summary class="card-about-summary">Technical Specifications</summary>
               <div class="card-about-body">
                 <div style="display:grid; grid-template-columns: auto 1fr; gap: 3px 8px; font-size: 10.5px; margin-bottom: 6px;">
-                  <span style="color:#64748b;">Protokol:</span><span style="color:#cbd5e1; font-family:monospace;">OGC WMS 1.3.0</span>
-                  <span style="color:#64748b;">Layer WMS:</span><span style="color:#cbd5e1; font-family:monospace;">${prod.layer}</span>
-                  <span style="color:#64748b;">Gaya:</span><span style="color:#cbd5e1; font-family:monospace;">${prod.style}</span>
+                  <span style="color:#64748b;">Protocol:</span><span style="color:#cbd5e1; font-family:monospace;">OGC WMS 1.3.0</span>
+                  <span style="color:#64748b;">WMS Layer:</span><span style="color:#cbd5e1; font-family:monospace;">${prod.layer}</span>
+                  <span style="color:#64748b;">Style:</span><span style="color:#cbd5e1; font-family:monospace;">${prod.style}</span>
                   <span style="color:#64748b;">Sensor:</span><span style="color:#cbd5e1;">${prod.sensor}</span>
                 </div>
                 ${prod.attribution ? `<span class="card-about-attr">${prod.attribution}</span>` : ''}
               </div>
             </details>
           </div>
-          <button class="btn-select-product ${isActive ? 'btn-active-state' : ''}" data-id="${prod.id}" aria-label="${isActive ? 'Layer ' + prod.name + ' sedang aktif' : 'Tampilkan layer ' + prod.name + ' di peta'}">
-            ${isActive ? '✓ Aktif' : 'Tampilkan di Peta'}
+          <button class="btn-select-product ${isActive ? 'btn-active-state' : ''}" data-id="${prod.id}" aria-label="${isActive ? 'Layer ' + prod.name + ' is active' : 'Display ' + prod.name + ' on map'}">
+            ${isActive ? '✓ Active' : 'Show on Map'}
           </button>
         </div>
       `;
@@ -309,25 +309,25 @@ export class PikselPanelUI {
     const unavailableSectionHtml = unavailableProducts.length > 0 ? `
       <details class="clean-accordion" style="margin-top: 12px; border: 1px dashed rgba(100, 116, 139, 0.4); background: rgba(15, 23, 42, 0.4);">
         <summary style="font-size: 11.5px; color: var(--text-muted);">
-          <span>⚠️ Produk Eksperimental / Dalam Pemeliharaan (${unavailableProducts.length})</span>
+          <span>⚠️ Experimental / Under Maintenance (${unavailableProducts.length})</span>
         </summary>
         <div class="accordion-body">
           <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
-            Produk berikut sedang dalam pemeliharaan server upstream dan belum dipublikasikan pada endpoint resmi:
+            The following product is currently undergoing upstream server maintenance:
           </p>
           ${unavailableProducts.map(prod => `
-            <div class="clean-product-card is-disabled" data-id="${prod.id}" title="${prod.statusNotice || 'Produk tidak tersedia'}" aria-disabled="true" style="margin-bottom: 6px;">
+            <div class="clean-product-card is-disabled" data-id="${prod.id}" title="${prod.statusNotice || 'Product unavailable'}" aria-disabled="true" style="margin-bottom: 6px;">
               <div class="card-main-info">
                 <div class="card-title-line">
                   <span class="card-color-dot" style="background:#475569;" aria-hidden="true"></span>
                   <strong class="card-name" style="color:#64748b;">${prod.name}</strong>
                 </div>
                 <p class="card-brief-desc" style="font-size: 11px; color: #64748b; margin: 3px 0;">
-                  ${prod.statusNotice || 'Layanan server upstream belum tersedia.'}
+                  ${prod.statusNotice || 'Upstream server service is currently unavailable.'}
                 </p>
                 <div class="card-tags-line">
                   <span class="card-tag" style="color:#475569;">${prod.resolution}</span>
-                  <span class="card-tag card-tag-unavailable">Tidak Tersedia</span>
+                  <span class="card-tag card-tag-unavailable">Unavailable</span>
                 </div>
               </div>
             </div>
@@ -338,25 +338,25 @@ export class PikselPanelUI {
 
     container.innerHTML = `
       <div class="panel-header">
-        <h2>Citra Satelit BIG Piksel</h2>
-        <p>Data BIG Piksel · OGC WMS — endpoint staging untuk pengembangan & demonstrasi berbasis Open Data Cube.</p>
+        <h2>BIG Piksel Earth Observation</h2>
+        <p>BIG Piksel Data · OGC WMS — Open Data Cube staging endpoints for development & demonstration.</p>
       </div>
 
       <!-- Staging WMS Notice -->
       <div class="clean-alert alert-info" style="margin-bottom: 10px;">
         <div class="alert-icon-title">
           <span style="font-size: 14px;">⚙️</span>
-          <strong>Layanan WMS Staging BIG</strong>
+          <strong>BIG Staging WMS Endpoint</strong>
         </div>
         <p class="alert-desc" style="margin: 4px 0 0 0;">
-          Data citra menggunakan endpoint <em>staging</em> BIG Piksel. Jika tiles tidak muncul, server mungkin memerlukan akses jaringan BIG atau VPN. Endpoint produksi: <code style="font-size: 10px; color: var(--accent-cyan);">piksel.big.go.id</code>
+          Satellite imagery utilizes BIG Piksel <em>staging</em> endpoints. If tiles do not appear, the service may be undergoing updates. Production endpoint: <code style="font-size: 10px; color: var(--accent-cyan);">piksel.big.go.id</code>
         </p>
       </div>
 
       <!-- Quick Preset Navigation -->
       <div class="clean-section">
         <div class="clean-section-header">
-          <span>Kawasan Pantauan Cepat</span>
+          <span>Priority Monitoring Presets</span>
         </div>
         <div id="piksel-presets-container" class="presets-chip-grid">
           ${presetsHtml}
@@ -371,8 +371,8 @@ export class PikselPanelUI {
       <!-- Catalog Section -->
       <div class="clean-section" style="margin-top: 12px;">
         <div class="clean-section-header">
-          <span>Katalog Produk Citra Satelit</span>
-          <span class="count-tag">${availableProducts.length} Tersedia</span>
+          <span>Satellite Product Catalog</span>
+          <span class="count-tag">${availableProducts.length} Available</span>
         </div>
 
         <!-- Category Filter Tabs -->
@@ -392,15 +392,15 @@ export class PikselPanelUI {
       <!-- Collapsible Official Links -->
       <details class="clean-accordion" style="margin-top: 14px;">
         <summary>
-          <span>Dokumentasi & Portal Resmi BIG Piksel</span>
+          <span>Official BIG Piksel Portals & Documentation</span>
         </summary>
         <div class="accordion-body">
           <p style="margin-bottom: 10px; color: var(--text-muted); font-size: 11.5px;">
-            Layanan OGC WMS didukung oleh Open Data Cube BIG & Geoscience Australia.
+            OGC Web Map Services supported by Open Data Cube BIG & Geoscience Australia.
           </p>
           <div class="clean-footer-links" style="display: flex; flex-direction: column; gap: 6px;">
             <a href="https://piksel.big.go.id" target="_blank" rel="noopener noreferrer" class="link-btn full-width">
-              Buka Portal Piksel BIG ↗
+              Open BIG Piksel Portal ↗
             </a>
             <a href="https://explorer.piksel.big.go.id" target="_blank" rel="noopener noreferrer" class="link-btn secondary full-width">
               Data Cube Explorer ↗
@@ -414,26 +414,26 @@ export class PikselPanelUI {
   private getStatusBadgeHtml(state: PikselLoadingState): string {
     const status = state.status;
     const activeProduct = this.pikselLoader.getActiveProduct();
-    const minZoom = activeProduct?.minZoom ?? 6;
+    const minZoom = activeProduct?.minZoom ?? 8;
 
     if (status === 'zoom_too_low') {
-      const curZ = state.diagnostics?.currentZoom ? `Level ${state.diagnostics.currentZoom}` : 'Terlalu Jauh';
+      const curZ = state.diagnostics?.currentZoom ? `Level ${state.diagnostics.currentZoom}` : 'Too Far';
       return `
         <div class="clean-alert alert-warning">
           <div class="alert-icon-title">
             <span style="font-size: 16px;">🔍</span>
-            <strong>Peta Masih Terlalu Jauh (Zoom ${curZ})</strong>
+            <strong>Map Zoomed Out (Zoom ${curZ})</strong>
           </div>
           <p class="alert-desc">
-            Citra satelit resolusi 10m membutuhkan jarak pandang minimal <strong>Zoom Level ${minZoom} (Skala Pulau/Provinsi)</strong> agar server Open Data Cube dapat merender data.
+            10m satellite imagery requires at least <strong>Zoom Level ${minZoom} (Regional Scale)</strong> for Open Data Cube rendering.
           </p>
           <div class="alert-actions-row">
             <button class="btn-alert-action" id="btn-auto-zoom-min">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-              Perbesar Otomatis (Level ${minZoom}+)
+              Auto Zoom In (Level ${minZoom}+)
             </button>
             <button class="btn-alert-secondary" id="btn-jump-bromo-preset">
-              📍 Contoh: Bromo
+              📍 Sample: Bromo
             </button>
           </div>
         </div>
@@ -445,8 +445,8 @@ export class PikselPanelUI {
         <div class="clean-alert alert-loading">
           <div class="mini-spinner"></div>
           <div>
-            <strong>Menghubungkan ke Open Data Cube BIG...</strong>
-            <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px;">Mengambil ubin citra satelit OGC WMS</span>
+            <strong>Connecting to BIG Open Data Cube...</strong>
+            <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px;">Fetching OGC WMS satellite tiles</span>
           </div>
         </div>
       `;
@@ -456,8 +456,8 @@ export class PikselPanelUI {
       return `
         <div class="clean-alert alert-partial">
           <div>
-            <strong>✓ Sebagian ubin raster berhasil dimuat</strong>
-            <span style="font-size: 11px; color: #cbd5e1; display: block; margin-top: 2px;">Sebagian ubin mengalami keterlambatan/gangguan respons dari server ODC upstream.</span>
+            <strong>✓ Partial raster tiles loaded</strong>
+            <span style="font-size: 11px; color: #cbd5e1; display: block; margin-top: 2px;">Some tiles experienced latency from upstream ODC server.</span>
           </div>
         </div>
       `;
@@ -468,15 +468,15 @@ export class PikselPanelUI {
         <div class="clean-alert alert-error">
           <div class="alert-icon-title">
             <span style="font-size: 16px;">⚠️</span>
-            <strong>Layanan OGC WMS Tidak Merespons</strong>
+            <strong>OGC WMS Service Unavailable</strong>
           </div>
           <p class="alert-desc">
-            Server Badan Informasi Geospasial (BIG) mengalami galat atau timeout saat memproses produk ini. Anda dapat mencoba memuat ulang atau memilih visualisasi alternatif seperti Sentinel-2 True Color.
+            Upstream server encountered a timeout for this layer. You may retry or select Sentinel-2 True Color.
           </p>
           <div class="alert-actions-row">
             <button class="btn-alert-retry" id="btn-retry-piksel">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-              Coba Muat Ulang (Retry)
+              Retry Request
             </button>
           </div>
         </div>
@@ -487,8 +487,8 @@ export class PikselPanelUI {
       return `
         <div class="clean-alert alert-success">
           <div>
-            <strong>✓ Citra Satelit Siap Ditampilkan</strong>
-            <span style="font-size: 11px; color: #cbd5e1; display: block; margin-top: 2px;">Resolusi 10m • OGC WMS Open Data Cube</span>
+            <strong>✓ Satellite Imagery Ready</strong>
+            <span style="font-size: 11px; color: #cbd5e1; display: block; margin-top: 2px;">10m Resolution • OGC WMS Open Data Cube</span>
           </div>
         </div>
       `;
@@ -513,7 +513,7 @@ export class PikselPanelUI {
       if (retryBtn) {
         retryBtn.addEventListener('click', () => {
           this.pikselLoader.retryCurrentProduct();
-          showToast('Mencoba memuat ulang ubin citra dari server OGC...', 'info');
+          showToast('Retrying satellite tile requests from OGC server...', 'info');
         });
       }
 
@@ -548,8 +548,8 @@ export class PikselPanelUI {
     if (state.status === 'zoom_too_low') {
       spinner.style.display = 'none';
       const curZ = state.diagnostics?.currentZoom ? `Zoom ${state.diagnostics.currentZoom}` : '';
-      hudTitle.innerText = `🔍 Perbesar Peta (Min. Level ${activeProduct.minZoom ?? 6}) untuk Memuat Citra`;
-      hudSubtitle.innerText = `${curZ} • Klik di sini atau scroll untuk memperbesar ke skala pulau`;
+      hudTitle.innerText = `🔍 Zoom In (Min. Level ${activeProduct.minZoom ?? 8}) to Load Imagery`;
+      hudSubtitle.innerText = `${curZ} • Click here or scroll to zoom in to regional scale`;
       
       hud.onclick = () => {
         this.pikselLoader.zoomToMinZoom();
@@ -561,22 +561,22 @@ export class PikselPanelUI {
 
     if (state.status === 'requesting' || state.status === 'loading') {
       spinner.style.display = 'block';
-      hudTitle.innerText = `Memuat ${activeProduct.name}...`;
-      hudSubtitle.innerText = `Open Data Cube BIG • Mengambil ubin citra`;
+      hudTitle.innerText = `Loading ${activeProduct.name}...`;
+      hudSubtitle.innerText = `BIG Open Data Cube • Fetching tiles`;
       return;
     }
 
     if (state.status === 'error') {
       spinner.style.display = 'none';
-      hudTitle.innerText = `⚠️ Gangguan Server OGC WMS`;
-      hudSubtitle.innerText = `Server BIG timeout. Klik di panel untuk memuat ulang.`;
+      hudTitle.innerText = `⚠️ OGC WMS Server Issue`;
+      hudSubtitle.innerText = `Upstream timeout. Click retry in sidebar.`;
       return;
     }
 
     if (state.status === 'ready' || state.status === 'degraded' || state.status === 'partial') {
       spinner.style.display = 'none';
-      hudTitle.innerText = state.status === 'degraded' ? `${activeProduct.name} (Sebagian)` : `${activeProduct.name} Siap`;
-      hudSubtitle.innerText = `Citra Satelit Resolusi ${activeProduct.resolution} • OGC WMS`;
+      hudTitle.innerText = state.status === 'degraded' ? `${activeProduct.name} (Partial)` : `${activeProduct.name} Ready`;
+      hudSubtitle.innerText = `Satellite Imagery ${activeProduct.resolution} • OGC WMS`;
       setTimeout(() => {
         if (this.currentLoadingState.status === 'ready' || this.currentLoadingState.status === 'degraded' || this.currentLoadingState.status === 'partial') {
           hud.style.display = 'none';
@@ -602,7 +602,7 @@ export class PikselPanelUI {
         if (preset) {
           this.pikselLoader.flyToPreset(preset);
           const prod = PIKSEL_PRODUCTS.find(p => p.id === preset.recommendedProduct);
-          showToast(`Menampilkan lokasi ${preset.name} (${prod?.name || 'Citra Satelit'})`, 'info');
+          showToast(`Flying to ${preset.name} (${prod?.name || 'Satellite Imagery'})`, 'info');
           if (typeof window !== 'undefined' && window.innerWidth <= 768) {
             window.dispatchEvent(new CustomEvent('webgis:collapse-sidebar-if-mobile'));
           }
@@ -621,7 +621,7 @@ export class PikselPanelUI {
       // 3. Product select click — ignore if clicking About accordion or disabled product
       const disabledCard = target.closest('.clean-product-card.is-disabled');
       if (disabledCard) {
-        showToast('Dataset ini saat ini tidak tersedia di layanan OGC staging.', 'warning');
+        showToast('This dataset is currently unavailable on the staging OGC service.', 'warning');
         return;
       }
 
@@ -632,7 +632,7 @@ export class PikselPanelUI {
       if (clickedId && !target.closest('select') && !target.closest('input') && !target.closest('.card-about-accordion')) {
         const prodObj = PIKSEL_PRODUCTS.find(p => p.id === clickedId);
         if (prodObj?.isDisabled) {
-          showToast('Dataset ini saat ini tidak tersedia di layanan OGC staging.', 'warning');
+          showToast('This dataset is currently unavailable on the staging OGC service.', 'warning');
           return;
         }
 
@@ -653,12 +653,12 @@ export class PikselPanelUI {
           const targetNav = this.pikselLoader.autoFlyToOptimalView(clickedId);
           if (targetNav) {
             showToast(
-              `🚀 Peta diarahkan ke kawasan pantauan (${targetNav}) agar citra satelit langsung tampil.`,
+              `🚀 Camera positioned to study area (${targetNav}) for optimal imagery view.`,
               {
                 type: 'info',
                 durationMs: 7000,
                 action: prevCenter && prevZoom !== null ? {
-                  label: '↩️ Kembali',
+                  label: '↩️ Undo',
                   onClick: () => {
                     map?.flyTo({
                       center: prevCenter,
@@ -668,7 +668,7 @@ export class PikselPanelUI {
                       duration: 1500,
                       essential: true
                     });
-                    showToast('Kembali ke tampilan sebelumnya', 'info', 2000);
+                    showToast('Returned to previous camera view', 'info', 2000);
                   }
                 } : undefined
               }
@@ -688,7 +688,7 @@ export class PikselPanelUI {
       // 5. Retry Piksel product
       if (target.closest('#btn-retry-piksel')) {
         this.pikselLoader.retryCurrentProduct();
-        showToast('Mencoba memuat ulang ubin citra dari server OGC...', 'info');
+        showToast('Retrying satellite tile requests from OGC server...', 'info');
         return;
       }
 
@@ -710,7 +710,7 @@ export class PikselPanelUI {
       if (target.closest('#btn-reset-piksel-filters')) {
         this.pikselLoader.resetFilters();
         this.render();
-        showToast('Koreksi spektral citra direset ke nilai awal', 'info');
+        showToast('Spectral display filters reset to default', 'info');
         return;
       }
     });

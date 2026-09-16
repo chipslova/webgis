@@ -155,7 +155,7 @@ describe('Spatial Proximity Buffer Analyzer (Turf.js)', () => {
 
     const result = SpatialBufferAnalyzer.createBuffer(emptyFC, { radius: 1 });
     expect(result.success).toBe(false);
-    expect(result.error).toContain('tidak memiliki fitur yang valid');
+    expect(result.error).toContain('contains no valid features');
   });
 });
 

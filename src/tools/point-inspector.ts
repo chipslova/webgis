@@ -70,7 +70,7 @@ export class PointInspector {
         // Primary: modern Clipboard API
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(coordsText).then(() => {
-            showToast('Koordinat WGS84 disalin ke clipboard!', 'success');
+            showToast('WGS84 coordinates copied to clipboard!', 'success');
           }).catch(() => {
             fallbackCopy();
           });
@@ -91,12 +91,12 @@ export class PointInspector {
           const success = document.execCommand('copy');
           document.body.removeChild(ta);
           if (success) {
-            showToast('Koordinat WGS84 disalin ke clipboard!', 'success');
+            showToast('WGS84 coordinates copied to clipboard!', 'success');
           } else {
-            showToast('Salin koordinat gagal — salin manual: ' + coordsText, 'warning');
+            showToast('Copy failed — copy manually: ' + coordsText, 'warning');
           }
         } catch {
-          showToast('Salin koordinat gagal — salin manual: ' + coordsText, 'warning');
+          showToast('Copy failed — copy manually: ' + coordsText, 'warning');
         }
       };
 
@@ -132,7 +132,7 @@ export class PointInspector {
 
   public inspectCoordinate(lng: number, lat: number, screenPoint?: maplibregl.PointLike) {
     // 1. Check Active Layer Information
-    let activeLayerName = 'Peta Dasar (Basemap)';
+    let activeLayerName = 'Base Map (Basemap)';
     let activeLayerCategory = 'Basemap';
 
     const pikselProduct = this.pikselLoader?.getActiveProduct();
@@ -143,13 +143,13 @@ export class PointInspector {
     } else if (this.geeLoader) {
       if (this.geeLoader.isLayerVisible('lst')) {
         activeLayerName = 'MODIS Daytime LST Heatmap (2020–2026)';
-        activeLayerCategory = 'Studi Kasus Termal GEE';
+        activeLayerCategory = 'GEE Thermal Case Study';
       } else if (this.geeLoader.isLayerVisible('elevation')) {
         activeLayerName = 'USGS SRTM Ground Elevation DEM (30m)';
-        activeLayerCategory = 'Studi Kasus Elevasi GEE';
+        activeLayerCategory = 'GEE Elevation Case Study';
       } else if (this.geeLoader.isLayerVisible('landcover')) {
-        activeLayerName = 'MODIS MCD12Q1 Tutupan Lahan (500m)';
-        activeLayerCategory = 'Studi Kasus Klasifikasi GEE';
+        activeLayerName = 'MODIS MCD12Q1 Land Cover (500m)';
+        activeLayerCategory = 'GEE Classification Case Study';
       }
     }
 
@@ -203,14 +203,14 @@ export class PointInspector {
     
     if (!pikselProduct) {
       if (rasterStatusEl) {
-        rasterStatusEl.innerText = 'Peta visual (Tidak ada citra WMS aktif)';
+        rasterStatusEl.innerText = 'Visual map (No active WMS imagery)';
         rasterStatusEl.style.color = 'var(--text-muted)';
       }
       return;
     }
 
     if (rasterStatusEl) {
-      rasterStatusEl.innerText = 'Meminta GetFeatureInfo dari server BIG Piksel...';
+      rasterStatusEl.innerText = 'Requesting GetFeatureInfo from BIG Piksel server...';
       rasterStatusEl.style.color = '#38bdf8';
     }
 
@@ -281,31 +281,31 @@ export class PointInspector {
             .map(([k, v]) => `<span style="color:#00f0ff;">${escapeHtml(k)}:</span> ${escapeHtml(String(v))}`)
             .join(' · ');
           if (rasterStatusEl) {
-            rasterStatusEl.innerHTML = `<strong>Data Piksel:</strong> ${summary}`;
+            rasterStatusEl.innerHTML = `<strong>Pixel Data:</strong> ${summary}`;
             rasterStatusEl.style.color = '#00f0ff';
           }
         } else {
-          const rawVal = props.value ?? props.gray_index ?? props.band_1 ?? 'Data terdeteksi';
+          const rawVal = props.value ?? props.gray_index ?? props.band_1 ?? 'Detected data';
           const val = escapeHtml(String(rawVal));
           if (rasterStatusEl) {
-            rasterStatusEl.innerHTML = `<strong style="color: #00f0ff;">Piksel Terdeteksi: ${val}</strong> (GetFeatureInfo)`;
+            rasterStatusEl.innerHTML = `<strong style="color: #00f0ff;">Detected Pixel: ${val}</strong> (GetFeatureInfo)`;
             rasterStatusEl.style.color = '#00f0ff';
           }
         }
       } else if (text && text.trim().length > 0 && !text.includes('<?xml') && !text.includes('ServiceException')) {
         if (rasterStatusEl) {
-          rasterStatusEl.innerText = `Hasil OGC: ${text.substring(0, 50)}`;
+          rasterStatusEl.innerText = `OGC Result: ${text.substring(0, 50)}`;
           rasterStatusEl.style.color = '#cbd5e1';
         }
       } else {
         if (rasterStatusEl) {
-          rasterStatusEl.innerText = 'Visualisasi Citra WMS (Disajikan sebagai layer peta)';
+          rasterStatusEl.innerText = 'WMS Imagery Visualization (Rendered as map layer)';
           rasterStatusEl.style.color = 'var(--text-muted)';
         }
       }
     } catch (e) {
       if (rasterStatusEl) {
-        rasterStatusEl.innerText = 'Visualisasi Citra WMS (Disajikan sebagai layer peta)';
+        rasterStatusEl.innerText = 'WMS Imagery Visualization (Rendered as map layer)';
         rasterStatusEl.style.color = 'var(--text-muted)';
       }
     }
@@ -343,11 +343,11 @@ export class PointInspector {
     // Keep hidden fallback elements for legacy test compatibility
     const elvEl = document.getElementById('insp-elevation');
     const lstEl = document.getElementById('insp-lst');
-    if (elvEl) elvEl.innerText = 'Tidak tersedia (Query WMS)';
-    if (lstEl) lstEl.innerText = 'Tidak tersedia (Query WMS)';
+    if (elvEl) elvEl.innerText = 'Unavailable (WMS Query)';
+    if (lstEl) lstEl.innerText = 'Unavailable (WMS Query)';
 
     if (productNameEl && productValEl) {
-      productNameEl.innerText = 'Lapisan Aktif';
+      productNameEl.innerText = 'Active Layer';
       productValEl.innerText = `${activeLayerName} · ${activeLayerCategory}`;
     }
 

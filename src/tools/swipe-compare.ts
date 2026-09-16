@@ -30,45 +30,45 @@ export interface SwipePreset {
 export const SWIPE_PRESETS: SwipePreset[] = [
   {
     id: 'ikn-dev',
-    name: 'Pembangunan IKN Nusantara',
-    locationName: 'Kalimantan Timur',
+    name: 'IKN Nusantara Development',
+    locationName: 'East Kalimantan',
     center: [116.7050, -0.9700],
     zoom: 12.0,
     pitch: 0,
-    description: 'Bandingkan tutupan hutan 2018 (Kiri) vs Progres Infrastruktur & Indeks Vegetasi 2025 (Kanan).',
+    description: 'Compare 2018 forest baseline (Left) vs 2025 infrastructure progress & vegetation index (Right).',
     left: { productId: 's2-geomad-rgb', year: '2018' },
     right: { productId: 's2-ndvi', year: '2025' }
   },
   {
     id: 'bromo-spectral',
-    name: 'Kawah Bromo & Vegetasi Tengger',
-    locationName: 'Jawa Timur',
+    name: 'Bromo Caldera & Tengger Vegetation',
+    locationName: 'East Java',
     center: [112.9530, -7.9425],
     zoom: 13.0,
     pitch: 0,
-    description: 'Bandingkan komposit spektral vegetasi (Kiri) vs True Color RGB (Kanan) di kaldera Bromo.',
+    description: 'Compare spectral vegetation index (Left) vs True Color RGB (Right) over Bromo caldera.',
     left: { productId: 's2-ndvi', year: '2025' },
     right: { productId: 's2-geomad-rgb', year: '2025' }
   },
   {
     id: 'jakarta-urban',
-    name: 'Ekspansi Urban Pesisir Jakarta',
-    locationName: 'DKI Jakarta & Teluk Jakarta',
+    name: 'Coastal Urban Expansion Jakarta',
+    locationName: 'Jakarta Bay',
     center: [106.8272, -6.1754],
     zoom: 12.0,
     pitch: 0,
-    description: 'Perkembangan pulau reklamasi & densitas terbangun 2018 (Kiri) vs 2025 (Kanan).',
+    description: 'Compare coastal land reclamation and urban density in 2018 (Left) vs 2025 (Right).',
     left: { productId: 's2-geomad-rgb', year: '2018' },
     right: { productId: 's2-geomad-rgb', year: '2025' }
   },
   {
     id: 'danau-toba',
-    name: 'Kualitas Air & Pesisir Danau Toba',
-    locationName: 'Sumatera Utara',
+    name: 'Lake Toba Water Quality & Shoreline',
+    locationName: 'North Sumatra',
     center: [98.8800, 2.6800],
     zoom: 11.5,
     pitch: 0,
-    description: 'Indeks Air (NDWI) 2025 (Kiri) vs Komposit Warna Alami 2025 (Kanan).',
+    description: 'Compare Water Index (NDWI) 2025 (Left) vs Natural Color Composite 2025 (Right).',
     left: { productId: 's2-ndwi', year: '2025' },
     right: { productId: 's2-geomad-rgb', year: '2025' }
   }
@@ -417,9 +417,9 @@ export class SwipeCompareManager {
         interactive: false // Primary map drives camera
       });
     } catch (e) {
-      logger.warn('[SwipeCompare] Gagal inisialisasi peta komparasi kedua:', e);
+      logger.warn('[SwipeCompare] Failed to initialize secondary comparison map:', e);
       ErrorHandler.getInstance().showThrottledError(
-        'Perangkat atau browser Anda tidak mendukung Mode Komparasi (WebGL2 diperlukan).'
+        'Your device or browser does not support Swipe Comparison mode (WebGL2 is required).'
       );
       this.deactivate();
       return;

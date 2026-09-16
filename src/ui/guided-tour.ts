@@ -43,11 +43,11 @@ export class GuidedTourUI {
     return [
       {
         id: 1,
-        badge: '1. CITRA SATELIT 10M',
-        title: 'Sentinel-2 GeoMAD (Bromo Tengger Semeru)',
-        subtitle: 'Layanan OGC WMS Open Data Cube BIG',
-        description: 'Satelit Sentinel-2 MSI merekam data reflektansi optik resolusi 10m. Badan Informasi Geospasial (BIG) memproses komposit tahunan bebas awan (GeoMAD) di atas kaldera lautan pasir Bromo.',
-        tags: ['Resolusi 10m', 'Bebas Awan (GeoMAD)', 'Badan Informasi Geospasial'],
+        badge: '1. SATELLITE IMAGERY 10M',
+        title: 'Sentinel-2 GeoMAD (Mount Bromo & Semeru)',
+        subtitle: 'BIG Open Data Cube OGC WMS Service',
+        description: 'The Sentinel-2 MSI satellite captures 10m optical reflectance. Geospatial Information Agency (BIG) processes annual cloud-free composites (GeoMAD) over the Bromo caldera.',
+        tags: ['10m Resolution', 'Cloud-Free (GeoMAD)', 'Geospatial Information Agency'],
         action: async () => {
           const map = this.mapManager.getMap();
           if (!map) return;
@@ -80,11 +80,11 @@ export class GuidedTourUI {
       },
       {
         id: 2,
-        badge: '2. ANALISIS TERMAL GEE',
-        title: 'Urban Heat Island Jakarta vs Bogor',
+        badge: '2. GEE THERMAL ANALYSIS',
+        title: 'Urban Heat Island: Jakarta vs. Bogor',
         subtitle: 'Google Earth Engine & MODIS Land Surface Temperature',
-        description: 'Pemodelan Google Earth Engine memetakan pulau bahang perkotaan (UHI). Amati kontras suhu permukaan (+9.25°C) antara pusat urban Jakarta Monas (33.85°C) vs kawasan pedesaan sejuk Bogor (24.60°C).',
-        tags: ['MODIS LST 1km', 'UHI Delta +9.25°C', 'Stasiun Observasi POI'],
+        description: 'Google Earth Engine modeling maps urban heat island (UHI) intensity. Observe the +9.25°C surface temperature contrast between Monas urban core (33.85°C) and rural IPB forest (24.60°C).',
+        tags: ['MODIS LST 1km', 'UHI Delta +9.25°C', 'Observation POI Stations'],
         action: async () => {
           const map = this.mapManager.getMap();
           if (!map) return;
@@ -119,11 +119,11 @@ export class GuidedTourUI {
       },
       {
         id: 3,
-        badge: '3. TOPOGRAFI & 3D TERRAIN',
-        title: 'Elevasi Medan 3D & Ekstrusi Bangunan (Bandung)',
-        subtitle: 'Mesh 3D Terrarium & Ekstrusi Vektor WebGL2',
-        description: 'Peta dirender dalam perspektif 3D WebGL dengan elevasi mesh topografi AWS Terrarium dan ekstrusi volume gedung nyata OpenFreeMap di kawasan perkotaan Bandung dengan latar belakang lereng Cekungan Bandung.',
-        tags: ['3D WebGL2', 'Mesh Elevasi 30m', 'Ekstrusi Gedung 3D', 'Zoom Detail Z14.8'],
+        badge: '3. TOPOGRAPHY & 3D TERRAIN',
+        title: '3D Terrain Elevation & Building Extrusion (Bandung)',
+        subtitle: 'AWS Terrarium 3D Mesh & WebGL2 Vector Extrusion',
+        description: 'Map renders in 3D WebGL perspective with AWS Terrarium topographic elevation mesh and real-scale OpenFreeMap 3D building volume extrusions over Bandung basin.',
+        tags: ['3D WebGL2', '30m Elevation Mesh', '3D Building Extrusions', 'Detailed Zoom Z14.8'],
         action: async () => {
           const map = this.mapManager.getMap();
           if (!map) return;
@@ -167,7 +167,7 @@ export class GuidedTourUI {
     }
 
     this.renderTourCard();
-    showToast('🚀 Tur Jelajah Nusantara dimulai (3 Langkah)', 'info');
+    showToast('🚀 Interactive Guided Tour started (3 Steps)', 'info');
     await this.executeCurrentStep();
   }
 
@@ -177,7 +177,7 @@ export class GuidedTourUI {
       this.overlayEl.remove();
       this.overlayEl = null;
     }
-    showToast('🎉 Tur selesai! Selamat mengeksplorasi seluruh fitur WebGIS.', 'success');
+    showToast('🎉 Tour completed! Enjoy exploring all WebGIS features.', 'success');
   }
 
   private async executeCurrentStep(): Promise<void> {
@@ -224,7 +224,7 @@ export class GuidedTourUI {
       this.overlayEl.id = 'webgis-tour-card';
       this.overlayEl.className = 'webgis-tour-card';
       this.overlayEl.setAttribute('role', 'dialog');
-      this.overlayEl.setAttribute('aria-label', 'Tur Demo Interaktif');
+      this.overlayEl.setAttribute('aria-label', 'Interactive Demo Tour');
       document.body.appendChild(this.overlayEl);
       existingCard = this.overlayEl;
     }
@@ -241,9 +241,9 @@ export class GuidedTourUI {
       <div class="tour-header">
         <div class="tour-badge-wrap">
           <span class="tour-step-badge">${step.badge}</span>
-          <span class="tour-counter">${this.currentStepIndex + 1} dari ${steps.length}</span>
+          <span class="tour-counter">${this.currentStepIndex + 1} of ${steps.length}</span>
         </div>
-        <button id="btn-tour-close" class="tour-close-btn" title="Tutup Tur" aria-label="Tutup tur demo">✕</button>
+        <button id="btn-tour-close" class="tour-close-btn" title="Close Tour" aria-label="Close demo tour">✕</button>
       </div>
 
       <div class="tour-body">
@@ -261,12 +261,12 @@ export class GuidedTourUI {
         </div>
         <div class="tour-actions">
           ${!isFirst ? `
-            <button id="btn-tour-prev" class="btn-tour-action secondary" aria-label="Langkah sebelumnya">
-              ← Kembali
+            <button id="btn-tour-prev" class="btn-tour-action secondary" aria-label="Previous step">
+              ← Back
             </button>
           ` : ''}
-          <button id="btn-tour-next" class="btn-tour-action primary" aria-label="${isLast ? 'Selesaikan tur' : 'Lanjut ke langkah berikutnya'}">
-            ${isLast ? '✓ Selesai Jelajah' : 'Lanjut →'}
+          <button id="btn-tour-next" class="btn-tour-action primary" aria-label="${isLast ? 'Finish tour' : 'Proceed to next step'}">
+            ${isLast ? '✓ Finish Tour' : 'Next →'}
           </button>
         </div>
       </div>

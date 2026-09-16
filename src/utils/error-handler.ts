@@ -32,7 +32,7 @@ export class ErrorHandler {
       const isExtension = event.filename && (event.filename.startsWith('chrome-extension') || event.filename.startsWith('moz-extension'));
       if (isExtension) return;
 
-      this.showThrottledError('Terjadi kendala rendering/sistem. Klik muat ulang jika peta tidak merespons.', 8000);
+      this.showThrottledError('A rendering or system issue occurred. Click reload if the map is unresponsive.', 8000);
     });
 
     // 2. Catch unhandled promise rejections
@@ -44,7 +44,7 @@ export class ErrorHandler {
 
       const reasonStr = String(event.reason?.message || event.reason || '');
       if (reasonStr.includes('Failed to fetch') || reasonStr.includes('NetworkError') || reasonStr.includes('Load failed')) {
-        this.showThrottledError('Kendala koneksi ke server geospasial eksternal.', 6000);
+        this.showThrottledError('Connection issue with external geospatial server.', 6000);
       }
     });
   }
@@ -56,8 +56,8 @@ export class ErrorHandler {
       this.isOnline = true;
       logger.info('[Network] Back online');
       this.hideOfflineBanner();
-      showToast('Koneksi internet pulih kembali.', 'success', 3000);
-      announceToScreenReader('Koneksi internet pulih kembali.');
+      showToast('Internet connection restored.', 'success', 3000);
+      announceToScreenReader('Internet connection restored.');
       this.notifyNetworkChange(true);
     };
 
@@ -65,8 +65,8 @@ export class ErrorHandler {
       this.isOnline = false;
       logger.warn('[Network] Offline detected');
       this.showOfflineBanner();
-      showToast('Koneksi terputus. Mode peta offline aktif.', 'warning', 5000);
-      announceToScreenReader('Peringatan: Koneksi internet terputus. Beralih ke mode offline.');
+      showToast('Connection lost. Offline map mode active.', 'warning', 5000);
+      announceToScreenReader('Warning: Internet connection lost. Switched to offline mode.');
       this.notifyNetworkChange(false);
     };
 
@@ -121,7 +121,7 @@ export class ErrorHandler {
       this.offlineBanner.innerHTML = `
         <span class="offline-icon" aria-hidden="true">⚠️</span>
         <div class="offline-text">
-          <strong>Mode Offline</strong> — Koneksi internet terputus. Data citra dan layer baru tidak dapat dimuat hingga koneksi kembali.
+          <strong>Offline Mode</strong> — Internet connection lost. Satellite imagery and new layers cannot be loaded until connection is restored.
         </div>
       `;
       document.body.prepend(this.offlineBanner);

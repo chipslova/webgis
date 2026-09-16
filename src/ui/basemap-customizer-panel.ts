@@ -82,14 +82,14 @@ export class BasemapCustomizerUI {
       item.dataset.id = bm.id;
       item.setAttribute('role', 'button');
       item.setAttribute('tabindex', '0');
-      item.setAttribute('aria-label', `Pilih basemap ${bm.name} format ${bm.format} kategori ${bm.category}`);
+      item.setAttribute('aria-label', `Select basemap ${bm.name} format ${bm.format} category ${bm.category}`);
 
       const formatBadge = bm.format === 'vector'
-        ? `<span class="bm-tag-badge vector" title="Basemap Vektor: Mendukung kustomisasi sublayer (jalan, batas admin, label)">🔷 Vektor</span>`
-        : `<span class="bm-tag-badge raster" title="Basemap Raster: Citra/Peta komposit piksel">🖼️ Raster</span>`;
+        ? `<span class="bm-tag-badge vector" title="Vector Basemap: Supports sublayer customization (roads, administrative boundaries, labels)">🔷 Vector</span>`
+        : `<span class="bm-tag-badge raster" title="Raster Basemap: Pixel composite imagery/map">🖼️ Raster</span>`;
       
       const maxZoomBadge = bm.maxZoom
-        ? `<span class="bm-tag-badge maxzoom" title="Maksimal zoom level ${bm.maxZoom} (Batimetri Kedalaman Laut)">⚠️ Maks Z${bm.maxZoom}</span>`
+        ? `<span class="bm-tag-badge maxzoom" title="Maximum zoom level ${bm.maxZoom} (Ocean Depth Bathymetry)">⚠️ Max Z${bm.maxZoom}</span>`
         : '';
 
       item.innerHTML = `
@@ -127,7 +127,7 @@ export class BasemapCustomizerUI {
           this.mapManager.setBasemap(bm.id);
         }
         this.customizer.setBasemapId(bm.id);
-        showToast(`Basemap diubah ke "${bm.name}"`, 'info');
+        showToast(`Basemap switched to "${bm.name}"`, 'info');
         this.syncUI();
       });
 
@@ -158,9 +158,9 @@ export class BasemapCustomizerUI {
     const currentId = this.mapManager?.getCurrentBasemapId() || DEFAULT_BASEMAP_ID;
 
     const groups = [
-      { key: 'recommended', title: 'Pilihan Utama & Populer' },
-      { key: 'thematic', title: 'Topografi, Samudra & Relief' },
-      { key: 'canvas', title: 'Kanvas Minimalis & Navigasi' }
+      { key: 'recommended', title: 'Featured & Popular' },
+      { key: 'thematic', title: 'Topography, Oceans & Relief' },
+      { key: 'canvas', title: 'Minimal Canvas & Navigation' }
     ];
 
     groups.forEach((grp) => {
@@ -172,7 +172,7 @@ export class BasemapCustomizerUI {
       groupHeader.innerHTML = `
         <div class="group-title-row">
           <h4>${grp.title}</h4>
-          <span>${groupBasemaps.length} Pilihan</span>
+          <span>${groupBasemaps.length} Options</span>
         </div>
       `;
       grid.appendChild(groupHeader);
@@ -186,13 +186,13 @@ export class BasemapCustomizerUI {
         card.dataset.id = bm.id;
         card.setAttribute('role', 'button');
         card.setAttribute('tabindex', '0');
-        card.setAttribute('aria-label', `Pilih basemap ${bm.name} kategori ${bm.category}`);
+        card.setAttribute('aria-label', `Select basemap ${bm.name} category ${bm.category}`);
 
         const formatBadge = bm.format === 'vector'
-          ? `<span class="bm-tag-badge vector">🔷 Vektor</span>`
+          ? `<span class="bm-tag-badge vector">🔷 Vector</span>`
           : `<span class="bm-tag-badge raster">🖼️ Raster</span>`;
         const maxZoomBadge = bm.maxZoom
-          ? `<span class="bm-tag-badge maxzoom">⚠️ Maks Z${bm.maxZoom}</span>`
+          ? `<span class="bm-tag-badge maxzoom">⚠️ Max Z${bm.maxZoom}</span>`
           : '';
 
         card.innerHTML = `
@@ -222,7 +222,7 @@ export class BasemapCustomizerUI {
           if (typeof window !== 'undefined' && window.innerWidth <= 768) {
             window.dispatchEvent(new CustomEvent('webgis:collapse-sidebar-if-mobile'));
           }
-          announceToScreenReader(`Peta dasar diubah ke ${bm.name} (${bm.category})`);
+          announceToScreenReader(`Basemap changed to ${bm.name} (${bm.category})`);
           this.syncUI();
         };
 
@@ -283,7 +283,7 @@ export class BasemapCustomizerUI {
       if (this.pikselLoader) {
         const next = !this.pikselLoader.isGridVisible();
         this.pikselLoader.setGridVisible(next);
-        showToast(next ? 'Tile Grid 10m Piksel ditampilkan' : 'Tile Grid disembunyikan', 'info');
+        showToast(next ? 'Piksel 10m Tile Grid enabled' : 'Tile Grid hidden', 'info');
         this.syncUI();
       }
     });
@@ -381,7 +381,7 @@ export class BasemapCustomizerUI {
     const checkHillshade = document.getElementById('popover-check-hillshade') as HTMLInputElement;
     checkHillshade?.addEventListener('change', () => {
       this.customizer.toggleTerrainHillshade(checkHillshade.checked);
-      showToast(checkHillshade.checked ? 'Terrain Hillshade aktif' : 'Terrain Hillshade nonaktif', 'info');
+      showToast(checkHillshade.checked ? 'Terrain Hillshade enabled' : 'Terrain Hillshade disabled', 'info');
     });
 
     // Zoom Focus Demo Button
@@ -395,7 +395,7 @@ export class BasemapCustomizerUI {
         }
         this.customizer.setBasemapId(targetVectorBm);
       }
-      this.flyToDemoLocation('🎯 Kamera terbang ke Jakarta Monas (Z14.5)! Coba toggle sublayer jalan & label sekarang.');
+      this.flyToDemoLocation('🎯 Camera flew to Jakarta Monas (Z14.5)! Try toggling road & label sublayers now.');
       this.syncUI();
     });
 
@@ -409,7 +409,7 @@ export class BasemapCustomizerUI {
           const map = this.mapManager?.getMap();
           const currentZoom = map && typeof map.getZoom === 'function' ? map.getZoom() : 14;
           if (currentZoom < 11) {
-            this.flyToDemoLocation(`Auto-zoom ke Jakarta (Z14.5) agar perubahan sublayer "${key}" terlihat jelas!`);
+            this.flyToDemoLocation(`Auto-zooming to Jakarta (Z14.5) to highlight sublayer "${key}" changes!`);
           }
         }
       });
@@ -420,16 +420,16 @@ export class BasemapCustomizerUI {
       e.stopPropagation();
       const currentBm = BASEMAPS.find(b => b.id === (this.mapManager?.getCurrentBasemapId() || DEFAULT_BASEMAP_ID));
       if (currentBm && currentBm.format !== 'vector') {
-        showToast(`Kustomisasi sublayer hanya aktif pada Basemap Vektor (${currentBm.name} berformat Raster)`, 'warning');
+        showToast(`Sublayer customization only applies to Vector Basemaps (${currentBm.name} is Raster)`, 'warning');
         return;
       }
       this.customizer.setAllSublayers(true);
       const map = this.mapManager?.getMap();
       const currentZoom = map && typeof map.getZoom === 'function' ? map.getZoom() : 14;
       if (currentZoom < 11) {
-        this.flyToDemoLocation('Auto-zoom ke Jakarta (Z14.5) untuk menampilkan seluruh sublayer!');
+        this.flyToDemoLocation('Auto-zooming to Jakarta (Z14.5) to display all sublayers!');
       } else {
-        showToast('Semua sublayer vektor diaktifkan', 'info');
+        showToast('All vector sublayers enabled', 'info');
       }
       this.syncUI();
     });
@@ -438,16 +438,16 @@ export class BasemapCustomizerUI {
       e.stopPropagation();
       const currentBm = BASEMAPS.find(b => b.id === (this.mapManager?.getCurrentBasemapId() || DEFAULT_BASEMAP_ID));
       if (currentBm && currentBm.format !== 'vector') {
-        showToast(`Kustomisasi sublayer hanya aktif pada Basemap Vektor (${currentBm.name} berformat Raster)`, 'warning');
+        showToast(`Sublayer customization only applies to Vector Basemaps (${currentBm.name} is Raster)`, 'warning');
         return;
       }
       this.customizer.setAllSublayers(false);
       const map = this.mapManager?.getMap();
       const currentZoom = map && typeof map.getZoom === 'function' ? map.getZoom() : 14;
       if (currentZoom < 11) {
-        this.flyToDemoLocation('Auto-zoom ke Jakarta (Z14.5) untuk melihat Peta Bersih!');
+        this.flyToDemoLocation('Auto-zooming to Jakarta (Z14.5) to view Clean Map!');
       } else {
-        showToast('Peta Bersih: semua sublayer dimatikan (Clean Map Canvas)', 'info');
+        showToast('Clean Map Canvas: all sublayers muted', 'info');
       }
       this.syncUI();
     });
@@ -456,7 +456,7 @@ export class BasemapCustomizerUI {
     const masterTerrainToggle = document.getElementById('popover-terrain-master-toggle') as HTMLInputElement;
     masterTerrainToggle?.addEventListener('change', () => {
       this.customizer.toggle3DTerrain(masterTerrainToggle.checked);
-      showToast(masterTerrainToggle.checked ? 'Mode 3D Terrain Elevation diaktifkan!' : 'Kembali ke 2D datar', 'info');
+      showToast(masterTerrainToggle.checked ? '3D Terrain Elevation mode enabled!' : 'Returned to 2D flat map', 'info');
       this.syncUI();
     });
 
@@ -508,9 +508,9 @@ export class BasemapCustomizerUI {
     if (titleEl && currentBm) titleEl.textContent = currentBm.name;
     if (badgeEl && currentBm) {
       const isVector = currentBm.format === 'vector';
-      badgeEl.textContent = isVector ? 'VEKTOR' : 'RASTER';
+      badgeEl.textContent = isVector ? 'VECTOR' : 'RASTER';
       badgeEl.className = `active-bm-badge ${currentBm.format}`;
-      badgeEl.title = `${currentBm.name} (${currentBm.category}) • Format: ${isVector ? 'Vektor' : 'Raster'}${currentBm.maxZoom ? ` (Maks Z${currentBm.maxZoom})` : ''}`;
+      badgeEl.title = `${currentBm.name} (${currentBm.category}) • Format: ${isVector ? 'Vector' : 'Raster'}${currentBm.maxZoom ? ` (Max Z${currentBm.maxZoom})` : ''}`;
     }
 
     // Sync Basemap Opacity slider
@@ -533,11 +533,11 @@ export class BasemapCustomizerUI {
           <div class="sublayer-notice-content">
             <div class="sublayer-notice-header">
               <span class="lock-icon" aria-hidden="true">🔒</span>
-              <span>Sublayer Khusus Basemap Vektor</span>
+              <span>Sublayers Require Vector Basemap</span>
             </div>
-            <p>Basemap aktif (<strong>${currentBm?.name || 'Raster'}</strong>) berupa gambar citra piksel. Tombol jalan, batas wilayah, dan label hanya aktif pada basemap <strong>Vektor</strong>.</p>
-            <button type="button" class="btn-notice-switch-vector" id="btn-notice-switch-vector" aria-label="Beralih ke Basemap Vektor OpenFreeMap Liberty">
-              ⚡ Ganti ke OpenFreeMap Vektor
+            <p>Active basemap (<strong>${currentBm?.name || 'Raster'}</strong>) is a pixel raster image. Road networks, administrative boundaries, and label toggles are only available on <strong>Vector</strong> basemaps.</p>
+            <button type="button" class="btn-notice-switch-vector" id="btn-notice-switch-vector" aria-label="Switch to OpenFreeMap Liberty Vector Basemap">
+              ⚡ Switch to OpenFreeMap Vector
             </button>
           </div>
         `;
@@ -549,7 +549,7 @@ export class BasemapCustomizerUI {
             this.mapManager.setBasemap(targetVectorBm);
           }
           this.customizer.setBasemapId(targetVectorBm);
-          this.flyToDemoLocation('⚡ Beralih ke OpenFreeMap Vektor & auto-zoom ke Jakarta Monas (Z14.5)! Kustomisasi sublayer kini aktif.');
+          this.flyToDemoLocation('⚡ Switched to OpenFreeMap Vector & auto-zoomed to Jakarta Monas (Z14.5)! Sublayer customization is now active.');
           this.syncUI();
         });
       }
@@ -562,13 +562,13 @@ export class BasemapCustomizerUI {
       btnSubAll.disabled = isRasterBasemap;
       btnSubAll.style.opacity = isRasterBasemap ? '0.35' : '1';
       btnSubAll.style.cursor = isRasterBasemap ? 'not-allowed' : 'pointer';
-      btnSubAll.title = isRasterBasemap ? 'Hanya tersedia untuk basemap Vektor' : 'Aktifkan semua sublayer';
+      btnSubAll.title = isRasterBasemap ? 'Only available for Vector basemaps' : 'Enable all sublayers';
     }
     if (btnSubMute) {
       btnSubMute.disabled = isRasterBasemap;
       btnSubMute.style.opacity = isRasterBasemap ? '0.35' : '1';
       btnSubMute.style.cursor = isRasterBasemap ? 'not-allowed' : 'pointer';
-      btnSubMute.title = isRasterBasemap ? 'Hanya tersedia untuk basemap Vektor' : 'Matikan semua sublayer';
+      btnSubMute.title = isRasterBasemap ? 'Only available for Vector basemaps' : 'Mute all sublayers';
     }
 
     // 4. Sync Sublayer Popover Checkboxes (dimmed and locked for raster basemaps)
@@ -592,7 +592,7 @@ export class BasemapCustomizerUI {
         parentLabel.style.opacity = isRasterBasemap ? '0.35' : '1';
         parentLabel.style.pointerEvents = isRasterBasemap ? 'none' : 'auto';
         parentLabel.style.cursor = isRasterBasemap ? 'not-allowed' : 'pointer';
-        parentLabel.title = isRasterBasemap ? 'Hanya dapat diubah pada basemap Vektor' : '';
+        parentLabel.title = isRasterBasemap ? 'Only editable on Vector basemaps' : '';
       }
     });
 

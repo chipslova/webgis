@@ -7,32 +7,32 @@ export interface ShortcutGroup {
 
 export const GIS_SHORTCUTS: ShortcutGroup[] = [
   {
-    category: 'Alat & Analisis Spasial',
+    category: 'Spatial Tools & Analysis',
     items: [
-      { key: 'M', description: 'Buka / Aktifkan Alat Pengukuran (Measure Tool)' },
-      { key: 'Z', description: 'Batalkan / hapus titik terakhir saat mengukur (Undo)' },
-      { key: 'I', description: 'Buka / Aktifkan Inspeksi Titik (Point Inspector)' },
-      { key: 'S', description: 'Buka / Aktifkan Komparasi Tirai (Swipe / Split-Screen)' },
-      { key: 'T', description: 'Buka / Tutup Tabel Atribut Spasial (Attribute Table)' },
-      { key: 'Esc', description: 'Batalkan alat aktif atau tutup modal/panel' }
+      { key: 'M', description: 'Open / Activate Measure Tool' },
+      { key: 'Z', description: 'Undo last point while measuring' },
+      { key: 'I', description: 'Open / Activate Point Inspector' },
+      { key: 'S', description: 'Open / Activate Swipe Split-Screen Compare' },
+      { key: 'T', description: 'Open / Close Spatial Attribute Table' },
+      { key: 'Esc', description: 'Cancel active tool or close modal/panel' }
     ]
   },
   {
-    category: 'Navigasi & Tampilan',
+    category: 'Navigation & View',
     items: [
-      { key: 'Ctrl + K / ⌘K', description: 'Buka Command Palette / Pencarian Cepat' },
-      { key: 'B', description: 'Buka Galeri Basemap' },
-      { key: 'L', description: 'Buka Tab Manajemen Layer & Citra Satelit' },
-      { key: 'P', description: 'Buka Analisis Studi Kasus Termal GEE' },
-      { key: '?', description: 'Buka Buku Pintar Pintasan Keyboard ini' }
+      { key: 'Ctrl + K / ⌘K', description: 'Open Command Palette / Quick Search' },
+      { key: 'B', description: 'Open Basemap Gallery' },
+      { key: 'L', description: 'Open Layer Stack & Satellite Imagery Tab' },
+      { key: 'P', description: 'Open GEE Thermal Analysis Tab' },
+      { key: '?', description: 'Open this Keyboard Shortcuts Cheatsheet' }
     ]
   },
   {
-    category: 'Navigasi Peta (Map Controls)',
+    category: 'Map Controls',
     items: [
-      { key: '+ / -', description: 'Perbesar / Perkecil skala peta' },
-      { key: 'Shift + Drag', description: 'Zoom kotak ke area tertentu (Box Zoom)' },
-      { key: 'Ctrl + Drag', description: 'Putar / Rotasi dan kemiringan sudut (Pitch/Bearing)' }
+      { key: '+ / -', description: 'Zoom in / Zoom out map scale' },
+      { key: 'Shift + Drag', description: 'Box zoom to specific bounding box' },
+      { key: 'Ctrl + Drag', description: 'Rotate bearing and pitch angle' }
     ]
   }
 ];
@@ -112,11 +112,11 @@ export class ShortcutsModalUI {
           <div class="shortcuts-title-wrap">
             <span class="shortcuts-icon">⌨️</span>
             <div>
-              <h3 id="shortcuts-title">Buku Pintar Pintasan Keyboard (Shortcuts)</h3>
-              <p class="shortcuts-subtitle">Akses cepat seluruh alat GIS dan navigasi peta</p>
+              <h3 id="shortcuts-title">Keyboard Shortcuts Cheatsheet</h3>
+              <p class="shortcuts-subtitle">Quick access to all GIS tools and map controls</p>
             </div>
           </div>
-          <button id="btn-close-shortcuts" class="btn-close-modal" aria-label="Tutup Modal Pintasan">
+          <button id="btn-close-shortcuts" class="btn-close-modal" aria-label="Close Shortcuts Modal">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -129,8 +129,8 @@ export class ShortcutsModalUI {
         </div>
 
         <div class="shortcuts-footer">
-          <span>Tekan <kbd>Esc</kbd> untuk menutup kapan saja</span>
-          <button id="btn-done-shortcuts" class="btn-primary-sm">Mengerti</button>
+          <span>Press <kbd>Esc</kbd> to close anytime</span>
+          <button id="btn-done-shortcuts" class="btn-primary-sm">Got it</button>
         </div>
       </div>
     `;

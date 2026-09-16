@@ -16,14 +16,14 @@ export interface BasemapConfig {
 }
 
 export const BASEMAPS: BasemapConfig[] = [
-  // --- 1. RECOMMENDED / PILIHAN UTAMA ---
+  // --- 1. RECOMMENDED / FEATURED ---
   {
     id: 'esri-imagery',
     name: 'Esri World Imagery',
     format: 'raster',
     category: 'Esri',
     group: 'recommended',
-    description: 'Citra satelit global resolusi tinggi resmi ArcGIS World Imagery',
+    description: 'Official ArcGIS World Imagery high-resolution global satellite mosaic',
     styleUrl: '/basemap/styles/esri-style-community.json',
     previewColor: '#1e293b',
     initialBounds: {
@@ -37,7 +37,7 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'Esri',
     group: 'recommended',
-    description: 'Peta jalan global Esri dengan detail jaringan transportasi dan landmark kota',
+    description: 'Esri global street map with detailed transportation networks and urban landmarks',
     styleUrl: '/basemap/styles/esri-style-streets.json',
     previewColor: '#3b82f6'
   },
@@ -47,7 +47,7 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'National',
     group: 'recommended',
-    description: 'Peta dasar topografi nasional resmi Badan Informasi Geospasial (BIG)',
+    description: 'Official national topographic base map from the Geospatial Information Agency of Indonesia (BIG)',
     styleUrl: '/basemap/styles/big-style-rbi.json',
     previewColor: '#4fa8d8',
     initialBounds: {
@@ -61,19 +61,19 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'OpenData',
     group: 'recommended',
-    description: 'Peta jalan dan tutupan lahan global komunitas OpenStreetMap',
+    description: 'OpenStreetMap community global street, building footprint, and land cover map',
     styleUrl: '/basemap/styles/esri-style-open-basemap.json',
     previewColor: '#d97706'
   },
 
-  // --- 2. TOPOGRAFI, OCEAN & RELIEF ---
+  // --- 2. TOPOGRAPHY, OCEAN & RELIEF ---
   {
     id: 'esri-topographic',
     name: 'Esri World Topographic',
     format: 'raster',
     category: 'Esri',
     group: 'thematic',
-    description: 'Peta topografi dunia Esri dengan kontur elevasi dan bentang alam fisik',
+    description: 'Esri world topographic map with elevation contours and physical landforms',
     styleUrl: '/basemap/styles/esri-style-topographic.json',
     previewColor: '#688e57'
   },
@@ -84,8 +84,8 @@ export const BASEMAPS: BasemapConfig[] = [
     category: 'OpenData',
     group: 'thematic',
     maxZoom: 17,
-    zoomWarning: 'Maksimal Zoom Level 17 (Kontur SRTM)',
-    description: 'Peta topografi berbasis OpenStreetMap dan garis kontur elevasi SRTM',
+    zoomWarning: 'Max Zoom Level 17 (SRTM Contours)',
+    description: 'Topographic map based on OpenStreetMap data and SRTM elevation contour lines',
     styleUrl: '/basemap/styles/esri-style-open-topographic.json',
     previewColor: '#15803d'
   },
@@ -96,8 +96,8 @@ export const BASEMAPS: BasemapConfig[] = [
     category: 'Esri',
     group: 'thematic',
     maxZoom: 13,
-    zoomWarning: 'Maksimal Zoom Level 13 (Model Relief)',
-    description: 'Model permukaan medan bumi dengan bayangan relief elevasi dan pegunungan',
+    zoomWarning: 'Max Zoom Level 13 (Shaded Relief)',
+    description: 'Terrain surface model with hillshading relief and mountain elevation',
     styleUrl: '/basemap/styles/esri-style-relief.json',
     previewColor: '#78716c'
   },
@@ -108,8 +108,8 @@ export const BASEMAPS: BasemapConfig[] = [
     category: 'Esri',
     group: 'thematic',
     maxZoom: 11,
-    zoomWarning: 'Maksimal Zoom Level 11 (Kartografi NatGeo)',
-    description: 'Gaya kartografi khas National Geographic dengan shading relief pegunungan',
+    zoomWarning: 'Max Zoom Level 11 (NatGeo Cartography)',
+    description: 'Signature National Geographic cartography style with mountain shaded relief',
     styleUrl: '/basemap/styles/esri-style-natgeo.json',
     previewColor: '#84cc16'
   },
@@ -120,13 +120,13 @@ export const BASEMAPS: BasemapConfig[] = [
     category: 'Esri',
     group: 'thematic',
     maxZoom: 9,
-    zoomWarning: 'Maksimal Zoom Level 9 (Batimetri Kedalaman Samudra)',
-    description: 'Peta batimetri lautan Esri/NOAA dengan data kedalaman palung dan dasar laut',
+    zoomWarning: 'Max Zoom Level 9 (Ocean Depth Bathymetry)',
+    description: 'Esri/NOAA ocean bathymetry map with trench depth and seafloor morphology',
     styleUrl: '/basemap/styles/esri-style-ocean.json',
     previewColor: '#0284c7'
   },
 
-  // --- 3. MINIMALIS & CANVAS ---
+  // --- 3. MINIMAL & CANVAS ---
   {
     id: 'esri-light-grey',
     name: 'Esri Light Gray Canvas',
@@ -134,7 +134,7 @@ export const BASEMAPS: BasemapConfig[] = [
     category: 'Esri',
     group: 'canvas',
     maxZoom: 16,
-    description: 'Kanvas abu-abu terang minimalis untuk visualisasi layer tematik',
+    description: 'Minimalist light gray canvas tailored for high-contrast thematic data layers',
     styleUrl: '/basemap/styles/esri-style-light-grey-canvas.json',
     previewColor: '#e2e8f0'
   },
@@ -145,7 +145,7 @@ export const BASEMAPS: BasemapConfig[] = [
     category: 'Esri',
     group: 'canvas',
     maxZoom: 16,
-    description: 'Kanvas gelap minimalis kontras tinggi untuk data analitis spasial',
+    description: 'High-contrast dark gray canvas designed for vibrant geospatial overlays',
     styleUrl: '/basemap/styles/esri-style-cleanmap.json',
     previewColor: '#1e293b'
   },
@@ -155,7 +155,7 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'vector',
     category: 'OpenData',
     group: 'canvas',
-    description: 'Peta jalan vektor global modern kaya detail OpenFreeMap (Bebas Watermark & API Key)',
+    description: 'Modern high-detail OpenFreeMap vector street map (watermark-free, zero API key)',
     styleUrl: 'https://tiles.openfreemap.org/styles/liberty',
     previewColor: '#0284c7'
   },
@@ -165,7 +165,7 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'vector',
     category: 'OpenData',
     group: 'canvas',
-    description: 'Kanvas vektor minimalis terang berbasis OpenFreeMap (Bebas Watermark & API Key)',
+    description: 'Light minimalist OpenFreeMap vector canvas (watermark-free, zero API key)',
     styleUrl: 'https://tiles.openfreemap.org/styles/positron',
     previewColor: '#334155'
   },
@@ -175,7 +175,7 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'Esri',
     group: 'canvas',
-    description: 'Arsip citra satelit tanpa awan beresolusi tinggi untuk kejelasan objek daratan',
+    description: 'Cloudless high-resolution satellite imagery archive for pristine terrain views',
     styleUrl: '/basemap/styles/esri-style-imagery-clarity.json',
     previewColor: '#1e3a8a'
   },
@@ -185,7 +185,7 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'OpenData',
     group: 'canvas',
-    description: 'Gaya visual kemanusiaan OpenStreetMap dengan penekanan pada sungai dan jalan',
+    description: 'OpenStreetMap Humanitarian map style with emphasis on water features and road networks',
     styleUrl: '/basemap/styles/osm-style-humanitarian.json',
     previewColor: '#e11d48'
   },
@@ -195,7 +195,7 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'vector',
     category: 'Esri',
     group: 'canvas',
-    description: 'Gaya artistik vektor pensil warna unik dengan tipografi sketsa tangan',
+    description: 'Artistic colored pencil vector map style with hand-drawn aesthetic typography',
     styleUrl: '/basemap/styles/esri-style-colorpencil.json',
     previewColor: '#e0a96d'
   }

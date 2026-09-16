@@ -17,7 +17,7 @@ export class SpatialBufferAnalyzer {
     options: BufferOptions
   ): { success: boolean; data?: GeoJSON.FeatureCollection; error?: string; areaKm2?: number } {
     if (!sourceGeoJSON || !sourceGeoJSON.features || sourceGeoJSON.features.length === 0) {
-      return { success: false, error: 'Layer sumber tidak memiliki fitur yang valid untuk dibuffer.' };
+      return { success: false, error: 'Source layer contains no valid features to buffer.' };
     }
 
     try {
@@ -33,7 +33,7 @@ export class SpatialBufferAnalyzer {
 
         const buffered = buffer(feat, radius, { units, steps });
         if (buffered) {
-          const origName = feat.properties?.name || `Fitur #${i + 1}`;
+          const origName = feat.properties?.name || `Feature #${i + 1}`;
           const bufferedArea = area(buffered) / 1_000_000; // in km²
 
           buffered.properties = {
@@ -48,7 +48,7 @@ export class SpatialBufferAnalyzer {
       }
 
       if (bufferFeatures.length === 0) {
-        return { success: false, error: 'Gagal menghasilkan geometri buffer dari layer yang dipilih.' };
+        return { success: false, error: 'Failed to generate buffer geometry from the selected layer.' };
       }
 
       const resultFC: GeoJSON.FeatureCollection = {
@@ -67,7 +67,7 @@ export class SpatialBufferAnalyzer {
       logger.error('[SpatialBuffer] Error creating buffer:', err);
       return {
         success: false,
-        error: `Gagal memproses analisis buffer: ${err?.message || 'Kesalahan kalkulasi spasial'}`
+        error: `Failed to process buffer analysis: ${err?.message || 'Spatial calculation error'}`
       };
     }
   }

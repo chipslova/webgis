@@ -141,15 +141,15 @@ export class CommandPaletteUI {
       commands.push({
         id: `preset-${preset.id}`,
         category: 'presets',
-        categoryLabel: '📍 Kawasan Pantauan',
+        categoryLabel: '📍 Monitoring Presets',
         title: preset.name,
         subtitle: `${preset.locationName} · ${preset.description}`,
         icon: '📍',
-        keywords: [preset.name, preset.locationName, 'kawasan', 'lokasi', 'studi'],
+        keywords: [preset.name, preset.locationName, 'preset', 'location', 'study', 'area'],
         action: () => {
           this.pikselLoader?.flyToPreset(preset);
           this.sidebarUI.setActiveTab('piksel');
-          showToast(`Terbang ke ${preset.name}`, 'info');
+          showToast(`Flying to ${preset.name}`, 'info');
         }
       });
     });
@@ -159,16 +159,16 @@ export class CommandPaletteUI {
       commands.push({
         id: `prod-${prod.id}`,
         category: 'satellite',
-        categoryLabel: '🛰️ Citra Satelit & Indeks',
+        categoryLabel: '🛰️ Satellite Imagery & Indices',
         title: prod.name,
         subtitle: `${prod.resolution} · ${prod.sensor}`,
         icon: '🛰️',
-        keywords: [prod.name, prod.category, prod.sensor, 'citra', 'satelit', 'wms'],
+        keywords: [prod.name, prod.category, prod.sensor, 'imagery', 'satellite', 'wms', 'index'],
         action: () => {
           this.pikselLoader?.setActiveProduct(prod.id);
           this.pikselLoader?.autoFlyToOptimalView(prod.id);
           this.sidebarUI.setActiveTab('piksel');
-          showToast(`Layer ${prod.name} aktif`, 'info');
+          showToast(`Layer ${prod.name} activated`, 'info');
         }
       });
     });
@@ -178,14 +178,14 @@ export class CommandPaletteUI {
       commands.push({
         id: `bm-${bm.id}`,
         category: 'basemaps',
-        categoryLabel: '🗺️ Peta Dasar (Basemaps)',
+        categoryLabel: '🗺️ Basemaps',
         title: bm.name,
         subtitle: `${bm.category} · ${bm.description}`,
         icon: '🗺️',
-        keywords: [bm.name, bm.category, 'basemap', 'peta'],
+        keywords: [bm.name, bm.category, 'basemap', 'map', 'carto', 'osm', 'esri'],
         action: () => {
           this.mapManager.setBasemap(bm.id);
-          showToast(`Basemap diubah ke ${bm.name}`, 'info');
+          showToast(`Basemap switched to ${bm.name}`, 'info');
         }
       });
     });
@@ -195,24 +195,24 @@ export class CommandPaletteUI {
       {
         id: 'tool-swipe',
         category: 'tools',
-        categoryLabel: '⚡ Fitur & Analisis',
-        title: 'Komparasi Citra (Swipe Split-Screen)',
-        subtitle: 'Bandingkan dua citra satelit atau tahun secara berdampingan',
+        categoryLabel: '⚡ Tools & Analysis',
+        title: 'Swipe Compare (Split-Screen)',
+        subtitle: 'Compare two satellite layers or acquisition years side-by-side',
         icon: '🪟',
-        keywords: ['swipe', 'compare', 'komparasi', 'split', 'sebelum', 'sesudah', 'before', 'after'],
+        keywords: ['swipe', 'compare', 'split', 'before', 'after', 'difference'],
         action: () => {
           this.swipeCompareManager?.activate();
-          showToast('Mode komparasi swipe aktif', 'info');
+          showToast('Swipe comparison mode active', 'info');
         }
       },
       {
         id: 'tool-tour',
         category: 'tools',
-        categoryLabel: '⚡ Fitur & Analisis',
-        title: 'Mulai Tur Jelajah (Demo 30 Detik)',
-        subtitle: 'Tur terpadu menjelajah citra satelit, analisis suhu, dan 3D terrain',
+        categoryLabel: '⚡ Tools & Analysis',
+        title: 'Start Guided Tour (30s Demo)',
+        subtitle: 'Interactive onboarding walkthrough of satellite layers, LST, and 3D terrain',
         icon: '🚀',
-        keywords: ['tour', 'demo', 'jelajah', 'panduan', 'mulai'],
+        keywords: ['tour', 'demo', 'guide', 'walkthrough', 'start'],
         action: () => {
           this.guidedTourUI?.startTour();
         }
@@ -220,11 +220,11 @@ export class CommandPaletteUI {
       {
         id: 'tool-globe',
         category: 'tools',
-        categoryLabel: '⚡ Fitur & Analisis',
-        title: 'Beralih Proyeksi 3D Bola Dunia / 2D Mercator',
-        subtitle: 'Ganti proyeksi visualisasi peta antara bola dunia 3D dan mercator',
+        categoryLabel: '⚡ Tools & Analysis',
+        title: 'Toggle 3D Globe / 2D Mercator Projection',
+        subtitle: 'Switch map projection between 3D Globe and 2D Web Mercator',
         icon: '🌐',
-        keywords: ['globe', 'proyeksi', 'bola dunia', '3d', 'mercator'],
+        keywords: ['globe', 'projection', '3d', 'mercator', 'earth'],
         action: () => {
           this.mapManager.toggleProjection();
         }
@@ -232,55 +232,55 @@ export class CommandPaletteUI {
       {
         id: 'tool-measure-dist',
         category: 'tools',
-        categoryLabel: '⚡ Fitur & Analisis',
-        title: 'Ukur Jarak Lintasan Geodesik',
-        subtitle: 'Hitung panjang rute atau jarak antarlokasi secara presisi',
+        categoryLabel: '⚡ Tools & Analysis',
+        title: 'Measure Geodesic Distance',
+        subtitle: 'Calculate route length or distance between points with high precision',
         icon: '📏',
-        keywords: ['ukur', 'jarak', 'distance', 'panjang', 'measure'],
+        keywords: ['measure', 'distance', 'length', 'route', 'geodesic'],
         action: () => {
           this.sidebarUI.setActiveTab('measure');
           this.measureTool?.setMode('distance');
-          showToast('Klik pada peta untuk menambah titik ukur jarak', 'info');
+          showToast('Click on map to add distance measurement vertices', 'info');
         }
       },
       {
         id: 'tool-measure-area',
         category: 'tools',
-        categoryLabel: '⚡ Fitur & Analisis',
-        title: 'Ukur Luas Area Poligon Geodesik',
-        subtitle: 'Hitung luas wilayah poligon dengan perhitungan sferikal Turf.js',
+        categoryLabel: '⚡ Tools & Analysis',
+        title: 'Measure Geodesic Polygon Area',
+        subtitle: 'Calculate polygon surface area using spherical Turf.js geometry',
         icon: '📐',
-        keywords: ['luas', 'area', 'poligon', 'hektar', 'measure'],
+        keywords: ['measure', 'area', 'polygon', 'hectares', 'sqkm'],
         action: () => {
           this.sidebarUI.setActiveTab('measure');
           this.measureTool?.setMode('area');
-          showToast('Klik pada peta untuk membuat poligon pengukuran luas', 'info');
+          showToast('Click on map to draw polygon for area measurement', 'info');
         }
       },
       {
         id: 'tool-attr-table',
         category: 'tools',
-        categoryLabel: '⚡ Fitur & Analisis',
-        title: 'Buka Tabel Atribut Spasial (Attribute Table)',
-        subtitle: 'Inspeksi tabular data layer vektor, filter kolom, dan zoom ke fitur',
+        categoryLabel: '⚡ Tools & Analysis',
+        title: 'Open Attribute Table',
+        subtitle: 'Tabular vector inspector with sorting, filtering, and feature zoom',
         icon: '📊',
-        keywords: ['tabel', 'atribut', 'attribute', 'table', 'data', 'csv', 'fitur', 'rows'],
+        keywords: ['table', 'attribute', 'data', 'csv', 'features', 'rows', 'geojson'],
         action: () => {
           if (this.attributeTableUI) {
             this.attributeTableUI.open();
           } else {
-            showToast('Tabel Atribut Spasial belum siap', 'info');
+            showToast('Attribute Table is not ready', 'info');
           }
         }
       },
       {
         id: 'tool-shortcuts-help',
         category: 'tools',
-        categoryLabel: '⚡ Fitur & Analisis',
-        title: 'Buku Pintar Pintasan Keyboard (Shortcuts ?)',
-        subtitle: 'Lihat daftar tombol pintas navigasi dan alat geospasial',
+        categoryLabel: '⚡ Tools & Analysis',
+        title: 'Keyboard Shortcuts Cheatsheet (?)',
+        subtitle: 'View keybindings for navigation, tools, and geospatial controls',
         icon: '⌨️',
-        keywords: ['shortcut', 'shortcuts', 'keyboard', 'hotkey', 'bantuan', 'help', 'cheat'],
+        keywords: ['shortcut', 'shortcuts', 'keyboard', 'hotkey', 'help', 'cheatsheet'],
         action: () => {
           if (this.shortcutsModalUI) {
             this.shortcutsModalUI.open();
@@ -290,25 +290,25 @@ export class CommandPaletteUI {
       {
         id: 'tool-gee-uhi',
         category: 'tools',
-        categoryLabel: '⚡ Fitur & Analisis',
-        title: 'Studi Kasus Suhu Termal GEE (Jabodetabek)',
-        subtitle: 'Lihat peta pulau bahang MODIS LST dan grafik deret waktu',
+        categoryLabel: '⚡ Tools & Analysis',
+        title: 'GEE Thermal Study Case (Jabodetabek)',
+        subtitle: 'Explore MODIS LST urban heat island heatmap and time series graph',
         icon: '🌡️',
-        keywords: ['suhu', 'termal', 'gee', 'lst', 'uhi', 'panas', 'grafik'],
+        keywords: ['thermal', 'gee', 'lst', 'uhi', 'heat', 'temperature', 'chart'],
         action: () => {
           this.sidebarUI.setActiveTab('gee');
           this.geeLoader?.loadGEEDatasets();
-          showToast('Analisis Spasial & Termal GEE diaktifkan', 'info');
+          showToast('GEE Thermal & Spatial Analysis activated', 'info');
         }
       },
       {
         id: 'tool-terrain-3d',
         category: 'tools',
-        categoryLabel: '⚡ Fitur & Analisis',
-        title: 'Buka Pengaturan 3D Terrain & Relief',
-        subtitle: 'Atur elevasi 3D, hillshade, dan pembesaran vertikal (Dock Bawah)',
+        categoryLabel: '⚡ Tools & Analysis',
+        title: '3D Terrain & Relief Settings',
+        subtitle: 'Configure 3D elevation exaggeration, hillshade, and pitch (Bottom Dock)',
         icon: '🏔️',
-        keywords: ['terrain', '3d', 'elevasi', 'hillshade', 'relief', 'topografi'],
+        keywords: ['terrain', '3d', 'elevation', 'hillshade', 'relief', 'topography'],
         action: () => {
           const btn = document.getElementById('btn-toggle-terrain');
           btn?.click();
@@ -317,11 +317,11 @@ export class CommandPaletteUI {
       {
         id: 'tool-tile-grid',
         category: 'tools',
-        categoryLabel: '⚡ Fitur & Analisis',
-        title: 'Toggle Grid Data Cube (1.631 Tile)',
-        subtitle: 'Tampilkan / sembunyikan batas grid tile Open Data Cube Indonesia (Dock Bawah)',
+        categoryLabel: '⚡ Tools & Analysis',
+        title: 'Toggle Data Cube Grid (1,631 Tiles)',
+        subtitle: 'Show / hide national Open Data Cube tile grid boundaries (Bottom Dock)',
         icon: '🔲',
-        keywords: ['grid', 'tile', 'data cube', 'odc', 'batas', 'indonesia'],
+        keywords: ['grid', 'tile', 'data cube', 'odc', 'boundaries', 'indonesia'],
         action: () => {
           const btn = document.getElementById('btn-toggle-grid');
           btn?.click();
@@ -330,11 +330,11 @@ export class CommandPaletteUI {
       {
         id: 'tool-sublayers-popover',
         category: 'tools',
-        categoryLabel: '⚡ Fitur & Analisis',
-        title: 'Kustomisasi Sublayer Basemap',
-        subtitle: 'Atur visibilitas jalan, label, batas administrasi, dan kontur (Dock Bawah)',
+        categoryLabel: '⚡ Tools & Analysis',
+        title: 'Customize Basemap Sublayers',
+        subtitle: 'Toggle visibility of roads, labels, admin boundaries, and contours (Bottom Dock)',
         icon: '📑',
-        keywords: ['sublayer', 'layer', 'jalan', 'label', 'batas', 'kontur'],
+        keywords: ['sublayer', 'layer', 'roads', 'labels', 'boundaries', 'contours'],
         action: () => {
           const btn = document.getElementById('btn-toggle-sublayers');
           btn?.click();
@@ -343,11 +343,11 @@ export class CommandPaletteUI {
       {
         id: 'tool-reset',
         category: 'tools',
-        categoryLabel: '⚡ Fitur & Analisis',
-        title: 'Reset Tampilan Peta',
-        subtitle: 'Kembalikan kamera, basemap, dan proyeksi ke tampilan default',
+        categoryLabel: '⚡ Tools & Analysis',
+        title: 'Reset Map View',
+        subtitle: 'Reset camera, basemap, and projection to default state',
         icon: '↺',
-        keywords: ['reset', 'kembali', 'awal', 'kamera', 'default', 'proyeksi'],
+        keywords: ['reset', 'home', 'camera', 'default', 'projection'],
         action: () => {
           const resetBtn = document.getElementById('btn-reset-map');
           resetBtn?.click();
@@ -395,8 +395,8 @@ export class CommandPaletteUI {
       listHtml = `
         <div class="cmd-empty-state">
           <span>🔍</span>
-          <p>Tidak ada hasil untuk "<strong>${this.searchQuery}</strong>"</p>
-          <span style="font-size: 11px; color: var(--text-muted);">Coba cari kata kunci seperti: Bromo, Sentinel, RBI, Ukur, Swipe, atau 3D</span>
+          <p>No results found for "<strong>${this.searchQuery}</strong>"</p>
+          <span style="font-size: 11px; color: var(--text-muted);">Try searching for: Bromo, Sentinel, RBI, Measure, Swipe, or 3D</span>
         </div>
       `;
     } else {
@@ -431,7 +431,7 @@ export class CommandPaletteUI {
             type="text" 
             id="cmd-palette-input" 
             class="cmd-input" 
-            placeholder="Cari perintah, layer satelit, basemap, atau kawasan... (Ketik atau pilih)" 
+            placeholder="Search commands, satellite layers, basemaps, or locations... (Type or select)" 
             value="${this.searchQuery}"
             autocomplete="off"
             spellcheck="false"
@@ -445,11 +445,11 @@ export class CommandPaletteUI {
 
         <div class="cmd-footer-shortcuts">
           <div class="cmd-keys-hint">
-            <span><kbd>↑</kbd><kbd>↓</kbd> Navigasi</span>
-            <span><kbd>↵</kbd> Jalankan</span>
-            <span><kbd>ESC</kbd> Tutup</span>
+            <span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span>
+            <span><kbd>↵</kbd> Execute</span>
+            <span><kbd>ESC</kbd> Close</span>
           </div>
-          <span class="cmd-stats">${filtered.length} perintah</span>
+          <span class="cmd-stats">${filtered.length} commands</span>
         </div>
       </div>
     `;
