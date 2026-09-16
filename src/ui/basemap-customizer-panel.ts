@@ -158,9 +158,9 @@ export class BasemapCustomizerUI {
     const currentId = this.mapManager?.getCurrentBasemapId() || DEFAULT_BASEMAP_ID;
 
     const groups = [
-      { key: 'recommended', title: 'Featured & Popular' },
+      { key: 'recommended', title: 'Primary Basemaps' },
       { key: 'thematic', title: 'Topography, Oceans & Relief' },
-      { key: 'canvas', title: 'Minimal Canvas & Navigation' }
+      { key: 'canvas', title: 'Open Data & Experimental Styles' }
     ];
 
     groups.forEach((grp) => {

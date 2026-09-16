@@ -3,17 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Digital Earth Indonesia WebGIS — Earth Observation & Spatial Analytics</title>
+    <title>Indonesia Earth Observation WebGIS — Independent Geospatial Platform</title>
     
     <!-- Meta & SEO Tags -->
-    <meta name="description" content="Interactive WebGIS platform for Indonesian Earth Observation datasets: Sentinel-2 GeoMAD, Landsat 9, NDVI, MODIS Land Surface Temperature (LST), and SRTM 30m terrain elevation." />
+    <meta name="description" content="Independent WebGIS platform consuming Badan Informasi Geospasial (BIG) Piksel OGC WMS and open geospatial datasets: Sentinel-2 GeoMAD, Landsat 9, MODIS LST thermal modeling, and SRTM 30m elevation." />
     <meta name="keywords" content="WebGIS Indonesia, Satellite Imagery, Sentinel-2 GeoMAD, Landsat 9, NDVI, Open Data Cube, BIG Piksel, MODIS LST, SRTM 30m, MapLibre GL" />
     <meta name="author" content="chipslova" />
     <meta name="theme-color" content="#070b14" />
     
     <!-- Open Graph / Social Media -->
-    <meta property="og:title" content="Digital Earth WebGIS — Indonesia Earth Observation & Analytics" />
-    <meta property="og:description" content="Interactive WebGIS platform for exploring Sentinel-2, Landsat 9, LST spatial modeling, and geodesic spatial calculations." />
+    <meta property="og:title" content="Indonesia Earth Observation WebGIS — Independent Geospatial Platform" />
+    <meta property="og:description" content="Independent interactive WebGIS platform for exploring Sentinel-2 GeoMAD, Landsat 9, thermal case studies, and geodesic spatial calculations." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://webgis-three-iota.vercel.app/" />
     <meta property="og:image" content="https://webgis-three-iota.vercel.app/og-preview.jpg" />
@@ -22,8 +22,8 @@
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Digital Earth WebGIS — Indonesia Earth Observation" />
-    <meta name="twitter:description" content="Interactive WebGIS platform featuring Sentinel-2 GeoMAD, Landsat 9, spectral indices, and spatial analytics." />
+    <meta name="twitter:title" content="Indonesia Earth Observation WebGIS" />
+    <meta name="twitter:description" content="Independent WebGIS platform consuming BIG Piksel OGC WMS, Landsat 9, and spatial analysis tools." />
     <meta name="twitter:image" content="https://webgis-three-iota.vercel.app/og-preview.jpg" />
     
     <!-- Favicon & PWA Manifest -->
@@ -64,8 +64,8 @@
             </svg>
           </div>
           <div class="brand-text">
-            <h1>Digital Earth WebGIS</h1>
-            <span class="badge">Nusantara EO</span>
+            <h1>Digital Earth Indonesia</h1>
+            <span class="badge" title="Independent Earth Observation WebGIS">Independent EO</span>
           </div>
         </div>
 
@@ -236,9 +236,9 @@
               <div class="panel-header">
                 <div class="piksel-panel-badge-row">
                   <h2>Piksel Earth Observation</h2>
-                  <span class="piksel-national-badge">BIG × GA</span>
+                  <span class="piksel-national-badge" title="Consuming BIG Piksel Open Data Cube WMS">BIG Piksel WMS</span>
                 </div>
-                <p>BIG Piksel Data · OGC WMS — Open Data Cube staging endpoints from Badan Informasi Geospasial & Geoscience Australia.</p>
+                <p>BIG Piksel Data · OGC WMS — Accessing Open Data Cube public staging endpoints from Badan Informasi Geospasial.</p>
               </div>
 
               <!-- Quick Launch Comparison Mode -->
@@ -290,16 +290,16 @@
             <section id="panel-gee" class="sidebar-panel">
               <div class="panel-header">
                 <h2>GEE Thermal Analysis Case Study</h2>
-                <p>MODIS Land Surface Temp & SRTM Topography Analysis (Jabodetabek & West Java 2020–2026).</p>
+                <p>MODIS Land Surface Temp & SRTM Topography Case Study (Jabodetabek & West Java 2020–2026).</p>
               </div>
 
               <!-- Case Study Disclaimer Banner (Full Width) -->
               <div class="gee-disclaimer-banner">
                 <div class="gee-disclaimer-header">
-                  <span><strong>GEE Thermal Analysis Case Study</strong></span>
-                  <span class="gee-disclaimer-tag">Precomputed Case Study</span>
+                  <span><strong>Earth Engine Case Study</strong></span>
+                  <span class="gee-disclaimer-tag">Precomputed Dataset</span>
                 </div>
-                <p>Precomputed spatial dataset based on Google Earth Engine methodologies (MODIS LST 1km & SRTM 30m). Presented for urban–rural thermal comparison in Jabodetabek & West Java, not a real-time cloud query.</p>
+                <p>Demonstration case-study dataset modeled on Google Earth Engine analysis workflows (MODIS LST 1km & SRTM 30m). Presented for urban–rural surface temperature comparison; not a live cloud query within this client.</p>
                 <div class="gee-disclaimer-notice">
                   <span>Study area spatial extent: Jabodetabek & West Java (106.3°E – 108.2°E, 5.8°S – 7.5°S).</span>
                 </div>
@@ -602,16 +602,16 @@
             <!-- Panel: About (Technical Architecture & Provenance) -->
             <section id="panel-about" class="sidebar-panel">
               <div class="panel-header">
-                <h2>Digital Earth Indonesia WebGIS</h2>
-                <p>Earth Observation & Spatial Analytics Platform</p>
+                <h2>Indonesia Earth Observation WebGIS</h2>
+                <p>Independent Earth Observation & Spatial Analytics Platform</p>
               </div>
 
               <!-- Independent Project Status Disclaimer -->
               <div class="independent-disclaimer-card" style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 11.5px; color: #94a3b8; line-height: 1.45;">
                 <strong style="color: #38bdf8; display: flex; align-items: center; gap: 6px; margin-bottom: 3px; font-size: 11.5px;">
-                  <span>ℹ️</span> <span>Project Independence Disclaimer</span>
+                  <span>ℹ️</span> <span>Project Independence & Data Provenance Disclaimer</span>
                 </strong>
-                This application is an independent demonstration prototype utilizing public OGC Web Map Service (WMS) endpoints from BIG Piksel and open geospatial datasets. It is not an official application of Badan Informasi Geospasial or Geoscience Australia.
+                This application is an independent WebGIS platform developed by chipslova. It consumes public OGC Web Map Service (WMS) endpoints from BIG Piksel and open geospatial datasets (ESA Copernicus, USGS/NASA, OpenStreetMap). It is not an official application of Badan Informasi Geospasial or Geoscience Australia.
               </div>
 
               <!-- Product Pillars -->
@@ -786,7 +786,7 @@
                         <span>Copy APA</span>
                       </button>
                     </div>
-                    <pre id="citation-apa-text" class="citation-text">chipslova. (2025). WebGIS Indonesia: Interactive Earth Observation & Geospatial Analytics Platform [Web application]. https://webgis-three-iota.vercel.app/ (Data sources: BIG, Geoscience Australia, Google Earth Engine).</pre>
+                    <pre id="citation-apa-text" class="citation-text">chipslova. (2026). WebGIS Indonesia: Interactive Earth Observation & Geospatial Analytics Platform (v1.0) [Web application]. https://webgis-three-iota.vercel.app/ (Data sources: BIG Piksel, USGS/NASA, Copernicus, OpenStreetMap).</pre>
                   </div>
 
                   <!-- BibTeX Format -->
@@ -798,12 +798,13 @@
                         <span>Copy BibTeX</span>
                       </button>
                     </div>
-                    <pre id="citation-bibtex-text" class="citation-text">@software{webgis_indonesia_2025,
+                    <pre id="citation-bibtex-text" class="citation-text">@software{webgis_indonesia_2026,
   author = {chipslova},
   title = {WebGIS Indonesia: Interactive Earth Observation & Geospatial Analytics Platform},
-  year = {2025},
+  year = {2026},
+  version = {1.0.0},
   url = {https://webgis-three-iota.vercel.app/},
-  note = {Data sources: Badan Informasi Geospasial, Geoscience Australia, Google Earth Engine}
+  note = {Independent application consuming Badan Informasi Geospasial, USGS/NASA, Copernicus, and OpenStreetMap public data}
 }</pre>
                   </div>
                 </div>
@@ -897,7 +898,7 @@
             <!-- Data Provenance & Transparency Note -->
             <div class="insp-disclaimer-note">
               <span class="insp-disclaimer-icon" aria-hidden="true">ℹ️</span>
-              <span>WGS84 coordinates & vector attributes queried directly from map geometries. Satellite imagery is rendered via OGC WMS visualization protocol.</span>
+              <span>WGS84 coordinates & vector attributes queried directly from map geometries. Raster layers are rendered via OGC WMS image tiles (direct pixel querying requires WCS/COG services).</span>
             </div>
 
             <div class="insp-footer-actions">
@@ -910,9 +911,10 @@
              Floating Glass Bottom Tools Dock & Popovers (Modern WebGIS Architecture)
              =================================================================== -->
 
-        <!-- Bottom Floating Layer Tools Dock -->
+        <!-- Bottom Floating Layer Tools Dock (Primary & Advanced Groups) -->
         <nav id="bottom-layer-tools" class="bottom-tools-dock tool-group glass-panel" aria-label="Map & Layer Customization">
-          <button id="btn-toggle-basemap" class="dock-btn" type="button" aria-label="Basemap Gallery (16 Options)" title="Basemap Gallery (16 Options)">
+          <!-- Primary Group -->
+          <button id="btn-toggle-basemap" class="dock-btn" type="button" aria-label="Basemap Gallery" title="Basemap Gallery">
             <span class="dock-btn-icon" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
             </span>
@@ -924,29 +926,33 @@
             </span>
             <span class="dock-btn-text">Sublayers</span>
           </button>
-          <button id="btn-toggle-terrain" class="dock-btn" type="button" aria-label="3D Terrain & Elevation Settings" title="3D Terrain & Elevation Settings">
-            <span class="dock-btn-icon" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
-            </span>
-            <span class="dock-btn-text">3D Terrain</span>
-          </button>
-          <button id="btn-toggle-grid" class="dock-btn" type="button" aria-label="Toggle Open Data Cube 1,631 Tile Boundaries" title="Toggle Open Data Cube Grid (1,631 Tile Boundaries)">
-            <span class="dock-btn-icon" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
-            </span>
-            <span class="dock-btn-text">Tile Grid</span>
-          </button>
-          <button id="btn-toggle-locator" class="dock-btn" type="button" aria-label="Indonesian Archipelago Inset Locator" title="Indonesian Archipelago Inset Locator">
-            <span class="dock-btn-icon" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
-            </span>
-            <span class="dock-btn-text">Locator</span>
-          </button>
           <button id="btn-dock-swipe" class="dock-btn" type="button" aria-label="Split-Screen Image Comparison (Swipe)" title="Split-Screen Image Comparison (Swipe)">
             <span class="dock-btn-icon" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="8 8 4 12 8 16"/><polyline points="16 8 20 12 16 16"/></svg>
             </span>
             <span class="dock-btn-text">Compare</span>
+          </button>
+
+          <div class="dock-divider" aria-hidden="true"></div>
+
+          <!-- Advanced Group -->
+          <button id="btn-toggle-terrain" class="dock-btn dock-btn-advanced" type="button" aria-label="3D Terrain & Elevation Settings" title="3D Terrain & Elevation Settings (Advanced)">
+            <span class="dock-btn-icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+            </span>
+            <span class="dock-btn-text">3D Terrain</span>
+          </button>
+          <button id="btn-toggle-grid" class="dock-btn dock-btn-advanced" type="button" aria-label="Toggle Open Data Cube 1,631 Tile Boundaries" title="Toggle Open Data Cube Grid (1,631 Tile Boundaries)">
+            <span class="dock-btn-icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+            </span>
+            <span class="dock-btn-text">Tile Grid</span>
+          </button>
+          <button id="btn-toggle-locator" class="dock-btn dock-btn-advanced" type="button" aria-label="Archipelago Inset Map" title="Archipelago Inset Map">
+            <span class="dock-btn-icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+            </span>
+            <span class="dock-btn-text">Locator</span>
           </button>
         </nav>
 
@@ -974,17 +980,17 @@
               </div>
             </div>
 
-            <div class="basemap-section-header">⭐ RECOMMENDED BASEMAPS</div>
+            <div class="basemap-section-header">PRIMARY BASEMAPS (6)</div>
             <div class="basemap-popover-list" id="popover-basemap-rec-list">
               <!-- Populated dynamically -->
             </div>
 
-            <div class="basemap-section-header" style="margin-top: 10px;">🎨 TOPOGRAPHIC & THEMATIC</div>
+            <div class="basemap-section-header" style="margin-top: 10px;">TOPOGRAPHY, OCEANS & RELIEF (5)</div>
             <div class="basemap-popover-list" id="popover-basemap-thematic-list">
               <!-- Populated dynamically -->
             </div>
 
-            <div class="basemap-section-header" style="margin-top: 10px;">🌓 CANVAS & MINIMALIST</div>
+            <div class="basemap-section-header" style="margin-top: 10px;">OPEN DATA & EXPERIMENTAL (5)</div>
             <div class="basemap-popover-list" id="popover-basemap-canvas-list">
               <!-- Populated dynamically -->
             </div>

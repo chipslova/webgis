@@ -16,7 +16,7 @@ export interface BasemapConfig {
 }
 
 export const BASEMAPS: BasemapConfig[] = [
-  // --- 1. RECOMMENDED / FEATURED ---
+  // --- 1. RECOMMENDED / 6 PRIMARY BASEMAPS ---
   {
     id: 'esri-imagery',
     name: 'Esri World Imagery',
@@ -65,18 +65,29 @@ export const BASEMAPS: BasemapConfig[] = [
     styleUrl: '/basemap/styles/esri-style-open-basemap.json',
     previewColor: '#d97706'
   },
-
-  // --- 2. TOPOGRAPHY, OCEAN & RELIEF ---
   {
     id: 'esri-topographic',
     name: 'Esri World Topographic',
     format: 'raster',
     category: 'Esri',
-    group: 'thematic',
+    group: 'recommended',
     description: 'Esri world topographic map with elevation contours and physical landforms',
     styleUrl: '/basemap/styles/esri-style-topographic.json',
     previewColor: '#688e57'
   },
+  {
+    id: 'esri-dark-grey',
+    name: 'Esri Dark Gray Canvas',
+    format: 'raster',
+    category: 'Esri',
+    group: 'recommended',
+    maxZoom: 16,
+    description: 'High-contrast dark gray canvas designed for vibrant geospatial overlays',
+    styleUrl: '/basemap/styles/esri-style-cleanmap.json',
+    previewColor: '#1e293b'
+  },
+
+  // --- 2. TOPOGRAPHY, OCEAN & RELIEF ---
   {
     id: 'open-topo',
     name: 'OpenTopoMap',
@@ -125,29 +136,16 @@ export const BASEMAPS: BasemapConfig[] = [
     styleUrl: '/basemap/styles/esri-style-ocean.json',
     previewColor: '#0284c7'
   },
-
-  // --- 3. MINIMAL & CANVAS ---
   {
     id: 'esri-light-grey',
     name: 'Esri Light Gray Canvas',
     format: 'raster',
     category: 'Esri',
-    group: 'canvas',
+    group: 'thematic',
     maxZoom: 16,
     description: 'Minimalist light gray canvas tailored for high-contrast thematic data layers',
     styleUrl: '/basemap/styles/esri-style-light-grey-canvas.json',
     previewColor: '#e2e8f0'
-  },
-  {
-    id: 'esri-dark-grey',
-    name: 'Esri Dark Gray Canvas',
-    format: 'raster',
-    category: 'Esri',
-    group: 'canvas',
-    maxZoom: 16,
-    description: 'High-contrast dark gray canvas designed for vibrant geospatial overlays',
-    styleUrl: '/basemap/styles/esri-style-cleanmap.json',
-    previewColor: '#1e293b'
   },
   {
     id: 'openfreemap-liberty',

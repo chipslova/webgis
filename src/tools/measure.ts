@@ -373,7 +373,7 @@ export class MeasureTool {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `pengukuran-${this.mode || 'geodesik'}-${Date.now()}.geojson`;
+    a.download = `measurement-${this.mode || 'geodesic'}-${Date.now()}.geojson`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -388,8 +388,8 @@ export class MeasureTool {
 
     try {
       import('../utils/kml-exporter').then(({ geoJsonToKml, downloadKml }) => {
-        const kmlString = geoJsonToKml(this.geojson, `Pengukuran ${this.mode || 'Geodesik'}`);
-        downloadKml(kmlString, `pengukuran-${this.mode || 'geodesik'}-${Date.now()}.kml`);
+        const kmlString = geoJsonToKml(this.geojson, `Measurement ${this.mode || 'Geodesic'}`);
+        downloadKml(kmlString, `measurement-${this.mode || 'geodesic'}-${Date.now()}.kml`);
       });
       return true;
     } catch {
