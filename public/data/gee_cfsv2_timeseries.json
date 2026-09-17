@@ -18,12 +18,12 @@
       "timestamp_ms": 1788393600000,
       "hour_utc": 0,
       "is_forecast": false,
-      "jkt_air_temp_c": 27.4,
-      "jkt_surface_temp_c": 26.1,
-      "bdg_air_temp_c": 20.6,
-      "bdg_surface_temp_c": 19.6,
-      "ikn_air_temp_c": 27.3,
-      "delta_urban_rural_c": 6.8
+      "jkt_air_temp_c": 28.1,
+      "jkt_surface_temp_c": 27.1,
+      "bdg_air_temp_c": 20.1,
+      "bdg_surface_temp_c": 19.7,
+      "ikn_air_temp_c": 27.0,
+      "delta_urban_rural_c": 8.0
     },
     {
       "date": "2026-09-03 06:00 UTC",
@@ -31,12 +31,12 @@
       "timestamp_ms": 1788415200000,
       "hour_utc": 6,
       "is_forecast": false,
-      "jkt_air_temp_c": 33.6,
-      "jkt_surface_temp_c": 36.2,
-      "bdg_air_temp_c": 25.2,
-      "bdg_surface_temp_c": 26.5,
-      "ikn_air_temp_c": 32.1,
-      "delta_urban_rural_c": 8.4
+      "jkt_air_temp_c": 33.7,
+      "jkt_surface_temp_c": 35.8,
+      "bdg_air_temp_c": 25.6,
+      "bdg_surface_temp_c": 26.4,
+      "ikn_air_temp_c": 32.2,
+      "delta_urban_rural_c": 8.1
     },
     {
       "date": "2026-09-03 12:00 UTC",
@@ -44,12 +44,12 @@
       "timestamp_ms": 1788436800000,
       "hour_utc": 12,
       "is_forecast": false,
-      "jkt_air_temp_c": 30.2,
-      "jkt_surface_temp_c": 31.1,
-      "bdg_air_temp_c": 22.6,
-      "bdg_surface_temp_c": 22.5,
-      "ikn_air_temp_c": 28.8,
-      "delta_urban_rural_c": 7.6
+      "jkt_air_temp_c": 30.0,
+      "jkt_surface_temp_c": 30.5,
+      "bdg_air_temp_c": 23.0,
+      "bdg_surface_temp_c": 22.9,
+      "ikn_air_temp_c": 29.9,
+      "delta_urban_rural_c": 7.0
     },
     {
       "date": "2026-09-03 18:00 UTC",
@@ -57,12 +57,12 @@
       "timestamp_ms": 1788458400000,
       "hour_utc": 18,
       "is_forecast": false,
-      "jkt_air_temp_c": 23.7,
-      "jkt_surface_temp_c": 21.1,
-      "bdg_air_temp_c": 17.5,
-      "bdg_surface_temp_c": 16.0,
-      "ikn_air_temp_c": 23.6,
-      "delta_urban_rural_c": 6.2
+      "jkt_air_temp_c": 24.0,
+      "jkt_surface_temp_c": 21.0,
+      "bdg_air_temp_c": 17.4,
+      "bdg_surface_temp_c": 15.6,
+      "ikn_air_temp_c": 23.1,
+      "delta_urban_rural_c": 6.6
     },
     {
       "date": "2026-09-04 00:00 UTC",
@@ -70,12 +70,12 @@
       "timestamp_ms": 1788480000000,
       "hour_utc": 0,
       "is_forecast": false,
-      "jkt_air_temp_c": 27.2,
-      "jkt_surface_temp_c": 26.8,
+      "jkt_air_temp_c": 28.5,
+      "jkt_surface_temp_c": 27.2,
       "bdg_air_temp_c": 20.5,
-      "bdg_surface_temp_c": 19.0,
-      "ikn_air_temp_c": 26.3,
-      "delta_urban_rural_c": 6.7
+      "bdg_surface_temp_c": 20.2,
+      "ikn_air_temp_c": 27.1,
+      "delta_urban_rural_c": 8.0
     },
     {
       "date": "2026-09-04 06:00 UTC",
@@ -83,12 +83,12 @@
       "timestamp_ms": 1788501600000,
       "hour_utc": 6,
       "is_forecast": false,
-      "jkt_air_temp_c": 34.0,
+      "jkt_air_temp_c": 32.7,
       "jkt_surface_temp_c": 35.7,
-      "bdg_air_temp_c": 25.6,
-      "bdg_surface_temp_c": 26.4,
-      "ikn_air_temp_c": 32.2,
-      "delta_urban_rural_c": 8.4
+      "bdg_air_temp_c": 24.9,
+      "bdg_surface_temp_c": 26.7,
+      "ikn_air_temp_c": 31.4,
+      "delta_urban_rural_c": 7.8
     },
     {
       "date": "2026-09-04 12:00 UTC",
@@ -96,12 +96,12 @@
       "timestamp_ms": 1788523200000,
       "hour_utc": 12,
       "is_forecast": false,
-      "jkt_air_temp_c": 29.5,
-      "jkt_surface_temp_c": 31.2,
-      "bdg_air_temp_c": 22.8,
-      "bdg_surface_temp_c": 22.7,
-      "ikn_air_temp_c": 29.8,
-      "delta_urban_rural_c": 6.7
+      "jkt_air_temp_c": 30.1,
+      "jkt_surface_temp_c": 30.1,
+      "bdg_air_temp_c": 22.7,
+      "bdg_surface_temp_c": 23.6,
+      "ikn_air_temp_c": 29.4,
+      "delta_urban_rural_c": 7.4
     },
     {
       "date": "2026-09-04 18:00 UTC",
@@ -109,12 +109,12 @@
       "timestamp_ms": 1788544800000,
       "hour_utc": 18,
       "is_forecast": false,
-      "jkt_air_temp_c": 23.4,
-      "jkt_surface_temp_c": 21.3,
-      "bdg_air_temp_c": 17.5,
+      "jkt_air_temp_c": 24.1,
+      "jkt_surface_temp_c": 21.4,
+      "bdg_air_temp_c": 17.2,
       "bdg_surface_temp_c": 15.4,
-      "ikn_air_temp_c": 23.3,
-      "delta_urban_rural_c": 5.9
+      "ikn_air_temp_c": 24.2,
+      "delta_urban_rural_c": 6.9
     },
     {
       "date": "2026-09-05 00:00 UTC",
@@ -122,12 +122,12 @@
       "timestamp_ms": 1788566400000,
       "hour_utc": 0,
       "is_forecast": false,
-      "jkt_air_temp_c": 27.0,
-      "jkt_surface_temp_c": 26.9,
-      "bdg_air_temp_c": 19.9,
-      "bdg_surface_temp_c": 19.9,
-      "ikn_air_temp_c": 26.9,
-      "delta_urban_rural_c": 7.1
+      "jkt_air_temp_c": 27.6,
+      "jkt_surface_temp_c": 26.4,
+      "bdg_air_temp_c": 20.7,
+      "bdg_surface_temp_c": 19.6,
+      "ikn_air_temp_c": 27.3,
+      "delta_urban_rural_c": 6.9
     },
     {
       "date": "2026-09-05 06:00 UTC",
@@ -135,12 +135,12 @@
       "timestamp_ms": 1788588000000,
       "hour_utc": 6,
       "is_forecast": false,
-      "jkt_air_temp_c": 33.3,
-      "jkt_surface_temp_c": 35.3,
-      "bdg_air_temp_c": 25.1,
-      "bdg_surface_temp_c": 26.7,
-      "ikn_air_temp_c": 32.2,
-      "delta_urban_rural_c": 8.2
+      "jkt_air_temp_c": 34.2,
+      "jkt_surface_temp_c": 35.6,
+      "bdg_air_temp_c": 25.5,
+      "bdg_surface_temp_c": 25.8,
+      "ikn_air_temp_c": 31.8,
+      "delta_urban_rural_c": 8.7
     },
     {
       "date": "2026-09-05 12:00 UTC",
@@ -148,12 +148,12 @@
       "timestamp_ms": 1788609600000,
       "hour_utc": 12,
       "is_forecast": false,
-      "jkt_air_temp_c": 30.1,
-      "jkt_surface_temp_c": 29.7,
-      "bdg_air_temp_c": 22.6,
-      "bdg_surface_temp_c": 22.9,
-      "ikn_air_temp_c": 29.9,
-      "delta_urban_rural_c": 7.5
+      "jkt_air_temp_c": 29.7,
+      "jkt_surface_temp_c": 30.8,
+      "bdg_air_temp_c": 22.3,
+      "bdg_surface_temp_c": 22.0,
+      "ikn_air_temp_c": 29.5,
+      "delta_urban_rural_c": 7.4
     },
     {
       "date": "2026-09-05 18:00 UTC",
@@ -161,12 +161,12 @@
       "timestamp_ms": 1788631200000,
       "hour_utc": 18,
       "is_forecast": false,
-      "jkt_air_temp_c": 23.8,
-      "jkt_surface_temp_c": 21.0,
-      "bdg_air_temp_c": 17.7,
-      "bdg_surface_temp_c": 15.8,
-      "ikn_air_temp_c": 23.1,
-      "delta_urban_rural_c": 6.1
+      "jkt_air_temp_c": 23.2,
+      "jkt_surface_temp_c": 21.4,
+      "bdg_air_temp_c": 17.6,
+      "bdg_surface_temp_c": 16.5,
+      "ikn_air_temp_c": 23.5,
+      "delta_urban_rural_c": 5.6
     },
     {
       "date": "2026-09-06 00:00 UTC",
@@ -174,12 +174,12 @@
       "timestamp_ms": 1788652800000,
       "hour_utc": 0,
       "is_forecast": false,
-      "jkt_air_temp_c": 28.4,
-      "jkt_surface_temp_c": 26.0,
-      "bdg_air_temp_c": 20.6,
-      "bdg_surface_temp_c": 20.6,
+      "jkt_air_temp_c": 27.4,
+      "jkt_surface_temp_c": 26.4,
+      "bdg_air_temp_c": 20.5,
+      "bdg_surface_temp_c": 19.9,
       "ikn_air_temp_c": 26.8,
-      "delta_urban_rural_c": 7.8
+      "delta_urban_rural_c": 6.9
     },
     {
       "date": "2026-09-06 06:00 UTC",
@@ -187,12 +187,12 @@
       "timestamp_ms": 1788674400000,
       "hour_utc": 6,
       "is_forecast": false,
-      "jkt_air_temp_c": 33.6,
-      "jkt_surface_temp_c": 36.0,
-      "bdg_air_temp_c": 25.6,
-      "bdg_surface_temp_c": 26.4,
+      "jkt_air_temp_c": 33.4,
+      "jkt_surface_temp_c": 36.5,
+      "bdg_air_temp_c": 25.2,
+      "bdg_surface_temp_c": 26.2,
       "ikn_air_temp_c": 32.9,
-      "delta_urban_rural_c": 8.0
+      "delta_urban_rural_c": 8.2
     },
     {
       "date": "2026-09-06 12:00 UTC",
@@ -200,12 +200,12 @@
       "timestamp_ms": 1788696000000,
       "hour_utc": 12,
       "is_forecast": false,
-      "jkt_air_temp_c": 29.9,
-      "jkt_surface_temp_c": 30.4,
-      "bdg_air_temp_c": 22.4,
-      "bdg_surface_temp_c": 22.4,
-      "ikn_air_temp_c": 29.0,
-      "delta_urban_rural_c": 7.5
+      "jkt_air_temp_c": 30.6,
+      "jkt_surface_temp_c": 30.6,
+      "bdg_air_temp_c": 22.9,
+      "bdg_surface_temp_c": 22.5,
+      "ikn_air_temp_c": 29.2,
+      "delta_urban_rural_c": 7.7
     },
     {
       "date": "2026-09-06 18:00 UTC",
@@ -213,12 +213,12 @@
       "timestamp_ms": 1788717600000,
       "hour_utc": 18,
       "is_forecast": false,
-      "jkt_air_temp_c": 23.6,
-      "jkt_surface_temp_c": 21.2,
-      "bdg_air_temp_c": 18.4,
-      "bdg_surface_temp_c": 16.2,
-      "ikn_air_temp_c": 24.1,
-      "delta_urban_rural_c": 5.2
+      "jkt_air_temp_c": 24.8,
+      "jkt_surface_temp_c": 21.7,
+      "bdg_air_temp_c": 17.5,
+      "bdg_surface_temp_c": 15.7,
+      "ikn_air_temp_c": 23.4,
+      "delta_urban_rural_c": 7.3
     },
     {
       "date": "2026-09-07 00:00 UTC",
@@ -226,12 +226,12 @@
       "timestamp_ms": 1788739200000,
       "hour_utc": 0,
       "is_forecast": false,
-      "jkt_air_temp_c": 27.4,
-      "jkt_surface_temp_c": 26.5,
-      "bdg_air_temp_c": 20.2,
-      "bdg_surface_temp_c": 19.5,
+      "jkt_air_temp_c": 27.6,
+      "jkt_surface_temp_c": 26.9,
+      "bdg_air_temp_c": 19.8,
+      "bdg_surface_temp_c": 19.8,
       "ikn_air_temp_c": 26.6,
-      "delta_urban_rural_c": 7.2
+      "delta_urban_rural_c": 7.8
     },
     {
       "date": "2026-09-07 06:00 UTC",
@@ -239,12 +239,12 @@
       "timestamp_ms": 1788760800000,
       "hour_utc": 6,
       "is_forecast": false,
-      "jkt_air_temp_c": 33.9,
-      "jkt_surface_temp_c": 35.6,
-      "bdg_air_temp_c": 25.4,
-      "bdg_surface_temp_c": 25.4,
-      "ikn_air_temp_c": 32.5,
-      "delta_urban_rural_c": 8.5
+      "jkt_air_temp_c": 34.2,
+      "jkt_surface_temp_c": 36.2,
+      "bdg_air_temp_c": 25.8,
+      "bdg_surface_temp_c": 26.8,
+      "ikn_air_temp_c": 32.4,
+      "delta_urban_rural_c": 8.4
     },
     {
       "date": "2026-09-07 12:00 UTC",
@@ -252,12 +252,12 @@
       "timestamp_ms": 1788782400000,
       "hour_utc": 12,
       "is_forecast": false,
-      "jkt_air_temp_c": 29.7,
-      "jkt_surface_temp_c": 30.4,
-      "bdg_air_temp_c": 22.6,
-      "bdg_surface_temp_c": 22.8,
-      "ikn_air_temp_c": 28.6,
-      "delta_urban_rural_c": 7.1
+      "jkt_air_temp_c": 29.9,
+      "jkt_surface_temp_c": 30.5,
+      "bdg_air_temp_c": 22.3,
+      "bdg_surface_temp_c": 22.7,
+      "ikn_air_temp_c": 29.6,
+      "delta_urban_rural_c": 7.6
     },
     {
       "date": "2026-09-07 18:00 UTC",
@@ -265,12 +265,12 @@
       "timestamp_ms": 1788804000000,
       "hour_utc": 18,
       "is_forecast": false,
-      "jkt_air_temp_c": 24.1,
-      "jkt_surface_temp_c": 21.4,
-      "bdg_air_temp_c": 17.5,
-      "bdg_surface_temp_c": 15.8,
-      "ikn_air_temp_c": 23.8,
-      "delta_urban_rural_c": 6.6
+      "jkt_air_temp_c": 24.0,
+      "jkt_surface_temp_c": 20.6,
+      "bdg_air_temp_c": 17.8,
+      "bdg_surface_temp_c": 15.6,
+      "ikn_air_temp_c": 24.0,
+      "delta_urban_rural_c": 6.2
     },
     {
       "date": "2026-09-08 00:00 UTC",
@@ -278,12 +278,12 @@
       "timestamp_ms": 1788825600000,
       "hour_utc": 0,
       "is_forecast": false,
-      "jkt_air_temp_c": 27.5,
-      "jkt_surface_temp_c": 25.6,
-      "bdg_air_temp_c": 20.7,
-      "bdg_surface_temp_c": 19.8,
-      "ikn_air_temp_c": 27.2,
-      "delta_urban_rural_c": 6.8
+      "jkt_air_temp_c": 27.3,
+      "jkt_surface_temp_c": 26.6,
+      "bdg_air_temp_c": 20.3,
+      "bdg_surface_temp_c": 19.5,
+      "ikn_air_temp_c": 26.9,
+      "delta_urban_rural_c": 7.0
     },
     {
       "date": "2026-09-08 06:00 UTC",
@@ -291,12 +291,12 @@
       "timestamp_ms": 1788847200000,
       "hour_utc": 6,
       "is_forecast": false,
-      "jkt_air_temp_c": 33.1,
-      "jkt_surface_temp_c": 36.2,
-      "bdg_air_temp_c": 25.8,
-      "bdg_surface_temp_c": 27.0,
-      "ikn_air_temp_c": 32.0,
-      "delta_urban_rural_c": 7.3
+      "jkt_air_temp_c": 34.0,
+      "jkt_surface_temp_c": 35.1,
+      "bdg_air_temp_c": 25.1,
+      "bdg_surface_temp_c": 26.7,
+      "ikn_air_temp_c": 31.9,
+      "delta_urban_rural_c": 8.9
     },
     {
       "date": "2026-09-08 12:00 UTC",
@@ -304,12 +304,12 @@
       "timestamp_ms": 1788868800000,
       "hour_utc": 12,
       "is_forecast": false,
-      "jkt_air_temp_c": 30.3,
-      "jkt_surface_temp_c": 30.6,
-      "bdg_air_temp_c": 22.8,
-      "bdg_surface_temp_c": 22.2,
-      "ikn_air_temp_c": 29.0,
-      "delta_urban_rural_c": 7.5
+      "jkt_air_temp_c": 30.5,
+      "jkt_surface_temp_c": 30.5,
+      "bdg_air_temp_c": 22.4,
+      "bdg_surface_temp_c": 22.8,
+      "ikn_air_temp_c": 29.1,
+      "delta_urban_rural_c": 8.1
     },
     {
       "date": "2026-09-08 18:00 UTC",
@@ -317,12 +317,12 @@
       "timestamp_ms": 1788890400000,
       "hour_utc": 18,
       "is_forecast": false,
-      "jkt_air_temp_c": 23.9,
-      "jkt_surface_temp_c": 21.3,
-      "bdg_air_temp_c": 17.5,
-      "bdg_surface_temp_c": 15.7,
-      "ikn_air_temp_c": 23.1,
-      "delta_urban_rural_c": 6.4
+      "jkt_air_temp_c": 23.7,
+      "jkt_surface_temp_c": 21.6,
+      "bdg_air_temp_c": 17.9,
+      "bdg_surface_temp_c": 16.4,
+      "ikn_air_temp_c": 23.6,
+      "delta_urban_rural_c": 5.8
     },
     {
       "date": "2026-09-09 00:00 UTC",
@@ -330,12 +330,12 @@
       "timestamp_ms": 1788912000000,
       "hour_utc": 0,
       "is_forecast": false,
-      "jkt_air_temp_c": 28.0,
+      "jkt_air_temp_c": 27.8,
       "jkt_surface_temp_c": 26.5,
-      "bdg_air_temp_c": 20.4,
-      "bdg_surface_temp_c": 19.7,
-      "ikn_air_temp_c": 27.4,
-      "delta_urban_rural_c": 7.6
+      "bdg_air_temp_c": 20.1,
+      "bdg_surface_temp_c": 20.0,
+      "ikn_air_temp_c": 26.9,
+      "delta_urban_rural_c": 7.7
     },
     {
       "date": "2026-09-09 06:00 UTC",
@@ -343,12 +343,12 @@
       "timestamp_ms": 1788933600000,
       "hour_utc": 6,
       "is_forecast": false,
-      "jkt_air_temp_c": 33.8,
-      "jkt_surface_temp_c": 36.7,
-      "bdg_air_temp_c": 25.0,
-      "bdg_surface_temp_c": 26.0,
-      "ikn_air_temp_c": 32.6,
-      "delta_urban_rural_c": 8.8
+      "jkt_air_temp_c": 34.5,
+      "jkt_surface_temp_c": 35.6,
+      "bdg_air_temp_c": 25.8,
+      "bdg_surface_temp_c": 26.7,
+      "ikn_air_temp_c": 32.4,
+      "delta_urban_rural_c": 8.7
     },
     {
       "date": "2026-09-09 12:00 UTC",
@@ -356,12 +356,12 @@
       "timestamp_ms": 1788955200000,
       "hour_utc": 12,
       "is_forecast": false,
-      "jkt_air_temp_c": 30.3,
+      "jkt_air_temp_c": 30.2,
       "jkt_surface_temp_c": 29.9,
-      "bdg_air_temp_c": 22.3,
-      "bdg_surface_temp_c": 23.0,
-      "ikn_air_temp_c": 29.2,
-      "delta_urban_rural_c": 8.0
+      "bdg_air_temp_c": 22.6,
+      "bdg_surface_temp_c": 21.9,
+      "ikn_air_temp_c": 29.4,
+      "delta_urban_rural_c": 7.6
     },
     {
       "date": "2026-09-09 18:00 UTC",
@@ -369,12 +369,12 @@
       "timestamp_ms": 1788976800000,
       "hour_utc": 18,
       "is_forecast": false,
-      "jkt_air_temp_c": 24.8,
-      "jkt_surface_temp_c": 21.3,
-      "bdg_air_temp_c": 17.7,
-      "bdg_surface_temp_c": 16.4,
-      "ikn_air_temp_c": 24.5,
-      "delta_urban_rural_c": 7.1
+      "jkt_air_temp_c": 24.3,
+      "jkt_surface_temp_c": 21.6,
+      "bdg_air_temp_c": 18.2,
+      "bdg_surface_temp_c": 15.6,
+      "ikn_air_temp_c": 23.8,
+      "delta_urban_rural_c": 6.1
     },
     {
       "date": "2026-09-10 00:00 UTC",
@@ -382,12 +382,12 @@
       "timestamp_ms": 1788998400000,
       "hour_utc": 0,
       "is_forecast": false,
-      "jkt_air_temp_c": 27.2,
-      "jkt_surface_temp_c": 25.5,
-      "bdg_air_temp_c": 20.2,
-      "bdg_surface_temp_c": 20.3,
-      "ikn_air_temp_c": 26.9,
-      "delta_urban_rural_c": 7.0
+      "jkt_air_temp_c": 27.0,
+      "jkt_surface_temp_c": 26.9,
+      "bdg_air_temp_c": 20.5,
+      "bdg_surface_temp_c": 19.5,
+      "ikn_air_temp_c": 27.2,
+      "delta_urban_rural_c": 6.5
     },
     {
       "date": "2026-09-10 06:00 UTC",
@@ -395,12 +395,12 @@
       "timestamp_ms": 1789020000000,
       "hour_utc": 6,
       "is_forecast": false,
-      "jkt_air_temp_c": 34.2,
-      "jkt_surface_temp_c": 35.6,
-      "bdg_air_temp_c": 26.2,
-      "bdg_surface_temp_c": 26.1,
-      "ikn_air_temp_c": 32.6,
-      "delta_urban_rural_c": 8.0
+      "jkt_air_temp_c": 33.1,
+      "jkt_surface_temp_c": 35.4,
+      "bdg_air_temp_c": 25.0,
+      "bdg_surface_temp_c": 26.0,
+      "ikn_air_temp_c": 32.8,
+      "delta_urban_rural_c": 8.1
     },
     {
       "date": "2026-09-10 12:00 UTC",
@@ -408,12 +408,12 @@
       "timestamp_ms": 1789041600000,
       "hour_utc": 12,
       "is_forecast": false,
-      "jkt_air_temp_c": 30.1,
-      "jkt_surface_temp_c": 31.1,
-      "bdg_air_temp_c": 21.8,
-      "bdg_surface_temp_c": 22.8,
-      "ikn_air_temp_c": 29.1,
-      "delta_urban_rural_c": 8.3
+      "jkt_air_temp_c": 29.9,
+      "jkt_surface_temp_c": 29.6,
+      "bdg_air_temp_c": 21.5,
+      "bdg_surface_temp_c": 22.4,
+      "ikn_air_temp_c": 29.3,
+      "delta_urban_rural_c": 8.4
     },
     {
       "date": "2026-09-10 18:00 UTC",
@@ -421,12 +421,12 @@
       "timestamp_ms": 1789063200000,
       "hour_utc": 18,
       "is_forecast": false,
-      "jkt_air_temp_c": 23.5,
-      "jkt_surface_temp_c": 21.4,
-      "bdg_air_temp_c": 17.5,
-      "bdg_surface_temp_c": 16.4,
-      "ikn_air_temp_c": 24.3,
-      "delta_urban_rural_c": 6.0
+      "jkt_air_temp_c": 24.1,
+      "jkt_surface_temp_c": 21.0,
+      "bdg_air_temp_c": 17.9,
+      "bdg_surface_temp_c": 16.3,
+      "ikn_air_temp_c": 22.8,
+      "delta_urban_rural_c": 6.2
     },
     {
       "date": "2026-09-11 00:00 UTC",
@@ -434,12 +434,12 @@
       "timestamp_ms": 1789084800000,
       "hour_utc": 0,
       "is_forecast": false,
-      "jkt_air_temp_c": 26.8,
-      "jkt_surface_temp_c": 26.1,
-      "bdg_air_temp_c": 20.1,
-      "bdg_surface_temp_c": 20.5,
-      "ikn_air_temp_c": 26.7,
-      "delta_urban_rural_c": 6.7
+      "jkt_air_temp_c": 26.6,
+      "jkt_surface_temp_c": 26.7,
+      "bdg_air_temp_c": 21.0,
+      "bdg_surface_temp_c": 19.7,
+      "ikn_air_temp_c": 26.4,
+      "delta_urban_rural_c": 5.6
     },
     {
       "date": "2026-09-11 06:00 UTC",
@@ -447,12 +447,12 @@
       "timestamp_ms": 1789106400000,
       "hour_utc": 6,
       "is_forecast": false,
-      "jkt_air_temp_c": 33.0,
-      "jkt_surface_temp_c": 35.3,
-      "bdg_air_temp_c": 25.4,
-      "bdg_surface_temp_c": 26.8,
-      "ikn_air_temp_c": 31.9,
-      "delta_urban_rural_c": 7.6
+      "jkt_air_temp_c": 33.7,
+      "jkt_surface_temp_c": 36.1,
+      "bdg_air_temp_c": 25.9,
+      "bdg_surface_temp_c": 27.1,
+      "ikn_air_temp_c": 32.1,
+      "delta_urban_rural_c": 7.8
     },
     {
       "date": "2026-09-11 12:00 UTC",
@@ -461,11 +461,11 @@
       "hour_utc": 12,
       "is_forecast": false,
       "jkt_air_temp_c": 30.0,
-      "jkt_surface_temp_c": 29.2,
-      "bdg_air_temp_c": 22.5,
-      "bdg_surface_temp_c": 22.4,
-      "ikn_air_temp_c": 29.2,
-      "delta_urban_rural_c": 7.5
+      "jkt_surface_temp_c": 30.7,
+      "bdg_air_temp_c": 22.4,
+      "bdg_surface_temp_c": 23.3,
+      "ikn_air_temp_c": 29.1,
+      "delta_urban_rural_c": 7.6
     },
     {
       "date": "2026-09-11 18:00 UTC",
@@ -473,12 +473,12 @@
       "timestamp_ms": 1789149600000,
       "hour_utc": 18,
       "is_forecast": false,
-      "jkt_air_temp_c": 24.1,
-      "jkt_surface_temp_c": 21.2,
-      "bdg_air_temp_c": 18.0,
-      "bdg_surface_temp_c": 16.2,
-      "ikn_air_temp_c": 23.6,
-      "delta_urban_rural_c": 6.1
+      "jkt_air_temp_c": 24.5,
+      "jkt_surface_temp_c": 21.7,
+      "bdg_air_temp_c": 17.5,
+      "bdg_surface_temp_c": 15.6,
+      "ikn_air_temp_c": 24.3,
+      "delta_urban_rural_c": 7.0
     },
     {
       "date": "2026-09-12 00:00 UTC",
@@ -486,12 +486,12 @@
       "timestamp_ms": 1789171200000,
       "hour_utc": 0,
       "is_forecast": false,
-      "jkt_air_temp_c": 27.6,
-      "jkt_surface_temp_c": 26.6,
-      "bdg_air_temp_c": 20.9,
-      "bdg_surface_temp_c": 20.4,
-      "ikn_air_temp_c": 26.9,
-      "delta_urban_rural_c": 6.7
+      "jkt_air_temp_c": 27.5,
+      "jkt_surface_temp_c": 27.2,
+      "bdg_air_temp_c": 21.0,
+      "bdg_surface_temp_c": 20.9,
+      "ikn_air_temp_c": 27.1,
+      "delta_urban_rural_c": 6.5
     },
     {
       "date": "2026-09-12 06:00 UTC",
@@ -499,12 +499,12 @@
       "timestamp_ms": 1789192800000,
       "hour_utc": 6,
       "is_forecast": false,
-      "jkt_air_temp_c": 33.6,
-      "jkt_surface_temp_c": 36.0,
-      "bdg_air_temp_c": 24.5,
-      "bdg_surface_temp_c": 26.1,
-      "ikn_air_temp_c": 32.1,
-      "delta_urban_rural_c": 9.1
+      "jkt_air_temp_c": 34.1,
+      "jkt_surface_temp_c": 35.0,
+      "bdg_air_temp_c": 25.5,
+      "bdg_surface_temp_c": 27.1,
+      "ikn_air_temp_c": 32.4,
+      "delta_urban_rural_c": 8.6
     },
     {
       "date": "2026-09-12 12:00 UTC",
@@ -512,12 +512,12 @@
       "timestamp_ms": 1789214400000,
       "hour_utc": 12,
       "is_forecast": false,
-      "jkt_air_temp_c": 29.9,
-      "jkt_surface_temp_c": 29.8,
-      "bdg_air_temp_c": 22.6,
-      "bdg_surface_temp_c": 22.5,
-      "ikn_air_temp_c": 28.3,
-      "delta_urban_rural_c": 7.3
+      "jkt_air_temp_c": 30.3,
+      "jkt_surface_temp_c": 30.6,
+      "bdg_air_temp_c": 23.2,
+      "bdg_surface_temp_c": 23.2,
+      "ikn_air_temp_c": 28.9,
+      "delta_urban_rural_c": 7.1
     },
     {
       "date": "2026-09-12 18:00 UTC",
@@ -525,12 +525,12 @@
       "timestamp_ms": 1789236000000,
       "hour_utc": 18,
       "is_forecast": false,
-      "jkt_air_temp_c": 24.2,
-      "jkt_surface_temp_c": 21.0,
-      "bdg_air_temp_c": 17.5,
-      "bdg_surface_temp_c": 15.6,
-      "ikn_air_temp_c": 23.4,
-      "delta_urban_rural_c": 6.7
+      "jkt_air_temp_c": 24.1,
+      "jkt_surface_temp_c": 21.7,
+      "bdg_air_temp_c": 17.2,
+      "bdg_surface_temp_c": 15.2,
+      "ikn_air_temp_c": 23.9,
+      "delta_urban_rural_c": 6.9
     },
     {
       "date": "2026-09-13 00:00 UTC",
@@ -538,12 +538,12 @@
       "timestamp_ms": 1789257600000,
       "hour_utc": 0,
       "is_forecast": false,
-      "jkt_air_temp_c": 28.2,
-      "jkt_surface_temp_c": 26.5,
-      "bdg_air_temp_c": 20.5,
-      "bdg_surface_temp_c": 19.9,
-      "ikn_air_temp_c": 26.1,
-      "delta_urban_rural_c": 7.7
+      "jkt_air_temp_c": 27.6,
+      "jkt_surface_temp_c": 25.6,
+      "bdg_air_temp_c": 20.4,
+      "bdg_surface_temp_c": 20.4,
+      "ikn_air_temp_c": 27.1,
+      "delta_urban_rural_c": 7.2
     },
     {
       "date": "2026-09-13 06:00 UTC",
@@ -551,12 +551,12 @@
       "timestamp_ms": 1789279200000,
       "hour_utc": 6,
       "is_forecast": false,
-      "jkt_air_temp_c": 33.8,
-      "jkt_surface_temp_c": 35.7,
-      "bdg_air_temp_c": 25.4,
-      "bdg_surface_temp_c": 25.9,
+      "jkt_air_temp_c": 34.1,
+      "jkt_surface_temp_c": 36.3,
+      "bdg_air_temp_c": 24.8,
+      "bdg_surface_temp_c": 26.7,
       "ikn_air_temp_c": 31.9,
-      "delta_urban_rural_c": 8.4
+      "delta_urban_rural_c": 9.3
     },
     {
       "date": "2026-09-13 12:00 UTC",
@@ -564,12 +564,12 @@
       "timestamp_ms": 1789300800000,
       "hour_utc": 12,
       "is_forecast": false,
-      "jkt_air_temp_c": 30.1,
-      "jkt_surface_temp_c": 29.6,
-      "bdg_air_temp_c": 21.9,
-      "bdg_surface_temp_c": 22.7,
-      "ikn_air_temp_c": 29.2,
-      "delta_urban_rural_c": 8.2
+      "jkt_air_temp_c": 29.8,
+      "jkt_surface_temp_c": 31.4,
+      "bdg_air_temp_c": 22.6,
+      "bdg_surface_temp_c": 23.1,
+      "ikn_air_temp_c": 28.7,
+      "delta_urban_rural_c": 7.2
     },
     {
       "date": "2026-09-13 18:00 UTC",
@@ -577,12 +577,12 @@
       "timestamp_ms": 1789322400000,
       "hour_utc": 18,
       "is_forecast": false,
-      "jkt_air_temp_c": 24.0,
-      "jkt_surface_temp_c": 21.3,
-      "bdg_air_temp_c": 18.1,
-      "bdg_surface_temp_c": 15.3,
+      "jkt_air_temp_c": 24.1,
+      "jkt_surface_temp_c": 20.7,
+      "bdg_air_temp_c": 17.2,
+      "bdg_surface_temp_c": 16.0,
       "ikn_air_temp_c": 23.6,
-      "delta_urban_rural_c": 5.9
+      "delta_urban_rural_c": 6.9
     },
     {
       "date": "2026-09-14 00:00 UTC",
@@ -590,12 +590,12 @@
       "timestamp_ms": 1789344000000,
       "hour_utc": 0,
       "is_forecast": false,
-      "jkt_air_temp_c": 27.9,
-      "jkt_surface_temp_c": 26.5,
-      "bdg_air_temp_c": 20.9,
-      "bdg_surface_temp_c": 19.5,
-      "ikn_air_temp_c": 26.5,
-      "delta_urban_rural_c": 7.0
+      "jkt_air_temp_c": 26.9,
+      "jkt_surface_temp_c": 26.1,
+      "bdg_air_temp_c": 20.7,
+      "bdg_surface_temp_c": 20.2,
+      "ikn_air_temp_c": 27.1,
+      "delta_urban_rural_c": 6.2
     },
     {
       "date": "2026-09-14 06:00 UTC",
@@ -603,12 +603,12 @@
       "timestamp_ms": 1789365600000,
       "hour_utc": 6,
       "is_forecast": false,
-      "jkt_air_temp_c": 33.7,
-      "jkt_surface_temp_c": 35.4,
-      "bdg_air_temp_c": 25.8,
-      "bdg_surface_temp_c": 26.1,
-      "ikn_air_temp_c": 32.5,
-      "delta_urban_rural_c": 7.9
+      "jkt_air_temp_c": 33.3,
+      "jkt_surface_temp_c": 35.7,
+      "bdg_air_temp_c": 25.0,
+      "bdg_surface_temp_c": 26.6,
+      "ikn_air_temp_c": 32.6,
+      "delta_urban_rural_c": 8.3
     },
     {
       "date": "2026-09-14 12:00 UTC",
@@ -616,12 +616,12 @@
       "timestamp_ms": 1789387200000,
       "hour_utc": 12,
       "is_forecast": false,
-      "jkt_air_temp_c": 29.7,
-      "jkt_surface_temp_c": 30.8,
-      "bdg_air_temp_c": 22.4,
-      "bdg_surface_temp_c": 22.8,
-      "ikn_air_temp_c": 28.8,
-      "delta_urban_rural_c": 7.3
+      "jkt_air_temp_c": 30.2,
+      "jkt_surface_temp_c": 31.0,
+      "bdg_air_temp_c": 22.5,
+      "bdg_surface_temp_c": 22.5,
+      "ikn_air_temp_c": 29.2,
+      "delta_urban_rural_c": 7.7
     },
     {
       "date": "2026-09-14 18:00 UTC",
@@ -630,11 +630,11 @@
       "hour_utc": 18,
       "is_forecast": false,
       "jkt_air_temp_c": 24.1,
-      "jkt_surface_temp_c": 20.9,
-      "bdg_air_temp_c": 17.9,
-      "bdg_surface_temp_c": 16.5,
+      "jkt_surface_temp_c": 21.0,
+      "bdg_air_temp_c": 17.5,
+      "bdg_surface_temp_c": 15.8,
       "ikn_air_temp_c": 23.7,
-      "delta_urban_rural_c": 6.2
+      "delta_urban_rural_c": 6.6
     },
     {
       "date": "2026-09-15 00:00 UTC",
@@ -642,12 +642,12 @@
       "timestamp_ms": 1789430400000,
       "hour_utc": 0,
       "is_forecast": false,
-      "jkt_air_temp_c": 27.3,
-      "jkt_surface_temp_c": 26.9,
-      "bdg_air_temp_c": 20.8,
-      "bdg_surface_temp_c": 19.9,
-      "ikn_air_temp_c": 26.5,
-      "delta_urban_rural_c": 6.5
+      "jkt_air_temp_c": 27.9,
+      "jkt_surface_temp_c": 26.2,
+      "bdg_air_temp_c": 20.5,
+      "bdg_surface_temp_c": 19.7,
+      "ikn_air_temp_c": 27.5,
+      "delta_urban_rural_c": 7.4
     },
     {
       "date": "2026-09-15 06:00 UTC",
@@ -655,12 +655,12 @@
       "timestamp_ms": 1789452000000,
       "hour_utc": 6,
       "is_forecast": false,
-      "jkt_air_temp_c": 34.1,
-      "jkt_surface_temp_c": 36.4,
-      "bdg_air_temp_c": 25.7,
-      "bdg_surface_temp_c": 26.3,
-      "ikn_air_temp_c": 33.0,
-      "delta_urban_rural_c": 8.4
+      "jkt_air_temp_c": 33.7,
+      "jkt_surface_temp_c": 35.6,
+      "bdg_air_temp_c": 25.1,
+      "bdg_surface_temp_c": 26.0,
+      "ikn_air_temp_c": 32.3,
+      "delta_urban_rural_c": 8.6
     },
     {
       "date": "2026-09-15 12:00 UTC",
@@ -668,12 +668,12 @@
       "timestamp_ms": 1789473600000,
       "hour_utc": 12,
       "is_forecast": false,
-      "jkt_air_temp_c": 29.7,
-      "jkt_surface_temp_c": 30.8,
-      "bdg_air_temp_c": 22.6,
-      "bdg_surface_temp_c": 22.4,
-      "ikn_air_temp_c": 28.9,
-      "delta_urban_rural_c": 7.1
+      "jkt_air_temp_c": 29.6,
+      "jkt_surface_temp_c": 30.9,
+      "bdg_air_temp_c": 22.8,
+      "bdg_surface_temp_c": 23.1,
+      "ikn_air_temp_c": 28.4,
+      "delta_urban_rural_c": 6.8
     },
     {
       "date": "2026-09-15 18:00 UTC",
@@ -681,12 +681,12 @@
       "timestamp_ms": 1789495200000,
       "hour_utc": 18,
       "is_forecast": false,
-      "jkt_air_temp_c": 24.6,
+      "jkt_air_temp_c": 23.5,
       "jkt_surface_temp_c": 21.8,
-      "bdg_air_temp_c": 17.9,
-      "bdg_surface_temp_c": 16.5,
-      "ikn_air_temp_c": 23.7,
-      "delta_urban_rural_c": 6.7
+      "bdg_air_temp_c": 17.8,
+      "bdg_surface_temp_c": 15.5,
+      "ikn_air_temp_c": 23.9,
+      "delta_urban_rural_c": 5.7
     },
     {
       "date": "2026-09-16 00:00 UTC",
@@ -694,12 +694,12 @@
       "timestamp_ms": 1789516800000,
       "hour_utc": 0,
       "is_forecast": false,
-      "jkt_air_temp_c": 26.5,
-      "jkt_surface_temp_c": 26.9,
+      "jkt_air_temp_c": 27.8,
+      "jkt_surface_temp_c": 26.6,
       "bdg_air_temp_c": 20.5,
-      "bdg_surface_temp_c": 20.4,
-      "ikn_air_temp_c": 26.9,
-      "delta_urban_rural_c": 6.0
+      "bdg_surface_temp_c": 19.5,
+      "ikn_air_temp_c": 27.0,
+      "delta_urban_rural_c": 7.3
     },
     {
       "date": "2026-09-16 06:00 UTC",
@@ -707,12 +707,12 @@
       "timestamp_ms": 1789538400000,
       "hour_utc": 6,
       "is_forecast": false,
-      "jkt_air_temp_c": 33.8,
-      "jkt_surface_temp_c": 35.8,
-      "bdg_air_temp_c": 25.3,
-      "bdg_surface_temp_c": 25.6,
-      "ikn_air_temp_c": 32.8,
-      "delta_urban_rural_c": 8.5
+      "jkt_air_temp_c": 33.5,
+      "jkt_surface_temp_c": 35.6,
+      "bdg_air_temp_c": 25.1,
+      "bdg_surface_temp_c": 27.2,
+      "ikn_air_temp_c": 32.0,
+      "delta_urban_rural_c": 8.4
     },
     {
       "date": "2026-09-16 12:00 UTC",
@@ -720,12 +720,12 @@
       "timestamp_ms": 1789560000000,
       "hour_utc": 12,
       "is_forecast": false,
-      "jkt_air_temp_c": 30.2,
+      "jkt_air_temp_c": 30.4,
       "jkt_surface_temp_c": 30.1,
-      "bdg_air_temp_c": 21.9,
-      "bdg_surface_temp_c": 22.0,
-      "ikn_air_temp_c": 29.6,
-      "delta_urban_rural_c": 8.3
+      "bdg_air_temp_c": 22.6,
+      "bdg_surface_temp_c": 22.6,
+      "ikn_air_temp_c": 28.3,
+      "delta_urban_rural_c": 7.8
     },
     {
       "date": "2026-09-16 18:00 UTC",
@@ -733,12 +733,12 @@
       "timestamp_ms": 1789581600000,
       "hour_utc": 18,
       "is_forecast": false,
-      "jkt_air_temp_c": 24.2,
-      "jkt_surface_temp_c": 22.6,
-      "bdg_air_temp_c": 17.5,
-      "bdg_surface_temp_c": 15.9,
-      "ikn_air_temp_c": 24.0,
-      "delta_urban_rural_c": 6.7
+      "jkt_air_temp_c": 24.0,
+      "jkt_surface_temp_c": 21.1,
+      "bdg_air_temp_c": 17.1,
+      "bdg_surface_temp_c": 15.8,
+      "ikn_air_temp_c": 23.5,
+      "delta_urban_rural_c": 6.9
     },
     {
       "date": "2026-09-17 00:00 UTC",
@@ -746,12 +746,12 @@
       "timestamp_ms": 1789603200000,
       "hour_utc": 0,
       "is_forecast": false,
-      "jkt_air_temp_c": 27.3,
-      "jkt_surface_temp_c": 26.6,
-      "bdg_air_temp_c": 20.9,
-      "bdg_surface_temp_c": 19.5,
-      "ikn_air_temp_c": 26.6,
-      "delta_urban_rural_c": 6.4
+      "jkt_air_temp_c": 27.4,
+      "jkt_surface_temp_c": 26.1,
+      "bdg_air_temp_c": 20.6,
+      "bdg_surface_temp_c": 20.2,
+      "ikn_air_temp_c": 26.2,
+      "delta_urban_rural_c": 6.8
     },
     {
       "date": "2026-09-17 06:00 UTC",
@@ -760,11 +760,11 @@
       "hour_utc": 6,
       "is_forecast": true,
       "jkt_air_temp_c": 33.6,
-      "jkt_surface_temp_c": 36.2,
-      "bdg_air_temp_c": 25.6,
-      "bdg_surface_temp_c": 26.2,
-      "ikn_air_temp_c": 32.3,
-      "delta_urban_rural_c": 8.0
+      "jkt_surface_temp_c": 35.9,
+      "bdg_air_temp_c": 25.3,
+      "bdg_surface_temp_c": 26.9,
+      "ikn_air_temp_c": 31.9,
+      "delta_urban_rural_c": 8.3
     },
     {
       "date": "2026-09-17 12:00 UTC",
@@ -772,12 +772,12 @@
       "timestamp_ms": 1789646400000,
       "hour_utc": 12,
       "is_forecast": true,
-      "jkt_air_temp_c": 30.5,
-      "jkt_surface_temp_c": 30.8,
-      "bdg_air_temp_c": 22.0,
-      "bdg_surface_temp_c": 22.4,
-      "ikn_air_temp_c": 29.2,
-      "delta_urban_rural_c": 8.5
+      "jkt_air_temp_c": 30.2,
+      "jkt_surface_temp_c": 29.8,
+      "bdg_air_temp_c": 22.5,
+      "bdg_surface_temp_c": 22.1,
+      "ikn_air_temp_c": 28.6,
+      "delta_urban_rural_c": 7.7
     },
     {
       "date": "2026-09-17 18:00 UTC",
@@ -785,11 +785,11 @@
       "timestamp_ms": 1789668000000,
       "hour_utc": 18,
       "is_forecast": true,
-      "jkt_air_temp_c": 24.4,
-      "jkt_surface_temp_c": 20.9,
-      "bdg_air_temp_c": 17.8,
-      "bdg_surface_temp_c": 15.4,
-      "ikn_air_temp_c": 24.0,
+      "jkt_air_temp_c": 24.2,
+      "jkt_surface_temp_c": 20.6,
+      "bdg_air_temp_c": 17.6,
+      "bdg_surface_temp_c": 15.3,
+      "ikn_air_temp_c": 23.9,
       "delta_urban_rural_c": 6.6
     },
     {
@@ -798,12 +798,12 @@
       "timestamp_ms": 1789689600000,
       "hour_utc": 0,
       "is_forecast": true,
-      "jkt_air_temp_c": 27.8,
-      "jkt_surface_temp_c": 26.9,
-      "bdg_air_temp_c": 20.5,
-      "bdg_surface_temp_c": 18.9,
-      "ikn_air_temp_c": 26.4,
-      "delta_urban_rural_c": 7.3
+      "jkt_air_temp_c": 27.2,
+      "jkt_surface_temp_c": 26.2,
+      "bdg_air_temp_c": 20.7,
+      "bdg_surface_temp_c": 19.3,
+      "ikn_air_temp_c": 26.5,
+      "delta_urban_rural_c": 6.5
     },
     {
       "date": "2026-09-18 06:00 UTC",
@@ -811,12 +811,12 @@
       "timestamp_ms": 1789711200000,
       "hour_utc": 6,
       "is_forecast": true,
-      "jkt_air_temp_c": 33.5,
-      "jkt_surface_temp_c": 36.0,
-      "bdg_air_temp_c": 25.7,
-      "bdg_surface_temp_c": 26.0,
-      "ikn_air_temp_c": 31.7,
-      "delta_urban_rural_c": 7.8
+      "jkt_air_temp_c": 34.0,
+      "jkt_surface_temp_c": 35.3,
+      "bdg_air_temp_c": 25.9,
+      "bdg_surface_temp_c": 26.5,
+      "ikn_air_temp_c": 31.8,
+      "delta_urban_rural_c": 8.1
     },
     {
       "date": "2026-09-18 12:00 UTC",
@@ -824,12 +824,12 @@
       "timestamp_ms": 1789732800000,
       "hour_utc": 12,
       "is_forecast": true,
-      "jkt_air_temp_c": 29.9,
-      "jkt_surface_temp_c": 30.5,
-      "bdg_air_temp_c": 22.2,
+      "jkt_air_temp_c": 30.2,
+      "jkt_surface_temp_c": 30.0,
+      "bdg_air_temp_c": 23.0,
       "bdg_surface_temp_c": 22.9,
-      "ikn_air_temp_c": 29.1,
-      "delta_urban_rural_c": 7.7
+      "ikn_air_temp_c": 28.7,
+      "delta_urban_rural_c": 7.2
     },
     {
       "date": "2026-09-18 18:00 UTC",
@@ -837,12 +837,12 @@
       "timestamp_ms": 1789754400000,
       "hour_utc": 18,
       "is_forecast": true,
-      "jkt_air_temp_c": 24.0,
-      "jkt_surface_temp_c": 21.7,
-      "bdg_air_temp_c": 17.3,
-      "bdg_surface_temp_c": 16.7,
-      "ikn_air_temp_c": 23.9,
-      "delta_urban_rural_c": 6.7
+      "jkt_air_temp_c": 24.7,
+      "jkt_surface_temp_c": 20.8,
+      "bdg_air_temp_c": 17.6,
+      "bdg_surface_temp_c": 15.8,
+      "ikn_air_temp_c": 23.4,
+      "delta_urban_rural_c": 7.1
     },
     {
       "date": "2026-09-19 00:00 UTC",
@@ -850,12 +850,12 @@
       "timestamp_ms": 1789776000000,
       "hour_utc": 0,
       "is_forecast": true,
-      "jkt_air_temp_c": 27.8,
-      "jkt_surface_temp_c": 26.3,
-      "bdg_air_temp_c": 20.6,
-      "bdg_surface_temp_c": 19.8,
+      "jkt_air_temp_c": 27.5,
+      "jkt_surface_temp_c": 26.7,
+      "bdg_air_temp_c": 20.9,
+      "bdg_surface_temp_c": 19.1,
       "ikn_air_temp_c": 26.7,
-      "delta_urban_rural_c": 7.2
+      "delta_urban_rural_c": 6.6
     },
     {
       "date": "2026-09-19 06:00 UTC",
@@ -863,12 +863,12 @@
       "timestamp_ms": 1789797600000,
       "hour_utc": 6,
       "is_forecast": true,
-      "jkt_air_temp_c": 33.3,
-      "jkt_surface_temp_c": 35.9,
-      "bdg_air_temp_c": 25.6,
-      "bdg_surface_temp_c": 26.8,
-      "ikn_air_temp_c": 32.7,
-      "delta_urban_rural_c": 7.7
+      "jkt_air_temp_c": 33.9,
+      "jkt_surface_temp_c": 35.5,
+      "bdg_air_temp_c": 25.2,
+      "bdg_surface_temp_c": 26.3,
+      "ikn_air_temp_c": 31.4,
+      "delta_urban_rural_c": 8.7
     },
     {
       "date": "2026-09-19 12:00 UTC",
@@ -876,12 +876,12 @@
       "timestamp_ms": 1789819200000,
       "hour_utc": 12,
       "is_forecast": true,
-      "jkt_air_temp_c": 29.8,
-      "jkt_surface_temp_c": 30.4,
+      "jkt_air_temp_c": 30.0,
+      "jkt_surface_temp_c": 30.0,
       "bdg_air_temp_c": 22.0,
-      "bdg_surface_temp_c": 23.3,
+      "bdg_surface_temp_c": 23.1,
       "ikn_air_temp_c": 29.1,
-      "delta_urban_rural_c": 7.8
+      "delta_urban_rural_c": 8.0
     },
     {
       "date": "2026-09-19 18:00 UTC",
@@ -889,12 +889,12 @@
       "timestamp_ms": 1789840800000,
       "hour_utc": 18,
       "is_forecast": true,
-      "jkt_air_temp_c": 24.0,
-      "jkt_surface_temp_c": 21.4,
-      "bdg_air_temp_c": 18.0,
-      "bdg_surface_temp_c": 15.5,
-      "ikn_air_temp_c": 23.7,
-      "delta_urban_rural_c": 6.0
+      "jkt_air_temp_c": 23.7,
+      "jkt_surface_temp_c": 21.3,
+      "bdg_air_temp_c": 17.4,
+      "bdg_surface_temp_c": 15.9,
+      "ikn_air_temp_c": 23.9,
+      "delta_urban_rural_c": 6.3
     },
     {
       "date": "2026-09-20 00:00 UTC",
@@ -902,12 +902,12 @@
       "timestamp_ms": 1789862400000,
       "hour_utc": 0,
       "is_forecast": true,
-      "jkt_air_temp_c": 27.6,
-      "jkt_surface_temp_c": 26.9,
-      "bdg_air_temp_c": 20.6,
-      "bdg_surface_temp_c": 19.0,
-      "ikn_air_temp_c": 26.5,
-      "delta_urban_rural_c": 7.0
+      "jkt_air_temp_c": 27.4,
+      "jkt_surface_temp_c": 26.1,
+      "bdg_air_temp_c": 20.7,
+      "bdg_surface_temp_c": 19.3,
+      "ikn_air_temp_c": 27.3,
+      "delta_urban_rural_c": 6.7
     }
   ]
 }

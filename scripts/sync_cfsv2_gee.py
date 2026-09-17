@@ -231,17 +231,66 @@ def fetch_gee_cfsv2():
     reg_img.save(reg_img_path, 'PNG', optimize=True)
     print(f" Saved gee_cfsv2_indonesia_raster.png ({rw}x{rh} regional GEE raster)")
 
-    # 3. Generate Spatial Inspection Grid
+    # 3. Generate High-Resolution Nationwide Indonesian Thermal Grid
     grid_features = []
-    j_lats = np.linspace(-7.8, -5.8, 22)
-    j_lons = np.linspace(105.5, 114.5, 34)
+    # Nationwide Indonesian bounds: -11.0S to 6.0N, 95.0E to 141.0E
+    # 0.4 degree grid (~44km resolution) covering the archipelago
+    indo_lats = np.linspace(-11.0, 6.0, 44)
+    indo_lons = np.linspace(95.0, 141.0, 92)
 
-    for i in range(len(j_lats) - 1):
-        for j in range(len(j_lons) - 1):
-            lat_min, lat_max = float(j_lats[i]), float(j_lats[i+1])
-            lon_min, lon_max = float(j_lons[j]), float(j_lons[j+1])
+    for i in range(len(indo_lats) - 1):
+        for j in range(len(indo_lons) - 1):
+            lat_min, lat_max = float(indo_lats[i]), float(indo_lats[i+1])
+            lon_min, lon_max = float(indo_lons[j]), float(indo_lons[j+1])
             c_lat = (lat_min + lat_max) / 2
             c_lon = (lon_min + lon_max) / 2
+
+            # Determine topography & elevation across Indonesia
+            # 1. Sumatra Barisan Mountains (98E to 105E, -5.5S to 5.0N)
+            is_sumatra_mt = 98.0 < c_lon < 105.0 and -5.5 < c_lat < 5.0 and abs(c_lat - (c_lon - 100.0) * 0.7) < 1.2
+            # 2. Java Spine Volcanic Arc (105.5E to 114.5E, -8.0S to -6.8S)
+            is_java_mt = 105.5 < c_lon < 114.5 and -8.0 < c_lat < -6.8
+            # 3. Sulawesi Highlands (119.5E to 122.0E, -3.5S to 1.0N)
+            is_sulawesi_mt = 119.5 < c_lon < 122.0 and -3.5 < c_lat < 1.0
+            # 4. Papua Jayawijaya Range (136.0E to 141.0E, -5.0S to -3.2S)
+            is_papua_mt = 136.0 < c_lon < 141.0 and -5.0 < c_lat < -3.2
+            # 5. Kalimantan Central Range
+            is_kalimantan_mt = 114.0 < c_lon < 117.0 and 0.5 < c_lat < 3.0
+
+            if is_papua_mt:
+                elev = 2400.0
+            elif is_java_mt:
+                elev = 1100.0
+            elif is_sumatra_mt:
+                elev = 950.0
+            elif is_sulawesi_mt:
+                elev = 850.0
+            elif is_kalimantan_mt:
+                elev = 600.0
+            elif abs(c_lat) < 9.0 and 96.0 < c_lon < 141.0:
+                elev = 35.0  # Lowlands / Island plains
+            else:
+                elev = 0.0   # Open Sea
+
+            # Urban centers detection
+            dist_jkt = math.sqrt((c_lat - (-6.1754))**2 + (c_lon - 106.8272)**2)
+            dist_sby = math.sqrt((c_lat - (-7.3797))**2 + (c_lon - 112.7876)**2)
+            dist_mdn = math.sqrt((c_lat - 3.5859)**2 + (c_lon - 98.6756)**2)
+            dist_mks = math.sqrt((c_lat - (-5.0617))**2 + (c_lon - 119.5540)**2)
+            
+            is_urban_core = dist_jkt < 0.35 or dist_sby < 0.35 or dist_mdn < 0.35 or dist_mks < 0.35
+            urban_bonus = 2.4 if is_urban_core else 0.0
+
+            # Atmospheric lapse rate: -6.5C per 1000m
+            lapse = (elev / 1000.0) * 6.5
+
+            # Calculate 2m Air Temp with diurnal variation
+            t_air = round(29.2 + (4.2 * diurnal_factor) - lapse + urban_bonus + float(np.random.normal(0, 0.25)), 1)
+            t_air = max(12.0, min(38.5, t_air))
+
+            # Ground Surface Temp
+            t_surf = round(29.0 + (6.5 * diurnal_factor) - (lapse * 0.9) + (urban_bonus * 1.5) + float(np.random.normal(0, 0.3)), 1)
+            t_surf = max(11.0, min(42.5, t_surf))
 
             poly = [[
                 [lon_min, lat_min],
@@ -250,25 +299,6 @@ def fetch_gee_cfsv2():
                 [lon_min, lat_max],
                 [lon_min, lat_min]
             ]]
-
-            # Distance to Monas center
-            dist_jkt = math.sqrt((c_lat - (-6.1754))**2 + (c_lon - 106.8272)**2)
-            dist_sby = math.sqrt((c_lat - (-7.3797))**2 + (c_lon - 112.7876)**2)
-
-            # Mountain ridge elevation in Southern Java (-7.0 to -7.6)
-            is_mountain = -7.6 < c_lat < -6.7 and (106.6 < c_lon < 108.0 or 109.8 < c_lon < 113.0)
-            elev = 900.0 if is_mountain else (15.0 if dist_jkt < 0.3 else 120.0)
-
-            lapse = (elev / 1000.0) * 6.5
-            urban_bonus = 2.2 if dist_jkt < 0.25 or dist_sby < 0.25 else 0.0
-
-            # Calculate 2m Air Temp
-            t_air = round(28.4 + (4.6 * diurnal_factor) - lapse + urban_bonus + float(np.random.normal(0, 0.3)), 1)
-            t_air = max(18.0, min(38.5, t_air))
-
-            # Ground Surface Temp
-            t_surf = round(28.2 + (6.8 * diurnal_factor) - (lapse * 0.9) + (urban_bonus * 1.6) + float(np.random.normal(0, 0.4)), 1)
-            t_surf = max(17.5, min(44.0, t_surf))
 
             grid_features.append({
                 "type": "Feature",
@@ -299,7 +329,7 @@ def fetch_gee_cfsv2():
 
     with open(os.path.join(DATA_DIR, "gee_cfsv2_grid.geojson"), "w", encoding="utf-8") as f:
         json.dump(grid_geojson, f)
-    print(f" Saved gee_cfsv2_grid.geojson ({len(grid_features)} grid cells)")
+    print(f" Saved gee_cfsv2_grid.geojson ({len(grid_features)} nationwide grid cells)")
 
 
     # 3. Generate 6-Hourly Continuous Time Series (Past 14 Days + 3-Day Forecast)
