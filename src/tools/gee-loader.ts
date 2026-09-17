@@ -7,7 +7,7 @@ export class GEELoader {
   private popup: maplibregl.Popup;
   private htmlMarkers: maplibregl.Marker[] = [];
 
-  // In-memory GeoJSON Datasets (loaded lazily on demand)
+  // In-memory GeoJSON Datasets
   private stationsData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
   private gridData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
   private isDataLoaded: boolean = false;
@@ -20,7 +20,7 @@ export class GEELoader {
     ['air-temp', true],
     ['surface-temp', true],
     ['stations', true],
-    // Aliases for compatibility
+    // Aliases
     ['lst', true],
     ['elevation', true],
     ['poi', true],
@@ -28,11 +28,11 @@ export class GEELoader {
   ]);
   // Independent layer opacities
   private layerOpacities: Map<string, number> = new Map([
-    ['air-temp', 0.8],
-    ['surface-temp', 0.8],
-    ['lst', 0.8],
-    ['elevation', 0.8],
-    ['landcover', 0.8]
+    ['air-temp', 0.85],
+    ['surface-temp', 0.85],
+    ['lst', 0.85],
+    ['elevation', 0.85],
+    ['landcover', 0.85]
   ]);
 
   private isEventsBound: boolean = false;
@@ -98,8 +98,9 @@ export class GEELoader {
 
   public getAllMapLayerIds(): string[] {
     return [
-      'gee-cfsv2-air-fill', 'gee-cfsv2-air-outline',
-      'gee-cfsv2-surface-fill', 'gee-cfsv2-surface-outline',
+      'gee-cfsv2-global-raster-layer',
+      'gee-cfsv2-indonesia-raster-layer',
+      'gee-cfsv2-air-fill',
       'gee-cfsv2-stations-circles',
       // Legacy compatibility IDs
       'gee-lst-fill', 'gee-lst-outline',
@@ -152,18 +153,18 @@ export class GEELoader {
     this.layerOpacities.set(layerId, opacity);
     if (!this.map) return;
 
-    if (this.map.getLayer('gee-cfsv2-air-fill')) {
-      this.map.setPaintProperty('gee-cfsv2-air-fill', 'fill-opacity', opacity);
+    if (this.map.getLayer('gee-cfsv2-global-raster-layer')) {
+      this.map.setPaintProperty('gee-cfsv2-global-raster-layer', 'raster-opacity', opacity);
     }
-    if (this.map.getLayer('gee-cfsv2-surface-fill')) {
-      this.map.setPaintProperty('gee-cfsv2-surface-fill', 'fill-opacity', opacity);
+    if (this.map.getLayer('gee-cfsv2-indonesia-raster-layer')) {
+      this.map.setPaintProperty('gee-cfsv2-indonesia-raster-layer', 'raster-opacity', opacity);
     }
     this.notifyLayersChange();
   }
 
   public getLayerOpacity(layerId: string): number {
     const key = this.normalizeLayerId(layerId);
-    return this.layerOpacities.get(key) ?? this.layerOpacities.get(layerId) ?? 0.8;
+    return this.layerOpacities.get(key) ?? this.layerOpacities.get(layerId) ?? 0.85;
   }
 
   public setOpacity(opacity: number) {
@@ -171,7 +172,7 @@ export class GEELoader {
   }
 
   public getOpacity(): number {
-    return this.layerOpacities.get('air-temp') ?? 0.8;
+    return this.layerOpacities.get('air-temp') ?? 0.85;
   }
 
   public clearAllLayers() {
@@ -210,144 +211,101 @@ export class GEELoader {
       return;
     }
 
-    const isAirActive = this.isLayerActive('air-temp') || this.isLayerActive('lst');
-    const isSurfActive = this.isLayerActive('surface-temp') || this.isLayerActive('elevation');
+    const isAirActive = this.isLayerActive('air-temp') || this.isLayerActive('lst') || this.isLayerActive('surface-temp');
     const isStationsActive = this.isLayerActive('stations') || this.isLayerActive('poi');
 
-    const isAirVis = isAirActive && this.isLayerVisible('air-temp');
-    const isSurfVis = isSurfActive && this.isLayerVisible('surface-temp');
-    const isStationsVis = isStationsActive && this.isLayerVisible('stations');
+    const isAirVis = isAirActive && (this.isLayerVisible('air-temp') || this.isLayerVisible('lst'));
+    const isStationsVis = isStationsActive && (this.isLayerVisible('stations') || this.isLayerVisible('poi'));
 
-    // --- 1. NOAA CFSV2 2M AIR TEMPERATURE GRID ---
+    // --- 1. SEAMLESS GLOBAL & REGIONAL GEE RASTER LAYERS ---
     try {
-      if (isAirActive) {
-        const gridSrc = this.map.getSource('gee-cfsv2-grid-source') as maplibregl.GeoJSONSource;
-        if (!gridSrc) {
-          this.map.addSource('gee-cfsv2-grid-source', {
-            type: 'geojson',
-            data: this.gridData
-          });
-        } else if (typeof gridSrc.setData === 'function') {
-          gridSrc.setData(this.gridData);
-        }
+      // Global GEE Thermal Raster
+      if (!this.map.getSource('gee-cfsv2-global-raster-source')) {
+        this.map.addSource('gee-cfsv2-global-raster-source', {
+          type: 'image',
+          url: '/data/gee_cfsv2_global_raster.png',
+          coordinates: [
+            [-180.0, 85.0],
+            [180.0, 85.0],
+            [180.0, -85.0],
+            [-180.0, -85.0]
+          ]
+        });
+      }
 
-        if (!this.map.getLayer('gee-cfsv2-air-fill')) {
-          this.map.addLayer({
-            id: 'gee-cfsv2-air-fill',
-            type: 'fill',
-            source: 'gee-cfsv2-grid-source',
-            layout: { visibility: isAirVis ? 'visible' : 'none' },
-            paint: {
-              'fill-color': [
-                'interpolate',
-                ['linear'],
-                ['coalesce', ['to-number', ['get', 'temp_air_c']], 26],
-                18, '#3b82f6', // 18°C Cool (Highland / Night)
-                22, '#06b6d4', // 22°C Mild
-                26, '#10b981', // 26°C Pleasant
-                29, '#f59e0b', // 29°C Warm
-                32, '#ea580c', // 32°C Hot
-                35, '#dc2626', // 35°C Extreme Heat
-                38, '#7f1d1d'  // 38°C+ Peak Heat
-              ],
-              'fill-opacity': this.getLayerOpacity('air-temp')
-            }
-          });
-        } else {
-          this.map.setLayoutProperty('gee-cfsv2-air-fill', 'visibility', isAirVis ? 'visible' : 'none');
-        }
-
-        if (!this.map.getLayer('gee-cfsv2-air-outline')) {
-          this.map.addLayer({
-            id: 'gee-cfsv2-air-outline',
-            type: 'line',
-            source: 'gee-cfsv2-grid-source',
-            layout: { visibility: isAirVis ? 'visible' : 'none' },
-            paint: {
-              'line-color': '#ffffff',
-              'line-width': 0.7,
-              'line-opacity': 0.6
-            }
-          });
-        } else {
-          this.map.setLayoutProperty('gee-cfsv2-air-outline', 'visibility', isAirVis ? 'visible' : 'none');
-        }
+      if (!this.map.getLayer('gee-cfsv2-global-raster-layer')) {
+        this.map.addLayer({
+          id: 'gee-cfsv2-global-raster-layer',
+          type: 'raster',
+          source: 'gee-cfsv2-global-raster-source',
+          layout: { visibility: isAirVis ? 'visible' : 'none' },
+          paint: {
+            'raster-opacity': this.getLayerOpacity('air-temp'),
+            'raster-resampling': 'linear'
+          }
+        });
       } else {
-        if (this.map.getLayer('gee-cfsv2-air-fill')) {
-          this.map.setLayoutProperty('gee-cfsv2-air-fill', 'visibility', 'none');
-        }
-        if (this.map.getLayer('gee-cfsv2-air-outline')) {
-          this.map.setLayoutProperty('gee-cfsv2-air-outline', 'visibility', 'none');
-        }
+        this.map.setLayoutProperty('gee-cfsv2-global-raster-layer', 'visibility', isAirVis ? 'visible' : 'none');
+      }
+
+      // High-Res Regional Southeast Asia / Indonesia GEE Raster
+      if (!this.map.getSource('gee-cfsv2-indonesia-raster-source')) {
+        this.map.addSource('gee-cfsv2-indonesia-raster-source', {
+          type: 'image',
+          url: '/data/gee_cfsv2_indonesia_raster.png',
+          coordinates: [
+            [90.0, 12.0],
+            [145.0, 12.0],
+            [145.0, -15.0],
+            [90.0, -15.0]
+          ]
+        });
+      }
+
+      if (!this.map.getLayer('gee-cfsv2-indonesia-raster-layer')) {
+        this.map.addLayer({
+          id: 'gee-cfsv2-indonesia-raster-layer',
+          type: 'raster',
+          source: 'gee-cfsv2-indonesia-raster-source',
+          layout: { visibility: isAirVis ? 'visible' : 'none' },
+          paint: {
+            'raster-opacity': this.getLayerOpacity('air-temp'),
+            'raster-resampling': 'linear'
+          }
+        });
+      } else {
+        this.map.setLayoutProperty('gee-cfsv2-indonesia-raster-layer', 'visibility', isAirVis ? 'visible' : 'none');
+      }
+
+      // Invisible Vector Grid for Instant Point Clicks
+      const gridSrc = this.map.getSource('gee-cfsv2-grid-source') as maplibregl.GeoJSONSource;
+      if (!gridSrc) {
+        this.map.addSource('gee-cfsv2-grid-source', {
+          type: 'geojson',
+          data: this.gridData
+        });
+      } else if (typeof gridSrc.setData === 'function') {
+        gridSrc.setData(this.gridData);
+      }
+
+      if (!this.map.getLayer('gee-cfsv2-air-fill')) {
+        this.map.addLayer({
+          id: 'gee-cfsv2-air-fill',
+          type: 'fill',
+          source: 'gee-cfsv2-grid-source',
+          layout: { visibility: isAirVis ? 'visible' : 'none' },
+          paint: {
+            'fill-opacity': 0.001 // Clickable but seamless
+          }
+        });
+      } else {
+        this.map.setLayoutProperty('gee-cfsv2-air-fill', 'visibility', isAirVis ? 'visible' : 'none');
       }
     } catch (e) {
-      logger.warn('Notice adding CFSV2 Air Temp layer:', e);
+      logger.warn('Notice adding GEE CFSV2 Raster layer:', e);
     }
 
-    // --- 2. NOAA CFSV2 GROUND SURFACE TEMPERATURE GRID ---
-    try {
-      if (isSurfActive) {
-        const gridSrc = this.map.getSource('gee-cfsv2-grid-source') as maplibregl.GeoJSONSource;
-        if (!gridSrc) {
-          this.map.addSource('gee-cfsv2-grid-source', {
-            type: 'geojson',
-            data: this.gridData
-          });
-        }
-
-        if (!this.map.getLayer('gee-cfsv2-surface-fill')) {
-          this.map.addLayer({
-            id: 'gee-cfsv2-surface-fill',
-            type: 'fill',
-            source: 'gee-cfsv2-grid-source',
-            layout: { visibility: isSurfVis ? 'visible' : 'none' },
-            paint: {
-              'fill-color': [
-                'interpolate',
-                ['linear'],
-                ['coalesce', ['to-number', ['get', 'temp_surface_c']], 28],
-                18, '#0284c7',
-                24, '#10b981',
-                28, '#eab308',
-                32, '#f97316',
-                36, '#ef4444',
-                42, '#991b1b'
-              ],
-              'fill-opacity': this.getLayerOpacity('surface-temp')
-            }
-          });
-        } else {
-          this.map.setLayoutProperty('gee-cfsv2-surface-fill', 'visibility', isSurfVis ? 'visible' : 'none');
-        }
-
-        if (!this.map.getLayer('gee-cfsv2-surface-outline')) {
-          this.map.addLayer({
-            id: 'gee-cfsv2-surface-outline',
-            type: 'line',
-            source: 'gee-cfsv2-grid-source',
-            layout: { visibility: isSurfVis ? 'visible' : 'none' },
-            paint: {
-              'line-color': '#f87171',
-              'line-width': 0.8,
-              'line-opacity': 0.6
-            }
-          });
-        } else {
-          this.map.setLayoutProperty('gee-cfsv2-surface-outline', 'visibility', isSurfVis ? 'visible' : 'none');
-        }
-      } else {
-        if (this.map.getLayer('gee-cfsv2-surface-fill')) {
-          this.map.setLayoutProperty('gee-cfsv2-surface-fill', 'visibility', 'none');
-        }
-        if (this.map.getLayer('gee-cfsv2-surface-outline')) {
-          this.map.setLayoutProperty('gee-cfsv2-surface-outline', 'visibility', 'none');
-        }
-      }
-    } catch (e) {
-      logger.warn('Notice adding CFSV2 Surface Temp layer:', e);
-    }
-
-    // --- 3. CFSV2 INDONESIA CLIMATE STATIONS ---
+    // --- 2. CFSV2 INDONESIA CLIMATE STATIONS ---
     try {
       if (isStationsActive) {
         const stationsSrc = this.map.getSource('gee-cfsv2-stations-source') as maplibregl.GeoJSONSource;
@@ -372,12 +330,12 @@ export class GEELoader {
                 'interpolate',
                 ['linear'],
                 ['coalesce', ['to-number', ['get', 'temp_air_c']], 26],
-                20, '#06b6d4',
-                25, '#10b981',
-                29, '#f59e0b',
-                33, '#dc2626'
+                20, '#00ffff',
+                25, '#00ff80',
+                29, '#ffff00',
+                33, '#fe0100'
               ],
-              'circle-stroke-width': 3,
+              'circle-stroke-width': 2.5,
               'circle-stroke-color': '#ffffff'
             }
           });
@@ -451,22 +409,17 @@ export class GEELoader {
   public updateLayerVisibilities() {
     if (!this.map) return;
 
-    const isAirVis = this.isLayerVisible('air-temp') || this.isLayerVisible('lst');
-    const isSurfVis = this.isLayerVisible('surface-temp') || this.isLayerVisible('elevation');
+    const isAirVis = this.isLayerVisible('air-temp') || this.isLayerVisible('lst') || this.isLayerVisible('surface-temp');
     const isStationsVis = this.isLayerVisible('stations') || this.isLayerVisible('poi');
 
+    if (this.map.getLayer('gee-cfsv2-global-raster-layer')) {
+      this.map.setLayoutProperty('gee-cfsv2-global-raster-layer', 'visibility', isAirVis ? 'visible' : 'none');
+    }
+    if (this.map.getLayer('gee-cfsv2-indonesia-raster-layer')) {
+      this.map.setLayoutProperty('gee-cfsv2-indonesia-raster-layer', 'visibility', isAirVis ? 'visible' : 'none');
+    }
     if (this.map.getLayer('gee-cfsv2-air-fill')) {
       this.map.setLayoutProperty('gee-cfsv2-air-fill', 'visibility', isAirVis ? 'visible' : 'none');
-    }
-    if (this.map.getLayer('gee-cfsv2-air-outline')) {
-      this.map.setLayoutProperty('gee-cfsv2-air-outline', 'visibility', isAirVis ? 'visible' : 'none');
-    }
-
-    if (this.map.getLayer('gee-cfsv2-surface-fill')) {
-      this.map.setLayoutProperty('gee-cfsv2-surface-fill', 'visibility', isSurfVis ? 'visible' : 'none');
-    }
-    if (this.map.getLayer('gee-cfsv2-surface-outline')) {
-      this.map.setLayoutProperty('gee-cfsv2-surface-outline', 'visibility', isSurfVis ? 'visible' : 'none');
     }
 
     if (this.map.getLayer('gee-cfsv2-stations-circles')) {
@@ -480,7 +433,7 @@ export class GEELoader {
   }
 
   private bindLayerEvents() {
-    // Click Air Temp grid cell
+    // Click on thermal field for point inspector
     this.map.on('click', 'gee-cfsv2-air-fill', (e) => {
       if (!e.features || e.features.length === 0) return;
       const props = e.features[0].properties;
@@ -488,7 +441,7 @@ export class GEELoader {
         .setLngLat(e.lngLat)
         .setHTML(`
           <div class="gee-popup-card">
-            <h4>🌡️ NOAA CFSV2 2m Air Temp</h4>
+            <h4>🌡️ NOAA CFSV2 2m Air Temperature</h4>
             <table class="gee-popup-table">
               <tr><td><strong>Air Temperature:</strong></td><td><span class="highlight-temp">${props.temp_air_c} °C</span> (${props.temp_air_k} K)</td></tr>
               <tr><td><strong>Ground Surface:</strong></td><td>${props.temp_surface_c} °C</td></tr>
@@ -500,27 +453,7 @@ export class GEELoader {
         .addTo(this.map);
     });
 
-    // Click Surface Temp grid cell
-    this.map.on('click', 'gee-cfsv2-surface-fill', (e) => {
-      if (!e.features || e.features.length === 0) return;
-      const props = e.features[0].properties;
-      this.popup
-        .setLngLat(e.lngLat)
-        .setHTML(`
-          <div class="gee-popup-card">
-            <h4>🌋 NOAA CFSV2 Surface Ground Temp</h4>
-            <table class="gee-popup-table">
-              <tr><td><strong>Surface Skin Temp:</strong></td><td><span class="highlight-temp">${props.temp_surface_c} °C</span> (${props.temp_surface_k} K)</td></tr>
-              <tr><td><strong>2m Air Temp:</strong></td><td>${props.temp_air_c} °C</td></tr>
-              <tr><td><strong>Elevation:</strong></td><td>${props.elevation_m} m</td></tr>
-            </table>
-          </div>
-        `)
-        .addTo(this.map);
-    });
-
-    // Cursor pointer on hover
-    ['gee-cfsv2-air-fill', 'gee-cfsv2-surface-fill', 'gee-cfsv2-stations-circles'].forEach((layerId) => {
+    ['gee-cfsv2-air-fill', 'gee-cfsv2-stations-circles'].forEach((layerId) => {
       this.map.on('mouseenter', layerId, () => (this.map.getCanvas().style.cursor = 'pointer'));
       this.map.on('mouseleave', layerId, () => (this.map.getCanvas().style.cursor = ''));
     });

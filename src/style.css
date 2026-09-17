@@ -1258,7 +1258,7 @@ html, body, #app {
 }
 
 .gee-legend-bar.lst-gradient {
-  background: linear-gradient(90deg, #1e40af 0%, #0284c7 20%, #10b981 40%, #f59e0b 60%, #ea580c 80%, #dc2626 100%);
+  background: linear-gradient(90deg, #000080 0%, #0000d9 5%, #4000ff 10%, #8000ff 15%, #0080ff 25%, #00ffff 35%, #00ff80 45%, #80ff00 55%, #daff00 65%, #ffff00 70%, #ffb000 80%, #ff4100 88%, #fe0100 92%, #a00000 96%, #380000 100%);
 }
 
 .gee-legend-bar.elv-gradient {

@@ -92,12 +92,12 @@ export class DynamicLegendUI {
             </div>
             <div class="gee-legend-bar lst-gradient" style="margin-top: 8px;"></div>
             <div class="gee-legend-labels">
-              <span>18°C (Cool)</span>
-              <span>22°C</span>
-              <span>26°C</span>
-              <span>30°C</span>
-              <span>34°C</span>
-              <span>38°C+ (Extreme)</span>
+              <span>220K (-53°C)</span>
+              <span>245K (-28°C)</span>
+              <span>273K (0°C)</span>
+              <span>290K (+17°C)</span>
+              <span>300K (+27°C)</span>
+              <span>310K (+37°C)</span>
             </div>
           </div>
         `;
@@ -111,17 +111,17 @@ export class DynamicLegendUI {
               <span class="legend-card-icon">🌋</span>
               <div>
                 <div class="dynamic-legend-title">CFSV2 Ground Surface Skin Temperature</div>
-                <div class="dynamic-legend-sub">Ground Skin Thermal Layer (°C)</div>
+                <div class="dynamic-legend-sub">Ground Skin Thermal Layer (Kelvin / °C)</div>
               </div>
             </div>
-            <div class="gee-legend-bar lst-gradient" style="margin-top: 8px; background: linear-gradient(90deg, #0284c7 0%, #10b981 25%, #eab308 50%, #f97316 75%, #991b1b 100%);"></div>
+            <div class="gee-legend-bar lst-gradient" style="margin-top: 8px;"></div>
             <div class="gee-legend-labels">
-              <span>18°C</span>
-              <span>24°C</span>
-              <span>28°C</span>
-              <span>32°C</span>
-              <span>36°C</span>
-              <span>42°C+</span>
+              <span>220K</span>
+              <span>250K</span>
+              <span>275K</span>
+              <span>295K</span>
+              <span>305K</span>
+              <span>315K+</span>
             </div>
           </div>
         `;
