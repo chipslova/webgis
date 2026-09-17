@@ -75,6 +75,10 @@ export class GEELoader {
     return this.currentStatus;
   }
 
+  public getLiveTileUrlTemplate(): string | null {
+    return this.liveTileUrlTemplate;
+  }
+
   public getParams(): GEEQueryParams {
     return { ...this.currentParams };
   }
