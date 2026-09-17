@@ -83,6 +83,11 @@ export class GEELoader {
     return { ...this.currentParams };
   }
 
+  public setParams(params: Partial<GEEQueryParams>) {
+    this.currentParams = { ...this.currentParams, ...params };
+    this.renderAllLayers();
+  }
+
   public onStatusChange(callback: (status: GEEStatus, metadata?: any) => void) {
     this.onStatusChangeCallbacks.push(callback);
   }
@@ -402,7 +407,7 @@ export class GEELoader {
     try {
       const selectedDate = this.currentParams.start || '2024-08-01';
       const sat = this.currentParams.satellite === 'aqua' ? 'Aqua' : 'Terra';
-      const isNight = isNightActive && !isDayActive;
+      const isNight = this.currentParams.mode === 'night' || (isNightActive && !isDayActive);
       const wmsLayerName = isNight
         ? `MODIS_${sat}_L3_Land_Surface_Temp_8Day_Night`
         : `MODIS_${sat}_L3_Land_Surface_Temp_8Day_Day`;
@@ -414,17 +419,23 @@ export class GEELoader {
 
       const isVisible = (isDayVis || isNightVis) && (isDayActive || isNightActive);
 
-      const existingSource = this.map.getSource(rasterSourceId) as maplibregl.RasterTileSource;
-      if (!existingSource) {
+      const existingSource = this.map.getSource(rasterSourceId) as any;
+      if (existingSource) {
+        if (typeof existingSource.setTiles === 'function') {
+          existingSource.setTiles([wmsUrl]);
+        }
+        if (this.map.getLayer(rasterLayerId)) {
+          this.map.setLayoutProperty(rasterLayerId, 'visibility', isVisible ? 'visible' : 'none');
+          this.map.setPaintProperty(rasterLayerId, 'raster-opacity', this.getLayerOpacity(isNight ? 'lst-night' : 'lst-day'));
+        }
+      } else {
         this.map.addSource(rasterSourceId, {
           type: 'raster',
           tiles: [wmsUrl],
           tileSize: 256,
           maxzoom: 9
         });
-      }
 
-      if (!this.map.getLayer(rasterLayerId)) {
         const beforeLayerId = this.map.getLayer('gee-modis-stations-circles') ? 'gee-modis-stations-circles' : undefined;
         this.map.addLayer({
           id: rasterLayerId,
@@ -432,13 +443,11 @@ export class GEELoader {
           source: rasterSourceId,
           layout: { visibility: isVisible ? 'visible' : 'none' },
           paint: {
-            'raster-opacity': this.getLayerOpacity('lst-day'),
+            'raster-opacity': this.getLayerOpacity(isNight ? 'lst-night' : 'lst-day'),
             'raster-resampling': 'linear',
             'raster-fade-duration': 200
           }
         }, beforeLayerId);
-      } else {
-        this.map.setLayoutProperty(rasterLayerId, 'visibility', isVisible ? 'visible' : 'none');
       }
 
       // Invisible polygon layer for click interception

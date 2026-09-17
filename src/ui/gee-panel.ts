@@ -130,8 +130,12 @@ export class GEEPanelUI {
       const mode = (modeSelect?.value || 'day') as 'day' | 'night';
       const [start, end] = (periodSelect?.value || '2024-08-01|2024-08-31').split('|');
 
-      this.geeLoader.computeLiveGEE({ satellite, mode, start, end });
-      this.geeLoader.renderAllLayers();
+      this.geeLoader.setParams({ satellite, mode, start, end });
+      if (mode === 'night') {
+        this.geeLoader.toggleLayer('lst-night', true);
+      } else {
+        this.geeLoader.toggleLayer('lst-day', true);
+      }
     };
 
     if (satSelect) satSelect.addEventListener('change', handleParamChange);
@@ -199,6 +203,14 @@ export class GEEPanelUI {
       const el = document.getElementById(id) as HTMLInputElement;
       if (el) {
         el.addEventListener('change', () => {
+          const modeSelect = document.getElementById('gee-mode-select') as HTMLSelectElement;
+          if (key === 'lst-day' && el.checked) {
+            this.geeLoader.setParams({ mode: 'day' });
+            if (modeSelect) modeSelect.value = 'day';
+          } else if (key === 'lst-night' && el.checked) {
+            this.geeLoader.setParams({ mode: 'night' });
+            if (modeSelect) modeSelect.value = 'night';
+          }
           this.geeLoader.toggleLayer(key, el.checked);
         });
       }
