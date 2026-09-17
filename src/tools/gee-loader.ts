@@ -145,9 +145,8 @@ export class GEELoader {
 
   public getAllMapLayerIds(): string[] {
     return [
+      'gee-modis-wms-raster-layer',
       'gee-modis-live-raster-layer',
-      'gee-modis-lst-day-heatmap',
-      'gee-modis-lst-night-heatmap',
       'gee-modis-lst-day-fill',
       'gee-modis-lst-night-fill',
       'gee-modis-stations-circles',
@@ -291,14 +290,11 @@ export class GEELoader {
     this.layerOpacities.set(layerId, opacity);
     if (!this.map) return;
 
+    if (this.map.getLayer('gee-modis-wms-raster-layer')) {
+      this.map.setPaintProperty('gee-modis-wms-raster-layer', 'raster-opacity', opacity);
+    }
     if (this.map.getLayer('gee-modis-live-raster-layer')) {
       this.map.setPaintProperty('gee-modis-live-raster-layer', 'raster-opacity', opacity);
-    }
-    if (this.map.getLayer('gee-modis-lst-day-heatmap')) {
-      this.map.setPaintProperty('gee-modis-lst-day-heatmap', 'heatmap-opacity', opacity);
-    }
-    if (this.map.getLayer('gee-modis-lst-night-heatmap')) {
-      this.map.setPaintProperty('gee-modis-lst-night-heatmap', 'heatmap-opacity', opacity);
     }
     if (this.map.getLayer('gee-modis-lst-day-fill')) {
       this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-opacity', 0);
@@ -402,62 +398,47 @@ export class GEELoader {
       gridSrc.setData(this.gridData);
     }
 
-    // --- 1. CONTINUOUS SMOOTH NASA MODIS DAYTIME LST HEATMAP ---
+    // --- 1. OFFICIAL NASA GIBS OGC WMS RASTER LAYER (STANDARD WEBGIS) ---
     try {
-      if (!this.map.getLayer('gee-modis-lst-day-heatmap')) {
-        this.map.addLayer({
-          id: 'gee-modis-lst-day-heatmap',
-          type: 'heatmap',
-          source: 'gee-modis-points-source',
-          layout: { visibility: isDayVis ? 'visible' : 'none' },
-          paint: {
-            'heatmap-weight': [
-              'interpolate',
-              ['linear'],
-              ['coalesce', ['to-number', ['get', 'lst_day_c']], 30],
-              5, 0.15,
-              18, 0.4,
-              26, 0.65,
-              34, 0.85,
-              42, 1.0
-            ],
-            'heatmap-intensity': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              3, 1.4,
-              6, 2.2,
-              9, 3.2,
-              12, 4.0
-            ],
-            'heatmap-color': [
-              'interpolate',
-              ['linear'],
-              ['heatmap-density'],
-              0.0, 'rgba(4, 2, 116, 0)',
-              0.12, '#0502ce', // Deep Blue (<10°C High Mountain Peak)
-              0.30, '#30c8e2', // Cyan (15-20°C Mountain / Highland)
-              0.52, '#22c55e', // Fresh Green (22-26°C Forest Canopy)
-              0.70, '#fff705', // Yellow (28-31°C Lowland Agricultural)
-              0.84, '#ff8b13', // Orange (32-35°C Urban Plain)
-              0.94, '#ef4444', // Red (36-39°C Urban Core)
-              1.0, '#7f1d1d'   // Dark Crimson (40°C+ Thermal Hotspot / UHI)
-            ],
-            'heatmap-radius': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              3, 26,
-              5, 42,
-              7, 65,
-              9, 95,
-              12, 140
-            ],
-            'heatmap-opacity': this.getLayerOpacity('lst-day')
-          }
+      const selectedDate = this.currentParams.start || '2024-08-01';
+      const sat = this.currentParams.satellite === 'aqua' ? 'Aqua' : 'Terra';
+      const isNight = isNightActive && !isDayActive;
+      const wmsLayerName = isNight
+        ? `MODIS_${sat}_L3_Land_Surface_Temp_8Day_Night`
+        : `MODIS_${sat}_L3_Land_Surface_Temp_8Day_Day`;
+
+      const wmsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=${wmsLayerName}&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${selectedDate}&BBOX={bbox-epsg-3857}`;
+
+      const rasterSourceId = 'gee-modis-wms-raster-source';
+      const rasterLayerId = 'gee-modis-wms-raster-layer';
+
+      const isVisible = (isDayVis || isNightVis) && (isDayActive || isNightActive);
+
+      const existingSource = this.map.getSource(rasterSourceId) as maplibregl.RasterTileSource;
+      if (!existingSource) {
+        this.map.addSource(rasterSourceId, {
+          type: 'raster',
+          tiles: [wmsUrl],
+          tileSize: 256,
+          maxzoom: 9
         });
+      }
+
+      if (!this.map.getLayer(rasterLayerId)) {
+        const beforeLayerId = this.map.getLayer('gee-modis-stations-circles') ? 'gee-modis-stations-circles' : undefined;
+        this.map.addLayer({
+          id: rasterLayerId,
+          type: 'raster',
+          source: rasterSourceId,
+          layout: { visibility: isVisible ? 'visible' : 'none' },
+          paint: {
+            'raster-opacity': this.getLayerOpacity('lst-day'),
+            'raster-resampling': 'linear',
+            'raster-fade-duration': 200
+          }
+        }, beforeLayerId);
       } else {
-        this.map.setLayoutProperty('gee-modis-lst-day-heatmap', 'visibility', isDayVis ? 'visible' : 'none');
+        this.map.setLayoutProperty(rasterLayerId, 'visibility', isVisible ? 'visible' : 'none');
       }
 
       // Invisible polygon layer for click interception
@@ -475,67 +456,6 @@ export class GEELoader {
       } else {
         this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', isDayVis ? 'visible' : 'none');
       }
-    } catch (e) {
-      logger.warn('Notice adding MODIS Daytime LST heatmap layer:', e);
-    }
-
-    // --- 2. CONTINUOUS SMOOTH NASA MODIS NIGHTTIME LST HEATMAP ---
-    try {
-      if (!this.map.getLayer('gee-modis-lst-night-heatmap')) {
-        this.map.addLayer({
-          id: 'gee-modis-lst-night-heatmap',
-          type: 'heatmap',
-          source: 'gee-modis-points-source',
-          layout: { visibility: isNightVis ? 'visible' : 'none' },
-          paint: {
-            'heatmap-weight': [
-              'interpolate',
-              ['linear'],
-              ['coalesce', ['to-number', ['get', 'lst_night_c']], 22],
-              -6, 0.1,
-              8, 0.35,
-              16, 0.6,
-              22, 0.8,
-              28, 1.0
-            ],
-            'heatmap-intensity': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              3, 1.4,
-              6, 2.2,
-              9, 3.2,
-              12, 4.0
-            ],
-            'heatmap-color': [
-              'interpolate',
-              ['linear'],
-              ['heatmap-density'],
-              0.0, 'rgba(0, 0, 64, 0)',
-              0.15, '#000080', // Freezing Alpine
-              0.35, '#0080ff', // Mountain Cold Pool
-              0.55, '#00ffff', // Highland Night (Bandung ~14°C)
-              0.72, '#00ff80', // Forest Night (~19°C)
-              0.85, '#ffff00', // Rural Night (~22°C)
-              0.95, '#ff7400', // Urban Night (~25°C)
-              1.0, '#fe0100'   // Warm Urban Night (~28°C)
-            ],
-            'heatmap-radius': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              3, 26,
-              5, 42,
-              7, 65,
-              9, 95,
-              12, 140
-            ],
-            'heatmap-opacity': this.getLayerOpacity('lst-night')
-          }
-        });
-      } else {
-        this.map.setLayoutProperty('gee-modis-lst-night-heatmap', 'visibility', isNightVis ? 'visible' : 'none');
-      }
 
       if (!this.map.getLayer('gee-modis-lst-night-fill')) {
         this.map.addLayer({
@@ -552,7 +472,7 @@ export class GEELoader {
         this.map.setLayoutProperty('gee-modis-lst-night-fill', 'visibility', isNightVis ? 'visible' : 'none');
       }
     } catch (e) {
-      logger.warn('Notice adding MODIS Nighttime LST heatmap layer:', e);
+      logger.warn('Notice adding standard NASA MODIS LST WMS raster layer:', e);
     }
 
     // --- 3. MODIS LST MONITORING STATIONS (18 NODES) ---
@@ -663,12 +583,10 @@ export class GEELoader {
     const isDayVis = this.isLayerVisible('lst-day') || this.isLayerVisible('air-temp') || this.isLayerVisible('lst');
     const isNightVis = this.isLayerVisible('lst-night') || this.isLayerVisible('surface-temp') || this.isLayerVisible('elevation');
     const isStationsVis = this.isLayerVisible('stations') || this.isLayerVisible('poi');
+    const isRasterVis = isDayVis || isNightVis;
 
-    if (this.map.getLayer('gee-modis-lst-day-heatmap')) {
-      this.map.setLayoutProperty('gee-modis-lst-day-heatmap', 'visibility', isDayVis ? 'visible' : 'none');
-    }
-    if (this.map.getLayer('gee-modis-lst-night-heatmap')) {
-      this.map.setLayoutProperty('gee-modis-lst-night-heatmap', 'visibility', isNightVis ? 'visible' : 'none');
+    if (this.map.getLayer('gee-modis-wms-raster-layer')) {
+      this.map.setLayoutProperty('gee-modis-wms-raster-layer', 'visibility', isRasterVis ? 'visible' : 'none');
     }
     if (this.map.getLayer('gee-modis-lst-day-fill')) {
       this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', isDayVis ? 'visible' : 'none');

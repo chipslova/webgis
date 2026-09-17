@@ -121,36 +121,46 @@ export class GEEPanelUI {
 
   private bindGEEComputeEvents() {
     const btn = document.getElementById('btn-gee-compute');
-    if (!btn) return;
+    const satSelect = document.getElementById('gee-satellite-select') as HTMLSelectElement;
+    const periodSelect = document.getElementById('gee-period-select') as HTMLSelectElement;
+    const modeSelect = document.getElementById('gee-mode-select') as HTMLSelectElement;
 
-    btn.addEventListener('click', async () => {
-      const satSelect = document.getElementById('gee-satellite-select') as HTMLSelectElement;
-      const periodSelect = document.getElementById('gee-period-select') as HTMLSelectElement;
-      const modeSelect = document.getElementById('gee-mode-select') as HTMLSelectElement;
-
+    const handleParamChange = () => {
       const satellite = (satSelect?.value || 'combined') as 'terra' | 'aqua' | 'combined';
       const mode = (modeSelect?.value || 'day') as 'day' | 'night';
-      const [start, end] = (periodSelect?.value || '2025-08-01|2025-08-31').split('|');
+      const [start, end] = (periodSelect?.value || '2024-08-01|2024-08-31').split('|');
 
-      btn.setAttribute('disabled', 'true');
-      btn.innerHTML = '<span>⏳</span><span>Menghitung di GEE...</span>';
+      this.geeLoader.computeLiveGEE({ satellite, mode, start, end });
+      this.geeLoader.renderAllLayers();
+    };
 
-      showToast(`Menghitung komposit GEE ${satellite.toUpperCase()} (${start.substring(0, 7)})...`, 'info');
+    if (satSelect) satSelect.addEventListener('change', handleParamChange);
+    if (periodSelect) periodSelect.addEventListener('change', handleParamChange);
+    if (modeSelect) modeSelect.addEventListener('change', handleParamChange);
 
-      try {
-        const result = await this.geeLoader.computeLiveGEE({ satellite, mode, start, end });
-        if (result.status === 'live') {
-          showToast('Komposit GEE Live berhasil dirender ke MapLibre!', 'success');
-        } else {
-          showToast('Data termal 1km terkalibrasi aktif di peta.', 'info');
+    if (btn) {
+      btn.addEventListener('click', async () => {
+        const satellite = (satSelect?.value || 'combined') as 'terra' | 'aqua' | 'combined';
+        const mode = (modeSelect?.value || 'day') as 'day' | 'night';
+        const [start, end] = (periodSelect?.value || '2024-08-01|2024-08-31').split('|');
+
+        btn.setAttribute('disabled', 'true');
+        btn.innerHTML = '<span>⏳</span><span>Memuat Layer WMS NASA...</span>';
+
+        showToast(`Memuat data MODIS ${satellite.toUpperCase()} (${start})...`, 'info');
+
+        try {
+          await this.geeLoader.computeLiveGEE({ satellite, mode, start, end });
+          this.geeLoader.renderAllLayers();
+          showToast('Layer Suhu Permukaan (LST) NASA MODIS aktif!', 'success');
+        } catch (err: any) {
+          showToast('Gagal memuat layer: ' + err.message, 'error');
+        } finally {
+          btn.removeAttribute('disabled');
+          btn.innerHTML = '<span>⚡</span><span>Perbarui Layer WMS NASA</span>';
         }
-      } catch (err: any) {
-        showToast('Gagal memproses query GEE: ' + err.message, 'error');
-      } finally {
-        btn.removeAttribute('disabled');
-        btn.innerHTML = '<span>⚡</span><span>Hitung Komposit 8-Harian GEE</span>';
-      }
-    });
+      });
+    }
   }
 
   private syncCheckboxStates() {
