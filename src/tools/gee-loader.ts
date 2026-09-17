@@ -582,24 +582,24 @@ export class GEELoader {
   }
 
   private bindLayerEvents() {
-    // Click on thermal surface for point inspector
-    this.map.on('click', 'gee-modis-lst-day-fill', async (e) => {
+    const handleLSTClick = (e: any) => {
       if (!e.features || e.features.length === 0) return;
       const props = e.features[0].properties;
       const lngLat = e.lngLat;
+      const isNight = this.isLayerVisible('lst-night') && !this.isLayerVisible('lst-day');
 
       const html = `
         <div class="gee-popup-card">
-          <div class="gee-popup-badge live-badge">● MODIS LST (1 KM)</div>
+          <div class="gee-popup-badge live-badge">● NASA MODIS LST (1 KM)</div>
           <h4>🌡️ Land Surface Temperature</h4>
-          <div class="gee-popup-sub">Location: ${lngLat.lat.toFixed(4)}°, ${lngLat.lng.toFixed(4)}°</div>
+          <div class="gee-popup-sub">Koordinat: ${lngLat.lat.toFixed(4)}°, ${lngLat.lng.toFixed(4)}°</div>
           <table class="gee-popup-table">
-            <tr><td><strong>Daytime LST:</strong></td><td><span class="highlight-temp">${props.lst_day_c ?? props.temp_air_c} °C</span> (${round((props.lst_day_c ?? props.temp_air_c) + 273.15, 2)} K)</td></tr>
-            <tr><td><strong>Nighttime LST:</strong></td><td><strong>${props.lst_night_c ?? props.temp_surface_c} °C</strong></td></tr>
-            <tr><td><strong>24h Mean LST:</strong></td><td>${props.lst_mean_c ?? '28.0'} °C</td></tr>
+            <tr><td><strong>${isNight ? '🌙 Nighttime LST:' : '☀️ Daytime LST:'}</strong></td><td><span class="highlight-temp">${isNight ? props.lst_night_c : props.lst_day_c} °C</span></td></tr>
+            <tr><td><strong>${isNight ? '☀️ Daytime LST:' : '🌙 Nighttime LST:'}</strong></td><td><strong>${isNight ? props.lst_day_c : props.lst_night_c} °C</strong></td></tr>
+            <tr><td><strong>Rata-rata 24 Jam:</strong></td><td>${props.lst_mean_c ?? '28.0'} °C</td></tr>
             <tr><td><strong>Diurnal ΔT (UHI):</strong></td><td><span style="color: #f97316; font-weight: 600;">+${props.delta_uhi_c ?? '9.5'} °C</span></td></tr>
-            <tr><td><strong>Elevation ASL:</strong></td><td>${props.elevation_m} meters</td></tr>
-            <tr><td><strong>Dataset Source:</strong></td><td><code>MODIS/061/MOD11A1+MYD11A1 (1km)</code></td></tr>
+            <tr><td><strong>Elevasi Topografi:</strong></td><td>${props.elevation_m} meter dpl</td></tr>
+            <tr><td><strong>Katalog Satelit:</strong></td><td><code>MODIS/061/MOD11A2+MYD11A2</code></td></tr>
           </table>
         </div>
       `;
@@ -608,7 +608,10 @@ export class GEELoader {
         .setLngLat(lngLat)
         .setHTML(html)
         .addTo(this.map);
-    });
+    };
+
+    this.map.on('click', 'gee-modis-lst-day-fill', handleLSTClick);
+    this.map.on('click', 'gee-modis-lst-night-fill', handleLSTClick);
 
     ['gee-modis-lst-day-fill', 'gee-modis-lst-night-fill', 'gee-modis-stations-circles'].forEach((layerId) => {
       this.map.on('mouseenter', layerId, () => (this.map.getCanvas().style.cursor = 'pointer'));
@@ -644,8 +647,4 @@ export class GEELoader {
   public getMap(): maplibregl.Map {
     return this.map;
   }
-}
-
-function round(val: number, decimals: number): number {
-  return Number(Math.round(Number(val + 'e' + decimals)) + 'e-' + decimals);
 }

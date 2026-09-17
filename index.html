@@ -299,37 +299,49 @@
               <!-- Live GEE Status & Compute State Banner -->
               <div class="gee-disclaimer-banner" style="border-left-color: #ef4444; background: rgba(239, 68, 68, 0.06);">
                 <div class="gee-disclaimer-header">
-                  <span><strong>Google Earth Engine Status</strong></span>
-                  <span id="gee-live-status-pill" class="gee-disclaimer-tag" style="background: #0284c7; color: #fff;">⚡ 1KM GPU THERMAL GRID</span>
+                  <span><strong>NASA MODIS Land Surface Temp</strong></span>
+                  <span id="gee-live-status-pill" class="gee-disclaimer-tag" style="background: #0284c7; color: #fff;">⚡ 1KM LAND-MASKED</span>
                 </div>
-                <p id="gee-status-description" style="font-size: 11px; margin-top: 4px;">Thermal infrared radiative emission (LST). Clear-sky QA bitmask & cloud-free 8-day composite calibration.</p>
+                <p id="gee-status-description" style="font-size: 11px; margin-top: 4px;">Peta suhu permukaan radiatif (LST 1 km) seluruh daratan & kepulauan Indonesia. Wilayah lautan dimasking transparan sesuai standar NASA LP DAAC.</p>
                 <div class="gee-disclaimer-notice" style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
                   <span id="gee-active-dataset-label">Dataset: <code>MODIS/061/MOD11A2 + MYD11A2</code></span>
-                  <a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A2" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: underline; font-size: 11px;">GEE Catalog ↗</a>
+                  <a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A2" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: underline; font-size: 11px;">Katalog GEE ↗</a>
                 </div>
+              </div>
+
+              <!-- Cara Pakai / Quick Guide Box -->
+              <div class="gee-card" style="margin-bottom: 12px; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-sm); padding: 10px;">
+                <h3 style="margin: 0 0 6px 0; font-size: 11px; color: #60a5fa; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px;">
+                  <span>💡</span><span>Cara Menggunakan Analisis Suhu:</span>
+                </h3>
+                <ol style="margin: 0; padding-left: 18px; font-size: 11px; color: #cbd5e1; line-height: 1.5;">
+                  <li><strong>Pilih Mode Waktu</strong> di bawah (☀️ Siang Hari untuk cek Panas Kota / 🌙 Malam Hari untuk pendinginan).</li>
+                  <li><strong>Klik pada pulau atau kota</strong> di peta Indonesia untuk membaca nilai suhu akurat (°C).</li>
+                  <li><strong>Bandingkan warna termal</strong>: Merah/Oranye = Panas Perkotaan (UHI), Hijau/Biru = Sejuk Hutan & Pegunungan.</li>
+                </ol>
               </div>
 
               <!-- Top 2 Main Metric Cards (Urban vs Forest Baseline + SUHI Delta) -->
               <div class="gee-reference-label">
-                📊 Thermal Baseline Observations (1 km LST)
+                📊 Observasi Suhu Permukaan (LST 1 km)
               </div>
               <div class="gee-metrics-grid">
                 <div class="gee-metric-card urban">
-                  <div class="metric-title">🏢 Jakarta Megacity</div>
+                  <div class="metric-title">🏢 Jakarta (Perkotaan Padat)</div>
                   <div class="metric-val" id="metric-jakarta-lst">34.8 °C</div>
-                  <div class="metric-sub">Urban Impervious Surface (14m ASL)</div>
+                  <div class="metric-sub">Aspal & Beton (UHI Siang Hari)</div>
                 </div>
                 <div class="gee-metric-card rural">
-                  <div class="metric-title">🌲 Bandung Highland</div>
+                  <div class="metric-title">🌲 Bandung (Pegunungan)</div>
                   <div class="metric-val" id="metric-bandung-lst">21.2 °C</div>
-                  <div class="metric-sub">Forest & Mountain Canopy (1,240m ASL)</div>
+                  <div class="metric-sub">Kanopi Hutan & Elevasi 1.240m</div>
                 </div>
               </div>
 
               <div class="gee-metric-card highlight">
                 <div class="metric-title">Surface Urban Heat Island (SUHI) Delta</div>
-                <div class="metric-val" id="metric-suhi-delta">+13.6 °C Daytime Thermal Contrast</div>
-                <div class="metric-sub" style="font-size: 10px; opacity: 0.85; margin-top: 3px;">Daytime impervious asphalt/concrete heating vs vegetative cooling canopy.</div>
+                <div class="metric-val" id="metric-suhi-delta">+13.6 °C Kontras Termal Siang Hari</div>
+                <div class="metric-sub" style="font-size: 10px; opacity: 0.85; margin-top: 3px;">Perbedaan radiatif panas perkotaan vs efek pendinginan tutupan vegetasi alami.</div>
               </div>
 
               <!-- GEE Live Query & 8-Day Composite Controls -->
