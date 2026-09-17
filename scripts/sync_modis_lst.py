@@ -1,14 +1,16 @@
 """
 Google Earth Engine (GEE) Real MODIS Land Surface Temperature (LST) Sync Script
-Datasets:
-  - Terra: MODIS/061/MOD11A1 (1km Daily Land Surface Temperature and Emissivity)
-  - Aqua:  MODIS/061/MYD11A1 (1km Daily Land Surface Temperature and Emissivity)
+Datasets (Active 061 Series):
+  - Terra: MODIS/061/MOD11A2 (1km 8-Day Land Surface Temperature & Emissivity Composite)
+  - Aqua:  MODIS/061/MYD11A2 (1km 8-Day Land Surface Temperature & Emissivity Composite)
+  - Daily: MODIS/061/MOD11A1 & MODIS/061/MYD11A1
 Catalog URLs:
-  - https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A1
-  - https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MYD11A1
+  - https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A2
+  - https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MYD11A2
 
-This script processes and exports QA-masked, multi-year composited MODIS LST (Daytime, Nighttime, Mean, UHI)
+This script processes and exports QA-masked, 8-day composited MODIS LST (Daytime, Nighttime, Mean, UHI)
 across the entire Indonesian archipelago.
+Formula: LST_Celsius = DN * 0.02 - 273.15
 """
 
 import json

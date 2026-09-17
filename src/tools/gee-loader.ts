@@ -2,6 +2,15 @@ import * as maplibregl from 'maplibre-gl';
 import { logger } from '../utils/logger';
 import { ErrorHandler } from '../utils/error-handler';
 
+export type GEEStatus = 'live' | 'computing' | 'fallback' | 'error';
+
+export interface GEEQueryParams {
+  satellite: 'terra' | 'aqua' | 'combined';
+  mode: 'day' | 'night';
+  start: string;
+  end: string;
+}
+
 export class GEELoader {
   private map: maplibregl.Map;
   private popup: maplibregl.Popup;
@@ -12,6 +21,17 @@ export class GEELoader {
   private gridData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
   private isDataLoaded: boolean = false;
   private dataLoadPromise: Promise<void> | null = null;
+
+  // Live GEE Serverless state
+  private liveTileUrlTemplate: string | null = null;
+  private currentStatus: GEEStatus = 'fallback';
+  private currentParams: GEEQueryParams = {
+    satellite: 'combined',
+    mode: 'day',
+    start: '2025-08-01',
+    end: '2025-08-31'
+  };
+  private onStatusChangeCallbacks: Array<(status: GEEStatus, metadata?: any) => void> = [];
 
   // Active layers in workspace
   private activeLayers: Set<string> = new Set<string>();
@@ -48,6 +68,25 @@ export class GEELoader {
       closeButton: true,
       closeOnClick: false,
       maxWidth: '380px'
+    });
+  }
+
+  public getStatus(): GEEStatus {
+    return this.currentStatus;
+  }
+
+  public getParams(): GEEQueryParams {
+    return { ...this.currentParams };
+  }
+
+  public onStatusChange(callback: (status: GEEStatus, metadata?: any) => void) {
+    this.onStatusChangeCallbacks.push(callback);
+  }
+
+  private notifyStatusChange(status: GEEStatus, metadata?: any) {
+    this.currentStatus = status;
+    this.onStatusChangeCallbacks.forEach(cb => {
+      try { cb(status, metadata); } catch (e) { logger.warn('[GEELoader] Status callback error:', e); }
     });
   }
 
@@ -102,6 +141,7 @@ export class GEELoader {
 
   public getAllMapLayerIds(): string[] {
     return [
+      'gee-modis-live-raster-layer',
       'gee-modis-lst-day-fill',
       'gee-modis-lst-night-fill',
       'gee-modis-stations-circles',
@@ -114,6 +154,92 @@ export class GEELoader {
       'gee-landcover-fill', 'gee-landcover-outline',
       'gee-poi-circles'
     ];
+  }
+
+  public async computeLiveGEE(params?: Partial<GEEQueryParams>): Promise<any> {
+    if (params) {
+      this.currentParams = { ...this.currentParams, ...params };
+    }
+
+    this.notifyStatusChange('computing');
+
+    try {
+      const qs = new URLSearchParams({
+        satellite: this.currentParams.satellite,
+        mode: this.currentParams.mode,
+        start: this.currentParams.start,
+        end: this.currentParams.end
+      });
+
+      const res = await fetch(`/api/gee-lst-tiles?${qs.toString()}`);
+      if (!res.ok) {
+        throw new Error(`GEE API returned status ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      if (data.status === 'live' && data.tileUrlTemplate) {
+        this.liveTileUrlTemplate = data.tileUrlTemplate;
+        this.applyLiveRasterLayer(data.tileUrlTemplate);
+        this.notifyStatusChange('live', data);
+        return data;
+      } else {
+        this.liveTileUrlTemplate = null;
+        this.removeLiveRasterLayer();
+        this.notifyStatusChange('fallback', data);
+        return data;
+      }
+    } catch (err: any) {
+      logger.warn('[GEELoader] Error calling live GEE endpoint:', err);
+      this.notifyStatusChange('fallback', { message: err.message });
+      return { status: 'fallback', error: err.message };
+    }
+  }
+
+  private applyLiveRasterLayer(tileUrlTemplate: string) {
+    if (!this.map || !this.map.getStyle()) return;
+
+    const sourceId = 'gee-modis-live-raster-source';
+    const layerId = 'gee-modis-live-raster-layer';
+
+    const existingSource = this.map.getSource(sourceId) as maplibregl.RasterTileSource;
+    if (existingSource) {
+      if (this.map.getLayer(layerId)) {
+        this.map.removeLayer(layerId);
+      }
+      this.map.removeSource(sourceId);
+    }
+
+    this.map.addSource(sourceId, {
+      type: 'raster',
+      tiles: [tileUrlTemplate],
+      tileSize: 256
+    });
+
+    const beforeLayerId = this.map.getLayer('gee-modis-stations-circles') ? 'gee-modis-stations-circles' : undefined;
+
+    this.map.addLayer({
+      id: layerId,
+      type: 'raster',
+      source: sourceId,
+      paint: {
+        'raster-opacity': this.getOpacity(),
+        'raster-fade-duration': 300
+      }
+    }, beforeLayerId);
+  }
+
+  private removeLiveRasterLayer() {
+    if (!this.map || !this.map.getStyle()) return;
+    const layerId = 'gee-modis-live-raster-layer';
+    const sourceId = 'gee-modis-live-raster-source';
+
+    if (this.map.getLayer(layerId)) {
+      this.map.removeLayer(layerId);
+    }
+    if (this.map.getSource(sourceId)) {
+      this.map.removeSource(sourceId);
+    }
   }
 
   public isLayerActive(layerId: string): boolean {
@@ -159,6 +285,9 @@ export class GEELoader {
     this.layerOpacities.set(layerId, opacity);
     if (!this.map) return;
 
+    if (this.map.getLayer('gee-modis-live-raster-layer')) {
+      this.map.setPaintProperty('gee-modis-live-raster-layer', 'raster-opacity', opacity);
+    }
     if (this.map.getLayer('gee-modis-lst-day-fill')) {
       this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-opacity', opacity);
     }

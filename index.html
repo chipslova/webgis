@@ -291,21 +291,88 @@
               <div class="panel-header">
                 <div class="piksel-panel-badge-row">
                   <h2>MODIS Land Surface Temp</h2>
-                  <span class="piksel-national-badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3);" title="NASA LP DAAC / USGS MODIS Terra + Aqua 1km LST">MOD11A1 + MYD11A1</span>
+                  <span class="piksel-national-badge" id="gee-catalog-badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3);" title="NASA LP DAAC MODIS Terra + Aqua 8-Day LST Composite">MOD11A2 + MYD11A2.061</span>
                 </div>
-                <p>NASA LP DAAC · MODIS Terra & Aqua (1 km Daily & Composite Land Surface Temperature across Indonesia 2000–present).</p>
+                <p>NASA LP DAAC · MODIS Terra & Aqua (1 km 8-Day Composite Land Surface Temperature across Indonesia 2000–present).</p>
               </div>
 
-              <!-- Live GEE Status Banner -->
+              <!-- Live GEE Status & Compute State Banner -->
               <div class="gee-disclaimer-banner" style="border-left-color: #ef4444; background: rgba(239, 68, 68, 0.06);">
                 <div class="gee-disclaimer-header">
-                  <span><strong>MODIS Terra + Aqua LST (1 km)</strong></span>
-                  <span class="gee-disclaimer-tag" style="background: #15803d; color: #fff;">● NASA QA-VALIDATED</span>
+                  <span><strong>Google Earth Engine Status</strong></span>
+                  <span id="gee-live-status-pill" class="gee-disclaimer-tag" style="background: #0284c7; color: #fff;">⚡ 1KM GPU THERMAL GRID</span>
                 </div>
-                <p>Authentic thermal infrared radiative emission from land surface (LST). Corrected with clear-sky QA bitmask and calibrated via Earth Engine.</p>
-                <div class="gee-disclaimer-notice" style="display: flex; justify-content: space-between; align-items: center;">
-                  <span>Product: <code>MODIS/061/MOD11A1 & MYD11A1</code></span>
-                  <a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A1" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: underline; font-size: 11px;">GEE Catalog ↗</a>
+                <p id="gee-status-description" style="font-size: 11px; margin-top: 4px;">Thermal infrared radiative emission (LST). Clear-sky QA bitmask & cloud-free 8-day composite calibration.</p>
+                <div class="gee-disclaimer-notice" style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+                  <span id="gee-active-dataset-label">Dataset: <code>MODIS/061/MOD11A2 + MYD11A2</code></span>
+                  <a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A2" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: underline; font-size: 11px;">GEE Catalog ↗</a>
+                </div>
+              </div>
+
+              <!-- Top 2 Main Metric Cards (Urban vs Forest Baseline + SUHI Delta) -->
+              <div class="gee-reference-label">
+                📊 Thermal Baseline Observations (1 km LST)
+              </div>
+              <div class="gee-metrics-grid">
+                <div class="gee-metric-card urban">
+                  <div class="metric-title">🏢 Jakarta Megacity</div>
+                  <div class="metric-val" id="metric-jakarta-lst">34.8 °C</div>
+                  <div class="metric-sub">Urban Impervious Surface (14m ASL)</div>
+                </div>
+                <div class="gee-metric-card rural">
+                  <div class="metric-title">🌲 Bandung Highland</div>
+                  <div class="metric-val" id="metric-bandung-lst">21.2 °C</div>
+                  <div class="metric-sub">Forest & Mountain Canopy (1,240m ASL)</div>
+                </div>
+              </div>
+
+              <div class="gee-metric-card highlight">
+                <div class="metric-title">Surface Urban Heat Island (SUHI) Delta</div>
+                <div class="metric-val" id="metric-suhi-delta">+13.6 °C Daytime Thermal Contrast</div>
+                <div class="metric-sub" style="font-size: 10px; opacity: 0.85; margin-top: 3px;">Daytime impervious asphalt/concrete heating vs vegetative cooling canopy.</div>
+              </div>
+
+              <!-- GEE Live Query & 8-Day Composite Controls -->
+              <div class="gee-card" style="margin-bottom: 12px; background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <h3 style="margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">🛰️ GEE On-Demand Composite</h3>
+                  <span class="piksel-hint" style="font-size: 10px;">8-Day Revisit</span>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <div>
+                    <label for="gee-satellite-select" style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Satelit & Produk GEE</label>
+                    <select id="gee-satellite-select" class="form-select" style="width: 100%; font-size: 11px; padding: 4px 8px; background: #0f172a; border: 1px solid var(--border-color); border-radius: 4px; color: #fff;">
+                      <option value="combined" selected>Terra + Aqua 8-Day Composite (MOD11A2/MYD11A2.061)</option>
+                      <option value="terra">Terra Morning (~10:30 AM · MOD11A2.061)</option>
+                      <option value="aqua">Aqua Afternoon (~01:30 PM · MYD11A2.061)</option>
+                    </select>
+                  </div>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <div>
+                      <label for="gee-period-select" style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Periode Pengamatan</label>
+                      <select id="gee-period-select" class="form-select" style="width: 100%; font-size: 11px; padding: 4px 6px; background: #0f172a; border: 1px solid var(--border-color); border-radius: 4px; color: #fff;">
+                        <option value="2025-08-01|2025-08-31" selected>Kemarau / Aug 2025</option>
+                        <option value="2025-04-01|2025-04-30">Pancaroba / Apr 2025</option>
+                        <option value="2025-01-01|2025-01-31">Musim Hujan / Jan 2025</option>
+                        <option value="2024-08-01|2024-08-31">Kemarau / Aug 2024</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label for="gee-mode-select" style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Waktu LST</label>
+                      <select id="gee-mode-select" class="form-select" style="width: 100%; font-size: 11px; padding: 4px 6px; background: #0f172a; border: 1px solid var(--border-color); border-radius: 4px; color: #fff;">
+                        <option value="day" selected>☀️ Daytime LST (Siang)</option>
+                        <option value="night">🌙 Nighttime LST (Malam)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <button id="btn-gee-compute" class="btn btn-primary" style="width: 100%; font-size: 11px; padding: 6px; margin-top: 2px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <span>⚡</span>
+                    <span>Hitung Komposit 8-Harian GEE</span>
+                  </button>
+                  <div id="gee-compute-status" style="font-size: 10px; color: #94a3b8; text-align: center; display: none;"></div>
                 </div>
               </div>
 
@@ -362,7 +429,7 @@
                     </label>
                     <div class="gee-layer-legend-box" id="legend-box-air">
                       <div class="gee-legend-bar lst-gradient" aria-hidden="true"></div>
-                      <div class="gee-legend-labels" aria-hidden="true">
+                      <div class="gee-legend-labels" id="legend-labels-day" aria-hidden="true">
                         <span>10°C (Alpine)</span>
                         <span>20°C (Highland)</span>
                         <span>26°C (Forest)</span>
@@ -381,7 +448,7 @@
                     </label>
                     <div class="gee-layer-legend-box" id="legend-box-surface">
                       <div class="gee-legend-bar lst-gradient" style="background: linear-gradient(90deg, #000040 0%, #0000b0 20%, #0080ff 40%, #00ffff 60%, #00ff80 80%, #ffff00 100%);" aria-hidden="true"></div>
-                      <div class="gee-legend-labels" aria-hidden="true">
+                      <div class="gee-legend-labels" id="legend-labels-night" aria-hidden="true">
                         <span>-5°C (Glacial)</span>
                         <span>5°C (Mountain)</span>
                         <span>14°C (Highland)</span>
@@ -408,36 +475,13 @@
                 </div>
               </div>
 
-              <!-- LST Key Metrics -->
-              <div class="gee-reference-label">
-                📌 Calibrated Observations — MODIS MOD11A1 & MYD11A1
-              </div>
-              <div class="gee-metrics-grid">
-                <div class="gee-metric-card urban">
-                  <div class="metric-title">Jakarta Daytime LST</div>
-                  <div class="metric-val">34.2 °C</div>
-                  <div class="metric-sub">Monas Urban Core (14m ASL)</div>
-                </div>
-                <div class="gee-metric-card rural">
-                  <div class="metric-title">Bandung Highland LST</div>
-                  <div class="metric-val">25.4 °C</div>
-                  <div class="metric-sub">Lembang Station (1,240m ASL)</div>
-                </div>
-              </div>
-
-              <div class="gee-metric-card highlight">
-                <div class="metric-title">Surface Urban Heat Island (SUHI) Delta</div>
-                <div class="metric-val">+8.8 °C Daytime Surface Contrast</div>
-                <div class="metric-sub" style="font-size: 10px; opacity: 0.85; margin-top: 3px;">Daytime impervious surface heating vs vegetated canopy.</div>
-              </div>
-
               <!-- Seasonal & Multi-Year Time Series Canvas Chart -->
               <details class="clean-accordion" style="margin-top: 14px;" open>
                 <summary>
                   <span>📈 Seasonal & Multi-Year LST Progression (2020–2026)</span>
                 </summary>
                 <div class="accordion-body">
-                  <p class="chart-subtitle" style="margin-bottom: 8px;">16-day composited thermal curve: Jakarta vs Bandung Highland (Day & Night)</p>
+                  <p class="chart-subtitle" style="margin-bottom: 8px;">8-day composited thermal curve: Jakarta vs Bandung Highland (Day & Night)</p>
                   <div class="chart-container">
                     <canvas id="gee-chart-canvas" width="300" height="200" role="img" aria-label="MODIS Land Surface Temperature Multi-Year Chart"></canvas>
                   </div>
@@ -449,6 +493,11 @@
                   </div>
                 </div>
               </details>
+
+              <!-- Scientific Disclaimer Note -->
+              <div style="margin-top: 12px; padding: 6px 8px; font-size: 10px; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.06);">
+                🔬 <em>Catatan Ilmiah: LST mengukur temperatur radiatif kulit permukaan tanah/tutupan lahan (1 km skin temperature), bukan temperatur udara 2 meter.</em>
+              </div>
 
               <!-- Download Center -->
               <details class="clean-accordion">
