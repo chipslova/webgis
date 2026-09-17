@@ -1,0 +1,478 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "dataset": "NOAA/CFSV2_FOR6H_HARMONIZED",
+    "title": "NCEP Climate Forecast System Version 2, 6-Hourly Products Harmonized",
+    "gee_url": "https://developers.google.com/earth-engine/datasets/catalog/NOAA_CFSV2_FOR6H_HARMONIZED",
+    "cycle_utc": "2026-09-17T00:00:00Z",
+    "generated_at": "2026-09-17T02:10:00.055816+00:00",
+    "station_count": 15
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          106.8272,
+          -6.1754
+        ]
+      },
+      "properties": {
+        "id": "jkt_monas",
+        "name": "Jakarta (Monas Station)",
+        "province": "DKI Jakarta",
+        "station_type": "Urban Met",
+        "elevation_m": 14,
+        "latitude": -6.1754,
+        "longitude": 106.8272,
+        "timestamp_utc": "2026-09-17T00:00:00Z",
+        "timestamp_local": "2026-09-17 07:00 WIB",
+        "temp_air_c": 28.3,
+        "temp_air_k": 301.45,
+        "temp_surface_c": 28.3,
+        "temp_surface_k": 301.45,
+        "temp_max_6h_c": 32.3,
+        "temp_min_6h_c": 25.3,
+        "humidity_pct": 82,
+        "pressure_hpa": 1011.6,
+        "dataset_source": "NOAA/CFSV2_FOR6H_HARMONIZED",
+        "gee_band": "Temperature_height_above_ground"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          106.6559,
+          -6.1256
+        ]
+      },
+      "properties": {
+        "id": "jkt_cengkareng",
+        "name": "Jakarta (Soekarno-Hatta)",
+        "province": "Banten",
+        "station_type": "Coastal Airport Met",
+        "elevation_m": 10,
+        "latitude": -6.1256,
+        "longitude": 106.6559,
+        "timestamp_utc": "2026-09-17T00:00:00Z",
+        "timestamp_local": "2026-09-17 07:00 WIB",
+        "temp_air_c": 26.6,
+        "temp_air_k": 299.75,
+        "temp_surface_c": 25.6,
+        "temp_surface_k": 298.75,
+        "temp_max_6h_c": 30.6,
+        "temp_min_6h_c": 23.6,
+        "humidity_pct": 85,
+        "pressure_hpa": 1012.0,
+        "dataset_source": "NOAA/CFSV2_FOR6H_HARMONIZED",
+        "gee_band": "Temperature_height_above_ground"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          107.6186,
+          -6.825
+        ]
+      },
+      "properties": {
+        "id": "bdg_geofisika",
+        "name": "Bandung (Lembang / Geofisika)",
+        "province": "Jawa Barat",
+        "station_type": "Highland Mountain Met",
+        "elevation_m": 1240,
+        "latitude": -6.825,
+        "longitude": 107.6186,
+        "timestamp_utc": "2026-09-17T00:00:00Z",
+        "timestamp_local": "2026-09-17 07:00 WIB",
+        "temp_air_c": 18.8,
+        "temp_air_k": 291.95,
+        "temp_surface_c": 19.3,
+        "temp_surface_k": 292.45,
+        "temp_max_6h_c": 22.8,
+        "temp_min_6h_c": 15.8,
+        "humidity_pct": 84,
+        "pressure_hpa": 872.9,
+        "dataset_source": "NOAA/CFSV2_FOR6H_HARMONIZED",
+        "gee_band": "Temperature_height_above_ground"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          112.7876,
+          -7.3797
+        ]
+      },
+      "properties": {
+        "id": "sby_juanda",
+        "name": "Surabaya (Juanda)",
+        "province": "Jawa Timur",
+        "station_type": "Coastal Met",
+        "elevation_m": 3,
+        "latitude": -7.3797,
+        "longitude": 112.7876,
+        "timestamp_utc": "2026-09-17T00:00:00Z",
+        "timestamp_local": "2026-09-17 07:00 WIB",
+        "temp_air_c": 26.8,
+        "temp_air_k": 299.95,
+        "temp_surface_c": 25.7,
+        "temp_surface_k": 298.85,
+        "temp_max_6h_c": 30.8,
+        "temp_min_6h_c": 23.8,
+        "humidity_pct": 83,
+        "pressure_hpa": 1012.9,
+        "dataset_source": "NOAA/CFSV2_FOR6H_HARMONIZED",
+        "gee_band": "Temperature_height_above_ground"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          110.3756,
+          -6.9744
+        ]
+      },
+      "properties": {
+        "id": "smg_ahmad_yani",
+        "name": "Semarang (Ahmad Yani)",
+        "province": "Jawa Tengah",
+        "station_type": "Coastal Met",
+        "elevation_m": 4,
+        "latitude": -6.9744,
+        "longitude": 110.3756,
+        "timestamp_utc": "2026-09-17T00:00:00Z",
+        "timestamp_local": "2026-09-17 07:00 WIB",
+        "temp_air_c": 27.3,
+        "temp_air_k": 300.45,
+        "temp_surface_c": 25.7,
+        "temp_surface_k": 298.85,
+        "temp_max_6h_c": 31.3,
+        "temp_min_6h_c": 24.3,
+        "humidity_pct": 84,
+        "pressure_hpa": 1012.8,
+        "dataset_source": "NOAA/CFSV2_FOR6H_HARMONIZED",
+        "gee_band": "Temperature_height_above_ground"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          110.4319,
+          -7.7881
+        ]
+      },
+      "properties": {
+        "id": "ygy_adisucipto",
+        "name": "Yogyakarta (Adisucipto)",
+        "province": "DI Yogyakarta",
+        "station_type": "Inland Basin Met",
+        "elevation_m": 116,
+        "latitude": -7.7881,
+        "longitude": 110.4319,
+        "timestamp_utc": "2026-09-17T00:00:00Z",
+        "timestamp_local": "2026-09-17 07:00 WIB",
+        "temp_air_c": 26.6,
+        "temp_air_k": 299.75,
+        "temp_surface_c": 25.8,
+        "temp_surface_k": 298.95,
+        "temp_max_6h_c": 30.6,
+        "temp_min_6h_c": 23.6,
+        "humidity_pct": 84,
+        "pressure_hpa": 999.4,
+        "dataset_source": "NOAA/CFSV2_FOR6H_HARMONIZED",
+        "gee_band": "Temperature_height_above_ground"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.1672,
+          -8.7482
+        ]
+      },
+      "properties": {
+        "id": "dps_ngurahrai",
+        "name": "Denpasar Bali (Ngurah Rai)",
+        "province": "Bali",
+        "station_type": "Island Coastal Met",
+        "elevation_m": 4,
+        "latitude": -8.7482,
+        "longitude": 115.1672,
+        "timestamp_utc": "2026-09-17T00:00:00Z",
+        "timestamp_local": "2026-09-17 07:00 WIB",
+        "temp_air_c": 26.7,
+        "temp_air_k": 299.85,
+        "temp_surface_c": 25.7,
+        "temp_surface_k": 298.85,
+        "temp_max_6h_c": 30.7,
+        "temp_min_6h_c": 23.7,
+        "humidity_pct": 84,
+        "pressure_hpa": 1012.8,
+        "dataset_source": "NOAA/CFSV2_FOR6H_HARMONIZED",
+        "gee_band": "Temperature_height_above_ground"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.702,
+          -0.9619
+        ]
+      },
+      "properties": {
+        "id": "ikn_nusantara",
+        "name": "IKN Nusantara (Sepaku Core)",
+        "province": "Kalimantan Timur",
+        "station_type": "Equatorial Forest Basin",
+        "elevation_m": 85,
+        "latitude": -0.9619,
+        "longitude": 116.702,
+        "timestamp_utc": "2026-09-17T00:00:00Z",
+        "timestamp_local": "2026-09-17 07:00 WIB",
+        "temp_air_c": 26.3,
+        "temp_air_k": 299.45,
+        "temp_surface_c": 25.2,
+        "temp_surface_k": 298.35,
+        "temp_max_6h_c": 30.3,
+        "temp_min_6h_c": 23.3,
+        "humidity_pct": 84,
+        "pressure_hpa": 1003.1,
+        "dataset_source": "NOAA/CFSV2_FOR6H_HARMONIZED",
+        "gee_band": "Temperature_height_above_ground"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.8944,
+          -1.2683
+        ]
+      },
+      "properties": {
+        "id": "bpn_sepinggan",
+        "name": "Balikpapan (Sepinggan)",
+        "province": "Kalimantan Timur",
+        "station_type": "Coastal Met",
+        "elevation_m": 5,
+        "latitude": -1.2683,
+        "longitude": 116.8944,
+        "timestamp_utc": "2026-09-17T00:00:00Z",
+        "timestamp_local": "2026-09-17 07:00 WIB",
+        "temp_air_c": 27.1,
+        "temp_air_k": 300.25,
+        "temp_surface_c": 26.5,
+        "temp_surface_k": 299.65,
+        "temp_max_6h_c": 31.1,
+        "temp_min_6h_c": 24.1,
+        "humidity_pct": 83,
+        "pressure_hpa": 1012.6,
+        "dataset_source": "NOAA/CFSV2_FOR6H_HARMONIZED",
+        "gee_band": "Temperature_height_above_ground"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          98.6756,
+          3.5859
+        ]
+      },
+      "properties": {
+        "id": "mdn_kualanamu",
+        "name": "Medan (Kualanamu)",
+        "province": "Sumatera Utara",
+        "station_type": "Lowland Met",
+        "elevation_m": 22,
+        "latitude": 3.5859,
+        "longitude": 98.6756,
+        "timestamp_utc": "2026-09-17T00:00:00Z",
+        "timestamp_local": "2026-09-17 07:00 WIB",
+        "temp_air_c": 26.7,
+        "temp_air_k": 299.85,
+        "temp_surface_c": 26.0,
+        "temp_surface_k": 299.15,
+        "temp_max_6h_c": 30.7,
+        "temp_min_6h_c": 23.7,
+        "humidity_pct": 86,
+        "pressure_hpa": 1010.6,
+        "dataset_source": "NOAA/CFSV2_FOR6H_HARMONIZED",
+        "gee_band": "Temperature_height_above_ground"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.7003,
+          -2.8986
+        ]
+      },
+      "properties": {
+        "id": "plm_smb",
+        "name": "Palembang (S. Mahmud Badaruddin)",
+        "province": "Sumatera Selatan",
+        "station_type": "Lowland Basin Met",
+        "elevation_m": 12,
+        "latitude": -2.8986,
+        "longitude": 104.7003,
+        "timestamp_utc": "2026-09-17T00:00:00Z",
+        "timestamp_local": "2026-09-17 07:00 WIB",
+        "temp_air_c": 26.5,
+        "temp_air_k": 299.65,
+        "temp_surface_c": 26.0,
+        "temp_surface_k": 299.15,
+        "temp_max_6h_c": 30.5,
+        "temp_min_6h_c": 23.5,
+        "humidity_pct": 84,
+        "pressure_hpa": 1011.8,
+        "dataset_source": "NOAA/CFSV2_FOR6H_HARMONIZED",
+        "gee_band": "Temperature_height_above_ground"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          119.554,
+          -5.0617
+        ]
+      },
+      "properties": {
+        "id": "mks_hasanuddin",
+        "name": "Makassar (Sultan Hasanuddin)",
+        "province": "Sulawesi Selatan",
+        "station_type": "Coastal Met",
+        "elevation_m": 14,
+        "latitude": -5.0617,
+        "longitude": 119.554,
+        "timestamp_utc": "2026-09-17T00:00:00Z",
+        "timestamp_local": "2026-09-17 07:00 WIB",
+        "temp_air_c": 26.7,
+        "temp_air_k": 299.85,
+        "temp_surface_c": 25.7,
+        "temp_surface_k": 298.85,
+        "temp_max_6h_c": 30.7,
+        "temp_min_6h_c": 23.7,
+        "humidity_pct": 84,
+        "pressure_hpa": 1011.6,
+        "dataset_source": "NOAA/CFSV2_FOR6H_HARMONIZED",
+        "gee_band": "Temperature_height_above_ground"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.9261,
+          1.5492
+        ]
+      },
+      "properties": {
+        "id": "mnd_samratulangi",
+        "name": "Manado (Sam Ratulangi)",
+        "province": "Sulawesi Utara",
+        "station_type": "Northern Coastal Met",
+        "elevation_m": 80,
+        "latitude": 1.5492,
+        "longitude": 124.9261,
+        "timestamp_utc": "2026-09-17T00:00:00Z",
+        "timestamp_local": "2026-09-17 07:00 WIB",
+        "temp_air_c": 26.5,
+        "temp_air_k": 299.65,
+        "temp_surface_c": 25.9,
+        "temp_surface_k": 299.05,
+        "temp_max_6h_c": 30.5,
+        "temp_min_6h_c": 23.5,
+        "humidity_pct": 85,
+        "pressure_hpa": 1003.7,
+        "dataset_source": "NOAA/CFSV2_FOR6H_HARMONIZED",
+        "gee_band": "Temperature_height_above_ground"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          109.4039,
+          -0.1506
+        ]
+      },
+      "properties": {
+        "id": "ptk_supadio",
+        "name": "Pontianak (Supadio)",
+        "province": "Kalimantan Barat",
+        "station_type": "Equatorial Lowland",
+        "elevation_m": 3,
+        "latitude": -0.1506,
+        "longitude": 109.4039,
+        "timestamp_utc": "2026-09-17T00:00:00Z",
+        "timestamp_local": "2026-09-17 07:00 WIB",
+        "temp_air_c": 27.1,
+        "temp_air_k": 300.25,
+        "temp_surface_c": 26.1,
+        "temp_surface_k": 299.25,
+        "temp_max_6h_c": 31.1,
+        "temp_min_6h_c": 24.1,
+        "humidity_pct": 85,
+        "pressure_hpa": 1012.9,
+        "dataset_source": "NOAA/CFSV2_FOR6H_HARMONIZED",
+        "gee_band": "Temperature_height_above_ground"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          140.5161,
+          -2.5769
+        ]
+      },
+      "properties": {
+        "id": "jpr_sentani",
+        "name": "Jayapura (Sentani)",
+        "province": "Papua",
+        "station_type": "Eastern Met",
+        "elevation_m": 88,
+        "latitude": -2.5769,
+        "longitude": 140.5161,
+        "timestamp_utc": "2026-09-17T00:00:00Z",
+        "timestamp_local": "2026-09-17 07:00 WIB",
+        "temp_air_c": 26.5,
+        "temp_air_k": 299.65,
+        "temp_surface_c": 25.7,
+        "temp_surface_k": 298.85,
+        "temp_max_6h_c": 30.5,
+        "temp_min_6h_c": 23.5,
+        "humidity_pct": 83,
+        "pressure_hpa": 1002.7,
+        "dataset_source": "NOAA/CFSV2_FOR6H_HARMONIZED",
+        "gee_band": "Temperature_height_above_ground"
+      }
+    }
+  ]
+}

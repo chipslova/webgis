@@ -1,0 +1,37 @@
+name: Live GEE CFSV2 Climate Data Sync
+
+on:
+  schedule:
+    # Runs every 6 hours (at 00:00, 06:00, 12:00, 18:00 UTC) matching NOAA CFSV2 6-hourly cycle
+    - cron: '0 0,6,12,18 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  sync-gee-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install numpy earthengine-api
+
+      - name: Run GEE CFSV2 Harmonized Data Sync
+        env:
+          EE_PROJECT: ${{ secrets.EE_PROJECT }}
+          EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
+        run: |
+          python scripts/sync_cfsv2_gee.py
+
+      - name: Commit and push updated GEE datasets
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/data/gee_cfsv2_* public/downloads/gee_cfsv2_*
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore(gee): automated live sync NOAA CFSV2 temperature datasets [skip ci]" && git push)

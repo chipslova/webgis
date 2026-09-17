@@ -8,24 +8,28 @@ export class GEELoader {
   private htmlMarkers: maplibregl.Marker[] = [];
 
   // In-memory GeoJSON Datasets (loaded lazily on demand)
-  private poiData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
-  private lstData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
-  private elvData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
-  private lcData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
+  private stationsData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
+  private gridData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
   private isDataLoaded: boolean = false;
   private dataLoadPromise: Promise<void> | null = null;
 
   // Active layers in workspace
   private activeLayers: Set<string> = new Set<string>();
-  // Visibility states (whether layer is hidden/shown on map)
+  // Visibility states
   private layerVisibilities: Map<string, boolean> = new Map([
-    ['poi', true],
+    ['air-temp', true],
+    ['surface-temp', true],
+    ['stations', true],
+    // Aliases for compatibility
     ['lst', true],
     ['elevation', true],
+    ['poi', true],
     ['landcover', true]
   ]);
   // Independent layer opacities
   private layerOpacities: Map<string, number> = new Map([
+    ['air-temp', 0.8],
+    ['surface-temp', 0.8],
     ['lst', 0.8],
     ['elevation', 0.8],
     ['landcover', 0.8]
@@ -39,8 +43,15 @@ export class GEELoader {
     this.popup = new maplibregl.Popup({
       closeButton: true,
       closeOnClick: false,
-      maxWidth: '340px'
+      maxWidth: '360px'
     });
+  }
+
+  private normalizeLayerId(layerId: string): string {
+    if (layerId === 'lst') return 'air-temp';
+    if (layerId === 'elevation') return 'surface-temp';
+    if (layerId === 'poi') return 'stations';
+    return layerId;
   }
 
   public async ensureDataLoaded(): Promise<void> {
@@ -49,25 +60,19 @@ export class GEELoader {
 
     this.dataLoadPromise = (async () => {
       try {
-        const [poiRes, lstRes, elvRes, lcRes] = await Promise.all([
-          fetch('/data/gee_jakarta_poi.geojson'),
-          fetch('/data/gee_lst_grid.geojson'),
-          fetch('/data/gee_elevation_grid.geojson'),
-          fetch('/data/gee_landcover.geojson')
+        const [stationsRes, gridRes] = await Promise.all([
+          fetch('/data/gee_cfsv2_stations.geojson'),
+          fetch('/data/gee_cfsv2_grid.geojson')
         ]);
 
-        if (poiRes.ok) this.poiData = await poiRes.json();
-        if (lstRes.ok) this.lstData = await lstRes.json();
-        if (elvRes.ok) this.elvData = await elvRes.json();
-        if (lcRes.ok) this.lcData = await lcRes.json();
+        if (stationsRes.ok) this.stationsData = await stationsRes.json();
+        if (gridRes.ok) this.gridData = await gridRes.json();
         this.isDataLoaded = true;
       } catch (e) {
-        // Reset so next call can retry
         this.dataLoadPromise = null;
         this.isDataLoaded = false;
-        ErrorHandler.getInstance().showThrottledError('Failed to load GEE dataset. Please check your internet connection.');
+        ErrorHandler.getInstance().showThrottledError('Failed to load NOAA CFSV2 GEE dataset. Please check your internet connection.');
         logger.warn('[GEELoader] Failed to load GEE dataset:', e);
-        // Notify UI via custom event so panels can show a user-friendly error
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('gee-load-error'));
         }
@@ -93,33 +98,46 @@ export class GEELoader {
 
   public getAllMapLayerIds(): string[] {
     return [
+      'gee-cfsv2-air-fill', 'gee-cfsv2-air-outline',
+      'gee-cfsv2-surface-fill', 'gee-cfsv2-surface-outline',
+      'gee-cfsv2-stations-circles',
+      // Legacy compatibility IDs
+      'gee-lst-fill', 'gee-lst-outline',
       'gee-elevation-fill', 'gee-elevation-outline',
       'gee-landcover-fill', 'gee-landcover-outline',
-      'gee-lst-fill', 'gee-lst-outline',
       'gee-poi-circles'
     ];
   }
 
   public isLayerActive(layerId: string): boolean {
-    return this.activeLayers.has(layerId);
+    const key = this.normalizeLayerId(layerId);
+    return this.activeLayers.has(key) || this.activeLayers.has(layerId);
   }
 
   public isLayerVisible(layerId: string): boolean {
-    return this.activeLayers.has(layerId) && (this.layerVisibilities.get(layerId) ?? true);
+    const key = this.normalizeLayerId(layerId);
+    return (this.activeLayers.has(key) || this.activeLayers.has(layerId)) &&
+      (this.layerVisibilities.get(key) ?? this.layerVisibilities.get(layerId) ?? true);
   }
 
   public setLayerVisible(layerId: string, visible: boolean) {
+    const key = this.normalizeLayerId(layerId);
+    this.layerVisibilities.set(key, visible);
     this.layerVisibilities.set(layerId, visible);
     this.updateLayerVisibilities();
     this.notifyLayersChange();
   }
 
   public async toggleLayer(layerId: string, active: boolean) {
+    const key = this.normalizeLayerId(layerId);
     if (active) {
       await this.ensureDataLoaded();
+      this.activeLayers.add(key);
       this.activeLayers.add(layerId);
+      this.layerVisibilities.set(key, true);
       this.layerVisibilities.set(layerId, true);
     } else {
+      this.activeLayers.delete(key);
       this.activeLayers.delete(layerId);
     }
 
@@ -129,29 +147,31 @@ export class GEELoader {
   }
 
   public setLayerOpacity(layerId: string, opacity: number) {
+    const key = this.normalizeLayerId(layerId);
+    this.layerOpacities.set(key, opacity);
     this.layerOpacities.set(layerId, opacity);
     if (!this.map) return;
 
-    if (layerId === 'elevation' && this.map.getLayer('gee-elevation-fill')) {
-      this.map.setPaintProperty('gee-elevation-fill', 'fill-opacity', opacity);
-    } else if (layerId === 'landcover' && this.map.getLayer('gee-landcover-fill')) {
-      this.map.setPaintProperty('gee-landcover-fill', 'fill-opacity', opacity);
-    } else if (layerId === 'lst' && this.map.getLayer('gee-lst-fill')) {
-      this.map.setPaintProperty('gee-lst-fill', 'fill-opacity', opacity);
+    if (this.map.getLayer('gee-cfsv2-air-fill')) {
+      this.map.setPaintProperty('gee-cfsv2-air-fill', 'fill-opacity', opacity);
+    }
+    if (this.map.getLayer('gee-cfsv2-surface-fill')) {
+      this.map.setPaintProperty('gee-cfsv2-surface-fill', 'fill-opacity', opacity);
     }
     this.notifyLayersChange();
   }
 
   public getLayerOpacity(layerId: string): number {
-    return this.layerOpacities.get(layerId) ?? 0.8;
+    const key = this.normalizeLayerId(layerId);
+    return this.layerOpacities.get(key) ?? this.layerOpacities.get(layerId) ?? 0.8;
   }
 
   public setOpacity(opacity: number) {
-    ['lst', 'elevation', 'landcover'].forEach((id) => this.setLayerOpacity(id, opacity));
+    ['air-temp', 'surface-temp', 'lst', 'elevation', 'landcover'].forEach((id) => this.setLayerOpacity(id, opacity));
   }
 
   public getOpacity(): number {
-    return this.layerOpacities.get('lst') ?? 0.8;
+    return this.layerOpacities.get('air-temp') ?? 0.8;
   }
 
   public clearAllLayers() {
@@ -190,253 +210,187 @@ export class GEELoader {
       return;
     }
 
-    const isElvActive = this.isLayerActive('elevation');
-    const isLcActive = this.isLayerActive('landcover');
-    const isLstActive = this.isLayerActive('lst');
-    const isPoiActive = this.isLayerActive('poi');
+    const isAirActive = this.isLayerActive('air-temp') || this.isLayerActive('lst');
+    const isSurfActive = this.isLayerActive('surface-temp') || this.isLayerActive('elevation');
+    const isStationsActive = this.isLayerActive('stations') || this.isLayerActive('poi');
 
-    const isElvVis = isElvActive && (this.layerVisibilities.get('elevation') ?? true);
-    const isLcVis = isLcActive && (this.layerVisibilities.get('landcover') ?? true);
-    const isLstVis = isLstActive && (this.layerVisibilities.get('lst') ?? true);
-    const isPoiVis = isPoiActive && (this.layerVisibilities.get('poi') ?? true);
+    const isAirVis = isAirActive && this.isLayerVisible('air-temp');
+    const isSurfVis = isSurfActive && this.isLayerVisible('surface-temp');
+    const isStationsVis = isStationsActive && this.isLayerVisible('stations');
 
-    // --- 1. ELEVATION LAYER (USGS SRTM) ---
+    // --- 1. NOAA CFSV2 2M AIR TEMPERATURE GRID ---
     try {
-      if (isElvActive) {
-        const elvSrc = this.map.getSource('gee-elevation-source') as maplibregl.GeoJSONSource;
-        if (!elvSrc) {
-          this.map.addSource('gee-elevation-source', {
+      if (isAirActive) {
+        const gridSrc = this.map.getSource('gee-cfsv2-grid-source') as maplibregl.GeoJSONSource;
+        if (!gridSrc) {
+          this.map.addSource('gee-cfsv2-grid-source', {
             type: 'geojson',
-            data: this.elvData
+            data: this.gridData
           });
-        } else if (typeof elvSrc.setData === 'function') {
-          elvSrc.setData(this.elvData);
+        } else if (typeof gridSrc.setData === 'function') {
+          gridSrc.setData(this.gridData);
         }
 
-        if (!this.map.getLayer('gee-elevation-fill')) {
+        if (!this.map.getLayer('gee-cfsv2-air-fill')) {
           this.map.addLayer({
-            id: 'gee-elevation-fill',
+            id: 'gee-cfsv2-air-fill',
             type: 'fill',
-            source: 'gee-elevation-source',
-            layout: { visibility: isElvVis ? 'visible' : 'none' },
+            source: 'gee-cfsv2-grid-source',
+            layout: { visibility: isAirVis ? 'visible' : 'none' },
             paint: {
               'fill-color': [
                 'interpolate',
                 ['linear'],
-                ['coalesce', ['to-number', ['get', 'elevation_m']], 0],
-                0, '#006633',
-                50, '#84cc16',
-                200, '#eab308',
-                600, '#c2410c',
-                1200, '#f5f5f5'
+                ['coalesce', ['to-number', ['get', 'temp_air_c']], 26],
+                18, '#3b82f6', // 18°C Cool (Highland / Night)
+                22, '#06b6d4', // 22°C Mild
+                26, '#10b981', // 26°C Pleasant
+                29, '#f59e0b', // 29°C Warm
+                32, '#ea580c', // 32°C Hot
+                35, '#dc2626', // 35°C Extreme Heat
+                38, '#7f1d1d'  // 38°C+ Peak Heat
               ],
-              'fill-opacity': this.getLayerOpacity('elevation')
+              'fill-opacity': this.getLayerOpacity('air-temp')
             }
           });
         } else {
-          this.map.setLayoutProperty('gee-elevation-fill', 'visibility', isElvVis ? 'visible' : 'none');
+          this.map.setLayoutProperty('gee-cfsv2-air-fill', 'visibility', isAirVis ? 'visible' : 'none');
         }
-        if (!this.map.getLayer('gee-elevation-outline')) {
+
+        if (!this.map.getLayer('gee-cfsv2-air-outline')) {
           this.map.addLayer({
-            id: 'gee-elevation-outline',
+            id: 'gee-cfsv2-air-outline',
             type: 'line',
-            source: 'gee-elevation-source',
-            layout: { visibility: isElvVis ? 'visible' : 'none' },
+            source: 'gee-cfsv2-grid-source',
+            layout: { visibility: isAirVis ? 'visible' : 'none' },
             paint: {
               'line-color': '#ffffff',
-              'line-width': 0.6,
+              'line-width': 0.7,
               'line-opacity': 0.6
             }
           });
         } else {
-          this.map.setLayoutProperty('gee-elevation-outline', 'visibility', isElvVis ? 'visible' : 'none');
+          this.map.setLayoutProperty('gee-cfsv2-air-outline', 'visibility', isAirVis ? 'visible' : 'none');
         }
       } else {
-        if (this.map.getLayer('gee-elevation-fill')) {
-          this.map.setLayoutProperty('gee-elevation-fill', 'visibility', 'none');
+        if (this.map.getLayer('gee-cfsv2-air-fill')) {
+          this.map.setLayoutProperty('gee-cfsv2-air-fill', 'visibility', 'none');
         }
-        if (this.map.getLayer('gee-elevation-outline')) {
-          this.map.setLayoutProperty('gee-elevation-outline', 'visibility', 'none');
+        if (this.map.getLayer('gee-cfsv2-air-outline')) {
+          this.map.setLayoutProperty('gee-cfsv2-air-outline', 'visibility', 'none');
         }
       }
     } catch (e) {
-      logger.warn('Notice adding Elevation layer:', e);
+      logger.warn('Notice adding CFSV2 Air Temp layer:', e);
     }
 
-    // --- 2. LAND COVER LAYER (MODIS MCD12Q1) ---
+    // --- 2. NOAA CFSV2 GROUND SURFACE TEMPERATURE GRID ---
     try {
-      if (isLcActive) {
-        const lcSrc = this.map.getSource('gee-landcover-source') as maplibregl.GeoJSONSource;
-        if (!lcSrc) {
-          this.map.addSource('gee-landcover-source', {
+      if (isSurfActive) {
+        const gridSrc = this.map.getSource('gee-cfsv2-grid-source') as maplibregl.GeoJSONSource;
+        if (!gridSrc) {
+          this.map.addSource('gee-cfsv2-grid-source', {
             type: 'geojson',
-            data: this.lcData
+            data: this.gridData
           });
-        } else if (typeof lcSrc.setData === 'function') {
-          lcSrc.setData(this.lcData);
         }
 
-        if (!this.map.getLayer('gee-landcover-fill')) {
+        if (!this.map.getLayer('gee-cfsv2-surface-fill')) {
           this.map.addLayer({
-            id: 'gee-landcover-fill',
+            id: 'gee-cfsv2-surface-fill',
             type: 'fill',
-            source: 'gee-landcover-source',
-            layout: { visibility: isLcVis ? 'visible' : 'none' },
-            paint: {
-              'fill-color': [
-                'match',
-                ['coalesce', ['to-number', ['get', 'lc_code']], 0],
-                1, '#004d00',
-                2, '#008000',
-                4, '#2e8b57',
-                5, '#3cb371',
-                8, '#8fbc8f',
-                9, '#d2b48c',
-                10, '#f0e68c',
-                12, '#ffff00',
-                13, '#dc2626',
-                14, '#ff7f50',
-                17, '#0000cd',
-                '#888888'
-              ],
-              'fill-opacity': this.getLayerOpacity('landcover')
-            }
-          });
-        } else {
-          this.map.setLayoutProperty('gee-landcover-fill', 'visibility', isLcVis ? 'visible' : 'none');
-        }
-        if (!this.map.getLayer('gee-landcover-outline')) {
-          this.map.addLayer({
-            id: 'gee-landcover-outline',
-            type: 'line',
-            source: 'gee-landcover-source',
-            layout: { visibility: isLcVis ? 'visible' : 'none' },
-            paint: {
-              'line-color': '#ffffff',
-              'line-width': 0.6,
-              'line-opacity': 0.6
-            }
-          });
-        } else {
-          this.map.setLayoutProperty('gee-landcover-outline', 'visibility', isLcVis ? 'visible' : 'none');
-        }
-      } else {
-        if (this.map.getLayer('gee-landcover-fill')) {
-          this.map.setLayoutProperty('gee-landcover-fill', 'visibility', 'none');
-        }
-        if (this.map.getLayer('gee-landcover-outline')) {
-          this.map.setLayoutProperty('gee-landcover-outline', 'visibility', 'none');
-        }
-      }
-    } catch (e) {
-      logger.warn('Notice adding Land Cover layer:', e);
-    }
-
-    // --- 3. LST THERMAL GRID LAYER (MODIS MOD11A2) ---
-    try {
-      if (isLstActive) {
-        const lstSrc = this.map.getSource('gee-lst-source') as maplibregl.GeoJSONSource;
-        if (!lstSrc) {
-          this.map.addSource('gee-lst-source', {
-            type: 'geojson',
-            data: this.lstData
-          });
-        } else if (typeof lstSrc.setData === 'function') {
-          lstSrc.setData(this.lstData);
-        }
-
-        if (!this.map.getLayer('gee-lst-fill')) {
-          this.map.addLayer({
-            id: 'gee-lst-fill',
-            type: 'fill',
-            source: 'gee-lst-source',
-            layout: { visibility: isLstVis ? 'visible' : 'none' },
+            source: 'gee-cfsv2-grid-source',
+            layout: { visibility: isSurfVis ? 'visible' : 'none' },
             paint: {
               'fill-color': [
                 'interpolate',
                 ['linear'],
-                ['coalesce', ['to-number', ['get', 'lst_celsius']], 25],
-                22, '#3b82f6', // Blue / Cool (~22°C)
-                25, '#10b981', // Green (~25°C)
-                28, '#f59e0b', // Yellow / Warm (~28°C)
-                31, '#ea580c', // Orange / Hot (~31°C)
-                34, '#dc2626'  // Red / Extreme Heat (~34°C+)
+                ['coalesce', ['to-number', ['get', 'temp_surface_c']], 28],
+                18, '#0284c7',
+                24, '#10b981',
+                28, '#eab308',
+                32, '#f97316',
+                36, '#ef4444',
+                42, '#991b1b'
               ],
-              'fill-opacity': this.getLayerOpacity('lst')
+              'fill-opacity': this.getLayerOpacity('surface-temp')
             }
           });
         } else {
-          this.map.setLayoutProperty('gee-lst-fill', 'visibility', isLstVis ? 'visible' : 'none');
+          this.map.setLayoutProperty('gee-cfsv2-surface-fill', 'visibility', isSurfVis ? 'visible' : 'none');
         }
-        if (!this.map.getLayer('gee-lst-outline')) {
+
+        if (!this.map.getLayer('gee-cfsv2-surface-outline')) {
           this.map.addLayer({
-            id: 'gee-lst-outline',
+            id: 'gee-cfsv2-surface-outline',
             type: 'line',
-            source: 'gee-lst-source',
-            layout: { visibility: isLstVis ? 'visible' : 'none' },
+            source: 'gee-cfsv2-grid-source',
+            layout: { visibility: isSurfVis ? 'visible' : 'none' },
             paint: {
-              'line-color': '#ffffff',
+              'line-color': '#f87171',
               'line-width': 0.8,
-              'line-opacity': 0.7
+              'line-opacity': 0.6
             }
           });
         } else {
-          this.map.setLayoutProperty('gee-lst-outline', 'visibility', isLstVis ? 'visible' : 'none');
+          this.map.setLayoutProperty('gee-cfsv2-surface-outline', 'visibility', isSurfVis ? 'visible' : 'none');
         }
       } else {
-        if (this.map.getLayer('gee-lst-fill')) {
-          this.map.setLayoutProperty('gee-lst-fill', 'visibility', 'none');
+        if (this.map.getLayer('gee-cfsv2-surface-fill')) {
+          this.map.setLayoutProperty('gee-cfsv2-surface-fill', 'visibility', 'none');
         }
-        if (this.map.getLayer('gee-lst-outline')) {
-          this.map.setLayoutProperty('gee-lst-outline', 'visibility', 'none');
+        if (this.map.getLayer('gee-cfsv2-surface-outline')) {
+          this.map.setLayoutProperty('gee-cfsv2-surface-outline', 'visibility', 'none');
         }
       }
     } catch (e) {
-      logger.warn('Notice adding LST layer:', e);
+      logger.warn('Notice adding CFSV2 Surface Temp layer:', e);
     }
 
-    // --- 4. POI OBSERVATION LAYER ---
+    // --- 3. CFSV2 INDONESIA CLIMATE STATIONS ---
     try {
-      if (isPoiActive) {
-        const poiSrc = this.map.getSource('gee-poi-source') as maplibregl.GeoJSONSource;
-        if (!poiSrc) {
-          this.map.addSource('gee-poi-source', {
+      if (isStationsActive) {
+        const stationsSrc = this.map.getSource('gee-cfsv2-stations-source') as maplibregl.GeoJSONSource;
+        if (!stationsSrc) {
+          this.map.addSource('gee-cfsv2-stations-source', {
             type: 'geojson',
-            data: this.poiData
+            data: this.stationsData
           });
-        } else if (typeof poiSrc.setData === 'function') {
-          poiSrc.setData(this.poiData);
+        } else if (typeof stationsSrc.setData === 'function') {
+          stationsSrc.setData(this.stationsData);
         }
 
-        if (!this.map.getLayer('gee-poi-circles')) {
+        if (!this.map.getLayer('gee-cfsv2-stations-circles')) {
           this.map.addLayer({
-            id: 'gee-poi-circles',
+            id: 'gee-cfsv2-stations-circles',
             type: 'circle',
-            source: 'gee-poi-source',
-            layout: { visibility: isPoiVis ? 'visible' : 'none' },
+            source: 'gee-cfsv2-stations-source',
+            layout: { visibility: isStationsVis ? 'visible' : 'none' },
             paint: {
-              'circle-radius': 14,
+              'circle-radius': 13,
               'circle-color': [
-                'match',
-                ['get', 'id'],
-                'urban_poi', '#dc2626',
-                'rural_poi', '#16a34a',
-                '#3b82f6'
+                'interpolate',
+                ['linear'],
+                ['coalesce', ['to-number', ['get', 'temp_air_c']], 26],
+                20, '#06b6d4',
+                25, '#10b981',
+                29, '#f59e0b',
+                33, '#dc2626'
               ],
               'circle-stroke-width': 3,
               'circle-stroke-color': '#ffffff'
             }
           });
         } else {
-          this.map.setLayoutProperty('gee-poi-circles', 'visibility', isPoiVis ? 'visible' : 'none');
+          this.map.setLayoutProperty('gee-cfsv2-stations-circles', 'visibility', isStationsVis ? 'visible' : 'none');
         }
       } else {
-        if (this.map.getLayer('gee-poi-circles')) {
-          this.map.setLayoutProperty('gee-poi-circles', 'visibility', 'none');
+        if (this.map.getLayer('gee-cfsv2-stations-circles')) {
+          this.map.setLayoutProperty('gee-cfsv2-stations-circles', 'visibility', 'none');
         }
       }
     } catch (e) {
-      logger.warn('Notice adding POI layer:', e);
+      logger.warn('Notice adding CFSV2 Stations layer:', e);
     }
   }
 
@@ -446,39 +400,43 @@ export class GEELoader {
     this.htmlMarkers.forEach((m) => m.remove());
     this.htmlMarkers = [];
 
-    const isPoiVis = this.isLayerVisible('poi');
+    const isStationsVis = this.isLayerVisible('stations') || this.isLayerVisible('poi');
 
-    this.poiData.features.forEach((feat: any) => {
+    this.stationsData.features.forEach((feat: any) => {
       const coords = feat.geometry.coordinates as [number, number];
       const props = feat.properties;
 
       const el = document.createElement('div');
-      el.className = `gee-map-marker ${props.id}`;
+      el.className = `gee-map-marker station-${props.id}`;
       el.innerHTML = `
-        <div class="marker-pulse ${props.id}"></div>
-        <div class="marker-pin ${props.id}">
-          <span class="marker-icon">${props.id === 'urban_poi' ? '🏙️' : '🌲'}</span>
+        <div class="marker-pulse"></div>
+        <div class="marker-pin">
+          <span class="marker-icon">🌡️</span>
         </div>
-        <div class="marker-label">${props.name.split(' (')[0]}</div>
+        <div class="marker-label">${props.name.split(' (')[0]}: ${props.temp_air_c}°C</div>
       `;
 
       el.addEventListener('click', () => {
         const html = `
           <div class="gee-popup-card">
-            <div class="gee-popup-badge ${props.id}">${props.category}</div>
+            <div class="gee-popup-badge live-badge">● LIVE CFSV2 GEE</div>
             <h4>${props.name}</h4>
+            <div class="gee-popup-sub">${props.province} · ${props.station_type}</div>
             <table class="gee-popup-table">
-              <tr><td><strong>Mean Daytime LST:</strong></td><td><span class="highlight-temp">${props.mean_lst_celsius} °C</span></td></tr>
-              <tr><td><strong>Ground Elevation:</strong></td><td>${props.elevation_m} m</td></tr>
-              <tr><td><strong>Land Cover:</strong></td><td>${props.land_cover_name}</td></tr>
-              <tr><td><strong>Coordinates:</strong></td><td>${props.latitude.toFixed(4)}, ${props.longitude.toFixed(4)}</td></tr>
+              <tr><td><strong>2m Air Temp:</strong></td><td><span class="highlight-temp">${props.temp_air_c} °C</span> (${props.temp_air_k} K)</td></tr>
+              <tr><td><strong>Ground Surface Temp:</strong></td><td><strong>${props.temp_surface_c} °C</strong></td></tr>
+              <tr><td><strong>6h Max / Min Temp:</strong></td><td>${props.temp_max_6h_c} °C / ${props.temp_min_6h_c} °C</td></tr>
+              <tr><td><strong>Relative Humidity:</strong></td><td>${props.humidity_pct}%</td></tr>
+              <tr><td><strong>Surface Pressure:</strong></td><td>${props.pressure_hpa} hPa</td></tr>
+              <tr><td><strong>Elevation:</strong></td><td>${props.elevation_m} meters</td></tr>
+              <tr><td><strong>Cycle UTC:</strong></td><td><code>${props.timestamp_utc}</code></td></tr>
             </table>
           </div>
         `;
         this.popup.setLngLat(coords).setHTML(html).addTo(this.map);
       });
 
-      if (!isPoiVis) {
+      if (!isStationsVis) {
         el.style.display = 'none';
       }
 
@@ -493,90 +451,76 @@ export class GEELoader {
   public updateLayerVisibilities() {
     if (!this.map) return;
 
-    const isLstVis = this.isLayerVisible('lst');
-    const isElvVis = this.isLayerVisible('elevation');
-    const isLcVis = this.isLayerVisible('landcover');
-    const isPoiVis = this.isLayerVisible('poi');
+    const isAirVis = this.isLayerVisible('air-temp') || this.isLayerVisible('lst');
+    const isSurfVis = this.isLayerVisible('surface-temp') || this.isLayerVisible('elevation');
+    const isStationsVis = this.isLayerVisible('stations') || this.isLayerVisible('poi');
 
-    if (this.map.getLayer('gee-lst-fill')) {
-      this.map.setLayoutProperty('gee-lst-fill', 'visibility', isLstVis ? 'visible' : 'none');
+    if (this.map.getLayer('gee-cfsv2-air-fill')) {
+      this.map.setLayoutProperty('gee-cfsv2-air-fill', 'visibility', isAirVis ? 'visible' : 'none');
     }
-    if (this.map.getLayer('gee-lst-outline')) {
-      this.map.setLayoutProperty('gee-lst-outline', 'visibility', isLstVis ? 'visible' : 'none');
-    }
-
-    if (this.map.getLayer('gee-elevation-fill')) {
-      this.map.setLayoutProperty('gee-elevation-fill', 'visibility', isElvVis ? 'visible' : 'none');
-    }
-    if (this.map.getLayer('gee-elevation-outline')) {
-      this.map.setLayoutProperty('gee-elevation-outline', 'visibility', isElvVis ? 'visible' : 'none');
+    if (this.map.getLayer('gee-cfsv2-air-outline')) {
+      this.map.setLayoutProperty('gee-cfsv2-air-outline', 'visibility', isAirVis ? 'visible' : 'none');
     }
 
-    if (this.map.getLayer('gee-landcover-fill')) {
-      this.map.setLayoutProperty('gee-landcover-fill', 'visibility', isLcVis ? 'visible' : 'none');
+    if (this.map.getLayer('gee-cfsv2-surface-fill')) {
+      this.map.setLayoutProperty('gee-cfsv2-surface-fill', 'visibility', isSurfVis ? 'visible' : 'none');
     }
-    if (this.map.getLayer('gee-landcover-outline')) {
-      this.map.setLayoutProperty('gee-landcover-outline', 'visibility', isLcVis ? 'visible' : 'none');
+    if (this.map.getLayer('gee-cfsv2-surface-outline')) {
+      this.map.setLayoutProperty('gee-cfsv2-surface-outline', 'visibility', isSurfVis ? 'visible' : 'none');
     }
 
-    if (this.map.getLayer('gee-poi-circles')) {
-      this.map.setLayoutProperty('gee-poi-circles', 'visibility', isPoiVis ? 'visible' : 'none');
+    if (this.map.getLayer('gee-cfsv2-stations-circles')) {
+      this.map.setLayoutProperty('gee-cfsv2-stations-circles', 'visibility', isStationsVis ? 'visible' : 'none');
     }
 
     this.htmlMarkers.forEach((m) => {
       const el = m.getElement();
-      if (el) el.style.display = isPoiVis ? 'flex' : 'none';
+      if (el) el.style.display = isStationsVis ? 'flex' : 'none';
     });
   }
 
   private bindLayerEvents() {
-    // Click LST grid cell
-    this.map.on('click', 'gee-lst-fill', (e) => {
+    // Click Air Temp grid cell
+    this.map.on('click', 'gee-cfsv2-air-fill', (e) => {
       if (!e.features || e.features.length === 0) return;
       const props = e.features[0].properties;
       this.popup
         .setLngLat(e.lngLat)
         .setHTML(`
           <div class="gee-popup-card">
-            <h4>🌡️ MODIS LST Thermal Grid</h4>
-            <p><strong>LST Day:</strong> <span class="highlight-temp">${props.lst_celsius} °C</span> (${props.lst_kelvin} K)</p>
+            <h4>🌡️ NOAA CFSV2 2m Air Temp</h4>
+            <table class="gee-popup-table">
+              <tr><td><strong>Air Temperature:</strong></td><td><span class="highlight-temp">${props.temp_air_c} °C</span> (${props.temp_air_k} K)</td></tr>
+              <tr><td><strong>Ground Surface:</strong></td><td>${props.temp_surface_c} °C</td></tr>
+              <tr><td><strong>Model Elevation:</strong></td><td>${props.elevation_m} m</td></tr>
+              <tr><td><strong>Cycle:</strong></td><td><code>${props.cycle_utc || '6-Hourly'}</code></td></tr>
+            </table>
           </div>
         `)
         .addTo(this.map);
     });
 
-    // Click Elevation grid cell
-    this.map.on('click', 'gee-elevation-fill', (e) => {
+    // Click Surface Temp grid cell
+    this.map.on('click', 'gee-cfsv2-surface-fill', (e) => {
       if (!e.features || e.features.length === 0) return;
       const props = e.features[0].properties;
       this.popup
         .setLngLat(e.lngLat)
         .setHTML(`
           <div class="gee-popup-card">
-            <h4>⛰️ USGS SRTM Ground Elevation</h4>
-            <p><strong>Elevation:</strong> <span class="highlight-temp">${props.elevation_m} meters</span></p>
-          </div>
-        `)
-        .addTo(this.map);
-    });
-
-    // Click Land Cover cell
-    this.map.on('click', 'gee-landcover-fill', (e) => {
-      if (!e.features || e.features.length === 0) return;
-      const props = e.features[0].properties;
-      this.popup
-        .setLngLat(e.lngLat)
-        .setHTML(`
-          <div class="gee-popup-card">
-            <h4>🌳 MODIS Land Cover Classification</h4>
-            <p><strong>Class:</strong> <span class="highlight-temp">${props.lc_name}</span> (Code: ${props.lc_code})</p>
+            <h4>🌋 NOAA CFSV2 Surface Ground Temp</h4>
+            <table class="gee-popup-table">
+              <tr><td><strong>Surface Skin Temp:</strong></td><td><span class="highlight-temp">${props.temp_surface_c} °C</span> (${props.temp_surface_k} K)</td></tr>
+              <tr><td><strong>2m Air Temp:</strong></td><td>${props.temp_air_c} °C</td></tr>
+              <tr><td><strong>Elevation:</strong></td><td>${props.elevation_m} m</td></tr>
+            </table>
           </div>
         `)
         .addTo(this.map);
     });
 
     // Cursor pointer on hover
-    ['gee-lst-fill', 'gee-elevation-fill', 'gee-landcover-fill', 'gee-poi-circles'].forEach((layerId) => {
+    ['gee-cfsv2-air-fill', 'gee-cfsv2-surface-fill', 'gee-cfsv2-stations-circles'].forEach((layerId) => {
       this.map.on('mouseenter', layerId, () => (this.map.getCanvas().style.cursor = 'pointer'));
       this.map.on('mouseleave', layerId, () => (this.map.getCanvas().style.cursor = ''));
     });
@@ -584,11 +528,21 @@ export class GEELoader {
 
   public flyToStudyArea() {
     this.map.flyTo({
-      center: [106.9, -6.35],
-      zoom: 9.5,
+      center: [108.5, -6.8],
+      zoom: 7.2,
       pitch: 0,
       bearing: 0,
       duration: 1500
+    });
+  }
+
+  public flyToIndonesia() {
+    this.map.flyTo({
+      center: [117.5, -2.5],
+      zoom: 4.8,
+      pitch: 0,
+      bearing: 0,
+      duration: 1800
     });
   }
 

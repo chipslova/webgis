@@ -80,11 +80,11 @@ export class GuidedTourUI {
       },
       {
         id: 2,
-        badge: '2. GEE THERMAL ANALYSIS',
-        title: 'Urban Heat Island: Jakarta vs. Bogor',
-        subtitle: 'Google Earth Engine & MODIS Land Surface Temperature',
-        description: 'Google Earth Engine modeling maps urban heat island (UHI) intensity. Observe the +9.25°C surface temperature contrast between Monas urban core (33.85°C) and rural IPB forest (24.60°C).',
-        tags: ['MODIS LST 1km', 'UHI Delta +9.25°C', 'Observation POI Stations'],
+        badge: '2. REAL GEE LIVE CLIMATE',
+        title: 'Live Climate & Urban Heat Island: NOAA CFSV2',
+        subtitle: 'Google Earth Engine & NOAA CFSV2 Harmonized Dataset',
+        description: 'Near-real-time Google Earth Engine climate modeling maps 6-hourly 2m air temperature and ground surface skin temperature across Indonesia with active met stations.',
+        tags: ['NOAA CFSV2 GEE', '6-Hourly Cycle', '15 Climate Met Stations'],
         action: async () => {
           const map = this.mapManager.getMap();
           if (!map) return;

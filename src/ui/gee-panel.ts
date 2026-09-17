@@ -1,27 +1,35 @@
 import { GEELoader } from '../tools/gee-loader';
 import { showToast } from './toast';
 
-interface TimeSeriesRecord {
+interface CFSV2TimeSeriesRecord {
   date: string;
+  iso?: string;
   timestamp_ms: number;
-  urban_obs_c: number;
-  urban_fitted_c: number;
-  rural_obs_c: number;
-  rural_fitted_c: number;
-  uhi_delta_c: number;
+  hour_utc?: number;
+  is_forecast?: boolean;
+  jkt_air_temp_c?: number;
+  jkt_surface_temp_c?: number;
+  bdg_air_temp_c?: number;
+  bdg_surface_temp_c?: number;
+  ikn_air_temp_c?: number;
+  delta_urban_rural_c?: number;
+  // Compatibility
+  urban_obs_c?: number;
+  urban_fitted_c?: number;
+  rural_obs_c?: number;
+  rural_fitted_c?: number;
 }
 
 export class GEEPanelUI {
   private geeLoader: GEELoader;
-  private timeSeriesData: TimeSeriesRecord[] = [];
+  private timeSeriesData: CFSV2TimeSeriesRecord[] = [];
   private canvas: HTMLCanvasElement | null = null;
   private isInitialized: boolean = false;
+  private isToggleEventsBound: boolean = false;
 
   constructor(geeLoader: GEELoader) {
     this.geeLoader = geeLoader;
   }
-
-  private isToggleEventsBound: boolean = false;
 
   public init() {
     this.syncCheckboxStates();
@@ -31,7 +39,7 @@ export class GEEPanelUI {
       this.bindOpacityEvents();
       this.bindDownloadEvents();
 
-      // Listen to geeLoader state changes (layer added/removed/cleared anywhere)
+      // Listen to geeLoader state changes
       this.geeLoader.onLayersChange(() => {
         this.syncCheckboxStates();
       });
@@ -48,9 +56,9 @@ export class GEEPanelUI {
         this.renderTimeSeriesChart();
       });
 
-      // Listen for GEE data load failures (dispatched by gee-loader on fetch error)
+      // Listen for GEE data load failures
       window.addEventListener('gee-load-error', () => {
-        showToast('Failed to load GEE analysis data. Please check your network connection.', 'error');
+        showToast('Failed to load NOAA CFSV2 GEE data. Please check your network connection.', 'error');
       }, { once: false });
 
       this.isInitialized = true;
@@ -60,14 +68,17 @@ export class GEEPanelUI {
   }
 
   private syncCheckboxStates() {
-    const lst = document.getElementById('toggle-gee-lst') as HTMLInputElement;
-    if (lst) lst.checked = this.geeLoader.isLayerVisible('lst');
-    const elv = document.getElementById('toggle-gee-elevation') as HTMLInputElement;
-    if (elv) elv.checked = this.geeLoader.isLayerVisible('elevation');
-    const lc = document.getElementById('toggle-gee-landcover') as HTMLInputElement;
-    if (lc) lc.checked = this.geeLoader.isLayerVisible('landcover');
-    const poi = document.getElementById('toggle-gee-poi') as HTMLInputElement;
-    if (poi) poi.checked = this.geeLoader.isLayerVisible('poi');
+    // Air temp / LST
+    const airEl = (document.getElementById('toggle-gee-air') || document.getElementById('toggle-gee-lst')) as HTMLInputElement;
+    if (airEl) airEl.checked = this.geeLoader.isLayerVisible('air-temp') || this.geeLoader.isLayerVisible('lst');
+
+    // Surface temp / Elevation
+    const surfEl = (document.getElementById('toggle-gee-surface') || document.getElementById('toggle-gee-elevation')) as HTMLInputElement;
+    if (surfEl) surfEl.checked = this.geeLoader.isLayerVisible('surface-temp') || this.geeLoader.isLayerVisible('elevation');
+
+    // Stations / POI
+    const stEl = (document.getElementById('toggle-gee-stations') || document.getElementById('toggle-gee-poi')) as HTMLInputElement;
+    if (stEl) stEl.checked = this.geeLoader.isLayerVisible('stations') || this.geeLoader.isLayerVisible('poi');
 
     const opacitySlider = document.getElementById('gee-opacity-slider') as HTMLInputElement;
     const opacityVal = document.getElementById('gee-opacity-val');
@@ -100,15 +111,27 @@ export class GEEPanelUI {
       }
     };
 
-    attachToggle('toggle-gee-lst', 'lst');
-    attachToggle('toggle-gee-elevation', 'elevation');
-    attachToggle('toggle-gee-landcover', 'landcover');
-    attachToggle('toggle-gee-poi', 'poi');
+    // Support both new CFSV2 IDs and legacy IDs
+    attachToggle('toggle-gee-air', 'air-temp');
+    attachToggle('toggle-gee-lst', 'air-temp');
+
+    attachToggle('toggle-gee-surface', 'surface-temp');
+    attachToggle('toggle-gee-elevation', 'surface-temp');
+
+    attachToggle('toggle-gee-stations', 'stations');
+    attachToggle('toggle-gee-poi', 'stations');
 
     const focusBtn = document.getElementById('btn-focus-gee-area');
     if (focusBtn) {
       focusBtn.addEventListener('click', () => {
         this.geeLoader.flyToStudyArea();
+      });
+    }
+
+    const focusIdnBtn = document.getElementById('btn-focus-gee-indonesia');
+    if (focusIdnBtn) {
+      focusIdnBtn.addEventListener('click', () => {
+        this.geeLoader.flyToIndonesia();
       });
     }
 
@@ -122,20 +145,20 @@ export class GEEPanelUI {
     if (btnGeoJSON) {
       btnGeoJSON.addEventListener('click', () => {
         const link = document.createElement('a');
-        link.href = '/data/gee_jakarta_poi.geojson';
-        link.download = 'gee_jakarta_urban_rural_poi.geojson';
+        link.href = '/data/gee_cfsv2_stations.geojson';
+        link.download = 'gee_cfsv2_climate_stations_indonesia.geojson';
         link.click();
-        showToast('Downloading GeoJSON Observation Stations dataset...', 'info');
+        showToast('Downloading NOAA CFSV2 Climate Stations (GeoJSON)...', 'info');
       });
     }
 
     if (btnCSV) {
       btnCSV.addEventListener('click', () => {
         const link = document.createElement('a');
-        link.href = '/downloads/gee_lst_timeseries_jakarta.csv';
-        link.download = 'gee_lst_timeseries_jakarta.csv';
+        link.href = '/downloads/gee_cfsv2_temperature_indonesia.csv';
+        link.download = 'gee_cfsv2_temperature_indonesia.csv';
         link.click();
-        showToast('Downloading LST temperature time series data (CSV)...', 'info');
+        showToast('Downloading NOAA CFSV2 6-Hourly Temperature (CSV)...', 'info');
       });
     }
   }
@@ -144,14 +167,13 @@ export class GEEPanelUI {
     this.canvas = document.getElementById('gee-chart-canvas') as HTMLCanvasElement;
     if (!this.canvas) return;
 
-    // Skip drawing if the panel container is currently hidden (e.g. inactive tab on load)
     if (this.canvas.parentElement && this.canvas.parentElement.clientWidth === 0) {
       return;
     }
 
     if (this.timeSeriesData.length === 0) {
       try {
-        const res = await fetch('/data/gee_lst_timeseries.json');
+        const res = await fetch('/data/gee_cfsv2_timeseries.json');
         if (res.ok) {
           const json = await res.json();
           this.timeSeriesData = (json.data as any) || [];
@@ -169,7 +191,7 @@ export class GEEPanelUI {
     const width = (this.canvas.width = this.canvas.parentElement?.clientWidth || 320);
     const height = (this.canvas.height = 200);
 
-    const padding = { top: 20, right: 15, bottom: 30, left: 35 };
+    const padding = { top: 24, right: 15, bottom: 30, left: 35 };
     const chartW = width - padding.left - padding.right;
     const chartH = height - padding.top - padding.bottom;
 
@@ -181,9 +203,9 @@ export class GEEPanelUI {
     ctx.clearRect(0, 0, width, height);
 
     // Draw background grid lines
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
     ctx.lineWidth = 1;
-    for (let yVal = 20; yVal <= 40; yVal += 10) {
+    for (let yVal = 15; yVal <= 40; yVal += 5) {
       const y = padding.top + chartH - ((yVal - yMin) / (yMax - yMin)) * chartH;
       ctx.beginPath();
       ctx.moveTo(padding.left, y);
@@ -196,59 +218,76 @@ export class GEEPanelUI {
       ctx.fillText(`${yVal}°C`, 5, y + 3);
     }
 
-    // X Axis Labels (2020, 2022, 2024, 2026)
     const totalCount = this.timeSeriesData.length;
     const xStep = chartW / (totalCount - 1);
 
+    // Draw X-axis timestamps
     [0, Math.floor(totalCount * 0.33), Math.floor(totalCount * 0.66), totalCount - 1].forEach((idx) => {
       const rec = this.timeSeriesData[idx];
       if (!rec) return;
       const x = padding.left + idx * xStep;
-      const yearStr = rec.date.substring(0, 4);
-      ctx.fillText(yearStr, x - 10, height - 8);
+      const datePart = rec.date.substring(5, 10);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '10px Inter, sans-serif';
+      ctx.fillText(datePart, Math.max(padding.left, x - 12), height - 8);
     });
 
-    // 1. Draw Scatter Points (Urban & Rural)
-    this.timeSeriesData.forEach((rec, i) => {
-      const x = padding.left + i * xStep;
-
-      // Urban point
-      const yU = padding.top + chartH - ((rec.urban_obs_c - yMin) / (yMax - yMin)) * chartH;
-      ctx.fillStyle = 'rgba(220, 38, 38, 0.4)'; // Red scatter
-      ctx.beginPath();
-      ctx.arc(x, yU, 2.5, 0, 2 * Math.PI);
-      ctx.fill();
-
-      // Rural point
-      const yR = padding.top + chartH - ((rec.rural_obs_c - yMin) / (yMax - yMin)) * chartH;
-      ctx.fillStyle = 'rgba(22, 163, 74, 0.4)'; // Green scatter
-      ctx.beginPath();
-      ctx.arc(x, yR, 2.5, 0, 2 * Math.PI);
-      ctx.fill();
-    });
-
-    // 2. Draw Fitted Curve - Urban (Red line)
-    ctx.strokeStyle = '#dc2626';
-    ctx.lineWidth = 2.5;
+    // 1. Draw Bandung Highland (Cooler - Green)
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 2;
     ctx.beginPath();
     this.timeSeriesData.forEach((rec, i) => {
+      const tempVal = rec.bdg_air_temp_c ?? rec.rural_obs_c ?? 22;
       const x = padding.left + i * xStep;
-      const y = padding.top + chartH - ((rec.urban_fitted_c - yMin) / (yMax - yMin)) * chartH;
+      const y = padding.top + chartH - ((tempVal - yMin) / (yMax - yMin)) * chartH;
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     });
     ctx.stroke();
 
-    // 3. Draw Fitted Curve - Rural (Green line)
-    ctx.strokeStyle = '#16a34a';
+    // 2. Draw IKN Nusantara (Purple)
+    if (this.timeSeriesData[0]?.ikn_air_temp_c !== undefined) {
+      ctx.strokeStyle = '#a855f7';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      this.timeSeriesData.forEach((rec, i) => {
+        const tempVal = rec.ikn_air_temp_c ?? 28;
+        const x = padding.left + i * xStep;
+        const y = padding.top + chartH - ((tempVal - yMin) / (yMax - yMin)) * chartH;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    }
+
+    // 3. Draw Jakarta Urban 2m Air Temp (Red/Orange)
+    ctx.strokeStyle = '#ef4444';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
     this.timeSeriesData.forEach((rec, i) => {
+      const tempVal = rec.jkt_air_temp_c ?? rec.urban_obs_c ?? 32;
       const x = padding.left + i * xStep;
-      const y = padding.top + chartH - ((rec.rural_fitted_c - yMin) / (yMax - yMin)) * chartH;
+      const y = padding.top + chartH - ((tempVal - yMin) / (yMax - yMin)) * chartH;
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     });
     ctx.stroke();
+
+    // 4. Draw Jakarta Surface Skin Temp (Dashed Orange)
+    if (this.timeSeriesData[0]?.jkt_surface_temp_c !== undefined) {
+      ctx.strokeStyle = 'rgba(249, 115, 22, 0.85)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath();
+      this.timeSeriesData.forEach((rec, i) => {
+        const tempVal = rec.jkt_surface_temp_c ?? 34;
+        const x = padding.left + i * xStep;
+        const y = padding.top + chartH - ((tempVal - yMin) / (yMax - yMin)) * chartH;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.setLineDash([]); // Reset
+    }
   }
 }

@@ -288,17 +288,17 @@ export class CommandPaletteUI {
         }
       },
       {
-        id: 'tool-gee-uhi',
+        id: 'tool-gee-cfsv2',
         category: 'tools',
         categoryLabel: '⚡ Tools & Analysis',
-        title: 'GEE Thermal Study Case (Jabodetabek)',
-        subtitle: 'Explore MODIS LST urban heat island heatmap and time series graph',
+        title: 'Real Google Earth Engine (NOAA CFSV2 Live Climate)',
+        subtitle: 'Explore live 6-hourly 2m air temperature, ground surface skin temp, and observation nodes',
         icon: '🌡️',
-        keywords: ['thermal', 'gee', 'lst', 'uhi', 'heat', 'temperature', 'chart'],
+        keywords: ['gee', 'earth engine', 'climate', 'temperature', 'cfsv2', 'noaa', 'weather', 'live', 'suhu', 'chart'],
         action: () => {
           this.sidebarUI.setActiveTab('gee');
           this.geeLoader?.loadGEEDatasets();
-          showToast('GEE Thermal & Spatial Analysis activated', 'info');
+          showToast('Real GEE NOAA CFSV2 Live Climate activated', 'info');
         }
       },
       {

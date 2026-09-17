@@ -77,95 +77,76 @@ export class DynamicLegendUI {
       `;
     }
 
-    // 2. Active GEE Layers (LST, Elevation, POIs, Land Cover)
+    // 2. Active GEE Layers (NOAA CFSV2 Air Temp, Surface Skin Temp, Stations)
     if (this.geeLoader) {
-      if (this.geeLoader.isLayerVisible('lst')) {
+      if (this.geeLoader.isLayerVisible('air-temp') || this.geeLoader.isLayerVisible('lst')) {
         activeLayersCount++;
         thematicHtml += `
           <div class="dynamic-legend-card">
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">🌡️</span>
               <div>
-                <div class="dynamic-legend-title">MODIS Daytime Land Surface Temperature</div>
-                <div class="dynamic-legend-sub">Study Area: Greater Jakarta - West Java (2020–2026)</div>
+                <div class="dynamic-legend-title">NOAA CFSV2 2m Air Temperature</div>
+                <div class="dynamic-legend-sub">Near-Real-Time 6-Hourly Harmonized Model (GEE)</div>
               </div>
             </div>
             <div class="gee-legend-bar lst-gradient" style="margin-top: 8px;"></div>
             <div class="gee-legend-labels">
-              <span>22°C (Cool)</span>
-              <span>25°C</span>
-              <span>28°C</span>
-              <span>31°C</span>
-              <span>34°C+ (Extreme Heat)</span>
+              <span>18°C (Cool)</span>
+              <span>22°C</span>
+              <span>26°C</span>
+              <span>30°C</span>
+              <span>34°C</span>
+              <span>38°C+ (Extreme)</span>
             </div>
           </div>
         `;
       }
 
-      if (this.geeLoader.isLayerVisible('elevation')) {
+      if (this.geeLoader.isLayerVisible('surface-temp') || this.geeLoader.isLayerVisible('elevation')) {
         activeLayersCount++;
         thematicHtml += `
           <div class="dynamic-legend-card">
             <div class="dynamic-legend-card-header">
-              <span class="legend-card-icon">⛰️</span>
+              <span class="legend-card-icon">🌋</span>
               <div>
-                <div class="dynamic-legend-title">USGS SRTM Ground Elevation Grid</div>
-                <div class="dynamic-legend-sub">Ground Surface Elevation (m ASL)</div>
+                <div class="dynamic-legend-title">CFSV2 Ground Surface Skin Temperature</div>
+                <div class="dynamic-legend-sub">Ground Skin Thermal Layer (°C)</div>
               </div>
             </div>
-            <div class="gee-legend-bar elv-gradient" style="margin-top: 8px;"></div>
+            <div class="gee-legend-bar lst-gradient" style="margin-top: 8px; background: linear-gradient(90deg, #0284c7 0%, #10b981 25%, #eab308 50%, #f97316 75%, #991b1b 100%);"></div>
             <div class="gee-legend-labels">
-              <span>0m (Coastal)</span>
-              <span>50m</span>
-              <span>200m</span>
-              <span>600m</span>
-              <span>1200m+ (Peak)</span>
+              <span>18°C</span>
+              <span>24°C</span>
+              <span>28°C</span>
+              <span>32°C</span>
+              <span>36°C</span>
+              <span>42°C+</span>
             </div>
           </div>
         `;
       }
 
-      if (this.geeLoader.isLayerVisible('poi')) {
+      if (this.geeLoader.isLayerVisible('stations') || this.geeLoader.isLayerVisible('poi')) {
         activeLayersCount++;
         thematicHtml += `
           <div class="dynamic-legend-card">
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">📍</span>
               <div>
-                <div class="dynamic-legend-title">Urban vs. Rural Temperature Observation Stations</div>
-                <div class="dynamic-legend-sub">MODIS LST Reference Points</div>
+                <div class="dynamic-legend-title">Indonesia Climate Observation Stations</div>
+                <div class="dynamic-legend-sub">15 Met Stations · NOAA CFSV2 Live Extraction</div>
               </div>
             </div>
             <div class="dynamic-legend-swatches" style="margin-top: 8px;">
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #ef4444; border-radius: 50%;"></span>
-                <span class="dynamic-legend-label">Urban Core (Jakarta Monas - 33.85°C)</span>
+                <span class="dynamic-legend-label">Urban Lowland Met (Jakarta · Surabaya · Medan)</span>
               </div>
               <div class="dynamic-legend-item">
-                <span class="dynamic-color-box" style="background-color: #22c55e; border-radius: 50%;"></span>
-                <span class="dynamic-legend-label">Rural / Forest (Bogor IPB - 24.60°C)</span>
+                <span class="dynamic-color-box" style="background-color: #10b981; border-radius: 50%;"></span>
+                <span class="dynamic-legend-label">Highland & Forest Met (Bandung · IKN · Papua)</span>
               </div>
-            </div>
-          </div>
-        `;
-      }
-
-      if (this.geeLoader.isLayerVisible('landcover')) {
-        activeLayersCount++;
-        thematicHtml += `
-          <div class="dynamic-legend-card">
-            <div class="dynamic-legend-card-header">
-              <span class="legend-card-icon">🌳</span>
-              <div>
-                <div class="dynamic-legend-title">MODIS Land Cover Classification</div>
-                <div class="dynamic-legend-sub">Land Cover Classification</div>
-              </div>
-            </div>
-            <div class="dynamic-legend-swatches" style="margin-top: 8px;">
-              <div class="dynamic-legend-item"><span class="dynamic-color-box" style="background-color: #0284c7;"></span><span class="dynamic-legend-label">Sea / Water</span></div>
-              <div class="dynamic-legend-item"><span class="dynamic-color-box" style="background-color: #e11d48;"></span><span class="dynamic-legend-label">Urban</span></div>
-              <div class="dynamic-legend-item"><span class="dynamic-color-box" style="background-color: #eab308;"></span><span class="dynamic-legend-label">Agriculture</span></div>
-              <div class="dynamic-legend-item"><span class="dynamic-color-box" style="background-color: #15803d;"></span><span class="dynamic-legend-label">Dense Forest</span></div>
             </div>
           </div>
         `;

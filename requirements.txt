@@ -1,0 +1,4 @@
+# Python requirements for Google Earth Engine Live Sync
+numpy>=1.24.0
+earthengine-api>=0.1.370
+pandas>=2.0.0
