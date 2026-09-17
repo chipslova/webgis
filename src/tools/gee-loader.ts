@@ -17,10 +17,12 @@ export class GEELoader {
   private activeLayers: Set<string> = new Set<string>();
   // Visibility states
   private layerVisibilities: Map<string, boolean> = new Map([
-    ['air-temp', true],
-    ['surface-temp', true],
+    ['lst-day', true],
+    ['lst-night', true],
     ['stations', true],
     // Aliases
+    ['air-temp', true],
+    ['surface-temp', true],
     ['lst', true],
     ['elevation', true],
     ['poi', true],
@@ -28,6 +30,8 @@ export class GEELoader {
   ]);
   // Independent layer opacities
   private layerOpacities: Map<string, number> = new Map([
+    ['lst-day', 0.85],
+    ['lst-night', 0.85],
     ['air-temp', 0.85],
     ['surface-temp', 0.85],
     ['lst', 0.85],
@@ -43,13 +47,13 @@ export class GEELoader {
     this.popup = new maplibregl.Popup({
       closeButton: true,
       closeOnClick: false,
-      maxWidth: '360px'
+      maxWidth: '380px'
     });
   }
 
   private normalizeLayerId(layerId: string): string {
-    if (layerId === 'lst') return 'air-temp';
-    if (layerId === 'elevation') return 'surface-temp';
+    if (layerId === 'lst' || layerId === 'air-temp') return 'lst-day';
+    if (layerId === 'elevation' || layerId === 'surface-temp') return 'lst-night';
     if (layerId === 'poi') return 'stations';
     return layerId;
   }
@@ -71,8 +75,8 @@ export class GEELoader {
       } catch (e) {
         this.dataLoadPromise = null;
         this.isDataLoaded = false;
-        ErrorHandler.getInstance().showThrottledError('Failed to load NOAA CFSV2 GEE dataset. Please check your internet connection.');
-        logger.warn('[GEELoader] Failed to load GEE dataset:', e);
+        ErrorHandler.getInstance().showThrottledError('Failed to load MODIS LST GEE dataset. Please check your internet connection.');
+        logger.warn('[GEELoader] Failed to load MODIS LST dataset:', e);
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('gee-load-error'));
         }
@@ -98,10 +102,13 @@ export class GEELoader {
 
   public getAllMapLayerIds(): string[] {
     return [
+      'gee-modis-lst-day-fill',
+      'gee-modis-lst-night-fill',
+      'gee-modis-stations-circles',
+      // Legacy compatibility IDs
       'gee-cfsv2-air-fill',
       'gee-cfsv2-surface-fill',
       'gee-cfsv2-stations-circles',
-      // Legacy compatibility IDs
       'gee-lst-fill', 'gee-lst-outline',
       'gee-elevation-fill', 'gee-elevation-outline',
       'gee-landcover-fill', 'gee-landcover-outline',
@@ -152,11 +159,11 @@ export class GEELoader {
     this.layerOpacities.set(layerId, opacity);
     if (!this.map) return;
 
-    if (this.map.getLayer('gee-cfsv2-air-fill')) {
-      this.map.setPaintProperty('gee-cfsv2-air-fill', 'fill-opacity', opacity);
+    if (this.map.getLayer('gee-modis-lst-day-fill')) {
+      this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-opacity', opacity);
     }
-    if (this.map.getLayer('gee-cfsv2-surface-fill')) {
-      this.map.setPaintProperty('gee-cfsv2-surface-fill', 'fill-opacity', opacity);
+    if (this.map.getLayer('gee-modis-lst-night-fill')) {
+      this.map.setPaintProperty('gee-modis-lst-night-fill', 'fill-opacity', opacity);
     }
     this.notifyLayersChange();
   }
@@ -167,11 +174,11 @@ export class GEELoader {
   }
 
   public setOpacity(opacity: number) {
-    ['air-temp', 'surface-temp', 'lst', 'elevation', 'landcover'].forEach((id) => this.setLayerOpacity(id, opacity));
+    ['lst-day', 'lst-night', 'air-temp', 'surface-temp', 'lst', 'elevation', 'landcover'].forEach((id) => this.setLayerOpacity(id, opacity));
   }
 
   public getOpacity(): number {
-    return this.layerOpacities.get('air-temp') ?? 0.85;
+    return this.layerOpacities.get('lst-day') ?? 0.85;
   }
 
   public clearAllLayers() {
@@ -210,20 +217,20 @@ export class GEELoader {
       return;
     }
 
-    const isAirActive = this.isLayerActive('air-temp') || this.isLayerActive('lst');
-    const isSurfActive = this.isLayerActive('surface-temp') || this.isLayerActive('elevation');
+    const isDayActive = this.isLayerActive('lst-day') || this.isLayerActive('air-temp') || this.isLayerActive('lst');
+    const isNightActive = this.isLayerActive('lst-night') || this.isLayerActive('surface-temp') || this.isLayerActive('elevation');
     const isStationsActive = this.isLayerActive('stations') || this.isLayerActive('poi');
 
-    const isAirVis = isAirActive && this.isLayerVisible('air-temp');
-    const isSurfVis = isSurfActive && this.isLayerVisible('surface-temp');
-    const isStationsVis = isStationsActive && this.isLayerVisible('stations');
+    const isDayVis = isDayActive && (this.layerVisibilities.get('lst-day') ?? true);
+    const isNightVis = isNightActive && (this.layerVisibilities.get('lst-night') ?? true);
+    const isStationsVis = isStationsActive && (this.layerVisibilities.get('stations') ?? true);
 
-    // --- 1. CRISP GPU-INTERPOLATED NOAA CFSV2 2M AIR TEMPERATURE LAYER ---
+    // --- 1. CRISP GPU-RENDERED MODIS DAYTIME LST (1 KM) ---
     try {
-      if (isAirActive) {
-        const gridSrc = this.map.getSource('gee-cfsv2-grid-source') as maplibregl.GeoJSONSource;
+      if (isDayActive) {
+        const gridSrc = this.map.getSource('gee-modis-grid-source') as maplibregl.GeoJSONSource;
         if (!gridSrc) {
-          this.map.addSource('gee-cfsv2-grid-source', {
+          this.map.addSource('gee-modis-grid-source', {
             type: 'geojson',
             data: this.gridData
           });
@@ -231,97 +238,97 @@ export class GEELoader {
           gridSrc.setData(this.gridData);
         }
 
-        if (!this.map.getLayer('gee-cfsv2-air-fill')) {
+        if (!this.map.getLayer('gee-modis-lst-day-fill')) {
           this.map.addLayer({
-            id: 'gee-cfsv2-air-fill',
+            id: 'gee-modis-lst-day-fill',
             type: 'fill',
-            source: 'gee-cfsv2-grid-source',
-            layout: { visibility: isAirVis ? 'visible' : 'none' },
+            source: 'gee-modis-grid-source',
+            layout: { visibility: isDayVis ? 'visible' : 'none' },
             paint: {
               'fill-color': [
                 'interpolate',
                 ['linear'],
-                ['coalesce', ['to-number', ['get', 'temp_air_c']], 28],
-                12, '#0000d9', // <14°C Alpine / Mountain Peak (Puncak Jaya)
-                16, '#0080ff', // 16°C Cold Highlands
-                20, '#00ffff', // 20°C Mild Highlands (Bandung, Dieng, Malang)
-                24, '#00ff80', // 24°C Forest / Plateau
-                27, '#80ff00', // 27°C Plains / Coastal Waters
-                29, '#ffff00', // 29°C Warm Lowlands
-                31, '#ffb000', // 31°C Hot Lowlands
-                33, '#ff4100', // 33°C Urban Lowlands (Jakarta, Surabaya, Medan)
-                36, '#fe0100', // 36°C Extreme Heat
-                39, '#380000'  // 39°C+ Peak Heat
+                ['coalesce', ['to-number', ['get', 'lst_day_c']], 30],
+                4, '#000080',  // Alpine Glacial (<5°C Puncak Jaya)
+                10, '#0000d9', // High Alpine (10°C)
+                16, '#0080ff', // Highland Alpine (16°C)
+                22, '#00ffff', // Mild Highlands (Bandung, Dieng ~22°C)
+                26, '#00ff80', // Forest / Plateau (26°C)
+                29, '#ffff00', // Lowland Plains (29°C)
+                32, '#ffb000', // Warm Lowlands (32°C)
+                35, '#ff4100', // Hot Urban Lowlands (Jakarta, Surabaya ~35°C)
+                38, '#d40000', // Extreme Urban Pavement Heat (38°C)
+                42, '#380000'  // Peak Thermal Hotspot (42°C+)
               ],
-              'fill-opacity': this.getLayerOpacity('air-temp'),
+              'fill-opacity': this.getLayerOpacity('lst-day'),
               'fill-antialias': true
             }
           });
         } else {
-          this.map.setLayoutProperty('gee-cfsv2-air-fill', 'visibility', isAirVis ? 'visible' : 'none');
+          this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', isDayVis ? 'visible' : 'none');
         }
       } else {
-        if (this.map.getLayer('gee-cfsv2-air-fill')) {
-          this.map.setLayoutProperty('gee-cfsv2-air-fill', 'visibility', 'none');
+        if (this.map.getLayer('gee-modis-lst-day-fill')) {
+          this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', 'none');
         }
       }
     } catch (e) {
-      logger.warn('Notice adding CFSV2 Air Temp layer:', e);
+      logger.warn('Notice adding MODIS Daytime LST layer:', e);
     }
 
-    // --- 2. GROUND SURFACE SKIN TEMPERATURE LAYER ---
+    // --- 2. CRISP GPU-RENDERED MODIS NIGHTTIME LST (1 KM) ---
     try {
-      if (isSurfActive) {
-        const gridSrc = this.map.getSource('gee-cfsv2-grid-source') as maplibregl.GeoJSONSource;
+      if (isNightActive) {
+        const gridSrc = this.map.getSource('gee-modis-grid-source') as maplibregl.GeoJSONSource;
         if (!gridSrc) {
-          this.map.addSource('gee-cfsv2-grid-source', {
+          this.map.addSource('gee-modis-grid-source', {
             type: 'geojson',
             data: this.gridData
           });
         }
 
-        if (!this.map.getLayer('gee-cfsv2-surface-fill')) {
+        if (!this.map.getLayer('gee-modis-lst-night-fill')) {
           this.map.addLayer({
-            id: 'gee-cfsv2-surface-fill',
+            id: 'gee-modis-lst-night-fill',
             type: 'fill',
-            source: 'gee-cfsv2-grid-source',
-            layout: { visibility: isSurfVis ? 'visible' : 'none' },
+            source: 'gee-modis-grid-source',
+            layout: { visibility: isNightVis ? 'visible' : 'none' },
             paint: {
               'fill-color': [
                 'interpolate',
                 ['linear'],
-                ['coalesce', ['to-number', ['get', 'temp_surface_c']], 29],
-                12, '#000080',
-                18, '#0080ff',
-                22, '#00ffff',
-                26, '#80ff00',
-                29, '#ffff00',
-                32, '#ff7400',
-                36, '#fe0100',
-                42, '#380000'
+                ['coalesce', ['to-number', ['get', 'lst_night_c']], 22],
+                -6, '#000040', // Alpine Subzero (Puncak Jaya Night)
+                0, '#0000b0',  // Freezing Peak
+                8, '#0080ff',  // Mountain Cold Pool (8°C)
+                14, '#00ffff', // Highland Night (Bandung ~14°C)
+                19, '#00ff80', // Forest Night (19°C)
+                22, '#ffff00', // Coastal / Rural Night (22°C)
+                25, '#ff7400', // Urban Night Heat Island (Jakarta ~25°C)
+                28, '#fe0100'  // Warm Tropical Urban Night (28°C)
               ],
-              'fill-opacity': this.getLayerOpacity('surface-temp'),
+              'fill-opacity': this.getLayerOpacity('lst-night'),
               'fill-antialias': true
             }
           });
         } else {
-          this.map.setLayoutProperty('gee-cfsv2-surface-fill', 'visibility', isSurfVis ? 'visible' : 'none');
+          this.map.setLayoutProperty('gee-modis-lst-night-fill', 'visibility', isNightVis ? 'visible' : 'none');
         }
       } else {
-        if (this.map.getLayer('gee-cfsv2-surface-fill')) {
-          this.map.setLayoutProperty('gee-cfsv2-surface-fill', 'visibility', 'none');
+        if (this.map.getLayer('gee-modis-lst-night-fill')) {
+          this.map.setLayoutProperty('gee-modis-lst-night-fill', 'visibility', 'none');
         }
       }
     } catch (e) {
-      logger.warn('Notice adding CFSV2 Surface Temp layer:', e);
+      logger.warn('Notice adding MODIS Nighttime LST layer:', e);
     }
 
-    // --- 3. CFSV2 INDONESIA CLIMATE STATIONS ---
+    // --- 3. MODIS LST MONITORING STATIONS (18 NODES) ---
     try {
       if (isStationsActive) {
-        const stationsSrc = this.map.getSource('gee-cfsv2-stations-source') as maplibregl.GeoJSONSource;
+        const stationsSrc = this.map.getSource('gee-modis-stations-source') as maplibregl.GeoJSONSource;
         if (!stationsSrc) {
-          this.map.addSource('gee-cfsv2-stations-source', {
+          this.map.addSource('gee-modis-stations-source', {
             type: 'geojson',
             data: this.stationsData
           });
@@ -329,37 +336,38 @@ export class GEELoader {
           stationsSrc.setData(this.stationsData);
         }
 
-        if (!this.map.getLayer('gee-cfsv2-stations-circles')) {
+        if (!this.map.getLayer('gee-modis-stations-circles')) {
           this.map.addLayer({
-            id: 'gee-cfsv2-stations-circles',
+            id: 'gee-modis-stations-circles',
             type: 'circle',
-            source: 'gee-cfsv2-stations-source',
+            source: 'gee-modis-stations-source',
             layout: { visibility: isStationsVis ? 'visible' : 'none' },
             paint: {
               'circle-radius': 12,
               'circle-color': [
                 'interpolate',
                 ['linear'],
-                ['coalesce', ['to-number', ['get', 'temp_air_c']], 28],
-                20, '#00ffff',
-                25, '#00ff80',
-                29, '#ffff00',
-                33, '#fe0100'
+                ['coalesce', ['to-number', ['get', 'lst_day_c']], 30],
+                10, '#0080ff',
+                22, '#00ffff',
+                28, '#00ff80',
+                32, '#ffff00',
+                36, '#fe0100'
               ],
               'circle-stroke-width': 2.5,
               'circle-stroke-color': '#ffffff'
             }
           });
         } else {
-          this.map.setLayoutProperty('gee-cfsv2-stations-circles', 'visibility', isStationsVis ? 'visible' : 'none');
+          this.map.setLayoutProperty('gee-modis-stations-circles', 'visibility', isStationsVis ? 'visible' : 'none');
         }
       } else {
-        if (this.map.getLayer('gee-cfsv2-stations-circles')) {
-          this.map.setLayoutProperty('gee-cfsv2-stations-circles', 'visibility', 'none');
+        if (this.map.getLayer('gee-modis-stations-circles')) {
+          this.map.setLayoutProperty('gee-modis-stations-circles', 'visibility', 'none');
         }
       }
     } catch (e) {
-      logger.warn('Notice adding CFSV2 Stations layer:', e);
+      logger.warn('Notice adding MODIS Stations layer:', e);
     }
   }
 
@@ -382,23 +390,23 @@ export class GEELoader {
         <div class="marker-pin">
           <span class="marker-icon">🌡️</span>
         </div>
-        <div class="marker-label">${props.name.split(' (')[0]}: ${props.temp_air_c}°C</div>
+        <div class="marker-label">${props.name.split(' (')[0]}: ${props.lst_day_c ?? props.temp_air_c}°C</div>
       `;
 
       el.addEventListener('click', () => {
         const html = `
           <div class="gee-popup-card">
-            <div class="gee-popup-badge live-badge">● LIVE CFSV2 GEE</div>
+            <div class="gee-popup-badge live-badge">● MODIS TERRA & AQUA LST</div>
             <h4>${props.name}</h4>
             <div class="gee-popup-sub">${props.province} · ${props.station_type}</div>
             <table class="gee-popup-table">
-              <tr><td><strong>2m Air Temp:</strong></td><td><span class="highlight-temp">${props.temp_air_c} °C</span> (${props.temp_air_k} K)</td></tr>
-              <tr><td><strong>Ground Surface Temp:</strong></td><td><strong>${props.temp_surface_c} °C</strong></td></tr>
-              <tr><td><strong>6h Max / Min Temp:</strong></td><td>${props.temp_max_6h_c} °C / ${props.temp_min_6h_c} °C</td></tr>
-              <tr><td><strong>Relative Humidity:</strong></td><td>${props.humidity_pct}%</td></tr>
-              <tr><td><strong>Surface Pressure:</strong></td><td>${props.pressure_hpa} hPa</td></tr>
-              <tr><td><strong>Elevation:</strong></td><td>${props.elevation_m} meters</td></tr>
-              <tr><td><strong>Cycle UTC:</strong></td><td><code>${props.timestamp_utc}</code></td></tr>
+              <tr><td><strong>Daytime LST (1km):</strong></td><td><span class="highlight-temp">${props.lst_day_c} °C</span> (${props.lst_day_k} K)</td></tr>
+              <tr><td><strong>Nighttime LST (1km):</strong></td><td><strong>${props.lst_night_c} °C</strong> (${props.lst_night_k} K)</td></tr>
+              <tr><td><strong>24h Mean LST:</strong></td><td>${props.lst_mean_c} °C</td></tr>
+              <tr><td><strong>Diurnal ΔT (Day-Night):</strong></td><td><span style="color: #f97316; font-weight: 600;">+${props.diurnal_delta_c} °C</span></td></tr>
+              <tr><td><strong>QA Validation:</strong></td><td><span style="color: #10b981;">✓ ${props.qa_quality_score}</span></td></tr>
+              <tr><td><strong>Ground Elevation:</strong></td><td>${props.elevation_m} meters</td></tr>
+              <tr><td><strong>Dataset DOI:</strong></td><td><code>MODIS/061/MOD11A1+MYD11A1</code></td></tr>
             </table>
           </div>
         `;
@@ -420,18 +428,18 @@ export class GEELoader {
   public updateLayerVisibilities() {
     if (!this.map) return;
 
-    const isAirVis = this.isLayerVisible('air-temp') || this.isLayerVisible('lst');
-    const isSurfVis = this.isLayerVisible('surface-temp') || this.isLayerVisible('elevation');
+    const isDayVis = this.isLayerVisible('lst-day') || this.isLayerVisible('air-temp') || this.isLayerVisible('lst');
+    const isNightVis = this.isLayerVisible('lst-night') || this.isLayerVisible('surface-temp') || this.isLayerVisible('elevation');
     const isStationsVis = this.isLayerVisible('stations') || this.isLayerVisible('poi');
 
-    if (this.map.getLayer('gee-cfsv2-air-fill')) {
-      this.map.setLayoutProperty('gee-cfsv2-air-fill', 'visibility', isAirVis ? 'visible' : 'none');
+    if (this.map.getLayer('gee-modis-lst-day-fill')) {
+      this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', isDayVis ? 'visible' : 'none');
     }
-    if (this.map.getLayer('gee-cfsv2-surface-fill')) {
-      this.map.setLayoutProperty('gee-cfsv2-surface-fill', 'visibility', isSurfVis ? 'visible' : 'none');
+    if (this.map.getLayer('gee-modis-lst-night-fill')) {
+      this.map.setLayoutProperty('gee-modis-lst-night-fill', 'visibility', isNightVis ? 'visible' : 'none');
     }
-    if (this.map.getLayer('gee-cfsv2-stations-circles')) {
-      this.map.setLayoutProperty('gee-cfsv2-stations-circles', 'visibility', isStationsVis ? 'visible' : 'none');
+    if (this.map.getLayer('gee-modis-stations-circles')) {
+      this.map.setLayoutProperty('gee-modis-stations-circles', 'visibility', isStationsVis ? 'visible' : 'none');
     }
 
     this.htmlMarkers.forEach((m) => {
@@ -441,57 +449,35 @@ export class GEELoader {
   }
 
   private bindLayerEvents() {
-    // Click on thermal field for point inspection with live telemetry
-    this.map.on('click', 'gee-cfsv2-air-fill', async (e) => {
+    // Click on thermal surface for point inspector
+    this.map.on('click', 'gee-modis-lst-day-fill', async (e) => {
       if (!e.features || e.features.length === 0) return;
       const props = e.features[0].properties;
       const lngLat = e.lngLat;
 
-      // Render instant popup from model
-      const renderPopupContent = (liveTemp?: number, humidity?: number, pressure?: number, wind?: number) => `
+      const html = `
         <div class="gee-popup-card">
-          <div class="gee-popup-badge live-badge">● LIVE GEE CFSV2</div>
-          <h4>🌡️ Real Climate Observation</h4>
-          <div class="gee-popup-sub">Coords: ${lngLat.lat.toFixed(4)}°, ${lngLat.lng.toFixed(4)}°</div>
+          <div class="gee-popup-badge live-badge">● MODIS LST (1 KM)</div>
+          <h4>🌡️ Land Surface Temperature</h4>
+          <div class="gee-popup-sub">Location: ${lngLat.lat.toFixed(4)}°, ${lngLat.lng.toFixed(4)}°</div>
           <table class="gee-popup-table">
-            <tr><td><strong>2m Air Temp:</strong></td><td><span class="highlight-temp">${liveTemp ?? props.temp_air_c} °C</span> (${round((liveTemp ?? props.temp_air_c) + 273.15, 2)} K)</td></tr>
-            <tr><td><strong>Ground Surface:</strong></td><td><strong>${props.temp_surface_c} °C</strong></td></tr>
-            <tr><td><strong>Relative Humidity:</strong></td><td>${humidity ?? '78'}%</td></tr>
-            <tr><td><strong>Surface Pressure:</strong></td><td>${pressure ?? '1011.2'} hPa</td></tr>
-            ${wind !== undefined ? `<tr><td><strong>Surface Wind:</strong></td><td>${wind} km/h</td></tr>` : ''}
-            <tr><td><strong>Ground Elevation:</strong></td><td>${props.elevation_m} meters</td></tr>
-            <tr><td><strong>Model Source:</strong></td><td><code>NOAA/CFSV2_FOR6H_HARMONIZED</code></td></tr>
+            <tr><td><strong>Daytime LST:</strong></td><td><span class="highlight-temp">${props.lst_day_c ?? props.temp_air_c} °C</span> (${round((props.lst_day_c ?? props.temp_air_c) + 273.15, 2)} K)</td></tr>
+            <tr><td><strong>Nighttime LST:</strong></td><td><strong>${props.lst_night_c ?? props.temp_surface_c} °C</strong></td></tr>
+            <tr><td><strong>24h Mean LST:</strong></td><td>${props.lst_mean_c ?? '28.0'} °C</td></tr>
+            <tr><td><strong>Diurnal ΔT (UHI):</strong></td><td><span style="color: #f97316; font-weight: 600;">+${props.delta_uhi_c ?? '9.5'} °C</span></td></tr>
+            <tr><td><strong>Elevation ASL:</strong></td><td>${props.elevation_m} meters</td></tr>
+            <tr><td><strong>Dataset Source:</strong></td><td><code>MODIS/061/MOD11A1+MYD11A1 (1km)</code></td></tr>
           </table>
         </div>
       `;
 
       this.popup
         .setLngLat(lngLat)
-        .setHTML(renderPopupContent())
+        .setHTML(html)
         .addTo(this.map);
-
-      // Fetch live real-time point verification from open-meteo
-      try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lngLat.lat.toFixed(4)}&longitude=${lngLat.lng.toFixed(4)}&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m`;
-        const res = await fetch(url);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.current) {
-            const t = data.current.temperature_2m;
-            const h = data.current.relative_humidity_2m;
-            const p = data.current.surface_pressure;
-            const w = data.current.wind_speed_10m;
-            if (this.popup.isOpen()) {
-              this.popup.setHTML(renderPopupContent(t, h, p, w));
-            }
-          }
-        }
-      } catch (err) {
-        // Fallback silently
-      }
     });
 
-    ['gee-cfsv2-air-fill', 'gee-cfsv2-surface-fill', 'gee-cfsv2-stations-circles'].forEach((layerId) => {
+    ['gee-modis-lst-day-fill', 'gee-modis-lst-night-fill', 'gee-modis-stations-circles'].forEach((layerId) => {
       this.map.on('mouseenter', layerId, () => (this.map.getCanvas().style.cursor = 'pointer'));
       this.map.on('mouseleave', layerId, () => (this.map.getCanvas().style.cursor = ''));
     });

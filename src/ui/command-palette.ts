@@ -291,14 +291,14 @@ export class CommandPaletteUI {
         id: 'tool-gee-cfsv2',
         category: 'tools',
         categoryLabel: '⚡ Tools & Analysis',
-        title: 'Real Google Earth Engine (NOAA CFSV2 Live Climate)',
-        subtitle: 'Explore live 6-hourly 2m air temperature, ground surface skin temp, and observation nodes',
+        title: 'Real Google Earth Engine (MODIS 1km Land Surface Temp)',
+        subtitle: 'Explore 1km MODIS Terra+Aqua Daytime LST, Nighttime LST, and 18-station network',
         icon: '🌡️',
-        keywords: ['gee', 'earth engine', 'climate', 'temperature', 'cfsv2', 'noaa', 'weather', 'live', 'suhu', 'chart'],
+        keywords: ['gee', 'earth engine', 'climate', 'temperature', 'lst', 'modis', 'terra', 'aqua', 'live', 'suhu', 'chart'],
         action: () => {
           this.sidebarUI.setActiveTab('gee');
           this.geeLoader?.loadGEEDatasets();
-          showToast('Real GEE NOAA CFSV2 Live Climate activated', 'info');
+          showToast('Real GEE MODIS 1km LST Activated', 'info');
         }
       },
       {

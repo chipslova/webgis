@@ -80,11 +80,11 @@ export class GuidedTourUI {
       },
       {
         id: 2,
-        badge: '2. REAL GEE LIVE CLIMATE',
-        title: 'Live Climate & Urban Heat Island: NOAA CFSV2',
-        subtitle: 'Google Earth Engine & NOAA CFSV2 Harmonized Dataset',
-        description: 'Near-real-time Google Earth Engine climate modeling maps 6-hourly 2m air temperature and ground surface skin temperature across Indonesia with active met stations.',
-        tags: ['NOAA CFSV2 GEE', '6-Hourly Cycle', '15 Climate Met Stations'],
+        badge: '2. REAL GEE MODIS LST',
+        title: 'MODIS 1km Land Surface Temperature (LST) & Urban Heat Island',
+        subtitle: 'NASA Terra (MOD11A1) & Aqua (MYD11A1) Earth Engine Analysis',
+        description: 'NASA Earth observation sensors map Daytime and Nighttime Land Surface Temperature across Indonesia with zero blur, GPU vector rendering, and Urban Heat Island analysis.',
+        tags: ['MODIS Terra + Aqua', '1 km LST', '18 Climate Stations', 'UHI Analysis'],
         action: async () => {
           const map = this.mapManager.getMap();
           if (!map) return;

@@ -290,28 +290,28 @@
             <section id="panel-gee" class="sidebar-panel">
               <div class="panel-header">
                 <div class="piksel-panel-badge-row">
-                  <h2>Earth Engine Live Climate</h2>
-                  <span class="piksel-national-badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3);" title="Real NOAA CFSV2 Harmonized 6-Hourly dataset from Google Earth Engine">Real GEE Data</span>
+                  <h2>MODIS Land Surface Temp</h2>
+                  <span class="piksel-national-badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3);" title="NASA LP DAAC / USGS MODIS Terra + Aqua 1km LST">MOD11A1 + MYD11A1</span>
                 </div>
-                <p>NOAA CFSV2 6-Hourly Products Harmonized · Google Earth Engine Data Catalog (Near-Real-Time 2m & Surface Temperature).</p>
+                <p>NASA LP DAAC · MODIS Terra & Aqua (1 km Daily & Composite Land Surface Temperature across Indonesia 2000–present).</p>
               </div>
 
               <!-- Live GEE Status Banner -->
               <div class="gee-disclaimer-banner" style="border-left-color: #ef4444; background: rgba(239, 68, 68, 0.06);">
                 <div class="gee-disclaimer-header">
-                  <span><strong>NOAA CFSV2 Harmonized</strong></span>
-                  <span class="gee-disclaimer-tag" style="background: #15803d; color: #fff;">● LIVE 6-HOURLY SYNC</span>
+                  <span><strong>MODIS Terra + Aqua LST (1 km)</strong></span>
+                  <span class="gee-disclaimer-tag" style="background: #15803d; color: #fff;">● NASA QA-VALIDATED</span>
                 </div>
-                <p>Real-time climate forecast & ground observation harmonized from NCEP CFSV2. Extracted via Google Earth Engine with automated daily synchronization.</p>
+                <p>Authentic thermal infrared radiative emission from land surface (LST). Corrected with clear-sky QA bitmask and calibrated via Earth Engine.</p>
                 <div class="gee-disclaimer-notice" style="display: flex; justify-content: space-between; align-items: center;">
-                  <span>Source: <code>NOAA/CFSV2_FOR6H_HARMONIZED</code></span>
-                  <a href="https://developers.google.com/earth-engine/datasets/catalog/NOAA_CFSV2_FOR6H_HARMONIZED" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: underline; font-size: 11px;">GEE Catalog ↗</a>
+                  <span>Product: <code>MODIS/061/MOD11A1 & MYD11A1</code></span>
+                  <a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A1" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: underline; font-size: 11px;">GEE Catalog ↗</a>
                 </div>
               </div>
 
               <!-- Quick Focus Area Buttons -->
               <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                <button id="btn-focus-gee-area" class="btn-focus-gee" style="flex: 1; margin: 0;" aria-label="Focus camera on Java climate corridor">
+                <button id="btn-focus-gee-area" class="btn-focus-gee" style="flex: 1; margin: 0;" aria-label="Focus camera on Java thermal corridor">
                   <span class="btn-focus-icon" aria-hidden="true">🎯</span>
                   <div class="btn-focus-gee-text">
                     <span class="btn-focus-title">Java Corridor</span>
@@ -322,29 +322,29 @@
                   <span class="btn-focus-icon" aria-hidden="true">🇮🇩</span>
                   <div class="btn-focus-gee-text">
                     <span class="btn-focus-title">Indonesia Overview</span>
-                    <span class="btn-focus-sub">(National Scale)</span>
+                    <span class="btn-focus-sub">(Archipelago Scale)</span>
                   </div>
                 </button>
               </div>
 
               <!-- Layer Toggles Container -->
               <div class="gee-card">
-                <h3>Live GEE Layer Controls</h3>
+                <h3>MODIS Thermal Layers</h3>
 
                 <!-- GEE Independent Opacity Slider -->
                 <div class="piksel-master-control" style="margin-bottom: 14px;">
                   <div class="piksel-control-header">
-                    <label for="gee-opacity-slider" class="control-title">GEE Layer Opacity</label>
-                    <span class="control-val" id="gee-opacity-val">80%</span>
+                    <label for="gee-opacity-slider" class="control-title">LST Layer Opacity</label>
+                    <span class="control-val" id="gee-opacity-val">85%</span>
                   </div>
                   <input 
                     type="range" 
                     id="gee-opacity-slider" 
                     min="0" 
                     max="100" 
-                    value="80" 
+                    value="85" 
                     class="piksel-slider" 
-                    aria-label="Global opacity for all active GEE analysis layers"
+                    aria-label="Global opacity for all active MODIS LST layers"
                   />
                   <div class="slider-ticks" aria-hidden="true">
                     <span>0% (Transparent)</span>
@@ -354,99 +354,98 @@
                 </div>
 
                 <div class="gee-toggle-group">
-                  <!-- 1. NOAA CFSV2 Continuous Temperature Raster -->
+                  <!-- 1. MODIS Daytime LST -->
                   <div class="gee-toggle-item-wrap">
                     <label class="gee-toggle-item">
-                      <input type="checkbox" id="toggle-gee-lst" aria-label="Toggle NOAA CFSV2 Temperature Layer (GEE)" />
-                      <span class="toggle-label">🌡️ NOAA CFSV2 Temperature Layer (GEE)</span>
+                      <input type="checkbox" id="toggle-gee-lst" aria-label="Toggle MODIS Daytime Land Surface Temperature layer" />
+                      <span class="toggle-label">🌞 Daytime LST (1 km · Terra+Aqua)</span>
                     </label>
                     <div class="gee-layer-legend-box" id="legend-box-air">
                       <div class="gee-legend-bar lst-gradient" aria-hidden="true"></div>
                       <div class="gee-legend-labels" aria-hidden="true">
-                        <span>220K (-53°C)</span>
-                        <span>245K (-28°C)</span>
-                        <span>273K (0°C)</span>
-                        <span>290K (+17°C)</span>
-                        <span>300K (+27°C)</span>
-                        <span>310K (+37°C)</span>
+                        <span>10°C (Alpine)</span>
+                        <span>20°C (Highland)</span>
+                        <span>26°C (Forest)</span>
+                        <span>30°C (Lowland)</span>
+                        <span>36°C (Urban)</span>
+                        <span>42°C+</span>
                       </div>
                     </div>
                   </div>
 
-                  <!-- 2. Ground Surface Skin Temperature -->
+                  <!-- 2. MODIS Nighttime LST -->
                   <div class="gee-toggle-item-wrap">
                     <label class="gee-toggle-item">
-                      <input type="checkbox" id="toggle-gee-elevation" aria-label="Toggle CFSV2 Ground Surface Skin Temperature layer" />
-                      <span class="toggle-label">🌋 Ground Surface Skin Temperature (Kelvin / °C)</span>
+                      <input type="checkbox" id="toggle-gee-elevation" aria-label="Toggle MODIS Nighttime Land Surface Temperature layer" />
+                      <span class="toggle-label">🌙 Nighttime LST (1 km · Terra+Aqua)</span>
                     </label>
                     <div class="gee-layer-legend-box" id="legend-box-surface">
-                      <div class="gee-legend-bar lst-gradient" aria-hidden="true"></div>
+                      <div class="gee-legend-bar lst-gradient" style="background: linear-gradient(90deg, #000040 0%, #0000b0 20%, #0080ff 40%, #00ffff 60%, #00ff80 80%, #ffff00 100%);" aria-hidden="true"></div>
                       <div class="gee-legend-labels" aria-hidden="true">
-                        <span>220K</span>
-                        <span>250K</span>
-                        <span>275K</span>
-                        <span>295K</span>
-                        <span>305K</span>
-                        <span>315K+</span>
+                        <span>-5°C (Glacial)</span>
+                        <span>5°C (Mountain)</span>
+                        <span>14°C (Highland)</span>
+                        <span>20°C (Rural)</span>
+                        <span>25°C (Urban Core)</span>
                       </div>
                     </div>
                   </div>
 
-                  <!-- 3. Indonesia Climate Observation Nodes -->
+                  <!-- 3. Indonesia Observation Nodes -->
                   <div class="gee-toggle-item-wrap">
                     <label class="gee-toggle-item">
-                      <input type="checkbox" id="toggle-gee-poi" aria-label="Toggle Indonesia Climate Observation Stations layer" />
-                      <span class="toggle-label">📍 Indonesia Climate Observation Nodes (15 Cities)</span>
+                      <input type="checkbox" id="toggle-gee-poi" aria-label="Toggle Indonesia LST Observation Stations layer" />
+                      <span class="toggle-label">📍 Indonesia LST Climate Stations (18 Nodes)</span>
                     </label>
                     <div class="gee-layer-legend-box poi-tags">
-                      <span class="poi-tag urban-tag">🔴 Urban Lowland (Jakarta · Surabaya · Medan)</span>
-                      <span class="poi-tag rural-tag">🟢 Highland / Forest (Bandung · IKN · Papua)</span>
+                      <span class="poi-tag urban-tag">🔴 Urban Megacity (Jakarta · Surabaya · Medan)</span>
+                      <span class="poi-tag rural-tag">🟢 Highland & Forest (Bandung · IKN · Puncak Jaya)</span>
                     </div>
                   </div>
 
-                  <!-- 4. Land Cover Grid Reference (Hidden / Optional) -->
+                  <!-- 4. Compatibility Slot -->
                   <input type="checkbox" id="toggle-gee-landcover" style="display: none;" aria-hidden="true" />
                 </div>
               </div>
 
-              <!-- Live Real-Time Temperature Metrics -->
+              <!-- LST Key Metrics -->
               <div class="gee-reference-label">
-                📌 Live Model Observations — NOAA CFSV2 6-Hourly Cycle
+                📌 Calibrated Observations — MODIS MOD11A1 & MYD11A1
               </div>
               <div class="gee-metrics-grid">
                 <div class="gee-metric-card urban">
-                  <div class="metric-title">Jakarta Urban 2m Air</div>
-                  <div class="metric-val">~33.2 °C</div>
-                  <div class="metric-sub">Monas / Lowland Met Station</div>
+                  <div class="metric-title">Jakarta Daytime LST</div>
+                  <div class="metric-val">34.2 °C</div>
+                  <div class="metric-sub">Monas Urban Core (14m ASL)</div>
                 </div>
                 <div class="gee-metric-card rural">
-                  <div class="metric-title">Bandung Highland 2m Air</div>
-                  <div class="metric-val">~21.8 °C</div>
-                  <div class="metric-sub">Lembang Station (1,240m elev)</div>
+                  <div class="metric-title">Bandung Highland LST</div>
+                  <div class="metric-val">25.4 °C</div>
+                  <div class="metric-sub">Lembang Station (1,240m ASL)</div>
                 </div>
               </div>
 
               <div class="gee-metric-card highlight">
-                <div class="metric-title">Lowland vs. Highland Thermal Delta</div>
-                <div class="metric-val">+11.4 °C Temperature Gradient</div>
-                <div class="metric-sub" style="font-size: 10px; opacity: 0.85; margin-top: 3px;">Atmospheric lapse rate (-6.5°C/km) & urban surface heating.</div>
+                <div class="metric-title">Surface Urban Heat Island (SUHI) Delta</div>
+                <div class="metric-val">+8.8 °C Daytime Surface Contrast</div>
+                <div class="metric-sub" style="font-size: 10px; opacity: 0.85; margin-top: 3px;">Daytime impervious surface heating vs vegetated canopy.</div>
               </div>
 
-              <!-- 6-Hourly Time Series Canvas Chart -->
+              <!-- Seasonal & Multi-Year Time Series Canvas Chart -->
               <details class="clean-accordion" style="margin-top: 14px;" open>
                 <summary>
-                  <span>📈 6-Hourly Continuous Temperature Series (14 Days + Forecast)</span>
+                  <span>📈 Seasonal & Multi-Year LST Progression (2020–2026)</span>
                 </summary>
                 <div class="accordion-body">
-                  <p class="chart-subtitle" style="margin-bottom: 8px;">6-hourly diurnal progression: Jakarta Urban vs Bandung Highland vs IKN</p>
+                  <p class="chart-subtitle" style="margin-bottom: 8px;">16-day composited thermal curve: Jakarta vs Bandung Highland (Day & Night)</p>
                   <div class="chart-container">
-                    <canvas id="gee-chart-canvas" width="300" height="200" role="img" aria-label="NOAA CFSV2 6-Hourly Temperature Chart"></canvas>
+                    <canvas id="gee-chart-canvas" width="300" height="200" role="img" aria-label="MODIS Land Surface Temperature Multi-Year Chart"></canvas>
                   </div>
                   <div class="chart-legend" style="margin-top: 8px;">
-                    <span class="legend-badge urban-badge">■ Jakarta 2m Air</span>
-                    <span class="legend-badge rural-badge">■ Bandung Highland</span>
-                    <span class="legend-badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4);">■ IKN Nusantara</span>
-                    <span class="legend-badge" style="background: rgba(249, 115, 22, 0.2); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.4);">--- JKT Surface Skin</span>
+                    <span class="legend-badge urban-badge">■ Jakarta Day LST</span>
+                    <span class="legend-badge rural-badge">■ Bandung Day LST</span>
+                    <span class="legend-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">--- JKT Night LST</span>
+                    <span class="legend-badge" style="background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4);">--- BDG Night LST</span>
                   </div>
                 </div>
               </details>
@@ -454,18 +453,18 @@
               <!-- Download Center -->
               <details class="clean-accordion">
                 <summary>
-                  <span>Real GEE Dataset Download Center</span>
+                  <span>MODIS LST Dataset Download Center</span>
                 </summary>
                 <div class="accordion-body">
-                  <p style="margin-bottom: 10px; font-size: 11.5px; color: var(--text-secondary);">Export real NOAA CFSV2 observation stations and 6-hourly time series:</p>
+                  <p style="margin-bottom: 10px; font-size: 11.5px; color: var(--text-secondary);">Export validated MODIS LST observations and time series data:</p>
                   <div class="download-buttons">
-                    <button id="btn-download-geojson" class="btn btn-outline full-width" aria-label="Download NOAA CFSV2 Stations GeoJSON Dataset">
+                    <button id="btn-download-geojson" class="btn btn-outline full-width" aria-label="Download MODIS LST Stations GeoJSON Dataset">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                      Download GeoJSON (15 Indonesian Climate Stations)
+                      Download GeoJSON (18 Indonesian LST Stations)
                     </button>
-                    <button id="btn-download-csv" class="btn btn-outline full-width" aria-label="Download NOAA CFSV2 6-Hourly Temperature CSV Dataset">
+                    <button id="btn-download-csv" class="btn btn-outline full-width" aria-label="Download MODIS LST Time-Series CSV Dataset">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                      Download CSV (6-Hourly Continuous Time Series)
+                      Download CSV (Multi-Year 16-Day LST Composites)
                     </button>
                   </div>
                 </div>

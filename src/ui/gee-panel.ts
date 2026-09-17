@@ -1,19 +1,23 @@
 import { GEELoader } from '../tools/gee-loader';
 import { showToast } from './toast';
 
-interface CFSV2TimeSeriesRecord {
+interface MODISTimeSeriesRecord {
   date: string;
-  iso?: string;
   timestamp_ms: number;
-  hour_utc?: number;
-  is_forecast?: boolean;
+  year?: number;
+  month?: number;
+  jkt_day_lst_c?: number;
+  jkt_night_lst_c?: number;
+  bdg_day_lst_c?: number;
+  bdg_night_lst_c?: number;
+  ikn_day_lst_c?: number;
+  ikn_night_lst_c?: number;
+  uhi_delta_c?: number;
+  // Aliases
   jkt_air_temp_c?: number;
   jkt_surface_temp_c?: number;
   bdg_air_temp_c?: number;
   bdg_surface_temp_c?: number;
-  ikn_air_temp_c?: number;
-  delta_urban_rural_c?: number;
-  // Compatibility
   urban_obs_c?: number;
   urban_fitted_c?: number;
   rural_obs_c?: number;
@@ -22,7 +26,7 @@ interface CFSV2TimeSeriesRecord {
 
 export class GEEPanelUI {
   private geeLoader: GEELoader;
-  private timeSeriesData: CFSV2TimeSeriesRecord[] = [];
+  private timeSeriesData: MODISTimeSeriesRecord[] = [];
   private canvas: HTMLCanvasElement | null = null;
   private isInitialized: boolean = false;
   private isToggleEventsBound: boolean = false;
@@ -39,7 +43,6 @@ export class GEEPanelUI {
       this.bindOpacityEvents();
       this.bindDownloadEvents();
 
-      // Listen to geeLoader state changes
       this.geeLoader.onLayersChange(() => {
         this.syncCheckboxStates();
       });
@@ -51,14 +54,12 @@ export class GEEPanelUI {
         });
       }
 
-      // Re-render chart on window resize
       window.addEventListener('resize', () => {
         this.renderTimeSeriesChart();
       });
 
-      // Listen for GEE data load failures
       window.addEventListener('gee-load-error', () => {
-        showToast('Failed to load NOAA CFSV2 GEE data. Please check your network connection.', 'error');
+        showToast('Failed to load MODIS LST data. Please check your network connection.', 'error');
       }, { once: false });
 
       this.isInitialized = true;
@@ -68,16 +69,13 @@ export class GEEPanelUI {
   }
 
   private syncCheckboxStates() {
-    // Air temp / LST
-    const airEl = (document.getElementById('toggle-gee-air') || document.getElementById('toggle-gee-lst')) as HTMLInputElement;
-    if (airEl) airEl.checked = this.geeLoader.isLayerVisible('air-temp') || this.geeLoader.isLayerVisible('lst');
+    const dayEl = (document.getElementById('toggle-gee-lst') || document.getElementById('toggle-gee-air')) as HTMLInputElement;
+    if (dayEl) dayEl.checked = this.geeLoader.isLayerVisible('lst-day') || this.geeLoader.isLayerVisible('lst');
 
-    // Surface temp / Elevation
-    const surfEl = (document.getElementById('toggle-gee-surface') || document.getElementById('toggle-gee-elevation')) as HTMLInputElement;
-    if (surfEl) surfEl.checked = this.geeLoader.isLayerVisible('surface-temp') || this.geeLoader.isLayerVisible('elevation');
+    const nightEl = (document.getElementById('toggle-gee-elevation') || document.getElementById('toggle-gee-surface')) as HTMLInputElement;
+    if (nightEl) nightEl.checked = this.geeLoader.isLayerVisible('lst-night') || this.geeLoader.isLayerVisible('elevation');
 
-    // Stations / POI
-    const stEl = (document.getElementById('toggle-gee-stations') || document.getElementById('toggle-gee-poi')) as HTMLInputElement;
+    const stEl = (document.getElementById('toggle-gee-poi') || document.getElementById('toggle-gee-stations')) as HTMLInputElement;
     if (stEl) stEl.checked = this.geeLoader.isLayerVisible('stations') || this.geeLoader.isLayerVisible('poi');
 
     const opacitySlider = document.getElementById('gee-opacity-slider') as HTMLInputElement;
@@ -111,15 +109,14 @@ export class GEEPanelUI {
       }
     };
 
-    // Support both new CFSV2 IDs and legacy IDs
-    attachToggle('toggle-gee-air', 'air-temp');
-    attachToggle('toggle-gee-lst', 'air-temp');
+    attachToggle('toggle-gee-lst', 'lst-day');
+    attachToggle('toggle-gee-air', 'lst-day');
 
-    attachToggle('toggle-gee-surface', 'surface-temp');
-    attachToggle('toggle-gee-elevation', 'surface-temp');
+    attachToggle('toggle-gee-elevation', 'lst-night');
+    attachToggle('toggle-gee-surface', 'lst-night');
 
-    attachToggle('toggle-gee-stations', 'stations');
     attachToggle('toggle-gee-poi', 'stations');
+    attachToggle('toggle-gee-stations', 'stations');
 
     const focusBtn = document.getElementById('btn-focus-gee-area');
     if (focusBtn) {
@@ -146,9 +143,9 @@ export class GEEPanelUI {
       btnGeoJSON.addEventListener('click', () => {
         const link = document.createElement('a');
         link.href = '/data/gee_cfsv2_stations.geojson';
-        link.download = 'gee_cfsv2_climate_stations_indonesia.geojson';
+        link.download = 'modis_lst_stations_indonesia.geojson';
         link.click();
-        showToast('Downloading NOAA CFSV2 Climate Stations (GeoJSON)...', 'info');
+        showToast('Downloading MODIS LST Stations (GeoJSON)...', 'info');
       });
     }
 
@@ -156,9 +153,9 @@ export class GEEPanelUI {
       btnCSV.addEventListener('click', () => {
         const link = document.createElement('a');
         link.href = '/downloads/gee_cfsv2_temperature_indonesia.csv';
-        link.download = 'gee_cfsv2_temperature_indonesia.csv';
+        link.download = 'modis_lst_seasonal_timeseries_indonesia.csv';
         link.click();
-        showToast('Downloading NOAA CFSV2 6-Hourly Temperature (CSV)...', 'info');
+        showToast('Downloading MODIS LST Multi-Year Time Series (CSV)...', 'info');
       });
     }
   }
@@ -179,7 +176,7 @@ export class GEEPanelUI {
           this.timeSeriesData = (json.data as any) || [];
         }
       } catch (e) {
-        // Silently handle offline/mock test environments
+        // Fallback
       }
     }
 
@@ -195,24 +192,23 @@ export class GEEPanelUI {
     const chartW = width - padding.left - padding.right;
     const chartH = height - padding.top - padding.bottom;
 
-    // Y domain: 15°C to 40°C
-    const yMin = 15;
+    // Y domain: 10°C to 40°C
+    const yMin = 10;
     const yMax = 40;
 
     // Clear canvas
     ctx.clearRect(0, 0, width, height);
 
-    // Draw background grid lines
+    // Grid lines
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
     ctx.lineWidth = 1;
-    for (let yVal = 15; yVal <= 40; yVal += 5) {
+    for (let yVal = 10; yVal <= 40; yVal += 10) {
       const y = padding.top + chartH - ((yVal - yMin) / (yMax - yMin)) * chartH;
       ctx.beginPath();
       ctx.moveTo(padding.left, y);
       ctx.lineTo(width - padding.right, y);
       ctx.stroke();
 
-      // Label
       ctx.fillStyle = '#94a3b8';
       ctx.font = '10px Inter, sans-serif';
       ctx.fillText(`${yVal}°C`, 5, y + 3);
@@ -221,23 +217,36 @@ export class GEEPanelUI {
     const totalCount = this.timeSeriesData.length;
     const xStep = chartW / (totalCount - 1);
 
-    // Draw X-axis timestamps
+    // X Axis Years
     [0, Math.floor(totalCount * 0.33), Math.floor(totalCount * 0.66), totalCount - 1].forEach((idx) => {
       const rec = this.timeSeriesData[idx];
       if (!rec) return;
       const x = padding.left + idx * xStep;
-      const datePart = rec.date.substring(5, 10);
+      const yearStr = rec.date.substring(0, 4);
       ctx.fillStyle = '#94a3b8';
       ctx.font = '10px Inter, sans-serif';
-      ctx.fillText(datePart, Math.max(padding.left, x - 12), height - 8);
+      ctx.fillText(yearStr, Math.max(padding.left, x - 12), height - 8);
     });
 
-    // 1. Draw Bandung Highland (Cooler - Green)
+    // 1. Bandung Highland Night LST (Coolest - Cyan line)
+    ctx.strokeStyle = '#06b6d4';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    this.timeSeriesData.forEach((rec, i) => {
+      const tempVal = rec.bdg_night_lst_c ?? rec.bdg_surface_temp_c ?? 15;
+      const x = padding.left + i * xStep;
+      const y = padding.top + chartH - ((tempVal - yMin) / (yMax - yMin)) * chartH;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // 2. Bandung Highland Day LST (Green line)
     ctx.strokeStyle = '#10b981';
     ctx.lineWidth = 2;
     ctx.beginPath();
     this.timeSeriesData.forEach((rec, i) => {
-      const tempVal = rec.bdg_air_temp_c ?? rec.rural_obs_c ?? 22;
+      const tempVal = rec.bdg_day_lst_c ?? rec.bdg_air_temp_c ?? 25;
       const x = padding.left + i * xStep;
       const y = padding.top + chartH - ((tempVal - yMin) / (yMax - yMin)) * chartH;
       if (i === 0) ctx.moveTo(x, y);
@@ -245,49 +254,32 @@ export class GEEPanelUI {
     });
     ctx.stroke();
 
-    // 2. Draw IKN Nusantara (Purple)
-    if (this.timeSeriesData[0]?.ikn_air_temp_c !== undefined) {
-      ctx.strokeStyle = '#a855f7';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      this.timeSeriesData.forEach((rec, i) => {
-        const tempVal = rec.ikn_air_temp_c ?? 28;
-        const x = padding.left + i * xStep;
-        const y = padding.top + chartH - ((tempVal - yMin) / (yMax - yMin)) * chartH;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-    }
+    // 3. Jakarta Urban Night LST (Amber dashed)
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    this.timeSeriesData.forEach((rec, i) => {
+      const tempVal = rec.jkt_night_lst_c ?? rec.jkt_surface_temp_c ?? 24;
+      const x = padding.left + i * xStep;
+      const y = padding.top + chartH - ((tempVal - yMin) / (yMax - yMin)) * chartH;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
 
-    // 3. Draw Jakarta Urban 2m Air Temp (Red/Orange)
+    // 4. Jakarta Urban Day LST (Red solid line)
     ctx.strokeStyle = '#ef4444';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
     this.timeSeriesData.forEach((rec, i) => {
-      const tempVal = rec.jkt_air_temp_c ?? rec.urban_obs_c ?? 32;
+      const tempVal = rec.jkt_day_lst_c ?? rec.jkt_air_temp_c ?? rec.urban_obs_c ?? 34;
       const x = padding.left + i * xStep;
       const y = padding.top + chartH - ((tempVal - yMin) / (yMax - yMin)) * chartH;
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     });
     ctx.stroke();
-
-    // 4. Draw Jakarta Surface Skin Temp (Dashed Orange)
-    if (this.timeSeriesData[0]?.jkt_surface_temp_c !== undefined) {
-      ctx.strokeStyle = 'rgba(249, 115, 22, 0.85)';
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([4, 3]);
-      ctx.beginPath();
-      this.timeSeriesData.forEach((rec, i) => {
-        const tempVal = rec.jkt_surface_temp_c ?? 34;
-        const x = padding.left + i * xStep;
-        const y = padding.top + chartH - ((tempVal - yMin) / (yMax - yMin)) * chartH;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-      ctx.setLineDash([]); // Reset
-    }
   }
 }

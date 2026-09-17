@@ -77,51 +77,51 @@ export class DynamicLegendUI {
       `;
     }
 
-    // 2. Active GEE Layers (NOAA CFSV2 Air Temp, Surface Skin Temp, Stations)
+    // 2. Active GEE Layers (MODIS Terra + Aqua 1km LST Day/Night, Stations)
     if (this.geeLoader) {
-      if (this.geeLoader.isLayerVisible('air-temp') || this.geeLoader.isLayerVisible('lst')) {
+      if (this.geeLoader.isLayerVisible('lst-day') || this.geeLoader.isLayerVisible('lst') || this.geeLoader.isLayerVisible('air-temp')) {
         activeLayersCount++;
         thematicHtml += `
           <div class="dynamic-legend-card">
             <div class="dynamic-legend-card-header">
-              <span class="legend-card-icon">🌡️</span>
+              <span class="legend-card-icon">☀️</span>
               <div>
-                <div class="dynamic-legend-title">NOAA CFSV2 2m Air Temperature</div>
-                <div class="dynamic-legend-sub">Near-Real-Time 6-Hourly Harmonized Model (GEE)</div>
+                <div class="dynamic-legend-title">MODIS Daytime Land Surface Temp (1 km)</div>
+                <div class="dynamic-legend-sub">NASA Terra MOD11A1 & Aqua MYD11A1 Composite (GEE)</div>
               </div>
             </div>
             <div class="gee-legend-bar lst-gradient" style="margin-top: 8px;"></div>
             <div class="gee-legend-labels">
-              <span>220K (-53°C)</span>
-              <span>245K (-28°C)</span>
-              <span>273K (0°C)</span>
-              <span>290K (+17°C)</span>
-              <span>300K (+27°C)</span>
-              <span>310K (+37°C)</span>
+              <span>10°C (Highland)</span>
+              <span>20°C</span>
+              <span>26°C</span>
+              <span>32°C (Urban)</span>
+              <span>38°C</span>
+              <span>42°C+</span>
             </div>
           </div>
         `;
       }
 
-      if (this.geeLoader.isLayerVisible('surface-temp') || this.geeLoader.isLayerVisible('elevation')) {
+      if (this.geeLoader.isLayerVisible('lst-night') || this.geeLoader.isLayerVisible('surface-temp') || this.geeLoader.isLayerVisible('elevation')) {
         activeLayersCount++;
         thematicHtml += `
           <div class="dynamic-legend-card">
             <div class="dynamic-legend-card-header">
-              <span class="legend-card-icon">🌋</span>
+              <span class="legend-card-icon">🌙</span>
               <div>
-                <div class="dynamic-legend-title">CFSV2 Ground Surface Skin Temperature</div>
-                <div class="dynamic-legend-sub">Ground Skin Thermal Layer (Kelvin / °C)</div>
+                <div class="dynamic-legend-title">MODIS Nighttime Land Surface Temp (1 km)</div>
+                <div class="dynamic-legend-sub">Radiative Surface Cooling (Terra + Aqua LST Night)</div>
               </div>
             </div>
             <div class="gee-legend-bar lst-gradient" style="margin-top: 8px;"></div>
             <div class="gee-legend-labels">
-              <span>220K</span>
-              <span>250K</span>
-              <span>275K</span>
-              <span>295K</span>
-              <span>305K</span>
-              <span>315K+</span>
+              <span>-5°C (Summit)</span>
+              <span>10°C</span>
+              <span>16°C</span>
+              <span>22°C (Coast)</span>
+              <span>26°C (UHI)</span>
+              <span>28°C+</span>
             </div>
           </div>
         `;
@@ -134,18 +134,18 @@ export class DynamicLegendUI {
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">📍</span>
               <div>
-                <div class="dynamic-legend-title">Indonesia Climate Observation Stations</div>
-                <div class="dynamic-legend-sub">15 Met Stations · NOAA CFSV2 Live Extraction</div>
+                <div class="dynamic-legend-title">Indonesia 1km MODIS Station Network</div>
+                <div class="dynamic-legend-sub">18 Monitoring Stations · NASA LP DAAC & GEE</div>
               </div>
             </div>
             <div class="dynamic-legend-swatches" style="margin-top: 8px;">
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #ef4444; border-radius: 50%;"></span>
-                <span class="dynamic-legend-label">Urban Lowland Met (Jakarta · Surabaya · Medan)</span>
+                <span class="dynamic-legend-label">Urban Heat Island Node (Jakarta · Surabaya · Medan)</span>
               </div>
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #10b981; border-radius: 50%;"></span>
-                <span class="dynamic-legend-label">Highland & Forest Met (Bandung · IKN · Papua)</span>
+                <span class="dynamic-legend-label">Forest Baseline & Highland (Papua · IKN · Gunung Gede)</span>
               </div>
             </div>
           </div>
