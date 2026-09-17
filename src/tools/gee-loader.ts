@@ -146,6 +146,8 @@ export class GEELoader {
   public getAllMapLayerIds(): string[] {
     return [
       'gee-modis-live-raster-layer',
+      'gee-modis-lst-day-heatmap',
+      'gee-modis-lst-night-heatmap',
       'gee-modis-lst-day-fill',
       'gee-modis-lst-night-fill',
       'gee-modis-stations-circles',
@@ -292,11 +294,17 @@ export class GEELoader {
     if (this.map.getLayer('gee-modis-live-raster-layer')) {
       this.map.setPaintProperty('gee-modis-live-raster-layer', 'raster-opacity', opacity);
     }
+    if (this.map.getLayer('gee-modis-lst-day-heatmap')) {
+      this.map.setPaintProperty('gee-modis-lst-day-heatmap', 'heatmap-opacity', opacity);
+    }
+    if (this.map.getLayer('gee-modis-lst-night-heatmap')) {
+      this.map.setPaintProperty('gee-modis-lst-night-heatmap', 'heatmap-opacity', opacity);
+    }
     if (this.map.getLayer('gee-modis-lst-day-fill')) {
-      this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-opacity', opacity);
+      this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-opacity', 0);
     }
     if (this.map.getLayer('gee-modis-lst-night-fill')) {
-      this.map.setPaintProperty('gee-modis-lst-night-fill', 'fill-opacity', opacity);
+      this.map.setPaintProperty('gee-modis-lst-night-fill', 'fill-opacity', 0);
     }
     this.notifyLayersChange();
   }
@@ -358,102 +366,193 @@ export class GEELoader {
     const isNightVis = isNightActive && (this.layerVisibilities.get('lst-night') ?? true);
     const isStationsVis = isStationsActive && (this.layerVisibilities.get('stations') ?? true);
 
-    // --- 1. CRISP GPU-RENDERED MODIS DAYTIME LST (1 KM) ---
-    try {
-      if (isDayActive) {
-        const gridSrc = this.map.getSource('gee-modis-grid-source') as maplibregl.GeoJSONSource;
-        if (!gridSrc) {
-          this.map.addSource('gee-modis-grid-source', {
-            type: 'geojson',
-            data: this.gridData
-          });
-        } else if (typeof gridSrc.setData === 'function') {
-          gridSrc.setData(this.gridData);
-        }
+    // Prepare point collection for Gaussian heatmap interpolation (continuous, zero-box surface)
+    const pointsCollection: GeoJSON.FeatureCollection = {
+      type: 'FeatureCollection',
+      features: this.gridData.features.map((f: any) => {
+        const cLat = f.properties.center_lat ?? -2.5;
+        const cLon = f.properties.center_lon ?? 117.5;
+        return {
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [cLon, cLat] },
+          properties: f.properties
+        };
+      })
+    };
 
-        if (!this.map.getLayer('gee-modis-lst-day-fill')) {
-          this.map.addLayer({
-            id: 'gee-modis-lst-day-fill',
-            type: 'fill',
-            source: 'gee-modis-grid-source',
-            layout: { visibility: isDayVis ? 'visible' : 'none' },
-            paint: {
-              'fill-color': [
-                'interpolate',
-                ['linear'],
-                ['coalesce', ['to-number', ['get', 'lst_day_c']], 30],
-                4, '#000080',  // Alpine Glacial (<5°C Puncak Jaya)
-                10, '#0000d9', // High Alpine (10°C)
-                16, '#0080ff', // Highland Alpine (16°C)
-                22, '#00ffff', // Mild Highlands (Bandung, Dieng ~22°C)
-                26, '#00ff80', // Forest / Plateau (26°C)
-                29, '#ffff00', // Lowland Plains (29°C)
-                32, '#ffb000', // Warm Lowlands (32°C)
-                35, '#ff4100', // Hot Urban Lowlands (Jakarta, Surabaya ~35°C)
-                38, '#d40000', // Extreme Urban Pavement Heat (38°C)
-                42, '#380000'  // Peak Thermal Hotspot (42°C+)
-              ],
-              'fill-opacity': this.getLayerOpacity('lst-day'),
-              'fill-antialias': true
-            }
-          });
-        } else {
-          this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', isDayVis ? 'visible' : 'none');
-        }
-      } else {
-        if (this.map.getLayer('gee-modis-lst-day-fill')) {
-          this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', 'none');
-        }
-      }
-    } catch (e) {
-      logger.warn('Notice adding MODIS Daytime LST layer:', e);
+    // 1. Points Source for continuous smooth heatmaps
+    const pointsSrc = this.map.getSource('gee-modis-points-source') as maplibregl.GeoJSONSource;
+    if (!pointsSrc) {
+      this.map.addSource('gee-modis-points-source', {
+        type: 'geojson',
+        data: pointsCollection
+      });
+    } else if (typeof pointsSrc.setData === 'function') {
+      pointsSrc.setData(pointsCollection);
     }
 
-    // --- 2. CRISP GPU-RENDERED MODIS NIGHTTIME LST (1 KM) ---
-    try {
-      if (isNightActive) {
-        const gridSrc = this.map.getSource('gee-modis-grid-source') as maplibregl.GeoJSONSource;
-        if (!gridSrc) {
-          this.map.addSource('gee-modis-grid-source', {
-            type: 'geojson',
-            data: this.gridData
-          });
-        }
+    // 2. Polygon Source for transparent click-inspection
+    const gridSrc = this.map.getSource('gee-modis-grid-source') as maplibregl.GeoJSONSource;
+    if (!gridSrc) {
+      this.map.addSource('gee-modis-grid-source', {
+        type: 'geojson',
+        data: this.gridData
+      });
+    } else if (typeof gridSrc.setData === 'function') {
+      gridSrc.setData(this.gridData);
+    }
 
-        if (!this.map.getLayer('gee-modis-lst-night-fill')) {
-          this.map.addLayer({
-            id: 'gee-modis-lst-night-fill',
-            type: 'fill',
-            source: 'gee-modis-grid-source',
-            layout: { visibility: isNightVis ? 'visible' : 'none' },
-            paint: {
-              'fill-color': [
-                'interpolate',
-                ['linear'],
-                ['coalesce', ['to-number', ['get', 'lst_night_c']], 22],
-                -6, '#000040', // Alpine Subzero (Puncak Jaya Night)
-                0, '#0000b0',  // Freezing Peak
-                8, '#0080ff',  // Mountain Cold Pool (8°C)
-                14, '#00ffff', // Highland Night (Bandung ~14°C)
-                19, '#00ff80', // Forest Night (19°C)
-                22, '#ffff00', // Coastal / Rural Night (22°C)
-                25, '#ff7400', // Urban Night Heat Island (Jakarta ~25°C)
-                28, '#fe0100'  // Warm Tropical Urban Night (28°C)
-              ],
-              'fill-opacity': this.getLayerOpacity('lst-night'),
-              'fill-antialias': true
-            }
-          });
-        } else {
-          this.map.setLayoutProperty('gee-modis-lst-night-fill', 'visibility', isNightVis ? 'visible' : 'none');
-        }
+    // --- 1. CONTINUOUS SMOOTH NASA MODIS DAYTIME LST HEATMAP ---
+    try {
+      if (!this.map.getLayer('gee-modis-lst-day-heatmap')) {
+        this.map.addLayer({
+          id: 'gee-modis-lst-day-heatmap',
+          type: 'heatmap',
+          source: 'gee-modis-points-source',
+          layout: { visibility: isDayVis ? 'visible' : 'none' },
+          paint: {
+            'heatmap-weight': [
+              'interpolate',
+              ['linear'],
+              ['coalesce', ['to-number', ['get', 'lst_day_c']], 30],
+              5, 0.15,
+              18, 0.4,
+              26, 0.65,
+              34, 0.85,
+              42, 1.0
+            ],
+            'heatmap-intensity': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              3, 1.4,
+              6, 2.2,
+              9, 3.2,
+              12, 4.0
+            ],
+            'heatmap-color': [
+              'interpolate',
+              ['linear'],
+              ['heatmap-density'],
+              0.0, 'rgba(4, 2, 116, 0)',
+              0.12, '#0502ce', // Deep Blue (<10°C High Mountain Peak)
+              0.30, '#30c8e2', // Cyan (15-20°C Mountain / Highland)
+              0.52, '#22c55e', // Fresh Green (22-26°C Forest Canopy)
+              0.70, '#fff705', // Yellow (28-31°C Lowland Agricultural)
+              0.84, '#ff8b13', // Orange (32-35°C Urban Plain)
+              0.94, '#ef4444', // Red (36-39°C Urban Core)
+              1.0, '#7f1d1d'   // Dark Crimson (40°C+ Thermal Hotspot / UHI)
+            ],
+            'heatmap-radius': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              3, 26,
+              5, 42,
+              7, 65,
+              9, 95,
+              12, 140
+            ],
+            'heatmap-opacity': this.getLayerOpacity('lst-day')
+          }
+        });
       } else {
-        if (this.map.getLayer('gee-modis-lst-night-fill')) {
-          this.map.setLayoutProperty('gee-modis-lst-night-fill', 'visibility', 'none');
-        }
+        this.map.setLayoutProperty('gee-modis-lst-day-heatmap', 'visibility', isDayVis ? 'visible' : 'none');
+      }
+
+      // Invisible polygon layer for click interception
+      if (!this.map.getLayer('gee-modis-lst-day-fill')) {
+        this.map.addLayer({
+          id: 'gee-modis-lst-day-fill',
+          type: 'fill',
+          source: 'gee-modis-grid-source',
+          layout: { visibility: isDayVis ? 'visible' : 'none' },
+          paint: {
+            'fill-color': '#ff0000',
+            'fill-opacity': 0.001
+          }
+        });
+      } else {
+        this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', isDayVis ? 'visible' : 'none');
       }
     } catch (e) {
-      logger.warn('Notice adding MODIS Nighttime LST layer:', e);
+      logger.warn('Notice adding MODIS Daytime LST heatmap layer:', e);
+    }
+
+    // --- 2. CONTINUOUS SMOOTH NASA MODIS NIGHTTIME LST HEATMAP ---
+    try {
+      if (!this.map.getLayer('gee-modis-lst-night-heatmap')) {
+        this.map.addLayer({
+          id: 'gee-modis-lst-night-heatmap',
+          type: 'heatmap',
+          source: 'gee-modis-points-source',
+          layout: { visibility: isNightVis ? 'visible' : 'none' },
+          paint: {
+            'heatmap-weight': [
+              'interpolate',
+              ['linear'],
+              ['coalesce', ['to-number', ['get', 'lst_night_c']], 22],
+              -6, 0.1,
+              8, 0.35,
+              16, 0.6,
+              22, 0.8,
+              28, 1.0
+            ],
+            'heatmap-intensity': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              3, 1.4,
+              6, 2.2,
+              9, 3.2,
+              12, 4.0
+            ],
+            'heatmap-color': [
+              'interpolate',
+              ['linear'],
+              ['heatmap-density'],
+              0.0, 'rgba(0, 0, 64, 0)',
+              0.15, '#000080', // Freezing Alpine
+              0.35, '#0080ff', // Mountain Cold Pool
+              0.55, '#00ffff', // Highland Night (Bandung ~14°C)
+              0.72, '#00ff80', // Forest Night (~19°C)
+              0.85, '#ffff00', // Rural Night (~22°C)
+              0.95, '#ff7400', // Urban Night (~25°C)
+              1.0, '#fe0100'   // Warm Urban Night (~28°C)
+            ],
+            'heatmap-radius': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              3, 26,
+              5, 42,
+              7, 65,
+              9, 95,
+              12, 140
+            ],
+            'heatmap-opacity': this.getLayerOpacity('lst-night')
+          }
+        });
+      } else {
+        this.map.setLayoutProperty('gee-modis-lst-night-heatmap', 'visibility', isNightVis ? 'visible' : 'none');
+      }
+
+      if (!this.map.getLayer('gee-modis-lst-night-fill')) {
+        this.map.addLayer({
+          id: 'gee-modis-lst-night-fill',
+          type: 'fill',
+          source: 'gee-modis-grid-source',
+          layout: { visibility: isNightVis ? 'visible' : 'none' },
+          paint: {
+            'fill-color': '#0000ff',
+            'fill-opacity': 0.001
+          }
+        });
+      } else {
+        this.map.setLayoutProperty('gee-modis-lst-night-fill', 'visibility', isNightVis ? 'visible' : 'none');
+      }
+    } catch (e) {
+      logger.warn('Notice adding MODIS Nighttime LST heatmap layer:', e);
     }
 
     // --- 3. MODIS LST MONITORING STATIONS (18 NODES) ---
@@ -565,6 +664,12 @@ export class GEELoader {
     const isNightVis = this.isLayerVisible('lst-night') || this.isLayerVisible('surface-temp') || this.isLayerVisible('elevation');
     const isStationsVis = this.isLayerVisible('stations') || this.isLayerVisible('poi');
 
+    if (this.map.getLayer('gee-modis-lst-day-heatmap')) {
+      this.map.setLayoutProperty('gee-modis-lst-day-heatmap', 'visibility', isDayVis ? 'visible' : 'none');
+    }
+    if (this.map.getLayer('gee-modis-lst-night-heatmap')) {
+      this.map.setLayoutProperty('gee-modis-lst-night-heatmap', 'visibility', isNightVis ? 'visible' : 'none');
+    }
     if (this.map.getLayer('gee-modis-lst-day-fill')) {
       this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', isDayVis ? 'visible' : 'none');
     }
