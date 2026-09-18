@@ -27,6 +27,9 @@ export interface ZonalAnalysisResult {
   dominantClass: string;
   timestamp: string;
   geojson: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>;
+  /** True when stats are heuristic estimates, NOT real GEE pixel sampling */
+  isEstimated: boolean;
+  estimationMethod: string;
 }
 
 export interface PresetRegion {
@@ -209,7 +212,9 @@ export class SpatialAnalysisEngine {
         dateStyle: 'medium',
         timeStyle: 'short'
       }),
-      geojson: aoiFeature
+      geojson: aoiFeature,
+      isEstimated: true,
+      estimationMethod: 'Heuristik berbasis koordinat & nama wilayah — bukan sampling piksel GEE'
     };
   }
 
@@ -299,6 +304,8 @@ export class SpatialAnalysisEngine {
     lines.push(`LAPORAN ANALISIS STATISTIK SPASIAL WILAYAH (AOI ZONAL STATS)`);
     lines.push(`Wilayah Analisis,${result.regionName}`);
     lines.push(`Waktu Komputasi,${result.timestamp}`);
+    lines.push(`Status Data,${result.isEstimated ? 'ESTIMASI KASAR — bukan sampling piksel GEE asli' : 'Data aktual'}`);
+    lines.push(`Metode Estimasi,${result.estimationMethod || '-'}`);
     lines.push(`Luas Total (km²),${result.totalAreaKm2}`);
     lines.push(`Luas Total (Hektar),${result.totalAreaHa}`);
     lines.push(`Kelas Dominan,${result.dominantClass}`);

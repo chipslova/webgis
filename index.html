@@ -167,9 +167,13 @@
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
               <span>Satellite</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="gee" id="tab-gee" role="tab" aria-selected="false" aria-controls="panel-gee" aria-label="Real Google Earth Engine Live Climate Data" title="Real Google Earth Engine (NOAA CFSV2 Live Data)">
+            <button class="sidebar-tab-btn" data-tab="gee" id="tab-gee" role="tab" aria-selected="false" aria-controls="panel-gee" aria-label="Real Google Earth Engine Live Climate Data" title="GEE Live — MODIS Thermal Layers">
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
               <span>GEE Live</span>
+            </button>
+            <button class="sidebar-tab-btn" data-tab="analysis" id="tab-analysis" role="tab" aria-selected="false" aria-controls="panel-analysis" aria-label="Spatial Analysis — Zonal Stats &amp; Buffer" title="Analisis Spasial — Zonal Stats &amp; Buffer">
+              <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+              <span>Analisis</span>
             </button>
             <button class="sidebar-tab-btn" data-tab="measure" id="tab-measure" role="tab" aria-selected="false" aria-controls="panel-measure" aria-label="Distance & Area Measurement" title="Distance & Area Measurement">
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12h20"/><path d="M6 12V8"/><path d="M12 12V8"/><path d="M18 12V8"/></svg>
@@ -287,13 +291,13 @@
             </section>
 
             <!-- Panel: GEE Earth Engine Data -->
-            <section id="panel-gee" class="sidebar-panel">
+            <section id="panel-gee" class="sidebar-panel" role="tabpanel" aria-labelledby="tab-gee">
               <div class="panel-header">
                 <div class="piksel-panel-badge-row">
                   <h2>MODIS Land Surface Temp</h2>
                   <span class="piksel-national-badge" id="gee-catalog-badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3);" title="NASA LP DAAC MODIS Terra + Aqua 8-Day LST Composite">MOD11A2 + MYD11A2.061</span>
                 </div>
-                <p>NASA LP DAAC · MODIS Terra & Aqua (1 km 8-Day Composite Land Surface Temperature across Indonesia 2000–present).</p>
+                <p>NASA LP DAAC · MODIS Terra &amp; Aqua (1 km 8-Day Composite Land Surface Temperature across Indonesia 2000–present).</p>
               </div>
 
               <!-- Live GEE Status & Compute State Banner -->
@@ -302,49 +306,49 @@
                   <span><strong>NASA MODIS Land Surface Temp</strong></span>
                   <span id="gee-live-status-pill" class="gee-disclaimer-tag" style="background: #0284c7; color: #fff;">⚡ 1KM LAND-MASKED</span>
                 </div>
-                <p id="gee-status-description" style="font-size: 11px; margin-top: 4px;">Peta suhu permukaan radiatif (LST 1 km) seluruh daratan & kepulauan Indonesia. Wilayah lautan dimasking transparan sesuai standar NASA LP DAAC.</p>
+                <p id="gee-status-description" class="gee-status-desc">Peta suhu permukaan radiatif (LST 1 km) seluruh daratan &amp; kepulauan Indonesia. Wilayah lautan dimasking transparan sesuai standar NASA LP DAAC.</p>
                 <div class="gee-disclaimer-notice" style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
                   <span id="gee-active-dataset-label">Dataset: <code>MODIS/061/MOD11A2 + MYD11A2</code></span>
-                  <a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A2" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: underline; font-size: 11px;">Katalog GEE ↗</a>
+                  <a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A2" target="_blank" rel="noopener noreferrer" class="gee-catalog-link">Katalog GEE ↗</a>
                 </div>
               </div>
 
-              <!-- Cara Pakai / Quick Guide Box -->
-              <div class="gee-card" style="margin-bottom: 12px; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-sm); padding: 10px;">
-                <h3 style="margin: 0 0 6px 0; font-size: 11px; color: #60a5fa; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px;">
-                  <span>💡</span><span>Cara Menggunakan Analisis Suhu:</span>
-                </h3>
-                <ol style="margin: 0; padding-left: 18px; font-size: 11px; color: #cbd5e1; line-height: 1.5;">
-                  <li><strong>Pilih Mode Waktu</strong> di bawah (☀️ Siang Hari untuk cek Panas Kota / 🌙 Malam Hari untuk pendinginan).</li>
-                  <li><strong>Klik pada pulau atau kota</strong> di peta Indonesia untuk membaca nilai suhu akurat (°C).</li>
-                  <li><strong>Bandingkan warna termal</strong>: Merah/Oranye = Panas Perkotaan (UHI), Hijau/Biru = Sejuk Hutan & Pegunungan.</li>
-                </ol>
-              </div>
-
-              <!-- Interactive Spatial Analysis & Zonal Stats Module Container -->
-              <div id="spatial-analysis-panel"></div>
-
-              <!-- Top 2 Main Metric Cards (Urban vs Forest Baseline + SUHI Delta) -->
-              <div class="gee-reference-label">
-                📊 Observasi Suhu Permukaan (LST 1 km)
-              </div>
-              <div class="gee-metrics-grid">
-                <div class="gee-metric-card urban">
-                  <div class="metric-title">🏢 Jakarta (Perkotaan Padat)</div>
-                  <div class="metric-val" id="metric-jakarta-lst">34.8 °C</div>
-                  <div class="metric-sub">Aspal & Beton (UHI Siang Hari)</div>
+              <!-- Cara Pakai / Quick Guide Box (Collapsible) -->
+              <details class="clean-accordion gee-guide-accordion">
+                <summary>
+                  <span>💡 Panduan Singkat Analisis Suhu LST</span>
+                </summary>
+                <div class="accordion-body">
+                  <ol class="gee-guide-list">
+                    <li><strong>Pilih Mode Waktu</strong> di bawah (☀️ Siang Hari untuk cek Panas Kota / 🌙 Malam Hari untuk pendinginan).</li>
+                    <li><strong>Klik pada pulau atau kota</strong> di peta Indonesia untuk membaca nilai suhu akurat (°C).</li>
+                    <li><strong>Bandingkan warna termal</strong>: Merah/Oranye = Panas Perkotaan (UHI), Hijau/Biru = Sejuk Hutan &amp; Pegunungan.</li>
+                  </ol>
                 </div>
-                <div class="gee-metric-card rural">
-                  <div class="metric-title">🌲 Bandung (Pegunungan)</div>
-                  <div class="metric-val" id="metric-bandung-lst">21.2 °C</div>
-                  <div class="metric-sub">Kanopi Hutan & Elevasi 1.240m</div>
-                </div>
-              </div>
+              </details>
 
-              <div class="gee-metric-card highlight">
-                <div class="metric-title">Surface Urban Heat Island (SUHI) Delta</div>
-                <div class="metric-val" id="metric-suhi-delta">+13.6 °C Kontras Termal Siang Hari</div>
-                <div class="metric-sub" style="font-size: 10px; opacity: 0.85; margin-top: 3px;">Perbedaan radiatif panas perkotaan vs efek pendinginan tutupan vegetasi alami.</div>
+              <!-- Unified Metric Comparison Card (Urban vs Forest Baseline + SUHI Delta) -->
+              <div class="gee-card gee-metric-comparison">
+                <div class="gee-comparison-header">
+                  <span class="gee-section-title">📊 Observasi Suhu Permukaan (LST 1 km)</span>
+                  <span class="piksel-hint">Daytime Thermal Contrast</span>
+                </div>
+                <div class="gee-comparison-grid">
+                  <div class="gee-comp-col urban">
+                    <div class="gee-comp-label">🏢 Jakarta (Perkotaan Padat)</div>
+                    <div class="gee-comp-val" id="metric-jakarta-lst">34.8 °C</div>
+                    <div class="gee-comp-sub">UHI Siang Hari</div>
+                  </div>
+                  <div class="gee-comp-divider">
+                    <span class="gee-delta-badge" id="metric-suhi-delta">Δ +13.6 °C</span>
+                    <span class="gee-delta-sub">SUHI Contrast</span>
+                  </div>
+                  <div class="gee-comp-col rural">
+                    <div class="gee-comp-label">🌲 Bandung (Pegunungan)</div>
+                    <div class="gee-comp-val" id="metric-bandung-lst">21.2 °C</div>
+                    <div class="gee-comp-sub">Elevasi 1.240m</div>
+                  </div>
+                </div>
               </div>
 
               <!-- Unified MODIS Land Surface Temperature (LST) & GEE Explorer Card -->
@@ -372,46 +376,48 @@
                   <div class="gee-toggle-group" style="display: flex; flex-direction: column; gap: 8px;">
 
                     <!-- 1. MODIS Daytime LST -->
-                    <div class="gee-layer-row" style="background: rgba(15, 23, 42, 0.5); padding: 6px 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 5px;">
+                    <div class="gee-layer-row gee-layer-item-clean">
+                      <label>
                         <input type="checkbox" id="toggle-gee-lst" aria-label="Toggle MODIS Daytime Land Surface Temperature layer" />
-                        <span style="font-size: 11px;">☀️ <strong>Daytime LST</strong> <span style="color: var(--text-muted); font-size: 9.5px;">(Suhu Siang · 10:30/13:30)</span></span>
+                        <span>☀️ <strong>Daytime LST</strong> <span class="gee-layer-subtext">(Suhu Siang · 10:30/13:30)</span></span>
                       </label>
-                      <div id="gee-lst-opacity-row" style="display: none; align-items: center; gap: 6px; padding-left: 22px;">
+                      <div id="gee-lst-opacity-row" class="gee-layer-opacity-box" style="display: none;">
                         <input type="range" id="gee-lst-day-opacity" min="0" max="100" value="85" class="piksel-slider" style="flex: 1; height: 3px;" aria-label="Opacity for Daytime LST" />
                         <span id="gee-lst-day-opacity-val" style="font-size: 9px; color: #38bdf8; min-width: 28px; text-align: right;">85%</span>
                       </div>
                     </div>
 
                     <!-- 2. MODIS Nighttime LST -->
-                    <div class="gee-layer-row" style="background: rgba(15, 23, 42, 0.5); padding: 6px 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 5px;">
+                    <div class="gee-layer-row gee-layer-item-clean">
+                      <label>
                         <input type="checkbox" id="toggle-gee-elevation" aria-label="Toggle MODIS Nighttime Land Surface Temperature layer" />
-                        <span style="font-size: 11px;">🌙 <strong>Nighttime LST</strong> <span style="color: var(--text-muted); font-size: 9.5px;">(Suhu Malam · 22:30/01:30)</span></span>
+                        <span>🌙 <strong>Nighttime LST</strong> <span class="gee-layer-subtext">(Suhu Malam · 22:30/01:30)</span></span>
                       </label>
-                      <div id="gee-lst-night-opacity-row" style="display: none; align-items: center; gap: 6px; padding-left: 22px;">
+                      <div id="gee-lst-night-opacity-row" class="gee-layer-opacity-box" style="display: none;">
                         <input type="range" id="gee-lst-night-opacity" min="0" max="100" value="85" class="piksel-slider" style="flex: 1; height: 3px;" aria-label="Opacity for Nighttime LST" />
                         <span id="gee-lst-night-opacity-val" style="font-size: 9px; color: #38bdf8; min-width: 28px; text-align: right;">85%</span>
                       </div>
                     </div>
 
                     <!-- 3. Sentinel-2 10m Land Cover (LULC) -->
-                    <div class="gee-layer-row" style="background: rgba(15, 23, 42, 0.5); padding: 6px 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 5px;">
+                    <div class="gee-layer-row gee-layer-item-clean">
+                      <label>
                         <input type="checkbox" id="toggle-gee-landcover" aria-label="Toggle Sentinel-2 10m Land Cover layer" />
-                        <span style="font-size: 11px;">🌳 <strong>Sentinel-2 10m LULC</strong> <span style="color: var(--text-muted); font-size: 9.5px;">(Tutupan Lahan)</span></span>
+                        <span>🌳 <strong>Sentinel-2 10m LULC</strong> <span class="gee-layer-subtext">(Tutupan Lahan)</span></span>
                       </label>
-                      <div id="gee-lc-opacity-row" style="display: none; align-items: center; gap: 6px; padding-left: 22px;">
+                      <div id="gee-lc-opacity-row" class="gee-layer-opacity-box" style="display: none;">
                         <input type="range" id="gee-landcover-opacity" min="0" max="100" value="85" class="piksel-slider" style="flex: 1; height: 3px;" aria-label="Opacity for Land Cover" />
                         <span id="gee-landcover-opacity-val" style="font-size: 9px; color: #10b981; min-width: 28px; text-align: right;">85%</span>
                       </div>
                     </div>
 
                     <!-- 4. Indonesia Observation Nodes -->
-                    <label class="gee-toggle-item" style="display: flex; align-items: center; gap: 8px; background: rgba(15, 23, 42, 0.5); padding: 6px 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.08); cursor: pointer;">
-                      <input type="checkbox" id="toggle-gee-poi" aria-label="Toggle Indonesia LST Observation Stations layer" />
-                      <span class="toggle-label" style="font-size: 11px;">📍 <strong>18 Stasiun Iklim Observasi</strong> (BMKG/Kota)</span>
-                    </label>
+                    <div class="gee-layer-item-clean">
+                      <label>
+                        <input type="checkbox" id="toggle-gee-poi" aria-label="Toggle Indonesia LST Observation Stations layer" />
+                        <span class="toggle-label">📍 <strong>18 Stasiun Iklim Observasi</strong> (BMKG/Kota)</span>
+                      </label>
+                    </div>
                   </div>
                 </div>
 
@@ -500,7 +506,7 @@
               <!-- Seasonal & Multi-Year Time Series Canvas Chart -->
               <details class="clean-accordion" style="margin-top: 14px;" open>
                 <summary>
-                  <span>📈 Seasonal & Multi-Year LST Progression (2020–2026)</span>
+                  <span>📈 Seasonal &amp; Multi-Year LST Progression (2020–2026)</span>
                 </summary>
                 <div class="accordion-body">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
@@ -550,6 +556,77 @@
               </details>
             </section>
 
+            <!-- Panel: Analisis Spasial (Zonal Statistics & Buffer Proximity) -->
+            <section id="panel-analysis" class="sidebar-panel" role="tabpanel" aria-labelledby="tab-analysis">
+              <div class="panel-header">
+                <div class="piksel-panel-badge-row">
+                  <h2>Analisis Spasial</h2>
+                  <span class="piksel-national-badge analysis-badge">Turf.js + EO Metrics</span>
+                </div>
+                <p>Alat analisis statistik zonal wilayah (AOI) dan kalkulasi proximity buffer geodesik.</p>
+              </div>
+
+              <!-- Module 1: Zonal Statistics & Land Cover / Thermal AOI Analysis -->
+              <div id="spatial-analysis-panel"></div>
+
+              <!-- Module 2: Proximity Buffer Analysis -->
+              <div class="analysis-card buffer-analysis-card">
+                <div class="analysis-card-header">
+                  <div class="analysis-card-title">
+                    <span class="analysis-icon">⭕</span>
+                    <h3>Analisis Buffer Spasial (Proximity)</h3>
+                  </div>
+                  <span class="piksel-hint">Geodesic Buffer</span>
+                </div>
+                <p class="analysis-desc">
+                  Hasilkan zona penyangga (buffer zone) geodesik di sekitar fitur spasial atau lapisan data vektor aktif.
+                </p>
+
+                <div class="buffer-form-grid">
+                  <div class="form-group">
+                    <label for="buffer-layer-select" class="form-label-sm">Pilih Lapisan Data Target:</label>
+                    <select id="buffer-layer-select" class="form-select form-select-sm">
+                      <option value="" disabled selected>Pilih lapisan aktif atau import...</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="buffer-radius-input" class="form-label-sm">Radius Buffer (km):</label>
+                    <div class="buffer-input-row">
+                      <input type="number" id="buffer-radius-input" class="form-input form-input-sm" min="0.1" max="500" step="0.5" value="5" placeholder="5" />
+                      <span class="buffer-unit-label">km</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="buffer-preset-chips">
+                  <button type="button" class="btn-chip" data-radius="1">1 km</button>
+                  <button type="button" class="btn-chip" data-radius="5">5 km</button>
+                  <button type="button" class="btn-chip" data-radius="10">10 km</button>
+                  <button type="button" class="btn-chip" data-radius="25">25 km</button>
+                  <button type="button" class="btn-chip" data-radius="50">50 km</button>
+                </div>
+
+                <div class="buffer-action-row">
+                  <button id="btn-run-buffer-analysis" class="btn btn-primary full-width" aria-label="Jalankan kalkulasi buffer spasial">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                    Hitung Zona Penyangga (Buffer)
+                  </button>
+                </div>
+
+                <div id="buffer-analysis-status" class="analysis-status-box" style="display: none;"></div>
+              </div>
+
+              <!-- Module 3: Riwayat & Info Metodologi -->
+              <div class="analysis-info-card">
+                <div class="analysis-info-header">
+                  <span>ℹ️ Metodologi Analisis</span>
+                </div>
+                <p class="analysis-info-text">
+                  Kalkulasi luas, jarak, dan poligon buffer menggunakan komputasi geodesik WGS84 pada library <code>@turf/buffer</code> dan <code>@turf/area</code>.
+                </p>
+              </div>
+            </section>
+
             <!-- Panel: Measure -->
             <section id="panel-measure" class="sidebar-panel" role="tabpanel" aria-labelledby="tab-measure">
               <div class="panel-header">
@@ -568,7 +645,7 @@
                 <div style="display: flex; gap: 6px;">
                   <button id="btn-measure-undo" class="btn btn-outline" style="flex: 1;" aria-label="Undo last point (Z)" title="Undo last waypoint (Keyboard: Z)">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
-                    Undo Point (<kbd>Z</kbd>)
+                    Undo
                   </button>
                   <button id="btn-measure-clear" class="btn btn-danger-outline" style="flex: 1;" aria-label="Clear all measurements and paths">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>

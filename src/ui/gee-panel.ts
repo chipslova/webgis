@@ -369,7 +369,7 @@ export class GEEPanelUI {
   private setupChartTooltip(
     _ctx: CanvasRenderingContext2D,
     P: { top: number; right: number; bottom: number; left: number },
-    cH: number,
+    _cH: number,
     yMin: number,
     yMax: number,
     toY: (v: number) => number

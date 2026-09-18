@@ -25,6 +25,7 @@ import { SwipeCompareManager } from './tools/swipe-compare';
 import { SwipeCompareUI } from './ui/swipe-compare-ui';
 import { CommandPaletteUI } from './ui/command-palette';
 import { SpatialAnalysisUI } from './ui/spatial-analysis-ui';
+import { BufferAnalysisUI } from './ui/buffer-analysis-ui';
 import { AttributeTableUI } from './ui/attribute-table-panel';
 import { ShortcutsModalUI } from './ui/shortcuts-modal';
 import { OverviewMapUI } from './ui/overview-map';
@@ -57,6 +58,7 @@ class WebGISApp {
   private swipeCompareUI: SwipeCompareUI | null = null;
   private commandPaletteUI: CommandPaletteUI | null = null;
   private spatialAnalysisUI: SpatialAnalysisUI | null = null;
+  private bufferAnalysisUI: BufferAnalysisUI | null = null;
   private attributeTableUI: AttributeTableUI | null = null;
   private shortcutsModalUI: ShortcutsModalUI | null = null;
   private errorHandler: ErrorHandler;
@@ -139,6 +141,7 @@ class WebGISApp {
         () => {
           this.mapManager.enforceLayerOrder();
           this.dynamicLegendUI?.render();
+          this.bufferAnalysisUI?.updateLayerSelect();
         }
       );
 
@@ -239,6 +242,21 @@ class WebGISApp {
       this.spatialAnalysisUI = new SpatialAnalysisUI(map, 'spatial-analysis-panel');
       this.spatialAnalysisUI.init();
       this.commandPaletteUI.setSpatialAnalysisUI(this.spatialAnalysisUI);
+
+      // Instantiate Proximity Buffer Analysis Module
+      this.bufferAnalysisUI = new BufferAnalysisUI(this.geojsonLoader, () => {
+        this.dataPanelUI?.render();
+        this.dynamicLegendUI?.render();
+        this.mapManager.enforceLayerOrder();
+      });
+      this.bufferAnalysisUI.init();
+
+      // Refresh buffer layers dropdown whenever analysis tab is opened
+      this.sidebarUI.onTabChange((tabId) => {
+        if (tabId === 'analysis') {
+          this.bufferAnalysisUI?.updateLayerSelect();
+        }
+      });
 
       // Instantiate Attribute Table & Shortcuts Modal
       this.attributeTableUI = new AttributeTableUI(map, this.geojsonLoader);

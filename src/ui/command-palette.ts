@@ -303,7 +303,7 @@ export class CommandPaletteUI {
         icon: '📊',
         keywords: ['analisis', 'spatial', 'analysis', 'aoi', 'zonal', 'stats', 'statistik', 'tutupan lahan', 'lulc', 'suhu', 'gambar'],
         action: () => {
-          this.sidebarUI.setActiveTab('gee');
+          this.sidebarUI.setActiveTab('analysis');
           this.spatialAnalysisUI?.startDrawing();
         }
       },
@@ -316,10 +316,23 @@ export class CommandPaletteUI {
         icon: '📐',
         keywords: ['analisis', 'spatial', 'aoi', preset.name, preset.id, 'zonal', 'stats', 'lulc'],
         action: () => {
-          this.sidebarUI.setActiveTab('gee');
+          this.sidebarUI.setActiveTab('analysis');
           this.spatialAnalysisUI?.selectPresetRegion(preset.id);
         }
       })),
+      {
+        id: 'nav-tab-analysis',
+        category: 'tools' as const,
+        categoryLabel: '⚡ Tools & Analysis',
+        title: 'Buka Tab Analisis Spasial & Buffer',
+        subtitle: 'Statistik zonal AOI, estimasi tutupan lahan, dan analisis zona penyangga buffer',
+        icon: '📊',
+        keywords: ['analisis', 'analysis', 'buffer', 'zonal', 'stats', 'tab', 'spasial'],
+        action: () => {
+          this.sidebarUI.setActiveTab('analysis');
+          showToast('Tab Analisis Spasial aktif', 'info');
+        }
+      },
       {
         id: 'tool-gee-cfsv2',
         category: 'tools',

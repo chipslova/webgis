@@ -404,6 +404,30 @@ export class SpatialAnalysisUI {
           </button>
         </div>
 
+        ${res.isEstimated ? `
+        <!-- Estimation Disclaimer Banner — always shown when isEstimated: true -->
+        <div role="note" aria-label="Peringatan: data estimasi" style="
+          margin-bottom: 10px;
+          padding: 7px 10px;
+          background: rgba(245, 158, 11, 0.10);
+          border: 1px solid rgba(245, 158, 11, 0.40);
+          border-left: 3px solid #f59e0b;
+          border-radius: 5px;
+          display: flex;
+          gap: 7px;
+          align-items: flex-start;
+        ">
+          <span style="font-size: 14px; flex-shrink: 0; line-height: 1;">⚠️</span>
+          <div>
+            <div style="font-size: 10px; font-weight: 700; color: #fbbf24; margin-bottom: 2px;">
+              Estimasi Kasar — Bukan Sampling Piksel GEE
+            </div>
+            <div style="font-size: 9.5px; color: #fde68a; line-height: 1.45;">
+              Angka luas tutupan lahan &amp; suhu di sini dihitung dari <strong>heuristik berbasis koordinat &amp; nama wilayah</strong>, bukan dari pembacaan piksel MODIS LST atau Sentinel-2 LULC secara langsung. Jangan gunakan untuk analisis ilmiah atau laporan resmi.
+            </div>
+          </div>
+        </div>` : ''}
+
         <!-- 4 KPI Metrics Tiles -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
           <div style="background: rgba(15, 23, 42, 0.6); padding: 6px 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.05);">

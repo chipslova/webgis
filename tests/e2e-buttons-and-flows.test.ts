@@ -187,8 +187,8 @@ describe('E2E WebGIS Exhaustive Buttons & Interaction Flow Audit', () => {
   });
 
   describe('B. Sidebar Tabs, Panels & Workflow Integrations', () => {
-    it('1. Tab switching between all 7 modules', () => {
-      const tabs = ['map', 'piksel', 'gee', 'measure', 'data', 'legend', 'about'] as const;
+    it('1. Tab switching between all 8 modules', () => {
+      const tabs = ['map', 'piksel', 'gee', 'analysis', 'measure', 'data', 'legend', 'about'] as const;
       tabs.forEach((tab) => {
         sidebarUI.setActiveTab(tab);
         expect(document.querySelector(`.sidebar-tab-btn[data-tab="${tab}"]`)?.classList.contains('active')).toBe(true);

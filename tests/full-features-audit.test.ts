@@ -36,8 +36,8 @@ describe('Full WebGIS Feature & Button Audit', () => {
       expect(document.getElementById('geocoder-results')).not.toBeNull();
     });
 
-    it('should contain all 7 Sidebar Navigation Tabs and Panels', () => {
-      const tabs: TabId[] = ['map', 'piksel', 'gee', 'measure', 'data', 'legend', 'about'];
+    it('should contain all 8 Sidebar Navigation Tabs and Panels', () => {
+      const tabs: TabId[] = ['map', 'piksel', 'gee', 'analysis', 'measure', 'data', 'legend', 'about'];
       tabs.forEach((tab) => {
         const tabBtn = document.querySelector(`.sidebar-tab-btn[data-tab="${tab}"]`);
         const panel = document.getElementById(`panel-${tab}`);
@@ -93,6 +93,14 @@ describe('Full WebGIS Feature & Button Audit', () => {
       expect(document.getElementById('toggle-gee-landcover')).not.toBeNull();
       expect(document.getElementById('btn-download-geojson')).not.toBeNull();
       expect(document.getElementById('btn-download-csv')).not.toBeNull();
+    });
+
+    it('should contain Spatial Analysis (Zonal Stats & Buffer) controls', () => {
+      expect(document.getElementById('panel-analysis')).not.toBeNull();
+      expect(document.getElementById('spatial-analysis-panel')).not.toBeNull();
+      expect(document.getElementById('buffer-layer-select')).not.toBeNull();
+      expect(document.getElementById('buffer-radius-input')).not.toBeNull();
+      expect(document.getElementById('btn-run-buffer-analysis')).not.toBeNull();
     });
 
     it('should contain Spatial Measurement (Turf.js) controls', () => {

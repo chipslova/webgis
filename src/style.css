@@ -8974,3 +8974,382 @@ html, body, #app {
 .maplibregl-ctrl-attrib a:hover {
   text-decoration: underline;
 }
+
+/* ==========================================================================
+   GEE Live Panel Restructure & Harmonized Typography
+   ========================================================================== */
+
+.gee-status-desc {
+  font-size: 11px;
+  margin-top: 4px;
+  line-height: 1.45;
+  color: #cbd5e1;
+}
+
+.gee-catalog-link {
+  color: #60a5fa;
+  text-decoration: underline;
+  font-size: 11px;
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.gee-catalog-link:hover {
+  color: #93c5fd;
+}
+
+/* Collapsible Quick Guide */
+.gee-guide-accordion {
+  margin-bottom: 12px;
+  background: rgba(30, 41, 59, 0.55);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: var(--radius-sm);
+}
+
+.gee-guide-accordion summary {
+  padding: 8px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #93c5fd;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+
+.gee-guide-accordion summary:hover {
+  color: #bfdbfe;
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.gee-guide-accordion .accordion-body {
+  padding: 6px 10px 10px 10px;
+  border-top: 1px solid rgba(59, 130, 246, 0.15);
+}
+
+.gee-guide-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 11px;
+  color: #cbd5e1;
+  line-height: 1.55;
+}
+
+.gee-guide-list li {
+  margin-bottom: 4px;
+}
+
+.gee-guide-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* Unified Metric Comparison Card */
+.gee-metric-comparison {
+  background: rgba(15, 23, 42, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.gee-comparison-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.gee-section-title {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.gee-comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 10px 8px;
+}
+
+.gee-comp-col {
+  text-align: center;
+}
+
+.gee-comp-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gee-comp-col.urban .gee-comp-label {
+  color: #fca5a5;
+}
+
+.gee-comp-col.rural .gee-comp-label {
+  color: #86efac;
+}
+
+.gee-comp-val {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 3px 0 2px 0;
+}
+
+.gee-comp-col.urban .gee-comp-val {
+  color: #ef4444;
+}
+
+.gee-comp-col.rural .gee-comp-val {
+  color: #10b981;
+}
+
+.gee-comp-sub {
+  font-size: 9.5px;
+  color: var(--text-muted);
+}
+
+.gee-comp-divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+.gee-delta-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 4px;
+  padding: 3px 6px;
+  white-space: nowrap;
+}
+
+.gee-delta-sub {
+  font-size: 8.5px;
+  color: #94a3b8;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Layer Switcher & Opacity Box Clean Classes */
+.gee-layer-item-clean {
+  background: rgba(15, 23, 42, 0.55);
+  padding: 7px 9px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.gee-layer-item-clean:hover {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.gee-layer-item-clean label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.gee-layer-item-clean label span {
+  font-size: 11px;
+}
+
+.gee-layer-subtext {
+  color: var(--text-muted);
+  font-size: 9.5px;
+  margin-left: 2px;
+}
+
+.gee-layer-opacity-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0 2px 24px;
+}
+
+/* ==========================================================================
+   New Analysis Tab Styling
+   ========================================================================== */
+
+.analysis-badge {
+  background: rgba(168, 85, 247, 0.18) !important;
+  color: #c084fc !important;
+  border-color: rgba(168, 85, 247, 0.35) !important;
+}
+
+.analysis-card {
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.analysis-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.analysis-card-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.analysis-card-title h3 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.analysis-icon {
+  font-size: 15px;
+}
+
+.analysis-desc {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin: 0 0 10px 0;
+}
+
+.buffer-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.form-label-sm {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 3px;
+}
+
+.form-select-sm, .form-input-sm {
+  width: 100%;
+  font-size: 11px;
+  padding: 6px 8px;
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: #fff;
+  outline: none;
+}
+
+.form-select-sm:focus, .form-input-sm:focus {
+  border-color: var(--accent-cyan);
+}
+
+.buffer-input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.buffer-unit-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  padding: 0 4px;
+}
+
+.buffer-preset-chips {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.btn-chip {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-chip:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+}
+
+.buffer-action-row {
+  margin-top: 6px;
+}
+
+.analysis-status-box {
+  margin-top: 8px;
+  padding: 8px 10px;
+  font-size: 10.5px;
+  border-radius: 5px;
+  line-height: 1.4;
+}
+
+.analysis-status-box.success {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #6ee7b7;
+}
+
+.analysis-status-box.warning {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fcd34d;
+}
+
+.analysis-info-card {
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.analysis-info-header {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 3px;
+}
+
+.analysis-info-text {
+  font-size: 10px;
+  color: #64748b;
+  line-height: 1.4;
+  margin: 0;
+}
