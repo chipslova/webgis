@@ -149,20 +149,18 @@ export class GEELoader {
     });
   }
 
-  public getAllMapLayerIds(): string[] {
+  public getLayerIds(): string[] {
     return [
-      'gee-modis-wms-raster-layer',
+      'gee-modis-day-wms-layer',
+      'gee-modis-night-wms-layer',
       'gee-modis-live-raster-layer',
       'gee-modis-lst-day-fill',
       'gee-modis-lst-night-fill',
       'gee-modis-stations-circles',
-      // Legacy compatibility IDs
-      'gee-cfsv2-air-fill',
-      'gee-cfsv2-surface-fill',
-      'gee-cfsv2-stations-circles',
-      'gee-lst-fill', 'gee-lst-outline',
-      'gee-elevation-fill', 'gee-elevation-outline',
-      'gee-landcover-fill', 'gee-landcover-outline',
+      'gee-heatmap-layer',
+      'gee-air-temp-layer',
+      'gee-surface-temp-layer',
+      'gee-elevation-layer',
       'gee-poi-circles'
     ];
   }
@@ -304,8 +302,11 @@ export class GEELoader {
     this.layerOpacities.set(layerId, opacity);
     if (!this.map) return;
 
-    if (this.map.getLayer('gee-modis-wms-raster-layer')) {
-      this.map.setPaintProperty('gee-modis-wms-raster-layer', 'raster-opacity', opacity);
+    if (this.map.getLayer('gee-modis-day-wms-layer') && key === 'lst-day') {
+      this.map.setPaintProperty('gee-modis-day-wms-layer', 'raster-opacity', opacity);
+    }
+    if (this.map.getLayer('gee-modis-night-wms-layer') && key === 'lst-night') {
+      this.map.setPaintProperty('gee-modis-night-wms-layer', 'raster-opacity', opacity);
     }
     if (this.map.getLayer('gee-modis-live-raster-layer')) {
       this.map.setPaintProperty('gee-modis-live-raster-layer', 'raster-opacity', opacity);
@@ -368,13 +369,9 @@ export class GEELoader {
       return;
     }
 
-    const isDayActive = this.isLayerActive('lst-day') || this.isLayerActive('air-temp') || this.isLayerActive('lst');
-    const isNightActive = this.isLayerActive('lst-night') || this.isLayerActive('surface-temp') || this.isLayerActive('elevation');
-    const isStationsActive = this.isLayerActive('stations') || this.isLayerActive('poi');
-
-    const isDayVis = isDayActive && (this.layerVisibilities.get('lst-day') ?? true);
-    const isNightVis = isNightActive && (this.layerVisibilities.get('lst-night') ?? true);
-    const isStationsVis = isStationsActive && (this.layerVisibilities.get('stations') ?? true);
+    const isDayVis = this.isLayerVisible('lst-day');
+    const isNightVis = this.isLayerVisible('lst-night');
+    const isStationsVis = this.isLayerVisible('stations');
 
     // Prepare point collection for Gaussian heatmap interpolation (continuous, zero-box surface)
     const pointsCollection: GeoJSON.FeatureCollection = {
@@ -412,54 +409,93 @@ export class GEELoader {
       gridSrc.setData(this.gridData);
     }
 
-    // --- 1. OFFICIAL NASA GIBS OGC WMS RASTER LAYER (STANDARD WEBGIS) ---
+    const selectedDate = this.currentParams.start || '2024-08-01';
+    const sat = this.currentParams.satellite === 'aqua' ? 'Aqua' : 'Terra';
+
+    // --- 1. OFFICIAL NASA GIBS OGC WMS: DAYTIME LST RASTER LAYER ---
     try {
-      const selectedDate = this.currentParams.start || '2024-08-01';
-      const sat = this.currentParams.satellite === 'aqua' ? 'Aqua' : 'Terra';
-      const isNight = this.currentParams.mode === 'night' || (isNightActive && !isDayActive);
-      const wmsLayerName = isNight
-        ? `MODIS_${sat}_L3_Land_Surface_Temp_8Day_Night`
-        : `MODIS_${sat}_L3_Land_Surface_Temp_8Day_Day`;
+      const dayWmsLayerName = `MODIS_${sat}_L3_Land_Surface_Temp_8Day_Day`;
+      const dayWmsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=${dayWmsLayerName}&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${selectedDate}&BBOX={bbox-epsg-3857}`;
+      const daySourceId = 'gee-modis-day-wms-source';
+      const dayLayerId = 'gee-modis-day-wms-layer';
 
-      const wmsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=${wmsLayerName}&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${selectedDate}&BBOX={bbox-epsg-3857}`;
-
-      const rasterSourceId = 'gee-modis-wms-raster-source';
-      const rasterLayerId = 'gee-modis-wms-raster-layer';
-
-      const isVisible = (isDayVis || isNightVis) && (isDayActive || isNightActive);
-
-      const existingSource = this.map.getSource(rasterSourceId) as any;
-      if (existingSource) {
-        if (typeof existingSource.setTiles === 'function') {
-          existingSource.setTiles([wmsUrl]);
+      const existingDaySource = this.map.getSource(daySourceId) as any;
+      if (existingDaySource) {
+        if (typeof existingDaySource.setTiles === 'function') {
+          existingDaySource.setTiles([dayWmsUrl]);
         }
-        if (this.map.getLayer(rasterLayerId)) {
-          this.map.setLayoutProperty(rasterLayerId, 'visibility', isVisible ? 'visible' : 'none');
-          this.map.setPaintProperty(rasterLayerId, 'raster-opacity', this.getLayerOpacity(isNight ? 'lst-night' : 'lst-day'));
+        if (this.map.getLayer(dayLayerId)) {
+          this.map.setLayoutProperty(dayLayerId, 'visibility', isDayVis ? 'visible' : 'none');
+          this.map.setPaintProperty(dayLayerId, 'raster-opacity', this.getLayerOpacity('lst-day'));
         }
       } else {
-        this.map.addSource(rasterSourceId, {
+        this.map.addSource(daySourceId, {
           type: 'raster',
-          tiles: [wmsUrl],
+          tiles: [dayWmsUrl],
           tileSize: 256,
           maxzoom: 9
         });
 
         const beforeLayerId = this.map.getLayer('gee-modis-stations-circles') ? 'gee-modis-stations-circles' : undefined;
         this.map.addLayer({
-          id: rasterLayerId,
+          id: dayLayerId,
           type: 'raster',
-          source: rasterSourceId,
-          layout: { visibility: isVisible ? 'visible' : 'none' },
+          source: daySourceId,
+          layout: { visibility: isDayVis ? 'visible' : 'none' },
           paint: {
-            'raster-opacity': this.getLayerOpacity(isNight ? 'lst-night' : 'lst-day'),
+            'raster-opacity': this.getLayerOpacity('lst-day'),
             'raster-resampling': 'linear',
             'raster-fade-duration': 200
           }
         }, beforeLayerId);
       }
+    } catch (e) {
+      logger.warn('[GEELoader] Notice adding NASA MODIS Day WMS raster layer:', e);
+    }
 
-      // Invisible polygon layer for click interception
+    // --- 2. OFFICIAL NASA GIBS OGC WMS: NIGHTTIME LST RASTER LAYER ---
+    try {
+      const nightWmsLayerName = `MODIS_${sat}_L3_Land_Surface_Temp_8Day_Night`;
+      const nightWmsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=${nightWmsLayerName}&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${selectedDate}&BBOX={bbox-epsg-3857}`;
+      const nightSourceId = 'gee-modis-night-wms-source';
+      const nightLayerId = 'gee-modis-night-wms-layer';
+
+      const existingNightSource = this.map.getSource(nightSourceId) as any;
+      if (existingNightSource) {
+        if (typeof existingNightSource.setTiles === 'function') {
+          existingNightSource.setTiles([nightWmsUrl]);
+        }
+        if (this.map.getLayer(nightLayerId)) {
+          this.map.setLayoutProperty(nightLayerId, 'visibility', isNightVis ? 'visible' : 'none');
+          this.map.setPaintProperty(nightLayerId, 'raster-opacity', this.getLayerOpacity('lst-night'));
+        }
+      } else {
+        this.map.addSource(nightSourceId, {
+          type: 'raster',
+          tiles: [nightWmsUrl],
+          tileSize: 256,
+          maxzoom: 9
+        });
+
+        const beforeLayerId = this.map.getLayer('gee-modis-stations-circles') ? 'gee-modis-stations-circles' : undefined;
+        this.map.addLayer({
+          id: nightLayerId,
+          type: 'raster',
+          source: nightSourceId,
+          layout: { visibility: isNightVis ? 'visible' : 'none' },
+          paint: {
+            'raster-opacity': this.getLayerOpacity('lst-night'),
+            'raster-resampling': 'linear',
+            'raster-fade-duration': 200
+          }
+        }, beforeLayerId);
+      }
+    } catch (e) {
+      logger.warn('[GEELoader] Notice adding NASA MODIS Night WMS raster layer:', e);
+    }
+
+    // --- 3. Invisible polygon layers for click interception ---
+    try {
       if (!this.map.getLayer('gee-modis-lst-day-fill')) {
         this.map.addLayer({
           id: 'gee-modis-lst-day-fill',
@@ -490,12 +526,12 @@ export class GEELoader {
         this.map.setLayoutProperty('gee-modis-lst-night-fill', 'visibility', isNightVis ? 'visible' : 'none');
       }
     } catch (e) {
-      logger.warn('Notice adding standard NASA MODIS LST WMS raster layer:', e);
+      logger.warn('[GEELoader] Notice adding fill click-interceptor layers:', e);
     }
 
-    // --- 3. MODIS LST MONITORING STATIONS (18 NODES) ---
+    // --- 4. MODIS LST MONITORING STATIONS (18 NODES) ---
     try {
-      if (isStationsActive) {
+      if (isStationsVis) {
         const stationsSrc = this.map.getSource('gee-modis-stations-source') as maplibregl.GeoJSONSource;
         if (!stationsSrc) {
           this.map.addSource('gee-modis-stations-source', {
@@ -537,7 +573,7 @@ export class GEELoader {
         }
       }
     } catch (e) {
-      logger.warn('Notice adding MODIS Stations layer:', e);
+      logger.warn('Notice adding MODIS LST monitoring stations layer:', e);
     }
   }
 
@@ -547,7 +583,7 @@ export class GEELoader {
     this.htmlMarkers.forEach((m) => m.remove());
     this.htmlMarkers = [];
 
-    const isStationsVis = this.isLayerVisible('stations') || this.isLayerVisible('poi');
+    const isStationsVis = this.isLayerVisible('stations');
 
     this.stationsData.features.forEach((feat: any) => {
       const coords = feat.geometry.coordinates as [number, number];
@@ -598,13 +634,15 @@ export class GEELoader {
   public updateLayerVisibilities() {
     if (!this.map) return;
 
-    const isDayVis = this.isLayerVisible('lst-day') || this.isLayerVisible('air-temp') || this.isLayerVisible('lst');
-    const isNightVis = this.isLayerVisible('lst-night') || this.isLayerVisible('surface-temp') || this.isLayerVisible('elevation');
-    const isStationsVis = this.isLayerVisible('stations') || this.isLayerVisible('poi');
-    const isRasterVis = isDayVis || isNightVis;
+    const isDayVis = this.isLayerVisible('lst-day');
+    const isNightVis = this.isLayerVisible('lst-night');
+    const isStationsVis = this.isLayerVisible('stations');
 
-    if (this.map.getLayer('gee-modis-wms-raster-layer')) {
-      this.map.setLayoutProperty('gee-modis-wms-raster-layer', 'visibility', isRasterVis ? 'visible' : 'none');
+    if (this.map.getLayer('gee-modis-day-wms-layer')) {
+      this.map.setLayoutProperty('gee-modis-day-wms-layer', 'visibility', isDayVis ? 'visible' : 'none');
+    }
+    if (this.map.getLayer('gee-modis-night-wms-layer')) {
+      this.map.setLayoutProperty('gee-modis-night-wms-layer', 'visibility', isNightVis ? 'visible' : 'none');
     }
     if (this.map.getLayer('gee-modis-lst-day-fill')) {
       this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', isDayVis ? 'visible' : 'none');
