@@ -344,53 +344,106 @@
                 <div class="metric-sub" style="font-size: 10px; opacity: 0.85; margin-top: 3px;">Perbedaan radiatif panas perkotaan vs efek pendinginan tutupan vegetasi alami.</div>
               </div>
 
-              <!-- GEE Live Query & 8-Day Composite Controls -->
-              <div class="gee-card" style="margin-bottom: 12px; background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                  <h3 style="margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">🛰️ GEE On-Demand Composite</h3>
-                  <span class="piksel-hint" style="font-size: 10px;">8-Day Revisit</span>
+              <!-- Unified MODIS Land Surface Temperature (LST) & GEE Explorer Card -->
+              <div class="gee-card" style="background: rgba(15, 23, 42, 0.75); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px;">
+                
+                <!-- Card Header -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <h3 style="margin: 0; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 700;">
+                    🌡️ MODIS Land Surface Temperature
+                  </h3>
+                  <span class="piksel-hint" style="font-size: 9.5px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 6px; border-radius: 4px;">1 km · LP DAAC</span>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- 1. Primary Layer Switcher (Day / Night / Stations) -->
+                <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px;">
+                  <span style="font-size: 10.5px; color: var(--text-muted); font-weight: 600;">Pilih Lapisan Termal Aktif:</span>
+                  
+                  <div class="gee-toggle-group" style="display: flex; flex-direction: column; gap: 6px;">
+                    <!-- 1. MODIS Daytime LST -->
+                    <label class="gee-toggle-item" style="display: flex; align-items: center; gap: 8px; background: rgba(15, 23, 42, 0.5); padding: 6px 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.08); cursor: pointer;">
+                      <input type="checkbox" id="toggle-gee-lst" aria-label="Toggle MODIS Daytime Land Surface Temperature layer" />
+                      <span class="toggle-label" style="font-size: 11px;">☀️ <strong>Daytime LST</strong> (Suhu Siang · ~10:30 / 13:30)</span>
+                    </label>
+
+                    <!-- 2. MODIS Nighttime LST -->
+                    <label class="gee-toggle-item" style="display: flex; align-items: center; gap: 8px; background: rgba(15, 23, 42, 0.5); padding: 6px 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.08); cursor: pointer;">
+                      <input type="checkbox" id="toggle-gee-elevation" aria-label="Toggle MODIS Nighttime Land Surface Temperature layer" />
+                      <span class="toggle-label" style="font-size: 11px;">🌙 <strong>Nighttime LST</strong> (Suhu Malam · ~22:30 / 01:30)</span>
+                    </label>
+
+                    <!-- 3. Indonesia Observation Nodes -->
+                    <label class="gee-toggle-item" style="display: flex; align-items: center; gap: 8px; background: rgba(15, 23, 42, 0.5); padding: 6px 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.08); cursor: pointer;">
+                      <input type="checkbox" id="toggle-gee-poi" aria-label="Toggle Indonesia LST Observation Stations layer" />
+                      <span class="toggle-label" style="font-size: 11px;">📍 <strong>18 Stasiun Iklim Observasi</strong> (BMKG/Kota)</span>
+                    </label>
+
+                    <input type="checkbox" id="toggle-gee-landcover" style="display: none;" aria-hidden="true" />
+                  </div>
+                </div>
+
+                <!-- 2. Thermal Legend Bar -->
+                <div style="margin-bottom: 10px; background: rgba(0, 0, 0, 0.25); padding: 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                  <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">
+                    <span>Legenda Suhu (°C):</span>
+                    <span style="color: #38bdf8; font-weight: 600;">10°C s.d. 42°C+</span>
+                  </div>
+                  <div class="gee-legend-bar lst-gradient" style="height: 7px; border-radius: 3.5px;" aria-hidden="true"></div>
+                  <div class="gee-legend-labels" style="display: flex; justify-content: space-between; font-size: 8.5px; color: var(--text-muted); margin-top: 3px;">
+                    <span>10°C</span>
+                    <span>20°C</span>
+                    <span>26°C</span>
+                    <span>32°C</span>
+                    <span>38°C</span>
+                    <span>42°C+</span>
+                  </div>
+                </div>
+
+                <!-- 3. Satellite & Period Filters -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
                   <div>
-                    <label for="gee-satellite-select" style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Satelit & Produk GEE</label>
-                    <select id="gee-satellite-select" class="form-select" style="width: 100%; font-size: 11px; padding: 4px 8px; background: #0f172a; border: 1px solid var(--border-color); border-radius: 4px; color: #fff;">
-                      <option value="combined" selected>Terra + Aqua 8-Day Composite (MOD11A2/MYD11A2.061)</option>
-                      <option value="terra">Terra Morning (~10:30 AM · MOD11A2.061)</option>
-                      <option value="aqua">Aqua Afternoon (~01:30 PM · MYD11A2.061)</option>
+                    <label for="gee-satellite-select" style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Satelit</label>
+                    <select id="gee-satellite-select" class="form-select" style="width: 100%; font-size: 10.5px; padding: 4px 6px; background: #0f172a; border: 1px solid var(--border-color); border-radius: 4px; color: #fff;">
+                      <option value="combined" selected>Terra + Aqua</option>
+                      <option value="terra">Terra (Pagi)</option>
+                      <option value="aqua">Aqua (Siang)</option>
                     </select>
                   </div>
-
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                    <div>
-                      <label for="gee-period-select" style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Periode Pengamatan</label>
-                      <select id="gee-period-select" class="form-select" style="width: 100%; font-size: 11px; padding: 4px 6px; background: #0f172a; border: 1px solid var(--border-color); border-radius: 4px; color: #fff;">
-                        <option value="2025-08-01|2025-08-31" selected>Kemarau / Aug 2025</option>
-                        <option value="2025-04-01|2025-04-30">Pancaroba / Apr 2025</option>
-                        <option value="2025-01-01|2025-01-31">Musim Hujan / Jan 2025</option>
-                        <option value="2024-08-01|2024-08-31">Kemarau / Aug 2024</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label for="gee-mode-select" style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Waktu LST</label>
-                      <select id="gee-mode-select" class="form-select" style="width: 100%; font-size: 11px; padding: 4px 6px; background: #0f172a; border: 1px solid var(--border-color); border-radius: 4px; color: #fff;">
-                        <option value="day" selected>☀️ Daytime LST (Siang)</option>
-                        <option value="night">🌙 Nighttime LST (Malam)</option>
-                      </select>
-                    </div>
+                  <div>
+                    <label for="gee-period-select" style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Periode Musim</label>
+                    <select id="gee-period-select" class="form-select" style="width: 100%; font-size: 10.5px; padding: 4px 6px; background: #0f172a; border: 1px solid var(--border-color); border-radius: 4px; color: #fff;">
+                      <option value="2024-08-01|2024-08-31" selected>Kemarau / Aug (Bebas Awan)</option>
+                      <option value="2024-04-01|2024-04-30">Pancaroba / Apr</option>
+                      <option value="2024-01-01|2024-01-31">Musim Hujan / Jan</option>
+                      <option value="2025-08-01|2025-08-31">Kemarau / Aug 2025</option>
+                    </select>
                   </div>
+                </div>
 
-                  <button id="btn-gee-compute" class="btn btn-primary" style="width: 100%; font-size: 11px; padding: 6px; margin-top: 2px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                    <span>⚡</span>
-                    <span>Hitung Komposit 8-Harian GEE</span>
-                  </button>
-                  <div id="gee-compute-status" style="font-size: 10px; color: #94a3b8; text-align: center; display: none;"></div>
-
-                  <div style="margin-top: 6px; padding: 7px 9px; background: rgba(56, 189, 248, 0.08); border-left: 3px solid #38bdf8; border-radius: 4px; font-size: 10px; line-height: 1.45; color: #cbd5e1;">
-                    <strong style="color: #38bdf8;">💡 Panduan Citra & Celah Transparan:</strong><br>
-                    • <strong>Laut & Perairan</strong>: Dibuat transparan (<em>land-mask</em>) karena LST mengukur daratan.<br>
-                    • <strong>Tutupan Awan</strong>: Disaring otomatis demi akurasi. Pilih periode <strong>Kemarau (Agustus)</strong> untuk tutupan daratan paling utuh.
+                <!-- 4. Opacity Slider -->
+                <div class="piksel-master-control" style="margin-bottom: 8px;">
+                  <div class="piksel-control-header" style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 2px;">
+                    <label for="gee-opacity-slider" class="control-title" style="color: var(--text-muted);">Transparansi Layer</label>
+                    <span class="control-val" id="gee-opacity-val" style="color: #38bdf8; font-weight: 600;">85%</span>
                   </div>
+                  <input 
+                    type="range" 
+                    id="gee-opacity-slider" 
+                    min="0" 
+                    max="100" 
+                    value="85" 
+                    class="piksel-slider" 
+                    aria-label="Global opacity for all active MODIS LST layers"
+                  />
+                </div>
+
+                <!-- Hidden compatibility elements -->
+                <button id="btn-gee-compute" style="display: none;" aria-hidden="true"></button>
+                <div id="gee-compute-status" style="display: none;"></div>
+
+                <!-- 5. Educational Guidance Callout -->
+                <div style="padding: 6px 8px; background: rgba(56, 189, 248, 0.07); border-left: 3px solid #38bdf8; border-radius: 4px; font-size: 9.5px; line-height: 1.4; color: #cbd5e1;">
+                  <strong style="color: #38bdf8;">💡 Catatan:</strong> Area laut otomatis dipotong (<em>land-mask</em>) & awan tebal difilter. Pilih periode <strong>Kemarau (Agustus)</strong> untuk tutupan daratan paling utuh.
                 </div>
               </div>
 
@@ -410,88 +463,6 @@
                     <span class="btn-focus-sub">(Archipelago Scale)</span>
                   </div>
                 </button>
-              </div>
-
-              <!-- Layer Toggles Container -->
-              <div class="gee-card">
-                <h3>MODIS Thermal Layers</h3>
-
-                <!-- GEE Independent Opacity Slider -->
-                <div class="piksel-master-control" style="margin-bottom: 14px;">
-                  <div class="piksel-control-header">
-                    <label for="gee-opacity-slider" class="control-title">LST Layer Opacity</label>
-                    <span class="control-val" id="gee-opacity-val">85%</span>
-                  </div>
-                  <input 
-                    type="range" 
-                    id="gee-opacity-slider" 
-                    min="0" 
-                    max="100" 
-                    value="85" 
-                    class="piksel-slider" 
-                    aria-label="Global opacity for all active MODIS LST layers"
-                  />
-                  <div class="slider-ticks" aria-hidden="true">
-                    <span>0% (Transparent)</span>
-                    <span>50%</span>
-                    <span>100% (Solid)</span>
-                  </div>
-                </div>
-
-                <div class="gee-toggle-group">
-                  <!-- 1. MODIS Daytime LST -->
-                  <div class="gee-toggle-item-wrap">
-                    <label class="gee-toggle-item">
-                      <input type="checkbox" id="toggle-gee-lst" aria-label="Toggle MODIS Daytime Land Surface Temperature layer" />
-                      <span class="toggle-label">🌞 Daytime LST (1 km · Terra+Aqua)</span>
-                    </label>
-                    <div class="gee-layer-legend-box" id="legend-box-air">
-                      <div class="gee-legend-bar lst-gradient" aria-hidden="true"></div>
-                      <div class="gee-legend-labels" id="legend-labels-day" aria-hidden="true">
-                        <span>10°C (Alpine)</span>
-                        <span>20°C (Highland)</span>
-                        <span>26°C (Forest)</span>
-                        <span>30°C (Lowland)</span>
-                        <span>36°C (Urban)</span>
-                        <span>42°C+</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 2. MODIS Nighttime LST -->
-                  <div class="gee-toggle-item-wrap">
-                    <label class="gee-toggle-item">
-                      <input type="checkbox" id="toggle-gee-elevation" aria-label="Toggle MODIS Nighttime Land Surface Temperature layer" />
-                      <span class="toggle-label">🌙 Nighttime LST (1 km · Terra+Aqua)</span>
-                    </label>
-                    <div class="gee-layer-legend-box" id="legend-box-surface">
-                      <div class="gee-legend-bar lst-gradient" aria-hidden="true"></div>
-                      <div class="gee-legend-labels" id="legend-labels-night" aria-hidden="true">
-                        <span>10°C (Alpine)</span>
-                        <span>20°C (Highland)</span>
-                        <span>26°C (Forest)</span>
-                        <span>30°C (Lowland)</span>
-                        <span>36°C (Urban)</span>
-                        <span>42°C+</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 3. Indonesia Observation Nodes -->
-                  <div class="gee-toggle-item-wrap">
-                    <label class="gee-toggle-item">
-                      <input type="checkbox" id="toggle-gee-poi" aria-label="Toggle Indonesia LST Observation Stations layer" />
-                      <span class="toggle-label">📍 Indonesia LST Climate Stations (18 Nodes)</span>
-                    </label>
-                    <div class="gee-layer-legend-box poi-tags">
-                      <span class="poi-tag urban-tag">🔴 Urban Megacity (Jakarta · Surabaya · Medan)</span>
-                      <span class="poi-tag rural-tag">🟢 Highland & Forest (Bandung · IKN · Puncak Jaya)</span>
-                    </div>
-                  </div>
-
-                  <!-- 4. Compatibility Slot -->
-                  <input type="checkbox" id="toggle-gee-landcover" style="display: none;" aria-hidden="true" />
-                </div>
               </div>
 
               <!-- Seasonal & Multi-Year Time Series Canvas Chart -->

@@ -131,11 +131,6 @@ export class GEEPanelUI {
       const [start, end] = (periodSelect?.value || '2024-08-01|2024-08-31').split('|');
 
       this.geeLoader.setParams({ satellite, mode, start, end });
-      if (mode === 'night') {
-        this.geeLoader.toggleLayer('lst-night', true);
-      } else {
-        this.geeLoader.toggleLayer('lst-day', true);
-      }
     };
 
     if (satSelect) satSelect.addEventListener('change', handleParamChange);
