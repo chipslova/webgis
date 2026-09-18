@@ -169,6 +169,9 @@ export class GEEPanelUI {
     const nightEl = (document.getElementById('toggle-gee-elevation') || document.getElementById('toggle-gee-surface')) as HTMLInputElement;
     if (nightEl) nightEl.checked = this.geeLoader.isLayerVisible('lst-night');
 
+    const lcEl = (document.getElementById('toggle-gee-landcover') || document.getElementById('toggle-gee-lc')) as HTMLInputElement;
+    if (lcEl) lcEl.checked = this.geeLoader.isLayerVisible('landcover');
+
     const stEl = (document.getElementById('toggle-gee-poi') || document.getElementById('toggle-gee-stations')) as HTMLInputElement;
     if (stEl) stEl.checked = this.geeLoader.isLayerVisible('stations');
 
@@ -216,6 +219,9 @@ export class GEEPanelUI {
 
     attachToggle('toggle-gee-elevation', 'lst-night');
     attachToggle('toggle-gee-surface', 'lst-night');
+
+    attachToggle('toggle-gee-landcover', 'landcover');
+    attachToggle('toggle-gee-lc', 'landcover');
 
     attachToggle('toggle-gee-poi', 'stations');
     attachToggle('toggle-gee-stations', 'stations');

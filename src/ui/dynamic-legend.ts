@@ -127,6 +127,63 @@ export class DynamicLegendUI {
         `;
       }
 
+      if (this.geeLoader.isLayerVisible('landcover') || this.geeLoader.isLayerVisible('lc')) {
+        activeLayersCount++;
+        thematicHtml += `
+          <div class="dynamic-legend-card">
+            <div class="dynamic-legend-card-header">
+              <span class="legend-card-icon">🗺️</span>
+              <div>
+                <div class="dynamic-legend-title">ESA WorldCover 10m Sentinel Land Cover</div>
+                <div class="dynamic-legend-sub">Global 11-Class Land Cover · ESA / Terrascope / GEE</div>
+              </div>
+            </div>
+            <div class="dynamic-legend-swatches" style="margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+              <div class="dynamic-legend-item">
+                <span class="dynamic-color-box" style="background-color: #006400;"></span>
+                <span class="dynamic-legend-label">Tree Cover</span>
+              </div>
+              <div class="dynamic-legend-item">
+                <span class="dynamic-color-box" style="background-color: #ffbb22;"></span>
+                <span class="dynamic-legend-label">Shrubland</span>
+              </div>
+              <div class="dynamic-legend-item">
+                <span class="dynamic-color-box" style="background-color: #ffff4c;"></span>
+                <span class="dynamic-legend-label">Grassland</span>
+              </div>
+              <div class="dynamic-legend-item">
+                <span class="dynamic-color-box" style="background-color: #f096ff;"></span>
+                <span class="dynamic-legend-label">Cropland</span>
+              </div>
+              <div class="dynamic-legend-item">
+                <span class="dynamic-color-box" style="background-color: #fa0000;"></span>
+                <span class="dynamic-legend-label">Built-up / Urban</span>
+              </div>
+              <div class="dynamic-legend-item">
+                <span class="dynamic-color-box" style="background-color: #b4b4b4;"></span>
+                <span class="dynamic-legend-label">Bare / Sparse Veg</span>
+              </div>
+              <div class="dynamic-legend-item">
+                <span class="dynamic-color-box" style="background-color: #0064c8;"></span>
+                <span class="dynamic-legend-label">Permanent Water</span>
+              </div>
+              <div class="dynamic-legend-item">
+                <span class="dynamic-color-box" style="background-color: #0096a0;"></span>
+                <span class="dynamic-legend-label">Herbaceous Wetland</span>
+              </div>
+              <div class="dynamic-legend-item">
+                <span class="dynamic-color-box" style="background-color: #00cf75;"></span>
+                <span class="dynamic-legend-label">Mangroves</span>
+              </div>
+              <div class="dynamic-legend-item">
+                <span class="dynamic-color-box" style="background-color: #fae6a0;"></span>
+                <span class="dynamic-legend-label">Moss & Lichen</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
       if (this.geeLoader.isLayerVisible('stations') || this.geeLoader.isLayerVisible('poi')) {
         activeLayersCount++;
         thematicHtml += `

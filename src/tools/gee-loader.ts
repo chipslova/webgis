@@ -157,6 +157,7 @@ export class GEELoader {
     return [
       'gee-modis-day-wms-layer',
       'gee-modis-night-wms-layer',
+      'gee-modis-landcover-layer',
       'gee-modis-live-raster-layer',
       'gee-modis-lst-day-fill',
       'gee-modis-lst-night-fill',
@@ -312,6 +313,9 @@ export class GEELoader {
     if (this.map.getLayer('gee-modis-night-wms-layer') && key === 'lst-night') {
       this.map.setPaintProperty('gee-modis-night-wms-layer', 'raster-opacity', opacity);
     }
+    if (this.map.getLayer('gee-modis-landcover-layer') && (key === 'landcover' || layerId === 'landcover')) {
+      this.map.setPaintProperty('gee-modis-landcover-layer', 'raster-opacity', opacity);
+    }
     if (this.map.getLayer('gee-modis-live-raster-layer')) {
       this.map.setPaintProperty('gee-modis-live-raster-layer', 'raster-opacity', opacity);
     }
@@ -375,6 +379,7 @@ export class GEELoader {
 
     const isDayVis = this.isLayerVisible('lst-day');
     const isNightVis = this.isLayerVisible('lst-night');
+    const isLcVis = this.isLayerVisible('landcover');
     const isStationsVis = this.isLayerVisible('stations');
 
     // Prepare point collection for Gaussian heatmap interpolation (continuous, zero-box surface)
@@ -498,7 +503,49 @@ export class GEELoader {
       logger.warn('[GEELoader] Notice adding NASA MODIS Night WMS raster layer:', e);
     }
 
-    // --- 3. Invisible polygon layers for click interception ---
+    // --- 3. ESA WORLDCOVER 10M GLOBAL LAND COVER (SENTINEL-1/2 GEE ASSET) ---
+    try {
+      const lcWmsUrl = `https://services.terrascope.be/wms/v2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=WORLDCOVER_2021_MAP&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&BBOX={bbox-epsg-3857}`;
+      const lcSourceId = 'gee-modis-landcover-source';
+      const lcLayerId = 'gee-modis-landcover-layer';
+
+      const existingLcSource = this.map.getSource(lcSourceId) as any;
+      if (existingLcSource) {
+        if (this.map.getLayer(lcLayerId)) {
+          this.map.setLayoutProperty(lcLayerId, 'visibility', isLcVis ? 'visible' : 'none');
+          this.map.setPaintProperty(lcLayerId, 'raster-opacity', this.getLayerOpacity('landcover'));
+        }
+      } else {
+        this.map.addSource(lcSourceId, {
+          type: 'raster',
+          tiles: [lcWmsUrl],
+          tileSize: 256,
+          maxzoom: 16
+        });
+
+        const beforeLayerId = this.map.getLayer('gee-modis-day-wms-layer')
+          ? 'gee-modis-day-wms-layer'
+          : this.map.getLayer('gee-modis-stations-circles')
+          ? 'gee-modis-stations-circles'
+          : undefined;
+
+        this.map.addLayer({
+          id: lcLayerId,
+          type: 'raster',
+          source: lcSourceId,
+          layout: { visibility: isLcVis ? 'visible' : 'none' },
+          paint: {
+            'raster-opacity': this.getLayerOpacity('landcover'),
+            'raster-resampling': 'nearest',
+            'raster-fade-duration': 200
+          }
+        }, beforeLayerId);
+      }
+    } catch (e) {
+      logger.warn('[GEELoader] Notice adding ESA WorldCover 10m raster layer:', e);
+    }
+
+    // --- 4. Invisible polygon layers for click interception ---
     try {
       if (!this.map.getLayer('gee-modis-lst-day-fill')) {
         this.map.addLayer({
@@ -533,7 +580,7 @@ export class GEELoader {
       logger.warn('[GEELoader] Notice adding fill click-interceptor layers:', e);
     }
 
-    // --- 4. MODIS LST MONITORING STATIONS (18 NODES) ---
+    // --- 5. MODIS LST MONITORING STATIONS (18 NODES) ---
     try {
       if (isStationsVis) {
         const stationsSrc = this.map.getSource('gee-modis-stations-source') as maplibregl.GeoJSONSource;
@@ -640,6 +687,7 @@ export class GEELoader {
 
     const isDayVis = this.isLayerVisible('lst-day');
     const isNightVis = this.isLayerVisible('lst-night');
+    const isLcVis = this.isLayerVisible('landcover');
     const isStationsVis = this.isLayerVisible('stations');
 
     if (this.map.getLayer('gee-modis-day-wms-layer')) {
@@ -647,6 +695,9 @@ export class GEELoader {
     }
     if (this.map.getLayer('gee-modis-night-wms-layer')) {
       this.map.setLayoutProperty('gee-modis-night-wms-layer', 'visibility', isNightVis ? 'visible' : 'none');
+    }
+    if (this.map.getLayer('gee-modis-landcover-layer')) {
+      this.map.setLayoutProperty('gee-modis-landcover-layer', 'visibility', isLcVis ? 'visible' : 'none');
     }
     if (this.map.getLayer('gee-modis-lst-day-fill')) {
       this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', isDayVis ? 'visible' : 'none');
