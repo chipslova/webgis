@@ -169,13 +169,13 @@ export class GEEPanelUI {
 
   private syncCheckboxStates() {
     const dayEl = (document.getElementById('toggle-gee-lst') || document.getElementById('toggle-gee-air')) as HTMLInputElement;
-    if (dayEl) dayEl.checked = this.geeLoader.isLayerVisible('lst-day') || this.geeLoader.isLayerVisible('lst');
+    if (dayEl) dayEl.checked = this.geeLoader.isLayerVisible('lst-day');
 
     const nightEl = (document.getElementById('toggle-gee-elevation') || document.getElementById('toggle-gee-surface')) as HTMLInputElement;
-    if (nightEl) nightEl.checked = this.geeLoader.isLayerVisible('lst-night') || this.geeLoader.isLayerVisible('elevation');
+    if (nightEl) nightEl.checked = this.geeLoader.isLayerVisible('lst-night');
 
     const stEl = (document.getElementById('toggle-gee-poi') || document.getElementById('toggle-gee-stations')) as HTMLInputElement;
-    if (stEl) stEl.checked = this.geeLoader.isLayerVisible('stations') || this.geeLoader.isLayerVisible('poi');
+    if (stEl) stEl.checked = this.geeLoader.isLayerVisible('stations');
 
     const opacitySlider = document.getElementById('gee-opacity-slider') as HTMLInputElement;
     const opacityVal = document.getElementById('gee-opacity-val');

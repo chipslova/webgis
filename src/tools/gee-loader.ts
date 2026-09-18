@@ -100,9 +100,10 @@ export class GEELoader {
   }
 
   private normalizeLayerId(layerId: string): string {
-    if (layerId === 'lst' || layerId === 'air-temp') return 'lst-day';
-    if (layerId === 'elevation' || layerId === 'surface-temp') return 'lst-night';
-    if (layerId === 'poi') return 'stations';
+    if (layerId === 'lst' || layerId === 'air-temp' || layerId === 'lst-day') return 'lst-day';
+    if (layerId === 'elevation' || layerId === 'surface-temp' || layerId === 'lst-night') return 'lst-night';
+    if (layerId === 'poi' || layerId === 'stations') return 'stations';
+    if (layerId === 'landcover' || layerId === 'lc') return 'landcover';
     return layerId;
   }
 
@@ -254,19 +255,17 @@ export class GEELoader {
 
   public isLayerActive(layerId: string): boolean {
     const key = this.normalizeLayerId(layerId);
-    return this.activeLayers.has(key) || this.activeLayers.has(layerId);
+    return this.activeLayers.has(key);
   }
 
   public isLayerVisible(layerId: string): boolean {
     const key = this.normalizeLayerId(layerId);
-    return (this.activeLayers.has(key) || this.activeLayers.has(layerId)) &&
-      (this.layerVisibilities.get(key) ?? this.layerVisibilities.get(layerId) ?? true);
+    return this.activeLayers.has(key) && (this.layerVisibilities.get(key) ?? true);
   }
 
   public setLayerVisible(layerId: string, visible: boolean) {
     const key = this.normalizeLayerId(layerId);
     this.layerVisibilities.set(key, visible);
-    this.layerVisibilities.set(layerId, visible);
     this.updateLayerVisibilities();
     this.notifyLayersChange();
   }
@@ -276,12 +275,22 @@ export class GEELoader {
     if (active) {
       await this.ensureDataLoaded();
       this.activeLayers.add(key);
-      this.activeLayers.add(layerId);
       this.layerVisibilities.set(key, true);
-      this.layerVisibilities.set(layerId, true);
     } else {
       this.activeLayers.delete(key);
+      // Clean up legacy aliases to prevent sync drift
       this.activeLayers.delete(layerId);
+      if (key === 'lst-day') {
+        this.activeLayers.delete('lst');
+        this.activeLayers.delete('air-temp');
+      } else if (key === 'lst-night') {
+        this.activeLayers.delete('elevation');
+        this.activeLayers.delete('surface-temp');
+      } else if (key === 'stations') {
+        this.activeLayers.delete('poi');
+      } else if (key === 'landcover') {
+        this.activeLayers.delete('lc');
+      }
     }
 
     this.renderAllLayers();
