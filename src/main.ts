@@ -24,6 +24,7 @@ import { GuidedTourUI } from './ui/guided-tour';
 import { SwipeCompareManager } from './tools/swipe-compare';
 import { SwipeCompareUI } from './ui/swipe-compare-ui';
 import { CommandPaletteUI } from './ui/command-palette';
+import { SpatialAnalysisUI } from './ui/spatial-analysis-ui';
 import { AttributeTableUI } from './ui/attribute-table-panel';
 import { ShortcutsModalUI } from './ui/shortcuts-modal';
 import { OverviewMapUI } from './ui/overview-map';
@@ -55,6 +56,7 @@ class WebGISApp {
   private swipeCompareManager: SwipeCompareManager | null = null;
   private swipeCompareUI: SwipeCompareUI | null = null;
   private commandPaletteUI: CommandPaletteUI | null = null;
+  private spatialAnalysisUI: SpatialAnalysisUI | null = null;
   private attributeTableUI: AttributeTableUI | null = null;
   private shortcutsModalUI: ShortcutsModalUI | null = null;
   private errorHandler: ErrorHandler;
@@ -232,6 +234,11 @@ class WebGISApp {
         this.swipeCompareManager,
         this.guidedTourUI
       );
+
+      // Instantiate Spatial Analysis & Zonal Statistics Module
+      this.spatialAnalysisUI = new SpatialAnalysisUI(map, 'spatial-analysis-panel');
+      this.spatialAnalysisUI.init();
+      this.commandPaletteUI.setSpatialAnalysisUI(this.spatialAnalysisUI);
 
       // Instantiate Attribute Table & Shortcuts Modal
       this.attributeTableUI = new AttributeTableUI(map, this.geojsonLoader);

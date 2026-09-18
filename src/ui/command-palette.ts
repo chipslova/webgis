@@ -7,6 +7,8 @@ import { MeasureTool } from '../tools/measure';
 import { SidebarUI } from './sidebar';
 import { SwipeCompareManager } from '../tools/swipe-compare';
 import { GuidedTourUI } from './guided-tour';
+import { SpatialAnalysisUI } from './spatial-analysis-ui';
+import { PRESET_REGIONS } from '../tools/spatial-analysis';
 import { showToast } from './toast';
 
 export interface CommandItem {
@@ -30,12 +32,17 @@ export class CommandPaletteUI {
   private guidedTourUI: GuidedTourUI | null;
   private attributeTableUI: any = null;
   private shortcutsModalUI: any = null;
+  private spatialAnalysisUI: SpatialAnalysisUI | null = null;
 
   private isOpen: boolean = false;
   private selectedIndex: number = 0;
   private searchQuery: string = '';
   private modalEl: HTMLElement | null = null;
   private previousActiveElement: HTMLElement | null = null;
+
+  public setSpatialAnalysisUI(ui: SpatialAnalysisUI | null) {
+    this.spatialAnalysisUI = ui;
+  }
 
   constructor(
     mapManager: MapManager,
@@ -287,6 +294,32 @@ export class CommandPaletteUI {
           }
         }
       },
+      {
+        id: 'tool-spatial-analysis-draw',
+        category: 'tools',
+        categoryLabel: '⚡ Tools & Analysis',
+        title: 'Mulai Gambar AOI Analisis Spasial Wilayah',
+        subtitle: 'Gambar poligon bebas untuk menghitung komposisi tutupan lahan & suhu LST',
+        icon: '📊',
+        keywords: ['analisis', 'spatial', 'analysis', 'aoi', 'zonal', 'stats', 'statistik', 'tutupan lahan', 'lulc', 'suhu', 'gambar'],
+        action: () => {
+          this.sidebarUI.setActiveTab('gee');
+          this.spatialAnalysisUI?.startDrawing();
+        }
+      },
+      ...PRESET_REGIONS.map((preset) => ({
+        id: `tool-analysis-${preset.id}`,
+        category: 'tools' as const,
+        categoryLabel: '⚡ Tools & Analysis',
+        title: `Analisis Spasial: ${preset.name}`,
+        subtitle: preset.description,
+        icon: '📐',
+        keywords: ['analisis', 'spatial', 'aoi', preset.name, preset.id, 'zonal', 'stats', 'lulc'],
+        action: () => {
+          this.sidebarUI.setActiveTab('gee');
+          this.spatialAnalysisUI?.selectPresetRegion(preset.id);
+        }
+      })),
       {
         id: 'tool-gee-cfsv2',
         category: 'tools',

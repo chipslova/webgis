@@ -1,0 +1,392 @@
+import * as maplibregl from 'maplibre-gl';
+import {
+  SpatialAnalysisEngine,
+  PRESET_REGIONS,
+  ZonalAnalysisResult
+} from '../tools/spatial-analysis';
+import { polygon } from '@turf/helpers';
+import { showToast } from './toast';
+import { announceToScreenReader } from '../utils/a11y';
+
+export class SpatialAnalysisUI {
+  private map: maplibregl.Map;
+  private containerId: string;
+  private activeResult: ZonalAnalysisResult | null = null;
+  private isDrawingAOI: boolean = false;
+  private drawnPoints: [number, number][] = [];
+  private onResultChangeCallbacks: Array<(res: ZonalAnalysisResult) => void> = [];
+
+  constructor(map: maplibregl.Map, containerId: string = 'spatial-analysis-panel') {
+    this.map = map;
+    this.containerId = containerId;
+  }
+
+  public init() {
+    this.initMapLayers();
+    this.bindEvents();
+    this.render();
+  }
+
+  private initMapLayers() {
+    if (!this.map || !this.map.getStyle()) return;
+
+    const sourceId = 'aoi-analysis-source';
+    const fillLayerId = 'aoi-analysis-fill';
+    const lineLayerId = 'aoi-analysis-line';
+
+    if (!this.map.getSource(sourceId)) {
+      this.map.addSource(sourceId, {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: []
+        }
+      });
+
+      this.map.addLayer({
+        id: fillLayerId,
+        type: 'fill',
+        source: sourceId,
+        paint: {
+          'fill-color': '#06b6d4',
+          'fill-opacity': 0.25
+        }
+      });
+
+      this.map.addLayer({
+        id: lineLayerId,
+        type: 'line',
+        source: sourceId,
+        paint: {
+          'line-color': '#00f0ff',
+          'line-width': 2.5,
+          'line-dasharray': [3, 2]
+        }
+      });
+    }
+  }
+
+  public bindEvents() {
+    // Map click during custom AOI drawing
+    this.map.on('click', (e) => {
+      if (!this.isDrawingAOI) return;
+      const pt: [number, number] = [e.lngLat.lng, e.lngLat.lat];
+      this.drawnPoints.push(pt);
+      this.updateDrawingVisuals();
+
+      if (this.drawnPoints.length >= 3) {
+        const drawStatus = document.getElementById('aoi-draw-status');
+        if (drawStatus) {
+          drawStatus.innerHTML = `📍 <strong>${this.drawnPoints.length} Titik Ditandai</strong>. Klik ganda atau tekan tombol Selesai di bawah untuk komputasi.`;
+        }
+      }
+    });
+
+    this.map.on('dblclick', (e) => {
+      if (this.isDrawingAOI && this.drawnPoints.length >= 3) {
+        e.preventDefault();
+        this.finishDrawing();
+      }
+    });
+  }
+
+  public startDrawing() {
+    this.isDrawingAOI = true;
+    this.drawnPoints = [];
+    this.updateDrawingVisuals();
+
+    this.map.getCanvas().style.cursor = 'crosshair';
+    showToast('Klik titik-titik pada peta untuk membentuk area analisis (AOI)', 'info');
+    announceToScreenReader('Mode menggambar area analisis aktif. Klik peta untuk membuat poligon.');
+
+    const drawBtn = document.getElementById('btn-start-draw-aoi');
+    const finishBtn = document.getElementById('btn-finish-draw-aoi');
+    const cancelBtn = document.getElementById('btn-cancel-draw-aoi');
+    const statusEl = document.getElementById('aoi-draw-status');
+
+    if (drawBtn) drawBtn.style.display = 'none';
+    if (finishBtn) finishBtn.style.display = 'inline-flex';
+    if (cancelBtn) cancelBtn.style.display = 'inline-flex';
+    if (statusEl) {
+      statusEl.style.display = 'block';
+      statusEl.innerHTML = '🎯 <strong>Klik pada peta</strong> untuk membuat simpul batas wilayah analisis...';
+    }
+  }
+
+  public finishDrawing() {
+    if (this.drawnPoints.length < 3) {
+      showToast('Minimal 3 titik koordinat diperlukan untuk membentuk poligon analisis!', 'warning');
+      return;
+    }
+
+    // Close polygon ring
+    const ring = [...this.drawnPoints, this.drawnPoints[0]];
+    const polyFeature = polygon([ring]);
+
+    this.isDrawingAOI = false;
+    this.map.getCanvas().style.cursor = '';
+
+    const drawBtn = document.getElementById('btn-start-draw-aoi');
+    const finishBtn = document.getElementById('btn-finish-draw-aoi');
+    const cancelBtn = document.getElementById('btn-cancel-draw-aoi');
+    const statusEl = document.getElementById('aoi-draw-status');
+
+    if (drawBtn) drawBtn.style.display = 'inline-flex';
+    if (finishBtn) finishBtn.style.display = 'none';
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    if (statusEl) statusEl.style.display = 'none';
+
+    this.analyzeFeature(polyFeature, `Area Kustom (${this.drawnPoints.length} Simpul)`);
+  }
+
+  public cancelDrawing() {
+    this.isDrawingAOI = false;
+    this.drawnPoints = [];
+    this.updateDrawingVisuals();
+    this.map.getCanvas().style.cursor = '';
+
+    const drawBtn = document.getElementById('btn-start-draw-aoi');
+    const finishBtn = document.getElementById('btn-finish-draw-aoi');
+    const cancelBtn = document.getElementById('btn-cancel-draw-aoi');
+    const statusEl = document.getElementById('aoi-draw-status');
+
+    if (drawBtn) drawBtn.style.display = 'inline-flex';
+    if (finishBtn) finishBtn.style.display = 'none';
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    if (statusEl) statusEl.style.display = 'none';
+
+    showToast('Pembuatan area analisis dibatalkan', 'info');
+  }
+
+  private updateDrawingVisuals() {
+    const src = this.map.getSource('aoi-analysis-source') as maplibregl.GeoJSONSource;
+    if (!src || typeof src.setData !== 'function') return;
+
+    if (this.drawnPoints.length >= 3) {
+      const ring = [...this.drawnPoints, this.drawnPoints[0]];
+      src.setData(polygon([ring]));
+    } else {
+      src.setData({
+        type: 'FeatureCollection',
+        features: []
+      });
+    }
+  }
+
+  public selectPresetRegion(presetId: string) {
+    const preset = PRESET_REGIONS.find((p) => p.id === presetId);
+    if (!preset) return;
+
+    this.map.flyTo({
+      center: preset.center,
+      zoom: preset.zoom,
+      duration: 1200
+    });
+
+    const polyFeature = polygon(preset.coordinates);
+    const src = this.map.getSource('aoi-analysis-source') as maplibregl.GeoJSONSource;
+    if (src && typeof src.setData === 'function') {
+      src.setData(polyFeature);
+    }
+
+    this.analyzeFeature(polyFeature, preset.name);
+  }
+
+  public analyzeFeature(
+    feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>,
+    label: string
+  ) {
+    const result = SpatialAnalysisEngine.computeZonalStats(feature, label);
+    this.activeResult = result;
+
+    this.renderResult(result);
+    showToast(`Analisis Statistik Spasial selesai untuk ${label}`, 'success');
+    announceToScreenReader(`Analisis spasial selesai. Luas wilayah ${result.totalAreaKm2} kilometer persegi.`);
+
+    this.onResultChangeCallbacks.forEach(cb => cb(result));
+  }
+
+  public onResultChange(callback: (res: ZonalAnalysisResult) => void) {
+    this.onResultChangeCallbacks.push(callback);
+  }
+
+  public render() {
+    const container = document.getElementById(this.containerId);
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="spatial-analysis-card" style="background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 16px;">📊</span>
+            <span style="font-weight: 600; font-size: 12.5px; color: #fff;">Analisis Statistik Spasial Wilayah (AOI)</span>
+          </div>
+          <span style="font-size: 9.5px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.3);">
+            Sentinel LULC + MODIS
+          </span>
+        </div>
+
+        <p style="font-size: 10.5px; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">
+          Tentukan batas Area of Interest (AOI) untuk menghitung statistik zonal komposisi tutupan lahan, metrik suhu permukaan tanah (LST), dan ekspor laporan tabular.
+        </p>
+
+        <!-- 1. Selection & Drawing Controls -->
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+            <button id="btn-start-draw-aoi" class="btn btn-primary" style="font-size: 10.5px; padding: 6px 8px; justify-content: center; gap: 4px;">
+              ✏️ Gambar AOI Bebas
+            </button>
+            <button id="btn-finish-draw-aoi" class="btn btn-success" style="font-size: 10.5px; padding: 6px 8px; justify-content: center; display: none; background: #10b981; color: #fff;">
+              ✅ Selesai Gambar
+            </button>
+            <button id="btn-cancel-draw-aoi" class="btn btn-secondary" style="font-size: 10.5px; padding: 6px 8px; justify-content: center; display: none;">
+              ❌ Batal
+            </button>
+            <select id="select-preset-aoi" class="form-select" style="font-size: 10.5px; padding: 5px 6px; background: #0f172a; color: #fff; border: 1px solid var(--border-color); border-radius: 4px;">
+              <option value="" disabled selected>📍 Pilih Wilayah Prioritas...</option>
+              ${PRESET_REGIONS.map((p) => `<option value="${p.id}">${p.name}</option>`).join('')}
+            </select>
+          </div>
+
+          <div id="aoi-draw-status" style="display: none; font-size: 10px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 6px 8px; border-radius: 4px; border: 1px dashed rgba(56, 189, 248, 0.4);"></div>
+        </div>
+
+        <!-- 2. Results Container -->
+        <div id="aoi-analysis-results-container">
+          <div style="text-align: center; padding: 18px 10px; border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 6px; background: rgba(0, 0, 0, 0.2);">
+            <div style="font-size: 24px; margin-bottom: 4px;">📐</div>
+            <div style="font-size: 11px; font-weight: 600; color: #cbd5e1;">Belum Ada Area Analisis yang Dipilih</div>
+            <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">
+              Gunakan tombol <strong>Gambar AOI</strong> atau pilih preset wilayah untuk memproses statistik zonal spasial.
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    this.bindUIEvents();
+  }
+
+  private bindUIEvents() {
+    const drawBtn = document.getElementById('btn-start-draw-aoi');
+    const finishBtn = document.getElementById('btn-finish-draw-aoi');
+    const cancelBtn = document.getElementById('btn-cancel-draw-aoi');
+    const presetSelect = document.getElementById('select-preset-aoi') as HTMLSelectElement;
+
+    drawBtn?.addEventListener('click', () => this.startDrawing());
+    finishBtn?.addEventListener('click', () => this.finishDrawing());
+    cancelBtn?.addEventListener('click', () => this.cancelDrawing());
+
+    presetSelect?.addEventListener('change', () => {
+      if (presetSelect.value) {
+        this.selectPresetRegion(presetSelect.value);
+      }
+    });
+  }
+
+  private renderResult(res: ZonalAnalysisResult) {
+    const container = document.getElementById('aoi-analysis-results-container');
+    if (!container) return;
+
+    const uhiRiskBadge = res.thermalStats.hotspotPercentage > 40
+      ? '<span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 2px 6px; border-radius: 3px; font-size: 9.5px; border: 1px solid rgba(239, 68, 68, 0.4);">Tinggi (UHI Kritis)</span>'
+      : res.thermalStats.hotspotPercentage > 20
+      ? '<span style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 2px 6px; border-radius: 3px; font-size: 9.5px; border: 1px solid rgba(245, 158, 11, 0.4);">Sedang</span>'
+      : '<span style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 2px 6px; border-radius: 3px; font-size: 9.5px; border: 1px solid rgba(16, 185, 129, 0.4);">Rendah / Sejuk</span>';
+
+    container.innerHTML = `
+      <div style="background: rgba(0, 0, 0, 0.3); border-radius: 6px; padding: 10px; border: 1px solid rgba(255, 255, 255, 0.06);">
+        <!-- Region Title Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+          <div>
+            <div style="font-size: 12px; font-weight: 700; color: #38bdf8;">${res.regionName}</div>
+            <div style="font-size: 9px; color: var(--text-muted);">Dianalisis: ${res.timestamp}</div>
+          </div>
+          <button id="btn-export-aoi-csv" class="btn btn-secondary" style="font-size: 9.5px; padding: 3px 8px; display: inline-flex; align-items: center; gap: 4px;">
+            📥 Unduh CSV
+          </button>
+        </div>
+
+        <!-- 4 KPI Metrics Tiles -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
+          <div style="background: rgba(15, 23, 42, 0.6); padding: 6px 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <div style="font-size: 8.5px; color: var(--text-muted); text-transform: uppercase;">Luas Wilayah</div>
+            <div style="font-size: 13px; font-weight: 700; color: #fff;">${res.totalAreaKm2.toLocaleString('id-ID')} <span style="font-size: 10px; font-weight: 400; color: #94a3b8;">km²</span></div>
+            <div style="font-size: 9px; color: #38bdf8;">(${res.totalAreaHa.toLocaleString('id-ID')} Ha)</div>
+          </div>
+          <div style="background: rgba(15, 23, 42, 0.6); padding: 6px 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <div style="font-size: 8.5px; color: var(--text-muted); text-transform: uppercase;">Suhu Rata-rata LST</div>
+            <div style="font-size: 13px; font-weight: 700; color: #f59e0b;">${res.thermalStats.meanTempC}°C</div>
+            <div style="font-size: 9px; color: #94a3b8;">Rentang: ${res.thermalStats.minTempC}° – ${res.thermalStats.maxTempC}°C</div>
+          </div>
+          <div style="background: rgba(15, 23, 42, 0.6); padding: 6px 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <div style="font-size: 8.5px; color: var(--text-muted); text-transform: uppercase;">Kelas Dominan</div>
+            <div style="font-size: 11px; font-weight: 600; color: #10b981; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${res.dominantClass}">
+              ${res.dominantClass}
+            </div>
+            <div style="font-size: 9px; color: #94a3b8;">Tutupan Terbesar</div>
+          </div>
+          <div style="background: rgba(15, 23, 42, 0.6); padding: 6px 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <div style="font-size: 8.5px; color: var(--text-muted); text-transform: uppercase;">Paparan Panas UHI</div>
+            <div style="margin-top: 3px;">${uhiRiskBadge}</div>
+            <div style="font-size: 9px; color: #94a3b8; margin-top: 2px;">${res.thermalStats.hotspotAreaKm2} km² (${res.thermalStats.hotspotPercentage}%)</div>
+          </div>
+        </div>
+
+        <!-- Donut & Bar Visual Breakdown -->
+        <div style="margin-bottom: 10px;">
+          <div style="font-size: 10px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px; display: flex; justify-content: space-between;">
+            <span>Komposisi Tutupan Lahan (Sentinel-2 10m):</span>
+            <span style="color: #94a3b8; font-weight: 400;">9 Kelas Analisis</span>
+          </div>
+          
+          <!-- Stacked Progress Bar -->
+          <div style="height: 10px; border-radius: 5px; overflow: hidden; display: flex; width: 100%; margin-bottom: 8px; border: 1px solid rgba(255, 255, 255, 0.1);">
+            ${res.landCoverBreakdown.map((b) => `
+              <div style="background-color: ${b.color}; width: ${b.percentage}%; height: 100%;" title="${b.nameId}: ${b.percentage}% (${b.areaKm2} km²)"></div>
+            `).join('')}
+          </div>
+
+          <!-- Class Percentage Breakdown List -->
+          <div style="display: flex; flex-direction: column; gap: 4px; max-height: 160px; overflow-y: auto; padding-right: 2px;">
+            ${res.landCoverBreakdown.map((b) => `
+              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 9.5px; background: rgba(15, 23, 42, 0.4); padding: 3px 6px; border-radius: 3px;">
+                <div style="display: flex; align-items: center; gap: 5px;">
+                  <span style="width: 8px; height: 8px; border-radius: 2px; background-color: ${b.color}; display: inline-block;"></span>
+                  <span style="color: #f1f5f9;">${b.nameId}</span>
+                </div>
+                <div style="display: flex; gap: 8px; color: #94a3b8;">
+                  <span>${b.areaKm2} km²</span>
+                  <strong style="color: #38bdf8;">${b.percentage}%</strong>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('btn-export-aoi-csv')?.addEventListener('click', () => {
+      this.downloadCSV(res);
+    });
+  }
+
+  public downloadCSV(res: ZonalAnalysisResult) {
+    const csvContent = SpatialAnalysisEngine.exportToCSV(res);
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const safeName = res.regionName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `analisis_spasial_${safeName}_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('Laporan Analisis Spasial (CSV) berhasil diunduh!', 'success');
+  }
+
+  public getActiveResult(): ZonalAnalysisResult | null {
+    return this.activeResult;
+  }
+}
