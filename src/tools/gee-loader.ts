@@ -149,6 +149,10 @@ export class GEELoader {
     });
   }
 
+  public getAllMapLayerIds(): string[] {
+    return this.getLayerIds();
+  }
+
   public getLayerIds(): string[] {
     return [
       'gee-modis-day-wms-layer',
