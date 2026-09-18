@@ -84,7 +84,9 @@ describe('Full WebGIS Feature & Button Audit', () => {
 
     it('should contain GEE Analysis controls', () => {
       expect(document.getElementById('btn-focus-gee-area')).not.toBeNull();
-      expect(document.getElementById('gee-opacity-slider')).not.toBeNull();
+      // Per-layer opacity sliders (replaced the old global gee-opacity-slider)
+      expect(document.getElementById('gee-lst-day-opacity')).not.toBeNull();
+      expect(document.getElementById('gee-landcover-opacity')).not.toBeNull();
       expect(document.getElementById('toggle-gee-lst')).not.toBeNull();
       expect(document.getElementById('toggle-gee-poi')).not.toBeNull();
       expect(document.getElementById('toggle-gee-elevation')).not.toBeNull();

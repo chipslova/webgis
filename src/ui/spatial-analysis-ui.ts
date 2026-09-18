@@ -15,6 +15,7 @@ export class SpatialAnalysisUI {
   private isDrawingAOI: boolean = false;
   private drawnPoints: [number, number][] = [];
   private onResultChangeCallbacks: Array<(res: ZonalAnalysisResult) => void> = [];
+  private _boundMouseMove: ((e: any) => void) | null = null;
 
   constructor(map: maplibregl.Map, containerId: string = 'spatial-analysis-panel') {
     this.map = map;
@@ -30,37 +31,62 @@ export class SpatialAnalysisUI {
   private initMapLayers() {
     if (!this.map || !this.map.getStyle()) return;
 
-    const sourceId = 'aoi-analysis-source';
-    const fillLayerId = 'aoi-analysis-fill';
-    const lineLayerId = 'aoi-analysis-line';
-
-    if (!this.map.getSource(sourceId)) {
-      this.map.addSource(sourceId, {
+    // AOI polygon fill & outline
+    if (!this.map.getSource('aoi-analysis-source')) {
+      this.map.addSource('aoi-analysis-source', {
         type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: []
-        }
+        data: { type: 'FeatureCollection', features: [] }
       });
 
       this.map.addLayer({
-        id: fillLayerId,
+        id: 'aoi-analysis-fill',
         type: 'fill',
-        source: sourceId,
-        paint: {
-          'fill-color': '#06b6d4',
-          'fill-opacity': 0.25
-        }
+        source: 'aoi-analysis-source',
+        paint: { 'fill-color': '#06b6d4', 'fill-opacity': 0.25 }
       });
 
       this.map.addLayer({
-        id: lineLayerId,
+        id: 'aoi-analysis-line',
         type: 'line',
-        source: sourceId,
+        source: 'aoi-analysis-source',
+        paint: { 'line-color': '#00f0ff', 'line-width': 2.5, 'line-dasharray': [3, 2] }
+      });
+    }
+
+    // Vertex dots source
+    if (!this.map.getSource('aoi-vertices-source')) {
+      this.map.addSource('aoi-vertices-source', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] }
+      });
+      this.map.addLayer({
+        id: 'aoi-vertices-layer',
+        type: 'circle',
+        source: 'aoi-vertices-source',
         paint: {
-          'line-color': '#00f0ff',
-          'line-width': 2.5,
-          'line-dasharray': [3, 2]
+          'circle-radius': 5,
+          'circle-color': '#00f0ff',
+          'circle-stroke-color': '#fff',
+          'circle-stroke-width': 1.5
+        }
+      });
+    }
+
+    // Rubber-band preview line source
+    if (!this.map.getSource('aoi-rubberband-source')) {
+      this.map.addSource('aoi-rubberband-source', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] }
+      });
+      this.map.addLayer({
+        id: 'aoi-rubberband-layer',
+        type: 'line',
+        source: 'aoi-rubberband-source',
+        paint: {
+          'line-color': '#ffffff',
+          'line-width': 1.5,
+          'line-opacity': 0.6,
+          'line-dasharray': [4, 3]
         }
       });
     }
@@ -73,13 +99,7 @@ export class SpatialAnalysisUI {
       const pt: [number, number] = [e.lngLat.lng, e.lngLat.lat];
       this.drawnPoints.push(pt);
       this.updateDrawingVisuals();
-
-      if (this.drawnPoints.length >= 3) {
-        const drawStatus = document.getElementById('aoi-draw-status');
-        if (drawStatus) {
-          drawStatus.innerHTML = `📍 <strong>${this.drawnPoints.length} Titik Ditandai</strong>. Klik ganda atau tekan tombol Selesai di bawah untuk komputasi.`;
-        }
-      }
+      this.updateDrawStatus();
     });
 
     this.map.on('dblclick', (e) => {
@@ -96,21 +116,27 @@ export class SpatialAnalysisUI {
     this.updateDrawingVisuals();
 
     this.map.getCanvas().style.cursor = 'crosshair';
-    showToast('Klik titik-titik pada peta untuk membentuk area analisis (AOI)', 'info');
+    showToast('Klik titik-titik pada peta untuk membentuk area analisis (AOI). Klik-Ganda untuk selesai.', 'info');
     announceToScreenReader('Mode menggambar area analisis aktif. Klik peta untuk membuat poligon.');
 
     const drawBtn = document.getElementById('btn-start-draw-aoi');
     const finishBtn = document.getElementById('btn-finish-draw-aoi');
     const cancelBtn = document.getElementById('btn-cancel-draw-aoi');
+    const undoBtn = document.getElementById('btn-undo-draw-aoi');
     const statusEl = document.getElementById('aoi-draw-status');
 
     if (drawBtn) drawBtn.style.display = 'none';
     if (finishBtn) finishBtn.style.display = 'inline-flex';
     if (cancelBtn) cancelBtn.style.display = 'inline-flex';
+    if (undoBtn) undoBtn.style.display = 'inline-flex';
     if (statusEl) {
       statusEl.style.display = 'block';
       statusEl.innerHTML = '🎯 <strong>Klik pada peta</strong> untuk membuat simpul batas wilayah analisis...';
     }
+
+    // Start rubber-band tracking
+    this._boundMouseMove = (e: any) => this.updateRubberband(e.lngLat);
+    this.map.on('mousemove', this._boundMouseMove);
   }
 
   public finishDrawing() {
@@ -119,21 +145,24 @@ export class SpatialAnalysisUI {
       return;
     }
 
-    // Close polygon ring
     const ring = [...this.drawnPoints, this.drawnPoints[0]];
     const polyFeature = polygon([ring]);
 
     this.isDrawingAOI = false;
     this.map.getCanvas().style.cursor = '';
+    this.stopRubberband();
+    this.clearAuxLayers();
 
     const drawBtn = document.getElementById('btn-start-draw-aoi');
     const finishBtn = document.getElementById('btn-finish-draw-aoi');
     const cancelBtn = document.getElementById('btn-cancel-draw-aoi');
+    const undoBtn = document.getElementById('btn-undo-draw-aoi');
     const statusEl = document.getElementById('aoi-draw-status');
 
     if (drawBtn) drawBtn.style.display = 'inline-flex';
     if (finishBtn) finishBtn.style.display = 'none';
     if (cancelBtn) cancelBtn.style.display = 'none';
+    if (undoBtn) undoBtn.style.display = 'none';
     if (statusEl) statusEl.style.display = 'none';
 
     this.analyzeFeature(polyFeature, `Area Kustom (${this.drawnPoints.length} Simpul)`);
@@ -144,18 +173,78 @@ export class SpatialAnalysisUI {
     this.drawnPoints = [];
     this.updateDrawingVisuals();
     this.map.getCanvas().style.cursor = '';
+    this.stopRubberband();
+    this.clearAuxLayers();
 
     const drawBtn = document.getElementById('btn-start-draw-aoi');
     const finishBtn = document.getElementById('btn-finish-draw-aoi');
     const cancelBtn = document.getElementById('btn-cancel-draw-aoi');
+    const undoBtn = document.getElementById('btn-undo-draw-aoi');
     const statusEl = document.getElementById('aoi-draw-status');
 
     if (drawBtn) drawBtn.style.display = 'inline-flex';
     if (finishBtn) finishBtn.style.display = 'none';
     if (cancelBtn) cancelBtn.style.display = 'none';
+    if (undoBtn) undoBtn.style.display = 'none';
     if (statusEl) statusEl.style.display = 'none';
 
     showToast('Pembuatan area analisis dibatalkan', 'info');
+  }
+
+  public undoLastPoint() {
+    if (!this.isDrawingAOI || this.drawnPoints.length === 0) return;
+    this.drawnPoints.pop();
+    this.updateDrawingVisuals();
+    this.updateDrawStatus();
+    showToast('Titik terakhir dihapus', 'info');
+  }
+
+  private updateDrawStatus() {
+    const statusEl = document.getElementById('aoi-draw-status');
+    if (!statusEl) return;
+    const n = this.drawnPoints.length;
+    if (n === 0) {
+      statusEl.innerHTML = '🎯 <strong>Klik pada peta</strong> untuk membuat simpul batas wilayah analisis...';
+    } else if (n < 3) {
+      statusEl.innerHTML = `📍 <strong>${n} Titik</strong> ditandai. Butuh minimal ${3 - n} lagi.`;
+    } else {
+      statusEl.innerHTML = `✅ <strong>${n} Titik Ditandai.</strong> Klik ganda atau tekan <strong>Selesai</strong>.`;
+    }
+  }
+
+  private updateRubberband(lngLat: { lng: number; lat: number }) {
+    if (!this.isDrawingAOI || this.drawnPoints.length === 0) return;
+    const lastPt = this.drawnPoints[this.drawnPoints.length - 1];
+    const src = this.map.getSource('aoi-rubberband-source') as maplibregl.GeoJSONSource;
+    if (src && typeof src.setData === 'function') {
+      src.setData({
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: [lastPt, [lngLat.lng, lngLat.lat]]
+        },
+        properties: {}
+      });
+    }
+  }
+
+  private stopRubberband() {
+    if (this._boundMouseMove) {
+      this.map.off('mousemove', this._boundMouseMove);
+      this._boundMouseMove = null;
+    }
+    const src = this.map.getSource('aoi-rubberband-source') as maplibregl.GeoJSONSource;
+    if (src && typeof src.setData === 'function') {
+      src.setData({ type: 'FeatureCollection', features: [] });
+    }
+  }
+
+  private clearAuxLayers() {
+    const vSrc = this.map.getSource('aoi-vertices-source') as maplibregl.GeoJSONSource;
+    if (vSrc && typeof vSrc.setData === 'function') {
+      vSrc.setData({ type: 'FeatureCollection', features: [] });
+    }
+    this.stopRubberband();
   }
 
   private updateDrawingVisuals() {
@@ -166,9 +255,19 @@ export class SpatialAnalysisUI {
       const ring = [...this.drawnPoints, this.drawnPoints[0]];
       src.setData(polygon([ring]));
     } else {
-      src.setData({
+      src.setData({ type: 'FeatureCollection', features: [] });
+    }
+
+    // Update vertex dots
+    const vSrc = this.map.getSource('aoi-vertices-source') as maplibregl.GeoJSONSource;
+    if (vSrc && typeof vSrc.setData === 'function') {
+      vSrc.setData({
         type: 'FeatureCollection',
-        features: []
+        features: this.drawnPoints.map(([lng, lat]) => ({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [lng, lat] },
+          properties: {}
+        }))
       });
     }
   }
@@ -239,6 +338,9 @@ export class SpatialAnalysisUI {
             <button id="btn-finish-draw-aoi" class="btn btn-success" style="font-size: 10.5px; padding: 6px 8px; justify-content: center; display: none; background: #10b981; color: #fff;">
               ✅ Selesai Gambar
             </button>
+            <button id="btn-undo-draw-aoi" class="btn btn-secondary" style="font-size: 10.5px; padding: 6px 8px; justify-content: center; display: none;">
+              ↩ Hapus Titik
+            </button>
             <button id="btn-cancel-draw-aoi" class="btn btn-secondary" style="font-size: 10.5px; padding: 6px 8px; justify-content: center; display: none;">
               ❌ Batal
             </button>
@@ -268,19 +370,14 @@ export class SpatialAnalysisUI {
   }
 
   private bindUIEvents() {
-    const drawBtn = document.getElementById('btn-start-draw-aoi');
-    const finishBtn = document.getElementById('btn-finish-draw-aoi');
-    const cancelBtn = document.getElementById('btn-cancel-draw-aoi');
+    document.getElementById('btn-start-draw-aoi')?.addEventListener('click', () => this.startDrawing());
+    document.getElementById('btn-finish-draw-aoi')?.addEventListener('click', () => this.finishDrawing());
+    document.getElementById('btn-cancel-draw-aoi')?.addEventListener('click', () => this.cancelDrawing());
+    document.getElementById('btn-undo-draw-aoi')?.addEventListener('click', () => this.undoLastPoint());
+
     const presetSelect = document.getElementById('select-preset-aoi') as HTMLSelectElement;
-
-    drawBtn?.addEventListener('click', () => this.startDrawing());
-    finishBtn?.addEventListener('click', () => this.finishDrawing());
-    cancelBtn?.addEventListener('click', () => this.cancelDrawing());
-
     presetSelect?.addEventListener('change', () => {
-      if (presetSelect.value) {
-        this.selectPresetRegion(presetSelect.value);
-      }
+      if (presetSelect.value) this.selectPresetRegion(presetSelect.value);
     });
   }
 
