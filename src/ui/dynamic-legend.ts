@@ -116,12 +116,12 @@ export class DynamicLegendUI {
             </div>
             <div class="gee-legend-bar lst-gradient" style="margin-top: 8px;"></div>
             <div class="gee-legend-labels">
-              <span>-5°C (Summit)</span>
-              <span>10°C</span>
-              <span>16°C</span>
-              <span>22°C (Coast)</span>
-              <span>26°C (UHI)</span>
-              <span>28°C+</span>
+              <span>10°C (Highland)</span>
+              <span>20°C</span>
+              <span>26°C</span>
+              <span>32°C (Urban)</span>
+              <span>38°C</span>
+              <span>42°C+</span>
             </div>
           </div>
         `;

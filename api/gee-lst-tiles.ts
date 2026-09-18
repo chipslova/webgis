@@ -40,8 +40,8 @@ export default async function handler(req: any, res: any) {
   // Visual parameters for MODIS Land Surface Temperature in Indonesia
   // Kelvin scale conversion: Celsius = Kelvin * 0.02 - 273.15
   const isDay = mode === 'day';
-  const minTemp = customMin ? Number(customMin) : (isDay ? 18 : 10);
-  const maxTemp = customMax ? Number(customMax) : (isDay ? 40 : 28);
+  const minTemp = customMin ? Number(customMin) : 10;
+  const maxTemp = customMax ? Number(customMax) : 42;
   
   const palette = [
     '040274', // Deep blue (cool highland / mountain summit)
