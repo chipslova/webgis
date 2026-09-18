@@ -509,11 +509,30 @@ export class GEELoader {
       const lcSourceId = 'gee-modis-landcover-source';
       const lcLayerId = 'gee-modis-landcover-layer';
 
+      const beforeLayerId = this.map.getLayer('gee-modis-stations-circles')
+        ? 'gee-modis-stations-circles'
+        : undefined;
+
       const existingLcSource = this.map.getSource(lcSourceId) as any;
       if (existingLcSource) {
+        if (typeof existingLcSource.setTiles === 'function') {
+          existingLcSource.setTiles([lcWmsUrl]);
+        }
         if (this.map.getLayer(lcLayerId)) {
           this.map.setLayoutProperty(lcLayerId, 'visibility', isLcVis ? 'visible' : 'none');
           this.map.setPaintProperty(lcLayerId, 'raster-opacity', this.getLayerOpacity('landcover'));
+        } else {
+          this.map.addLayer({
+            id: lcLayerId,
+            type: 'raster',
+            source: lcSourceId,
+            layout: { visibility: isLcVis ? 'visible' : 'none' },
+            paint: {
+              'raster-opacity': this.getLayerOpacity('landcover'),
+              'raster-resampling': 'nearest',
+              'raster-fade-duration': 200
+            }
+          }, beforeLayerId);
         }
       } else {
         this.map.addSource(lcSourceId, {
@@ -522,12 +541,6 @@ export class GEELoader {
           tileSize: 256,
           maxzoom: 18
         });
-
-        const beforeLayerId = this.map.getLayer('gee-modis-day-wms-layer')
-          ? 'gee-modis-day-wms-layer'
-          : this.map.getLayer('gee-modis-stations-circles')
-          ? 'gee-modis-stations-circles'
-          : undefined;
 
         this.map.addLayer({
           id: lcLayerId,
