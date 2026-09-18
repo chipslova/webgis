@@ -480,21 +480,23 @@
                 <div id="gee-compute-status" style="display: none;"></div>
 
                 <!-- 5. Educational Guidance Callout -->
-                <div style="padding: 6px 8px; background: rgba(56, 189, 248, 0.07); border-left: 3px solid #38bdf8; border-radius: 4px; font-size: 9.5px; line-height: 1.4; color: #cbd5e1;">
-                  <strong style="color: #38bdf8;">💡 Catatan:</strong> Area laut otomatis dipotong (<em>land-mask</em>) &amp; awan tebal difilter. Pilih periode <strong>Kemarau (Agustus)</strong> untuk tutupan daratan paling utuh.
+                <div style="padding: 7px 9px; background: rgba(56, 189, 248, 0.07); border-left: 3px solid #38bdf8; border-radius: 4px; font-size: 9.5px; line-height: 1.45; color: #cbd5e1;">
+                  <div><strong style="color: #38bdf8;">💡 Panduan Warna Merah:</strong></div>
+                  <div style="margin-top: 2px;">• <strong>Peta LST (Suhu):</strong> Merah = Permukaan daratan panas (34°C–40°C+ saat siang/kemarau). Lautan transparan.</div>
+                  <div style="margin-top: 2px;">• <strong>Tutupan Lahan (LULC):</strong> Merah = Lahan Terbangun / Perkotaan (Built-Up Area).</div>
                 </div>
               </div>
 
               <!-- Quick Focus Area Buttons -->
-              <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                <button id="btn-focus-gee-area" class="btn-focus-gee" style="flex: 1; margin: 0;" aria-label="Focus camera on Java thermal corridor">
+              <div class="gee-focus-buttons-row">
+                <button id="btn-focus-gee-area" class="btn-focus-gee" aria-label="Focus camera on Java thermal corridor">
                   <span class="btn-focus-icon" aria-hidden="true">🎯</span>
                   <div class="btn-focus-gee-text">
                     <span class="btn-focus-title">Java Corridor</span>
                     <span class="btn-focus-sub">(Jakarta – Bandung)</span>
                   </div>
                 </button>
-                <button id="btn-focus-gee-indonesia" class="btn-focus-gee" style="flex: 1; margin: 0;" aria-label="Focus camera on Indonesia national overview">
+                <button id="btn-focus-gee-indonesia" class="btn-focus-gee" aria-label="Focus camera on Indonesia national overview">
                   <span class="btn-focus-icon" aria-hidden="true">🇮🇩</span>
                   <div class="btn-focus-gee-text">
                     <span class="btn-focus-title">Indonesia Overview</span>

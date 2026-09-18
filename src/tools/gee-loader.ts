@@ -442,7 +442,7 @@ export class GEELoader {
           type: 'raster',
           tiles: [dayWmsUrl],
           tileSize: 256,
-          maxzoom: 9
+          maxzoom: 12
         });
 
         const beforeLayerId = this.map.getLayer('gee-modis-stations-circles') ? 'gee-modis-stations-circles' : undefined;
@@ -483,7 +483,7 @@ export class GEELoader {
           type: 'raster',
           tiles: [nightWmsUrl],
           tileSize: 256,
-          maxzoom: 9
+          maxzoom: 12
         });
 
         const beforeLayerId = this.map.getLayer('gee-modis-stations-circles') ? 'gee-modis-stations-circles' : undefined;
@@ -509,9 +509,12 @@ export class GEELoader {
       const lcSourceId = 'gee-modis-landcover-source';
       const lcLayerId = 'gee-modis-landcover-layer';
 
-      const beforeLayerId = this.map.getLayer('gee-modis-stations-circles')
-        ? 'gee-modis-stations-circles'
-        : undefined;
+      // Insert Land Cover below Day/Night LST if they exist, otherwise below stations circles
+      const beforeLayerId = this.map.getLayer('gee-modis-day-wms-layer')
+        ? 'gee-modis-day-wms-layer'
+        : (this.map.getLayer('gee-modis-night-wms-layer')
+          ? 'gee-modis-night-wms-layer'
+          : (this.map.getLayer('gee-modis-stations-circles') ? 'gee-modis-stations-circles' : undefined));
 
       const existingLcSource = this.map.getSource(lcSourceId) as any;
       if (existingLcSource) {
