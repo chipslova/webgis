@@ -503,9 +503,9 @@ export class GEELoader {
       logger.warn('[GEELoader] Notice adding NASA MODIS Night WMS raster layer:', e);
     }
 
-    // --- 3. ESA WORLDCOVER 10M GLOBAL LAND COVER (SENTINEL-1/2 GEE ASSET) ---
+    // --- 3. SENTINEL-2 10M GLOBAL LAND USE & LAND COVER (LULC) ---
     try {
-      const lcWmsUrl = `https://services.terrascope.be/wms/v2?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=WORLDCOVER_2021_MAP&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&BBOX={bbox-epsg-3857}`;
+      const lcWmsUrl = `https://ic.imagery1.arcgis.com/arcgis/rest/services/Sentinel2_10m_LandCover/ImageServer/exportImage?bbox={bbox-epsg-3857}&bboxSR=3857&imageSR=3857&size=256,256&format=png&transparent=true&f=image`;
       const lcSourceId = 'gee-modis-landcover-source';
       const lcLayerId = 'gee-modis-landcover-layer';
 
@@ -520,7 +520,7 @@ export class GEELoader {
           type: 'raster',
           tiles: [lcWmsUrl],
           tileSize: 256,
-          maxzoom: 16
+          maxzoom: 18
         });
 
         const beforeLayerId = this.map.getLayer('gee-modis-day-wms-layer')
@@ -542,7 +542,7 @@ export class GEELoader {
         }, beforeLayerId);
       }
     } catch (e) {
-      logger.warn('[GEELoader] Notice adding ESA WorldCover 10m raster layer:', e);
+      logger.warn('[GEELoader] Notice adding Sentinel-2 10m Land Cover raster layer:', e);
     }
 
     // --- 4. Invisible polygon layers for click interception ---

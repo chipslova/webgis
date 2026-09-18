@@ -19,6 +19,31 @@ export class MapManager {
   private onMoveCallback?: (info: { lat: number; lng: number; zoom: number; pitch: number; bearing: number }) => void;
   private onFeatureClickCallback?: (properties: Record<string, any>, layerName: string, coordinates: [number, number]) => void;
   private styleSpecCache: Map<string, maplibregl.StyleSpecification> = new Map();
+  private enforceOrderFrame: number | null = null;
+  private pikselLoaderRef?: { getAllMapLayerIds?(): string[] } | null;
+  private geeLoaderRef?: { getAllMapLayerIds?(): string[] } | null;
+  private geojsonLoaderRef?: { getAllMapLayerIds?(): string[] } | null;
+  private measureToolRef?: { getAllMapLayerIds?(): string[] } | null;
+
+  public setPikselLoader(loader: { getAllMapLayerIds?(): string[] } | null) {
+    this.pikselLoaderRef = loader;
+  }
+
+  public setGeeLoader(loader: { getAllMapLayerIds?(): string[] } | null) {
+    this.geeLoaderRef = loader;
+  }
+
+  public setGEELoader(loader: { getAllMapLayerIds?(): string[] } | null) {
+    this.geeLoaderRef = loader;
+  }
+
+  public setGeoJsonLoader(loader: { getAllMapLayerIds?(): string[] } | null) {
+    this.geojsonLoaderRef = loader;
+  }
+
+  public setMeasureTool(tool: { getAllMapLayerIds?(): string[] } | null) {
+    this.measureToolRef = tool;
+  }
 
   constructor(containerId: string) {
     this.containerId = containerId;
@@ -331,27 +356,9 @@ export class MapManager {
 
   // Registry for centralized style.load lifecycle
   private styleReadyCallbacks: Array<() => void> = [];
-  private geojsonLoaderRef?: { getAllMapLayerIds(): string[] };
-  private pikselLoaderRef?: { getAllMapLayerIds(): string[] };
 
   public onStyleReady(callback: () => void) {
     this.styleReadyCallbacks.push(callback);
-  }
-
-  public setGeoJsonLoader(loader: { getAllMapLayerIds(): string[] }) {
-    this.geojsonLoaderRef = loader;
-  }
-
-  public setPikselLoader(loader: { getAllMapLayerIds(): string[] }) {
-    this.pikselLoaderRef = loader;
-  }
-
-  public setGeeLoader(_loader: { getAllMapLayerIds?(): string[] }) {
-    // Registered for architecture uniformity
-  }
-
-  public setMeasureTool(_tool: { getAllMapLayerIds?(): string[] }) {
-    // Registered for architecture uniformity
   }
 
   private fireStyleReadyCallbacks() {
@@ -365,8 +372,6 @@ export class MapManager {
     });
     this.enforceLayerOrder();
   }
-
-  private enforceOrderFrame: number | null = null;
 
   /**
    * Deterministically orders all custom layers above the basemap in a single pass (debounced with rAF):
@@ -392,12 +397,16 @@ export class MapManager {
     if (!this.map || !this.map.getStyle()) return;
 
     // 1. Piksel WMS Raster Layers (bottom of analytical stack)
-    const pikselRasterLayerIds = (this.pikselLoaderRef?.getAllMapLayerIds() || []).filter(
-      (id) => !id.includes('grid')
+    const pikselRasterLayerIds = (this.pikselLoaderRef?.getAllMapLayerIds?.() || []).filter(
+      (id: string) => !id.includes('grid')
     );
 
     // 2. GEE Analytical Rasters (above Piksel imagery)
-    const geeRasterLayerIds = [
+    const geeAllLayerIds = this.geeLoaderRef?.getAllMapLayerIds?.() || [
+      'gee-modis-landcover-layer',
+      'gee-modis-day-wms-layer',
+      'gee-modis-night-wms-layer',
+      'gee-modis-live-raster-layer',
       'gee-elevation-fill',
       'gee-elevation-outline',
       'gee-landcover-fill',
@@ -405,18 +414,19 @@ export class MapManager {
       'gee-lst-fill',
       'gee-lst-outline'
     ];
+    const geeRasterLayerIds = geeAllLayerIds.filter((id: string) => !id.includes('circle') && !id.includes('stations'));
 
     // 3. Piksel Grid Boundaries (above GEE/Piksel rasters)
     const pikselGridLayerIds = ['piksel-grid-fill', 'piksel-grid-line'];
 
     // 4. GEE POI Vector Circles & Observations
-    const geeVectorLayerIds = ['gee-poi-circles'];
+    const geeVectorLayerIds = geeAllLayerIds.filter((id: string) => id.includes('circle') || id.includes('stations') || id.includes('poi'));
 
     // 5. Custom Vector GeoJSON Layers (Major Cities, Uploaded GeoJSON)
-    const geojsonLayerIds = this.geojsonLoaderRef?.getAllMapLayerIds() || [];
+    const geojsonLayerIds = this.geojsonLoaderRef?.getAllMapLayerIds?.() || [];
 
     // 6. Measurement Layers (Always topmost interactive overlay)
-    const measureLayerIds = [
+    const measureLayerIds = this.measureToolRef?.getAllMapLayerIds?.() || [
       'measure-fill',
       'measure-line-casing',
       'measure-line',

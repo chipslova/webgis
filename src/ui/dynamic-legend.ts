@@ -134,50 +134,46 @@ export class DynamicLegendUI {
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">🗺️</span>
               <div>
-                <div class="dynamic-legend-title">ESA WorldCover 10m Sentinel Land Cover</div>
-                <div class="dynamic-legend-sub">Global 11-Class Land Cover · ESA / Terrascope / GEE</div>
+                <div class="dynamic-legend-title">Sentinel-2 10m Land Use & Land Cover (LULC)</div>
+                <div class="dynamic-legend-sub">Global 10m Sentinel-2 Composite · Impact Observatory / Esri</div>
               </div>
             </div>
             <div class="dynamic-legend-swatches" style="margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
               <div class="dynamic-legend-item">
-                <span class="dynamic-color-box" style="background-color: #006400;"></span>
-                <span class="dynamic-legend-label">Tree Cover</span>
+                <span class="dynamic-color-box" style="background-color: #1A5BAB;"></span>
+                <span class="dynamic-legend-label">Water</span>
               </div>
               <div class="dynamic-legend-item">
-                <span class="dynamic-color-box" style="background-color: #ffbb22;"></span>
-                <span class="dynamic-legend-label">Shrubland</span>
+                <span class="dynamic-color-box" style="background-color: #358221;"></span>
+                <span class="dynamic-legend-label">Trees (Forest)</span>
               </div>
               <div class="dynamic-legend-item">
-                <span class="dynamic-color-box" style="background-color: #ffff4c;"></span>
-                <span class="dynamic-legend-label">Grassland</span>
+                <span class="dynamic-color-box" style="background-color: #87D19E;"></span>
+                <span class="dynamic-legend-label">Flooded Veg / Mangrove</span>
               </div>
               <div class="dynamic-legend-item">
-                <span class="dynamic-color-box" style="background-color: #f096ff;"></span>
-                <span class="dynamic-legend-label">Cropland</span>
+                <span class="dynamic-color-box" style="background-color: #FFDB5C;"></span>
+                <span class="dynamic-legend-label">Crops (Pertanian)</span>
               </div>
               <div class="dynamic-legend-item">
-                <span class="dynamic-color-box" style="background-color: #fa0000;"></span>
-                <span class="dynamic-legend-label">Built-up / Urban</span>
+                <span class="dynamic-color-box" style="background-color: #ED022A;"></span>
+                <span class="dynamic-legend-label">Built Area (Kota)</span>
               </div>
               <div class="dynamic-legend-item">
-                <span class="dynamic-color-box" style="background-color: #b4b4b4;"></span>
-                <span class="dynamic-legend-label">Bare / Sparse Veg</span>
+                <span class="dynamic-color-box" style="background-color: #EDE9E4;"></span>
+                <span class="dynamic-legend-label">Bare Ground (Terbuka)</span>
               </div>
               <div class="dynamic-legend-item">
-                <span class="dynamic-color-box" style="background-color: #0064c8;"></span>
-                <span class="dynamic-legend-label">Permanent Water</span>
+                <span class="dynamic-color-box" style="background-color: #C6D799;"></span>
+                <span class="dynamic-legend-label">Rangeland (Semak)</span>
               </div>
               <div class="dynamic-legend-item">
-                <span class="dynamic-color-box" style="background-color: #0096a0;"></span>
-                <span class="dynamic-legend-label">Herbaceous Wetland</span>
+                <span class="dynamic-color-box" style="background-color: #F2FAFF; border: 1px solid rgba(255,255,255,0.3);"></span>
+                <span class="dynamic-legend-label">Snow / Ice</span>
               </div>
               <div class="dynamic-legend-item">
-                <span class="dynamic-color-box" style="background-color: #00cf75;"></span>
-                <span class="dynamic-legend-label">Mangroves</span>
-              </div>
-              <div class="dynamic-legend-item">
-                <span class="dynamic-color-box" style="background-color: #fae6a0;"></span>
-                <span class="dynamic-legend-label">Moss & Lichen</span>
+                <span class="dynamic-color-box" style="background-color: #C8C8C8;"></span>
+                <span class="dynamic-legend-label">Clouds</span>
               </div>
             </div>
           </div>

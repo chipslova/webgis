@@ -147,9 +147,9 @@ export class PointInspector {
       } else if (this.geeLoader.isLayerVisible('elevation')) {
         activeLayerName = 'USGS SRTM Ground Elevation DEM (30m)';
         activeLayerCategory = 'GEE Elevation Case Study';
-      } else if (this.geeLoader.isLayerVisible('landcover')) {
-        activeLayerName = 'MODIS MCD12Q1 Land Cover (500m)';
-        activeLayerCategory = 'GEE Classification Case Study';
+      } else if (this.geeLoader.isLayerVisible('landcover') || this.geeLoader.isLayerVisible('lc')) {
+        activeLayerName = 'Sentinel-2 10m Land Use & Land Cover (LULC)';
+        activeLayerCategory = 'Sentinel-2 10m High-Resolution';
       }
     }
 

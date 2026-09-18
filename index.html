@@ -372,10 +372,10 @@
                       <span class="toggle-label" style="font-size: 11px;">🌙 <strong>Nighttime LST</strong> (Suhu Malam · ~22:30 / 01:30)</span>
                     </label>
 
-                    <!-- 3. ESA WorldCover 10m Sentinel-1/2 Land Cover -->
+                    <!-- 3. Sentinel-2 10m Land Cover (LULC) -->
                     <label class="gee-toggle-item" style="display: flex; align-items: center; gap: 8px; background: rgba(15, 23, 42, 0.5); padding: 6px 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.08); cursor: pointer;">
-                      <input type="checkbox" id="toggle-gee-landcover" aria-label="Toggle ESA WorldCover 10m Sentinel Land Cover layer" />
-                      <span class="toggle-label" style="font-size: 11px;">🌳 <strong>ESA WorldCover 10m</strong> (Tutupan Lahan Sentinel)</span>
+                      <input type="checkbox" id="toggle-gee-landcover" aria-label="Toggle Sentinel-2 10m Land Cover layer" />
+                      <span class="toggle-label" style="font-size: 11px;">🌳 <strong>Sentinel-2 10m LULC</strong> (Tutupan Lahan Sentinel)</span>
                     </label>
 
                     <!-- 4. Indonesia Observation Nodes -->
@@ -403,21 +403,21 @@
                   </div>
                 </div>
 
-                <!-- 2b. ESA WorldCover Classes Legend -->
+                <!-- 2b. Sentinel-2 10m LULC Classes Legend -->
                 <details style="margin-bottom: 10px; background: rgba(0, 0, 0, 0.25); padding: 6px 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.05);">
                   <summary style="font-size: 10px; color: #38bdf8; cursor: pointer; font-weight: 600;">
-                    🗺️ Legenda 11 Kelas ESA WorldCover 10m
+                    🗺️ Legenda 9 Kelas Sentinel-2 10m LULC
                   </summary>
                   <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; font-size: 9px;">
-                    <span style="background: #006400; color: #fff; padding: 1px 4px; border-radius: 2px;">🌲 Tree Cover</span>
-                    <span style="background: #ffbb22; color: #000; padding: 1px 4px; border-radius: 2px;">🌿 Shrubland</span>
-                    <span style="background: #ffff4c; color: #000; padding: 1px 4px; border-radius: 2px;">🌾 Grassland</span>
-                    <span style="background: #f096ff; color: #000; padding: 1px 4px; border-radius: 2px;">🌾 Cropland</span>
-                    <span style="background: #fa0000; color: #fff; padding: 1px 4px; border-radius: 2px;">🏢 Built-up/Kota</span>
-                    <span style="background: #b4b4b4; color: #000; padding: 1px 4px; border-radius: 2px;">🏜️ Bare Soil</span>
-                    <span style="background: #0064c8; color: #fff; padding: 1px 4px; border-radius: 2px;">🌊 Water</span>
-                    <span style="background: #0096a0; color: #fff; padding: 1px 4px; border-radius: 2px;">💧 Wetland</span>
-                    <span style="background: #00cf75; color: #000; padding: 1px 4px; border-radius: 2px;">🌴 Mangroves</span>
+                    <span style="background: #1A5BAB; color: #fff; padding: 1px 4px; border-radius: 2px;">🌊 Water</span>
+                    <span style="background: #358221; color: #fff; padding: 1px 4px; border-radius: 2px;">🌲 Trees (Forest)</span>
+                    <span style="background: #87D19E; color: #000; padding: 1px 4px; border-radius: 2px;">💧 Flooded Veg / Mangrove</span>
+                    <span style="background: #FFDB5C; color: #000; padding: 1px 4px; border-radius: 2px;">🌾 Crops (Pertanian)</span>
+                    <span style="background: #ED022A; color: #fff; padding: 1px 4px; border-radius: 2px;">🏢 Built Area (Kota)</span>
+                    <span style="background: #EDE9E4; color: #000; padding: 1px 4px; border-radius: 2px;">🏜️ Bare Ground</span>
+                    <span style="background: #C6D799; color: #000; padding: 1px 4px; border-radius: 2px;">🌿 Rangeland</span>
+                    <span style="background: #F2FAFF; color: #000; padding: 1px 4px; border-radius: 2px;">❄️ Snow/Ice</span>
+                    <span style="background: #C8C8C8; color: #000; padding: 1px 4px; border-radius: 2px;">☁️ Clouds</span>
                   </div>
                 </details>
 
