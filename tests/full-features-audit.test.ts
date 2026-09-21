@@ -12,6 +12,7 @@ import * as maplibregl from 'maplibre-gl';
 import { PointInspector } from '../src/tools/point-inspector';
 import { GuidedTourUI } from '../src/ui/guided-tour';
 import { PikselLoader } from '../src/tools/piksel-loader';
+import { SpatialAnalysisUI } from '../src/ui/spatial-analysis-ui';
 
 // Read index.html for DOM element verification (stripping script and link tags for happy-dom parser)
 const indexHtml = fs.readFileSync(path.resolve(__dirname, '../index.html'), 'utf-8')
@@ -433,7 +434,7 @@ describe('Full WebGIS Feature & Button Audit', () => {
         flyTo: vi.fn()
       };
 
-      const spatialUI = new (require('../src/ui/spatial-analysis-ui').SpatialAnalysisUI)(mockMap, 'spatial-analysis-panel');
+      const spatialUI = new SpatialAnalysisUI(mockMap, 'spatial-analysis-panel');
       spatialUI.init();
 
       const mockRes = {
