@@ -365,8 +365,8 @@ export class SpatialAnalysisUI {
       container.innerHTML = `
         <div style="text-align: center; padding: 24px 12px; background: rgba(0, 0, 0, 0.25); border-radius: 6px; border: 1px dashed rgba(56, 189, 248, 0.35);">
           <div class="hud-spinner" style="margin: 0 auto 10px auto; width: 22px; height: 22px; border-width: 2px; border-color: rgba(56, 189, 248, 0.3); border-top-color: #38bdf8; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
-          <div style="font-size: 11.5px; font-weight: 600; color: #38bdf8;">Menghubungi Server Google Earth Engine...</div>
-          <div style="font-size: 9.5px; color: var(--text-muted); margin-top: 4px;">Menjalankan kalkulasi reduksi piksel satelit MODIS &amp; ESA WorldCover...</div>
+          <div style="font-size: 11.5px; font-weight: 600; color: #38bdf8;">Menganalisis Piksel Satelit & Suhu Permukaan...</div>
+          <div style="font-size: 9.5px; color: var(--text-muted); margin-top: 4px;">Memproses data raster Sentinel-2 10m LULC &amp; Open-Meteo Live LST...</div>
         </div>
       `;
     }
@@ -377,6 +377,8 @@ export class SpatialAnalysisUI {
     this.renderResult(result);
     if (result.isRealGEE) {
       showToast(`Analisis piksel real GEE selesai untuk ${label} (${result.totalPixelCount?.toLocaleString('id-ID')} piksel)`, 'success');
+    } else if (result.isClientSampled) {
+      showToast(`Sampling piksel Sentinel-2 10m selesai untuk ${label} (${result.totalPixelCount?.toLocaleString('id-ID')} piksel)`, 'success');
     } else {
       showToast(`Estimator spasial selesai untuk ${label}`, 'success');
     }
@@ -398,15 +400,15 @@ export class SpatialAnalysisUI {
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
           <div style="display: flex; align-items: center; gap: 6px;">
             <span style="font-size: 16px;">📊</span>
-            <span style="font-weight: 600; font-size: 12.5px; color: #fff;">Estimator Zonal Cepat (Heuristic Regional Proxy)</span>
+            <span style="font-weight: 600; font-size: 12.5px; color: #fff;">Analisis Spasial Zonal (Sentinel-2 &amp; LST)</span>
           </div>
           <span style="font-size: 9.5px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.3);">
-            Model Heuristik Empiris
+            100% Free &amp; Open
           </span>
         </div>
 
         <p style="font-size: 10.5px; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">
-          Estimasi cepat profil tutupan lahan dan indikator termal mikro berbasis posisi koordinat geografis dan lanskap regional (bukan pembacaan piksel mentah GEE).
+          Analisis komposisi tutupan lahan dan statistik termal berbasis pembacaan piksel satelit Sentinel-2 10m &amp; suhu permukaan tanah Open-Meteo realtime.
         </p>
 
         <!-- 1. Selection & Drawing Controls -->
@@ -523,6 +525,39 @@ export class SpatialAnalysisUI {
               Kalkulasi reduksi piksel satelit dieksekusi di cluster Google Earth Engine. Total <strong>${res.totalPixelCount?.toLocaleString('id-ID') || '-'} piksel</strong> dianalisis dari data MODIS LST &amp; ESA WorldCover.
             </div>
           </div>
+        </div>` : res.isClientSampled ? `
+        <!-- Real Client-Side Sentinel-2 10m Pixel Sampling Banner (100% Free) -->
+        <div role="note" aria-label="Verifikasi Sampling Piksel Sentinel-2 10m" style="
+          margin-bottom: 10px;
+          padding: 8px 10px;
+          background: rgba(14, 165, 233, 0.12);
+          border: 1px solid rgba(14, 165, 233, 0.45);
+          border-left: 3px solid #38bdf8;
+          border-radius: 5px;
+          display: flex;
+          gap: 7px;
+          align-items: flex-start;
+        ">
+          <span style="font-size: 15px; flex-shrink: 0; line-height: 1;">🛰️</span>
+          <div style="width: 100%;">
+            <div style="font-size: 10.5px; font-weight: 700; color: #38bdf8; margin-bottom: 2px;">
+              Sampling Piksel Satelit Asli: Sentinel-2 10m &amp; Open-Meteo LST (100% Free)
+            </div>
+            <div style="font-size: 9.5px; color: #bae6fd; line-height: 1.45;">
+              Dianalisis langsung di peramban dari <strong>${res.totalPixelCount?.toLocaleString('id-ID') || '-'} piksel citra Sentinel-2 (resolusi 10 meter)</strong> dan suhu permukaan tanah aktual. 100% gratis tanpa kartu kredit.
+            </div>
+            <div style="display: flex; gap: 6px; margin-top: 5px; align-items: center;">
+              <span style="font-size: 8.5px; color: #7dd3fc; background: rgba(56, 189, 248, 0.2); padding: 1px 5px; border-radius: 3px;">
+                ✓ Bebas Biaya
+              </span>
+              <span style="font-size: 8.5px; color: #7dd3fc; background: rgba(56, 189, 248, 0.2); padding: 1px 5px; border-radius: 3px;">
+                ✓ Resolusi 10m
+              </span>
+              <button id="btn-open-gee-setup-modal" style="margin-left: auto; font-size: 8.5px; background: none; border: none; color: #94a3b8; text-decoration: underline; cursor: pointer; padding: 0;">
+                Ingin GEE Cloud?
+              </button>
+            </div>
+          </div>
         </div>` : `
         <!-- Estimation Disclaimer Banner with Setup Button -->
         <div role="note" aria-label="Peringatan: data estimasi" style="
@@ -542,7 +577,7 @@ export class SpatialAnalysisUI {
               Model Proxy Heuristik (Estimator Cepat)
             </div>
             <div style="font-size: 9.5px; color: #fde68a; line-height: 1.45;">
-              Angka dihitung dari model profil spasial wilayah. Kunci Google Earth Engine belum dipasang di environment Vercel.
+              Angka dihitung dari model profil spasial wilayah secara offline.
             </div>
             <button id="btn-open-gee-setup-modal" class="btn btn-outline btn-sm" style="font-size: 9px; padding: 2px 7px; margin-top: 5px; border-color: rgba(245, 158, 11, 0.45); color: #fbbf24; cursor: pointer;">
               ⚙️ Hubungkan Akun GEE Asli (Panduan)

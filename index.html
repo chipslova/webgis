@@ -1416,23 +1416,33 @@
             <button id="btn-close-gee-modal" class="insp-close-btn" aria-label="Tutup modal">✕</button>
           </div>
           <div class="gee-setup-modal-body">
-            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
-              Untuk menjalankan kalkulasi reduksi piksel satelit <strong>100% riil di cluster superkomputer Google</strong> (MODIS LST 1km &amp; ESA WorldCover 10m), backend memerlukan <em>Google Cloud Service Account Key</em>.
+            <!-- Active Free Feature Highlight -->
+            <div style="margin-bottom: 14px; padding: 10px 12px; background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(14, 165, 233, 0.4); border-radius: 6px; font-size: 11.5px; color: #bae6fd; line-height: 1.45;">
+              🛰️ <strong>Fitur Piksel Satelit Gratis Sudah Aktif!</strong><br/>
+              WebGIS ini sekarang otomatis menjalankan <strong>Client-Side Pixel Sampling</strong> langsung dari citra satelit Sentinel-2 10m &amp; data suhu Open-Meteo realtime. Kamu tidak wajib setup akun apapun untuk mendapatkan data riil!
+            </div>
+
+            <p style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">
+              Jika kamu ingin menghubungkan ke <strong>Cluster Superkomputer Google Earth Engine (MODIS &amp; ESA WorldCover)</strong> secara <strong>100% GRATIS tanpa diminta kartu kredit / billing</strong>, ikuti panduan pendaftaran jalur non-komersial berikut:
             </p>
 
             <div class="gee-step-box">
               <div class="gee-step-num">1</div>
               <div>
-                <strong>Buka Google Cloud Console</strong>
-                <p>Kunjungi <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" style="color: #38bdf8;">console.cloud.google.com ↗</a> dan buat project baru (misal: <code>webgis-indonesia</code>).</p>
+                <strong>Daftar GEE Non-Komersial (Bebas Kartu Kredit)</strong>
+                <p>
+                  Jangan mendaftar lewat GCP Console biasa agar tidak ditagih billing! Buka portal resmi non-komersial: 
+                  <a href="https://code.earthengine.google.com/register" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; font-weight: 600;">code.earthengine.google.com/register ↗</a>.
+                  Pilih <strong>"Unpaid / Noncommercial"</strong> ➔ <strong>"Academia &amp; Research"</strong> atau <strong>"Personal / Hobby"</strong>, lalu pilih <strong>"Create a new Google Cloud Project"</strong> di form tersebut (Gratis tanpa penagihan).
+                </p>
               </div>
             </div>
 
             <div class="gee-step-box">
               <div class="gee-step-num">2</div>
               <div>
-                <strong>Aktifkan Earth Engine API &amp; Buat Service Account</strong>
-                <p>Buka menu <em>APIs &amp; Services</em>, aktifkan <strong>Earth Engine API</strong>, lalu di menu <em>Credentials</em> buat <strong>Service Account</strong> dengan role <em>Earth Engine Resource User</em>.</p>
+                <strong>Buat Service Account</strong>
+                <p>Setelah project terdaftar, buka menu <em>APIs &amp; Services ➔ Credentials</em> di project tersebut, buat <strong>Service Account</strong> baru dengan role <em>Earth Engine Resource User</em>.</p>
               </div>
             </div>
 
@@ -1444,8 +1454,8 @@
               </div>
             </div>
 
-            <div style="margin-top: 14px; padding: 10px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; font-size: 11px; color: #bae6fd;">
-              ℹ️ <strong>100% Gratis:</strong> Pendaftaran akun Earth Engine untuk keperluan edukasi, riset geospasial, dan portofolio tidak dipungut biaya apapun oleh Google.
+            <div style="margin-top: 12px; padding: 8px 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; font-size: 10.5px; color: #a7f3d0;">
+              ✨ <strong>100% Bebas Biaya:</strong> Earth Engine untuk keperluan edukasi, riset, dan portofolio personal tidak dipungut biaya sepeserpun.
             </div>
           </div>
           <div class="gee-setup-modal-footer">
