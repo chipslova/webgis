@@ -129,6 +129,14 @@ export class SpatialAnalysisUI {
     this.drawnPoints = [];
     this.updateDrawingVisuals();
 
+    document.body.classList.add('aoi-drawing-active');
+
+    // Close any active point inspector so it doesn't obstruct drawing
+    const inspectorCard = document.getElementById('floating-inspector-card');
+    if (inspectorCard) {
+      inspectorCard.classList.remove('active');
+    }
+
     this.map.getCanvas().style.cursor = 'crosshair';
     showToast('Klik titik-titik pada peta untuk membentuk area analisis (AOI). Klik-Ganda untuk selesai.', 'info');
     announceToScreenReader('Mode menggambar area analisis aktif. Klik peta untuk membuat poligon.');
@@ -167,6 +175,7 @@ export class SpatialAnalysisUI {
     const polyFeature = polygon([ring]);
 
     this.isDrawingAOI = false;
+    document.body.classList.remove('aoi-drawing-active');
     this.map.getCanvas().style.cursor = '';
     this.stopRubberband();
     this.clearAuxLayers();
@@ -192,6 +201,7 @@ export class SpatialAnalysisUI {
 
   public cancelDrawing() {
     this.isDrawingAOI = false;
+    document.body.classList.remove('aoi-drawing-active');
     this.drawnPoints = [];
     this.updateDrawingVisuals();
     this.map.getCanvas().style.cursor = '';
