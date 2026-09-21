@@ -6,6 +6,8 @@ export class BufferAnalysisUI {
   private geojsonLoader: GeoJsonLoader;
   private onBufferCreatedCallback?: () => void;
   private lastIntersectedGeoJSON: GeoJSON.FeatureCollection | null = null;
+  private selectedColor: string = '#8b5cf6';
+  private selectedOpacity: number = 0.45;
 
   constructor(geojsonLoader: GeoJsonLoader, onBufferCreated?: () => void) {
     this.geojsonLoader = geojsonLoader;
@@ -74,6 +76,22 @@ export class BufferAnalysisUI {
     }
   }
 
+  public getColor(): string {
+    return this.selectedColor;
+  }
+
+  public setColor(color: string) {
+    this.selectedColor = color;
+  }
+
+  public getOpacity(): number {
+    return this.selectedOpacity;
+  }
+
+  public setOpacity(opacity: number) {
+    this.selectedOpacity = opacity;
+  }
+
   private bindEvents() {
     const input = document.getElementById('buffer-radius-input') as HTMLInputElement | null;
     const slider = document.getElementById('buffer-radius-slider') as HTMLInputElement | null;
@@ -102,6 +120,42 @@ export class BufferAnalysisUI {
         }
       });
     });
+
+    // Buffer Color Swatch chips
+    const colorSwatches = document.querySelectorAll<HTMLButtonElement>('.buffer-color-chip');
+    const customColorInput = document.getElementById('buffer-color-custom') as HTMLInputElement | null;
+
+    colorSwatches.forEach((swatch) => {
+      swatch.addEventListener('click', (e) => {
+        e.preventDefault();
+        colorSwatches.forEach((s) => s.classList.remove('active'));
+        swatch.classList.add('active');
+        const color = swatch.dataset.color || '#8b5cf6';
+        this.selectedColor = color;
+        if (customColorInput) customColorInput.value = color;
+      });
+    });
+
+    if (customColorInput) {
+      customColorInput.addEventListener('input', () => {
+        colorSwatches.forEach((s) => s.classList.remove('active'));
+        this.selectedColor = customColorInput.value;
+      });
+    }
+
+    // Buffer Opacity Slider
+    const opacitySlider = document.getElementById('buffer-opacity-slider') as HTMLInputElement | null;
+    const opacityValEl = document.getElementById('buffer-opacity-val');
+
+    if (opacitySlider) {
+      opacitySlider.addEventListener('input', () => {
+        const pct = parseInt(opacitySlider.value, 10);
+        this.selectedOpacity = pct / 100;
+        if (opacityValEl) {
+          opacityValEl.innerText = `${pct}%`;
+        }
+      });
+    }
 
     // Run Buffer button
     const runBtn = document.getElementById('btn-run-buffer-analysis');
@@ -189,7 +243,14 @@ export class BufferAnalysisUI {
         this.geojsonLoader.removeBufferLayers();
       }
 
-      const res = await this.geojsonLoader.createBufferForLayer(layerId, radius, 'kilometers', overlayLayerId);
+      const res = await this.geojsonLoader.createBufferForLayer(
+        layerId,
+        radius,
+        'kilometers',
+        overlayLayerId,
+        this.selectedColor,
+        this.selectedOpacity
+      );
       if (res.success) {
         const areaFormatted = res.areaKm2 !== undefined ? res.areaKm2.toLocaleString('id-ID') : '-';
         showToast(`Zona penyangga ${radius} km berhasil dibuat! (Luas total: ${areaFormatted} km²)`, 'success');

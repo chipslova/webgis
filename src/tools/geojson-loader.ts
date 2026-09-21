@@ -551,7 +551,9 @@ export class GeoJsonLoader {
     sourceLayerId: string,
     radius: number,
     units: 'meters' | 'kilometers' | 'miles' = 'kilometers',
-    overlayLayerId?: string
+    overlayLayerId?: string,
+    customColor: string = '#8b5cf6',
+    customOpacity: number = 0.45
   ): Promise<{
     success: boolean;
     bufferLayerId?: string;
@@ -591,15 +593,16 @@ export class GeoJsonLoader {
 
       const bufferLayerId = `buffer-${Date.now()}`;
       const bufferLayerName = `Buffer (${radius} ${units}) - ${sourceItem.name}`;
-      const bufferColor = '#a855f7'; // Distinctive purple-violet for buffer zones
+      const bufferColor = customColor || '#8b5cf6';
 
       const added = this.addGeoJSONLayer(bufferLayerId, bufferLayerName, bufferRes.data, bufferColor);
       if (!added) {
         return { success: false, error: 'Gagal menambahkan layer buffer ke peta.' };
       }
 
-      // Set gentle fill opacity for buffer zones
-      this.setLayerOpacity(bufferLayerId, 0.45);
+      // Set user selected fill opacity for buffer zones
+      const opacity = typeof customOpacity === 'number' && !isNaN(customOpacity) ? customOpacity : 0.45;
+      this.setLayerOpacity(bufferLayerId, opacity);
       this.notifyLayersChange();
 
       return {

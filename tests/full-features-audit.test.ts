@@ -501,7 +501,14 @@ describe('Full WebGIS Feature & Button Audit', () => {
       checkbox!.checked = true;
       await (bufferUI as any).runBufferCalculation();
       expect(mockLoader.removeBufferLayers).toHaveBeenCalledTimes(1);
-      expect(mockLoader.createBufferForLayer).toHaveBeenCalledWith('layer-1', 5, 'kilometers', undefined);
+      expect(mockLoader.createBufferForLayer).toHaveBeenCalledWith(
+        'layer-1',
+        5,
+        'kilometers',
+        undefined,
+        expect.any(String),
+        expect.any(Number)
+      );
 
       // 2. With auto-replace unchecked
       mockLoader.removeBufferLayers.mockClear();

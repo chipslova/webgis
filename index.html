@@ -628,6 +628,25 @@
                   </span>
                 </div>
 
+                <!-- Buffer Color & Opacity Customizer -->
+                <div class="form-group" style="margin-top: 10px;">
+                  <label class="form-label-sm">Gaya &amp; Warna Zona Penyangga:</label>
+                  <div class="buffer-color-swatches">
+                    <button type="button" class="buffer-color-chip active" data-color="#8b5cf6" style="background: #8b5cf6;" title="Ungu Default"></button>
+                    <button type="button" class="buffer-color-chip" data-color="#ef4444" style="background: #ef4444;" title="Merah Bahaya"></button>
+                    <button type="button" class="buffer-color-chip" data-color="#f59e0b" style="background: #f59e0b;" title="Kuning Waspada"></button>
+                    <button type="button" class="buffer-color-chip" data-color="#0ea5e9" style="background: #0ea5e9;" title="Biru Sempadan Air"></button>
+                    <button type="button" class="buffer-color-chip" data-color="#10b981" style="background: #10b981;" title="Hijau RTH / Lindung"></button>
+                    <button type="button" class="buffer-color-chip" data-color="#f97316" style="background: #f97316;" title="Oranye Siaga"></button>
+                    <input type="color" id="buffer-color-custom" value="#8b5cf6" class="buffer-color-picker" title="Warna Kustom" />
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+                    <span style="font-size: 10px; color: var(--text-muted);">Transparansi Buffer:</span>
+                    <span id="buffer-opacity-val" style="font-size: 10px; font-weight: 600; color: #38bdf8;">45%</span>
+                  </div>
+                  <input type="range" id="buffer-opacity-slider" min="10" max="100" step="5" value="45" style="width: 100%; accent-color: #38bdf8; cursor: pointer; height: 5px; margin-top: 2px;" />
+                </div>
+
                 <!-- Auto-Replace Previous Buffer Toggle -->
                 <div class="form-group" style="margin-top: 10px; margin-bottom: 2px;">
                   <label style="display: flex; align-items: center; gap: 7px; font-size: 10px; color: #cbd5e1; cursor: pointer; user-select: none;">
@@ -1517,6 +1536,88 @@
           </div>
           <div class="gee-setup-modal-footer">
             <button id="btn-done-gee-modal" class="btn btn-primary full-width">Saya Mengerti</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cartographic Map Export Layout Modal -->
+      <div id="modal-map-export" class="gee-setup-modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="export-modal-title">
+        <div class="gee-setup-modal-card" style="max-width: 480px;">
+          <div class="gee-setup-modal-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 20px;">🗺️</span>
+              <h3 id="export-modal-title" style="margin: 0; font-size: 15px; font-weight: 700; color: #fff;">Komposisi &amp; Ekspor Peta Kartografis</h3>
+            </div>
+            <button id="btn-close-export-modal" class="insp-close-btn" aria-label="Tutup modal ekspor">✕</button>
+          </div>
+          <div class="gee-setup-modal-body" style="padding: 16px;">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="export-input-title" class="form-label-sm">Judul Peta:</label>
+              <input type="text" id="export-input-title" class="form-input form-input-sm" value="Digital Earth Indonesia WebGIS" placeholder="Judul peta..." />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="export-input-subtitle" class="form-label-sm">Subjudul / Catatan Wilayah (Opsional):</label>
+              <input type="text" id="export-input-subtitle" class="form-input form-input-sm" placeholder="Otomatis dari lapisan aktif atau ketik sendiri..." />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+              <div class="form-group">
+                <label for="export-select-ratio" class="form-label-sm">Rasio &amp; Ukuran:</label>
+                <select id="export-select-ratio" class="form-select form-select-sm">
+                  <option value="current" selected>Layar Penuh (Asli)</option>
+                  <option value="16:9">16:9 Presentasi</option>
+                  <option value="4:3">4:3 Kartografi</option>
+                  <option value="a4-landscape">A4 Cetak Landscape</option>
+                  <option value="1:1">1:1 Persegi (Laporan)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="export-select-resolution" class="form-label-sm">Kualitas Resolusi:</label>
+                <select id="export-select-resolution" class="form-select form-select-sm">
+                  <option value="1" selected>Standar (1x)</option>
+                  <option value="2">Ultra HD / Hi-DPI (2x)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="export-select-format" class="form-label-sm">Format Berkas:</label>
+              <select id="export-select-format" class="form-select form-select-sm">
+                <option value="image/png" selected>PNG (Transparansi &amp; Kualitas Maksimal)</option>
+                <option value="image/jpeg">JPEG (Kompresi Ukuran Ringan)</option>
+              </select>
+            </div>
+
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+              <span style="font-size: 11px; font-weight: 600; color: #38bdf8; display: block; margin-bottom: 6px;">Elemen Kartografi yang Disematkan:</span>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; color: #cbd5e1;">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <input type="checkbox" id="export-chk-north" checked style="accent-color: #38bdf8;" />
+                  <span>🧭 Arah Utara (North)</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <input type="checkbox" id="export-chk-scale" checked style="accent-color: #38bdf8;" />
+                  <span>📏 Skala Batang Grafis</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <input type="checkbox" id="export-chk-legend" checked style="accent-color: #38bdf8;" />
+                  <span>🏷️ Legenda Lapisan Aktif</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <input type="checkbox" id="export-chk-meta" checked style="accent-color: #38bdf8;" />
+                  <span>🌐 Koordinat &amp; Timestamp</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="gee-setup-modal-footer" style="display: flex; gap: 8px;">
+            <button id="btn-cancel-export-modal" class="btn btn-outline" style="flex: 1;">Batal</button>
+            <button id="btn-confirm-export-modal" class="btn btn-primary" style="flex: 2;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              Unduh Gambar Peta
+            </button>
           </div>
         </div>
       </div>

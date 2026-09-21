@@ -620,15 +620,83 @@ class WebGISApp {
   private bindExportEvents() {
     const exportBtn = document.getElementById('btn-export-map') as HTMLButtonElement | null;
     exportBtn?.addEventListener('click', () => {
-      this.handleExport(exportBtn);
+      this.openExportModal();
+    });
+
+    const modal = document.getElementById('modal-map-export');
+    const closeBtn = document.getElementById('btn-close-export-modal');
+    const cancelBtn = document.getElementById('btn-cancel-export-modal');
+    const confirmBtn = document.getElementById('btn-confirm-export-modal') as HTMLButtonElement | null;
+
+    const closeModal = () => {
+      if (modal) modal.style.display = 'none';
+    };
+
+    closeBtn?.addEventListener('click', closeModal);
+    cancelBtn?.addEventListener('click', closeModal);
+
+    confirmBtn?.addEventListener('click', () => {
+      if (!this.mapExporter) return;
+      if (this.pikselLoader) this.mapExporter.setPikselLoader(this.pikselLoader);
+
+      const titleInput = document.getElementById('export-input-title') as HTMLInputElement | null;
+      const subInput = document.getElementById('export-input-subtitle') as HTMLInputElement | null;
+      const ratioSelect = document.getElementById('export-select-ratio') as HTMLSelectElement | null;
+      const resSelect = document.getElementById('export-select-resolution') as HTMLSelectElement | null;
+      const formatSelect = document.getElementById('export-select-format') as HTMLSelectElement | null;
+
+      const chkNorth = document.getElementById('export-chk-north') as HTMLInputElement | null;
+      const chkScale = document.getElementById('export-chk-scale') as HTMLInputElement | null;
+      const chkLegend = document.getElementById('export-chk-legend') as HTMLInputElement | null;
+      const chkMeta = document.getElementById('export-chk-meta') as HTMLInputElement | null;
+
+      // Aggregate active legend items
+      const legendItems: { label: string; color: string }[] = [];
+      const pikselProduct = this.pikselLoader?.getActiveProduct();
+      if (pikselProduct) {
+        legendItems.push({ label: pikselProduct.name, color: '#38bdf8' });
+      }
+      const customLayers = this.geojsonLoader?.getLayers() || [];
+      customLayers.forEach((l) => {
+        legendItems.push({ label: l.name, color: l.color || '#a855f7' });
+      });
+
+      const options = {
+        title: titleInput?.value || 'Digital Earth Indonesia WebGIS',
+        subtitle: subInput?.value || undefined,
+        aspectRatio: (ratioSelect?.value as any) || 'current',
+        resolutionScale: parseInt(resSelect?.value || '1', 10) || 1,
+        format: (formatSelect?.value as any) || 'image/png',
+        includeNorthArrow: chkNorth ? chkNorth.checked : true,
+        includeScaleBar: chkScale ? chkScale.checked : true,
+        includeLegend: chkLegend ? chkLegend.checked : true,
+        includeMetadata: chkMeta ? chkMeta.checked : true,
+        legendItems
+      };
+
+      this.mapExporter.exportWithOptions(options, confirmBtn);
+      setTimeout(() => closeModal(), 1200);
     });
   }
 
-  private handleExport(exportBtn?: HTMLButtonElement | null) {
-    if (this.mapExporter) {
-      if (this.pikselLoader) this.mapExporter.setPikselLoader(this.pikselLoader);
-      this.mapExporter.exportPNG(exportBtn);
+  public openExportModal() {
+    const modal = document.getElementById('modal-map-export');
+    if (!modal) return;
+
+    const subInput = document.getElementById('export-input-subtitle') as HTMLInputElement | null;
+    if (subInput && !subInput.value.trim()) {
+      const activeProduct = this.pikselLoader?.getActiveProduct();
+      const year = this.pikselLoader?.getSelectedYear() || '2025';
+      if (activeProduct) {
+        subInput.value = `${activeProduct.name} (${year}) • OGC WMS (10m)`;
+      }
     }
+
+    modal.style.display = 'flex';
+  }
+
+  private handleExport(exportBtn?: HTMLButtonElement | null) {
+    this.openExportModal();
   }
 
   private bindCitationEvents() {
@@ -833,6 +901,19 @@ class WebGISApp {
           this.commandPaletteUI.close();
           return true;
         }
+        return false;
+      },
+      () => {
+        // 1b. Modals (Export, GEE Setup, Shortcuts)
+        let closed = false;
+        ['modal-map-export', 'modal-gee-setup', 'modal-shortcuts'].forEach((id) => {
+          const m = document.getElementById(id);
+          if (m && m.style.display !== 'none') {
+            m.style.display = 'none';
+            closed = true;
+          }
+        });
+        if (closed) return true;
         return false;
       },
       () => {

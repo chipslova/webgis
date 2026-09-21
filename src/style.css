@@ -9627,6 +9627,43 @@ html, body, #app {
   color: #38bdf8;
 }
 
+.buffer-color-swatches {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.buffer-color-chip {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+  padding: 0;
+}
+
+.buffer-color-chip:hover {
+  transform: scale(1.18);
+}
+
+.buffer-color-chip.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+  transform: scale(1.15);
+}
+
+.buffer-color-picker {
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+}
+
 .buffer-action-row {
   margin-top: 6px;
 }
