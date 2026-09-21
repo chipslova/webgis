@@ -71,7 +71,7 @@ export class PointInspector {
         // Primary: modern Clipboard API
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(coordsText).then(() => {
-            showToast('WGS84 coordinates copied to clipboard!', 'success');
+            showToast('Koordinat WGS84 berhasil disalin ke papan klip!', 'success');
           }).catch(() => {
             fallbackCopy();
           });
@@ -92,12 +92,12 @@ export class PointInspector {
           const success = document.execCommand('copy');
           document.body.removeChild(ta);
           if (success) {
-            showToast('WGS84 coordinates copied to clipboard!', 'success');
+            showToast('Koordinat WGS84 berhasil disalin ke papan klip!', 'success');
           } else {
-            showToast('Copy failed — copy manually: ' + coordsText, 'warning');
+            showToast('Gagal menyalin — salin secara manual: ' + coordsText, 'warning');
           }
         } catch {
-          showToast('Copy failed — copy manually: ' + coordsText, 'warning');
+          showToast('Gagal menyalin — salin secara manual: ' + coordsText, 'warning');
         }
       };
 
@@ -204,14 +204,14 @@ export class PointInspector {
     
     if (!pikselProduct) {
       if (rasterStatusEl) {
-        rasterStatusEl.innerText = 'Visual map (No active WMS imagery)';
+        rasterStatusEl.innerText = 'Peta visual (Tidak ada citra WMS aktif)';
         rasterStatusEl.style.color = 'var(--text-muted)';
       }
       return;
     }
 
     if (rasterStatusEl) {
-      rasterStatusEl.innerText = 'Requesting GetFeatureInfo from BIG Piksel server...';
+      rasterStatusEl.innerText = 'Meminta GetFeatureInfo dari server BIG Piksel...';
       rasterStatusEl.style.color = '#38bdf8';
     }
 
@@ -282,31 +282,31 @@ export class PointInspector {
             .map(([k, v]) => `<span style="color:#00f0ff;">${escapeHtml(k)}:</span> ${escapeHtml(String(v))}`)
             .join(' · ');
           if (rasterStatusEl) {
-            rasterStatusEl.innerHTML = `<strong>Pixel Data:</strong> ${summary}`;
+            rasterStatusEl.innerHTML = `<strong>Data Piksel:</strong> ${summary}`;
             rasterStatusEl.style.color = '#00f0ff';
           }
         } else {
-          const rawVal = props.value ?? props.gray_index ?? props.band_1 ?? 'Detected data';
+          const rawVal = props.value ?? props.gray_index ?? props.band_1 ?? 'Data terdeteksi';
           const val = escapeHtml(String(rawVal));
           if (rasterStatusEl) {
-            rasterStatusEl.innerHTML = `<strong style="color: #00f0ff;">Detected Pixel: ${val}</strong> (GetFeatureInfo)`;
+            rasterStatusEl.innerHTML = `<strong style="color: #00f0ff;">Piksel Terdeteksi: ${val}</strong> (GetFeatureInfo)`;
             rasterStatusEl.style.color = '#00f0ff';
           }
         }
       } else if (text && text.trim().length > 0 && !text.includes('<?xml') && !text.includes('ServiceException')) {
         if (rasterStatusEl) {
-          rasterStatusEl.innerText = `OGC Result: ${text.substring(0, 50)}`;
+          rasterStatusEl.innerText = `Hasil OGC: ${text.substring(0, 50)}`;
           rasterStatusEl.style.color = '#cbd5e1';
         }
       } else {
         if (rasterStatusEl) {
-          rasterStatusEl.innerText = 'WMS Imagery Visualization (Rendered as map layer)';
+          rasterStatusEl.innerText = 'Visualisasi Citra WMS (Dirender sebagai lapisan peta)';
           rasterStatusEl.style.color = 'var(--text-muted)';
         }
       }
     } catch (e) {
       if (rasterStatusEl) {
-        rasterStatusEl.innerText = 'WMS Imagery Visualization (Rendered as map layer)';
+        rasterStatusEl.innerText = 'Visualisasi Citra WMS (Dirender sebagai lapisan peta)';
         rasterStatusEl.style.color = 'var(--text-muted)';
       }
     }
@@ -348,7 +348,7 @@ export class PointInspector {
     if (lstEl) lstEl.innerText = 'Unavailable (WMS Query)';
 
     if (productNameEl && productValEl) {
-      productNameEl.innerText = 'Active Layer';
+      productNameEl.innerText = 'Lapisan Aktif';
       productValEl.innerText = `${activeLayerName} · ${activeLayerCategory}`;
     }
 

@@ -30,7 +30,7 @@ export class SwipeCompareUI {
         if (!cmdModal) {
           e.preventDefault();
           this.manager.deactivate();
-          showToast('Comparison mode closed (ESC)', 'info');
+          showToast('Mode komparasi swipe ditutup (ESC)', 'info');
         }
       }
     });
@@ -253,7 +253,7 @@ export class SwipeCompareUI {
         const preset = SWIPE_PRESETS.find((p) => p.id === id);
         if (preset) {
           this.manager.applyPreset(preset);
-          showToast(`Comparison: ${preset.name}`, 'info');
+          showToast(`Komparasi: ${preset.name}`, 'info');
         }
       });
     });
@@ -262,14 +262,14 @@ export class SwipeCompareUI {
     root.querySelectorAll('#btn-close-swipe').forEach((btn) => {
       btn.addEventListener('click', () => {
         this.manager.deactivate();
-        showToast('Comparison mode closed', 'info');
+        showToast('Mode komparasi swipe ditutup', 'info');
       });
     });
 
     // 4. Auto-zoom button if zoom < 8
     root.querySelector('#btn-swipe-autozoom')?.addEventListener('click', () => {
       this.manager.autoZoomIfLow(9.5);
-      showToast('Zooming map to Zoom Level 9.5...', 'info');
+      showToast('Mengarahkan peta ke Zoom Level 9.5...', 'info');
     });
 
     // 5. Draggable Divider Handle Events (Mouse & Touch)

@@ -37,7 +37,7 @@ export class DataPanelUI {
     list.innerHTML = '';
 
     if (layers.length === 0) {
-      list.innerHTML = '<div style="color: var(--text-muted); font-size: 12px; padding: 12px; text-align: center;">No custom vector layers added yet. Upload a GeoJSON/KML file or load sample data.</div>';
+      list.innerHTML = '<div style="color: var(--text-muted); font-size: 12px; padding: 12px; text-align: center;">Belum ada lapisan vektor kustom. Unggah file GeoJSON/KML atau muat sampel data.</div>';
       return;
     }
 
@@ -115,24 +115,24 @@ export class DataPanelUI {
       if (bufferBtn) {
         bufferBtn.addEventListener('click', async (e) => {
           e.stopPropagation();
-          const input = prompt(`Enter buffer zone radius for layer "${layer.name}" in kilometers (e.g. 1, 5, 10, 25):`, '5');
+          const input = prompt(`Masukkan radius zona penyangga untuk lapisan "${layer.name}" dalam kilometer (contoh: 1, 5, 10, 25):`, '5');
           if (input === null) return;
           const radius = parseFloat(input);
           if (isNaN(radius) || radius <= 0) {
-            showToast('Buffer radius must be a positive number greater than 0.', 'warning');
+            showToast('Radius buffer harus berupa angka positif lebih dari 0.', 'warning');
             return;
           }
           if (radius > 500) {
-            showToast('Maximum buffer radius is 500 km.', 'warning');
+            showToast('Radius buffer maksimum adalah 500 km.', 'warning');
             return;
           }
           const res = await this.geojsonLoader.createBufferForLayer(layer.id, radius, 'kilometers');
           if (res.success) {
             this.render();
             this.onLayerChange();
-            showToast(`Buffer zone of ${radius} km created (Total area: ${res.areaKm2} km²)!`, 'success');
+            showToast(`Zona penyangga ${radius} km berhasil dibuat (Total luas: ${res.areaKm2} km²)!`, 'success');
           } else {
-            showToast(res.error || 'Failed to generate buffer zone.', 'error');
+            showToast(res.error || 'Gagal membuat zona penyangga buffer.', 'error');
           }
         });
       }
@@ -161,9 +161,9 @@ export class DataPanelUI {
           e.stopPropagation();
           const success = this.geojsonLoader.exportLayerGeoJSON(layer.id);
           if (success) {
-            showToast(`Layer "${layer.name}" exported as GeoJSON successfully!`, 'success');
+            showToast(`Lapisan "${layer.name}" berhasil diekspor sebagai GeoJSON!`, 'success');
           } else {
-            showToast(`Failed to export layer "${layer.name}".`, 'error');
+            showToast(`Gagal mengekspor lapisan "${layer.name}".`, 'error');
           }
         });
       }
@@ -175,9 +175,9 @@ export class DataPanelUI {
           e.stopPropagation();
           const success = this.geojsonLoader.exportLayerKML(layer.id);
           if (success) {
-            showToast(`Layer "${layer.name}" exported as KML successfully!`, 'success');
+            showToast(`Lapisan "${layer.name}" berhasil diekspor sebagai KML!`, 'success');
           } else {
-            showToast(`Failed to export KML for layer "${layer.name}".`, 'error');
+            showToast(`Gagal mengekspor KML untuk lapisan "${layer.name}".`, 'error');
           }
         });
       }
@@ -258,7 +258,7 @@ export class DataPanelUI {
     const MAX_SIZE_BYTES = 25 * 1024 * 1024;
     if (file.size > MAX_SIZE_BYTES) {
       const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-      showToast(`File size (${sizeMB} MB) exceeds maximum limit of 25 MB for browser stability.`, 'error', 5000);
+      showToast(`Ukuran berkas (${sizeMB} MB) melebihi batas maksimum 25 MB untuk stabilitas peramban.`, 'error', 5000);
       return;
     }
 
@@ -272,16 +272,16 @@ export class DataPanelUI {
           this.sidebarUI.setActiveTab('data');
           this.onLayerChange();
           const colInfo = result.detectedColumns ? ` [${result.detectedColumns.lat}, ${result.detectedColumns.lon}]` : '';
-          showToast(`Layer "${file.name}" (${result.featureCount} features${colInfo}) added successfully!`, 'success');
+          showToast(`Lapisan "${file.name}" (${result.featureCount} fitur${colInfo}) berhasil ditambahkan!`, 'success');
         } else {
-          showToast(result.error || `Failed to add layer "${file.name}".`, 'error', 5000);
+          showToast(result.error || `Gagal menambahkan lapisan "${file.name}".`, 'error', 5000);
         }
       } catch (err: any) {
-        showToast(`Error processing file: ${err.message || 'Invalid format'}`, 'error');
+        showToast(`Terjadi kesalahan saat memproses berkas: ${err.message || 'Format tidak valid'}`, 'error');
       }
     };
     reader.onerror = () => {
-      showToast('Failed to read file from local system.', 'error');
+      showToast('Gagal membaca berkas dari sistem lokal.', 'error');
     };
     reader.readAsText(file);
   }

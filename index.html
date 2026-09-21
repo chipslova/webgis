@@ -632,7 +632,15 @@
                   </span>
                 </div>
 
-                <div class="buffer-action-row" style="display: flex; gap: 8px; margin-top: 12px;">
+                <!-- Auto-Replace Previous Buffer Toggle -->
+                <div class="form-group" style="margin-top: 10px; margin-bottom: 2px;">
+                  <label style="display: flex; align-items: center; gap: 7px; font-size: 10px; color: #cbd5e1; cursor: pointer; user-select: none;">
+                    <input type="checkbox" id="buffer-auto-replace" checked style="accent-color: #38bdf8; cursor: pointer; width: 14px; height: 14px;" />
+                    <span>Gantikan buffer aktif sebelumnya secara otomatis</span>
+                  </label>
+                </div>
+
+                <div class="buffer-action-row" style="display: flex; gap: 8px; margin-top: 10px;">
                   <button id="btn-run-buffer-analysis" class="btn btn-primary" style="flex: 1;" aria-label="Jalankan kalkulasi buffer spasial">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
                     Hitung Buffer

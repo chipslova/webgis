@@ -127,7 +127,7 @@ export class BasemapCustomizerUI {
           this.mapManager.setBasemap(bm.id);
         }
         this.customizer.setBasemapId(bm.id);
-        showToast(`Basemap switched to "${bm.name}"`, 'info');
+        showToast(`Peta dasar diubah ke "${bm.name}"`, 'info');
         this.syncUI();
       });
 
@@ -283,7 +283,7 @@ export class BasemapCustomizerUI {
       if (this.pikselLoader) {
         const next = !this.pikselLoader.isGridVisible();
         this.pikselLoader.setGridVisible(next);
-        showToast(next ? 'Piksel 10m Tile Grid enabled' : 'Tile Grid hidden', 'info');
+        showToast(next ? 'Kisi Tile Piksel 10m diaktifkan' : 'Kisi Tile disembunyikan', 'info');
         this.syncUI();
       }
     });
@@ -381,7 +381,7 @@ export class BasemapCustomizerUI {
     const checkHillshade = document.getElementById('popover-check-hillshade') as HTMLInputElement;
     checkHillshade?.addEventListener('change', () => {
       this.customizer.toggleTerrainHillshade(checkHillshade.checked);
-      showToast(checkHillshade.checked ? 'Terrain Hillshade enabled' : 'Terrain Hillshade disabled', 'info');
+      showToast(checkHillshade.checked ? 'Hillshade Relief Medan diaktifkan' : 'Hillshade Relief Medan dinonaktifkan', 'info');
     });
 
     // Zoom Focus Demo Button
@@ -395,7 +395,7 @@ export class BasemapCustomizerUI {
         }
         this.customizer.setBasemapId(targetVectorBm);
       }
-      this.flyToDemoLocation('🎯 Camera flew to Jakarta Monas (Z14.5)! Try toggling road & label sublayers now.');
+      this.flyToDemoLocation('🎯 Kamera mengarah ke Monas Jakarta (Z14.5)! Coba aktifkan/nonaktifkan sublayer jalan & label.');
       this.syncUI();
     });
 
@@ -420,16 +420,16 @@ export class BasemapCustomizerUI {
       e.stopPropagation();
       const currentBm = BASEMAPS.find(b => b.id === (this.mapManager?.getCurrentBasemapId() || DEFAULT_BASEMAP_ID));
       if (currentBm && currentBm.format !== 'vector') {
-        showToast(`Sublayer customization only applies to Vector Basemaps (${currentBm.name} is Raster)`, 'warning');
+        showToast(`Kustomisasi sublayer hanya berlaku untuk Peta Dasar Vektor (${currentBm.name} bertipe Raster)`, 'warning');
         return;
       }
       this.customizer.setAllSublayers(true);
       const map = this.mapManager?.getMap();
       const currentZoom = map && typeof map.getZoom === 'function' ? map.getZoom() : 14;
       if (currentZoom < 11) {
-        this.flyToDemoLocation('Auto-zooming to Jakarta (Z14.5) to display all sublayers!');
+        this.flyToDemoLocation('Auto-zoom ke Jakarta (Z14.5) untuk menampilkan seluruh sublayer!');
       } else {
-        showToast('All vector sublayers enabled', 'info');
+        showToast('Seluruh sublayer vektor diaktifkan', 'info');
       }
       this.syncUI();
     });
@@ -438,16 +438,16 @@ export class BasemapCustomizerUI {
       e.stopPropagation();
       const currentBm = BASEMAPS.find(b => b.id === (this.mapManager?.getCurrentBasemapId() || DEFAULT_BASEMAP_ID));
       if (currentBm && currentBm.format !== 'vector') {
-        showToast(`Sublayer customization only applies to Vector Basemaps (${currentBm.name} is Raster)`, 'warning');
+        showToast(`Kustomisasi sublayer hanya berlaku untuk Peta Dasar Vektor (${currentBm.name} bertipe Raster)`, 'warning');
         return;
       }
       this.customizer.setAllSublayers(false);
       const map = this.mapManager?.getMap();
       const currentZoom = map && typeof map.getZoom === 'function' ? map.getZoom() : 14;
       if (currentZoom < 11) {
-        this.flyToDemoLocation('Auto-zooming to Jakarta (Z14.5) to view Clean Map!');
+        this.flyToDemoLocation('Auto-zoom ke Jakarta (Z14.5) untuk melihat Kanvas Bersih!');
       } else {
-        showToast('Clean Map Canvas: all sublayers muted', 'info');
+        showToast('Kanvas Peta Bersih: seluruh sublayer disembunyikan', 'info');
       }
       this.syncUI();
     });
@@ -456,7 +456,7 @@ export class BasemapCustomizerUI {
     const masterTerrainToggle = document.getElementById('popover-terrain-master-toggle') as HTMLInputElement;
     masterTerrainToggle?.addEventListener('change', () => {
       this.customizer.toggle3DTerrain(masterTerrainToggle.checked);
-      showToast(masterTerrainToggle.checked ? '3D Terrain Elevation mode enabled!' : 'Returned to 2D flat map', 'info');
+      showToast(masterTerrainToggle.checked ? 'Mode Elevasi Medan 3D diaktifkan!' : 'Kembali ke tampilan peta datar 2D', 'info');
       this.syncUI();
     });
 

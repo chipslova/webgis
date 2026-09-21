@@ -177,7 +177,7 @@ describe('Layer & Checkbox UI State Synchronization', () => {
 
     // Remove layer
     geojsonLoader.clearAllLayers();
-    expect(list?.innerHTML).toContain('No custom vector layers added yet');
+    expect(list?.innerHTML).toContain('Belum ada lapisan vektor kustom');
   });
 
   it('should automatically update forecast disclaimer date when observations are updated', () => {

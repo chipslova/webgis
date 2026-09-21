@@ -477,6 +477,37 @@ describe('Full WebGIS Feature & Button Audit', () => {
       expect(panelThermal?.style.display).toBe('none');
       expect(panelForecast?.style.display).toBe('block');
     });
+
+    it('should have buffer auto-replace checkbox enabled by default and handle layer replacement', async () => {
+      const checkbox = document.getElementById('buffer-auto-replace') as HTMLInputElement | null;
+      expect(checkbox).not.toBeNull();
+      expect(checkbox?.checked).toBe(true);
+
+      const mockLoader: any = {
+        getLayers: vi.fn().mockReturnValue([{ id: 'layer-1', name: 'Layer Test', featureCount: 5 }]),
+        removeBufferLayers: vi.fn().mockReturnValue(1),
+        createBufferForLayer: vi.fn().mockResolvedValue({ success: true, areaKm2: 25 })
+      };
+
+      const { BufferAnalysisUI } = await import('../src/ui/buffer-analysis-ui');
+      const bufferUI = new BufferAnalysisUI(mockLoader);
+      bufferUI.init();
+
+      const select = document.getElementById('buffer-layer-select') as HTMLSelectElement;
+      select.value = 'layer-1';
+
+      // 1. With auto-replace checked
+      checkbox!.checked = true;
+      await (bufferUI as any).runBufferCalculation();
+      expect(mockLoader.removeBufferLayers).toHaveBeenCalledTimes(1);
+      expect(mockLoader.createBufferForLayer).toHaveBeenCalledWith('layer-1', 5, 'kilometers', undefined);
+
+      // 2. With auto-replace unchecked
+      mockLoader.removeBufferLayers.mockClear();
+      checkbox!.checked = false;
+      await (bufferUI as any).runBufferCalculation();
+      expect(mockLoader.removeBufferLayers).not.toHaveBeenCalled();
+    });
   });
 });
 

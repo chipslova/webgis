@@ -56,8 +56,8 @@ export class ErrorHandler {
       this.isOnline = true;
       logger.info('[Network] Back online');
       this.hideOfflineBanner();
-      showToast('Internet connection restored.', 'success', 3000);
-      announceToScreenReader('Internet connection restored.');
+      showToast('Koneksi internet pulih kembali.', 'success', 3000);
+      announceToScreenReader('Koneksi internet pulih kembali.');
       this.notifyNetworkChange(true);
     };
 
@@ -65,8 +65,8 @@ export class ErrorHandler {
       this.isOnline = false;
       logger.warn('[Network] Offline detected');
       this.showOfflineBanner();
-      showToast('Connection lost. Offline map mode active.', 'warning', 5000);
-      announceToScreenReader('Warning: Internet connection lost. Switched to offline mode.');
+      showToast('Koneksi internet terputus. Mode peta offline aktif.', 'warning', 5000);
+      announceToScreenReader('Peringatan: Koneksi internet terputus. Beralih ke mode offline.');
       this.notifyNetworkChange(false);
     };
 

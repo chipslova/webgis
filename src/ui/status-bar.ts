@@ -48,18 +48,18 @@ export class StatusBarUI {
   private copyCurrentCoordinates() {
     const text = `${this.currentLat.toFixed(6)}, ${this.currentLng.toFixed(6)}`;
     navigator.clipboard.writeText(text).then(() => {
-      showToast(`✓ Coordinates ${text} (WGS84) copied to clipboard`, 'success');
-      announceToScreenReader(`Coordinates ${text} degrees WGS84 copied to clipboard`);
+      showToast(`✓ Koordinat ${text} (WGS84) disalin ke papan klip`, 'success');
+      announceToScreenReader(`Koordinat ${text} derajat WGS84 disalin ke papan klip`);
       if (this.copyBtn) {
         const orig = this.copyBtn.innerHTML;
-        this.copyBtn.innerText = '✓ Copied!';
+        this.copyBtn.innerText = '✓ Tersalin!';
         setTimeout(() => {
           this.copyBtn!.innerHTML = orig;
         }, 1800);
       }
     }).catch(() => {
-      showToast(`Coordinates: ${text}`, 'info');
-      announceToScreenReader(`Coordinates ${text} degrees WGS84`);
+      showToast(`Koordinat: ${text}`, 'info');
+      announceToScreenReader(`Koordinat ${text} derajat WGS84`);
     });
   }
 

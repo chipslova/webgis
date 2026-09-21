@@ -156,7 +156,7 @@ export class CommandPaletteUI {
         action: () => {
           this.pikselLoader?.flyToPreset(preset);
           this.sidebarUI.setActiveTab('piksel');
-          showToast(`Flying to ${preset.name}`, 'info');
+          showToast(`Mengarahkan ke ${preset.name}`, 'info');
         }
       });
     });
@@ -175,7 +175,7 @@ export class CommandPaletteUI {
           this.pikselLoader?.setActiveProduct(prod.id);
           this.pikselLoader?.autoFlyToOptimalView(prod.id);
           this.sidebarUI.setActiveTab('piksel');
-          showToast(`Layer ${prod.name} activated`, 'info');
+          showToast(`Lapisan ${prod.name} diaktifkan`, 'info');
         }
       });
     });
@@ -192,7 +192,7 @@ export class CommandPaletteUI {
         keywords: [bm.name, bm.category, 'basemap', 'map', 'carto', 'osm', 'esri'],
         action: () => {
           this.mapManager.setBasemap(bm.id);
-          showToast(`Basemap switched to ${bm.name}`, 'info');
+          showToast(`Peta dasar diubah ke ${bm.name}`, 'info');
         }
       });
     });
@@ -247,7 +247,7 @@ export class CommandPaletteUI {
         action: () => {
           this.sidebarUI.setActiveTab('measure');
           this.measureTool?.setMode('distance');
-          showToast('Click on map to add distance measurement vertices', 'info');
+          showToast('Klik pada peta untuk menambahkan titik pengukuran jarak', 'info');
         }
       },
       {
@@ -261,7 +261,7 @@ export class CommandPaletteUI {
         action: () => {
           this.sidebarUI.setActiveTab('measure');
           this.measureTool?.setMode('area');
-          showToast('Click on map to draw polygon for area measurement', 'info');
+          showToast('Klik pada peta untuk menggambar poligon pengukuran luas', 'info');
         }
       },
       {
@@ -276,7 +276,7 @@ export class CommandPaletteUI {
           if (this.attributeTableUI) {
             this.attributeTableUI.open();
           } else {
-            showToast('Attribute Table is not ready', 'info');
+            showToast('Tabel Atribut belum siap', 'info');
           }
         }
       },
@@ -344,7 +344,7 @@ export class CommandPaletteUI {
         action: () => {
           this.sidebarUI.setActiveTab('gee');
           this.geeLoader?.loadGEEDatasets();
-          showToast('Real GEE MODIS 1km LST Activated', 'info');
+          showToast('MODIS 1km LST NASA diaktifkan', 'info');
         }
       },
       {

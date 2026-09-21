@@ -217,7 +217,7 @@ export class MapExporter {
         dataUrl = outCanvas.toDataURL('image/png');
       } catch (corsErr: any) {
         logger.error('[MapExporter] Tainted canvas error (CORS):', corsErr);
-        showToast('External raster layer restricted by CORS; exported with basemap and vector overlays only.', 'warning', 6000);
+        showToast('Lapisan raster eksternal dibatasi CORS; peta diekspor dengan basemap dan overlay vektor saja.', 'warning', 6000);
         return;
       }
 
@@ -226,11 +226,11 @@ export class MapExporter {
       link.href = dataUrl;
       link.click();
       
-      showToast('High-resolution map exported successfully!', 'success');
-      announceToScreenReader('High-resolution map downloaded successfully.');
+      showToast('Peta resolusi tinggi berhasil diekspor!', 'success');
+      announceToScreenReader('Peta resolusi tinggi berhasil diunduh.');
     } catch (e: any) {
       logger.error('Export error:', e);
-      showToast(`Failed to export map: ${e.message || 'Rendering error'}`, 'error');
+      showToast(`Gagal mengekspor peta: ${e.message || 'Kesalahan perenderan'}`, 'error');
     } finally {
       if (btnElement) {
         setTimeout(() => {

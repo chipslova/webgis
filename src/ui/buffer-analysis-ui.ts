@@ -171,6 +171,13 @@ export class BufferAnalysisUI {
     }
 
     try {
+      // Auto-replace previous buffer layers if toggle is checked
+      const autoReplaceCheck = document.getElementById('buffer-auto-replace') as HTMLInputElement | null;
+      const shouldAutoReplace = autoReplaceCheck ? autoReplaceCheck.checked : false;
+      if (shouldAutoReplace) {
+        this.geojsonLoader.removeBufferLayers();
+      }
+
       const res = await this.geojsonLoader.createBufferForLayer(layerId, radius, 'kilometers', overlayLayerId);
       if (res.success) {
         const areaFormatted = res.areaKm2 !== undefined ? res.areaKm2.toLocaleString('id-ID') : '-';

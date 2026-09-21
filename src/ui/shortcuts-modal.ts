@@ -7,33 +7,33 @@ export interface ShortcutGroup {
 
 export const GIS_SHORTCUTS: ShortcutGroup[] = [
   {
-    category: 'Spatial Tools & Analysis',
+    category: 'Alat & Analisis Spasial',
     items: [
-      { key: 'M', description: 'Open / Activate Measure Tool' },
-      { key: 'Z', description: 'Undo last point while measuring' },
-      { key: 'I', description: 'Open / Activate Point Inspector' },
-      { key: 'S', description: 'Open / Activate Swipe Split-Screen Compare' },
-      { key: 'T', description: 'Open / Close Spatial Attribute Table' },
-      { key: 'Esc', description: 'Cancel active tool or close modal/panel' }
+      { key: 'M', description: 'Buka / Aktifkan Alat Pengukuran (Measure Tool)' },
+      { key: 'Z', description: 'Hapus titik terakhir saat mengukur' },
+      { key: 'I', description: 'Buka / Aktifkan Inspeksi Titik' },
+      { key: 'S', description: 'Buka / Aktifkan Komparasi Layar Swipe' },
+      { key: 'T', description: 'Buka / Tutup Tabel Atribut Spasial' },
+      { key: 'Esc', description: 'Batalkan alat aktif atau tutup modal/panel' }
     ]
   },
   {
-    category: 'Navigation & View',
+    category: 'Navigasi & Tampilan',
     items: [
-      { key: 'Ctrl + K / ⌘K', description: 'Open Command Palette / Quick Search' },
-      { key: 'A', description: 'Open Analisis Spasial (Zonal AOI & Buffer) Tab' },
-      { key: 'B', description: 'Open Basemap Gallery' },
-      { key: 'L', description: 'Open Layer Stack & Satellite Imagery Tab' },
-      { key: 'P', description: 'Open GEE Thermal Analysis Tab' },
-      { key: '?', description: 'Open this Keyboard Shortcuts Cheatsheet' }
+      { key: 'Ctrl + K / ⌘K', description: 'Buka Palet Perintah / Pencarian Cepat' },
+      { key: 'A', description: 'Buka Tab Analisis Spasial (Zonal AOI & Buffer)' },
+      { key: 'B', description: 'Buka Galeri Peta Dasar (Basemap)' },
+      { key: 'L', description: 'Buka Tab Lapisan Data & Citra Satelit' },
+      { key: 'P', description: 'Buka Tab Analisis Termal GEE' },
+      { key: '?', description: 'Buka Panduan Pintasan Keyboard' }
     ]
   },
   {
-    category: 'Map Controls',
+    category: 'Kontrol Navigasi Peta',
     items: [
-      { key: '+ / -', description: 'Zoom in / Zoom out map scale' },
-      { key: 'Shift + Drag', description: 'Box zoom to specific bounding box' },
-      { key: 'Ctrl + Drag', description: 'Rotate bearing and pitch angle' }
+      { key: '+ / -', description: 'Perbesar / Perkecil skala peta' },
+      { key: 'Shift + Geser', description: 'Zoom kotak ke area tertentu' },
+      { key: 'Ctrl + Geser', description: 'Putar orientasi bearing & sudut kemiringan (pitch)' }
     ]
   }
 ];
@@ -113,11 +113,11 @@ export class ShortcutsModalUI {
           <div class="shortcuts-title-wrap">
             <span class="shortcuts-icon">⌨️</span>
             <div>
-              <h3 id="shortcuts-title">Keyboard Shortcuts Cheatsheet</h3>
-              <p class="shortcuts-subtitle">Quick access to all GIS tools and map controls</p>
+              <h3 id="shortcuts-title">Panduan Pintasan Keyboard</h3>
+              <p class="shortcuts-subtitle">Akses cepat ke seluruh alat GIS (Keyboard Shortcuts Cheatsheet)</p>
             </div>
           </div>
-          <button id="btn-close-shortcuts" class="btn-close-modal" aria-label="Close Shortcuts Modal">
+          <button id="btn-close-shortcuts" class="btn-close-modal" aria-label="Tutup Modal Pintasan">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -130,8 +130,8 @@ export class ShortcutsModalUI {
         </div>
 
         <div class="shortcuts-footer">
-          <span>Press <kbd>Esc</kbd> to close anytime</span>
-          <button id="btn-done-shortcuts" class="btn-primary-sm">Got it</button>
+          <span>Tekan <kbd>Esc</kbd> untuk menutup</span>
+          <button id="btn-done-shortcuts" class="btn-primary-sm">Mengerti</button>
         </div>
       </div>
     `;

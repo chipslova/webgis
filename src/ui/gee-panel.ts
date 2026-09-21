@@ -78,7 +78,7 @@ export class GEEPanelUI {
       });
 
       window.addEventListener('gee-load-error', () => {
-        showToast('Failed to load MODIS LST data. Please check your network connection.', 'error');
+        showToast('Gagal memuat data MODIS LST. Periksa koneksi jaringan Anda.', 'error');
       }, { once: false });
 
       this.isInitialized = true;
@@ -249,7 +249,7 @@ export class GEEPanelUI {
       a.href = '/data/gee_cfsv2_stations.geojson';
       a.download = 'modis_lst_stations_indonesia.geojson';
       a.click();
-      showToast('Downloading MODIS LST Stations (GeoJSON)...', 'info');
+      showToast('Mengunduh Stasiun MODIS LST (GeoJSON)...', 'info');
     });
 
     document.getElementById('btn-download-csv')?.addEventListener('click', () => {
@@ -257,7 +257,7 @@ export class GEEPanelUI {
       a.href = '/downloads/gee_cfsv2_temperature_indonesia.csv';
       a.download = 'modis_lst_seasonal_timeseries_indonesia.csv';
       a.click();
-      showToast('Downloading MODIS LST Multi-Year Time Series (CSV)...', 'info');
+      showToast('Mengunduh Deret Waktu Multi-Tahun MODIS LST (CSV)...', 'info');
     });
   }
 
