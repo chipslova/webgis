@@ -4,17 +4,152 @@ import { escapeHtml } from '../utils/sanitize';
 import { logger } from '../utils/logger';
 import { showToast } from './toast';
 
+export type FilterOperator =
+  | 'contains'
+  | 'equals'
+  | 'not_equals'
+  | 'gt'
+  | 'gte'
+  | 'lt'
+  | 'lte'
+  | 'is_empty'
+  | 'not_empty';
+
+export interface AttributeFilter {
+  field: string;
+  operator: FilterOperator;
+  value: string;
+}
+
+/** Pure expression parser: recognizes query syntax like "populasi > 500000" or "kategori = 'Kota'" */
+export function parseExpressionQuery(query: string, availableFields: string[]): AttributeFilter | null {
+  const trimmed = query.trim();
+  if (!trimmed) return null;
+
+  const regex = /^([a-zA-Z0-9_\-]+)\s*(>=|<=|!=|==|=|~>|>|<|contains|mengandung)\s*(.*)$/i;
+  const match = trimmed.match(regex);
+  if (match) {
+    const rawField = match[1];
+    const rawOp = match[2].toLowerCase();
+    let rawVal = match[3].trim();
+
+    // Strip optional surrounding quotes
+    if ((rawVal.startsWith('"') && rawVal.endsWith('"')) || (rawVal.startsWith("'") && rawVal.endsWith("'"))) {
+      rawVal = rawVal.slice(1, -1);
+    }
+
+    const matchedField = availableFields.find((f) => f.toLowerCase() === rawField.toLowerCase());
+    if (matchedField) {
+      let op: FilterOperator = 'contains';
+      if (rawOp === '>' || rawOp === '~>') op = 'gt';
+      else if (rawOp === '>=') op = 'gte';
+      else if (rawOp === '<') op = 'lt';
+      else if (rawOp === '<=') op = 'lte';
+      else if (rawOp === '=' || rawOp === '==') op = 'equals';
+      else if (rawOp === '!=') op = 'not_equals';
+      else if (rawOp === 'contains' || rawOp === 'mengandung') op = 'contains';
+
+      return {
+        field: matchedField,
+        operator: op,
+        value: rawVal
+      };
+    }
+  }
+
+  return null;
+}
+
+/** Pure feature filter evaluator */
+export function evaluateFeatureWithFilter(
+  feature: GeoJSON.Feature,
+  filter: AttributeFilter | null,
+  rawSearchQuery: string
+): boolean {
+  if (!feature.properties) return false;
+
+  // 1. If explicit filter rule is active
+  if (filter) {
+    const { field, operator, value } = filter;
+
+    if (field === 'all') {
+      if (operator === 'is_empty') {
+        return Object.values(feature.properties).every((v) => v === null || v === undefined || v === '');
+      }
+      if (operator === 'not_empty') {
+        return Object.values(feature.properties).some((v) => v !== null && v !== undefined && v !== '');
+      }
+      const q = value.toLowerCase();
+      return Object.values(feature.properties).some((v) => {
+        if (v === null || v === undefined) return false;
+        return String(v).toLowerCase().includes(q);
+      });
+    }
+
+    const propVal = feature.properties[field];
+
+    if (operator === 'is_empty') {
+      return propVal === null || propVal === undefined || propVal === '';
+    }
+    if (operator === 'not_empty') {
+      return propVal !== null && propVal !== undefined && propVal !== '';
+    }
+
+    if (propVal === null || propVal === undefined) {
+      return false;
+    }
+
+    const numProp = Number(propVal);
+    const numTarget = Number(value);
+    const isBothNumeric = !isNaN(numProp) && !isNaN(numTarget) && value.trim() !== '';
+
+    switch (operator) {
+      case 'gt':
+        return isBothNumeric ? numProp > numTarget : String(propVal) > value;
+      case 'gte':
+        return isBothNumeric ? numProp >= numTarget : String(propVal) >= value;
+      case 'lt':
+        return isBothNumeric ? numProp < numTarget : String(propVal) < value;
+      case 'lte':
+        return isBothNumeric ? numProp <= numTarget : String(propVal) <= value;
+      case 'equals':
+        if (isBothNumeric) return numProp === numTarget;
+        return String(propVal).toLowerCase() === value.toLowerCase();
+      case 'not_equals':
+        if (isBothNumeric) return numProp !== numTarget;
+        return String(propVal).toLowerCase() !== value.toLowerCase();
+      case 'contains':
+      default:
+        return String(propVal).toLowerCase().includes(value.toLowerCase());
+    }
+  }
+
+  // 2. Fallback to basic text search across all properties
+  if (rawSearchQuery.trim()) {
+    const q = rawSearchQuery.toLowerCase();
+    return Object.values(feature.properties).some((val) => {
+      if (val === null || val === undefined) return false;
+      return String(val).toLowerCase().includes(q);
+    });
+  }
+
+  return true;
+}
+
 export class AttributeTableUI {
   private map: maplibregl.Map;
   private geojsonLoader: GeoJsonLoader;
   private containerEl: HTMLElement | null = null;
   private activeLayerId: string | null = null;
   private searchQuery: string = '';
+  private activeFilter: AttributeFilter | null = null;
+  private isFilterBuilderOpen: boolean = false;
   private sortColumn: string | null = null;
   private sortAsc: boolean = true;
   private isOpen: boolean = false;
   private isMinimized: boolean = false;
   private highlightMarker: maplibregl.Marker | null = null;
+  private bulkMarkers: maplibregl.Marker[] = [];
 
   private onSwitchToDataTabCb: (() => void) | null = null;
 
@@ -62,6 +197,7 @@ export class AttributeTableUI {
     this.isMinimized = false;
     this.activeLayerId = layerId || this.activeLayerId || layers[0].id;
     this.searchQuery = '';
+    this.activeFilter = null;
     this.sortColumn = null;
     this.sortAsc = true;
 
@@ -92,11 +228,28 @@ export class AttributeTableUI {
     return this.isOpen;
   }
 
+  public setFilter(filter: AttributeFilter | null) {
+    this.activeFilter = filter;
+    this.render();
+  }
+
+  public getFilter(): AttributeFilter | null {
+    return this.activeFilter;
+  }
+
   private clearHighlight() {
     if (this.highlightMarker) {
-      this.highlightMarker.remove();
+      try {
+        this.highlightMarker.remove();
+      } catch {}
       this.highlightMarker = null;
     }
+    this.bulkMarkers.forEach((m) => {
+      try {
+        m.remove();
+      } catch {}
+    });
+    this.bulkMarkers = [];
   }
 
   private zoomToFeature(feat: GeoJSON.Feature) {
@@ -117,7 +270,7 @@ export class AttributeTableUI {
             .addTo(this.map);
           setTimeout(() => this.clearHighlight(), 5000);
         } catch {
-          // Fallback if headless mock map doesn't support DOM markers
+          // Fallback
         }
       } else if (geom.type === 'LineString' || geom.type === 'Polygon' || geom.type === 'MultiPolygon' || geom.type === 'MultiLineString') {
         const coords: number[][] = [];
@@ -146,7 +299,7 @@ export class AttributeTableUI {
               .addTo(this.map);
             setTimeout(() => this.clearHighlight(), 5000);
           } catch {
-            // Fallback if headless mock map doesn't support DOM markers
+            // Fallback
           }
         }
       }
@@ -154,6 +307,68 @@ export class AttributeTableUI {
     } catch (err) {
       logger.error('Error zooming to feature:', err);
       showToast('Gagal memusatkan peta ke geometri fitur', 'error');
+    }
+  }
+
+  /** Zoom and fit map to all currently filtered features */
+  public zoomToAllFeatures(features: GeoJSON.Feature[]) {
+    if (!features || features.length === 0) {
+      showToast('Tidak ada fitur hasil filter untuk disorot', 'warning');
+      return;
+    }
+
+    this.clearHighlight();
+
+    try {
+      const allCoords: [number, number][] = [];
+      const extractCoords = (c: any) => {
+        if (Array.isArray(c) && typeof c[0] === 'number' && typeof c[1] === 'number') {
+          allCoords.push([c[0], c[1]]);
+        } else if (Array.isArray(c)) {
+          c.forEach(extractCoords);
+        }
+      };
+
+      features.forEach((f) => {
+        if (f.geometry) {
+          extractCoords(f.geometry.coordinates);
+        }
+      });
+
+      if (allCoords.length === 0) {
+        showToast('Geometri fitur tidak valid', 'warning');
+        return;
+      }
+
+      const bounds = allCoords.reduce(
+        (b, coord) => b.extend(coord),
+        new maplibregl.LngLatBounds(allCoords[0], allCoords[0])
+      );
+
+      this.map.fitBounds(bounds, { padding: 70, maxZoom: 15, essential: true });
+
+      // Add temporary highlight markers for point features (up to 20 points)
+      features.slice(0, 20).forEach((f) => {
+        if (f.geometry && f.geometry.type === 'Point') {
+          try {
+            const el = document.createElement('div');
+            el.className = 'feature-highlight-pulse';
+            const m = new maplibregl.Marker({ element: el })
+              .setLngLat(f.geometry.coordinates as [number, number])
+              .addTo(this.map);
+            this.bulkMarkers.push(m);
+          } catch {}
+        }
+      });
+
+      if (this.bulkMarkers.length > 0) {
+        setTimeout(() => this.clearHighlight(), 5000);
+      }
+
+      showToast(`Memusatkan peta ke ${features.length} fitur hasil filter`, 'success');
+    } catch (e) {
+      logger.error('Error fitting bounds to all features:', e);
+      showToast('Gagal memusatkan peta ke hasil filter', 'error');
     }
   }
 
@@ -232,15 +447,18 @@ export class AttributeTableUI {
     });
     const propertyKeys = Array.from(propertyKeysSet);
 
-    // Filter features by searchQuery
+    // Auto-detect expression if typed in the search bar (e.g. "populasi > 500000")
+    let effectiveFilter = this.activeFilter;
+    if (!effectiveFilter && this.searchQuery.trim()) {
+      const parsed = parseExpressionQuery(this.searchQuery, propertyKeys);
+      if (parsed) {
+        effectiveFilter = parsed;
+      }
+    }
+
+    // Filter features
     let filtered = rawFeatures.filter((f) => {
-      if (!this.searchQuery.trim()) return true;
-      const q = this.searchQuery.toLowerCase();
-      if (!f.properties) return false;
-      return Object.values(f.properties).some((val) => {
-        if (val === null || val === undefined) return false;
-        return String(val).toLowerCase().includes(q);
-      });
+      return evaluateFeatureWithFilter(f, effectiveFilter, this.searchQuery);
     });
 
     // Sort features if column specified
@@ -284,6 +502,39 @@ export class AttributeTableUI {
         })
         .join('')}
     `;
+
+    // Filter builder field options
+    const filterFieldOptionsHtml = `
+      <option value="all" ${!this.activeFilter || this.activeFilter.field === 'all' ? 'selected' : ''}>Semua Kolom (Global)</option>
+      ${propertyKeys
+        .map(
+          (k) =>
+            `<option value="${escapeHtml(k)}" ${this.activeFilter?.field === k ? 'selected' : ''}>${escapeHtml(k)}</option>`
+        )
+        .join('')}
+    `;
+
+    const operatorOptionsHtml = `
+      <option value="contains" ${this.activeFilter?.operator === 'contains' ? 'selected' : ''}>Mengandung (contains)</option>
+      <option value="equals" ${this.activeFilter?.operator === 'equals' ? 'selected' : ''}>Sama dengan (=)</option>
+      <option value="not_equals" ${this.activeFilter?.operator === 'not_equals' ? 'selected' : ''}>Tidak sama (!=)</option>
+      <option value="gt" ${this.activeFilter?.operator === 'gt' ? 'selected' : ''}>Lebih besar (&gt;)</option>
+      <option value="gte" ${this.activeFilter?.operator === 'gte' ? 'selected' : ''}>Lebih besar / sama (&gt;=)</option>
+      <option value="lt" ${this.activeFilter?.operator === 'lt' ? 'selected' : ''}>Lebih kecil (&lt;)</option>
+      <option value="lte" ${this.activeFilter?.operator === 'lte' ? 'selected' : ''}>Lebih kecil / sama (&lt;=)</option>
+      <option value="is_empty" ${this.activeFilter?.operator === 'is_empty' ? 'selected' : ''}>Kosong (is empty)</option>
+      <option value="not_empty" ${this.activeFilter?.operator === 'not_empty' ? 'selected' : ''}>Terisi (not empty)</option>
+    `;
+
+    // Active Filter Pill
+    const activeFilterPillHtml = effectiveFilter
+      ? `
+      <div class="attr-active-filter-badge">
+        <span class="filter-badge-label">Filter: <strong>${escapeHtml(effectiveFilter.field)} ${escapeHtml(effectiveFilter.operator)} ${escapeHtml(effectiveFilter.value || '')}</strong></span>
+        <button id="btn-clear-active-filter" class="btn-clear-filter-pill" title="Hapus filter ekspresi">&times;</button>
+      </div>
+    `
+      : '';
 
     // Build Rows HTML
     const rowsHtml = filtered
@@ -343,6 +594,7 @@ export class AttributeTableUI {
               ${layerOptionsHtml}
             </select>
           </div>
+          ${activeFilterPillHtml}
         </div>
 
         <div class="attr-table-controls">
@@ -351,9 +603,25 @@ export class AttributeTableUI {
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <input type="text" id="attr-table-search" placeholder="Cari data atribut..." value="${escapeHtml(this.searchQuery)}" aria-label="Cari data atribut" />
+            <input type="text" id="attr-table-search" placeholder="Cari teks atau ekspresi (mis: populasi > 500k)..." value="${escapeHtml(this.searchQuery)}" aria-label="Cari data atribut atau kueri ekspresi" />
             ${this.searchQuery ? `<button id="btn-clear-attr-search" class="btn-clear-search" title="Bersihkan pencarian">×</button>` : ''}
           </div>
+
+          <button id="btn-toggle-filter-builder" class="btn-attr-action ${this.isFilterBuilderOpen ? 'active' : ''}" title="Buka panel pembuat kueri ekspresi terstruktur">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            <span>Filter Kueri</span>
+          </button>
+
+          <button id="btn-zoom-all-filtered" class="btn-attr-action" title="Sorot dan pusatkan seluruh fitur hasil filter pada peta">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"></path>
+              <line x1="8" y1="2" x2="8" y2="18"></line>
+              <line x1="16" y1="6" x2="16" y2="22"></line>
+            </svg>
+            <span>Sorot di Peta (${filtered.length})</span>
+          </button>
 
           <button id="btn-export-attr-csv" class="btn-attr-action" title="Unduh tabel hasil filter sebagai format CSV">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -379,10 +647,29 @@ export class AttributeTableUI {
         </div>
       </div>
 
+      <!-- Structured Filter Builder Row -->
+      <div id="attr-filter-builder-bar" class="attr-filter-builder-bar" style="display: ${this.isFilterBuilderOpen ? 'flex' : 'none'};">
+        <div class="filter-builder-label">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span>Kueri Ekspresi:</span>
+        </div>
+        <div class="filter-builder-controls">
+          <select id="attr-filter-field" class="attr-filter-select" aria-label="Pilih kolom filter">
+            ${filterFieldOptionsHtml}
+          </select>
+          <select id="attr-filter-operator" class="attr-filter-select" aria-label="Pilih operator filter">
+            ${operatorOptionsHtml}
+          </select>
+          <input type="text" id="attr-filter-value" class="attr-filter-input" placeholder="Nilai target..." value="${escapeHtml(this.activeFilter?.value || '')}" aria-label="Nilai target filter" />
+          <button id="btn-apply-filter-builder" class="btn-attr-action btn-apply-filter">Terapkan Filter</button>
+          <button id="btn-reset-filter-builder" class="btn-attr-icon" title="Reset filter ekspresi">Reset</button>
+        </div>
+      </div>
+
       <div class="attr-table-body-wrap">
         ${
           filtered.length === 0
-            ? `<div class="attr-table-empty">Tidak ada fitur yang cocok dengan kata kunci pencarian "${escapeHtml(this.searchQuery)}"</div>`
+            ? `<div class="attr-table-empty">Tidak ada fitur yang cocok dengan filter / kueri pencarian aktif</div>`
             : `
           <table class="attr-table">
             <thead>
@@ -402,6 +689,7 @@ export class AttributeTableUI {
     selectEl?.addEventListener('change', (e) => {
       this.activeLayerId = (e.target as HTMLSelectElement).value;
       this.searchQuery = '';
+      this.activeFilter = null;
       this.sortColumn = null;
       this.render();
     });
@@ -410,7 +698,6 @@ export class AttributeTableUI {
     searchInput?.addEventListener('input', (e) => {
       this.searchQuery = (e.target as HTMLInputElement).value;
       this.render();
-      // Keep input focused
       const updatedInput = this.containerEl?.querySelector<HTMLInputElement>('#attr-table-search');
       if (updatedInput) {
         updatedInput.focus();
@@ -422,6 +709,49 @@ export class AttributeTableUI {
     clearSearchBtn?.addEventListener('click', () => {
       this.searchQuery = '';
       this.render();
+    });
+
+    const clearFilterPillBtn = this.containerEl.querySelector<HTMLButtonElement>('#btn-clear-active-filter');
+    clearFilterPillBtn?.addEventListener('click', () => {
+      this.activeFilter = null;
+      this.searchQuery = '';
+      this.render();
+    });
+
+    const toggleFilterBtn = this.containerEl.querySelector<HTMLButtonElement>('#btn-toggle-filter-builder');
+    toggleFilterBtn?.addEventListener('click', () => {
+      this.isFilterBuilderOpen = !this.isFilterBuilderOpen;
+      this.render();
+    });
+
+    const applyFilterBtn = this.containerEl.querySelector<HTMLButtonElement>('#btn-apply-filter-builder');
+    applyFilterBtn?.addEventListener('click', () => {
+      const fieldEl = this.containerEl?.querySelector<HTMLSelectElement>('#attr-filter-field');
+      const opEl = this.containerEl?.querySelector<HTMLSelectElement>('#attr-filter-operator');
+      const valEl = this.containerEl?.querySelector<HTMLInputElement>('#attr-filter-value');
+
+      if (fieldEl && opEl) {
+        this.activeFilter = {
+          field: fieldEl.value,
+          operator: opEl.value as FilterOperator,
+          value: valEl?.value.trim() || ''
+        };
+        this.render();
+        showToast(`Filter ekspresi diterapkan: ${this.activeFilter.field} ${this.activeFilter.operator} ${this.activeFilter.value}`, 'info');
+      }
+    });
+
+    const resetFilterBtn = this.containerEl.querySelector<HTMLButtonElement>('#btn-reset-filter-builder');
+    resetFilterBtn?.addEventListener('click', () => {
+      this.activeFilter = null;
+      this.searchQuery = '';
+      this.render();
+      showToast('Filter ekspresi dikembalikan ke semula', 'info');
+    });
+
+    const zoomAllBtn = this.containerEl.querySelector<HTMLButtonElement>('#btn-zoom-all-filtered');
+    zoomAllBtn?.addEventListener('click', () => {
+      this.zoomToAllFeatures(filtered);
     });
 
     const exportBtn = this.containerEl.querySelector<HTMLButtonElement>('#btn-export-attr-csv');
@@ -472,10 +802,13 @@ export class AttributeTableUI {
   }
 
   private bindEvents() {
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.isOpen) {
-        this.close();
-      }
-    });
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.isOpen) {
+          this.close();
+        }
+      });
+    }
   }
 }
+
