@@ -403,7 +403,7 @@ export class SpatialAnalysisUI {
             <span style="font-weight: 600; font-size: 12.5px; color: #fff;">Analisis Spasial Zonal (Sentinel-2 &amp; LST)</span>
           </div>
           <span style="font-size: 9.5px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.3);">
-            100% Free &amp; Open
+            Open Data Satelit
           </span>
         </div>
 
@@ -554,7 +554,7 @@ export class SpatialAnalysisUI {
               </span>
             </div>
             <span style="font-size: 8px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.2); padding: 1px 4px; border-radius: 3px; border: 1px solid rgba(56, 189, 248, 0.4); white-space: nowrap; flex-shrink: 0;">
-              100% FREE
+              OPEN DATA
             </span>
           </div>
 
@@ -570,7 +570,7 @@ export class SpatialAnalysisUI {
                 ✓ 10m
               </span>
               <span style="font-size: 8px; font-weight: 600; color: #7dd3fc; background: rgba(56, 189, 248, 0.2); padding: 1px 4px; border-radius: 3px; white-space: nowrap;">
-                ✓ Bebas Biaya
+                ✓ Open Access
               </span>
             </div>
             <button id="btn-open-gee-setup-modal" style="font-size: 8px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); color: #bae6fd; border-radius: 3px; padding: 1px 5px; cursor: pointer; white-space: nowrap;">
