@@ -21,6 +21,7 @@ export const GIS_SHORTCUTS: ShortcutGroup[] = [
     category: 'Navigation & View',
     items: [
       { key: 'Ctrl + K / ⌘K', description: 'Open Command Palette / Quick Search' },
+      { key: 'A', description: 'Open Analisis Spasial (Zonal AOI & Buffer) Tab' },
       { key: 'B', description: 'Open Basemap Gallery' },
       { key: 'L', description: 'Open Layer Stack & Satellite Imagery Tab' },
       { key: 'P', description: 'Open GEE Thermal Analysis Tab' },

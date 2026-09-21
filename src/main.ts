@@ -759,6 +759,9 @@ class WebGISApp {
       } else if (key === 'b' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         this.sidebarUI.setActiveTab('map');
+      } else if (key === 'a' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        this.sidebarUI.setActiveTab('analysis');
       } else if (key === 'l' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         this.sidebarUI.setActiveTab('data');
