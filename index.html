@@ -48,7 +48,7 @@
     <div id="offline-banner" class="offline-banner" style="display: none;" role="alert">
       <span class="offline-icon" aria-hidden="true">⚠️</span>
       <div class="offline-text">
-        <strong>Offline Mode</strong> — Internet connection lost. Satellite imagery and new map layers cannot be loaded until connection is restored.
+        <strong>Mode Offline</strong> — Koneksi internet terputus. Citra satelit dan lapisan peta baru tidak dapat dimuat hingga koneksi kembali pulih.
       </div>
     </div>
 
@@ -76,77 +76,77 @@
               <circle cx="11" cy="11" r="8"/>
               <path d="m21 21-4.3-4.3"/>
             </svg>
-            <input type="text" id="geocoder-input" placeholder="Search location (e.g. Jakarta, Bromo, IKN, Bandung)..." autocomplete="off" aria-label="Search location name or Indonesian city" />
-            <button id="btn-open-cmd-palette" class="search-cmd-pill" title="Open Command Palette (Ctrl + K)" aria-label="Open Command Palette">
+            <input type="text" id="geocoder-input" placeholder="Cari lokasi (contoh: Jakarta, Bromo, IKN, Bandung)..." autocomplete="off" aria-label="Cari nama lokasi atau kota di Indonesia" />
+            <button id="btn-open-cmd-palette" class="search-cmd-pill" title="Buka Palet Perintah (Ctrl + K)" aria-label="Buka Palet Perintah">
               <kbd>⌘K</kbd>
             </button>
-            <button id="search-clear-btn" class="icon-btn-sm search-clear-btn" style="display:none;" title="Clear search" aria-label="Clear search query">
+            <button id="search-clear-btn" class="icon-btn-sm search-clear-btn" style="display:none;" title="Bersihkan pencarian" aria-label="Bersihkan kata kunci pencarian">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
             </button>
           </div>
-          <div id="geocoder-results" class="search-results-dropdown" role="listbox" aria-label="Location search results"></div>
+          <div id="geocoder-results" class="search-results-dropdown" role="listbox" aria-label="Hasil pencarian lokasi"></div>
         </div>
 
         <!-- Header Actions -->
         <div class="header-actions">
-          <button id="btn-start-tour" class="btn btn-tour header-action-btn" title="Explore 30-Second Guided Tour" aria-label="Start interactive 30-second guided tour">
+          <button id="btn-start-tour" class="btn btn-tour header-action-btn" title="Jelajahi Tur Panduan 30 Detik" aria-label="Mulai tur panduan interaktif 30 detik">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            <span class="btn-text-label">Quick Tour</span>
+            <span class="btn-text-label">Tur Cepat</span>
           </button>
-          <button id="btn-reset-map" class="btn btn-secondary header-action-btn" title="Reset Camera, Layers, and Analysis State" aria-label="Reset map view to default Indonesia camera">
+          <button id="btn-reset-map" class="btn btn-secondary header-action-btn" title="Kembalikan Kamera, Lapisan, dan Analisis ke Awal" aria-label="Reset tampilan peta ke posisi awal Indonesia">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-            <span class="btn-text-label">Reset View</span>
+            <span class="btn-text-label">Reset Tampilan</span>
           </button>
-          <button id="btn-toggle-globe" class="btn btn-secondary header-action-btn" title="Toggle 3D Globe / 2D Mercator Projection" aria-label="Toggle between 3D Globe and 2D Mercator projection">
+          <button id="btn-toggle-globe" class="btn btn-secondary header-action-btn" title="Beralih Proyeksi Bola Bumi 3D / Mercator 2D" aria-label="Beralih antara Bola Bumi 3D dan proyeksi Mercator 2D">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-            <span id="globe-btn-label" class="btn-text-label">3D Globe</span>
+            <span id="globe-btn-label" class="btn-text-label">Bola Bumi 3D</span>
           </button>
-          <button id="btn-quick-import" class="btn btn-secondary header-action-btn" title="Import Custom GeoJSON / KML / CSV Data" aria-label="Upload custom spatial data file">
+          <button id="btn-quick-import" class="btn btn-secondary header-action-btn" title="Impor Data GeoJSON / KML / CSV Kustom" aria-label="Unggah berkas data spasial kustom">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-            <span class="btn-text-label">Import Data</span>
+            <span class="btn-text-label">Impor Data</span>
           </button>
-          <button id="btn-share-map" class="btn btn-secondary header-action-btn" title="Copy Shareable Map View & State (Permalink)" aria-label="Copy shareable map view permalink">
+          <button id="btn-share-map" class="btn btn-secondary header-action-btn" title="Salin Tautan Tampilan Peta & Analisis (Permalink)" aria-label="Salin tautan bagikan tampilan peta">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-            <span class="btn-text-label">Share View</span>
+            <span class="btn-text-label">Bagikan Peta</span>
           </button>
-          <button id="btn-export-map" class="btn btn-secondary header-action-btn" title="Export High-Resolution Map Canvas (PNG)" aria-label="Export map canvas as high-resolution PNG image">
+          <button id="btn-export-map" class="btn btn-secondary header-action-btn" title="Ekspor Kanvas Peta Resolusi Tinggi (PNG)" aria-label="Ekspor kanvas peta sebagai gambar PNG resolusi tinggi">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            <span class="btn-text-label">Export Map</span>
+            <span class="btn-text-label">Ekspor Peta</span>
           </button>
 
           <!-- Mobile & Compact Overflow Menu Button -->
           <div class="header-more-wrapper">
-            <button id="btn-header-more-actions" class="btn btn-secondary btn-header-more" title="Additional Actions Menu" aria-label="Open additional actions menu" aria-expanded="false" aria-haspopup="true">
+            <button id="btn-header-more-actions" class="btn btn-secondary btn-header-more" title="Menu Aksi Lainnya" aria-label="Buka menu aksi tambahan" aria-expanded="false" aria-haspopup="true">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
             </button>
             <div id="header-more-dropdown" class="header-more-dropdown" style="display: none;" role="menu" aria-label="Actions Menu">
               <button class="more-item" id="more-item-tour" role="menuitem">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                <span>Quick Tour (30s)</span>
+                <span>Tur Cepat (30d)</span>
               </button>
               <button class="more-item" id="more-item-reset" role="menuitem">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                <span>Reset Map View</span>
+                <span>Reset Tampilan Peta</span>
               </button>
               <button class="more-item" id="more-item-import" role="menuitem">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                <span>Import Data</span>
+                <span>Impor Data</span>
               </button>
               <button class="more-item" id="more-item-share" role="menuitem">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                <span>Share Map Link</span>
+                <span>Bagikan Tautan Peta</span>
               </button>
               <button class="more-item" id="more-item-attr-table" role="menuitem">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
-                <span>Attribute Table (T)</span>
+                <span>Tabel Atribut (T)</span>
               </button>
               <button class="more-item" id="more-item-shortcuts" role="menuitem">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8.01"/><line x1="10" y1="8" x2="10" y2="8.01"/><line x1="14" y1="8" x2="14" y2="8.01"/><line x1="18" y1="8" x2="18" y2="8.01"/><line x1="6" y1="12" x2="6" y2="12.01"/><line x1="18" y1="12" x2="18" y2="12.01"/><line x1="8" y1="16" x2="16" y2="16"/></svg>
-                <span>Keyboard Shortcuts (?)</span>
+                <span>Pintasan Keyboard (?)</span>
               </button>
               <button class="more-item" id="more-item-export" role="menuitem">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                <span>Export Map (PNG)</span>
+                <span>Ekspor Peta (PNG)</span>
               </button>
             </div>
           </div>
@@ -159,37 +159,37 @@
         <aside id="sidebar" class="sidebar" aria-expanded="true" aria-label="WebGIS Control Sidebar Drawer">
           <!-- Navigation Tab Icons -->
           <nav class="sidebar-nav" role="tablist" aria-label="Control Panel Tabs">
-            <button class="sidebar-tab-btn active" data-tab="map" id="tab-map" role="tab" aria-selected="true" aria-controls="panel-map" aria-label="Map & Active Layers" title="Map & Active Layers">
+            <button class="sidebar-tab-btn active" data-tab="map" id="tab-map" role="tab" aria-selected="true" aria-controls="panel-map" aria-label="Peta & Lapisan Aktif" title="Peta & Lapisan Aktif">
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-              <span>Layers</span>
+              <span>Lapisan</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="piksel" id="tab-piksel" role="tab" aria-selected="false" aria-controls="panel-piksel" aria-label="BIG Piksel Earth Observation" title="BIG Piksel Earth Observation">
+            <button class="sidebar-tab-btn" data-tab="piksel" id="tab-piksel" role="tab" aria-selected="false" aria-controls="panel-piksel" aria-label="Observasi Bumi BIG Piksel" title="Observasi Bumi BIG Piksel">
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
-              <span>Satellite</span>
+              <span>Satelit</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="gee" id="tab-gee" role="tab" aria-selected="false" aria-controls="panel-gee" aria-label="Real Google Earth Engine Live Climate Data" title="GEE Live — MODIS Thermal Layers">
+            <button class="sidebar-tab-btn" data-tab="gee" id="tab-gee" role="tab" aria-selected="false" aria-controls="panel-gee" aria-label="Data Iklim Real Google Earth Engine" title="GEE Live — Lapisan Termal MODIS">
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
               <span>GEE Live</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="analysis" id="tab-analysis" role="tab" aria-selected="false" aria-controls="panel-analysis" aria-label="Spatial Analysis — Zonal Stats &amp; Buffer" title="Analisis Spasial — Zonal Stats &amp; Buffer">
+            <button class="sidebar-tab-btn" data-tab="analysis" id="tab-analysis" role="tab" aria-selected="false" aria-controls="panel-analysis" aria-label="Analisis Spasial — Zonal Stats &amp; Buffer" title="Analisis Spasial — Zonal Stats &amp; Buffer">
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
               <span>Analisis</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="measure" id="tab-measure" role="tab" aria-selected="false" aria-controls="panel-measure" aria-label="Distance & Area Measurement" title="Distance & Area Measurement">
+            <button class="sidebar-tab-btn" data-tab="measure" id="tab-measure" role="tab" aria-selected="false" aria-controls="panel-measure" aria-label="Pengukuran Jarak &amp; Luas" title="Pengukuran Jarak &amp; Luas">
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12h20"/><path d="M6 12V8"/><path d="M12 12V8"/><path d="M18 12V8"/></svg>
-              <span>Measure</span>
+              <span>Ukur</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="data" id="tab-data" role="tab" aria-selected="false" aria-controls="panel-data" aria-label="Spatial Data Hub & File Import" title="Spatial Data Hub & File Import">
+            <button class="sidebar-tab-btn" data-tab="data" id="tab-data" role="tab" aria-selected="false" aria-controls="panel-data" aria-label="Pusat Data Spasial &amp; Impor Berkas" title="Pusat Data Spasial &amp; Impor Berkas">
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
               <span>Data Hub</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="legend" id="tab-legend" role="tab" aria-selected="false" aria-controls="panel-legend" aria-label="Dynamic Map Legend" title="Dynamic Map Legend">
+            <button class="sidebar-tab-btn" data-tab="legend" id="tab-legend" role="tab" aria-selected="false" aria-controls="panel-legend" aria-label="Legenda Peta Dinamis" title="Legenda Peta Dinamis">
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor"/><circle cx="4" cy="12" r="1.5" fill="currentColor"/><circle cx="4" cy="18" r="1.5" fill="currentColor"/></svg>
-              <span>Legend</span>
+              <span>Legenda</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="about" id="tab-about" role="tab" aria-selected="false" aria-controls="panel-about" aria-label="About & Technical Architecture" title="About & Technical Architecture">
+            <button class="sidebar-tab-btn" data-tab="about" id="tab-about" role="tab" aria-selected="false" aria-controls="panel-about" aria-label="Tentang &amp; Arsitektur Teknis" title="Tentang &amp; Arsitektur Teknis">
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><circle cx="12" cy="8" r="1" fill="currentColor"/></svg>
-              <span>About</span>
+              <span>Tentang</span>
             </button>
           </nav>
 
@@ -668,54 +668,54 @@
             <!-- Panel: Measure -->
             <section id="panel-measure" class="sidebar-panel" role="tabpanel" aria-labelledby="tab-measure">
               <div class="panel-header">
-                <h2>Spatial Measurement (Turf.js)</h2>
-                <p>Calculate geodesic path distance and polygon area interactively on the map canvas.</p>
+                <h2>Pengukuran Spasial (Turf.js)</h2>
+                <p>Hitung jarak garis geodesik dan luas poligon secara interaktif langsung pada kanvas peta.</p>
               </div>
               <div class="measure-controls">
-                <button id="btn-measure-dist" class="btn btn-outline full-width" aria-label="Measure geodesic line distance">
+                <button id="btn-measure-dist" class="btn btn-outline full-width" aria-label="Ukur jarak garis geodesik">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12h20"/><path d="M6 12V8"/><path d="M12 12V8"/><path d="M18 12V8"/></svg>
-                  Measure Line Distance
+                  Ukur Jarak Garis
                 </button>
-                <button id="btn-measure-area" class="btn btn-outline full-width" aria-label="Measure geodesic polygon area">
+                <button id="btn-measure-area" class="btn btn-outline full-width" aria-label="Ukur luas poligon geodesik">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/></svg>
-                  Measure Polygon Area
+                  Ukur Luas Poligon
                 </button>
                 <div style="display: flex; gap: 6px;">
-                  <button id="btn-measure-undo" class="btn btn-outline" style="flex: 1;" aria-label="Undo last point (Z)" title="Undo last waypoint (Keyboard: Z)">
+                  <button id="btn-measure-undo" class="btn btn-outline" style="flex: 1;" aria-label="Undo titik terakhir (Z)" title="Undo titik pengukuran terakhir (Keyboard: Z)">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
                     Undo
                   </button>
-                  <button id="btn-measure-clear" class="btn btn-danger-outline" style="flex: 1;" aria-label="Clear all measurements and paths">
+                  <button id="btn-measure-clear" class="btn btn-danger-outline" style="flex: 1;" aria-label="Hapus semua pengukuran dan rute">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                    Clear All
+                    Hapus Semua
                   </button>
                 </div>
               </div>
 
               <!-- Interactive Measure Instructions Box -->
               <div id="measure-instruction-box" class="measure-instruction-box" style="display: none;">
-                <div class="measure-instruction-title">Active Measurement Guide:</div>
+                <div class="measure-instruction-title">Panduan Pengukuran Aktif:</div>
                 <ul class="measure-instruction-list">
-                  <li><strong>Click / Tap:</strong> Add waypoint on map canvas.</li>
-                  <li><strong>Double-Click / Double-Tap / Right-Click:</strong> Complete measurement.</li>
-                  <li><strong>Key <kbd>Z</kbd>:</strong> Undo last waypoint.</li>
-                  <li><strong>Key <kbd>Esc</kbd>:</strong> Cancel measurement.</li>
+                  <li><strong>Klik / Ketuk:</strong> Tambah titik pada kanvas peta.</li>
+                  <li><strong>Klik-Ganda / Klik-Kanan:</strong> Selesaikan pengukuran.</li>
+                  <li><strong>Tombol <kbd>Z</kbd>:</strong> Undo simpul terakhir.</li>
+                  <li><strong>Tombol <kbd>Esc</kbd>:</strong> Batalkan pengukuran.</li>
                 </ul>
               </div>
 
               <div id="measure-result-card" class="result-card" style="display:none;" role="status" aria-live="polite">
-                <div class="result-title">Measurement Result</div>
+                <div class="result-title">Hasil Pengukuran</div>
                 <div id="measure-result-value" class="result-value">0 km</div>
-                <div class="result-help">Double-click on the map or click below to complete the path:</div>
-                <button id="btn-measure-finish" class="btn btn-secondary btn-sm full-width" style="margin-top: 8px;" aria-label="Finish active measurement">
-                  ✓ Finish Measurement
+                <div class="result-help">Klik ganda pada peta atau tombol di bawah untuk menyelesaikan:</div>
+                <button id="btn-measure-finish" class="btn btn-secondary btn-sm full-width" style="margin-top: 8px;" aria-label="Selesaikan pengukuran aktif">
+                  ✓ Selesaikan Pengukuran
                 </button>
                 <div style="display: flex; gap: 6px; margin-top: 6px;">
-                  <button id="btn-measure-download-geojson" class="btn btn-outline btn-sm" style="flex: 1; gap: 4px; justify-content: center; font-size: 11px; padding: 6px;" aria-label="Download measurement geometry as GeoJSON file">
+                  <button id="btn-measure-download-geojson" class="btn btn-outline btn-sm" style="flex: 1; gap: 4px; justify-content: center; font-size: 11px; padding: 6px;" aria-label="Unduh geometri pengukuran sebagai berkas GeoJSON">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                     <span>.GeoJSON</span>
                   </button>
-                  <button id="btn-measure-download-kml" class="btn btn-outline btn-sm" style="flex: 1; gap: 4px; justify-content: center; font-size: 11px; padding: 6px;" aria-label="Download measurement geometry as KML file for Google Earth and ArcGIS">
+                  <button id="btn-measure-download-kml" class="btn btn-outline btn-sm" style="flex: 1; gap: 4px; justify-content: center; font-size: 11px; padding: 6px;" aria-label="Unduh geometri pengukuran sebagai berkas KML untuk Google Earth dan ArcGIS">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
                     <span>.KML (Earth)</span>
                   </button>
@@ -726,29 +726,29 @@
             <!-- Panel: Data Import -->
             <section id="panel-data" class="sidebar-panel" role="tabpanel" aria-labelledby="tab-data">
               <div class="panel-header">
-                <h2>Spatial Data Hub (GeoJSON, KML, CSV)</h2>
-                <p>Upload or drag GeoJSON, KML, or CSV (with Lat/Long columns) for vector visualization & spatial buffer analysis.</p>
+                <h2>Pusat Data Spasial (GeoJSON, KML, CSV)</h2>
+                <p>Unggah atau seret berkas GeoJSON, KML, atau CSV (dengan kolom Lat/Long) untuk visualisasi vektor & analisis buffer spasial.</p>
               </div>
-              <div class="upload-dropzone" id="geojson-dropzone" role="button" tabindex="0" aria-label="Click to browse or drag GeoJSON, KML, or CSV files here">
+              <div class="upload-dropzone" id="geojson-dropzone" role="button" tabindex="0" aria-label="Klik untuk memilih berkas atau seret berkas GeoJSON, KML, atau CSV ke sini">
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                <p><strong>Click to browse files</strong> or drag & drop GeoJSON / KML / CSV here</p>
-                <input type="file" id="file-geojson-input" accept=".geojson,.json,.kml,.csv,.tsv,.txt" style="display:none;" aria-label="Select GeoJSON, KML, or CSV file from device" />
+                <p><strong>Klik untuk memilih berkas</strong> atau seret &amp; lepas GeoJSON / KML / CSV di sini</p>
+                <input type="file" id="file-geojson-input" accept=".geojson,.json,.kml,.csv,.tsv,.txt" style="display:none;" aria-label="Pilih berkas GeoJSON, KML, atau CSV dari perangkat" />
               </div>
               <button id="btn-load-sample" class="btn btn-secondary full-width" style="margin-top: 12px;">
-                Load Indonesian Major Cities Sample
+                Muat Sampel Kota-Kota Besar Indonesia
               </button>
               <div id="layers-list" class="layers-list-container" style="margin-top: 16px;"></div>
 
               <!-- Saved Views / Bookmark Manager -->
               <div class="saved-projects-section">
                 <div class="saved-projects-header">
-                  <h3>💾 Saved Views</h3>
-                  <span id="saved-projects-count" class="saved-projects-count">0 Views</span>
+                  <h3>💾 Tampilan Tersimpan</h3>
+                  <span id="saved-projects-count" class="saved-projects-count">0 Tampilan</span>
                 </div>
-                <p class="saved-projects-desc">Save active camera position, basemap, and Piksel EO product:</p>
+                <p class="saved-projects-desc">Simpan posisi kamera, peta dasar, dan produk satelit yang aktif:</p>
                 <div class="project-save-form">
-                  <input type="text" id="input-save-project-name" placeholder="View name (e.g. IKN 2025)..." aria-label="Name for the saved view" />
-                  <button id="btn-save-current-project" class="btn btn-primary-outline btn-save-project">Save</button>
+                  <input type="text" id="input-save-project-name" placeholder="Nama tampilan (misal: IKN 2025)..." aria-label="Nama tampilan tersimpan" />
+                  <button id="btn-save-current-project" class="btn btn-primary-outline btn-save-project">Simpan</button>
                 </div>
                 <div id="saved-projects-list" class="saved-projects-list"></div>
               </div>
@@ -757,8 +757,8 @@
             <!-- Panel: General Map Legend (Dynamic Live Legend) -->
             <section id="panel-legend" class="sidebar-panel">
               <div class="panel-header">
-                <h2>Symbol & Layer Legend</h2>
-                <p>Dynamic integrated legend automatically synchronizing with active layers and imagery.</p>
+                <h2>Legenda Simbol & Lapisan</h2>
+                <p>Legenda terintegrasi dinamis yang otomatis tersinkronisasi dengan lapisan dan citra yang aktif.</p>
               </div>
               
               <!-- Dynamic Legend Container -->
@@ -767,10 +767,10 @@
               </div>
 
               <div class="legend-tip-box" style="margin-top: 16px;">
-                <div class="legend-tip-title">🛰️ Explore Additional Satellite Products</div>
-                <p>Open the <strong>Satellite</strong> catalog to choose Sentinel-2 GeoMAD, Landsat, spectral indices, or flood hazard models.</p>
+                <div class="legend-tip-title">🛰️ Jelajahi Produk Satelit Tambahan</div>
+                <p>Buka katalog <strong>Satelit</strong> untuk memilih Sentinel-2 GeoMAD, Landsat, indeks spektral, atau model bahaya banjir.</p>
                 <button id="btn-goto-piksel-tab" class="btn btn-secondary full-width" style="margin-top: 8px;">
-                  Open Satellite Catalog →
+                  Buka Katalog Satelit →
                 </button>
               </div>
             </section>
@@ -778,16 +778,16 @@
             <!-- Panel: About (Technical Architecture & Provenance) -->
             <section id="panel-about" class="sidebar-panel">
               <div class="panel-header">
-                <h2>Indonesia Earth Observation WebGIS</h2>
-                <p>Independent Earth Observation & Spatial Analytics Platform</p>
+                <h2>WebGIS Observasi Bumi Indonesia</h2>
+                <p>Platform Pengamatan Bumi & Analisis Spasial Mandiri</p>
               </div>
 
               <!-- Independent Project Status Disclaimer -->
               <div class="independent-disclaimer-card" style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 11.5px; color: #94a3b8; line-height: 1.45;">
                 <strong style="color: #38bdf8; display: flex; align-items: center; gap: 6px; margin-bottom: 3px; font-size: 11.5px;">
-                  <span>ℹ️</span> <span>Project Independence & Data Provenance Disclaimer</span>
+                  <span>ℹ️</span> <span>Pernyataan Kemandirian Proyek & Sumber Data</span>
                 </strong>
-                This application is an independent WebGIS platform developed by chipslova. It consumes public OGC Web Map Service (WMS) endpoints from BIG Piksel and open geospatial datasets (ESA Copernicus, USGS/NASA, OpenStreetMap). It is not an official application of Badan Informasi Geospasial or Geoscience Australia.
+                Aplikasi ini merupakan platform WebGIS independen yang dikembangkan oleh chipslova. Aplikasi mengakses endpoint publik OGC Web Map Service (WMS) BIG Piksel serta dataset geospasial terbuka (ESA Copernicus, USGS/NASA, OpenStreetMap). Bukan aplikasi resmi Badan Informasi Geospasial atau Geoscience Australia.
               </div>
 
               <!-- Product Pillars -->
@@ -795,22 +795,22 @@
                 <div class="pillar">
                   <span class="pillar-number">01</span>
                   <div>
-                    <strong>Exploration</strong>
-                    <p>Sentinel-2 GeoMAD, Landsat 9, NDVI, NDWI, flood hazard models &mdash; via BIG Piksel OGC WMS.</p>
+                    <strong>Eksplorasi</strong>
+                    <p>Sentinel-2 GeoMAD, Landsat 9, NDVI, NDWI, model bahaya banjir &mdash; via BIG Piksel OGC WMS.</p>
                   </div>
                 </div>
                 <div class="pillar">
                   <span class="pillar-number">02</span>
                   <div>
-                    <strong>Analysis</strong>
-                    <p>MODIS land surface temperature, urban heat contrast, SRTM elevation &mdash; spatial modeling case studies.</p>
+                    <strong>Analisis</strong>
+                    <p>Suhu permukaan tanah MODIS LST, pulau panas perkotaan (UHI), elevasi DEM SRTM &mdash; studi kasus pemodelan spasial.</p>
                   </div>
                 </div>
                 <div class="pillar">
                   <span class="pillar-number">03</span>
                   <div>
-                    <strong>Interaction</strong>
-                    <p>Geodesic measurement, GeoJSON import, layer stack management, basemap gallery, map export.</p>
+                    <strong>Interaksi</strong>
+                    <p>Pengukuran geodesik, impor GeoJSON, manajemen tumpukan lapisan, galeri peta dasar, ekspor peta.</p>
                   </div>
                 </div>
               </div>
@@ -818,61 +818,61 @@
               <!-- Quick Start Guide -->
               <div class="architecture-card quickstart-card">
                 <div style="font-size: 12px; font-weight: 600; color: #00f0ff; margin-bottom: 10px;">
-                  🚀 QUICK START GUIDE
+                  🚀 PANDUAN MULAI CEPAT
                 </div>
                 <div class="quickstart-steps">
                   <div class="qs-step">
                     <div class="qs-step-num">1</div>
                     <div class="qs-step-body">
-                      <strong>Select Satellite Imagery</strong>
-                      <span>Open the <b>Satellite</b> tab, select a product (Sentinel-2, NDVI, etc.), and click to activate.</span>
+                      <strong>Pilih Citra Satelit</strong>
+                      <span>Buka tab <b>Satelit</b>, pilih produk (Sentinel-2, NDVI, dll.), lalu klik untuk mengaktifkan.</span>
                     </div>
                   </div>
                   <div class="qs-step">
                     <div class="qs-step-num">2</div>
                     <div class="qs-step-body">
-                      <strong>Customize Map View</strong>
-                      <span>In the <b>Layers</b> tab &mdash; switch basemaps and adjust layer transparency.</span>
+                      <strong>Kustomisasi Tampilan Peta</strong>
+                      <span>Pada tab <b>Lapisan</b> &mdash; ganti peta dasar dan atur transparansi lapisan aktif.</span>
                     </div>
                   </div>
                   <div class="qs-step">
                     <div class="qs-step-num">3</div>
                     <div class="qs-step-body">
-                      <strong>Analyze & Measure</strong>
-                      <span>Use <b>Measure</b> for distance/area, or <b>Analysis</b> for thermal case studies.</span>
+                      <strong>Analisis & Pengukuran</strong>
+                      <span>Gunakan <b>Ukur</b> untuk jarak/luas, atau <b>Analisis</b> untuk studi kasus termal dan profil elevasi.</span>
                     </div>
                   </div>
                   <div class="qs-step">
                     <div class="qs-step-num">4</div>
                     <div class="qs-step-body">
-                      <strong>Export Results</strong>
-                      <span>Click <b>Export Map</b> for PNG image capture, or download datasets from <b>Analysis</b>.</span>
+                      <strong>Ekspor Hasil</strong>
+                      <span>Klik <b>Ekspor Peta</b> untuk tangkapan gambar PNG bergeoreferensi, atau unduh dataset dari <b>Analisis</b>.</span>
                     </div>
                   </div>
                 </div>
-                <button id="btn-quick-tour" class="btn btn-tour-banner full-width" style="margin-top: 12px;" aria-label="Start interactive 30-second WebGIS guided tour">
+                <button id="btn-quick-tour" class="btn btn-tour-banner full-width" style="margin-top: 12px;" aria-label="Mulai tur interaktif 30 detik WebGIS">
                   <span style="font-size: 15px;" aria-hidden="true">🚀</span>
-                  <span>Start Guided Tour (30s Demo)</span>
+                  <span>Mulai Tur Panduan (Demo 30 Detik)</span>
                 </button>
               </div>
 
               <!-- Architecture Flow Card (Collapsible Accordion) -->
               <details class="clean-accordion">
                 <summary>
-                  <span>⚙️ Data Pipeline Architecture (Client ↔ Backend)</span>
+                  <span>⚙️ Arsitektur Saluran Data (Klien ↔ Backend)</span>
                 </summary>
                 <div class="accordion-body">
                   <div class="arch-flow-diagram">
                     <div class="arch-node client">
-                      <strong>Client:</strong> MapLibre GL JS (WebGL 2D & 3D Globe Projection)
+                      <strong>Klien:</strong> MapLibre GL JS (WebGL Proyeksi 2D &amp; Bola 3D Globe)
                     </div>
                     <div class="arch-arrow-down">↓</div>
                     <div class="arch-node pipeline">
-                      <strong>Protocols:</strong> OGC WMS 1.3.0 • PMTiles • GeoJSON • Turf.js Geodesics
+                      <strong>Protokol:</strong> OGC WMS 1.3.0 • PMTiles • GeoJSON • Geodesik Turf.js
                     </div>
                     <div class="arch-arrow-down">↓</div>
                     <div class="arch-node backend">
-                      <strong>Backend:</strong> Open Data Cube (BIG Piksel) • Precomputed Datasets (MODIS/SRTM)
+                      <strong>Backend:</strong> Open Data Cube (BIG Piksel) • Dataset Terkomputasi (MODIS/SRTM)
                     </div>
                   </div>
                 </div>
@@ -881,61 +881,61 @@
               <!-- Data Provenance Table (Collapsible Accordion) -->
               <details class="clean-accordion">
                 <summary>
-                  <span>📊 Technical Specifications & Data Matrix</span>
+                  <span>📊 Spesifikasi Teknis & Matriks Data</span>
                 </summary>
                 <div class="accordion-body" style="padding: 0;">
                   <div style="overflow-x: auto; width: 100%;">
                     <table class="data-matrix-table">
                       <thead>
                         <tr>
-                          <th>Product</th>
-                          <th>Provider / Source</th>
-                          <th>Resolution</th>
-                          <th>Protocol / Type</th>
+                          <th>Produk</th>
+                          <th>Penyedia / Sumber</th>
+                          <th>Resolusi</th>
+                          <th>Protokol / Tipe</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr>
                           <td>Sentinel-2 GeoMAD</td>
                           <td>BIG Piksel / ESA</td>
-                          <td>10 meters</td>
+                          <td>10 meter</td>
                           <td>OGC WMS (ODC)</td>
                         </tr>
                         <tr>
-                          <td>Spectral Indices (NDVI/NDWI)</td>
+                          <td>Indeks Spektral (NDVI/NDWI)</td>
                           <td>BIG Piksel / ODC</td>
-                          <td>10 meters</td>
-                          <td>OGC WMS Visualization</td>
+                          <td>10 meter</td>
+                          <td>Visualisasi OGC WMS</td>
                         </tr>
                         <tr>
-                          <td>Landsat 9 Surface Reflectance</td>
+                          <td>Landsat 9 Reflektansi Permukaan</td>
                           <td>USGS / NASA (Piksel ODC)</td>
-                          <td>30 meters</td>
+                          <td>30 meter</td>
                           <td>OGC WMS (Tiled)</td>
                         </tr>
                         <tr>
-                          <td>Flood Hazard Models</td>
+                          <td>Model Bahaya Banjir</td>
                           <td>BIG Hidrologi</td>
-                          <td>10 meters</td>
-                          <td>Physical Raster WMS</td>
+                          <td>10 meter</td>
+                          <td>WMS Raster Fisik</td>
                         </tr>
                         <tr>
-                          <td>MODIS Daytime LST</td>
-                          <td>Precomputed Analysis (GEE Method)</td>
-                          <td>1,000 meters</td>
-                          <td>Analytical Thermal Grid</td>
+                          <td>MODIS Suhu Permukaan (LST Siang)</td>
+                          <td>Analisis Terkomputasi (Metode GEE)</td>
+                          <td>1.000 meter</td>
+                          <td>Grid Termal Analitis</td>
                         </tr>
                         <tr>
-                          <td>SRTM Topography</td>
+                          <td>Topografi SRTM</td>
                           <td>USGS / NASA</td>
-                          <td>30 meters</td>
-                          <td>Digital Elevation Model</td>
+                          <td>30 meter</td>
+                          <td>Model Elevasi Digital (DEM)</td>
                         </tr>
                         <tr>
-                          <td>MCD12Q1 Land Cover</td>
+                          <td>Tutupan Lahan MCD12Q1</td>
                           <td>NASA LP DAAC</td>
-                          <td>500 meters</td>
-                          <td>Land Cover Classification</td>
+                          <td>500 meter</td>
+                          <td>Klasifikasi Tutupan Lahan</td>
                         </tr>
                       </tbody>
                     </table>
@@ -946,20 +946,20 @@
               <!-- Scientific Citation & BibTeX Box -->
               <details class="clean-accordion" open style="margin-top: 12px;">
                 <summary>
-                  <span>📜 Citation & Bibliography Formats (APA & BibTeX)</span>
+                  <span>📜 Format Sitasi & Bibliografi (APA & BibTeX)</span>
                 </summary>
                 <div class="accordion-body">
                   <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">
-                    Use the following citation formats for academic publications, theses, or technical reports:
+                    Gunakan format sitasi berikut untuk publikasi akademik, skripsi, tesis, atau laporan teknis:
                   </p>
                   
                   <!-- APA Format -->
                   <div class="citation-block">
                     <div class="citation-header">
-                      <span class="citation-format-tag">APA Format (7th Ed.)</span>
-                      <button class="btn-copy-citation icon-btn-sm" data-target="citation-apa-text" title="Copy APA format" aria-label="Copy citation in APA format">
+                      <span class="citation-format-tag">Format APA (Edisi ke-7)</span>
+                      <button class="btn-copy-citation icon-btn-sm" data-target="citation-apa-text" title="Salin format APA" aria-label="Salin sitasi format APA">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                        <span>Copy APA</span>
+                        <span>Salin APA</span>
                       </button>
                     </div>
                     <pre id="citation-apa-text" class="citation-text">chipslova. (2026). WebGIS Indonesia: Interactive Earth Observation & Geospatial Analytics Platform (v1.0) [Web application]. https://webgis-three-iota.vercel.app/ (Data sources: BIG Piksel, USGS/NASA, Copernicus, OpenStreetMap).</pre>
@@ -968,10 +968,10 @@
                   <!-- BibTeX Format -->
                   <div class="citation-block" style="margin-top: 8px;">
                     <div class="citation-header">
-                      <span class="citation-format-tag">BibTeX Format</span>
-                      <button class="btn-copy-citation icon-btn-sm" data-target="citation-bibtex-text" title="Copy BibTeX format" aria-label="Copy citation in BibTeX format">
+                      <span class="citation-format-tag">Format BibTeX</span>
+                      <button class="btn-copy-citation icon-btn-sm" data-target="citation-bibtex-text" title="Salin format BibTeX" aria-label="Salin sitasi format BibTeX">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                        <span>Copy BibTeX</span>
+                        <span>Salin BibTeX</span>
                       </button>
                     </div>
                     <pre id="citation-bibtex-text" class="citation-text">@software{webgis_indonesia_2026,
@@ -998,8 +998,8 @@
           <div id="map-loading-overlay" class="map-loading-overlay">
             <div class="map-spinner"></div>
             <div class="map-loading-text">
-              <strong>Loading Indonesia Map</strong>
-              <span>Connecting to Basemaps & Spatial Data Services...</span>
+              <strong>Memuat Peta Indonesia</strong>
+              <span>Menghubungkan ke Peta Dasar & Layanan Data Spasial...</span>
             </div>
           </div>
 
@@ -1007,7 +1007,7 @@
           <div id="piksel-map-hud" class="piksel-map-hud" style="display: none;">
             <div class="hud-spinner" id="hud-spinner"></div>
             <div class="hud-content">
-              <span class="hud-title" id="hud-title">🛰️ Loading Piksel Satellite Layer...</span>
+              <span class="hud-title" id="hud-title">🛰️ Memuat Lapisan Citra Satelit...</span>
               <span class="hud-subtitle" id="hud-subtitle">Sentinel-2 GeoMAD</span>
             </div>
           </div>
@@ -1015,7 +1015,7 @@
           <!-- Subtle Floating Map State Indicator (Shows when map is on basemap-only mode) -->
           <div id="map-status-pill" class="map-status-pill" style="display: none;" role="status" aria-live="polite">
             <span class="map-status-dot" aria-hidden="true"></span>
-            <span id="map-status-text">Basemap Active · Select satellite imagery or analysis from sidebar</span>
+            <span id="map-status-text">Peta Dasar Aktif · Pilih citra satelit atau analisis dari bilah sisi</span>
           </div>
 
           <!-- Floating Interactive Drawing Toolbar (Auto-collapsed sidebar companion) -->
@@ -1033,33 +1033,37 @@
         </main>
 
         <!-- Floating Point & Feature Inspector Card (Unified Spatial Inspector) -->
-        <div id="floating-inspector-card" class="floating-inspector-card" role="region" aria-label="Point & Feature Inspector">
+        <div id="floating-inspector-card" class="floating-inspector-card" role="region" aria-label="Inspeksi Titik & Fitur">
           <div class="insp-header">
             <div class="insp-title-wrap">
               <div class="insp-dot" aria-hidden="true"></div>
-              <span class="insp-title">Point & Feature Inspector</span>
+              <span class="insp-title">Inspeksi Titik & Fitur</span>
             </div>
-            <button id="floating-insp-close" class="insp-close-btn" title="Close" aria-label="Close inspector panel">✕</button>
+            <button id="floating-insp-close" class="insp-close-btn" title="Tutup" aria-label="Tutup panel inspeksi">✕</button>
           </div>
           <div class="insp-body">
-            <!-- Location Coordinates -->
+            <!-- Location Coordinates & Topography -->
             <div class="insp-section">
-              <div class="insp-section-title">LOCATION COORDINATES</div>
+              <div class="insp-section-title">KOORDINAT & TOPOGRAFI</div>
               <div class="insp-row">
                 <span class="insp-label">DMS</span>
                 <span class="insp-val mono"><span id="insp-lat">-</span>, <span id="insp-lng">-</span></span>
               </div>
               <div class="insp-row">
-                <span class="insp-label">Decimal (WGS84)</span>
+                <span class="insp-label">Desimal (WGS84)</span>
                 <span class="insp-val mono" id="insp-coord-decimal">-</span>
+              </div>
+              <div class="insp-row">
+                <span class="insp-label">Elevasi Tanah</span>
+                <span class="insp-val mono highlight" id="insp-elevation">-</span>
               </div>
             </div>
 
             <!-- Selected Vector Feature (Real GeoJSON / POI Query) -->
             <div class="insp-section" id="insp-vector-row" style="display: none;">
-              <div class="insp-section-title">SELECTED VECTOR FEATURE</div>
+              <div class="insp-section-title">FITUR VEKTOR TERPILIH</div>
               <div class="insp-row">
-                <span class="insp-label">Feature</span>
+                <span class="insp-label">Fitur</span>
                 <span class="insp-val highlight" id="insp-vector-val">-</span>
               </div>
               <div id="insp-vector-props-slot" style="margin-top: 6px;"></div>
@@ -1067,31 +1071,30 @@
 
             <!-- Active Layer & Satellite Status -->
             <div class="insp-section" id="insp-active-product-row">
-              <div class="insp-section-title">ACTIVE LAYER STATUS</div>
+              <div class="insp-section-title">STATUS LAPISAN AKTIF</div>
               <div class="insp-row">
-                <span class="insp-label" id="insp-product-name">Layer</span>
+                <span class="insp-label" id="insp-product-name">Lapisan</span>
                 <span class="insp-val highlight" id="insp-product-val">-</span>
               </div>
               <div class="insp-row">
-                <span class="insp-label">Raster Query</span>
-                <span class="insp-val" id="insp-raster-query-status" style="font-size: 11px; color: var(--text-muted);">WMS Visualization (Pixel query inactive)</span>
+                <span class="insp-label">Kueri Raster</span>
+                <span class="insp-val" id="insp-raster-query-status" style="font-size: 11px; color: var(--text-muted);">Visualisasi WMS (Kueri piksel tidak aktif)</span>
               </div>
             </div>
 
             <!-- Hidden compatibility slots for tests if needed -->
             <div style="display:none;" aria-hidden="true">
-              <span id="insp-elevation">Not available for point WMS query</span>
               <span id="insp-lst">Not available for point WMS query</span>
             </div>
 
             <!-- Data Provenance & Transparency Note -->
             <div class="insp-disclaimer-note">
               <span class="insp-disclaimer-icon" aria-hidden="true">ℹ️</span>
-              <span>WGS84 coordinates & vector attributes queried directly from map geometries. Raster layers are rendered via OGC WMS image tiles (direct pixel querying requires WCS/COG services).</span>
+              <span>Koordinat WGS84 & atribut vektor dikueri langsung dari geometri peta. Lapisan raster dirender melalui ubin citra OGC WMS (kueri piksel langsung memerlukan layanan WCS/COG).</span>
             </div>
 
             <div class="insp-footer-actions">
-              <button id="btn-insp-copy-coords" class="insp-action-btn" aria-label="Copy coordinates to clipboard">Copy Coordinates (WGS84)</button>
+              <button id="btn-insp-copy-coords" class="insp-action-btn" aria-label="Salin koordinat ke papan klip">Salin Koordinat (WGS84)</button>
             </div>
           </div>
         </div>
@@ -1101,85 +1104,85 @@
              =================================================================== -->
 
         <!-- Bottom Floating Layer Tools Dock (Primary & Advanced Groups) -->
-        <nav id="bottom-layer-tools" class="bottom-tools-dock tool-group glass-panel" aria-label="Map & Layer Customization">
+        <nav id="bottom-layer-tools" class="bottom-tools-dock tool-group glass-panel" aria-label="Kustomisasi Peta & Lapisan">
           <!-- Primary Group -->
-          <button id="btn-toggle-basemap" class="dock-btn" type="button" aria-label="Basemap Gallery" title="Basemap Gallery">
+          <button id="btn-toggle-basemap" class="dock-btn" type="button" aria-label="Galeri Peta Dasar" title="Galeri Peta Dasar">
             <span class="dock-btn-icon" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
             </span>
-            <span class="dock-btn-text">Basemaps</span>
+            <span class="dock-btn-text">Peta Dasar</span>
           </button>
-          <button id="btn-toggle-sublayers" class="dock-btn" type="button" aria-label="Sublayers & Relief Customization" title="Sublayers & Relief Customization">
+          <button id="btn-toggle-sublayers" class="dock-btn" type="button" aria-label="Kustomisasi Sublapisan & Relief" title="Kustomisasi Sublapisan & Relief">
             <span class="dock-btn-icon" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             </span>
-            <span class="dock-btn-text">Sublayers</span>
+            <span class="dock-btn-text">Sublapisan</span>
           </button>
-          <button id="btn-dock-swipe" class="dock-btn" type="button" aria-label="Split-Screen Image Comparison (Swipe)" title="Split-Screen Image Comparison (Swipe)">
+          <button id="btn-dock-swipe" class="dock-btn" type="button" aria-label="Bandingkan Citra (Layar Belah Swipe)" title="Bandingkan Citra (Layar Belah Swipe)">
             <span class="dock-btn-icon" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="8 8 4 12 8 16"/><polyline points="16 8 20 12 16 16"/></svg>
             </span>
-            <span class="dock-btn-text">Compare</span>
+            <span class="dock-btn-text">Bandingkan</span>
           </button>
 
           <div class="dock-divider" aria-hidden="true"></div>
 
           <!-- Advanced Group -->
-          <button id="btn-toggle-terrain" class="dock-btn dock-btn-advanced" type="button" aria-label="3D Terrain & Elevation Settings" title="3D Terrain & Elevation Settings (Advanced)">
+          <button id="btn-toggle-terrain" class="dock-btn dock-btn-advanced" type="button" aria-label="Pengaturan Medan 3D & Elevasi" title="Pengaturan Medan 3D & Elevasi (Lanjutan)">
             <span class="dock-btn-icon" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
             </span>
-            <span class="dock-btn-text">3D Terrain</span>
+            <span class="dock-btn-text">Medan 3D</span>
           </button>
-          <button id="btn-toggle-grid" class="dock-btn dock-btn-advanced" type="button" aria-label="Toggle Open Data Cube 1,631 Tile Boundaries" title="Toggle Open Data Cube Grid (1,631 Tile Boundaries)">
+          <button id="btn-toggle-grid" class="dock-btn dock-btn-advanced" type="button" aria-label="Tampilkan Kisi Ubin Open Data Cube (1.631 Grid)" title="Batas Ubin Open Data Cube (1.631 Grid)">
             <span class="dock-btn-icon" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
             </span>
-            <span class="dock-btn-text">Tile Grid</span>
+            <span class="dock-btn-text">Kisi Ubin</span>
           </button>
-          <button id="btn-toggle-locator" class="dock-btn dock-btn-advanced" type="button" aria-label="Archipelago Inset Map" title="Archipelago Inset Map">
+          <button id="btn-toggle-locator" class="dock-btn dock-btn-advanced" type="button" aria-label="Peta Inset Nusantara" title="Peta Inset Nusantara">
             <span class="dock-btn-icon" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
             </span>
-            <span class="dock-btn-text">Locator</span>
+            <span class="dock-btn-text">Lokator</span>
           </button>
         </nav>
 
         <!-- Floating Basemap Popover Menu -->
-        <div id="basemap-popover" class="glass-popover basemap-popover" style="display: none;" role="dialog" aria-modal="false" aria-label="16 Basemaps Gallery">
+        <div id="basemap-popover" class="glass-popover basemap-popover" style="display: none;" role="dialog" aria-modal="false" aria-label="Galeri 16 Peta Dasar">
           <div class="popover-header-row">
-            <div class="popover-header">BASEMAP GALLERY (16)</div>
-            <button class="popover-close-btn" id="btn-close-basemap-popover" title="Close" aria-label="Close basemap gallery">✕</button>
+            <div class="popover-header">GALERI PETA DASAR (16)</div>
+            <button class="popover-close-btn" id="btn-close-basemap-popover" title="Tutup" aria-label="Tutup galeri peta dasar">✕</button>
           </div>
 
           <div class="popover-body-scroll">
             <!-- Global Basemap Opacity Slider -->
             <div class="basemap-opacity-control" style="padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
               <div class="slider-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <label for="popover-basemap-opacity-slider" class="basemap-section-header" style="margin: 0; font-size: 11px; text-transform: uppercase;">BASEMAP OPACITY</label>
+                <label for="popover-basemap-opacity-slider" class="basemap-section-header" style="margin: 0; font-size: 11px; text-transform: uppercase;">OPASITAS PETA DASAR</label>
                 <div style="display: flex; align-items: center; gap: 6px;">
                   <span id="popover-basemap-opacity-val" class="exaggeration-value-badge" style="font-size: 11px; font-weight: 600;">100%</span>
-                  <button id="btn-reset-basemap-opacity" class="btn-micro" title="Reset basemap opacity to 100%" aria-label="Reset basemap opacity">Reset</button>
+                  <button id="btn-reset-basemap-opacity" class="btn-micro" title="Atur ulang opasitas peta dasar ke 100%" aria-label="Atur ulang opasitas">Reset</button>
                 </div>
               </div>
               <div class="slider-container">
                 <span class="slider-min-label" aria-hidden="true">0%</span>
-                <input type="range" id="popover-basemap-opacity-slider" min="0" max="100" step="1" value="100" aria-label="Global basemap opacity" />
+                <input type="range" id="popover-basemap-opacity-slider" min="0" max="100" step="1" value="100" aria-label="Opasitas peta dasar global" />
                 <span class="slider-max-label" aria-hidden="true">100%</span>
               </div>
             </div>
 
-            <div class="basemap-section-header">PRIMARY BASEMAPS (6)</div>
+            <div class="basemap-section-header">PETA DASAR UTAMA (6)</div>
             <div class="basemap-popover-list" id="popover-basemap-rec-list">
               <!-- Populated dynamically -->
             </div>
 
-            <div class="basemap-section-header" style="margin-top: 10px;">TOPOGRAPHY, OCEANS & RELIEF (5)</div>
+            <div class="basemap-section-header" style="margin-top: 10px;">TOPOGRAFI, LAUTAN & RELIEF (5)</div>
             <div class="basemap-popover-list" id="popover-basemap-thematic-list">
               <!-- Populated dynamically -->
             </div>
 
-            <div class="basemap-section-header" style="margin-top: 10px;">OPEN DATA & EXPERIMENTAL (5)</div>
+            <div class="basemap-section-header" style="margin-top: 10px;">DATA TERBUKA & EKSPERIMENTAL (5)</div>
             <div class="basemap-popover-list" id="popover-basemap-canvas-list">
               <!-- Populated dynamically -->
             </div>
@@ -1187,40 +1190,40 @@
         </div>
 
         <!-- Floating Basemap Customization Popover Menu -->
-        <div id="sublayers-popover" class="glass-popover sublayers-popover" style="display: none;" role="dialog" aria-modal="false" aria-label="Basemap Sublayer Customization">
+        <div id="sublayers-popover" class="glass-popover sublayers-popover" style="display: none;" role="dialog" aria-modal="false" aria-label="Kustomisasi Sublapisan Peta Dasar">
           <div class="popover-header-row">
-            <div class="popover-header">SUBLAYER CUSTOMIZATION</div>
-            <button class="popover-close-btn" id="btn-close-sublayers-popover" title="Close" aria-label="Close sublayer customization">✕</button>
+            <div class="popover-header">KUSTOMISASI SUBLAPISAN</div>
+            <button class="popover-close-btn" id="btn-close-sublayers-popover" title="Tutup" aria-label="Tutup kustomisasi sublapisan">✕</button>
           </div>
 
           <div class="popover-body-scroll">
             <!-- Global Overlays Section -->
-            <div class="sublayers-section-header">TERRAIN RELIEF</div>
+            <div class="sublayers-section-header">RELIEF MEDAN</div>
             <div class="sublayers-list global-overlays-list">
               <label class="sublayer-item">
                 <div class="sublayer-info">
                   <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
                   </span>
-                  <span class="sublayer-label">Terrain Hillshade (Relief Shading)</span>
+                  <span class="sublayer-label">Bayangan Medan (Hillshade Relief)</span>
                 </div>
-                <input type="checkbox" id="popover-check-hillshade" class="sublayer-toggle" aria-label="Toggle Terrain Hillshade relief layer" />
+                <input type="checkbox" id="popover-check-hillshade" class="sublayer-toggle" aria-label="Aktifkan lapisan bayangan medan hillshade" />
                 <span class="toggle-switch"></span>
               </label>
             </div>
 
             <!-- Vector Sublayers Section -->
             <div class="sublayers-section-header" style="margin-top: 10px;">
-              <span>VECTOR SUBLAYERS</span>
+              <span>SUBLAPISAN VEKTOR</span>
               <div class="sublayers-header-actions">
-                <button class="btn-micro" id="btn-popover-focus-demo" title="Fly to dense urban area (Monas, Z14.5) to preview sublayers" aria-label="Focus to dense urban area">🎯 Zoom Demo</button>
-                <button class="btn-micro" id="btn-popover-sublayers-all" aria-label="Enable all vector sublayers">Show All</button>
-                <button class="btn-micro btn-micro-mute" id="btn-popover-sublayers-mute" aria-label="Hide all vector sublayers">Hide All</button>
+                <button class="btn-micro" id="btn-popover-focus-demo" title="Terbang ke area perkotaan padat (Monas, Z14.5) untuk pratinjau sublapisan" aria-label="Fokus ke area perkotaan padat">🎯 Zoom Demo</button>
+                <button class="btn-micro" id="btn-popover-sublayers-all" aria-label="Tampilkan semua sublapisan vektor">Tampilkan Semua</button>
+                <button class="btn-micro btn-micro-mute" id="btn-popover-sublayers-mute" aria-label="Sembunyikan semua sublapisan vektor">Sembunyikan Semua</button>
               </div>
             </div>
 
             <div class="sublayer-notice" id="popover-sublayer-notice" style="display: none;">
-              <span>ℹ️ Active only for vector basemaps</span>
+              <span>ℹ️ Hanya aktif untuk peta dasar vektor</span>
             </div>
 
             <div class="sublayers-list vector-sublayers-list">
@@ -1229,9 +1232,9 @@
                   <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/></svg>
                   </span>
-                  <span class="sublayer-label">Points of Interest</span>
+                  <span class="sublayer-label">Titik Minat (POI)</span>
                 </div>
-                <input type="checkbox" id="popover-check-poi" class="sublayer-toggle" data-key="poi" checked aria-label="Toggle Points of Interest" />
+                <input type="checkbox" id="popover-check-poi" class="sublayer-toggle" data-key="poi" checked aria-label="Tampilkan Titik Minat (POI)" />
                 <span class="toggle-switch"></span>
               </label>
               <label class="sublayer-item">
@@ -1239,9 +1242,9 @@
                   <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19 19 4"/><path d="M9 4h11v11"/></svg>
                   </span>
-                  <span class="sublayer-label">Road Names</span>
+                  <span class="sublayer-label">Nama Jalan</span>
                 </div>
-                <input type="checkbox" id="popover-check-road_names" class="sublayer-toggle" data-key="road_names" checked aria-label="Toggle Road Names" />
+                <input type="checkbox" id="popover-check-road_names" class="sublayer-toggle" data-key="road_names" checked aria-label="Tampilkan Nama Jalan" />
                 <span class="toggle-switch"></span>
               </label>
               <label class="sublayer-item">
@@ -1249,9 +1252,9 @@
                   <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                   </span>
-                  <span class="sublayer-label">Place Names</span>
+                  <span class="sublayer-label">Nama Tempat / Label</span>
                 </div>
-                <input type="checkbox" id="popover-check-place_names" class="sublayer-toggle" data-key="place_names" checked aria-label="Toggle Place Names" />
+                <input type="checkbox" id="popover-check-place_names" class="sublayer-toggle" data-key="place_names" checked aria-label="Tampilkan Nama Tempat" />
                 <span class="toggle-switch"></span>
               </label>
               <label class="sublayer-item">
@@ -1259,9 +1262,9 @@
                   <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
                   </span>
-                  <span class="sublayer-label">Admin Boundaries</span>
+                  <span class="sublayer-label">Batas Administratif</span>
                 </div>
-                <input type="checkbox" id="popover-check-admin_boundaries" class="sublayer-toggle" data-key="admin_boundaries" checked aria-label="Toggle Admin Boundaries" />
+                <input type="checkbox" id="popover-check-admin_boundaries" class="sublayer-toggle" data-key="admin_boundaries" checked aria-label="Tampilkan Batas Administratif" />
                 <span class="toggle-switch"></span>
               </label>
               <label class="sublayer-item">
@@ -1269,9 +1272,9 @@
                   <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 3 7h6l-5 4 2 7-6-4-6 4 2-7-5-4h6z"/></svg>
                   </span>
-                  <span class="sublayer-label">Land Cover</span>
+                  <span class="sublayer-label">Tutupan Lahan</span>
                 </div>
-                <input type="checkbox" id="popover-check-landcover" class="sublayer-toggle" data-key="landcover" checked aria-label="Toggle Land Cover" />
+                <input type="checkbox" id="popover-check-landcover" class="sublayer-toggle" data-key="landcover" checked aria-label="Tampilkan Tutupan Lahan" />
                 <span class="toggle-switch"></span>
               </label>
               <label class="sublayer-item">
@@ -1279,9 +1282,9 @@
                   <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
                   </span>
-                  <span class="sublayer-label">Water Bodies</span>
+                  <span class="sublayer-label">Badan Air & Sungai</span>
                 </div>
-                <input type="checkbox" id="popover-check-water" class="sublayer-toggle" data-key="water" checked aria-label="Toggle Water Bodies" />
+                <input type="checkbox" id="popover-check-water" class="sublayer-toggle" data-key="water" checked aria-label="Tampilkan Badan Air" />
                 <span class="toggle-switch"></span>
               </label>
               <label class="sublayer-item">
@@ -1289,9 +1292,9 @@
                   <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M9 8h1"/><path d="M9 12h1"/><path d="M9 16h1"/><path d="M14 8h1"/><path d="M14 12h1"/><path d="M14 16h1"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
                   </span>
-                  <span class="sublayer-label">Buildings</span>
+                  <span class="sublayer-label">Bangunan 3D</span>
                 </div>
-                <input type="checkbox" id="popover-check-buildings" class="sublayer-toggle" data-key="buildings" checked aria-label="Toggle Buildings" />
+                <input type="checkbox" id="popover-check-buildings" class="sublayer-toggle" data-key="buildings" checked aria-label="Tampilkan Bangunan 3D" />
                 <span class="toggle-switch"></span>
               </label>
               <label class="sublayer-item">
@@ -1299,9 +1302,9 @@
                   <span class="sublayer-icon" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                   </span>
-                  <span class="sublayer-label">Roads</span>
+                  <span class="sublayer-label">Jaringan Jalan</span>
                 </div>
-                <input type="checkbox" id="popover-check-roads" class="sublayer-toggle" data-key="roads" checked aria-label="Toggle Roads" />
+                <input type="checkbox" id="popover-check-roads" class="sublayer-toggle" data-key="roads" checked aria-label="Tampilkan Jaringan Jalan" />
                 <span class="toggle-switch"></span>
               </label>
             </div>
@@ -1309,10 +1312,10 @@
         </div>
 
         <!-- Floating 3D Terrain Popover Menu -->
-        <div id="terrain-popover" class="glass-popover terrain-popover" style="display: none;" role="dialog" aria-modal="false" aria-label="3D Terrain & Elevation Settings">
+        <div id="terrain-popover" class="glass-popover terrain-popover" style="display: none;" role="dialog" aria-modal="false" aria-label="Pengaturan Medan 3D & Elevasi">
           <div class="popover-header-row">
-            <div class="popover-header">3D TERRAIN & ELEVATION</div>
-            <button class="popover-close-btn" id="btn-close-terrain-popover" title="Close" aria-label="Close 3D terrain settings">✕</button>
+            <div class="popover-header">MEDAN 3D & ELEVASI</div>
+            <button class="popover-close-btn" id="btn-close-terrain-popover" title="Tutup" aria-label="Tutup pengaturan medan 3D">✕</button>
           </div>
 
           <div class="popover-body-scroll">
@@ -1322,11 +1325,11 @@
                 <div class="sublayer-info">
                   <span class="sublayer-icon" style="width: 26px; height: 26px; font-size: 14px;" aria-hidden="true">⛰️</span>
                   <div>
-                    <span class="sublayer-label" style="font-size: 12px; font-weight: 600;">3D Terrain Elevation Mesh</span>
-                    <span style="display: block; font-size: 10px; color: #94a3b8; margin-top: 1px;">AWS Terrarium (30m Global Mesh)</span>
+                    <span class="sublayer-label" style="font-size: 12px; font-weight: 600;">Model Elevasi Digital 3D (DEM Mesh)</span>
+                    <span style="display: block; font-size: 10px; color: #94a3b8; margin-top: 1px;">AWS Terrarium (DEM Global Resolusi 30m)</span>
                   </div>
                 </div>
-                <input type="checkbox" id="popover-terrain-master-toggle" class="sublayer-toggle" aria-label="Toggle 3D terrain elevation mesh" />
+                <input type="checkbox" id="popover-terrain-master-toggle" class="sublayer-toggle" aria-label="Aktifkan mesh elevasi medan 3D" />
                 <span class="toggle-switch"></span>
               </label>
             </div>
@@ -1334,12 +1337,12 @@
             <!-- Vertical Exaggeration Slider Section -->
             <div class="terrain-section" style="margin-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px;">
               <div class="slider-header-row">
-                <label for="popover-terrain-exaggeration-slider" class="terrain-section-label">VERTICAL EXAGGERATION</label>
+                <label for="popover-terrain-exaggeration-slider" class="terrain-section-label">EKSAGERASI VERTIKAL</label>
                 <span id="popover-terrain-exaggeration-val" class="exaggeration-value-badge">1.50x</span>
               </div>
               <div class="slider-container">
                 <span class="slider-min-label" aria-hidden="true">0.5x</span>
-                <input type="range" id="popover-terrain-exaggeration-slider" min="0.5" max="3.5" step="0.1" value="1.5" aria-label="Vertical exaggeration factor for 3D terrain" />
+                <input type="range" id="popover-terrain-exaggeration-slider" min="0.5" max="3.5" step="0.1" value="1.5" aria-label="Faktor eksagerasi vertikal untuk medan 3D" />
                 <span class="slider-max-label" aria-hidden="true">3.5x</span>
               </div>
             </div>
@@ -1347,10 +1350,10 @@
         </div>
 
         <!-- Floating Inset Locator Popover Menu -->
-        <div id="locator-popover" class="glass-popover locator-popover" style="display: none;" role="dialog" aria-modal="false" aria-label="Indonesian Archipelago Inset Locator">
+        <div id="locator-popover" class="glass-popover locator-popover" style="display: none;" role="dialog" aria-modal="false" aria-label="Peta Inset Kepulauan Indonesia">
           <div class="popover-header-row">
-            <div class="popover-header">INDONESIAN ARCHIPELAGO LOCATOR</div>
-            <button class="popover-close-btn" id="btn-close-locator-popover" title="Close" aria-label="Close locator mini-map">✕</button>
+            <div class="popover-header">LOKATOR KEPULAUAN INDONESIA</div>
+            <button class="popover-close-btn" id="btn-close-locator-popover" title="Tutup" aria-label="Tutup peta mini lokator">✕</button>
           </div>
 
           <div class="popover-body-scroll">
@@ -1384,15 +1387,15 @@
                 <!-- Center Crosshair / Point Indicator -->
                 <circle id="overview-center-dot" class="overview-center-dot" cx="0" cy="0" r="2.5"></circle>
               </svg>
-              <div class="overview-footer-hint">Click mini-map to quickly fly to region</div>
+              <div class="overview-footer-hint">Klik mini-map untuk berpindah ke wilayah</div>
             </div>
 
             <!-- Quick Region Jump Chips -->
             <div class="locator-regions-section">
-              <div class="locator-regions-title">ARCHIPELAGO REGION SHORTCUTS</div>
+              <div class="locator-regions-title">PINTASAN WILAYAH NUSANTARA</div>
               <div class="locator-chips-grid">
                 <button type="button" class="locator-chip-btn" data-lng="101.5" data-lat="0.5" data-zoom="6.2">Sumatra</button>
-                <button type="button" class="locator-chip-btn" data-lng="110.0" data-lat="-7.2" data-zoom="6.5">Java</button>
+                <button type="button" class="locator-chip-btn" data-lng="110.0" data-lat="-7.2" data-zoom="6.5">Jawa</button>
                 <button type="button" class="locator-chip-btn" data-lng="114.5" data-lat="0.5" data-zoom="6.0">Kalimantan</button>
                 <button type="button" class="locator-chip-btn" data-lng="121.5" data-lat="-2.0" data-zoom="6.2">Sulawesi</button>
                 <button type="button" class="locator-chip-btn" data-lng="119.0" data-lat="-8.6" data-zoom="6.8">Bali & NT</button>
@@ -1405,23 +1408,23 @@
       </div>
 
       <!-- Telemetry Status Bar -->
-      <footer class="app-footer" role="contentinfo" aria-label="Map Coordinate Telemetry Status Bar">
+      <footer class="app-footer" role="contentinfo" aria-label="Bilah Status Telemetri Koordinat Peta">
         <div class="status-group">
           <span class="status-item">LAT: <strong id="stat-lat">0.00000</strong></span>
           <span class="status-item">LNG: <strong id="stat-lng">0.00000</strong></span>
-          <span class="status-item" title="Map camera zoom level (0 = World, 6 = Island, 12+ = Urban/Detail)">ZOOM: <strong id="stat-zoom">0.0</strong></span>
+          <span class="status-item" title="Tingkat perbesaran kamera peta (0 = Dunia, 6 = Pulau, 12+ = Detail/Perkotaan)">ZOOM: <strong id="stat-zoom">0.0</strong></span>
           <span class="status-item">PITCH: <strong id="stat-pitch">0°</strong></span>
           <span class="status-item">BEARING: <strong id="stat-bearing">0°</strong></span>
         </div>
         <div class="status-actions">
-          <span class="status-net" title="Real-Time Network Status">
+          <span class="status-net" title="Status Jaringan Real-Time">
             <span id="net-status-dot" class="status-dot online"></span>
             <span id="net-status-text">Online</span>
           </span>
           <span class="status-divider" aria-hidden="true">|</span>
-          <button id="btn-copy-coords" class="btn-text-sm" aria-label="Copy current map coordinates to clipboard">Copy Coordinates</button>
+          <button id="btn-copy-coords" class="btn-text-sm" aria-label="Salin koordinat peta saat ini ke papan klip">Salin Koordinat</button>
           <span class="status-divider" aria-hidden="true">|</span>
-          <span class="status-tag" title="WebGIS Production Release Version">v2.5.0</span>
+          <span class="status-tag" title="Versi Rilis Produksi WebGIS">v2.5.0</span>
           <span class="status-divider" aria-hidden="true">|</span>
         </div>
       </footer>

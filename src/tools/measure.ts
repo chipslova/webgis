@@ -321,7 +321,7 @@ export class MeasureTool {
         text = `${areaSqM.toFixed(0)} m²`;
       }
     } else {
-      text = 'Click map to measure (Right-click to finish)';
+      text = 'Klik peta untuk mengukur (Klik-ganda / Klik-kanan untuk selesai)';
     }
 
     if (!this.tooltip) {

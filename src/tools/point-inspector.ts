@@ -188,13 +188,26 @@ export class PointInspector {
       }
     }
 
-    // 3. Render Floating Card UI
-    this.renderInspectorCard(lng, lat, activeLayerName, activeLayerCategory, vectorFeatureName, vectorProperties);
+    // 3. Query Terrain DEM Elevation (if 3D terrain active or DEM available)
+    let elevationM: number | null = null;
+    try {
+      if (typeof (this.map as any).queryTerrainElevation === 'function') {
+        const el = (this.map as any).queryTerrainElevation([lng, lat]);
+        if (typeof el === 'number' && !isNaN(el)) {
+          elevationM = el;
+        }
+      }
+    } catch {
+      // Ignore if terrain is not yet initialized or out of bounds
+    }
 
-    // 4. Place Glowing Pin Marker on Map
+    // 4. Render Floating Card UI
+    this.renderInspectorCard(lng, lat, activeLayerName, activeLayerCategory, vectorFeatureName, vectorProperties, elevationM);
+
+    // 5. Place Glowing Pin Marker on Map
     this.placePinMarker(lng, lat);
 
-    // 5. Asynchronously Query Real OGC WMS GetFeatureInfo (if raster layer active)
+    // 6. Asynchronously Query Real OGC WMS GetFeatureInfo (if raster layer active)
     this.queryWMSGetFeatureInfo(lng, lat, screenPoint);
   }
 
@@ -318,7 +331,8 @@ export class PointInspector {
     activeLayerName: string,
     activeLayerCategory: string,
     vectorName?: string,
-    vectorProps?: Record<string, any>
+    vectorProps?: Record<string, any>,
+    elevationM?: number | null
   ) {
     if (!this.containerEl) {
       this.containerEl = document.getElementById('floating-inspector-card');
@@ -341,10 +355,24 @@ export class PointInspector {
     if (lngEl) lngEl.innerText = lngDms;
     if (decimalEl) decimalEl.innerText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
 
-    // Keep hidden fallback elements for legacy test compatibility
+    // Real Terrain Elevation in meters above sea level (mdpl)
     const elvEl = document.getElementById('insp-elevation');
+    if (elvEl) {
+      if (elevationM !== null && elevationM !== undefined) {
+        const rounded = Math.round(elevationM);
+        if (rounded === 0) {
+          elvEl.innerText = '🌊 0 mdpl (Muka Laut)';
+        } else if (rounded > 0) {
+          elvEl.innerText = `⛰️ ${rounded.toLocaleString('id-ID')} mdpl`;
+        } else {
+          elvEl.innerText = `🔻 ${Math.abs(rounded).toLocaleString('id-ID')} m (Bawah Laut)`;
+        }
+      } else {
+        elvEl.innerText = 'Aktifkan Medan 3D untuk mdpl';
+      }
+    }
+
     const lstEl = document.getElementById('insp-lst');
-    if (elvEl) elvEl.innerText = 'Unavailable (WMS Query)';
     if (lstEl) lstEl.innerText = 'Unavailable (WMS Query)';
 
     if (productNameEl && productValEl) {
