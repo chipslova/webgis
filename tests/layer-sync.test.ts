@@ -179,4 +179,42 @@ describe('Layer & Checkbox UI State Synchronization', () => {
     geojsonLoader.clearAllLayers();
     expect(list?.innerHTML).toContain('No custom vector layers added yet');
   });
+
+  it('should automatically update forecast disclaimer date when observations are updated', () => {
+    const container = document.createElement('div');
+    container.id = 'gee-forecast-disclaimer';
+    container.innerHTML = `📌 Catatan Khusus: <span id="gee-forecast-date-label">Old Date</span>`;
+    document.body.appendChild(container);
+
+    // Case 1: Forecast starts after 2026-09-14
+    (geePanelUI as any).chartPoints = [
+      { date: '2026-09-14', isForecast: false },
+      { date: '2026-09-30', isForecast: true }
+    ];
+    (geePanelUI as any).updateForecastDisclaimer();
+
+    const label = document.getElementById('gee-forecast-date-label');
+    const disclaimer = document.getElementById('gee-forecast-disclaimer');
+    expect(label?.textContent).toBe('14 September 2026');
+    expect(disclaimer?.style.display).toBe('block');
+
+    // Case 2: New observation arrives up to 2026-10-15
+    (geePanelUI as any).chartPoints = [
+      { date: '2026-09-14', isForecast: false },
+      { date: '2026-09-30', isForecast: false },
+      { date: '2026-10-15', isForecast: false },
+      { date: '2026-10-31', isForecast: true }
+    ];
+    (geePanelUI as any).updateForecastDisclaimer();
+    expect(label?.textContent).toBe('15 Oktober 2026');
+
+    // Case 3: All data are verified observations (no forecast)
+    (geePanelUI as any).chartPoints = [
+      { date: '2026-09-14', isForecast: false },
+      { date: '2026-09-30', isForecast: false }
+    ];
+    (geePanelUI as any).updateForecastDisclaimer();
+    expect(disclaimer?.style.display).toBe('none');
+  });
 });
+

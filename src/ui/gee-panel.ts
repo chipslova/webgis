@@ -323,6 +323,7 @@ export class GEEPanelUI {
     });
 
     this.drawLines(ctx, toY);
+    this.updateForecastDisclaimer();
     this.setupChartTooltip(ctx, P, cH, yMin, yMax, toY);
   }
 
@@ -516,4 +517,55 @@ export class GEEPanelUI {
     this.canvas.addEventListener('mousemove', onMove);
     this.canvas.addEventListener('mouseleave', onLeave);
   }
+
+  private updateForecastDisclaimer() {
+    const disclaimerEl = document.getElementById('gee-forecast-disclaimer');
+    if (!disclaimerEl) return;
+
+    const forecastIdx = this.chartPoints.findIndex((p) => p.isForecast);
+
+    if (forecastIdx !== -1 && forecastIdx > 0) {
+      const lastObsPoint = this.chartPoints[forecastIdx - 1];
+      const formattedDate = this.formatDateIndonesian(lastObsPoint?.date || '');
+      disclaimerEl.style.display = 'block';
+
+      const dateLabel = document.getElementById('gee-forecast-date-label');
+      if (dateLabel) {
+        dateLabel.textContent = formattedDate;
+      } else {
+        disclaimerEl.innerHTML = `
+          <strong style="color: #f3e8ff;">📌 Catatan Khusus (Proyeksi Model):</strong> Segmen garis putus-putus setelah <span id="gee-forecast-date-label" style="font-weight: 700; color: #facc15;">${formattedDate}</span> merupakan simulasi model iklim numerik <em>NOAA NCEP CFSv2</em>, bukan observasi satelit aktual.
+        `;
+      }
+    } else if (forecastIdx === 0) {
+      disclaimerEl.style.display = 'block';
+      disclaimerEl.innerHTML = `
+        <strong style="color: #f3e8ff;">📌 Catatan Khusus (Proyeksi Model):</strong> Seluruh data deret waktu merupakan simulasi model iklim numerik <em>NOAA NCEP CFSv2</em>.
+      `;
+    } else {
+      // Jika semua data observasi riil (tidak ada proyeksi masa depan sama sekali)
+      disclaimerEl.style.display = 'none';
+    }
+  }
+
+  private formatDateIndonesian(dateStr: string): string {
+    if (!dateStr) return '';
+    try {
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10);
+        const d = parseInt(parts[2], 10);
+        const months = [
+          'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+          'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+        if (y && m >= 1 && m <= 12 && d) {
+          return `${d} ${months[m - 1]} ${y}`;
+        }
+      }
+    } catch { /* ignore */ }
+    return dateStr;
+  }
 }
+
