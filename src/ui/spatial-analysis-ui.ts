@@ -485,20 +485,24 @@ export class SpatialAnalysisUI {
     if (!container) return;
 
     const uhiRiskBadge = res.thermalStats.hotspotPercentage > 40
-      ? '<span style="background: rgba(239, 68, 68, 0.25); color: #f87171; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; border: 1px solid rgba(239, 68, 68, 0.45);">Tinggi (UHI Kritis)</span>'
+      ? '<span style="background: rgba(239, 68, 68, 0.25); color: #f87171; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; border: 1px solid rgba(239, 68, 68, 0.45); white-space: nowrap; display: inline-block;">Tinggi (UHI Kritis)</span>'
       : res.thermalStats.hotspotPercentage > 20
-      ? '<span style="background: rgba(245, 158, 11, 0.25); color: #fbbf24; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.45);">Sedang</span>'
-      : '<span style="background: rgba(16, 185, 129, 0.25); color: #34d399; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.45);">Rendah / Sejuk</span>';
+      ? '<span style="background: rgba(245, 158, 11, 0.25); color: #fbbf24; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.45); white-space: nowrap; display: inline-block;">Sedang</span>'
+      : '<span style="background: rgba(16, 185, 129, 0.25); color: #34d399; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.45); white-space: nowrap; display: inline-block;">Rendah / Sejuk</span>';
 
     container.innerHTML = `
-      <div style="background: rgba(10, 15, 30, 0.65); border-radius: 8px; padding: 14px; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);">
+      <div style="background: rgba(10, 15, 30, 0.7); border-radius: 8px; padding: 12px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);">
         <!-- Region Title Header -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px;">
-          <div>
-            <div style="font-size: 14px; font-weight: 700; color: #38bdf8; line-height: 1.3;">${res.regionName}</div>
-            <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">Dianalisis: ${res.timestamp}</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px;">
+          <div style="min-width: 0; flex: 1;">
+            <div style="font-size: 13.5px; font-weight: 700; color: #38bdf8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${res.regionName}">
+              ${res.regionName}
+            </div>
+            <div style="font-size: 10px; color: var(--text-muted); margin-top: 1px;">
+              Dianalisis: ${res.timestamp}
+            </div>
           </div>
-          <button id="btn-export-aoi-csv" class="btn btn-secondary" style="font-size: 11px; font-weight: 600; padding: 5px 10px; display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0;">
+          <button id="btn-export-aoi-csv" class="btn btn-secondary" style="font-size: 10.5px; font-weight: 600; padding: 4px 8px; display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; white-space: nowrap;">
             📥 Unduh CSV
           </button>
         </div>
@@ -506,135 +510,163 @@ export class SpatialAnalysisUI {
         ${res.isRealGEE ? `
         <!-- Real GEE Verified Banner -->
         <div role="note" aria-label="Verifikasi Piksel Asli GEE" style="
-          margin-bottom: 14px;
-          padding: 12px 14px;
-          background: rgba(16, 185, 129, 0.15);
-          border: 1px solid rgba(16, 185, 129, 0.5);
-          border-left: 4px solid #10b981;
+          margin-bottom: 10px;
+          padding: 10px 12px;
+          background: rgba(16, 185, 129, 0.14);
+          border: 1px solid rgba(16, 185, 129, 0.45);
+          border-left: 3px solid #10b981;
           border-radius: 6px;
-          display: flex;
-          gap: 10px;
-          align-items: flex-start;
         ">
-          <span style="font-size: 20px; flex-shrink: 0; line-height: 1.2;">⚡</span>
-          <div style="width: 100%;">
-            <div style="font-size: 12.5px; font-weight: 700; color: #34d399; margin-bottom: 4px; line-height: 1.35;">
-              Piksel Asli Google Earth Engine (Live Cloud Reduction)
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 4px;">
+            <div style="display: flex; align-items: center; gap: 6px; min-width: 0;">
+              <span style="font-size: 16px; line-height: 1;">⚡</span>
+              <span style="font-size: 12px; font-weight: 700; color: #34d399; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                Piksel Asli Earth Engine
+              </span>
             </div>
-            <div style="font-size: 11.5px; color: #d1fae5; line-height: 1.55;">
-              Kalkulasi reduksi piksel satelit dieksekusi di cluster Google Earth Engine. Total <strong>${res.totalPixelCount?.toLocaleString('id-ID') || '-'} piksel</strong> dianalisis dari data MODIS LST &amp; ESA WorldCover.
-            </div>
+            <span style="font-size: 9px; font-weight: 700; color: #34d399; background: rgba(16, 185, 129, 0.2); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.4); white-space: nowrap;">
+              CLOUD
+            </span>
+          </div>
+          <div style="font-size: 11px; color: #d1fae5; line-height: 1.45;">
+            Reduksi superkomputer Google: <strong>${res.totalPixelCount?.toLocaleString('id-ID') || '-'} piksel</strong> (MODIS LST &amp; ESA WorldCover).
           </div>
         </div>` : res.isClientSampled ? `
         <!-- Real Client-Side Sentinel-2 10m Pixel Sampling Banner (100% Free) -->
         <div role="note" aria-label="Verifikasi Sampling Piksel Sentinel-2 10m" style="
-          margin-bottom: 14px;
-          padding: 12px 14px;
-          background: rgba(14, 165, 233, 0.14);
-          border: 1px solid rgba(56, 189, 248, 0.5);
-          border-left: 4px solid #38bdf8;
+          margin-bottom: 10px;
+          padding: 10px 12px;
+          background: rgba(14, 165, 233, 0.12);
+          border: 1px solid rgba(56, 189, 248, 0.45);
+          border-left: 3px solid #38bdf8;
           border-radius: 6px;
-          display: flex;
-          gap: 10px;
-          align-items: flex-start;
         ">
-          <span style="font-size: 22px; flex-shrink: 0; line-height: 1.2;">🛰️</span>
-          <div style="width: 100%;">
-            <div style="font-size: 13px; font-weight: 700; color: #38bdf8; margin-bottom: 4px; line-height: 1.35;">
-              Sampling Piksel Satelit Asli: Sentinel-2 10m &amp; Open-Meteo LST (100% Free)
-            </div>
-            <div style="font-size: 11.5px; color: #e0f2fe; line-height: 1.55;">
-              Dianalisis langsung di peramban dari <strong>${res.totalPixelCount?.toLocaleString('id-ID') || '-'} piksel citra Sentinel-2 (resolusi 10 meter)</strong> dan suhu permukaan tanah aktual. 100% gratis tanpa kartu kredit.
-            </div>
-            <div style="display: flex; gap: 8px; margin-top: 8px; align-items: center; flex-wrap: wrap;">
-              <span style="font-size: 10px; font-weight: 600; color: #38bdf8; background: rgba(56, 189, 248, 0.25); padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.4);">
-                ✓ Bebas Biaya
+          <!-- Title row -->
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 5px;">
+            <div style="display: flex; align-items: center; gap: 6px; min-width: 0;">
+              <span style="font-size: 16px; flex-shrink: 0; line-height: 1;">🛰️</span>
+              <span style="font-size: 12px; font-weight: 700; color: #38bdf8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                Sampling Piksel Satelit Asli
               </span>
-              <span style="font-size: 10px; font-weight: 600; color: #38bdf8; background: rgba(56, 189, 248, 0.25); padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.4);">
+            </div>
+            <span style="font-size: 9px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.2); padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.4); white-space: nowrap; flex-shrink: 0;">
+              100% FREE
+            </span>
+          </div>
+
+          <!-- Description text -->
+          <div style="font-size: 11px; color: #e0f2fe; line-height: 1.45; margin-bottom: 8px;">
+            Dianalisis langsung dari <strong>${res.totalPixelCount?.toLocaleString('id-ID') || '-'} piksel</strong> citra Sentinel-2 (resolusi 10m) &amp; suhu Open-Meteo aktual.
+          </div>
+
+          <!-- Chips row -->
+          <div style="display: flex; gap: 6px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+            <div style="display: flex; gap: 5px; align-items: center; flex-wrap: wrap;">
+              <span style="font-size: 9.5px; font-weight: 600; color: #7dd3fc; background: rgba(56, 189, 248, 0.2); padding: 2px 6px; border-radius: 4px; white-space: nowrap;">
                 ✓ Resolusi 10m
               </span>
-              <button id="btn-open-gee-setup-modal" style="margin-left: auto; font-size: 10.5px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #bae6fd; border-radius: 4px; padding: 2px 8px; cursor: pointer; transition: all 0.2s ease;">
-                Ingin GEE Cloud?
-              </button>
+              <span style="font-size: 9.5px; font-weight: 600; color: #7dd3fc; background: rgba(56, 189, 248, 0.2); padding: 2px 6px; border-radius: 4px; white-space: nowrap;">
+                ✓ Bebas Biaya
+              </span>
             </div>
+            <button id="btn-open-gee-setup-modal" style="font-size: 9.5px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); color: #bae6fd; border-radius: 4px; padding: 2px 7px; cursor: pointer; white-space: nowrap; margin-left: auto;">
+              Info GEE ↗
+            </button>
           </div>
         </div>` : `
         <!-- Estimation Disclaimer Banner with Setup Button -->
         <div role="note" aria-label="Peringatan: data estimasi" style="
-          margin-bottom: 14px;
-          padding: 12px 14px;
+          margin-bottom: 10px;
+          padding: 10px 12px;
           background: rgba(245, 158, 11, 0.12);
           border: 1px solid rgba(245, 158, 11, 0.45);
-          border-left: 4px solid #f59e0b;
+          border-left: 3px solid #f59e0b;
           border-radius: 6px;
-          display: flex;
-          gap: 10px;
-          align-items: flex-start;
         ">
-          <span style="font-size: 18px; flex-shrink: 0; line-height: 1.2;">⚠️</span>
-          <div style="width: 100%;">
-            <div style="font-size: 12px; font-weight: 700; color: #fbbf24; margin-bottom: 4px;">
-              Model Proxy Heuristik (Estimator Cepat)
+          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+            <span style="font-size: 16px; line-height: 1;">⚠️</span>
+            <div style="font-size: 12px; font-weight: 700; color: #fbbf24;">
+              Model Proxy Heuristik (Offline)
             </div>
-            <div style="font-size: 11px; color: #fef3c7; line-height: 1.5;">
-              Angka dihitung dari model profil spasial wilayah secara offline.
-            </div>
-            <button id="btn-open-gee-setup-modal" class="btn btn-outline btn-sm" style="font-size: 10.5px; padding: 3px 8px; margin-top: 6px; border-color: rgba(245, 158, 11, 0.45); color: #fbbf24; cursor: pointer;">
-              ⚙️ Hubungkan Akun GEE Asli (Panduan)
-            </button>
           </div>
+          <div style="font-size: 11px; color: #fef3c7; line-height: 1.45; margin-bottom: 6px;">
+            Dihitung dari model profil spasial wilayah secara offline.
+          </div>
+          <button id="btn-open-gee-setup-modal" class="btn btn-outline btn-sm" style="font-size: 9.5px; padding: 2px 7px; border-color: rgba(245, 158, 11, 0.45); color: #fbbf24; cursor: pointer; white-space: nowrap;">
+            ⚙️ Panduan Setup GEE Cloud
+          </button>
         </div>`}
 
-        <!-- 4 KPI Metrics Tiles -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
-          <div style="background: rgba(15, 23, 42, 0.7); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.07);">
-            <div style="font-size: 9.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">Luas Wilayah</div>
-            <div style="font-size: 14px; font-weight: 700; color: #fff;">${res.totalAreaKm2.toLocaleString('id-ID')} <span style="font-size: 10.5px; font-weight: 400; color: #94a3b8;">km²</span></div>
-            <div style="font-size: 10px; color: #38bdf8;">(${res.totalAreaHa.toLocaleString('id-ID')} Ha)</div>
-          </div>
-          <div style="background: rgba(15, 23, 42, 0.7); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.07);">
-            <div style="font-size: 9.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">Suhu Rata-rata LST</div>
-            <div style="font-size: 14px; font-weight: 700; color: #f59e0b;">${res.thermalStats.meanTempC}°C</div>
-            <div style="font-size: 10px; color: #cbd5e1;">Rentang: ${res.thermalStats.minTempC}° – ${res.thermalStats.maxTempC}°C</div>
-          </div>
-          <div style="background: rgba(15, 23, 42, 0.7); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.07);">
-            <div style="font-size: 9.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">Kelas Dominan</div>
-            <div style="font-size: 12px; font-weight: 600; color: #10b981; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${res.dominantClass}">
-              ${res.dominantClass}
+        <!-- 4 KPI Metrics: Row 1 (2 cols) + Row 2 (Dominant) + Row 3 (UHI) -->
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px;">
+          <!-- Row 1: Luas & Suhu side by side -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+            <div style="background: rgba(15, 23, 42, 0.7); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06);">
+              <div style="font-size: 9.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap;">Luas Wilayah</div>
+              <div style="font-size: 14.5px; font-weight: 700; color: #fff; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${res.totalAreaKm2.toLocaleString('id-ID')} km²">
+                ${res.totalAreaKm2.toLocaleString('id-ID')} <span style="font-size: 10px; font-weight: 400; color: #94a3b8;">km²</span>
+              </div>
+              <div style="font-size: 9.5px; color: #38bdf8; margin-top: 1px;">(${res.totalAreaHa.toLocaleString('id-ID')} Ha)</div>
             </div>
-            <div style="font-size: 10px; color: #94a3b8;">Tutupan Terbesar</div>
+
+            <div style="background: rgba(15, 23, 42, 0.7); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06);">
+              <div style="font-size: 9.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap;">Suhu Rata-rata</div>
+              <div style="font-size: 14.5px; font-weight: 700; color: #f59e0b; margin-top: 2px;">
+                ${res.thermalStats.meanTempC}°C
+              </div>
+              <div style="font-size: 9.5px; color: #cbd5e1; margin-top: 1px; white-space: nowrap;">Rentang ${res.thermalStats.minTempC}°–${res.thermalStats.maxTempC}°C</div>
+            </div>
           </div>
-          <div style="background: rgba(15, 23, 42, 0.7); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.07);">
-            <div style="font-size: 9.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">Paparan Panas UHI</div>
-            <div style="margin-top: 3px;">${uhiRiskBadge}</div>
-            <div style="font-size: 10px; color: #cbd5e1; margin-top: 3px;">${res.thermalStats.hotspotAreaKm2} km² (${res.thermalStats.hotspotPercentage}%)</div>
+
+          <!-- Row 2: Kelas Dominan (Full Width) -->
+          <div style="background: rgba(15, 23, 42, 0.7); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06); display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+            <div style="min-width: 0; flex: 1;">
+              <div style="font-size: 9.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px;">Tutupan Terbesar (Dominan)</div>
+              <div style="font-size: 12.5px; font-weight: 600; color: #34d399; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${res.dominantClass}">
+                ${res.dominantClass}
+              </div>
+            </div>
+            <span style="font-size: 18px; line-height: 1; flex-shrink: 0;">🌳</span>
+          </div>
+
+          <!-- Row 3: Paparan Panas UHI (Full Width) -->
+          <div style="background: rgba(15, 23, 42, 0.7); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06); display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+            <div style="min-width: 0; flex: 1;">
+              <div style="font-size: 9.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px;">Paparan Panas UHI</div>
+              <div style="font-size: 10.5px; color: #cbd5e1; margin-top: 2px; white-space: nowrap;">
+                Hotspot: <strong style="color: #fff;">${res.thermalStats.hotspotAreaKm2.toLocaleString('id-ID')} km²</strong> (${res.thermalStats.hotspotPercentage}%)
+              </div>
+            </div>
+            <div style="flex-shrink: 0; white-space: nowrap;">
+              ${uhiRiskBadge}
+            </div>
           </div>
         </div>
 
         <!-- Donut & Bar Visual Breakdown -->
-        <div style="margin-bottom: 4px;">
-          <div style="font-size: 11.5px; font-weight: 600; color: #f1f5f9; margin-bottom: 8px; display: flex; justify-content: space-between;">
-            <span>Komposisi Tutupan Lahan (Sentinel-2 10m):</span>
+        <div style="margin-top: 4px;">
+          <div style="font-size: 11px; font-weight: 600; color: #f1f5f9; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: baseline;">
+            <span>Tutupan Lahan (Sentinel-2 10m):</span>
             <span style="color: #94a3b8; font-weight: 400; font-size: 10px;">${res.landCoverBreakdown.length} Kelas Terdeteksi</span>
           </div>
           
           <!-- Stacked Progress Bar -->
-          <div style="height: 12px; border-radius: 6px; overflow: hidden; display: flex; width: 100%; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
+          <div style="height: 10px; border-radius: 5px; overflow: hidden; display: flex; width: 100%; margin-bottom: 8px; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
             ${res.landCoverBreakdown.map((b) => `
               <div style="background-color: ${b.color}; width: ${b.percentage}%; height: 100%;" title="${b.nameId}: ${b.percentage}% (${b.areaKm2} km²)"></div>
             `).join('')}
           </div>
 
           <!-- Class Percentage Breakdown List -->
-          <div style="display: flex; flex-direction: column; gap: 5px; max-height: 200px; overflow-y: auto; padding-right: 2px;">
+          <div style="display: flex; flex-direction: column; gap: 4px; max-height: 180px; overflow-y: auto; padding-right: 2px;">
             ${res.landCoverBreakdown.map((b) => `
-              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; background: rgba(15, 23, 42, 0.5); padding: 5px 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.04);">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <span style="width: 10px; height: 10px; border-radius: 2px; background-color: ${b.color}; display: inline-block; flex-shrink: 0; box-shadow: 0 0 4px ${b.color}40;"></span>
-                  <span style="color: #f1f5f9; font-weight: 500;">${b.nameId}</span>
+              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; background: rgba(15, 23, 42, 0.5); padding: 4px 7px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.04); gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1;">
+                  <span style="width: 8px; height: 8px; border-radius: 2px; background-color: ${b.color}; display: inline-block; flex-shrink: 0; box-shadow: 0 0 3px ${b.color}40;"></span>
+                  <span style="color: #f1f5f9; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${b.nameId}</span>
                 </div>
-                <div style="display: flex; gap: 10px; color: #94a3b8;">
-                  <span>${b.areaKm2} km²</span>
+                <div style="display: flex; gap: 8px; color: #94a3b8; flex-shrink: 0; white-space: nowrap;">
+                  <span>${b.areaKm2.toLocaleString('id-ID')} km²</span>
                   <strong style="color: #38bdf8; font-weight: 700;">${b.percentage}%</strong>
                 </div>
               </div>
