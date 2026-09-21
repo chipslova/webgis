@@ -10373,3 +10373,126 @@ html, body, #app {
   color: #94a3b8;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
+
+/* ==========================================================================
+   GEE & Climate Observation Stations MapLibre Popup Styles (Glassmorphism)
+   ========================================================================== */
+.maplibregl-popup {
+  z-index: 9999;
+}
+
+.maplibregl-popup-content {
+  background: rgba(10, 15, 29, 0.96) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(6, 182, 212, 0.45) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 20px rgba(6, 182, 212, 0.2) !important;
+  padding: 14px 16px !important;
+  color: #f8fafc !important;
+  max-width: 340px !important;
+}
+
+.maplibregl-popup-close-button {
+  color: #94a3b8 !important;
+  font-size: 18px !important;
+  padding: 4px 8px !important;
+  right: 6px !important;
+  top: 6px !important;
+  border-radius: 6px !important;
+  line-height: 1 !important;
+}
+
+.maplibregl-popup-close-button:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.maplibregl-popup-anchor-top .maplibregl-popup-tip {
+  border-bottom-color: rgba(10, 15, 29, 0.96) !important;
+}
+.maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
+  border-top-color: rgba(10, 15, 29, 0.96) !important;
+}
+.maplibregl-popup-anchor-left .maplibregl-popup-tip {
+  border-right-color: rgba(10, 15, 29, 0.96) !important;
+}
+.maplibregl-popup-anchor-right .maplibregl-popup-tip {
+  border-left-color: rgba(10, 15, 29, 0.96) !important;
+}
+
+.gee-popup-card {
+  font-family: inherit;
+}
+
+.gee-popup-card h4 {
+  margin: 6px 0 2px 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.2px;
+}
+
+.gee-popup-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gee-popup-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.gee-popup-badge.live-badge {
+  background: rgba(6, 182, 212, 0.15);
+  color: #06b6d4;
+  border: 1px solid rgba(6, 182, 212, 0.35);
+}
+
+.gee-popup-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.gee-popup-table tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.gee-popup-table td {
+  padding: 4px 0;
+  color: #cbd5e1;
+}
+
+.gee-popup-table td:first-child {
+  color: #94a3b8;
+  width: 50%;
+}
+
+.gee-popup-table td:last-child {
+  text-align: right;
+}
+
+.gee-popup-table code {
+  font-size: 9px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 5px;
+  border-radius: 4px;
+  color: #38bdf8;
+}
+
+.highlight-temp {
+  color: #f97316;
+  font-weight: 700;
+}

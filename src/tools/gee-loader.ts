@@ -162,6 +162,7 @@ export class GEELoader {
       'gee-modis-lst-day-fill',
       'gee-modis-lst-night-fill',
       'gee-modis-stations-circles',
+      'gee-modis-stations-labels',
       'gee-heatmap-layer',
       'gee-air-temp-layer',
       'gee-surface-temp-layer',
@@ -568,10 +569,10 @@ export class GEELoader {
       logger.warn('[GEELoader] Notice adding Sentinel-2 10m Land Cover raster layer:', e);
     }
 
-    // --- 4. Daytime & Nighttime LST Vector Thermal Fill Layers ---
+    // --- 4. Daytime & Nighttime LST Vector Thermal Fill Layers (Seamless, No Chunky Outlines) ---
     try {
-      const dayOpacity = this.getLayerOpacity('lst-day') * 0.75;
-      const nightOpacity = this.getLayerOpacity('lst-night') * 0.75;
+      const dayOpacity = this.getLayerOpacity('lst-day') * 0.45;
+      const nightOpacity = this.getLayerOpacity('lst-night') * 0.45;
 
       if (!this.map.getLayer('gee-modis-lst-day-fill')) {
         this.map.addLayer({
@@ -593,12 +594,13 @@ export class GEELoader {
               42, '#ff0000'
             ],
             'fill-opacity': isDayVis ? dayOpacity : 0,
-            'fill-outline-color': 'rgba(255, 255, 255, 0.2)'
+            'fill-outline-color': 'rgba(0, 0, 0, 0)'
           }
         });
       } else {
         this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', isDayVis ? 'visible' : 'none');
         this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-opacity', isDayVis ? dayOpacity : 0);
+        this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-outline-color', 'rgba(0, 0, 0, 0)');
       }
 
       if (!this.map.getLayer('gee-modis-lst-night-fill')) {
@@ -621,12 +623,13 @@ export class GEELoader {
               38, '#ff0000'
             ],
             'fill-opacity': isNightVis ? nightOpacity : 0,
-            'fill-outline-color': 'rgba(255, 255, 255, 0.2)'
+            'fill-outline-color': 'rgba(0, 0, 0, 0)'
           }
         });
       } else {
         this.map.setLayoutProperty('gee-modis-lst-night-fill', 'visibility', isNightVis ? 'visible' : 'none');
         this.map.setPaintProperty('gee-modis-lst-night-fill', 'fill-opacity', isNightVis ? nightOpacity : 0);
+        this.map.setPaintProperty('gee-modis-lst-night-fill', 'fill-outline-color', 'rgba(0, 0, 0, 0)');
       }
     } catch (e) {
       logger.warn('[GEELoader] Notice adding fill thermal layers:', e);
@@ -645,6 +648,7 @@ export class GEELoader {
           stationsSrc.setData(this.stationsData);
         }
 
+        // Station Point Circles
         if (!this.map.getLayer('gee-modis-stations-circles')) {
           this.map.addLayer({
             id: 'gee-modis-stations-circles',
@@ -652,27 +656,58 @@ export class GEELoader {
             source: 'gee-modis-stations-source',
             layout: { visibility: isStationsVis ? 'visible' : 'none' },
             paint: {
-              'circle-radius': 12,
+              'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 7, 7, 10, 10, 14],
               'circle-color': [
                 'interpolate',
                 ['linear'],
                 ['coalesce', ['to-number', ['get', 'lst_day_c']], 30],
                 10, '#0080ff',
-                22, '#00ffff',
-                28, '#00ff80',
+                20, '#00ffff',
+                26, '#00ff80',
                 32, '#ffff00',
-                36, '#fe0100'
+                36, '#ff8000',
+                40, '#fe0100'
               ],
               'circle-stroke-width': 2.5,
-              'circle-stroke-color': '#ffffff'
+              'circle-stroke-color': '#ffffff',
+              'circle-opacity': 0.95
             }
           });
         } else {
           this.map.setLayoutProperty('gee-modis-stations-circles', 'visibility', isStationsVis ? 'visible' : 'none');
         }
+
+        // Station Text & Temperature Labels
+        if (!this.map.getLayer('gee-modis-stations-labels')) {
+          this.map.addLayer({
+            id: 'gee-modis-stations-labels',
+            type: 'symbol',
+            source: 'gee-modis-stations-source',
+            layout: {
+              visibility: isStationsVis ? 'visible' : 'none',
+              'text-field': ['concat', ['get', 'name'], '\n🌡️ ', ['to-string', ['coalesce', ['get', 'lst_day_c'], ['get', 'temp_air_c']]], '°C'],
+              'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+              'text-size': 11,
+              'text-offset': [0, 1.8],
+              'text-anchor': 'top',
+              'text-allow-overlap': false
+            },
+            paint: {
+              'text-color': '#ffffff',
+              'text-halo-color': '#0a0f1d',
+              'text-halo-width': 2.5,
+              'text-halo-blur': 1
+            }
+          });
+        } else {
+          this.map.setLayoutProperty('gee-modis-stations-labels', 'visibility', isStationsVis ? 'visible' : 'none');
+        }
       } else {
         if (this.map.getLayer('gee-modis-stations-circles')) {
           this.map.setLayoutProperty('gee-modis-stations-circles', 'visibility', 'none');
+        }
+        if (this.map.getLayer('gee-modis-stations-labels')) {
+          this.map.setLayoutProperty('gee-modis-stations-labels', 'visibility', 'none');
         }
       }
     } catch (e) {
@@ -687,54 +722,6 @@ export class GEELoader {
       try { m.remove(); } catch {}
     });
     this.htmlMarkers = [];
-
-    const isStationsVis = this.isLayerVisible('stations');
-
-    this.stationsData.features.forEach((feat: any) => {
-      const coords = feat.geometry.coordinates as [number, number];
-      const props = feat.properties;
-
-      const el = document.createElement('div');
-      el.className = `gee-map-marker station-${props.id}`;
-      el.innerHTML = `
-        <div class="marker-pulse"></div>
-        <div class="marker-pin">
-          <span class="marker-icon">🌡️</span>
-        </div>
-        <div class="marker-label">${props.name.split(' (')[0]}: ${props.lst_day_c ?? props.temp_air_c}°C</div>
-      `;
-
-      el.addEventListener('click', () => {
-        const html = `
-          <div class="gee-popup-card">
-            <div class="gee-popup-badge live-badge">● MODIS TERRA & AQUA LST</div>
-            <h4>${props.name}</h4>
-            <div class="gee-popup-sub">${props.province} · ${props.station_type}</div>
-            <table class="gee-popup-table">
-              <tr><td><strong>Daytime LST (1km):</strong></td><td><span class="highlight-temp">${props.lst_day_c} °C</span> (${props.lst_day_k} K)</td></tr>
-              <tr><td><strong>Nighttime LST (1km):</strong></td><td><strong>${props.lst_night_c} °C</strong> (${props.lst_night_k} K)</td></tr>
-              <tr><td><strong>24h Mean LST:</strong></td><td>${props.lst_mean_c} °C</td></tr>
-              <tr><td><strong>Diurnal ΔT (Day-Night):</strong></td><td><span style="color: #f97316; font-weight: 600;">+${props.diurnal_delta_c} °C</span></td></tr>
-              <tr><td><strong>QA Validation:</strong></td><td><span style="color: #10b981;">✓ ${props.qa_quality_score}</span></td></tr>
-              <tr><td><strong>Ground Elevation:</strong></td><td>${props.elevation_m} meters</td></tr>
-              <tr><td><strong>Dataset DOI:</strong></td><td><code>MODIS/061/MOD11A1+MYD11A1</code></td></tr>
-            </table>
-          </div>
-        `;
-        this.popup.setLngLat(coords).setHTML(html).addTo(this.map);
-      });
-
-      if (!isStationsVis) {
-        el.style.display = 'none';
-      }
-
-      try {
-        const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-          .setLngLat(coords)
-          .addTo(this.map);
-        this.htmlMarkers.push(marker);
-      } catch {}
-    });
   }
 
   public updateLayerVisibilities() {
@@ -763,11 +750,9 @@ export class GEELoader {
     if (this.map.getLayer('gee-modis-stations-circles')) {
       this.map.setLayoutProperty('gee-modis-stations-circles', 'visibility', isStationsVis ? 'visible' : 'none');
     }
-
-    this.htmlMarkers.forEach((m) => {
-      const el = m.getElement();
-      if (el) el.style.display = isStationsVis ? 'flex' : 'none';
-    });
+    if (this.map.getLayer('gee-modis-stations-labels')) {
+      this.map.setLayoutProperty('gee-modis-stations-labels', 'visibility', isStationsVis ? 'visible' : 'none');
+    }
   }
 
   private bindLayerEvents() {
@@ -780,11 +765,11 @@ export class GEELoader {
       const html = `
         <div class="gee-popup-card">
           <div class="gee-popup-badge live-badge">● NASA MODIS LST (1 KM)</div>
-          <h4>🌡️ Land Surface Temperature</h4>
+          <h4>🌡️ Suhu Permukaan Daratan (LST)</h4>
           <div class="gee-popup-sub">Koordinat: ${lngLat.lat.toFixed(4)}°, ${lngLat.lng.toFixed(4)}°</div>
           <table class="gee-popup-table">
-            <tr><td><strong>${isNight ? '🌙 Nighttime LST:' : '☀️ Daytime LST:'}</strong></td><td><span class="highlight-temp">${isNight ? props.lst_night_c : props.lst_day_c} °C</span></td></tr>
-            <tr><td><strong>${isNight ? '☀️ Daytime LST:' : '🌙 Nighttime LST:'}</strong></td><td><strong>${isNight ? props.lst_day_c : props.lst_night_c} °C</strong></td></tr>
+            <tr><td><strong>${isNight ? '🌙 Suhu Malam (LST):' : '☀️ Suhu Siang (LST):'}</strong></td><td><span class="highlight-temp">${isNight ? props.lst_night_c : props.lst_day_c} °C</span></td></tr>
+            <tr><td><strong>${isNight ? '☀️ Suhu Siang (LST):' : '🌙 Suhu Malam (LST):'}</strong></td><td><strong>${isNight ? props.lst_day_c : props.lst_night_c} °C</strong></td></tr>
             <tr><td><strong>Rata-rata 24 Jam:</strong></td><td>${props.lst_mean_c ?? '28.0'} °C</td></tr>
             <tr><td><strong>Diurnal ΔT (UHI):</strong></td><td><span style="color: #f97316; font-weight: 600;">+${props.delta_uhi_c ?? '9.5'} °C</span></td></tr>
             <tr><td><strong>Elevasi Topografi:</strong></td><td>${props.elevation_m} meter dpl</td></tr>
@@ -799,10 +784,40 @@ export class GEELoader {
         .addTo(this.map);
     };
 
+    const handleStationClick = (e: any) => {
+      if (!e.features || e.features.length === 0) return;
+      const props = e.features[0].properties;
+      const coords = (e.features[0].geometry as any)?.coordinates as [number, number] || [e.lngLat.lng, e.lngLat.lat];
+
+      const html = `
+        <div class="gee-popup-card">
+          <div class="gee-popup-badge live-badge">📍 STASIUN IKLIM OBSERVASI (BMKG/KOTA)</div>
+          <h4>${props.name}</h4>
+          <div class="gee-popup-sub">${props.province || 'Indonesia'} • ${props.station_type || 'Stasiun Pemantau'}</div>
+          <table class="gee-popup-table">
+            <tr><td><strong>☀️ Suhu Siang (LST):</strong></td><td><span class="highlight-temp">${props.lst_day_c ?? props.temp_air_c} °C</span> (${props.lst_day_k ?? '-'} K)</td></tr>
+            <tr><td><strong>🌙 Suhu Malam (LST):</strong></td><td><strong>${props.lst_night_c ?? props.temp_surface_c} °C</strong> (${props.lst_night_k ?? '-'} K)</td></tr>
+            <tr><td><strong>🌡️ Rata-rata 24 Jam:</strong></td><td>${props.lst_mean_c ?? '-'} °C</td></tr>
+            <tr><td><strong>🔥 Kontras Termal (UHI):</strong></td><td><span style="color: #f97316; font-weight: 600;">+${props.diurnal_delta_c ?? props.delta_uhi_c ?? '-'} °C</span></td></tr>
+            <tr><td><strong>⛰️ Elevasi Stasiun:</strong></td><td>${props.elevation_m ?? 0} meter dpl</td></tr>
+            <tr><td><strong>📊 Validasi Mutu QA:</strong></td><td><span style="color: #10b981;">✓ ${props.qa_quality_score ?? 'Good Quality'}</span></td></tr>
+            <tr><td><strong>🛰️ Sensor Data:</strong></td><td><code>MODIS/061/MOD11A1+MYD11A1</code></td></tr>
+          </table>
+        </div>
+      `;
+
+      this.popup
+        .setLngLat(coords)
+        .setHTML(html)
+        .addTo(this.map);
+    };
+
     this.map.on('click', 'gee-modis-lst-day-fill', handleLSTClick);
     this.map.on('click', 'gee-modis-lst-night-fill', handleLSTClick);
+    this.map.on('click', 'gee-modis-stations-circles', handleStationClick);
+    this.map.on('click', 'gee-modis-stations-labels', handleStationClick);
 
-    ['gee-modis-lst-day-fill', 'gee-modis-lst-night-fill', 'gee-modis-stations-circles'].forEach((layerId) => {
+    ['gee-modis-lst-day-fill', 'gee-modis-lst-night-fill', 'gee-modis-stations-circles', 'gee-modis-stations-labels'].forEach((layerId) => {
       this.map.on('mouseenter', layerId, () => (this.map.getCanvas().style.cursor = 'pointer'));
       this.map.on('mouseleave', layerId, () => (this.map.getCanvas().style.cursor = ''));
     });
