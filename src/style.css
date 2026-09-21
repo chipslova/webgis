@@ -9753,3 +9753,298 @@ html, body, #app {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(15, 23, 42, 0.6);
 }
+
+/* ==========================================================================
+   GEE Earth Engine Panel & Thermal Explorer Styles
+   ========================================================================== */
+
+.gee-panel-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gee-card {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.gee-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.gee-card-title {
+  margin: 0;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.gee-card-badge {
+  font-size: 9.5px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.gee-layer-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.gee-layer-header-label {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.gee-loading-indicator {
+  font-size: 9px;
+  color: #f59e0b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gee-spinner {
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid rgba(245, 158, 11, 0.3);
+  border-top-color: #f59e0b;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 0.8s linear infinite;
+}
+
+.gee-toggle-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gee-layer-opacity-slider {
+  flex: 1;
+  height: 3px;
+}
+
+.gee-layer-opacity-val {
+  font-size: 9.5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: #38bdf8;
+  min-width: 28px;
+  text-align: right;
+}
+
+.gee-layer-opacity-val.green {
+  color: #10b981;
+}
+
+.gee-legend-box {
+  margin-bottom: 10px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.gee-legend-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.gee-legend-val {
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.gee-legend-bar-wrap {
+  height: 7px;
+  border-radius: 3.5px;
+}
+
+.gee-legend-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.gee-lulc-box {
+  margin-bottom: 10px;
+  background: rgba(16, 185, 129, 0.07);
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.gee-lulc-title {
+  font-size: 10px;
+  color: #10b981;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.gee-lulc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 9px;
+}
+
+.gee-lulc-chip {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+.gee-filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.gee-filter-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.gee-filter-select {
+  width: 100%;
+  font-size: 10.5px;
+  padding: 4px 6px;
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: #fff;
+}
+
+.gee-callout {
+  padding: 8px 10px;
+  background: rgba(56, 189, 248, 0.07);
+  border-left: 3px solid #38bdf8;
+  border-radius: 4px;
+  font-size: 10px;
+  line-height: 1.45;
+  color: #cbd5e1;
+}
+
+.gee-callout strong {
+  color: #38bdf8;
+}
+
+.gee-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.gee-chart-sub {
+  margin: 0;
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.btn-download-chart {
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 9.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.btn-download-chart:hover {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+}
+
+.gee-chart-container {
+  position: relative;
+}
+
+.gee-chart-tooltip {
+  position: absolute;
+  pointer-events: none;
+  display: none;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(168, 85, 247, 0.5);
+  border-radius: 6px;
+  padding: 6px 9px;
+  font-size: 9.5px;
+  color: #f1f5f9;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+.gee-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.gee-legend-badge-jkt-night {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.gee-legend-badge-bdg-night {
+  background: rgba(6, 182, 212, 0.2);
+  color: #22d3ee;
+  border: 1px solid rgba(6, 182, 212, 0.4);
+}
+
+.gee-legend-badge-forecast {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  font-weight: 600;
+}
+
+.gee-forecast-box {
+  margin-top: 8px;
+  padding: 6px 8px;
+  background: rgba(168, 85, 247, 0.08);
+  border-left: 3px solid #a855f7;
+  border-radius: 0 5px 5px 0;
+  font-size: 9.5px;
+  color: #d8b4fe;
+  line-height: 1.4;
+}
+
+.gee-scientific-box {
+  margin-top: 12px;
+  padding: 6px 8px;
+  font-size: 10px;
+  color: #94a3b8;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}

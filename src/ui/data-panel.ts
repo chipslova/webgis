@@ -8,6 +8,7 @@ export class DataPanelUI {
   private sidebarUI: SidebarUI;
   private onLayerChange: () => void;
   private onOpenAttributeTableCb: ((layerId: string) => void) | null = null;
+  private onNavigateToBufferAnalysisCb: ((layerId: string) => void) | null = null;
 
   constructor(
     geojsonLoader: GeoJsonLoader,
@@ -29,6 +30,10 @@ export class DataPanelUI {
     this.onOpenAttributeTableCb = cb;
   }
 
+  public onNavigateToBufferAnalysis(cb: (layerId: string) => void) {
+    this.onNavigateToBufferAnalysisCb = cb;
+  }
+
   public render() {
     const list = document.getElementById('layers-list');
     if (!list) return;
@@ -43,45 +48,45 @@ export class DataPanelUI {
 
     layers.forEach((layer: any) => {
       const item = document.createElement('div');
-      item.className = 'layer-item';
+      item.className = 'layer-card';
       const safeName = escapeHtml(layer.name);
-      const layerTypeLabel = layer.type ? layer.type.toUpperCase() : 'VECTOR';
+      const layerTypeLabel = layer.type.toUpperCase();
 
       item.innerHTML = `
         <div class="layer-card-main">
           <div class="layer-card-left">
             <input type="checkbox" id="check-${layer.id}" class="layer-checkbox" ${layer.visible ? 'checked' : ''} aria-label="Toggle layer ${safeName}" />
             <span class="legend-symbol" style="background-color: ${layer.color};"></span>
-            <div class="layer-title-group" style="cursor: pointer;" title="Click to zoom to layer">
+            <div class="layer-title-group" style="cursor: pointer;" title="Klik untuk zoom ke lapisan">
               <span class="layer-title">${safeName}</span>
-              <span class="layer-meta">${layer.featureCount} Features · ${layerTypeLabel}</span>
+              <span class="layer-meta">${layer.featureCount} Fitur · ${layerTypeLabel}</span>
             </div>
           </div>
           <div class="layer-top-actions">
-            <button class="icon-btn-sm btn-zoom-layer" data-id="${layer.id}" title="Zoom map to layer" aria-label="Zoom map to ${safeName}">
+            <button class="icon-btn-sm btn-zoom-layer" data-id="${layer.id}" title="Zoom peta ke lapisan" aria-label="Zoom peta ke ${safeName}">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             </button>
-            <button class="icon-btn-sm btn-delete-layer" data-id="${layer.id}" title="Delete layer" aria-label="Delete layer ${safeName}">
+            <button class="icon-btn-sm btn-delete-layer" data-id="${layer.id}" title="Hapus lapisan" aria-label="Hapus lapisan ${safeName}">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
             </button>
           </div>
         </div>
 
         <div class="layer-card-toolbar">
-          <button class="btn-layer-pill btn-open-table" data-id="${layer.id}" title="Open Attribute Table for ${safeName}">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
-            <span>Table</span>
+          <button class="btn-layer-pill btn-open-table" data-id="${layer.id}" title="Buka Tabel Atribut untuk ${safeName}">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            <span>Tabel</span>
           </button>
-          <button class="btn-layer-pill-ghost btn-buffer-layer" data-id="${layer.id}" title="Generate spatial buffer zone around ${safeName}">
+          <button class="btn-layer-pill-ghost btn-buffer-layer" data-id="${layer.id}" title="Buka Analisis Zona Penyangga (Buffer) untuk ${safeName}">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
             <span>Buffer</span>
           </button>
           <div class="layer-export-btns">
-            <button class="btn-layer-pill-ghost btn-export-layer" data-id="${layer.id}" title="Export layer as GeoJSON">
+            <button class="btn-layer-pill-ghost btn-export-layer" data-id="${layer.id}" title="Ekspor lapisan sebagai GeoJSON">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               <span>GeoJSON</span>
             </button>
-            <button class="btn-layer-pill-ghost btn-export-kml" data-id="${layer.id}" title="Export layer as KML (Google Earth / ArcGIS)">
+            <button class="btn-layer-pill-ghost btn-export-kml" data-id="${layer.id}" title="Ekspor lapisan sebagai KML (Google Earth / ArcGIS)">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/></svg>
               <span>KML</span>
             </button>
@@ -110,29 +115,13 @@ export class DataPanelUI {
         });
       }
 
-      // Buffer layer button
+      // Buffer layer button (navigates seamlessly to unified Spatial Analysis panel)
       const bufferBtn = item.querySelector<HTMLButtonElement>('.btn-buffer-layer');
       if (bufferBtn) {
-        bufferBtn.addEventListener('click', async (e) => {
+        bufferBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          const input = prompt(`Masukkan radius zona penyangga untuk lapisan "${layer.name}" dalam kilometer (contoh: 1, 5, 10, 25):`, '5');
-          if (input === null) return;
-          const radius = parseFloat(input);
-          if (isNaN(radius) || radius <= 0) {
-            showToast('Radius buffer harus berupa angka positif lebih dari 0.', 'warning');
-            return;
-          }
-          if (radius > 500) {
-            showToast('Radius buffer maksimum adalah 500 km.', 'warning');
-            return;
-          }
-          const res = await this.geojsonLoader.createBufferForLayer(layer.id, radius, 'kilometers');
-          if (res.success) {
-            this.render();
-            this.onLayerChange();
-            showToast(`Zona penyangga ${radius} km berhasil dibuat (Total luas: ${res.areaKm2} km²)!`, 'success');
-          } else {
-            showToast(res.error || 'Gagal membuat zona penyangga buffer.', 'error');
+          if (this.onNavigateToBufferAnalysisCb) {
+            this.onNavigateToBufferAnalysisCb(layer.id);
           }
         });
       }

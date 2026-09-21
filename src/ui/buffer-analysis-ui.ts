@@ -63,6 +63,17 @@ export class BufferAnalysisUI {
     });
   }
 
+  /**
+   * Select a specific source layer in the buffer analysis dropdown
+   */
+  public selectLayer(layerId: string) {
+    this.updateLayerSelect();
+    const select = document.getElementById('buffer-layer-select') as HTMLSelectElement | null;
+    if (select) {
+      select.value = layerId;
+    }
+  }
+
   private bindEvents() {
     const input = document.getElementById('buffer-radius-input') as HTMLInputElement | null;
     const slider = document.getElementById('buffer-radius-slider') as HTMLInputElement | null;

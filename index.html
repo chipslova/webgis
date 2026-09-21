@@ -295,19 +295,19 @@
               <div class="panel-header">
                 <div class="piksel-panel-badge-row">
                   <h2>MODIS Land Surface Temp</h2>
-                  <span class="piksel-national-badge" id="gee-catalog-badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3);" title="NASA LP DAAC MODIS Terra + Aqua 8-Day LST Composite">MOD11A2 + MYD11A2.061</span>
+                  <span class="piksel-national-badge" id="gee-catalog-badge" title="NASA LP DAAC MODIS Terra + Aqua 8-Day LST Composite">MOD11A2 + MYD11A2.061</span>
                 </div>
-                <p>NASA LP DAAC · MODIS Terra &amp; Aqua (1 km 8-Day Composite Land Surface Temperature across Indonesia 2000–present).</p>
+                <p>NASA LP DAAC · MODIS Terra &amp; Aqua (Komposit Suhu Permukaan 1 km 8-Harian Seluruh Indonesia 2000–sekarang).</p>
               </div>
 
               <!-- Live GEE Status & Compute State Banner -->
-              <div class="gee-disclaimer-banner" style="border-left-color: #ef4444; background: rgba(239, 68, 68, 0.06);">
+              <div class="gee-disclaimer-banner">
                 <div class="gee-disclaimer-header">
                   <span><strong>NASA MODIS Land Surface Temp</strong></span>
-                  <span id="gee-live-status-pill" class="gee-disclaimer-tag" style="background: #0284c7; color: #fff;">⚡ 1KM LAND-MASKED</span>
+                  <span id="gee-live-status-pill" class="gee-disclaimer-tag">⚡ 1KM LAND-MASKED</span>
                 </div>
                 <p id="gee-status-description" class="gee-status-desc">Peta suhu permukaan radiatif (LST 1 km) seluruh daratan &amp; kepulauan Indonesia. Wilayah lautan dimasking transparan sesuai standar NASA LP DAAC.</p>
-                <div class="gee-disclaimer-notice" style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+                <div class="gee-disclaimer-notice">
                   <span id="gee-active-dataset-label">Dataset: <code>MODIS/061/MOD11A2 + MYD11A2</code></span>
                   <a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A2" target="_blank" rel="noopener noreferrer" class="gee-catalog-link">Katalog GEE ↗</a>
                 </div>
@@ -352,28 +352,28 @@
               </div>
 
               <!-- Unified MODIS Land Surface Temperature (LST) & GEE Explorer Card -->
-              <div class="gee-card" style="background: rgba(15, 23, 42, 0.75); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px;">
+              <div class="gee-card">
                 
                 <!-- Card Header -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                  <h3 style="margin: 0; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 700;">
+                <div class="gee-card-header">
+                  <h3 class="gee-card-title">
                     🌡️ MODIS Land Surface Temperature
                   </h3>
-                  <span class="piksel-hint" style="font-size: 9.5px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 6px; border-radius: 4px;">1 km · LP DAAC</span>
+                  <span class="gee-card-badge">1 km · LP DAAC</span>
                 </div>
 
                 <!-- 1. Primary Layer Switcher — with per-layer opacity -->
-                <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px;">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 10.5px; color: var(--text-muted); font-weight: 600;">Pilih Lapisan Termal Aktif:</span>
+                <div class="gee-panel-container">
+                  <div class="gee-layer-header-row">
+                    <span class="gee-layer-header-label">Pilih Lapisan Termal Aktif:</span>
                     <!-- Tile loading indicator -->
-                    <span id="gee-tiles-loading" style="display: none; font-size: 9px; color: #f59e0b; display: flex; align-items: center; gap: 4px;">
-                      <span class="gee-spinner" style="width: 8px; height: 8px; border: 1.5px solid rgba(245,158,11,0.3); border-top-color: #f59e0b; border-radius: 50%; display: inline-block; animation: spin 0.8s linear infinite;"></span>
-                      Memuat tiles...
+                    <span id="gee-tiles-loading" class="gee-loading-indicator" style="display: none;">
+                      <span class="gee-spinner"></span>
+                      Memuat ubin...
                     </span>
                   </div>
 
-                  <div class="gee-toggle-group" style="display: flex; flex-direction: column; gap: 8px;">
+                  <div class="gee-toggle-group">
 
                     <!-- 1. MODIS Daytime LST -->
                     <div class="gee-layer-row gee-layer-item-clean">
@@ -382,8 +382,8 @@
                         <span>☀️ <strong>Daytime LST</strong> <span class="gee-layer-subtext">(Suhu Siang · 10:30/13:30)</span></span>
                       </label>
                       <div id="gee-lst-opacity-row" class="gee-layer-opacity-box" style="display: none;">
-                        <input type="range" id="gee-lst-day-opacity" min="0" max="100" value="85" class="piksel-slider" style="flex: 1; height: 3px;" aria-label="Opacity for Daytime LST" />
-                        <span id="gee-lst-day-opacity-val" style="font-size: 9px; color: #38bdf8; min-width: 28px; text-align: right;">85%</span>
+                        <input type="range" id="gee-lst-day-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opacity for Daytime LST" />
+                        <span id="gee-lst-day-opacity-val" class="gee-layer-opacity-val">85%</span>
                       </div>
                     </div>
 
@@ -394,8 +394,8 @@
                         <span>🌙 <strong>Nighttime LST</strong> <span class="gee-layer-subtext">(Suhu Malam · 22:30/01:30)</span></span>
                       </label>
                       <div id="gee-lst-night-opacity-row" class="gee-layer-opacity-box" style="display: none;">
-                        <input type="range" id="gee-lst-night-opacity" min="0" max="100" value="85" class="piksel-slider" style="flex: 1; height: 3px;" aria-label="Opacity for Nighttime LST" />
-                        <span id="gee-lst-night-opacity-val" style="font-size: 9px; color: #38bdf8; min-width: 28px; text-align: right;">85%</span>
+                        <input type="range" id="gee-lst-night-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opacity for Nighttime LST" />
+                        <span id="gee-lst-night-opacity-val" class="gee-layer-opacity-val">85%</span>
                       </div>
                     </div>
 
@@ -406,8 +406,8 @@
                         <span>🌳 <strong>Sentinel-2 10m LULC</strong> <span class="gee-layer-subtext">(Tutupan Lahan)</span></span>
                       </label>
                       <div id="gee-lc-opacity-row" class="gee-layer-opacity-box" style="display: none;">
-                        <input type="range" id="gee-landcover-opacity" min="0" max="100" value="85" class="piksel-slider" style="flex: 1; height: 3px;" aria-label="Opacity for Land Cover" />
-                        <span id="gee-landcover-opacity-val" style="font-size: 9px; color: #10b981; min-width: 28px; text-align: right;">85%</span>
+                        <input type="range" id="gee-landcover-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opacity for Land Cover" />
+                        <span id="gee-landcover-opacity-val" class="gee-layer-opacity-val green">85%</span>
                       </div>
                     </div>
 
@@ -422,13 +422,13 @@
                 </div>
 
                 <!-- 2. Thermal Legend Bar -->
-                <div style="margin-bottom: 10px; background: rgba(0, 0, 0, 0.25); padding: 8px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.05);">
-                  <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">
+                <div class="gee-legend-box">
+                  <div class="gee-legend-header">
                     <span>Legenda Suhu LST (°C):</span>
-                    <span style="color: #38bdf8; font-weight: 600;">10°C s.d. 42°C+</span>
+                    <span class="gee-legend-val">10°C s.d. 42°C+</span>
                   </div>
-                  <div class="gee-legend-bar lst-gradient" style="height: 7px; border-radius: 3.5px;" aria-hidden="true"></div>
-                  <div class="gee-legend-labels" style="display: flex; justify-content: space-between; font-size: 8.5px; color: var(--text-muted); margin-top: 3px;">
+                  <div class="gee-legend-bar lst-gradient gee-legend-bar-wrap" aria-hidden="true"></div>
+                  <div class="gee-legend-labels">
                     <span>10°C (Dingin)</span>
                     <span>20°C</span>
                     <span>26°C</span>
@@ -439,34 +439,34 @@
                 </div>
 
                 <!-- 2b. Sentinel-2 LULC Legend — visible when landcover is toggled -->
-                <div id="gee-lulc-legend" style="display: none; margin-bottom: 10px; background: rgba(16, 185, 129, 0.07); padding: 8px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.25);">
-                  <div style="font-size: 10px; color: #10b981; font-weight: 600; margin-bottom: 5px;">🗺️ Legenda 9 Kelas Sentinel-2 10m LULC</div>
-                  <div style="display: flex; flex-wrap: wrap; gap: 4px; font-size: 9px;">
-                    <span style="background: #1A5BAB; color: #fff; padding: 2px 5px; border-radius: 3px;">🌊 Water</span>
-                    <span style="background: #358221; color: #fff; padding: 2px 5px; border-radius: 3px;">🌲 Forest</span>
-                    <span style="background: #87D19E; color: #000; padding: 2px 5px; border-radius: 3px;">💧 Mangrove</span>
-                    <span style="background: #FFDB5C; color: #000; padding: 2px 5px; border-radius: 3px;">🌾 Crops</span>
-                    <span style="background: #ED022A; color: #fff; padding: 2px 5px; border-radius: 3px;">🏢 Built</span>
-                    <span style="background: #EDE9E4; color: #000; padding: 2px 5px; border-radius: 3px;">🏜️ Bare</span>
-                    <span style="background: #C6D799; color: #000; padding: 2px 5px; border-radius: 3px;">🌿 Rangeland</span>
-                    <span style="background: #F2FAFF; color: #000; padding: 2px 5px; border-radius: 3px;">❄️ Snow</span>
-                    <span style="background: #C8C8C8; color: #000; padding: 2px 5px; border-radius: 3px;">☁️ Cloud</span>
+                <div id="gee-lulc-legend" class="gee-lulc-box" style="display: none;">
+                  <div class="gee-lulc-title">🗺️ Legenda 9 Kelas Sentinel-2 10m LULC</div>
+                  <div class="gee-lulc-chips">
+                    <span class="gee-lulc-chip" style="background: #1A5BAB; color: #fff;">🌊 Air</span>
+                    <span class="gee-lulc-chip" style="background: #358221; color: #fff;">🌲 Hutan</span>
+                    <span class="gee-lulc-chip" style="background: #87D19E; color: #000;">💧 Mangrove</span>
+                    <span class="gee-lulc-chip" style="background: #FFDB5C; color: #000;">🌾 Pertanian</span>
+                    <span class="gee-lulc-chip" style="background: #ED022A; color: #fff;">🏢 Terbangun</span>
+                    <span class="gee-lulc-chip" style="background: #EDE9E4; color: #000;">🏜️ Lahan Terbuka</span>
+                    <span class="gee-lulc-chip" style="background: #C6D799; color: #000;">🌿 Semak/Rangeland</span>
+                    <span class="gee-lulc-chip" style="background: #F2FAFF; color: #000;">❄️ Salju</span>
+                    <span class="gee-lulc-chip" style="background: #C8C8C8; color: #000;">☁️ Awan</span>
                   </div>
                 </div>
 
                 <!-- 3. Satellite & Period Filters -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
+                <div class="gee-filter-grid">
                   <div>
-                    <label for="gee-satellite-select" style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Satelit</label>
-                    <select id="gee-satellite-select" class="form-select" style="width: 100%; font-size: 10.5px; padding: 4px 6px; background: #0f172a; border: 1px solid var(--border-color); border-radius: 4px; color: #fff;">
+                    <label for="gee-satellite-select" class="gee-filter-label">Satelit</label>
+                    <select id="gee-satellite-select" class="form-select gee-filter-select">
                       <option value="combined" selected>Terra + Aqua</option>
                       <option value="terra">Terra (Pagi)</option>
                       <option value="aqua">Aqua (Siang)</option>
                     </select>
                   </div>
                   <div>
-                    <label for="gee-period-select" style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Periode Musim</label>
-                    <select id="gee-period-select" class="form-select" style="width: 100%; font-size: 10.5px; padding: 4px 6px; background: #0f172a; border: 1px solid var(--border-color); border-radius: 4px; color: #fff;">
+                    <label for="gee-period-select" class="gee-filter-label">Periode Musim</label>
+                    <select id="gee-period-select" class="form-select gee-filter-select">
                       <option value="2024-08-01|2024-08-31" selected>Kemarau / Aug 2024</option>
                       <option value="2024-04-01|2024-04-30">Pancaroba / Apr 2024</option>
                       <option value="2024-01-01|2024-01-31">Musim Hujan / Jan 2024</option>
@@ -475,13 +475,9 @@
                   </div>
                 </div>
 
-                <!-- Hidden compatibility elements -->
-                <button id="btn-gee-compute" style="display: none;" aria-hidden="true"></button>
-                <div id="gee-compute-status" style="display: none;"></div>
-
                 <!-- 5. Educational Guidance Callout -->
-                <div style="padding: 7px 9px; background: rgba(56, 189, 248, 0.07); border-left: 3px solid #38bdf8; border-radius: 4px; font-size: 9.5px; line-height: 1.45; color: #cbd5e1;">
-                  <div><strong style="color: #38bdf8;">💡 Panduan Warna Merah:</strong></div>
+                <div class="gee-callout">
+                  <div><strong>💡 Panduan Warna Merah:</strong></div>
                   <div style="margin-top: 2px;">• <strong>Peta LST (Suhu):</strong> Merah = Permukaan daratan panas (34°C–40°C+ saat siang/kemarau). Lautan transparan.</div>
                   <div style="margin-top: 2px;">• <strong>Tutupan Lahan (LULC):</strong> Merah = Lahan Terbangun / Perkotaan (Built-Up Area).</div>
                 </div>
@@ -489,18 +485,18 @@
 
               <!-- Quick Focus Area Buttons -->
               <div class="gee-focus-buttons-row">
-                <button id="btn-focus-gee-area" class="btn-focus-gee" aria-label="Focus camera on Java thermal corridor">
+                <button id="btn-focus-gee-area" class="btn-focus-gee" aria-label="Fokus kamera pada koridor termal Jawa">
                   <span class="btn-focus-icon" aria-hidden="true">🎯</span>
                   <div class="btn-focus-gee-text">
-                    <span class="btn-focus-title">Java Corridor</span>
+                    <span class="btn-focus-title">Koridor Jawa</span>
                     <span class="btn-focus-sub">(Jakarta – Bandung)</span>
                   </div>
                 </button>
-                <button id="btn-focus-gee-indonesia" class="btn-focus-gee" aria-label="Focus camera on Indonesia national overview">
+                <button id="btn-focus-gee-indonesia" class="btn-focus-gee" aria-label="Fokus kamera pada ikhtisar nasional Indonesia">
                   <span class="btn-focus-icon" aria-hidden="true">🇮🇩</span>
                   <div class="btn-focus-gee-text">
-                    <span class="btn-focus-title">Indonesia Overview</span>
-                    <span class="btn-focus-sub">(Archipelago Scale)</span>
+                    <span class="btn-focus-title">Ikhtisar Indonesia</span>
+                    <span class="btn-focus-sub">(Skala Nusantara)</span>
                   </div>
                 </button>
               </div>
@@ -508,56 +504,56 @@
               <!-- Seasonal & Multi-Year Time Series Canvas Chart -->
               <details class="clean-accordion" style="margin-top: 14px;" open>
                 <summary>
-                  <span>📈 Seasonal &amp; Multi-Year LST Progression (2020–2026)</span>
+                  <span>📈 Dinamika Deret Waktu Suhu LST (2020–2026)</span>
                 </summary>
                 <div class="accordion-body">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <p class="chart-subtitle" style="margin: 0; font-size: 10px;">8-day composited thermal curve (MODIS Terra/Aqua 1km &amp; NOAA CFSv2): Jakarta vs Dataran Tinggi Bandung</p>
-                    <button id="btn-download-chart-png" title="Download chart as PNG" aria-label="Download time series chart as PNG image" style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); color: #38bdf8; border-radius: 4px; padding: 3px 7px; font-size: 9px; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                      PNG
+                  <div class="gee-chart-header">
+                    <p class="chart-subtitle gee-chart-sub">Kurva termal komposit 8-harian (MODIS Terra/Aqua 1 km &amp; NOAA CFSv2): Jakarta vs Dataran Tinggi Bandung</p>
+                    <button id="btn-download-chart-png" class="btn-download-chart" title="Unduh grafik sebagai berkas PNG" aria-label="Unduh grafik deret waktu sebagai gambar PNG">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                      <span>PNG</span>
                     </button>
                   </div>
-                  <div class="chart-container" style="position: relative;">
+                  <div class="chart-container gee-chart-container">
                     <canvas id="gee-chart-canvas" width="300" height="200" role="img" aria-label="MODIS Land Surface Temperature Multi-Year Chart"></canvas>
                     <!-- Tooltip overlay -->
-                    <div id="gee-chart-tooltip" style="position: absolute; pointer-events: none; display: none; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(168, 85, 247, 0.5); border-radius: 6px; padding: 6px 9px; font-size: 9.5px; color: #f1f5f9; white-space: nowrap; z-index: 10; box-shadow: 0 4px 16px rgba(0,0,0,0.6);"></div>
+                    <div id="gee-chart-tooltip" class="gee-chart-tooltip"></div>
                   </div>
-                  <div class="chart-legend" style="margin-top: 8px;">
-                    <span class="legend-badge urban-badge">■ Jakarta Day LST</span>
-                    <span class="legend-badge rural-badge">■ Bandung Day LST</span>
-                    <span class="legend-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">--- JKT Night LST</span>
-                    <span class="legend-badge" style="background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4);">--- BDG Night LST</span>
-                    <span class="legend-badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.45); font-weight: 600;">┄ Putus: Proyeksi CFSv2</span>
+                  <div class="chart-legend gee-chart-legend">
+                    <span class="legend-badge urban-badge">■ Jakarta Siang LST</span>
+                    <span class="legend-badge rural-badge">■ Bandung Siang LST</span>
+                    <span class="legend-badge gee-legend-badge-jkt-night">--- JKT Malam LST</span>
+                    <span class="legend-badge gee-legend-badge-bdg-night">--- BDG Malam LST</span>
+                    <span class="legend-badge gee-legend-badge-forecast">┄ Putus: Proyeksi CFSv2</span>
                   </div>
 
                   <!-- Special Note Disclaimer Box for Forecast -->
-                  <div id="gee-forecast-disclaimer" style="margin-top: 8px; padding: 6px 8px; background: rgba(168, 85, 247, 0.08); border-left: 3px solid #a855f7; border-radius: 0 5px 5px 0; font-size: 9.5px; color: #d8b4fe; line-height: 1.4;">
+                  <div id="gee-forecast-disclaimer" class="gee-forecast-box">
                     <strong style="color: #f3e8ff;">📌 Catatan Khusus (Proyeksi Model):</strong> Segmen garis putus-putus setelah <span id="gee-forecast-date-label" style="font-weight: 700; color: #facc15;">14 September 2026</span> merupakan simulasi model iklim numerik <em>NOAA NCEP CFSv2</em>, bukan observasi satelit aktual.
                   </div>
                 </div>
               </details>
 
               <!-- Scientific Disclaimer Note -->
-              <div style="margin-top: 12px; padding: 6px 8px; font-size: 10px; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.06);">
+              <div class="gee-scientific-box">
                 🔬 <em>Catatan Ilmiah: LST mengukur temperatur radiatif kulit permukaan tanah/tutupan lahan (1 km skin temperature), bukan temperatur udara 2 meter.</em>
               </div>
 
               <!-- Download Center -->
               <details class="clean-accordion">
                 <summary>
-                  <span>MODIS LST Dataset Download Center</span>
+                  <span>Pusat Unduhan Dataset MODIS LST</span>
                 </summary>
                 <div class="accordion-body">
-                  <p style="margin-bottom: 10px; font-size: 11.5px; color: var(--text-secondary);">Export validated MODIS LST observations and time series data:</p>
+                  <p style="margin-bottom: 10px; font-size: 11.5px; color: var(--text-secondary);">Ekspor data observasi dan deret waktu MODIS LST tervalidasi:</p>
                   <div class="download-buttons">
-                    <button id="btn-download-geojson" class="btn btn-outline full-width" aria-label="Download MODIS LST Stations GeoJSON Dataset">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                      Download GeoJSON (18 Indonesian LST Stations)
+                    <button id="btn-download-geojson" class="btn btn-outline full-width" aria-label="Unduh Dataset GeoJSON 18 Stasiun MODIS LST">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                      Unduh GeoJSON (18 Stasiun LST Indonesia)
                     </button>
-                    <button id="btn-download-csv" class="btn btn-outline full-width" aria-label="Download MODIS LST Time-Series CSV Dataset">
+                    <button id="btn-download-csv" class="btn btn-outline full-width" aria-label="Unduh Dataset CSV Deret Waktu MODIS LST">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                      Download CSV (Multi-Year 16-Day LST Composites)
+                      Unduh CSV (Komposit Multi-Tahun 16-Harian)
                     </button>
                   </div>
                 </div>

@@ -264,6 +264,16 @@ class WebGISApp {
       this.shortcutsModalUI = new ShortcutsModalUI();
 
       this.dataPanelUI.onOpenAttributeTable((layerId) => this.attributeTableUI?.open(layerId));
+      this.dataPanelUI.onNavigateToBufferAnalysis((layerId) => {
+        this.sidebarUI.setActiveTab('analysis');
+        this.sidebarUI.setOpen(true);
+        this.bufferAnalysisUI?.selectLayer(layerId);
+        const container = document.getElementById('buffer-analysis-container');
+        if (container) {
+          container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        showToast('Lapisan dipilih di modul Analisis Zona Penyangga', 'info');
+      });
       this.commandPaletteUI.setAttributeTableUI(this.attributeTableUI);
       this.commandPaletteUI.setShortcutsModalUI(this.shortcutsModalUI);
 
