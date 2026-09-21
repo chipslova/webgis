@@ -12,6 +12,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@google/earthengine": "^1.7.43",
     "@turf/area": "^7.4.0",
     "@turf/boolean-point-in-polygon": "^7.4.0",
     "@turf/buffer": "^7.4.0",

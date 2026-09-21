@@ -356,15 +356,30 @@ export class SpatialAnalysisUI {
     this.analyzeFeature(polyFeature, preset.name);
   }
 
-  public analyzeFeature(
+  public async analyzeFeature(
     feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>,
     label: string
   ) {
-    const result = SpatialAnalysisEngine.computeZonalStats(feature, label);
+    const container = document.getElementById('aoi-analysis-results-container');
+    if (container) {
+      container.innerHTML = `
+        <div style="text-align: center; padding: 24px 12px; background: rgba(0, 0, 0, 0.25); border-radius: 6px; border: 1px dashed rgba(56, 189, 248, 0.35);">
+          <div class="hud-spinner" style="margin: 0 auto 10px auto; width: 22px; height: 22px; border-width: 2px; border-color: rgba(56, 189, 248, 0.3); border-top-color: #38bdf8; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          <div style="font-size: 11.5px; font-weight: 600; color: #38bdf8;">Menghubungi Server Google Earth Engine...</div>
+          <div style="font-size: 9.5px; color: var(--text-muted); margin-top: 4px;">Menjalankan kalkulasi reduksi piksel satelit MODIS &amp; ESA WorldCover...</div>
+        </div>
+      `;
+    }
+
+    const result = await SpatialAnalysisEngine.computeZonalStatsWithGEE(feature, label);
     this.activeResult = result;
 
     this.renderResult(result);
-    showToast(`Analisis Statistik Spasial selesai untuk ${label}`, 'success');
+    if (result.isRealGEE) {
+      showToast(`Analisis piksel real GEE selesai untuk ${label} (${result.totalPixelCount?.toLocaleString('id-ID')} piksel)`, 'success');
+    } else {
+      showToast(`Estimator spasial selesai untuk ${label}`, 'success');
+    }
     announceToScreenReader(`Analisis spasial selesai. Luas wilayah ${result.totalAreaKm2} kilometer persegi.`);
 
     this.onResultChangeCallbacks.forEach(cb => cb(result));
@@ -432,6 +447,23 @@ export class SpatialAnalysisUI {
     `;
 
     this.bindUIEvents();
+    this.bindModalEvents();
+  }
+
+  private bindModalEvents() {
+    const modal = document.getElementById('modal-gee-setup');
+    const closeBtn = document.getElementById('btn-close-gee-modal');
+    const doneBtn = document.getElementById('btn-done-gee-modal');
+
+    const closeModal = () => {
+      if (modal) modal.style.display = 'none';
+    };
+
+    closeBtn?.addEventListener('click', closeModal);
+    doneBtn?.addEventListener('click', closeModal);
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
   }
 
   private bindUIEvents() {
@@ -469,8 +501,30 @@ export class SpatialAnalysisUI {
           </button>
         </div>
 
-        ${res.isEstimated ? `
-        <!-- Estimation Disclaimer Banner — always shown when isEstimated: true -->
+        ${res.isRealGEE ? `
+        <!-- Real GEE Verified Banner -->
+        <div role="note" aria-label="Verifikasi Piksel Asli GEE" style="
+          margin-bottom: 10px;
+          padding: 8px 10px;
+          background: rgba(16, 185, 129, 0.12);
+          border: 1px solid rgba(16, 185, 129, 0.45);
+          border-left: 3px solid #10b981;
+          border-radius: 5px;
+          display: flex;
+          gap: 7px;
+          align-items: flex-start;
+        ">
+          <span style="font-size: 15px; flex-shrink: 0; line-height: 1;">⚡</span>
+          <div>
+            <div style="font-size: 10.5px; font-weight: 700; color: #34d399; margin-bottom: 2px;">
+              Piksel Asli Google Earth Engine (Live Cloud Reduction)
+            </div>
+            <div style="font-size: 9.5px; color: #a7f3d0; line-height: 1.45;">
+              Kalkulasi reduksi piksel satelit dieksekusi di cluster Google Earth Engine. Total <strong>${res.totalPixelCount?.toLocaleString('id-ID') || '-'} piksel</strong> dianalisis dari data MODIS LST &amp; ESA WorldCover.
+            </div>
+          </div>
+        </div>` : `
+        <!-- Estimation Disclaimer Banner with Setup Button -->
         <div role="note" aria-label="Peringatan: data estimasi" style="
           margin-bottom: 10px;
           padding: 7px 10px;
@@ -483,15 +537,18 @@ export class SpatialAnalysisUI {
           align-items: flex-start;
         ">
           <span style="font-size: 14px; flex-shrink: 0; line-height: 1;">⚠️</span>
-          <div>
+          <div style="width: 100%;">
             <div style="font-size: 10px; font-weight: 700; color: #fbbf24; margin-bottom: 2px;">
-              Estimasi Kasar — Bukan Sampling Piksel GEE
+              Model Proxy Heuristik (Estimator Cepat)
             </div>
             <div style="font-size: 9.5px; color: #fde68a; line-height: 1.45;">
-              Angka luas tutupan lahan &amp; suhu di sini dihitung dari <strong>heuristik berbasis koordinat &amp; nama wilayah</strong>, bukan dari pembacaan piksel MODIS LST atau Sentinel-2 LULC secara langsung. Jangan gunakan untuk analisis ilmiah atau laporan resmi.
+              Angka dihitung dari model profil spasial wilayah. Kunci Google Earth Engine belum dipasang di environment Vercel.
             </div>
+            <button id="btn-open-gee-setup-modal" class="btn btn-outline btn-sm" style="font-size: 9px; padding: 2px 7px; margin-top: 5px; border-color: rgba(245, 158, 11, 0.45); color: #fbbf24; cursor: pointer;">
+              ⚙️ Hubungkan Akun GEE Asli (Panduan)
+            </button>
           </div>
-        </div>` : ''}
+        </div>`}
 
         <!-- 4 KPI Metrics Tiles -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
@@ -554,6 +611,11 @@ export class SpatialAnalysisUI {
 
     document.getElementById('btn-export-aoi-csv')?.addEventListener('click', () => {
       this.downloadCSV(res);
+    });
+
+    document.getElementById('btn-open-gee-setup-modal')?.addEventListener('click', () => {
+      const modal = document.getElementById('modal-gee-setup');
+      if (modal) modal.style.display = 'flex';
     });
   }
 

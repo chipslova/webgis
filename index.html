@@ -1402,9 +1402,57 @@
           <span class="status-divider" aria-hidden="true">|</span>
           <span class="status-tag" title="WebGIS Production Release Version">v2.5.0</span>
           <span class="status-divider" aria-hidden="true">|</span>
-          <span class="status-tag">EPSG:4326</span>
         </div>
       </footer>
+
+      <!-- Google Earth Engine Setup & Authentication Modal -->
+      <div id="modal-gee-setup" class="gee-setup-modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="gee-modal-title">
+        <div class="gee-setup-modal-card">
+          <div class="gee-setup-modal-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 20px;">⚡</span>
+              <h3 id="gee-modal-title" style="margin: 0; font-size: 15px; font-weight: 700; color: #fff;">Aktivasi Real Google Earth Engine (GEE)</h3>
+            </div>
+            <button id="btn-close-gee-modal" class="insp-close-btn" aria-label="Tutup modal">✕</button>
+          </div>
+          <div class="gee-setup-modal-body">
+            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
+              Untuk menjalankan kalkulasi reduksi piksel satelit <strong>100% riil di cluster superkomputer Google</strong> (MODIS LST 1km &amp; ESA WorldCover 10m), backend memerlukan <em>Google Cloud Service Account Key</em>.
+            </p>
+
+            <div class="gee-step-box">
+              <div class="gee-step-num">1</div>
+              <div>
+                <strong>Buka Google Cloud Console</strong>
+                <p>Kunjungi <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" style="color: #38bdf8;">console.cloud.google.com ↗</a> dan buat project baru (misal: <code>webgis-indonesia</code>).</p>
+              </div>
+            </div>
+
+            <div class="gee-step-box">
+              <div class="gee-step-num">2</div>
+              <div>
+                <strong>Aktifkan Earth Engine API &amp; Buat Service Account</strong>
+                <p>Buka menu <em>APIs &amp; Services</em>, aktifkan <strong>Earth Engine API</strong>, lalu di menu <em>Credentials</em> buat <strong>Service Account</strong> dengan role <em>Earth Engine Resource User</em>.</p>
+              </div>
+            </div>
+
+            <div class="gee-step-box">
+              <div class="gee-step-num">3</div>
+              <div>
+                <strong>Unduh Kunci JSON &amp; Tempel ke Vercel</strong>
+                <p>Klik Service Account ➔ <em>Keys</em> ➔ <em>Add Key (JSON)</em>. Salin seluruh isi file JSON tersebut ke <strong>Vercel Settings ➔ Environment Variables</strong> dengan nama: <br/><code style="color: #34d399; font-weight: bold;">GEE_SERVICE_ACCOUNT_KEY</code>.</p>
+              </div>
+            </div>
+
+            <div style="margin-top: 14px; padding: 10px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; font-size: 11px; color: #bae6fd;">
+              ℹ️ <strong>100% Gratis:</strong> Pendaftaran akun Earth Engine untuk keperluan edukasi, riset geospasial, dan portofolio tidak dipungut biaya apapun oleh Google.
+            </div>
+          </div>
+          <div class="gee-setup-modal-footer">
+            <button id="btn-done-gee-modal" class="btn btn-primary full-width">Saya Mengerti</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script type="module" src="/src/main.ts"></script>

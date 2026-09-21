@@ -30,6 +30,10 @@ export interface ZonalAnalysisResult {
   /** True when stats are heuristic estimates, NOT real GEE pixel sampling */
   isEstimated: boolean;
   estimationMethod: string;
+  /** True when calculated via real Google Earth Engine Cloud cluster */
+  isRealGEE?: boolean;
+  totalPixelCount?: number;
+  computationSource?: string;
 }
 
 export interface PresetRegion {
@@ -218,6 +222,55 @@ export class SpatialAnalysisEngine {
     };
   }
 
+  /**
+   * Queries real Google Earth Engine Cloud cluster via Serverless Function
+   * and falls back cleanly to the heuristic estimator if offline or unauthenticated.
+   */
+  public static async computeZonalStatsWithGEE(
+    aoiFeature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>,
+    regionLabel: string = 'Kawasan Kustom'
+  ): Promise<ZonalAnalysisResult> {
+    try {
+      const response = await fetch('/api/gee-zonal-stats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          geometry: aoiFeature.geometry,
+          regionName: regionLabel
+        })
+      });
+
+      if (response.ok) {
+        const json = await response.json();
+        if (json.status === 'success' && json.isRealGEE) {
+          return {
+            regionName: regionLabel,
+            totalAreaKm2: json.totalAreaKm2,
+            totalAreaHa: json.totalAreaHa,
+            landCoverBreakdown: json.landCoverBreakdown,
+            thermalStats: json.thermalStats,
+            dominantClass: json.dominantClass,
+            timestamp: new Date().toLocaleString('id-ID', {
+              dateStyle: 'medium',
+              timeStyle: 'short'
+            }),
+            geojson: aoiFeature,
+            isEstimated: false,
+            estimationMethod: 'Google Earth Engine Cloud (Live reduceRegion)',
+            isRealGEE: true,
+            totalPixelCount: json.totalPixelCount,
+            computationSource: json.source
+          };
+        }
+      }
+    } catch (e) {
+      logger.warn('[SpatialAnalysis] Real GEE endpoint unreachable, using fallback model:', e);
+    }
+
+    // Fallback to empirical model if offline, unconfigured, or error
+    return this.computeZonalStats(aoiFeature, regionLabel);
+  }
+
   private static getFeatureBounds(feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>) {
     let minLng = 180, maxLng = -180, minLat = 90, maxLat = -90;
     const coords = feature.geometry.type === 'Polygon'
@@ -304,8 +357,14 @@ export class SpatialAnalysisEngine {
     lines.push(`LAPORAN ANALISIS STATISTIK SPASIAL WILAYAH — ESTIMASI ZONAL CEPAT (HEURISTIC REGIONAL PROXY)`);
     lines.push(`Wilayah Analisis,${result.regionName}`);
     lines.push(`Waktu Komputasi,${result.timestamp}`);
-    lines.push(`Status Metodologi,${result.isEstimated ? 'MODEL PROXY HEURISTIK — Aproksimasi empiris profil wilayah (Bukan sampling piksel mentah GEE)' : 'Data aktual'}`);
-    lines.push(`Metode,${result.estimationMethod || '-'}`);
+    if (result.isRealGEE) {
+      lines.push(`Status Metodologi,DATA PIKSEL ASLI GOOGLE EARTH ENGINE (Live Cloud Planetary Reduction)`);
+      lines.push(`Kluster Komputasi,${result.computationSource || 'Google Earth Engine'}`);
+      lines.push(`Total Piksel Dianalisis,${result.totalPixelCount?.toLocaleString('id-ID') || '-'}`);
+    } else {
+      lines.push(`Status Metodologi,${result.isEstimated ? 'MODEL PROXY HEURISTIK — Aproksimasi empiris profil wilayah (Bukan sampling piksel mentah GEE)' : 'Data aktual'}`);
+      lines.push(`Metode,${result.estimationMethod || '-'}`);
+    }
     lines.push(`Luas Total (km²),${result.totalAreaKm2}`);
     lines.push(`Luas Total (Hektar),${result.totalAreaHa}`);
     lines.push(`Kelas Dominan,${result.dominantClass}`);
