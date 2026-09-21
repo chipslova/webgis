@@ -317,14 +317,11 @@ export class GEELoader {
     if (this.map.getLayer('gee-modis-landcover-layer') && (key === 'landcover' || layerId === 'landcover')) {
       this.map.setPaintProperty('gee-modis-landcover-layer', 'raster-opacity', opacity);
     }
-    if (this.map.getLayer('gee-modis-live-raster-layer')) {
-      this.map.setPaintProperty('gee-modis-live-raster-layer', 'raster-opacity', opacity);
-    }
     if (this.map.getLayer('gee-modis-lst-day-fill') && key === 'lst-day') {
-      this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-opacity', opacity * 0.75);
+      this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-opacity', 0.0001);
     }
     if (this.map.getLayer('gee-modis-lst-night-fill') && key === 'lst-night') {
-      this.map.setPaintProperty('gee-modis-lst-night-fill', 'fill-opacity', opacity * 0.75);
+      this.map.setPaintProperty('gee-modis-lst-night-fill', 'fill-opacity', 0.0001);
     }
     this.notifyLayersChange();
   }
@@ -569,11 +566,8 @@ export class GEELoader {
       logger.warn('[GEELoader] Notice adding Sentinel-2 10m Land Cover raster layer:', e);
     }
 
-    // --- 4. Daytime & Nighttime LST Vector Thermal Fill Layers (Seamless, No Chunky Outlines) ---
+    // --- 4. Transparent Polygon Layers for Click & Hover Temperature Interception ---
     try {
-      const dayOpacity = this.getLayerOpacity('lst-day') * 0.45;
-      const nightOpacity = this.getLayerOpacity('lst-night') * 0.45;
-
       if (!this.map.getLayer('gee-modis-lst-day-fill')) {
         this.map.addLayer({
           id: 'gee-modis-lst-day-fill',
@@ -581,26 +575,13 @@ export class GEELoader {
           source: 'gee-modis-grid-source',
           layout: { visibility: isDayVis ? 'visible' : 'none' },
           paint: {
-            'fill-color': [
-              'interpolate',
-              ['linear'],
-              ['coalesce', ['to-number', ['get', 'lst_day_c']], ['to-number', ['get', 'temp_air_c']], 28],
-              10, '#040274',
-              18, '#0502ce',
-              24, '#30c8e2',
-              28, '#86e26f',
-              32, '#fff705',
-              36, '#ff8b13',
-              42, '#ff0000'
-            ],
-            'fill-opacity': isDayVis ? dayOpacity : 0,
-            'fill-outline-color': 'rgba(0, 0, 0, 0)'
+            'fill-color': '#000000',
+            'fill-opacity': isDayVis ? 0.0001 : 0
           }
         });
       } else {
         this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', isDayVis ? 'visible' : 'none');
-        this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-opacity', isDayVis ? dayOpacity : 0);
-        this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-outline-color', 'rgba(0, 0, 0, 0)');
+        this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-opacity', isDayVis ? 0.0001 : 0);
       }
 
       if (!this.map.getLayer('gee-modis-lst-night-fill')) {
@@ -610,29 +591,16 @@ export class GEELoader {
           source: 'gee-modis-grid-source',
           layout: { visibility: isNightVis ? 'visible' : 'none' },
           paint: {
-            'fill-color': [
-              'interpolate',
-              ['linear'],
-              ['coalesce', ['to-number', ['get', 'lst_night_c']], ['to-number', ['get', 'temp_surface_c']], 20],
-              10, '#040274',
-              15, '#0502ce',
-              20, '#30c8e2',
-              24, '#86e26f',
-              28, '#fff705',
-              32, '#ff8b13',
-              38, '#ff0000'
-            ],
-            'fill-opacity': isNightVis ? nightOpacity : 0,
-            'fill-outline-color': 'rgba(0, 0, 0, 0)'
+            'fill-color': '#000000',
+            'fill-opacity': isNightVis ? 0.0001 : 0
           }
         });
       } else {
         this.map.setLayoutProperty('gee-modis-lst-night-fill', 'visibility', isNightVis ? 'visible' : 'none');
-        this.map.setPaintProperty('gee-modis-lst-night-fill', 'fill-opacity', isNightVis ? nightOpacity : 0);
-        this.map.setPaintProperty('gee-modis-lst-night-fill', 'fill-outline-color', 'rgba(0, 0, 0, 0)');
+        this.map.setPaintProperty('gee-modis-lst-night-fill', 'fill-opacity', isNightVis ? 0.0001 : 0);
       }
     } catch (e) {
-      logger.warn('[GEELoader] Notice adding fill thermal layers:', e);
+      logger.warn('[GEELoader] Notice adding fill click interceptor layers:', e);
     }
 
     // --- 5. MODIS LST MONITORING STATIONS (18 NODES) ---
