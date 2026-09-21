@@ -512,7 +512,7 @@
                 </summary>
                 <div class="accordion-body">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <p class="chart-subtitle" style="margin: 0; font-size: 10px;">Data observasi aktual satelit MODIS Terra &amp; Aqua 1km (Day &amp; Night): Jakarta vs Dataran Tinggi Bandung</p>
+                    <p class="chart-subtitle" style="margin: 0; font-size: 10px;">8-day composited thermal curve (MODIS Terra/Aqua 1km &amp; NOAA CFSv2): Jakarta vs Dataran Tinggi Bandung</p>
                     <button id="btn-download-chart-png" title="Download chart as PNG" aria-label="Download time series chart as PNG image" style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); color: #38bdf8; border-radius: 4px; padding: 3px 7px; font-size: 9px; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                       PNG
@@ -521,13 +521,19 @@
                   <div class="chart-container" style="position: relative;">
                     <canvas id="gee-chart-canvas" width="300" height="200" role="img" aria-label="MODIS Land Surface Temperature Multi-Year Chart"></canvas>
                     <!-- Tooltip overlay -->
-                    <div id="gee-chart-tooltip" style="position: absolute; pointer-events: none; display: none; background: rgba(15, 23, 42, 0.92); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 5px; padding: 5px 8px; font-size: 9.5px; color: #f1f5f9; white-space: nowrap; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.5);"></div>
+                    <div id="gee-chart-tooltip" style="position: absolute; pointer-events: none; display: none; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(168, 85, 247, 0.5); border-radius: 6px; padding: 6px 9px; font-size: 9.5px; color: #f1f5f9; white-space: nowrap; z-index: 10; box-shadow: 0 4px 16px rgba(0,0,0,0.6);"></div>
                   </div>
                   <div class="chart-legend" style="margin-top: 8px;">
                     <span class="legend-badge urban-badge">■ Jakarta Day LST</span>
                     <span class="legend-badge rural-badge">■ Bandung Day LST</span>
                     <span class="legend-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">--- JKT Night LST</span>
                     <span class="legend-badge" style="background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4);">--- BDG Night LST</span>
+                    <span class="legend-badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.45); font-weight: 600;">┄ Putus: Proyeksi CFSv2</span>
+                  </div>
+
+                  <!-- Special Note Disclaimer Box for Forecast -->
+                  <div style="margin-top: 8px; padding: 6px 8px; background: rgba(168, 85, 247, 0.08); border-left: 3px solid #a855f7; border-radius: 0 5px 5px 0; font-size: 9.5px; color: #d8b4fe; line-height: 1.4;">
+                    <strong style="color: #f3e8ff;">📌 Catatan Khusus (Proyeksi Model):</strong> Segmen garis putus-putus setelah 14 September 2026 merupakan simulasi model iklim numerik <em>NOAA NCEP CFSv2</em>, bukan observasi satelit aktual.
                   </div>
                 </div>
               </details>

@@ -648,6 +648,36 @@ export class SpatialAnalysisUI {
               ${uhiRiskBadge}
             </div>
           </div>
+
+          <!-- Row 4: Prakiraan Tren Suhu (Model Forecast with Special Notes) -->
+          ${res.thermalForecast && res.thermalForecast.forecastDays.length > 0 ? `
+          <div style="background: rgba(15, 23, 42, 0.7); padding: 5px 7px; border-radius: 6px; border: 1px solid rgba(168, 85, 247, 0.25);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <div style="font-size: 8.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; display: flex; align-items: center; gap: 4px;">
+                <span>🔮 Tren Suhu 5 Hari</span>
+              </div>
+              <span style="font-size: 7.5px; font-weight: 700; color: #c084fc; background: rgba(168, 85, 247, 0.2); padding: 1px 4px; border-radius: 3px; border: 1px solid rgba(168, 85, 247, 0.4); white-space: nowrap;">
+                MODEL FORECAST
+              </span>
+            </div>
+
+            <!-- 5-Day Mini Strip -->
+            <div style="display: grid; grid-template-columns: repeat(${res.thermalForecast.forecastDays.length}, 1fr); gap: 3px; margin-bottom: 4px;">
+              ${res.thermalForecast.forecastDays.map(d => `
+                <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 4px; padding: 2px 1px; text-align: center;">
+                  <div style="font-size: 7.5px; color: #94a3b8; font-weight: 500;">${d.dayLabel}</div>
+                  <div style="font-size: 9px; font-weight: 700; color: #f87171; margin-top: 1px;">${d.maxTempC}°</div>
+                  <div style="font-size: 7.5px; color: #38bdf8;">${d.minTempC}°</div>
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- Special Note Box -->
+            <div style="font-size: 8px; color: #d8b4fe; line-height: 1.3; background: rgba(168, 85, 247, 0.08); border-left: 2px solid #a855f7; padding: 2.5px 5px; border-radius: 0 3px 3px 0;">
+              <strong style="color: #f3e8ff;">📌 Catatan Khusus:</strong> Hasil simulasi model numerik atmosfer, bukan observasi masa depan.
+            </div>
+          </div>
+          ` : ''}
         </div>
 
         <!-- Donut & Bar Visual Breakdown -->

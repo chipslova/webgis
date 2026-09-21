@@ -6,6 +6,7 @@ interface MODISTimeSeriesRecord {
   timestamp_ms: number;
   year?: number;
   month?: number;
+  is_forecast?: boolean;
   jkt_day_lst_c?: number;
   jkt_night_lst_c?: number;
   bdg_day_lst_c?: number;
@@ -26,6 +27,7 @@ interface MODISTimeSeriesRecord {
 interface ChartPoint {
   x: number;
   date: string;
+  isForecast: boolean;
   jktDay: number;
   bdgDay: number;
   jktNight: number;
@@ -217,25 +219,17 @@ export class GEEPanelUI {
   private bindLayerToggleEvents() {
     if (this.isToggleEventsBound) return;
 
-    const attachToggle = (id: string, key: string, opRowId?: string, legendId?: string) => {
-      const el = document.getElementById(id) as HTMLInputElement | null;
+    const attachToggle = (elemId: string, layerKey: string) => {
+      const el = document.getElementById(elemId) as HTMLInputElement | null;
       if (!el) return;
       el.addEventListener('change', () => {
-        const modeSelect = document.getElementById('gee-mode-select') as HTMLSelectElement;
-        if (key === 'lst-day' && el.checked) { this.geeLoader.setParams({ mode: 'day' }); if (modeSelect) modeSelect.value = 'day'; }
-        else if (key === 'lst-night' && el.checked) { this.geeLoader.setParams({ mode: 'night' }); if (modeSelect) modeSelect.value = 'night'; }
-        this.geeLoader.toggleLayer(key, el.checked);
-        if (opRowId) { const r = document.getElementById(opRowId); if (r) r.style.display = el.checked ? 'flex' : 'none'; }
-        if (legendId) { const l = document.getElementById(legendId); if (l) l.style.display = el.checked ? 'block' : 'none'; }
+        this.geeLoader.toggleLayer(layerKey, el.checked);
       });
     };
 
-    attachToggle('toggle-gee-lst', 'lst-day', 'gee-lst-opacity-row');
-    attachToggle('toggle-gee-air', 'lst-day', 'gee-lst-opacity-row');
-    attachToggle('toggle-gee-elevation', 'lst-night', 'gee-lst-night-opacity-row');
-    attachToggle('toggle-gee-surface', 'lst-night', 'gee-lst-night-opacity-row');
-    attachToggle('toggle-gee-landcover', 'landcover', 'gee-lc-opacity-row', 'gee-lulc-legend');
-    attachToggle('toggle-gee-lc', 'landcover', 'gee-lc-opacity-row', 'gee-lulc-legend');
+    attachToggle('toggle-gee-lst-day', 'lst-day');
+    attachToggle('toggle-gee-lst-night', 'lst-night');
+    attachToggle('toggle-gee-landcover', 'landcover');
     attachToggle('toggle-gee-poi', 'stations');
     attachToggle('toggle-gee-stations', 'stations');
 
@@ -277,8 +271,7 @@ export class GEEPanelUI {
         const res = await fetch('/data/gee_cfsv2_timeseries.json');
         if (res.ok) {
           const json = await res.json();
-          // Strictly exclude any future forecasts; only display verified historical satellite observations
-          this.timeSeriesData = ((json.data as any[]) || []).filter((d: any) => !d.is_forecast);
+          this.timeSeriesData = (json.data as any[]) || [];
         }
       } catch (e) { /* fallback */ }
     }
@@ -314,6 +307,7 @@ export class GEEPanelUI {
     this.chartPoints = this.timeSeriesData.map((rec, i) => ({
       x: P.left + i * xStep,
       date: rec.date?.substring(0, 10) || '',
+      isForecast: Boolean(rec.is_forecast),
       jktDay: rec.jkt_day_lst_c ?? rec.jkt_air_temp_c ?? rec.urban_obs_c ?? 34,
       bdgDay: rec.bdg_day_lst_c ?? rec.bdg_air_temp_c ?? 25,
       jktNight: rec.jkt_night_lst_c ?? rec.jkt_surface_temp_c ?? 24,
@@ -340,15 +334,63 @@ export class GEEPanelUI {
       { color: '#ef4444', lw: 2.5, dash: [],     get: (p) => p.jktDay   },
     ];
 
+    const forecastIdx = this.chartPoints.findIndex((p) => p.isForecast);
+
     series.forEach(({ color, lw, dash, get }) => {
-      ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.setLineDash(dash);
-      ctx.beginPath();
-      this.chartPoints.forEach((pt, i) => {
-        const y = toY(get(pt));
-        if (i === 0) ctx.moveTo(pt.x, y); else ctx.lineTo(pt.x, y);
-      });
-      ctx.stroke(); ctx.setLineDash([]);
+      if (forecastIdx !== -1 && forecastIdx > 0) {
+        // 1. Observed segment (solid / base dash)
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lw;
+        ctx.setLineDash(dash);
+        ctx.beginPath();
+        for (let i = 0; i <= forecastIdx; i++) {
+          const pt = this.chartPoints[i];
+          const y = toY(get(pt));
+          if (i === 0) ctx.moveTo(pt.x, y); else ctx.lineTo(pt.x, y);
+        }
+        ctx.stroke();
+
+        // 2. Forecast segment (distinct dashed line)
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lw;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        for (let i = forecastIdx - 1; i < this.chartPoints.length; i++) {
+          const pt = this.chartPoints[i];
+          const y = toY(get(pt));
+          if (i === forecastIdx - 1) ctx.moveTo(pt.x, y); else ctx.lineTo(pt.x, y);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+      } else {
+        // Single segment
+        ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.setLineDash(dash);
+        ctx.beginPath();
+        this.chartPoints.forEach((pt, i) => {
+          const y = toY(get(pt));
+          if (i === 0) ctx.moveTo(pt.x, y); else ctx.lineTo(pt.x, y);
+        });
+        ctx.stroke(); ctx.setLineDash([]);
+      }
     });
+
+    // Draw vertical dividing line between real observations and climate forecast
+    if (forecastIdx !== -1 && this.chartPoints[forecastIdx]) {
+      const dividerX = this.chartPoints[forecastIdx].x;
+      const P = { top: 24, bottom: 30 };
+      ctx.strokeStyle = 'rgba(192, 132, 252, 0.7)';
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([2, 3]);
+      ctx.beginPath();
+      ctx.moveTo(dividerX, P.top);
+      ctx.lineTo(dividerX, (this.canvas?.height || 200) - P.bottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = '#c084fc';
+      ctx.font = '700 8.5px Inter, sans-serif';
+      ctx.fillText('🔮 CFSv2', Math.max(35, dividerX - 18), P.top - 5);
+    }
 
     if (highlight) {
       const canvas = this.canvas!;
@@ -416,8 +458,18 @@ export class GEEPanelUI {
 
       if (nearest && minD < 16) {
         tooltip.innerHTML = `
-          <div style="font-weight:600;color:#38bdf8;margin-bottom:3px;">${nearest.date}</div>
-          <div style="display:grid;grid-template-columns:auto auto;gap:1px 8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:4px;">
+            <span style="font-weight:600; color:${nearest.isForecast ? '#c084fc' : '#38bdf8'};">${nearest.date}</span>
+            <span style="font-size:7.5px; font-weight:700; padding:1px 4px; border-radius:3px; white-space:nowrap; ${
+              nearest.isForecast
+                ? 'background:rgba(168,85,247,0.25); color:#c084fc; border:1px solid rgba(168,85,247,0.5);'
+                : 'background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.4);'
+            }">
+              ${nearest.isForecast ? '🔮 PROYEKSI CFSv2' : '🛰️ OBSERVASI MODIS'}
+            </span>
+          </div>
+          ${nearest.isForecast ? '<div style="font-size:8px; color:#d8b4fe; margin-bottom:3px; font-style:italic;">Model Numerik Iklim (Bukan Observasi Aktual)</div>' : ''}
+          <div style="display:grid; grid-template-columns:auto auto; gap:1px 8px;">
             <span style="color:#ef4444;">■ JKT Day</span><span>${nearest.jktDay.toFixed(1)}°C</span>
             <span style="color:#f59e0b;">- JKT Night</span><span>${nearest.jktNight.toFixed(1)}°C</span>
             <span style="color:#10b981;">■ BDG Day</span><span>${nearest.bdgDay.toFixed(1)}°C</span>
