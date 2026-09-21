@@ -331,7 +331,13 @@ export class AttributeTableUI {
 
       features.forEach((f) => {
         if (f.geometry) {
-          extractCoords(f.geometry.coordinates);
+          if ('coordinates' in f.geometry) {
+            extractCoords((f.geometry as any).coordinates);
+          } else if (f.geometry.type === 'GeometryCollection') {
+            (f.geometry as GeoJSON.GeometryCollection).geometries.forEach((g) => {
+              if ('coordinates' in g) extractCoords((g as any).coordinates);
+            });
+          }
         }
       });
 

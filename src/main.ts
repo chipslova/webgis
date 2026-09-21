@@ -695,7 +695,7 @@ class WebGISApp {
     modal.style.display = 'flex';
   }
 
-  private handleExport(exportBtn?: HTMLButtonElement | null) {
+  private handleExport() {
     this.openExportModal();
   }
 
