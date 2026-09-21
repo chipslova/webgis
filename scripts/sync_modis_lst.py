@@ -251,7 +251,8 @@ def fetch_modis_lst():
     
     # 16-day composites across years 2020-2026 for rich interactive visualization
     start_dt = datetime(2020, 1, 1, tzinfo=timezone.utc)
-    end_dt = datetime(2026, 12, 31, tzinfo=timezone.utc)
+    # Strictly cap at current date: only process verified historical satellite observations (no forecasts)
+    end_dt = now_utc
     
     ts_records = []
     csv_rows = []

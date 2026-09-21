@@ -275,7 +275,11 @@ export class GEEPanelUI {
     if (this.timeSeriesData.length === 0) {
       try {
         const res = await fetch('/data/gee_cfsv2_timeseries.json');
-        if (res.ok) { const json = await res.json(); this.timeSeriesData = (json.data as any) || []; }
+        if (res.ok) {
+          const json = await res.json();
+          // Strictly exclude any future forecasts; only display verified historical satellite observations
+          this.timeSeriesData = ((json.data as any[]) || []).filter((d: any) => !d.is_forecast);
+        }
       } catch (e) { /* fallback */ }
     }
 
