@@ -41,6 +41,8 @@ export class GEEPanelUI {
   private isInitialized: boolean = false;
   private isToggleEventsBound: boolean = false;
   private chartPoints: ChartPoint[] = [];
+  private chartResizeObserver: ResizeObserver | null = null;
+  private lastChartWidth: number = 0;
 
   constructor(geeLoader: GEELoader) {
     this.geeLoader = geeLoader;
@@ -283,6 +285,20 @@ export class GEEPanelUI {
 
     const width = (this.canvas.width = this.canvas.parentElement?.clientWidth || 320);
     const height = (this.canvas.height = 200);
+    this.lastChartWidth = width;
+
+    if (!this.chartResizeObserver && this.canvas.parentElement && typeof ResizeObserver !== 'undefined') {
+      this.chartResizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const newW = entry.contentRect.width;
+          if (newW > 50 && Math.abs(newW - this.lastChartWidth) > 8) {
+            this.renderTimeSeriesChart();
+          }
+        }
+      });
+      this.chartResizeObserver.observe(this.canvas.parentElement);
+    }
+
     const P = { top: 24, right: 15, bottom: 30, left: 35 };
     const cW = width - P.left - P.right;
     const cH = height - P.top - P.bottom;

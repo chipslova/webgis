@@ -64,15 +64,30 @@ export class BufferAnalysisUI {
   }
 
   private bindEvents() {
+    const input = document.getElementById('buffer-radius-input') as HTMLInputElement | null;
+    const slider = document.getElementById('buffer-radius-slider') as HTMLInputElement | null;
+
+    if (input && slider) {
+      slider.addEventListener('input', () => {
+        input.value = slider.value;
+      });
+      input.addEventListener('input', () => {
+        const val = parseFloat(input.value);
+        if (!isNaN(val) && val >= 0.5 && val <= 50) {
+          slider.value = String(val);
+        }
+      });
+    }
+
     // Preset chip buttons (1, 5, 10, 25, 50 km)
     const chips = document.querySelectorAll<HTMLButtonElement>('.buffer-preset-chips .btn-chip');
     chips.forEach((chip) => {
       chip.addEventListener('click', (e) => {
         e.preventDefault();
         const r = chip.dataset.radius;
-        const input = document.getElementById('buffer-radius-input') as HTMLInputElement | null;
-        if (input && r) {
-          input.value = r;
+        if (r) {
+          if (input) input.value = r;
+          if (slider) slider.value = r;
         }
       });
     });

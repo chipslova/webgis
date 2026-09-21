@@ -100,6 +100,7 @@ describe('Full WebGIS Feature & Button Audit', () => {
       expect(document.getElementById('spatial-analysis-panel')).not.toBeNull();
       expect(document.getElementById('buffer-layer-select')).not.toBeNull();
       expect(document.getElementById('buffer-radius-input')).not.toBeNull();
+      expect(document.getElementById('buffer-radius-slider')).not.toBeNull();
       expect(document.getElementById('btn-run-buffer-analysis')).not.toBeNull();
     });
 
@@ -414,5 +415,68 @@ describe('Full WebGIS Feature & Button Audit', () => {
       tour.endTour();
       expect(document.getElementById('webgis-tour-card')).toBeNull();
     });
+
+    it('should correctly switch sub-tabs in SpatialAnalysisUI result cards', () => {
+      const container = document.createElement('div');
+      container.id = 'spatial-analysis-panel';
+      document.body.appendChild(container);
+
+      const mockMap: any = {
+        getSource: vi.fn(),
+        addSource: vi.fn(),
+        addLayer: vi.fn(),
+        getStyle: () => ({ layers: [] }),
+        getLayer: vi.fn().mockReturnValue(null),
+        on: vi.fn(),
+        off: vi.fn(),
+        getCanvas: () => ({ style: {} }),
+        flyTo: vi.fn()
+      };
+
+      const spatialUI = new (require('../src/ui/spatial-analysis-ui').SpatialAnalysisUI)(mockMap, 'spatial-analysis-panel');
+      spatialUI.init();
+
+      const mockRes = {
+        regionName: 'Wilayah Uji Sub-Tab',
+        totalAreaKm2: 150,
+        totalAreaHa: 15000,
+        dominantClass: 'Lahan Terbangun / Kota (55%)',
+        timestamp: '21 Sep 2026',
+        isEstimated: false,
+        thermalStats: { minTempC: 24, meanTempC: 30, maxTempC: 35, hotspotAreaKm2: 50, hotspotPercentage: 33 },
+        landCoverBreakdown: [{ code: 7, nameId: 'Kota', color: '#ED022A', areaKm2: 82.5, percentage: 55 }],
+        thermalForecast: {
+          modelName: 'CFSv2',
+          isForecast: true,
+          forecastDays: [{ date: '2026-09-22', dayLabel: 'Sel', maxTempC: 34, minTempC: 24 }],
+          notice: 'Test notice'
+        }
+      };
+
+      (spatialUI as any).renderResult(mockRes);
+
+      const panelLandcover = document.getElementById('aoi-panel-landcover');
+      const panelThermal = document.getElementById('aoi-panel-thermal');
+      const panelForecast = document.getElementById('aoi-panel-forecast');
+      const btnThermal = document.getElementById('tab-btn-thermal');
+      const btnForecast = document.getElementById('tab-btn-forecast');
+
+      expect(panelLandcover?.style.display).toBe('block');
+      expect(panelThermal?.style.display).toBe('none');
+      expect(panelForecast?.style.display).toBe('none');
+
+      // Click Thermal tab
+      btnThermal?.click();
+      expect(panelLandcover?.style.display).toBe('none');
+      expect(panelThermal?.style.display).toBe('block');
+      expect(panelForecast?.style.display).toBe('none');
+
+      // Click Forecast tab
+      btnForecast?.click();
+      expect(panelLandcover?.style.display).toBe('none');
+      expect(panelThermal?.style.display).toBe('none');
+      expect(panelForecast?.style.display).toBe('block');
+    });
   });
 });
+
