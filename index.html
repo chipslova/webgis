@@ -702,6 +702,43 @@
               <div id="measure-result-card" class="result-card" style="display:none;" role="status" aria-live="polite">
                 <div class="result-title">Hasil Pengukuran</div>
                 <div id="measure-result-value" class="result-value">0 km</div>
+                
+                <!-- Elevation Profile Section (Only shown when measuring distance with 3D terrain) -->
+                <div id="measure-elevation-profile" class="measure-elevation-profile" style="display: none;">
+                  <div class="profile-header">
+                    <span class="profile-title">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+                      Profil Elevasi Melintang (DEM 3D)
+                    </span>
+                    <span id="profile-status-badge" class="profile-badge">Medan 3D</span>
+                  </div>
+
+                  <div class="profile-stats-grid">
+                    <div class="profile-stat-box" title="Ketinggian terendah di sepanjang garis">
+                      <span class="stat-label">Min</span>
+                      <span id="profile-min-elev" class="stat-val">- mdpl</span>
+                    </div>
+                    <div class="profile-stat-box" title="Ketinggian tertinggi di sepanjang garis">
+                      <span class="stat-label">Maks</span>
+                      <span id="profile-max-elev" class="stat-val">- mdpl</span>
+                    </div>
+                    <div class="profile-stat-box" title="Total kenaikan elevasi (ascent)">
+                      <span class="stat-label">Naik (+)</span>
+                      <span id="profile-gain-elev" class="stat-val text-emerald">- m</span>
+                    </div>
+                    <div class="profile-stat-box" title="Total penurunan elevasi (descent)">
+                      <span class="stat-label">Turun (-)</span>
+                      <span id="profile-loss-elev" class="stat-val text-rose">- m</span>
+                    </div>
+                  </div>
+
+                  <div id="measure-elevation-chart-container" class="profile-chart-container">
+                    <svg id="measure-elevation-svg" class="profile-svg" viewBox="0 0 320 120" preserveAspectRatio="none"></svg>
+                    <div id="profile-chart-tooltip" class="profile-chart-tooltip" style="display: none;"></div>
+                  </div>
+                  <div class="profile-chart-hint">Geser kursor di atas grafik untuk melacak titik &amp; elevasi di peta</div>
+                </div>
+
                 <div class="result-help">Klik ganda pada peta atau tombol di bawah untuk menyelesaikan:</div>
                 <button id="btn-measure-finish" class="btn btn-secondary btn-sm full-width" style="margin-top: 8px;" aria-label="Selesaikan pengukuran aktif">
                   ✓ Selesaikan Pengukuran

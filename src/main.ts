@@ -3,7 +3,7 @@ import { MapManager } from './map/map-manager';
 import { SidebarUI, type TabId } from './ui/sidebar';
 import { StatusBarUI } from './ui/status-bar';
 import { GeocoderTool } from './tools/geocoder';
-import { MeasureTool } from './tools/measure';
+import { MeasureTool, type ElevationProfileSummary } from './tools/measure';
 import { GeoJsonLoader } from './tools/geojson-loader';
 import { GEELoader } from './tools/gee-loader';
 import { GEEPanelUI } from './ui/gee-panel';
@@ -311,6 +311,7 @@ class WebGISApp {
           card.style.display = res.text ? 'block' : 'none';
           val.innerText = res.text || '0';
         }
+        this.renderElevationProfileChart(res.profile || null);
         this.mapManager.enforceLayerOrder();
         this.dynamicLegendUI?.render();
       });
@@ -871,17 +872,161 @@ class WebGISApp {
         if (this.measureTool && this.measureTool.getMode() !== 'none') {
           this.measureTool.clear();
           document.getElementById('btn-measure-dist')?.classList.remove('active');
-          document.getElementById('btn-measure-area')?.classList.remove('active');
-          const card = document.getElementById('measure-result-card');
-          if (card) card.style.display = 'none';
-          const instructionBox = document.getElementById('measure-instruction-box');
-          if (instructionBox) instructionBox.style.display = 'none';
           showToast('Mode pengukuran dibatalkan', 'info');
           return true;
         }
         return false;
       }
     ]);
+  }
+
+  private renderElevationProfileChart(profile: ElevationProfileSummary | null) {
+    const profileSection = document.getElementById('measure-elevation-profile');
+    if (!profileSection) return;
+
+    if (!profile || !profile.points || profile.points.length < 2) {
+      profileSection.style.display = 'none';
+      return;
+    }
+
+    profileSection.style.display = 'block';
+
+    const minEl = document.getElementById('profile-min-elev');
+    const maxEl = document.getElementById('profile-max-elev');
+    const gainEl = document.getElementById('profile-gain-elev');
+    const lossEl = document.getElementById('profile-loss-elev');
+    const badgeEl = document.getElementById('profile-status-badge');
+
+    if (minEl) minEl.innerText = `${profile.minElevation.toLocaleString('id-ID')} mdpl`;
+    if (maxEl) maxEl.innerText = `${profile.maxElevation.toLocaleString('id-ID')} mdpl`;
+    if (gainEl) gainEl.innerText = `+${profile.totalGain.toLocaleString('id-ID')} m`;
+    if (lossEl) lossEl.innerText = `-${profile.totalLoss.toLocaleString('id-ID')} m`;
+    if (badgeEl) badgeEl.innerText = `${profile.points.length} Titik DEM`;
+
+    const svg = document.getElementById('measure-elevation-svg') as SVGSVGElement | null;
+    const tooltip = document.getElementById('profile-chart-tooltip');
+    const container = document.getElementById('measure-elevation-chart-container');
+    if (!svg) return;
+
+    const width = 320;
+    const height = 120;
+    const padL = 34;
+    const padR = 12;
+    const padT = 14;
+    const padB = 22;
+
+    const plotW = width - padL - padR;
+    const plotH = height - padT - padB;
+
+    const minElev = profile.minElevation;
+    const maxElev = profile.maxElevation;
+    const elevRange = Math.max(10, maxElev - minElev);
+    const totalDist = profile.points[profile.points.length - 1].distanceKm || 1;
+
+    // Build SVG path
+    const coordsSvg = profile.points.map((pt) => {
+      const x = padL + (pt.distanceKm / totalDist) * plotW;
+      const y = padT + plotH - ((pt.elevationM - minElev) / elevRange) * plotH;
+      return { x, y, pt };
+    });
+
+    const linePathD = coordsSvg.map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`).join(' ');
+    const areaPathD = `${linePathD} L ${(padL + plotW).toFixed(1)} ${(padT + plotH).toFixed(1)} L ${padL.toFixed(1)} ${(padT + plotH).toFixed(1)} Z`;
+
+    const midElev = Math.round((minElev + maxElev) / 2);
+
+    svg.innerHTML = `
+      <defs>
+        <linearGradient id="elevGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#00f0ff" stop-opacity="0.02"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Background grid lines -->
+      <line x1="${padL}" y1="${padT}" x2="${padL + plotW}" y2="${padT}" stroke="rgba(255,255,255,0.1)" stroke-dasharray="2,2"/>
+      <line x1="${padL}" y1="${padT + plotH / 2}" x2="${padL + plotW}" y2="${padT + plotH / 2}" stroke="rgba(255,255,255,0.07)" stroke-dasharray="2,2"/>
+      <line x1="${padL}" y1="${padT + plotH}" x2="${padL + plotW}" y2="${padT + plotH}" stroke="rgba(255,255,255,0.15)"/>
+
+      <!-- Y-Axis Labels -->
+      <text x="${padL - 4}" y="${padT + 3}" fill="#94a3b8" font-size="8" text-anchor="end">${maxElev}</text>
+      <text x="${padL - 4}" y="${padT + plotH / 2 + 3}" fill="#64748b" font-size="8" text-anchor="end">${midElev}</text>
+      <text x="${padL - 4}" y="${padT + plotH + 3}" fill="#94a3b8" font-size="8" text-anchor="end">${minElev}</text>
+
+      <!-- X-Axis Labels -->
+      <text x="${padL}" y="${height - 6}" fill="#94a3b8" font-size="8" text-anchor="start">0 km</text>
+      <text x="${padL + plotW}" y="${height - 6}" fill="#94a3b8" font-size="8" text-anchor="end">${totalDist.toFixed(1)} km</text>
+
+      <!-- Area Fill -->
+      <path d="${areaPathD}" fill="url(#elevGrad)"/>
+
+      <!-- Glowing Line -->
+      <path d="${linePathD}" fill="none" stroke="#00f0ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- Interactive Crosshair Elements -->
+      <g id="svg-interactive-cursor" style="display: none;">
+        <line id="svg-cursor-line" x1="0" y1="${padT}" x2="0" y2="${padT + plotH}" stroke="#38bdf8" stroke-width="1.2" stroke-dasharray="3,2"/>
+        <circle id="svg-cursor-dot" cx="0" cy="0" r="4.5" fill="#00f0ff" stroke="#ffffff" stroke-width="1.8"/>
+      </g>
+    `;
+
+    if (container) {
+      const cursorGroup = svg.querySelector('#svg-interactive-cursor') as SVGGElement | null;
+      const cursorLine = svg.querySelector('#svg-cursor-line') as SVGLineElement | null;
+      const cursorDot = svg.querySelector('#svg-cursor-dot') as SVGCircleElement | null;
+
+      const handleMove = (e: MouseEvent | TouchEvent) => {
+        const rect = container.getBoundingClientRect();
+        const clientX = 'touches' in e && e.touches.length > 0 ? e.touches[0].clientX : (e as MouseEvent).clientX;
+        const relativeX = clientX - rect.left;
+        const scaleX = width / (rect.width || 1);
+        const svgX = relativeX * scaleX;
+
+        // Clamp to plot area
+        const clampedSvgX = Math.max(padL, Math.min(padL + plotW, svgX));
+        const distRatio = (clampedSvgX - padL) / plotW;
+        const targetDist = distRatio * totalDist;
+
+        // Find nearest point
+        let nearest = coordsSvg[0];
+        let minDiff = Infinity;
+        for (const item of coordsSvg) {
+          const diff = Math.abs(item.pt.distanceKm - targetDist);
+          if (diff < minDiff) {
+            minDiff = diff;
+            nearest = item;
+          }
+        }
+
+        if (cursorGroup && cursorLine && cursorDot) {
+          cursorGroup.style.display = 'block';
+          cursorLine.setAttribute('x1', nearest.x.toFixed(1));
+          cursorLine.setAttribute('x2', nearest.x.toFixed(1));
+          cursorDot.setAttribute('cx', nearest.x.toFixed(1));
+          cursorDot.setAttribute('cy', nearest.y.toFixed(1));
+        }
+
+        if (tooltip) {
+          tooltip.style.display = 'block';
+          tooltip.innerHTML = `<strong>${nearest.pt.elevationM.toLocaleString('id-ID')} mdpl</strong> &bull; ${nearest.pt.distanceKm.toFixed(2)} km`;
+          const leftPercent = (nearest.x / width) * 100;
+          tooltip.style.left = `${Math.max(10, Math.min(90, leftPercent))}%`;
+        }
+
+        this.measureTool?.highlightProfileCoordinate(nearest.pt.coord);
+      };
+
+      const handleLeave = () => {
+        if (cursorGroup) cursorGroup.style.display = 'none';
+        if (tooltip) tooltip.style.display = 'none';
+        this.measureTool?.highlightProfileCoordinate(null);
+      };
+
+      container.onmousemove = handleMove;
+      container.ontouchmove = handleMove;
+      container.onmouseleave = handleLeave;
+      container.ontouchend = handleLeave;
+    }
   }
 
   public getSwipeCompareUI(): SwipeCompareUI | null {

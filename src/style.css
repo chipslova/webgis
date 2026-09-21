@@ -8994,6 +8994,185 @@ html, body, #app {
   text-decoration: underline;
 }
 
+/* Priority 2: Glassmorphic Dark Theme Scale Bar */
+.maplibregl-ctrl-scale {
+  background: rgba(10, 15, 29, 0.85) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 240, 255, 0.45) !important;
+  border-top: none !important;
+  color: #e2e8f0 !important;
+  font-family: var(--font-mono, 'JetBrains Mono', 'Fira Code', monospace) !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  padding: 3px 8px !important;
+  border-radius: 0 0 4px 4px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9) !important;
+  box-sizing: border-box !important;
+  margin-bottom: 2px !important;
+}
+
+/* ==========================================================================
+   Elevation Cross-Section Profile (DEM 3D) on Measure Tool
+   ========================================================================== */
+
+.measure-elevation-profile {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.profile-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #38bdf8;
+}
+
+.profile-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 240, 255, 0.12);
+  color: #00f0ff;
+  border: 1px solid rgba(0, 240, 255, 0.25);
+}
+
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.profile-stat-box {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.profile-stat-box .stat-label {
+  font-size: 9px;
+  color: var(--text-muted, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 2px;
+}
+
+.profile-stat-box .stat-val {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.text-emerald {
+  color: #10b981 !important;
+}
+
+.text-rose {
+  color: #f43f5e !important;
+}
+
+.profile-chart-container {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  background: rgba(10, 15, 29, 0.7);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+.profile-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.profile-chart-tooltip {
+  position: absolute;
+  top: 6px;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid #00f0ff;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 10px;
+  color: #f8fafc;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+.profile-chart-hint {
+  font-size: 10px;
+  color: var(--text-muted, #64748b);
+  text-align: center;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* Map Highlight Crosshair Marker */
+.measure-profile-marker {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+}
+
+.measure-marker-pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 240, 255, 0.35);
+  animation: marker-pulse-anim 1.5s ease-out infinite;
+}
+
+.measure-marker-core {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #00f0ff;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 10px #00f0ff;
+}
+
+@keyframes marker-pulse-anim {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
 /* ==========================================================================
    GEE Live Panel Restructure & Harmonized Typography
    ========================================================================== */

@@ -6,6 +6,26 @@ import { logger } from '../utils/logger';
 
 export type MeasureMode = 'none' | 'distance' | 'area';
 
+export interface ElevationProfilePoint {
+  distanceKm: number;
+  elevationM: number;
+  coord: [number, number];
+}
+
+export interface ElevationProfileSummary {
+  minElevation: number;
+  maxElevation: number;
+  totalGain: number;
+  totalLoss: number;
+  points: ElevationProfilePoint[];
+}
+
+export interface MeasureResult {
+  text: string;
+  mode: MeasureMode;
+  profile?: ElevationProfileSummary | null;
+}
+
 export class MeasureTool {
   private map: maplibregl.Map;
   private mode: MeasureMode = 'none';
@@ -17,7 +37,8 @@ export class MeasureTool {
   };
 
   private tooltip: maplibregl.Popup | null = null;
-  private onResultCallback?: (result: { text: string; mode: MeasureMode }) => void;
+  private hoverMarker: maplibregl.Marker | null = null;
+  private onResultCallback?: (result: MeasureResult) => void;
 
   constructor(map: maplibregl.Map) {
     this.map = map;
@@ -156,19 +177,21 @@ export class MeasureTool {
     } catch (_) {}
 
     // Keyboard support: Escape cancels measuring, 'z'/'Z' undoes last vertex
-    window.addEventListener('keydown', (e: KeyboardEvent) => {
-      if (this.mode === 'none') return;
-      const activeEl = document.activeElement;
-      const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.getAttribute('contenteditable') === 'true');
-      if (isInput) return;
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (this.mode === 'none') return;
+        const activeEl = typeof document !== 'undefined' ? document.activeElement : null;
+        const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.getAttribute('contenteditable') === 'true');
+        if (isInput) return;
 
-      if (e.key === 'Escape') {
-        this.setMode('none');
-        this.clear();
-      } else if ((e.key === 'z' || e.key === 'Z') && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        this.undoLastPoint();
-      }
-    });
+        if (e.key === 'Escape') {
+          this.setMode('none');
+          this.clear();
+        } else if ((e.key === 'z' || e.key === 'Z') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          this.undoLastPoint();
+        }
+      });
+    }
   }
 
   public setMode(mode: MeasureMode) {
@@ -234,8 +257,9 @@ export class MeasureTool {
       this.tooltip.remove();
       this.tooltip = null;
     }
+    this.highlightProfileCoordinate(null);
     if (this.onResultCallback) {
-      this.onResultCallback({ text: '0', mode: this.mode });
+      this.onResultCallback({ text: '0', mode: this.mode, profile: null });
     }
   }
 
@@ -303,6 +327,131 @@ export class MeasureTool {
     // NOTE: Layer ordering is handled centrally by MapManager.bringCustomLayersToTop()
   }
 
+  /** Compute 3D elevation cross-section profile along the measured line */
+  public computeElevationProfile(coords: [number, number][] = this.points): ElevationProfileSummary | null {
+    if (this.mode !== 'distance' || coords.length < 2) {
+      return null;
+    }
+
+    try {
+      const line = lineString(coords);
+      const totalKm = length(line, { units: 'kilometers' });
+      if (totalKm <= 0) return null;
+
+      // Determine sampling target (between 25 and 50 points)
+      const targetSamples = Math.min(50, Math.max(25, Math.round(totalKm * 20)));
+      const profilePoints: ElevationProfilePoint[] = [];
+
+      let cumulativeDist = 0;
+      let prevElev: number | null = null;
+      let totalGain = 0;
+      let totalLoss = 0;
+      let minElevation = Infinity;
+      let maxElevation = -Infinity;
+      let validElevationCount = 0;
+
+      // Segments
+      const segments: { start: [number, number]; end: [number, number]; lenKm: number }[] = [];
+      for (let i = 0; i < coords.length - 1; i++) {
+        const segLen = length(lineString([coords[i], coords[i + 1]]), { units: 'kilometers' });
+        segments.push({ start: coords[i], end: coords[i + 1], lenKm: segLen });
+      }
+
+      for (let s = 0; s < segments.length; s++) {
+        const seg = segments[s];
+        if (seg.lenKm <= 0) continue;
+
+        const segSamples = Math.max(2, Math.round((seg.lenKm / totalKm) * targetSamples));
+        const isLastSeg = s === segments.length - 1;
+        const count = isLastSeg ? segSamples : segSamples - 1;
+
+        for (let j = 0; j <= count; j++) {
+          const t = j / segSamples;
+          const sampleLng = seg.start[0] + t * (seg.end[0] - seg.start[0]);
+          const sampleLat = seg.start[1] + t * (seg.end[1] - seg.start[1]);
+          const d = cumulativeDist + t * seg.lenKm;
+
+          let elev = 0;
+          let hasRealElevation = false;
+
+          if (this.map && typeof (this.map as any).queryTerrainElevation === 'function') {
+            try {
+              const queried = (this.map as any).queryTerrainElevation([sampleLng, sampleLat]);
+              if (typeof queried === 'number' && !isNaN(queried)) {
+                elev = Math.round(queried);
+                hasRealElevation = true;
+              }
+            } catch {
+              // Ignore terrain sampling error
+            }
+          }
+
+          if (hasRealElevation) {
+            validElevationCount++;
+            if (elev < minElevation) minElevation = elev;
+            if (elev > maxElevation) maxElevation = elev;
+
+            if (prevElev !== null) {
+              const delta = elev - prevElev;
+              if (delta > 0) totalGain += delta;
+              else if (delta < 0) totalLoss += Math.abs(delta);
+            }
+            prevElev = elev;
+          }
+
+          profilePoints.push({
+            distanceKm: Number(d.toFixed(3)),
+            elevationM: elev,
+            coord: [sampleLng, sampleLat]
+          });
+        }
+        cumulativeDist += seg.lenKm;
+      }
+
+      if (profilePoints.length === 0 || validElevationCount === 0) {
+        return null;
+      }
+
+      return {
+        minElevation: minElevation === Infinity ? 0 : minElevation,
+        maxElevation: maxElevation === -Infinity ? 0 : maxElevation,
+        totalGain: Math.round(totalGain),
+        totalLoss: Math.round(totalLoss),
+        points: profilePoints
+      };
+    } catch (e) {
+      logger.warn('[MeasureTool] Failed to compute elevation profile:', e);
+      return null;
+    }
+  }
+
+  /** Highlight a specific point along the elevation chart onto the live map canvas */
+  public highlightProfileCoordinate(coord: [number, number] | null) {
+    if (!this.map) return;
+    if (!coord) {
+      if (this.hoverMarker) {
+        try {
+          this.hoverMarker.remove();
+        } catch {}
+        this.hoverMarker = null;
+      }
+      return;
+    }
+
+    try {
+      if (!this.hoverMarker) {
+        const el = document.createElement('div');
+        el.className = 'measure-profile-marker';
+        el.innerHTML = '<div class="measure-marker-pulse"></div><div class="measure-marker-core"></div>';
+        this.hoverMarker = new maplibregl.Marker({ element: el, anchor: 'center' });
+      }
+
+      this.hoverMarker.setLngLat(coord).addTo(this.map);
+    } catch {
+      // Gracefully handle mock or unmounted maps
+    }
+  }
+
   private updateTooltip(position: [number, number], coords: [number, number][]) {
     let text = '';
 
@@ -337,12 +486,14 @@ export class MeasureTool {
       .setHTML(`<div style="padding: 6px 10px; font-weight: 600; font-size: 12px; color: #0f172a; background: white; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">${text}</div>`)
       .addTo(this.map);
 
+    const profile = this.computeElevationProfile(coords);
+
     if (this.onResultCallback) {
-      this.onResultCallback({ text, mode: this.mode });
+      this.onResultCallback({ text, mode: this.mode, profile });
     }
   }
 
-  public onResult(callback: (result: { text: string; mode: MeasureMode }) => void) {
+  public onResult(callback: (result: MeasureResult) => void) {
     this.onResultCallback = callback;
   }
 
@@ -397,4 +548,5 @@ export class MeasureTool {
     }
   }
 }
+
 
