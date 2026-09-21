@@ -563,9 +563,9 @@
               <div class="panel-header">
                 <div class="piksel-panel-badge-row">
                   <h2>Analisis Spasial</h2>
-                  <span class="piksel-national-badge analysis-badge">Turf.js + EO Metrics</span>
+                  <span class="piksel-national-badge analysis-badge">Turf.js + Spatial Intersection</span>
                 </div>
-                <p>Alat analisis statistik zonal wilayah (AOI) dan kalkulasi proximity buffer geodesik.</p>
+                <p>Alat estimasi profil zonal wilayah (AOI) dan analisis proximity buffer geodesik interaktif.</p>
               </div>
 
               <!-- Module 1: Zonal Statistics & Land Cover / Thermal AOI Analysis -->
@@ -576,17 +576,17 @@
                 <div class="analysis-card-header">
                   <div class="analysis-card-title">
                     <span class="analysis-icon">⭕</span>
-                    <h3>Analisis Buffer Spasial (Proximity)</h3>
+                    <h3>Analisis Buffer Spasial (Proximity & Overlay)</h3>
                   </div>
                   <span class="piksel-hint">Geodesic Buffer</span>
                 </div>
                 <p class="analysis-desc">
-                  Hasilkan zona penyangga (buffer zone) geodesik di sekitar fitur spasial atau lapisan data vektor aktif.
+                  Hasilkan zona penyangga (buffer) geodesik dan hitung titik/fitur yang terdampak (spatial intersection) dari lapisan data vektor lain.
                 </p>
 
                 <div class="buffer-form-grid">
                   <div class="form-group">
-                    <label for="buffer-layer-select" class="form-label-sm">Pilih Lapisan Data Target:</label>
+                    <label for="buffer-layer-select" class="form-label-sm">Pilih Lapisan Sumber Buffer:</label>
                     <select id="buffer-layer-select" class="form-select form-select-sm">
                       <option value="" disabled selected>Pilih lapisan aktif atau import...</option>
                     </select>
@@ -608,10 +608,25 @@
                   <button type="button" class="btn-chip" data-radius="50">50 km</button>
                 </div>
 
-                <div class="buffer-action-row">
-                  <button id="btn-run-buffer-analysis" class="btn btn-primary full-width" aria-label="Jalankan kalkulasi buffer spasial">
+                <!-- Secondary Overlay Layer for Spatial Intersection Query -->
+                <div class="form-group" style="margin-top: 10px;">
+                  <label for="buffer-overlay-select" class="form-label-sm">Hitung Fitur Terdampak / Intersection (Opsional):</label>
+                  <select id="buffer-overlay-select" class="form-select form-select-sm">
+                    <option value="" selected>-- Tanpa Intersection (Hanya Poligon Buffer) --</option>
+                  </select>
+                  <span style="font-size: 9.5px; color: var(--text-muted); display: block; margin-top: 3px;">
+                    💡 Pilih layer titik/garis/poligon kedua untuk menghitung berapa banyak objek yang berada di dalam radius buffer ini.
+                  </span>
+                </div>
+
+                <div class="buffer-action-row" style="display: flex; gap: 8px; margin-top: 12px;">
+                  <button id="btn-run-buffer-analysis" class="btn btn-primary" style="flex: 1;" aria-label="Jalankan kalkulasi buffer spasial">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-                    Hitung Zona Penyangga (Buffer)
+                    Hitung Buffer
+                  </button>
+                  <button id="btn-clear-buffer-analysis" class="btn btn-outline" style="white-space: nowrap; color: #f87171; border-color: rgba(239, 68, 68, 0.4); padding: 6px 12px;" title="Hapus seluruh layer buffer aktif dari peta">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    Hapus Buffer
                   </button>
                 </div>
 
@@ -980,6 +995,19 @@
           <div id="map-status-pill" class="map-status-pill" style="display: none;" role="status" aria-live="polite">
             <span class="map-status-dot" aria-hidden="true"></span>
             <span id="map-status-text">Basemap Active · Select satellite imagery or analysis from sidebar</span>
+          </div>
+
+          <!-- Floating Interactive Drawing Toolbar (Auto-collapsed sidebar companion) -->
+          <div id="aoi-floating-pill" class="aoi-floating-pill" style="display: none;" role="toolbar" aria-label="Alat Penggambar Area Analisis">
+            <div class="aoi-pill-indicator">
+              <span class="aoi-pill-dot" aria-hidden="true"></span>
+              <span id="aoi-pill-status-text">🎯 Mode Gambar AOI: Klik peta untuk simpul batas...</span>
+            </div>
+            <div class="aoi-pill-actions">
+              <button id="btn-pill-undo" class="btn-pill-action" title="Hapus titik terakhir (Z)" aria-label="Hapus titik terakhir">↩ Undo</button>
+              <button id="btn-pill-cancel" class="btn-pill-action cancel" title="Batalkan penggambaran" aria-label="Batalkan gambar">✕ Batal</button>
+              <button id="btn-pill-finish" class="btn-pill-action finish" title="Selesaikan poligon (Min 3 titik)" aria-label="Selesaikan poligon">✓ Selesai</button>
+            </div>
           </div>
         </main>
 

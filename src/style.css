@@ -9505,3 +9505,147 @@ html, body, #app {
   border-radius: 3px;
   white-space: nowrap;
 }
+
+/* ==========================================================================
+   Interactive Drawing Floating Pill Toolbar
+   ========================================================================== */
+.aoi-floating-pill {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  border-radius: 40px;
+  padding: 7px 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 15px rgba(56, 189, 248, 0.2);
+  pointer-events: auto;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 90vw;
+}
+
+.aoi-pill-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: #38bdf8;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.aoi-pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00f0ff;
+  box-shadow: 0 0 8px #00f0ff;
+  display: inline-block;
+  animation: aoi-pulse 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes aoi-pulse {
+  from { opacity: 0.4; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1.2); }
+}
+
+.aoi-pill-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-pill-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f1f5f9;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-pill-action:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-pill-action.finish {
+  background: #10b981;
+  border-color: #059669;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+}
+
+.btn-pill-action.finish:hover {
+  background: #059669;
+  border-color: #047857;
+}
+
+.btn-pill-action.cancel {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+}
+
+.btn-pill-action.cancel:hover {
+  background: rgba(239, 68, 68, 0.35);
+  color: #ffffff;
+}
+
+@media (max-width: 640px) {
+  .aoi-floating-pill {
+    top: 10px;
+    padding: 6px 10px;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-radius: 12px;
+  }
+  .aoi-pill-indicator {
+    font-size: 10.5px;
+  }
+  .btn-pill-action {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+}
+
+/* ==========================================================================
+   Height-Responsive Navigation Tabs (for Laptop Split-Screen & Short Displays)
+   ========================================================================== */
+@media (max-height: 720px) {
+  .sidebar-nav {
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+    padding-bottom: 8px !important;
+  }
+  .sidebar-nav::-webkit-scrollbar {
+    display: none;
+  }
+  .sidebar-tab-btn {
+    min-height: 46px !important;
+    padding: 5px 2px !important;
+    gap: 2px !important;
+  }
+  .sidebar-nav-icon {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  .sidebar-tab-btn span {
+    font-size: 9px !important;
+  }
+}

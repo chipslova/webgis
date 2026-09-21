@@ -214,7 +214,7 @@ export class SpatialAnalysisEngine {
       }),
       geojson: aoiFeature,
       isEstimated: true,
-      estimationMethod: 'Heuristik berbasis koordinat & nama wilayah — bukan sampling piksel GEE'
+      estimationMethod: 'Model empiris berbasis koordinat & tipologi wilayah — Estimator Cepat (Bukan sampling piksel mentah GEE)'
     };
   }
 
@@ -301,11 +301,11 @@ export class SpatialAnalysisEngine {
    */
   public static exportToCSV(result: ZonalAnalysisResult): string {
     const lines: string[] = [];
-    lines.push(`LAPORAN ANALISIS STATISTIK SPASIAL WILAYAH (AOI ZONAL STATS)`);
+    lines.push(`LAPORAN ANALISIS STATISTIK SPASIAL WILAYAH — ESTIMASI ZONAL CEPAT (HEURISTIC REGIONAL PROXY)`);
     lines.push(`Wilayah Analisis,${result.regionName}`);
     lines.push(`Waktu Komputasi,${result.timestamp}`);
-    lines.push(`Status Data,${result.isEstimated ? 'ESTIMASI KASAR — bukan sampling piksel GEE asli' : 'Data aktual'}`);
-    lines.push(`Metode Estimasi,${result.estimationMethod || '-'}`);
+    lines.push(`Status Metodologi,${result.isEstimated ? 'MODEL PROXY HEURISTIK — Aproksimasi empiris profil wilayah (Bukan sampling piksel mentah GEE)' : 'Data aktual'}`);
+    lines.push(`Metode,${result.estimationMethod || '-'}`);
     lines.push(`Luas Total (km²),${result.totalAreaKm2}`);
     lines.push(`Luas Total (Hektar),${result.totalAreaHa}`);
     lines.push(`Kelas Dominan,${result.dominantClass}`);

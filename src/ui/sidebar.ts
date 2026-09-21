@@ -58,15 +58,30 @@ export class SidebarUI {
   }
 
   /**
-   * Bind the global custom event for auto-collapsing the sidebar on mobile.
-   * Uses this.setOpen(false) to keep internal state and DOM in sync â€”
+   * Bind the global custom event for auto-collapsing the sidebar on mobile and during map drawing.
+   * Uses this.setOpen(false) to keep internal state and DOM in sync —
    * prevents the isOpen state drift that occurred when manipulating DOM directly.
    */
+  private wasOpenBeforeDrawing: boolean = false;
+
   private bindGlobalCollapseEvent() {
     if (typeof window === 'undefined') return;
     window.addEventListener('webgis:collapse-sidebar-if-mobile', () => {
       if (window.innerWidth <= 768 && this.isOpen) {
         this.setOpen(false);
+      }
+    });
+
+    window.addEventListener('webgis:collapse-sidebar-for-drawing', () => {
+      this.wasOpenBeforeDrawing = this.isOpen;
+      if (this.isOpen) {
+        this.setOpen(false);
+      }
+    });
+
+    window.addEventListener('webgis:restore-sidebar-after-drawing', () => {
+      if (this.wasOpenBeforeDrawing && !this.isOpen) {
+        this.setOpen(true);
       }
     });
   }

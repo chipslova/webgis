@@ -545,22 +545,48 @@ export class GeoJsonLoader {
 
   /**
    * Creates a geodesic proximity buffer around an existing custom layer (lazily loaded)
+   * with optional spatial intersection against an overlay target layer.
    */
   public async createBufferForLayer(
     sourceLayerId: string,
     radius: number,
-    units: 'meters' | 'kilometers' | 'miles' = 'kilometers'
-  ): Promise<{ success: boolean; bufferLayerId?: string; error?: string; areaKm2?: number }> {
+    units: 'meters' | 'kilometers' | 'miles' = 'kilometers',
+    overlayLayerId?: string
+  ): Promise<{
+    success: boolean;
+    bufferLayerId?: string;
+    error?: string;
+    areaKm2?: number;
+    warning?: string;
+    intersection?: import('./spatial-buffer').BufferIntersectionResult;
+  }> {
     const sourceItem = this.customLayers.get(sourceLayerId);
     if (!sourceItem || !sourceItem.data) {
-      return { success: false, error: 'Source layer not found.' };
+      return { success: false, error: 'Lapisan target sumber tidak ditemukan.' };
+    }
+
+    let overlayGeoJSON: GeoJSON.FeatureCollection | undefined;
+    let overlayLayerName: string | undefined;
+
+    if (overlayLayerId) {
+      const overlayItem = this.customLayers.get(overlayLayerId);
+      if (overlayItem && overlayItem.data) {
+        overlayGeoJSON = overlayItem.data;
+        overlayLayerName = overlayItem.name;
+      }
     }
 
     try {
       const { SpatialBufferAnalyzer } = await import('./spatial-buffer');
-      const bufferRes = SpatialBufferAnalyzer.createBuffer(sourceItem.data, { radius, units });
+      const bufferRes = SpatialBufferAnalyzer.createBuffer(sourceItem.data, {
+        radius,
+        units,
+        overlayGeoJSON,
+        overlayLayerName
+      });
+
       if (!bufferRes.success || !bufferRes.data) {
-        return { success: false, error: bufferRes.error || 'Failed to calculate buffer zone.' };
+        return { success: false, error: bufferRes.error || 'Gagal menghitung zona penyangga.' };
       }
 
       const bufferLayerId = `buffer-${Date.now()}`;
@@ -569,7 +595,7 @@ export class GeoJsonLoader {
 
       const added = this.addGeoJSONLayer(bufferLayerId, bufferLayerName, bufferRes.data, bufferColor);
       if (!added) {
-        return { success: false, error: 'Failed to add buffer layer to map.' };
+        return { success: false, error: 'Gagal menambahkan layer buffer ke peta.' };
       }
 
       // Set gentle fill opacity for buffer zones
@@ -579,12 +605,36 @@ export class GeoJsonLoader {
       return {
         success: true,
         bufferLayerId,
-        areaKm2: bufferRes.areaKm2
+        areaKm2: bufferRes.areaKm2,
+        warning: bufferRes.warning,
+        intersection: bufferRes.intersection
       };
     } catch (err: any) {
       logger.error('Failed to dynamically load spatial buffer analyzer:', err);
-      return { success: false, error: 'Failed to load buffer analysis module.' };
+      return { success: false, error: 'Gagal memuat modul analisis buffer.' };
     }
+  }
+
+  /**
+   * Removes all generated buffer layers from the map and custom layer registry
+   */
+  public removeBufferLayers(): number {
+    const bufferLayerIds: string[] = [];
+    this.customLayers.forEach((_, id) => {
+      if (id.startsWith('buffer-')) {
+        bufferLayerIds.push(id);
+      }
+    });
+
+    bufferLayerIds.forEach((id) => {
+      this.removeLayer(id);
+    });
+
+    if (bufferLayerIds.length > 0) {
+      this.notifyLayersChange();
+    }
+
+    return bufferLayerIds.length;
   }
 }
 

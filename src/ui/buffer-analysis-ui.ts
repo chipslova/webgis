@@ -5,6 +5,7 @@ import { announceToScreenReader } from '../utils/a11y';
 export class BufferAnalysisUI {
   private geojsonLoader: GeoJsonLoader;
   private onBufferCreatedCallback?: () => void;
+  private lastIntersectedGeoJSON: GeoJSON.FeatureCollection | null = null;
 
   constructor(geojsonLoader: GeoJsonLoader, onBufferCreated?: () => void) {
     this.geojsonLoader = geojsonLoader;
@@ -18,10 +19,15 @@ export class BufferAnalysisUI {
 
   public updateLayerSelect() {
     const select = document.getElementById('buffer-layer-select') as HTMLSelectElement | null;
+    const overlaySelect = document.getElementById('buffer-overlay-select') as HTMLSelectElement | null;
     if (!select) return;
 
     const layers = this.geojsonLoader.getLayers();
     select.innerHTML = '';
+
+    if (overlaySelect) {
+      overlaySelect.innerHTML = '<option value="" selected>-- Tanpa Intersection (Hanya Poligon Buffer) --</option>';
+    }
 
     if (layers.length === 0) {
       const opt = document.createElement('option');
@@ -37,14 +43,23 @@ export class BufferAnalysisUI {
     defaultOpt.value = '';
     defaultOpt.disabled = true;
     defaultOpt.selected = true;
-    defaultOpt.textContent = 'Pilih Lapisan Target...';
+    defaultOpt.textContent = 'Pilih Lapisan Sumber Buffer...';
     select.appendChild(defaultOpt);
 
     layers.forEach((layer) => {
+      // Source layer option
       const opt = document.createElement('option');
       opt.value = layer.id;
       opt.textContent = `${layer.name} (${layer.featureCount} fitur)`;
       select.appendChild(opt);
+
+      // Overlay layer option
+      if (overlaySelect) {
+        const overlayOpt = document.createElement('option');
+        overlayOpt.value = layer.id;
+        overlayOpt.textContent = `🎯 ${layer.name} (${layer.featureCount} fitur)`;
+        overlaySelect.appendChild(overlayOpt);
+      }
     });
   }
 
@@ -67,21 +82,59 @@ export class BufferAnalysisUI {
     if (runBtn) {
       runBtn.addEventListener('click', () => this.runBufferCalculation());
     }
+
+    // Clear Buffer button
+    const clearBtn = document.getElementById('btn-clear-buffer-analysis');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => this.clearAllBuffers());
+    }
+  }
+
+  public clearAllBuffers() {
+    const removedCount = this.geojsonLoader.removeBufferLayers();
+    const statusBox = document.getElementById('buffer-analysis-status');
+    this.lastIntersectedGeoJSON = null;
+
+    if (removedCount > 0) {
+      showToast(`Berhasil menghapus ${removedCount} layer buffer dari peta.`, 'info');
+      announceToScreenReader(`Seluruh layer buffer telah dihapus.`);
+      if (statusBox) {
+        statusBox.className = 'analysis-status-box';
+        statusBox.style.display = 'block';
+        statusBox.innerHTML = `🧹 <strong>Buffer Dibersihkan:</strong> ${removedCount} layer buffer telah dihapus dari peta.`;
+      }
+      this.updateLayerSelect();
+      if (this.onBufferCreatedCallback) {
+        this.onBufferCreatedCallback();
+      }
+    } else {
+      showToast('Tidak ada layer buffer aktif di peta.', 'info');
+      if (statusBox) {
+        statusBox.style.display = 'none';
+      }
+    }
   }
 
   private async runBufferCalculation() {
     const select = document.getElementById('buffer-layer-select') as HTMLSelectElement | null;
+    const overlaySelect = document.getElementById('buffer-overlay-select') as HTMLSelectElement | null;
     const radiusInput = document.getElementById('buffer-radius-input') as HTMLInputElement | null;
     const statusBox = document.getElementById('buffer-analysis-status');
 
     const layerId = select?.value;
     if (!layerId) {
-      showToast('Silakan pilih lapisan vektor terlebih dahulu dari daftar!', 'warning');
+      showToast('Silakan pilih lapisan sumber terlebih dahulu dari daftar!', 'warning');
       if (statusBox) {
         statusBox.className = 'analysis-status-box warning';
         statusBox.style.display = 'block';
         statusBox.innerHTML = '⚠️ <strong>Pilih Lapisan:</strong> Belum ada layer yang dipilih. Unggah file GeoJSON/KML di tab Data bila list kosong.';
       }
+      return;
+    }
+
+    const overlayLayerId = overlaySelect?.value || undefined;
+    if (overlayLayerId && overlayLayerId === layerId) {
+      showToast('Lapisan sumber buffer dan lapisan overlay tidak boleh sama!', 'warning');
       return;
     }
 
@@ -99,11 +152,11 @@ export class BufferAnalysisUI {
     if (statusBox) {
       statusBox.className = 'analysis-status-box';
       statusBox.style.display = 'block';
-      statusBox.innerHTML = `◌ <strong>Menghitung zona penyangga...</strong> (Radius: ${radius} km)`;
+      statusBox.innerHTML = `◌ <strong>Menghitung zona penyangga${overlayLayerId ? ' & spatial intersection' : ''}...</strong> (Radius: ${radius} km)`;
     }
 
     try {
-      const res = await this.geojsonLoader.createBufferForLayer(layerId, radius, 'kilometers');
+      const res = await this.geojsonLoader.createBufferForLayer(layerId, radius, 'kilometers', overlayLayerId);
       if (res.success) {
         const areaFormatted = res.areaKm2 !== undefined ? res.areaKm2.toLocaleString('id-ID') : '-';
         showToast(`Zona penyangga ${radius} km berhasil dibuat! (Luas total: ${areaFormatted} km²)`, 'success');
@@ -112,7 +165,63 @@ export class BufferAnalysisUI {
         if (statusBox) {
           statusBox.className = 'analysis-status-box success';
           statusBox.style.display = 'block';
-          statusBox.innerHTML = `✅ <strong>Buffer Berhasil Dibuat:</strong> Radius ${radius} km · Luas polygon buffer: <strong>${areaFormatted} km²</strong>. Layer otomatis ditambahkan ke peta.`;
+
+          let html = `
+            <div style="margin-bottom: 6px;">
+              ✅ <strong>Buffer Berhasil Dibuat:</strong> Radius ${radius} km · Luas area buffer: <strong>${areaFormatted} km²</strong>.
+            </div>
+          `;
+
+          if (res.warning) {
+            html += `<div style="font-size: 10px; color: #fbbf24; margin-bottom: 6px;">⚠️ ${res.warning}</div>`;
+          }
+
+          // If spatial intersection query was performed
+          if (res.intersection) {
+            this.lastIntersectedGeoJSON = res.intersection.insideFeatures;
+            const isect = res.intersection;
+            html += `
+              <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; padding: 8px; margin-top: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <strong style="color: #38bdf8; font-size: 11px;">🎯 Hasil Spatial Intersection:</strong>
+                  <span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 9.5px; padding: 1px 6px; border-radius: 3px;">
+                    ${isect.insideCount} / ${isect.totalTargetFeatures} Fitur (${isect.insidePercentage}%)
+                  </span>
+                </div>
+                <div style="font-size: 10.5px; color: #cbd5e1; margin-bottom: 6px;">
+                  Sebanyak <strong>${isect.insideCount} objek</strong> dari layer <em>${isect.targetLayerName}</em> berada di dalam radius penyangga ${radius} km.
+                </div>
+            `;
+
+            if (isect.featureSummaries.length > 0) {
+              html += `<div style="max-height: 80px; overflow-y: auto; font-size: 9.5px; color: var(--text-muted); background: rgba(0,0,0,0.25); padding: 4px 6px; border-radius: 4px; margin-bottom: 6px;">`;
+              isect.featureSummaries.slice(0, 10).forEach((s) => {
+                html += `<div>• ${s.name} (${s.type})</div>`;
+              });
+              if (isect.featureSummaries.length > 10) {
+                html += `<div style="font-style: italic;">...dan ${isect.featureSummaries.length - 10} objek lainnya</div>`;
+              }
+              html += `</div>`;
+            }
+
+            if (isect.insideCount > 0) {
+              html += `
+                <button id="btn-download-intersected-geojson" class="btn btn-outline btn-sm full-width" style="font-size: 10px; padding: 4px 8px; gap: 4px; justify-content: center; border-color: rgba(56, 189, 248, 0.5); color: #38bdf8;">
+                  💾 Unduh Fitur Terdampak (.GeoJSON)
+                </button>
+              `;
+            }
+
+            html += `</div>`;
+          }
+
+          statusBox.innerHTML = html;
+
+          // Bind download button if present
+          const dlBtn = document.getElementById('btn-download-intersected-geojson');
+          if (dlBtn && this.lastIntersectedGeoJSON) {
+            dlBtn.addEventListener('click', () => this.downloadIntersectedGeoJSON(res.intersection?.targetLayerName || 'intersection'));
+          }
         }
 
         this.updateLayerSelect();
@@ -131,4 +240,21 @@ export class BufferAnalysisUI {
       showToast(`Error: ${err?.message || 'Kalkulasi buffer gagal'}`, 'error');
     }
   }
+
+  private downloadIntersectedGeoJSON(targetName: string) {
+    if (!this.lastIntersectedGeoJSON) return;
+    try {
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.lastIntersectedGeoJSON, null, 2));
+      const a = document.createElement('a');
+      a.setAttribute('href', dataStr);
+      a.setAttribute('download', `intersected_${targetName.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}.geojson`);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showToast('File GeoJSON fitur terdampak berhasil diunduh!', 'success');
+    } catch (e: any) {
+      showToast(`Gagal mengunduh file: ${e?.message || 'Error'}`, 'error');
+    }
+  }
 }
+

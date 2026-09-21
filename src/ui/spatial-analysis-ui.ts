@@ -108,6 +108,20 @@ export class SpatialAnalysisUI {
         this.finishDrawing();
       }
     });
+
+    // Floating Drawing Pill Actions
+    document.getElementById('btn-pill-undo')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.undoLastPoint();
+    });
+    document.getElementById('btn-pill-cancel')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.cancelDrawing();
+    });
+    document.getElementById('btn-pill-finish')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.finishDrawing();
+    });
   }
 
   public startDrawing() {
@@ -118,6 +132,10 @@ export class SpatialAnalysisUI {
     this.map.getCanvas().style.cursor = 'crosshair';
     showToast('Klik titik-titik pada peta untuk membentuk area analisis (AOI). Klik-Ganda untuk selesai.', 'info');
     announceToScreenReader('Mode menggambar area analisis aktif. Klik peta untuk membuat poligon.');
+
+    // Auto-collapse sidebar so user has full unobstructed view of the map
+    window.dispatchEvent(new CustomEvent('webgis:collapse-sidebar-for-drawing'));
+    this.showFloatingDrawingPill();
 
     const drawBtn = document.getElementById('btn-start-draw-aoi');
     const finishBtn = document.getElementById('btn-finish-draw-aoi');
@@ -152,6 +170,10 @@ export class SpatialAnalysisUI {
     this.map.getCanvas().style.cursor = '';
     this.stopRubberband();
     this.clearAuxLayers();
+    this.hideFloatingDrawingPill();
+
+    // Restore sidebar so user sees the analysis result card
+    window.dispatchEvent(new CustomEvent('webgis:restore-sidebar-after-drawing'));
 
     const drawBtn = document.getElementById('btn-start-draw-aoi');
     const finishBtn = document.getElementById('btn-finish-draw-aoi');
@@ -175,6 +197,10 @@ export class SpatialAnalysisUI {
     this.map.getCanvas().style.cursor = '';
     this.stopRubberband();
     this.clearAuxLayers();
+    this.hideFloatingDrawingPill();
+
+    // Restore sidebar
+    window.dispatchEvent(new CustomEvent('webgis:restore-sidebar-after-drawing'));
 
     const drawBtn = document.getElementById('btn-start-draw-aoi');
     const finishBtn = document.getElementById('btn-finish-draw-aoi');
@@ -199,7 +225,36 @@ export class SpatialAnalysisUI {
     showToast('Titik terakhir dihapus', 'info');
   }
 
+  private showFloatingDrawingPill() {
+    const pill = document.getElementById('aoi-floating-pill');
+    if (pill) {
+      pill.style.display = 'flex';
+      this.updateFloatingDrawingPill();
+    }
+  }
+
+  private hideFloatingDrawingPill() {
+    const pill = document.getElementById('aoi-floating-pill');
+    if (pill) {
+      pill.style.display = 'none';
+    }
+  }
+
+  private updateFloatingDrawingPill() {
+    const statusText = document.getElementById('aoi-pill-status-text');
+    if (!statusText) return;
+    const n = this.drawnPoints.length;
+    if (n === 0) {
+      statusText.innerHTML = '🎯 <strong>Mode Gambar AOI:</strong> Klik peta untuk simpul batas...';
+    } else if (n < 3) {
+      statusText.innerHTML = `📍 <strong>${n} Simpul:</strong> Butuh minimal ${3 - n} titik lagi...`;
+    } else {
+      statusText.innerHTML = `✅ <strong>${n} Simpul:</strong> Klik-ganda atau tekan <strong>Selesai</strong>`;
+    }
+  }
+
   private updateDrawStatus() {
+    this.updateFloatingDrawingPill();
     const statusEl = document.getElementById('aoi-draw-status');
     if (!statusEl) return;
     const n = this.drawnPoints.length;
@@ -318,15 +373,15 @@ export class SpatialAnalysisUI {
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
           <div style="display: flex; align-items: center; gap: 6px;">
             <span style="font-size: 16px;">📊</span>
-            <span style="font-weight: 600; font-size: 12.5px; color: #fff;">Analisis Statistik Spasial Wilayah (AOI)</span>
+            <span style="font-weight: 600; font-size: 12.5px; color: #fff;">Estimator Zonal Cepat (Heuristic Regional Proxy)</span>
           </div>
           <span style="font-size: 9.5px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.3);">
-            Sentinel LULC + MODIS
+            Model Heuristik Empiris
           </span>
         </div>
 
         <p style="font-size: 10.5px; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">
-          Tentukan batas Area of Interest (AOI) untuk menghitung statistik zonal komposisi tutupan lahan, metrik suhu permukaan tanah (LST), dan ekspor laporan tabular.
+          Estimasi cepat profil tutupan lahan dan indikator termal mikro berbasis posisi koordinat geografis dan lanskap regional (bukan pembacaan piksel mentah GEE).
         </p>
 
         <!-- 1. Selection & Drawing Controls -->
