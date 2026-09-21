@@ -229,9 +229,14 @@ export class GEEPanelUI {
       });
     };
 
+    attachToggle('toggle-gee-lst', 'lst-day');
     attachToggle('toggle-gee-lst-day', 'lst-day');
+    attachToggle('toggle-gee-air', 'lst-day');
+    attachToggle('toggle-gee-elevation', 'lst-night');
     attachToggle('toggle-gee-lst-night', 'lst-night');
+    attachToggle('toggle-gee-surface', 'lst-night');
     attachToggle('toggle-gee-landcover', 'landcover');
+    attachToggle('toggle-gee-lc', 'landcover');
     attachToggle('toggle-gee-poi', 'stations');
     attachToggle('toggle-gee-stations', 'stations');
 

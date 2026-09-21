@@ -319,13 +319,20 @@ export class GEELoader {
     if (this.map.getLayer('gee-modis-live-raster-layer')) {
       this.map.setPaintProperty('gee-modis-live-raster-layer', 'raster-opacity', opacity);
     }
-    if (this.map.getLayer('gee-modis-lst-day-fill')) {
-      this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-opacity', 0);
+    if (this.map.getLayer('gee-modis-lst-day-fill') && key === 'lst-day') {
+      this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-opacity', opacity * 0.75);
     }
-    if (this.map.getLayer('gee-modis-lst-night-fill')) {
-      this.map.setPaintProperty('gee-modis-lst-night-fill', 'fill-opacity', 0);
+    if (this.map.getLayer('gee-modis-lst-night-fill') && key === 'lst-night') {
+      this.map.setPaintProperty('gee-modis-lst-night-fill', 'fill-opacity', opacity * 0.75);
     }
     this.notifyLayersChange();
+  }
+
+  public restoreAfterStyleChange() {
+    if (this.activeLayers.size > 0) {
+      this.renderAllLayers();
+      this.renderHtmlMarkers();
+    }
   }
 
   public getLayerOpacity(layerId: string): number {
@@ -561,8 +568,11 @@ export class GEELoader {
       logger.warn('[GEELoader] Notice adding Sentinel-2 10m Land Cover raster layer:', e);
     }
 
-    // --- 4. Invisible polygon layers for click interception ---
+    // --- 4. Daytime & Nighttime LST Vector Thermal Fill Layers ---
     try {
+      const dayOpacity = this.getLayerOpacity('lst-day') * 0.75;
+      const nightOpacity = this.getLayerOpacity('lst-night') * 0.75;
+
       if (!this.map.getLayer('gee-modis-lst-day-fill')) {
         this.map.addLayer({
           id: 'gee-modis-lst-day-fill',
@@ -570,12 +580,25 @@ export class GEELoader {
           source: 'gee-modis-grid-source',
           layout: { visibility: isDayVis ? 'visible' : 'none' },
           paint: {
-            'fill-color': '#ff0000',
-            'fill-opacity': 0.001
+            'fill-color': [
+              'interpolate',
+              ['linear'],
+              ['coalesce', ['to-number', ['get', 'lst_day_c']], ['to-number', ['get', 'temp_air_c']], 28],
+              10, '#040274',
+              18, '#0502ce',
+              24, '#30c8e2',
+              28, '#86e26f',
+              32, '#fff705',
+              36, '#ff8b13',
+              42, '#ff0000'
+            ],
+            'fill-opacity': isDayVis ? dayOpacity : 0,
+            'fill-outline-color': 'rgba(255, 255, 255, 0.2)'
           }
         });
       } else {
         this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', isDayVis ? 'visible' : 'none');
+        this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-opacity', isDayVis ? dayOpacity : 0);
       }
 
       if (!this.map.getLayer('gee-modis-lst-night-fill')) {
@@ -585,15 +608,28 @@ export class GEELoader {
           source: 'gee-modis-grid-source',
           layout: { visibility: isNightVis ? 'visible' : 'none' },
           paint: {
-            'fill-color': '#0000ff',
-            'fill-opacity': 0.001
+            'fill-color': [
+              'interpolate',
+              ['linear'],
+              ['coalesce', ['to-number', ['get', 'lst_night_c']], ['to-number', ['get', 'temp_surface_c']], 20],
+              10, '#040274',
+              15, '#0502ce',
+              20, '#30c8e2',
+              24, '#86e26f',
+              28, '#fff705',
+              32, '#ff8b13',
+              38, '#ff0000'
+            ],
+            'fill-opacity': isNightVis ? nightOpacity : 0,
+            'fill-outline-color': 'rgba(255, 255, 255, 0.2)'
           }
         });
       } else {
         this.map.setLayoutProperty('gee-modis-lst-night-fill', 'visibility', isNightVis ? 'visible' : 'none');
+        this.map.setPaintProperty('gee-modis-lst-night-fill', 'fill-opacity', isNightVis ? nightOpacity : 0);
       }
     } catch (e) {
-      logger.warn('[GEELoader] Notice adding fill click-interceptor layers:', e);
+      logger.warn('[GEELoader] Notice adding fill thermal layers:', e);
     }
 
     // --- 5. MODIS LST MONITORING STATIONS (18 NODES) ---
@@ -647,7 +683,9 @@ export class GEELoader {
   public renderHtmlMarkers() {
     if (!this.map) return;
 
-    this.htmlMarkers.forEach((m) => m.remove());
+    this.htmlMarkers.forEach((m) => {
+      try { m.remove(); } catch {}
+    });
     this.htmlMarkers = [];
 
     const isStationsVis = this.isLayerVisible('stations');
@@ -690,11 +728,12 @@ export class GEELoader {
         el.style.display = 'none';
       }
 
-      const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-        .setLngLat(coords)
-        .addTo(this.map);
-
-      this.htmlMarkers.push(marker);
+      try {
+        const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+          .setLngLat(coords)
+          .addTo(this.map);
+        this.htmlMarkers.push(marker);
+      } catch {}
     });
   }
 
@@ -787,11 +826,6 @@ export class GEELoader {
       bearing: 0,
       duration: 1800
     });
-  }
-
-  public restoreAfterStyleChange() {
-    this.renderAllLayers();
-    this.renderHtmlMarkers();
   }
 
   public getMap(): maplibregl.Map {
