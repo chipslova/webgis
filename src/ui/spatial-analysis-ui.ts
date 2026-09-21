@@ -146,15 +146,19 @@ export class SpatialAnalysisUI {
     this.showFloatingDrawingPill();
 
     const drawBtn = document.getElementById('btn-start-draw-aoi');
+    const drawingActions = document.getElementById('aoi-drawing-actions');
     const finishBtn = document.getElementById('btn-finish-draw-aoi');
     const cancelBtn = document.getElementById('btn-cancel-draw-aoi');
     const undoBtn = document.getElementById('btn-undo-draw-aoi');
     const statusEl = document.getElementById('aoi-draw-status');
+    const presetContainer = document.getElementById('aoi-preset-container');
 
     if (drawBtn) drawBtn.style.display = 'none';
+    if (drawingActions) drawingActions.style.display = 'grid';
     if (finishBtn) finishBtn.style.display = 'inline-flex';
     if (cancelBtn) cancelBtn.style.display = 'inline-flex';
     if (undoBtn) undoBtn.style.display = 'inline-flex';
+    if (presetContainer) presetContainer.style.display = 'none';
     if (statusEl) {
       statusEl.style.display = 'block';
       statusEl.innerHTML = '🎯 <strong>Klik pada peta</strong> untuk membuat simpul batas wilayah analisis...';
@@ -185,15 +189,19 @@ export class SpatialAnalysisUI {
     window.dispatchEvent(new CustomEvent('webgis:restore-sidebar-after-drawing'));
 
     const drawBtn = document.getElementById('btn-start-draw-aoi');
+    const drawingActions = document.getElementById('aoi-drawing-actions');
     const finishBtn = document.getElementById('btn-finish-draw-aoi');
     const cancelBtn = document.getElementById('btn-cancel-draw-aoi');
     const undoBtn = document.getElementById('btn-undo-draw-aoi');
     const statusEl = document.getElementById('aoi-draw-status');
+    const presetContainer = document.getElementById('aoi-preset-container');
 
     if (drawBtn) drawBtn.style.display = 'inline-flex';
+    if (drawingActions) drawingActions.style.display = 'none';
     if (finishBtn) finishBtn.style.display = 'none';
     if (cancelBtn) cancelBtn.style.display = 'none';
     if (undoBtn) undoBtn.style.display = 'none';
+    if (presetContainer) presetContainer.style.display = 'flex';
     if (statusEl) statusEl.style.display = 'none';
 
     this.analyzeFeature(polyFeature, `Area Kustom (${this.drawnPoints.length} Simpul)`);
@@ -213,15 +221,19 @@ export class SpatialAnalysisUI {
     window.dispatchEvent(new CustomEvent('webgis:restore-sidebar-after-drawing'));
 
     const drawBtn = document.getElementById('btn-start-draw-aoi');
+    const drawingActions = document.getElementById('aoi-drawing-actions');
     const finishBtn = document.getElementById('btn-finish-draw-aoi');
     const cancelBtn = document.getElementById('btn-cancel-draw-aoi');
     const undoBtn = document.getElementById('btn-undo-draw-aoi');
     const statusEl = document.getElementById('aoi-draw-status');
+    const presetContainer = document.getElementById('aoi-preset-container');
 
     if (drawBtn) drawBtn.style.display = 'inline-flex';
+    if (drawingActions) drawingActions.style.display = 'none';
     if (finishBtn) finishBtn.style.display = 'none';
     if (cancelBtn) cancelBtn.style.display = 'none';
     if (undoBtn) undoBtn.style.display = 'none';
+    if (presetContainer) presetContainer.style.display = 'flex';
     if (statusEl) statusEl.style.display = 'none';
 
     showToast('Pembuatan area analisis dibatalkan', 'info');
@@ -413,21 +425,34 @@ export class SpatialAnalysisUI {
 
         <!-- 1. Selection & Drawing Controls -->
         <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-            <button id="btn-start-draw-aoi" class="btn btn-primary" style="font-size: 10.5px; padding: 6px 8px; justify-content: center; gap: 4px;">
-              ✏️ Gambar AOI Bebas
+          <!-- Default Draw Button: Full-width, 1 baris horizontal rapi -->
+          <button id="btn-start-draw-aoi" class="btn btn-primary" style="width: 100%; height: 36px; font-size: 11px; font-weight: 600; justify-content: center; gap: 6px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">
+            <span>✏️</span>
+            <span>Gambar AOI Bebas di Peta</span>
+          </button>
+
+          <!-- Active Drawing Mode: 3 Tombol Aksi Rapi -->
+          <div id="aoi-drawing-actions" style="display: none; grid-template-columns: 1.2fr 1fr 1fr; gap: 6px;">
+            <button id="btn-finish-draw-aoi" class="btn btn-success" style="font-size: 10.5px; height: 34px; padding: 0 6px; justify-content: center; background: #10b981; color: #fff; font-weight: 600;">
+              ✅ Selesai
             </button>
-            <button id="btn-finish-draw-aoi" class="btn btn-success" style="font-size: 10.5px; padding: 6px 8px; justify-content: center; display: none; background: #10b981; color: #fff;">
-              ✅ Selesai Gambar
+            <button id="btn-undo-draw-aoi" class="btn btn-secondary" style="font-size: 10.5px; height: 34px; padding: 0 6px; justify-content: center;">
+              ↩ Hapus
             </button>
-            <button id="btn-undo-draw-aoi" class="btn btn-secondary" style="font-size: 10.5px; padding: 6px 8px; justify-content: center; display: none;">
-              ↩ Hapus Titik
-            </button>
-            <button id="btn-cancel-draw-aoi" class="btn btn-secondary" style="font-size: 10.5px; padding: 6px 8px; justify-content: center; display: none;">
+            <button id="btn-cancel-draw-aoi" class="btn btn-secondary" style="font-size: 10.5px; height: 34px; padding: 0 6px; justify-content: center;">
               ❌ Batal
             </button>
-            <select id="select-preset-aoi" class="form-select" style="font-size: 10.5px; padding: 5px 6px; background: #0f172a; color: #fff; border: 1px solid var(--border-color); border-radius: 4px;">
-              <option value="" disabled selected>📍 Pilih Wilayah Prioritas...</option>
+          </div>
+
+          <!-- Dropdown Preset Wilayah: Full-width, Proporsional, Teks Utuh & Jelas -->
+          <div id="aoi-preset-container" style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="display: flex; align-items: center; gap: 6px; margin: 2px 0;">
+              <div style="flex: 1; height: 1px; background: rgba(255, 255, 255, 0.08);"></div>
+              <span style="font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500;">atau pilih wilayah prioritas</span>
+              <div style="flex: 1; height: 1px; background: rgba(255, 255, 255, 0.08);"></div>
+            </div>
+            <select id="select-preset-aoi" class="form-select" style="width: 100%; height: 36px; font-size: 11px; padding: 0 10px; background: #0f172a; color: #f8fafc; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px; cursor: pointer;">
+              <option value="" disabled selected>📍 Pilih Wilayah Prioritas (IKN, Jakarta, Bandung, dll)</option>
               ${PRESET_REGIONS.map((p) => `<option value="${p.id}">${p.name}</option>`).join('')}
             </select>
           </div>
