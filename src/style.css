@@ -1,3 +1,11 @@
+/* ==========================================================================
+   RESPONSIVE DESIGN BREAKPOINT SCALE (CONSOLIDATED DESIGN SYSTEM)
+   - Mobile Small:     max-width: 480px  (Smartphones & compact screens)
+   - Tablet Portrait:  max-width: 768px  (Tablets & large smartphones)
+   - Tablet Landscape: max-width: 1024px (Small laptops & landscape tablets)
+   - Desktop Standard: max-width: 1280px (Standard desktops & laptops)
+   ========================================================================== */
+
 :root {
   --bg-dark: #070b14;
   --bg-header: rgba(11, 17, 32, 0.88);
@@ -4604,7 +4612,7 @@ html, body, #app {
   }
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1024px) {
   .header-search {
     max-width: 200px;
   }
@@ -6509,7 +6517,7 @@ kbd {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
-@media (max-width: 400px) {
+@media (max-width: 480px) {
   .vector-sublayers-list {
     grid-template-columns: 1fr;
   }
@@ -6916,7 +6924,7 @@ kbd {
    Responsive Design & Breakpoints (Tablet & Mobile UX)
    ========================================================================== */
 
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
   .header-actions .btn-text-label {
     display: none;
   }
@@ -7812,7 +7820,7 @@ body.swipe-mode-active #dynamic-legend-container {
   color: #475569;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .swipe-control-bar {
     flex-wrap: wrap;
     border-radius: 16px;
@@ -8011,7 +8019,7 @@ html, body, #app {
   display: none;
 }
 
-@media (max-width: 1320px) {
+@media (max-width: 1280px) {
   .header-action-btn .btn-text-label {
     display: none !important;
   }
@@ -8024,7 +8032,7 @@ html, body, #app {
   }
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1024px) {
   .header-actions .header-action-btn:not(#btn-toggle-globe) {
     display: none !important;
   }
@@ -8209,7 +8217,7 @@ html, body, #app {
    Mobile & Compact Responsive Enhancements
    ========================================================================== */
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .app-header {
     height: 52px;
     padding: 0 10px;
@@ -8299,7 +8307,7 @@ html, body, #app {
 /* ==========================================================================
    Globe Button Active State on Mobile (Icon-only, needs visual indicator)
    ========================================================================== */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   /* When globe mode is active, show a cyan ring on the icon-only button */
   #btn-toggle-globe.active {
     box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.7), 0 0 10px rgba(0, 240, 255, 0.35);
@@ -9923,7 +9931,7 @@ html, body, #app {
   color: #ffffff;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .aoi-floating-pill {
     top: 10px;
     padding: 6px 10px;
@@ -10839,3 +10847,140 @@ html, body, #app {
   font-size: 11px;
   padding: 6px;
 }
+
+/* ==========================================================================
+   GEE Analysis Panel & Accessible Data Table Styles (Clean Class Refactor)
+   ========================================================================== */
+.gee-tooltip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.gee-tooltip-date {
+  font-weight: 600;
+  color: var(--accent-blue, #38bdf8);
+}
+
+.gee-tooltip-date.is-forecast {
+  color: #c084fc;
+}
+
+.gee-tooltip-badge {
+  font-size: 7.5px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.gee-tooltip-badge.modis {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.gee-tooltip-badge.cfsv2 {
+  background: rgba(168, 85, 247, 0.25);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.5);
+}
+
+.gee-tooltip-model-note {
+  font-size: 8px;
+  color: #d8b4fe;
+  margin-bottom: 3px;
+  font-style: italic;
+}
+
+.gee-tooltip-grid {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 1px 8px;
+}
+
+.gee-tooltip-val-jkt-day { color: #ef4444; }
+.gee-tooltip-val-jkt-night { color: #f59e0b; }
+.gee-tooltip-val-bdg-day { color: #10b981; }
+.gee-tooltip-val-bdg-night { color: #06b6d4; }
+
+.gee-forecast-title {
+  color: #f3e8ff;
+}
+
+.gee-forecast-date-highlight {
+  font-weight: 700;
+  color: #facc15;
+}
+
+.gee-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
+
+.gee-data-table thead tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  text-align: left;
+  font-size: 10.5px;
+  color: #94a3b8;
+}
+
+.gee-data-table th,
+.gee-data-table td {
+  padding: 4px 6px;
+}
+
+.gee-data-table th.align-right,
+.gee-data-table td.align-right {
+  text-align: right;
+}
+
+.gee-data-table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.gee-data-table td.cell-date {
+  font-family: monospace;
+  font-size: 11px;
+}
+
+.gee-data-table td.cell-jkt-day {
+  text-align: right;
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.gee-data-table td.cell-jkt-night {
+  text-align: right;
+  color: #f59e0b;
+}
+
+.gee-data-table td.cell-bdg-day {
+  text-align: right;
+  color: #10b981;
+  font-weight: 600;
+}
+
+.gee-data-table td.cell-bdg-night {
+  text-align: right;
+  color: #06b6d4;
+}
+
+.gee-data-table td.cell-type {
+  font-size: 10px;
+}
+
+.gee-badge-cfsv2-table {
+  color: #facc15;
+  font-size: 10px;
+}
+
+.gee-badge-modis-table {
+  color: #38bdf8;
+  font-size: 10px;
+}
+

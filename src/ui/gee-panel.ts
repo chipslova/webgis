@@ -487,23 +487,20 @@ export class GEEPanelUI {
       this.drawLines(ctx2, toY, minD < 16 ? nearest : null);
 
       if (nearest && minD < 16) {
+        const isForecast = nearest.isForecast;
         tooltip.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:4px;">
-            <span style="font-weight:600; color:${nearest.isForecast ? '#c084fc' : '#38bdf8'};">${nearest.date}</span>
-            <span style="font-size:7.5px; font-weight:700; padding:1px 4px; border-radius:3px; white-space:nowrap; ${
-              nearest.isForecast
-                ? 'background:rgba(168,85,247,0.25); color:#c084fc; border:1px solid rgba(168,85,247,0.5);'
-                : 'background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.4);'
-            }">
-              ${nearest.isForecast ? '🔮 PROYEKSI CFSv2' : '🛰️ OBSERVASI MODIS'}
+          <div class="gee-tooltip-header">
+            <span class="gee-tooltip-date ${isForecast ? 'is-forecast' : ''}">${nearest.date}</span>
+            <span class="gee-tooltip-badge ${isForecast ? 'cfsv2' : 'modis'}">
+              ${isForecast ? '🔮 PROYEKSI CFSv2' : '🛰️ OBSERVASI MODIS'}
             </span>
           </div>
-          ${nearest.isForecast ? '<div style="font-size:8px; color:#d8b4fe; margin-bottom:3px; font-style:italic;">Model Numerik Iklim (Bukan Observasi Aktual)</div>' : ''}
-          <div style="display:grid; grid-template-columns:auto auto; gap:1px 8px;">
-            <span style="color:#ef4444;">■ JKT Day</span><span>${nearest.jktDay.toFixed(1)}°C</span>
-            <span style="color:#f59e0b;">- JKT Night</span><span>${nearest.jktNight.toFixed(1)}°C</span>
-            <span style="color:#10b981;">■ BDG Day</span><span>${nearest.bdgDay.toFixed(1)}°C</span>
-            <span style="color:#06b6d4;">- BDG Night</span><span>${nearest.bdgNight.toFixed(1)}°C</span>
+          ${isForecast ? '<div class="gee-tooltip-model-note">Model Numerik Iklim (Bukan Observasi Aktual)</div>' : ''}
+          <div class="gee-tooltip-grid">
+            <span class="gee-tooltip-val-jkt-day">■ JKT Day</span><span>${nearest.jktDay.toFixed(1)}°C</span>
+            <span class="gee-tooltip-val-jkt-night">- JKT Night</span><span>${nearest.jktNight.toFixed(1)}°C</span>
+            <span class="gee-tooltip-val-bdg-day">■ BDG Day</span><span>${nearest.bdgDay.toFixed(1)}°C</span>
+            <span class="gee-tooltip-val-bdg-night">- BDG Night</span><span>${nearest.bdgNight.toFixed(1)}°C</span>
           </div>`;
 
         const canvasRect = this.canvas!.getBoundingClientRect();
@@ -563,13 +560,13 @@ export class GEEPanelUI {
         dateLabel.textContent = formattedDate;
       } else {
         disclaimerEl.innerHTML = `
-          <strong style="color: #f3e8ff;">📌 Catatan Khusus (Proyeksi Model):</strong> Segmen garis putus-putus setelah <span id="gee-forecast-date-label" style="font-weight: 700; color: #facc15;">${formattedDate}</span> merupakan simulasi model iklim numerik <em>NOAA NCEP CFSv2</em>, bukan observasi satelit aktual.
+          <strong class="gee-forecast-title">📌 Catatan Khusus (Proyeksi Model):</strong> Segmen garis putus-putus setelah <span id="gee-forecast-date-label" class="gee-forecast-date-highlight">${formattedDate}</span> merupakan simulasi model iklim numerik <em>NOAA NCEP CFSv2</em>, bukan observasi satelit aktual.
         `;
       }
     } else if (forecastIdx === 0) {
       disclaimerEl.style.display = 'block';
       disclaimerEl.innerHTML = `
-        <strong style="color: #f3e8ff;">📌 Catatan Khusus (Proyeksi Model):</strong> Seluruh data deret waktu merupakan simulasi model iklim numerik <em>NOAA NCEP CFSv2</em>.
+        <strong class="gee-forecast-title">📌 Catatan Khusus (Proyeksi Model):</strong> Seluruh data deret waktu merupakan simulasi model iklim numerik <em>NOAA NCEP CFSv2</em>.
       `;
     } else {
       // Jika semua data observasi riil (tidak ada proyeksi masa depan sama sekali)
@@ -629,37 +626,37 @@ export class GEEPanelUI {
 
   private renderAccessibleDataTable(container: HTMLElement) {
     if (!this.chartPoints || this.chartPoints.length === 0) {
-      container.innerHTML = '<p class="gee-chart-sub" style="text-align:center;">Data deret waktu belum tersedia.</p>';
+      container.innerHTML = '<p class="gee-chart-sub text-center">Data deret waktu belum tersedia.</p>';
       return;
     }
 
     const rows = this.chartPoints.map((pt) => {
       const formattedDate = this.formatDateIndonesian(pt.date);
       const typeBadge = pt.isForecast 
-        ? '<span style="color:#facc15; font-size:10px;">CFSv2 Model (2m Air)</span>' 
-        : '<span style="color:#38bdf8; font-size:10px;">MODIS LST (Skin)</span>';
+        ? '<span class="gee-badge-cfsv2-table">CFSv2 Model (2m Air)</span>' 
+        : '<span class="gee-badge-modis-table">MODIS LST (Skin)</span>';
       return `
-        <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
-          <td style="padding: 4px 6px; font-family: monospace; font-size: 11px;">${formattedDate}</td>
-          <td style="padding: 4px 6px; text-align: right; color: #ef4444; font-weight: 600;">${pt.jktDay.toFixed(1)}°C</td>
-          <td style="padding: 4px 6px; text-align: right; color: #f59e0b;">${pt.jktNight.toFixed(1)}°C</td>
-          <td style="padding: 4px 6px; text-align: right; color: #10b981; font-weight: 600;">${pt.bdgDay.toFixed(1)}°C</td>
-          <td style="padding: 4px 6px; text-align: right; color: #06b6d4;">${pt.bdgNight.toFixed(1)}°C</td>
-          <td style="padding: 4px 6px; font-size: 10px;">${typeBadge}</td>
+        <tr>
+          <td class="cell-date">${formattedDate}</td>
+          <td class="cell-jkt-day">${pt.jktDay.toFixed(1)}°C</td>
+          <td class="cell-jkt-night">${pt.jktNight.toFixed(1)}°C</td>
+          <td class="cell-bdg-day">${pt.bdgDay.toFixed(1)}°C</td>
+          <td class="cell-bdg-night">${pt.bdgNight.toFixed(1)}°C</td>
+          <td class="cell-type">${typeBadge}</td>
         </tr>
       `;
     }).join('');
 
     container.innerHTML = `
-      <table style="width: 100%; border-collapse: collapse; font-size: 11.5px; color: var(--text-secondary);" aria-label="Tabel Deret Waktu Suhu LST Komposit 8-Harian">
+      <table class="gee-data-table" aria-label="Tabel Deret Waktu Suhu LST Komposit 8-Harian">
         <thead>
-          <tr style="border-bottom: 1px solid rgba(255,255,255,0.15); text-align: left; font-size: 10.5px; color: #94a3b8;">
-            <th style="padding: 4px 6px;">Tanggal Komposit</th>
-            <th style="padding: 4px 6px; text-align: right;">JKT Siang</th>
-            <th style="padding: 4px 6px; text-align: right;">JKT Malam</th>
-            <th style="padding: 4px 6px; text-align: right;">BDG Siang</th>
-            <th style="padding: 4px 6px; text-align: right;">BDG Malam</th>
-            <th style="padding: 4px 6px;">Tipe Data</th>
+          <tr>
+            <th>Tanggal Komposit</th>
+            <th class="align-right">JKT Siang</th>
+            <th class="align-right">JKT Malam</th>
+            <th class="align-right">BDG Siang</th>
+            <th class="align-right">BDG Malam</th>
+            <th>Tipe Data</th>
           </tr>
         </thead>
         <tbody>

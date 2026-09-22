@@ -18,6 +18,8 @@ const TRANSPARENT_1X1_PNG = Uint8Array.from([
   0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
 ]);
 
+import { checkRateLimit, getClientIp } from './_rate-limit';
+
 export default async function handler(req: Request): Promise<Response> {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -33,6 +35,27 @@ export default async function handler(req: Request): Promise<Response> {
 
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     return new Response('Method Not Allowed', { status: 405 });
+  }
+
+  // Rate Limiting (120 requests/minute per IP)
+  const clientIp = getClientIp(req);
+  const rateLimit = checkRateLimit(clientIp, { maxRequests: 120, windowSeconds: 60 });
+
+  if (!rateLimit.allowed) {
+    return new Response(JSON.stringify({
+      error: 'Terlalu banyak permintaan proxy WMS (Rate limit exceeded). Batas: 120 ubin/menit per IP.',
+      retryAfter: rateLimit.retryAfter
+    }), {
+      status: 429,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Retry-After': String(rateLimit.retryAfter),
+        'X-RateLimit-Limit': String(rateLimit.limit),
+        'X-RateLimit-Remaining': '0',
+        'X-RateLimit-Reset': String(rateLimit.resetTime)
+      }
+    });
   }
 
   const url = new URL(req.url);

@@ -15,6 +15,8 @@ interface GEETileRequest {
   bbox?: string;
 }
 
+import { checkRateLimit, getClientIp } from './_rate-limit';
+
 export default async function handler(req: any, res: any) {
   // Handle CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -27,6 +29,22 @@ export default async function handler(req: any, res: any) {
 
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
+  // Rate Limiting (60 requests/minute per IP)
+  const clientIp = getClientIp(req);
+  const rateLimit = checkRateLimit(clientIp, { maxRequests: 60, windowSeconds: 60 });
+
+  res.setHeader('X-RateLimit-Limit', String(rateLimit.limit));
+  res.setHeader('X-RateLimit-Remaining', String(rateLimit.remaining));
+  res.setHeader('X-RateLimit-Reset', String(rateLimit.resetTime));
+
+  if (!rateLimit.allowed) {
+    res.setHeader('Retry-After', String(rateLimit.retryAfter));
+    return res.status(429).json({
+      error: 'Terlalu banyak permintaan ubin citra GEE (Rate limit exceeded). Batas: 60 kueri/menit per IP.',
+      retryAfter: rateLimit.retryAfter
+    });
   }
 
   const {

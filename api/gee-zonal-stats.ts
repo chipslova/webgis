@@ -28,6 +28,8 @@ const WORLDCOVER_META: Record<string, { code: number; worldCoverClass: number; n
   '100': { code: 10, worldCoverClass: 100, name: 'Moss & Lichen', nameId: 'Lumut / Lainnya', color: '#C8C8C8' }
 };
 
+import { checkRateLimit, getClientIp } from './_rate-limit';
+
 export default async function handler(req: any, res: any) {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -40,6 +42,22 @@ export default async function handler(req: any, res: any) {
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed. Use POST with GeoJSON geometry payload.' });
+  }
+
+  // Rate Limiting (30 requests/minute per IP)
+  const clientIp = getClientIp(req);
+  const rateLimit = checkRateLimit(clientIp, { maxRequests: 30, windowSeconds: 60 });
+
+  res.setHeader('X-RateLimit-Limit', String(rateLimit.limit));
+  res.setHeader('X-RateLimit-Remaining', String(rateLimit.remaining));
+  res.setHeader('X-RateLimit-Reset', String(rateLimit.resetTime));
+
+  if (!rateLimit.allowed) {
+    res.setHeader('Retry-After', String(rateLimit.retryAfter));
+    return res.status(429).json({
+      error: 'Terlalu banyak permintaan analisis zonal (Rate limit exceeded). Batas: 30 kueri/menit per IP.',
+      retryAfter: rateLimit.retryAfter
+    });
   }
 
   let body: ZonalStatsRequestBody;
