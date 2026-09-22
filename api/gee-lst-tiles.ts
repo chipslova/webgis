@@ -12,6 +12,7 @@ interface GEETileRequest {
   end?: string;
   min?: number;
   max?: number;
+  bbox?: string;
 }
 
 export default async function handler(req: any, res: any) {
@@ -29,17 +30,24 @@ export default async function handler(req: any, res: any) {
   }
 
   const {
-    satellite = 'combined',
+    satellite = 'terra',
     mode = 'day',
-    start = '2025-08-01',
-    end = '2025-08-31',
+    start = '2024-08-01',
+    end = '2024-08-31',
     min: customMin,
-    max: customMax
+    max: customMax,
+    bbox
   } = req.query as GEETileRequest;
 
-  // Visual parameters for MODIS Land Surface Temperature in Indonesia
+  // Validate parameters
+  const validSatellites = ['terra', 'aqua', 'combined'];
+  const validModes = ['day', 'night'];
+  const sat = validSatellites.includes(satellite) ? satellite : 'terra';
+  const m = validModes.includes(mode) ? mode : 'day';
+
+  // Visual parameters for MODIS Land Surface Temperature
   // Kelvin scale conversion: Celsius = Kelvin * 0.02 - 273.15
-  const isDay = mode === 'day';
+  const isDay = m === 'day';
   const minTemp = customMin ? Number(customMin) : 10;
   const maxTemp = customMax ? Number(customMax) : 42;
   
@@ -50,7 +58,7 @@ export default async function handler(req: any, res: any) {
     '86e26f', // Light Green (rural / agricultural)
     'fff705', // Yellow (moderate urban)
     'ff8b13', // Orange (dense built-up)
-    'ff0000'  // Bright Red (extreme urban heat island / thermal hotspot)
+    'ff0000'  // Bright Red (extreme urban heat / thermal hotspot)
   ];
 
   const serviceAccountKeyStr = process.env.GEE_SERVICE_ACCOUNT_KEY;
@@ -71,25 +79,37 @@ export default async function handler(req: any, res: any) {
           );
         });
 
-        // Spatial Bounding Box: Entire Indonesian Archipelago
-        const indonesiaBbox = eeCore.Geometry.Rectangle([95.0, -11.0, 141.0, 6.0]);
+        // Spatial Bounding Box: Dynamic viewport or default Indonesia Archipelago
+        let regionBbox = eeCore.Geometry.Rectangle([95.0, -11.0, 141.0, 6.0]);
+        if (bbox && typeof bbox === 'string') {
+          const parts = bbox.split(',').map(Number);
+          if (parts.length === 4 && parts.every(n => !isNaN(n))) {
+            regionBbox = eeCore.Geometry.Rectangle([
+              Math.max(-180, parts[0]),
+              Math.max(-90, parts[1]),
+              Math.min(180, parts[2]),
+              Math.min(90, parts[3])
+            ]);
+          }
+        }
+
         const bandName = isDay ? 'LST_Day_1km' : 'LST_Night_1km';
 
         let collection: any;
-        if (satellite === 'terra') {
+        if (sat === 'terra') {
           collection = eeCore.ImageCollection('MODIS/061/MOD11A2');
-        } else if (satellite === 'aqua') {
+        } else if (sat === 'aqua') {
           collection = eeCore.ImageCollection('MODIS/061/MYD11A2');
         } else {
           // Combined Terra (MOD11A2) + Aqua (MYD11A2) 8-Day Composites
-          const terra = eeCore.ImageCollection('MODIS/061/MOD11A2').filterDate(start, end).filterBounds(indonesiaBbox);
-          const aqua = eeCore.ImageCollection('MODIS/061/MYD11A2').filterDate(start, end).filterBounds(indonesiaBbox);
+          const terra = eeCore.ImageCollection('MODIS/061/MOD11A2').filterDate(start, end).filterBounds(regionBbox);
+          const aqua = eeCore.ImageCollection('MODIS/061/MYD11A2').filterDate(start, end).filterBounds(regionBbox);
           collection = terra.merge(aqua);
         }
 
         const filtered = collection
           .filterDate(start, end)
-          .filterBounds(indonesiaBbox)
+          .filterBounds(regionBbox)
           .select(bandName);
 
         // Convert raw MODIS DN to Celsius: DN * 0.02 - 273.15
@@ -97,7 +117,7 @@ export default async function handler(req: any, res: any) {
           .mean()
           .multiply(0.02)
           .subtract(273.15)
-          .clip(indonesiaBbox);
+          .clip(regionBbox);
 
         const visParams = {
           min: minTemp,
@@ -115,16 +135,18 @@ export default async function handler(req: any, res: any) {
         res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000');
         return res.status(200).json({
           status: 'live',
+          isFallback: false,
           tileUrlTemplate: mapId.urlFormat,
-          dataset: satellite === 'terra' ? 'MODIS/061/MOD11A2' : satellite === 'aqua' ? 'MODIS/061/MYD11A2' : 'MODIS/061/MOD11A2 + MYD11A2',
-          satellite,
-          mode,
-          period: `${start} s.d. ${end}`,
+          provider: 'NASA LP DAAC',
+          dataset: sat === 'terra' ? 'MODIS/061/MOD11A2' : sat === 'aqua' ? 'MODIS/061/MYD11A2' : 'MODIS/061/MOD11A2 + MYD11A2',
+          satellite: sat,
+          mode: m,
+          period: `${start} to ${end}`,
           min: minTemp,
           max: maxTemp,
           palette,
-          resolution: '1 km',
-          source: 'Google Earth Engine (Live Serverless)'
+          resolution: '1 km (8-Day Composite)',
+          provenance: 'Google Earth Engine Serverless Compute with Clear-Sky QC Calibration'
         });
       }
     } catch (err: any) {

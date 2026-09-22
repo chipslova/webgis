@@ -294,10 +294,10 @@
             <section id="panel-gee" class="sidebar-panel" role="tabpanel" aria-labelledby="tab-gee">
               <div class="panel-header">
                 <div class="piksel-panel-badge-row">
-                  <h2>MODIS Land Surface Temp</h2>
-                  <span class="piksel-national-badge" id="gee-catalog-badge" title="NASA LP DAAC MODIS Terra + Aqua 8-Day LST Composite">MOD11A2 + MYD11A2.061</span>
+                  <h2>Suhu Permukaan Daratan (LST)</h2>
+                  <span class="piksel-national-badge" id="gee-catalog-badge" title="NASA LP DAAC MODIS Terra + Aqua 8-Day LST Composite">NASA LP DAAC · MODIS</span>
                 </div>
-                <p>NASA LP DAAC · MODIS Terra &amp; Aqua (Komposit Suhu Permukaan 1 km 8-Harian Seluruh Indonesia 2000–sekarang).</p>
+                <p>NASA LP DAAC · MODIS Terra &amp; Aqua (Komposit Suhu Permukaan 1 km 8-Harian Seluruh Indonesia 2000–Tersedia Terkini).</p>
               </div>
 
               <!-- Live GEE Status & Compute State Banner -->
@@ -306,7 +306,7 @@
                   <span><strong>NASA MODIS Land Surface Temp</strong></span>
                   <span id="gee-live-status-pill" class="gee-disclaimer-tag">⚡ 1KM LAND-MASKED</span>
                 </div>
-                <p id="gee-status-description" class="gee-status-desc">Peta suhu permukaan radiatif (LST 1 km) seluruh daratan &amp; kepulauan Indonesia. Wilayah lautan dimasking transparan sesuai standar NASA LP DAAC.</p>
+                <p id="gee-status-description" class="gee-status-desc">Peta suhu permukaan radiatif (LST 1 km) seluruh daratan &amp; kepulauan Indonesia via NASA GIBS WMS &amp; GEE Zonal Compute. Wilayah lautan dimasking transparan sesuai standar NASA LP DAAC.</p>
                 <div class="gee-disclaimer-notice">
                   <span id="gee-active-dataset-label">Dataset: <code>MODIS/061/MOD11A2 + MYD11A2</code></span>
                   <a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A2" target="_blank" rel="noopener noreferrer" class="gee-catalog-link">Katalog GEE ↗</a>
@@ -330,12 +330,12 @@
               <!-- Unified Metric Comparison Card (Urban vs Forest Baseline + SUHI Delta) -->
               <div class="gee-card gee-metric-comparison">
                 <div class="gee-comparison-header">
-                  <span class="gee-section-title">📊 Observasi Suhu Permukaan (LST 1 km)</span>
+                  <span class="gee-section-title">📊 Kontras Suhu Permukaan (LST Difference)</span>
                   <span class="piksel-hint">Daytime Thermal Contrast</span>
                 </div>
                 <div class="gee-comparison-grid">
                   <div class="gee-comp-col urban">
-                    <div class="gee-comp-label">🏢 Jakarta (Perkotaan Padat)</div>
+                    <div class="gee-comp-label">🏢 Jakarta (Pesisir &amp; Kota)</div>
                     <div class="gee-comp-val" id="metric-jakarta-lst">34.8 °C</div>
                     <div class="gee-comp-sub">UHI Siang Hari</div>
                   </div>
@@ -346,7 +346,7 @@
                   <div class="gee-comp-col rural">
                     <div class="gee-comp-label">🌲 Bandung (Pegunungan)</div>
                     <div class="gee-comp-val" id="metric-bandung-lst">21.2 °C</div>
-                    <div class="gee-comp-sub">Elevasi 1.240m</div>
+                    <div class="gee-comp-sub">Elevasi 1.240m (Lapse Rate)</div>
                   </div>
                 </div>
               </div>
@@ -414,8 +414,8 @@
                     <!-- 4. Indonesia Observation Nodes -->
                     <div class="gee-layer-item-clean">
                       <label>
-                        <input type="checkbox" id="toggle-gee-poi" aria-label="Toggle Indonesia LST Observation Stations layer" />
-                        <span class="toggle-label">📍 <strong>18 Stasiun Iklim Observasi</strong> (BMKG/Kota)</span>
+                        <input type="checkbox" id="toggle-gee-poi" aria-label="Toggle Indonesia LST Observation Reference Points layer" />
+                        <span class="toggle-label">📍 <strong>18 Titik Referensi Observasi</strong> (Kota &amp; Regional)</span>
                       </label>
                     </div>
                   </div>
@@ -459,9 +459,9 @@
                   <div>
                     <label for="gee-satellite-select" class="gee-filter-label">Satelit</label>
                     <select id="gee-satellite-select" class="form-select gee-filter-select">
-                      <option value="combined" selected>Terra + Aqua</option>
-                      <option value="terra">Terra (Pagi)</option>
-                      <option value="aqua">Aqua (Siang)</option>
+                      <option value="combined">Terra + Aqua</option>
+                      <option value="terra" selected>Terra (Pagi 10:30)</option>
+                      <option value="aqua">Aqua (Siang 13:30)</option>
                     </select>
                   </div>
                   <div>
@@ -508,28 +508,38 @@
                 </summary>
                 <div class="accordion-body">
                   <div class="gee-chart-header">
-                    <p class="chart-subtitle gee-chart-sub">Kurva termal komposit 8-harian (MODIS Terra/Aqua 1 km &amp; NOAA CFSv2): Jakarta vs Dataran Tinggi Bandung</p>
-                    <button id="btn-download-chart-png" class="btn-download-chart" title="Unduh grafik sebagai berkas PNG" aria-label="Unduh grafik deret waktu sebagai gambar PNG">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                      <span>PNG</span>
-                    </button>
+                    <p class="chart-subtitle gee-chart-sub">Kurva termal komposit 8-harian (MODIS Terra/Aqua 1 km radiatif &amp; NOAA CFSv2 2m udara): Jakarta vs Dataran Tinggi Bandung</p>
+                    <div style="display: flex; gap: 6px;">
+                      <button id="btn-toggle-gee-chart-table" class="btn-download-chart" title="Tampilkan data dalam tabel terstruktur" aria-label="Beralih ke tampilan tabel data deret waktu" aria-expanded="false">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+                        <span>Tabel Data</span>
+                      </button>
+                      <button id="btn-download-chart-png" class="btn-download-chart" title="Unduh grafik sebagai berkas PNG" aria-label="Unduh grafik deret waktu sebagai gambar PNG">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span>PNG</span>
+                      </button>
+                    </div>
                   </div>
                   <div class="chart-container gee-chart-container">
                     <canvas id="gee-chart-canvas" width="300" height="200" role="img" aria-label="MODIS Land Surface Temperature Multi-Year Chart"></canvas>
                     <!-- Tooltip overlay -->
                     <div id="gee-chart-tooltip" class="gee-chart-tooltip"></div>
                   </div>
+
+                  <!-- Accessible Data Table Container (Screen-reader & Keyboard accessible) -->
+                  <div id="gee-chart-table-container" style="display: none; margin-top: 10px; overflow-x: auto;"></div>
+
                   <div class="chart-legend gee-chart-legend">
-                    <span class="legend-badge urban-badge">■ Jakarta Siang LST</span>
-                    <span class="legend-badge rural-badge">■ Bandung Siang LST</span>
-                    <span class="legend-badge gee-legend-badge-jkt-night">--- JKT Malam LST</span>
-                    <span class="legend-badge gee-legend-badge-bdg-night">--- BDG Malam LST</span>
-                    <span class="legend-badge gee-legend-badge-forecast">┄ Putus: Proyeksi CFSv2</span>
+                    <span class="legend-badge urban-badge">■ Jakarta Siang LST (Skin)</span>
+                    <span class="legend-badge rural-badge">■ Bandung Siang LST (Skin)</span>
+                    <span class="legend-badge gee-legend-badge-jkt-night">--- JKT Malam LST (Skin)</span>
+                    <span class="legend-badge gee-legend-badge-bdg-night">--- BDG Malam LST (Skin)</span>
+                    <span class="legend-badge gee-legend-badge-forecast">┄ Putus: CFSv2 (Air Temp 2m)</span>
                   </div>
 
                   <!-- Special Note Disclaimer Box for Forecast -->
                   <div id="gee-forecast-disclaimer" class="gee-forecast-box">
-                    <strong style="color: #f3e8ff;">📌 Catatan Khusus (Proyeksi Model):</strong> Segmen garis putus-putus setelah <span id="gee-forecast-date-label" style="font-weight: 700; color: #facc15;">14 September 2026</span> merupakan simulasi model iklim numerik <em>NOAA NCEP CFSv2</em>, bukan observasi satelit aktual.
+                    <strong style="color: #f3e8ff;">📌 Catatan Metodologi:</strong> Garis solid mewakili <em>MODIS Land Surface Temperature (LST)</em> radiatif kulit permukaan tanah (1 km). Garis putus-putus setelah <span id="gee-forecast-date-label" style="font-weight: 700; color: #facc15;">14 September 2026</span> mewakili model numerik fluida atmosfer <em>NOAA CFSv2 2-meter Air Temperature</em>.
                   </div>
                 </div>
               </details>
@@ -547,13 +557,13 @@
                 <div class="accordion-body">
                   <p style="margin-bottom: 10px; font-size: 11.5px; color: var(--text-secondary);">Ekspor data observasi dan deret waktu MODIS LST tervalidasi:</p>
                   <div class="download-buttons">
-                    <button id="btn-download-geojson" class="btn btn-outline full-width" aria-label="Unduh Dataset GeoJSON 18 Stasiun MODIS LST">
+                    <button id="btn-download-geojson" class="btn btn-outline full-width" aria-label="Unduh Dataset GeoJSON 18 Titik Referensi MODIS LST">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                      Unduh GeoJSON (18 Stasiun LST Indonesia)
+                      Unduh GeoJSON (18 Titik Referensi LST Indonesia)
                     </button>
                     <button id="btn-download-csv" class="btn btn-outline full-width" aria-label="Unduh Dataset CSV Deret Waktu MODIS LST">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                      Unduh CSV (Komposit Multi-Tahun 16-Harian)
+                      Unduh CSV (Komposit 8-Harian 2020–2026)
                     </button>
                   </div>
                 </div>

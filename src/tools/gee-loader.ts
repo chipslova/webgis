@@ -26,27 +26,27 @@ export class GEELoader {
   private liveTileUrlTemplate: string | null = null;
   private currentStatus: GEEStatus = 'fallback';
   private currentParams: GEEQueryParams = {
-    satellite: 'combined',
+    satellite: 'terra',
     mode: 'day',
-    start: '2025-08-01',
-    end: '2025-08-31'
+    start: '2024-08-01',
+    end: '2024-08-31'
   };
   private onStatusChangeCallbacks: Array<(status: GEEStatus, metadata?: any) => void> = [];
 
   // Active layers in workspace
   private activeLayers: Set<string> = new Set<string>();
-  // Visibility states
+  // Visibility states: default to inactive until user/preset activation
   private layerVisibilities: Map<string, boolean> = new Map([
-    ['lst-day', true],
-    ['lst-night', true],
-    ['stations', true],
+    ['lst-day', false],
+    ['lst-night', false],
+    ['stations', false],
     // Aliases
-    ['air-temp', true],
-    ['surface-temp', true],
-    ['lst', true],
-    ['elevation', true],
-    ['poi', true],
-    ['landcover', true]
+    ['air-temp', false],
+    ['surface-temp', false],
+    ['lst', false],
+    ['elevation', false],
+    ['poi', false],
+    ['landcover', false]
   ]);
   // Independent layer opacities
   private layerOpacities: Map<string, number> = new Map([
@@ -734,14 +734,15 @@ export class GEELoader {
         <div class="gee-popup-card">
           <div class="gee-popup-badge live-badge">● NASA MODIS LST (1 KM)</div>
           <h4>🌡️ Suhu Permukaan Daratan (LST)</h4>
-          <div class="gee-popup-sub">Koordinat: ${lngLat.lat.toFixed(4)}°, ${lngLat.lng.toFixed(4)}°</div>
+          <div class="gee-popup-sub">Koordinat: ${lngLat.lat.toFixed(4)}°, ${lngLat.lng.toFixed(4)}° • Resolusi 1 km</div>
           <table class="gee-popup-table">
             <tr><td><strong>${isNight ? '🌙 Suhu Malam (LST):' : '☀️ Suhu Siang (LST):'}</strong></td><td><span class="highlight-temp">${isNight ? props.lst_night_c : props.lst_day_c} °C</span></td></tr>
             <tr><td><strong>${isNight ? '☀️ Suhu Siang (LST):' : '🌙 Suhu Malam (LST):'}</strong></td><td><strong>${isNight ? props.lst_day_c : props.lst_night_c} °C</strong></td></tr>
             <tr><td><strong>Rata-rata 24 Jam:</strong></td><td>${props.lst_mean_c ?? '28.0'} °C</td></tr>
-            <tr><td><strong>Diurnal ΔT (UHI):</strong></td><td><span style="color: #f97316; font-weight: 600;">+${props.delta_uhi_c ?? '9.5'} °C</span></td></tr>
+            <tr><td><strong>Perbedaan Siang–Malam (Diurnal ΔT):</strong></td><td><span style="color: #f97316; font-weight: 600;">+${props.delta_uhi_c ?? '9.5'} °C</span></td></tr>
             <tr><td><strong>Elevasi Topografi:</strong></td><td>${props.elevation_m} meter dpl</td></tr>
-            <tr><td><strong>Katalog Satelit:</strong></td><td><code>MODIS/061/MOD11A2+MYD11A2</code></td></tr>
+            <tr><td><strong>Katalog Satelit:</strong></td><td><code>MODIS/061/MOD11A2+MYD11A2 (8-Harian)</code></td></tr>
+            <tr><td><strong>Pengiriman Data:</strong></td><td><span>NASA GIBS WMS &amp; GEE Cloud</span></td></tr>
           </table>
         </div>
       `;
@@ -759,17 +760,17 @@ export class GEELoader {
 
       const html = `
         <div class="gee-popup-card">
-          <div class="gee-popup-badge live-badge">📍 STASIUN IKLIM OBSERVASI (BMKG/KOTA)</div>
+          <div class="gee-popup-badge live-badge">📍 TITIK REFERENSI OBSERVASI MODIS LST</div>
           <h4>${props.name}</h4>
-          <div class="gee-popup-sub">${props.province || 'Indonesia'} • ${props.station_type || 'Stasiun Pemantau'}</div>
+          <div class="gee-popup-sub">${props.province || 'Indonesia'} • Titik Referensi Observasi Wilayah</div>
           <table class="gee-popup-table">
             <tr><td><strong>☀️ Suhu Siang (LST):</strong></td><td><span class="highlight-temp">${props.lst_day_c ?? props.temp_air_c} °C</span> (${props.lst_day_k ?? '-'} K)</td></tr>
             <tr><td><strong>🌙 Suhu Malam (LST):</strong></td><td><strong>${props.lst_night_c ?? props.temp_surface_c} °C</strong> (${props.lst_night_k ?? '-'} K)</td></tr>
             <tr><td><strong>🌡️ Rata-rata 24 Jam:</strong></td><td>${props.lst_mean_c ?? '-'} °C</td></tr>
-            <tr><td><strong>🔥 Kontras Termal (UHI):</strong></td><td><span style="color: #f97316; font-weight: 600;">+${props.diurnal_delta_c ?? props.delta_uhi_c ?? '-'} °C</span></td></tr>
-            <tr><td><strong>⛰️ Elevasi Stasiun:</strong></td><td>${props.elevation_m ?? 0} meter dpl</td></tr>
-            <tr><td><strong>📊 Validasi Mutu QA:</strong></td><td><span style="color: #10b981;">✓ ${props.qa_quality_score ?? 'Good Quality'}</span></td></tr>
-            <tr><td><strong>🛰️ Sensor Data:</strong></td><td><code>MODIS/061/MOD11A1+MYD11A1</code></td></tr>
+            <tr><td><strong>Perbedaan Siang–Malam (Diurnal ΔT):</strong></td><td><span style="color: #f97316; font-weight: 600;">+${props.diurnal_delta_c ?? props.delta_uhi_c ?? '-'} °C</span></td></tr>
+            <tr><td><strong>⛰️ Elevasi Titik:</strong></td><td>${props.elevation_m ?? 0} meter dpl</td></tr>
+            <tr><td><strong>📊 Validasi Mutu QA:</strong></td><td><span style="color: #10b981;">✓ Clear-Sky Pixel (QA Bitmask 00)</span></td></tr>
+            <tr><td><strong>🛰️ Sensor Data:</strong></td><td><code>MODIS Terra/Aqua 1 km (8-Day Composite)</code></td></tr>
           </table>
         </div>
       `;

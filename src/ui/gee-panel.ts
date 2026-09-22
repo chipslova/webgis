@@ -57,6 +57,7 @@ export class GEEPanelUI {
       this.bindDownloadEvents();
       this.bindGEEComputeEvents();
       this.bindTileLoadingIndicator();
+      this.bindAccessibleDataTableEvents();
 
       this.geeLoader.onLayersChange(() => {
         this.syncCheckboxStates();
@@ -108,17 +109,17 @@ export class GEEPanelUI {
     const computeStatus = document.getElementById('gee-compute-status');
 
     if (status === 'live') {
-      if (pill) { pill.style.background = '#16a34a'; pill.innerText = '● LIVE GEE SERVERLESS'; }
-      if (desc) desc.innerText = `Menampilkan komposit 8-harian MODIS (${metadata?.period || 'Live'}) langsung dari Google Earth Engine API.`;
-      if (datasetLabel) datasetLabel.innerHTML = `Dataset: <code>${metadata?.dataset || 'MODIS/061/MOD11A2 + MYD11A2'}</code>`;
+      if (pill) { pill.style.background = '#16a34a'; pill.innerText = '● LIVE GEE REDUCTION'; }
+      if (desc) desc.innerText = `Menampilkan komposit 8-harian MODIS (${metadata?.period || 'Live'}) hasil reduksi Google Earth Engine API.`;
+      if (datasetLabel) datasetLabel.innerHTML = `Dataset: <code>${metadata?.dataset || 'MODIS/061/MOD11A2 + MYD11A2'}</code> • Provider: NASA LP DAAC`;
       if (computeStatus) computeStatus.style.display = 'none';
     } else if (status === 'computing') {
       if (pill) { pill.style.background = '#d97706'; pill.innerText = '◌ MENGHITUNG KOMPOSIT GEE...'; }
       if (desc) desc.innerText = 'Memproses kalkulasi Google Earth Engine Cloud Compute...';
       if (computeStatus) { computeStatus.style.display = 'block'; computeStatus.innerText = 'Menghubungi GEE Serverless API...'; }
     } else {
-      if (pill) { pill.style.background = '#0284c7'; pill.innerText = '⚡ 1KM GPU THERMAL GRID'; }
-      if (desc) desc.innerText = 'Thermal infrared radiative emission (LST). Clear-sky QA bitmask & cloud-free 8-day composite calibration.';
+      if (pill) { pill.style.background = '#0284c7'; pill.innerText = '● NASA GIBS WMS (1 KM RASTER)'; }
+      if (desc) desc.innerText = 'Aliran raster citra satelit NASA MODIS L3 Land Surface Temperature (Komposit 8-Harian 1 km). Bebas tutupan awan (Clear-Sky QA Masked).';
       if (computeStatus) computeStatus.style.display = 'none';
     }
   }
@@ -132,7 +133,7 @@ export class GEEPanelUI {
     const modeSelect = document.getElementById('gee-mode-select') as HTMLSelectElement;
 
     const handleParamChange = () => {
-      const satellite = (satSelect?.value || 'combined') as 'terra' | 'aqua' | 'combined';
+      const satellite = (satSelect?.value || 'terra') as 'terra' | 'aqua' | 'combined';
       const mode = (modeSelect?.value || 'day') as 'day' | 'night';
       const [start, end] = (periodSelect?.value || '2024-08-01|2024-08-31').split('|');
       this.geeLoader.setParams({ satellite, mode, start, end });
@@ -144,18 +145,21 @@ export class GEEPanelUI {
 
     if (btn) {
       btn.addEventListener('click', async () => {
-        const satellite = (satSelect?.value || 'combined') as 'terra' | 'aqua' | 'combined';
+        const satellite = (satSelect?.value || 'terra') as 'terra' | 'aqua' | 'combined';
         const mode = (modeSelect?.value || 'day') as 'day' | 'night';
         const [start, end] = (periodSelect?.value || '2024-08-01|2024-08-31').split('|');
         btn.setAttribute('disabled', 'true');
-        btn.innerHTML = '<span>⏳</span><span>Memuat Layer WMS NASA...</span>';
-        showToast(`Memuat data MODIS ${satellite.toUpperCase()} (${start})...`, 'info');
+        btn.innerText = 'Menghubungi GEE...';
+
         try {
-          await this.geeLoader.computeLiveGEE({ satellite, mode, start, end });
-          this.geeLoader.renderAllLayers();
-          showToast('Layer Suhu Permukaan (LST) NASA MODIS aktif!', 'success');
-        } catch (err: any) {
-          showToast('Gagal memuat layer: ' + err.message, 'error');
+          const res = await this.geeLoader.computeLiveGEE({ satellite, mode, start, end });
+          if (res && res.status === 'live') {
+            showToast('Komposit GEE Live berhasil dihitung!', 'success');
+          } else {
+            showToast('GEE API mengembalikan fallback WMS.', 'info');
+          }
+        } catch (e: any) {
+          showToast(`Gagal memanggil GEE: ${e.message}`, 'error');
         } finally {
           btn.removeAttribute('disabled');
           btn.innerHTML = '<span>⚡</span><span>Perbarui Layer WMS NASA</span>';
@@ -587,6 +591,78 @@ export class GEEPanelUI {
       }
     } catch { /* ignore */ }
     return dateStr;
+  }
+
+  private bindAccessibleDataTableEvents() {
+    const toggleBtn = document.getElementById('btn-toggle-gee-chart-table');
+    const tableContainer = document.getElementById('gee-chart-table-container');
+    const canvasContainer = document.querySelector('.gee-chart-container') as HTMLElement;
+
+    if (!toggleBtn || !tableContainer) return;
+
+    toggleBtn.addEventListener('click', () => {
+      const isVisible = tableContainer.style.display !== 'none';
+      if (isVisible) {
+        tableContainer.style.display = 'none';
+        if (canvasContainer) canvasContainer.style.display = 'block';
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        toggleBtn.innerHTML = `
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+          <span>Tabel Data</span>
+        `;
+      } else {
+        this.renderAccessibleDataTable(tableContainer);
+        tableContainer.style.display = 'block';
+        if (canvasContainer) canvasContainer.style.display = 'none';
+        toggleBtn.setAttribute('aria-expanded', 'true');
+        toggleBtn.innerHTML = `
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span>Grafik</span>
+        `;
+      }
+    });
+  }
+
+  private renderAccessibleDataTable(container: HTMLElement) {
+    if (!this.chartPoints || this.chartPoints.length === 0) {
+      container.innerHTML = '<p class="gee-chart-sub" style="text-align:center;">Data deret waktu belum tersedia.</p>';
+      return;
+    }
+
+    const rows = this.chartPoints.map((pt) => {
+      const formattedDate = this.formatDateIndonesian(pt.date);
+      const typeBadge = pt.isForecast 
+        ? '<span style="color:#facc15; font-size:10px;">CFSv2 Model (2m Air)</span>' 
+        : '<span style="color:#38bdf8; font-size:10px;">MODIS LST (Skin)</span>';
+      return `
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+          <td style="padding: 4px 6px; font-family: monospace; font-size: 11px;">${formattedDate}</td>
+          <td style="padding: 4px 6px; text-align: right; color: #ef4444; font-weight: 600;">${pt.jktDay.toFixed(1)}°C</td>
+          <td style="padding: 4px 6px; text-align: right; color: #f59e0b;">${pt.jktNight.toFixed(1)}°C</td>
+          <td style="padding: 4px 6px; text-align: right; color: #10b981; font-weight: 600;">${pt.bdgDay.toFixed(1)}°C</td>
+          <td style="padding: 4px 6px; text-align: right; color: #06b6d4;">${pt.bdgNight.toFixed(1)}°C</td>
+          <td style="padding: 4px 6px; font-size: 10px;">${typeBadge}</td>
+        </tr>
+      `;
+    }).join('');
+
+    container.innerHTML = `
+      <table style="width: 100%; border-collapse: collapse; font-size: 11.5px; color: var(--text-secondary);" aria-label="Tabel Deret Waktu Suhu LST Komposit 8-Harian">
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.15); text-align: left; font-size: 10.5px; color: #94a3b8;">
+            <th style="padding: 4px 6px;">Tanggal Komposit</th>
+            <th style="padding: 4px 6px; text-align: right;">JKT Siang</th>
+            <th style="padding: 4px 6px; text-align: right;">JKT Malam</th>
+            <th style="padding: 4px 6px; text-align: right;">BDG Siang</th>
+            <th style="padding: 4px 6px; text-align: right;">BDG Malam</th>
+            <th style="padding: 4px 6px;">Tipe Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    `;
   }
 }
 
