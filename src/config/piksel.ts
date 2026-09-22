@@ -90,10 +90,10 @@ export interface PikselPreset {
 
 export const PIKSEL_CATEGORIES: { id: ProductCategory; name: string; icon: string; subtitle: string }[] = [
   { id: 'geomad', name: 'Sentinel-2 GeoMAD', icon: '', subtitle: 'Komposit Optik & Inframerah Bebas Awan 10m' },
-  { id: 'indices', name: 'Spectral Indices', icon: '', subtitle: 'Indeks Kerapatan Vegetasi & Badan Air Permukaan' },
+  { id: 'indices', name: 'Indeks Spektral', icon: '', subtitle: 'Indeks Kerapatan Vegetasi & Badan Air Permukaan' },
   { id: 'landsat', name: 'Landsat 9', icon: '', subtitle: 'Observasi Reflektansi Permukaan USGS/NASA 30m' },
-  { id: 'hazard', name: 'Flood Hazard', icon: '', subtitle: 'Pemodelan Hidrologi Bahaya Banjir Kawasan Prioritas' },
-  { id: 'quality', name: 'Data Quality', icon: '', subtitle: 'Statistik Pengamatan Bebas Awan Tiap Piksel' }
+  { id: 'hazard', name: 'Bahaya Banjir', icon: '', subtitle: 'Pemodelan Hidrologi Bahaya Banjir Kawasan Prioritas' },
+  { id: 'quality', name: 'Kualitas & Densitas Data', icon: '', subtitle: 'Statistik Pengamatan Bebas Awan Tiap Piksel' }
 ];
 
 // In production (Vercel) route all WMS requests through the Edge proxy so we get

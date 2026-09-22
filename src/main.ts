@@ -333,10 +333,10 @@ class WebGISApp {
               <line x1="12" y1="8" x2="12" y2="12"/>
               <line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
-            <h2>Failed to Load WebGIS Map</h2>
-            <p>Please verify that your browser supports WebGL hardware acceleration and has an active internet connection.</p>
+            <h2>Gagal Memuat Peta WebGIS</h2>
+            <p>Pastikan peramban Anda mendukung akselerasi perangkat keras WebGL dan terhubung dengan internet.</p>
             <button class="btn btn-primary" onclick="window.location.reload()">
-              🔄 Reload Page
+              🔄 Muat Ulang Halaman
             </button>
           </div>
         `;

@@ -52,7 +52,7 @@ export class PikselPanelUI {
 
     // 1. Presets HTML
     const presetsHtml = PIKSEL_PRESETS.map((preset: PikselPreset) => `
-      <button class="piksel-preset-chip" data-id="${preset.id}" aria-label="Explore ${preset.name}, ${preset.locationName}" title="${preset.description}">
+      <button class="piksel-preset-chip" data-id="${preset.id}" aria-label="Jelajahi ${preset.name}, ${preset.locationName}" title="${preset.description}">
         <span class="preset-chip-title">${preset.name}</span>
         <span class="preset-chip-sub">${preset.locationName}</span>
       </button>
@@ -603,7 +603,7 @@ export class PikselPanelUI {
         if (preset) {
           this.pikselLoader.flyToPreset(preset);
           const prod = PIKSEL_PRODUCTS.find(p => p.id === preset.recommendedProduct);
-          showToast(`Flying to ${preset.name} (${prod?.name || 'Satellite Imagery'})`, 'info');
+          showToast(`Mengarahkan peta ke ${preset.name} (${prod?.name || 'Citra Satelit'})`, 'info');
           if (typeof window !== 'undefined' && window.innerWidth <= 768) {
             window.dispatchEvent(new CustomEvent('webgis:collapse-sidebar-if-mobile'));
           }
@@ -689,7 +689,7 @@ export class PikselPanelUI {
       // 5. Retry Piksel product
       if (target.closest('#btn-retry-piksel')) {
         this.pikselLoader.retryCurrentProduct();
-        showToast('Retrying satellite tile requests from OGC server...', 'info');
+        showToast('Mencoba memuat ulang ubin satelit dari server OGC...', 'info');
         return;
       }
 
@@ -711,7 +711,7 @@ export class PikselPanelUI {
       if (target.closest('#btn-reset-piksel-filters')) {
         this.pikselLoader.resetFilters();
         this.render();
-        showToast('Spectral display filters reset to default', 'info');
+        showToast('Filter tampilan spektral telah diatur ulang ke standar', 'info');
         return;
       }
     });
