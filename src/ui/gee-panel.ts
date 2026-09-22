@@ -117,6 +117,10 @@ export class GEEPanelUI {
       if (pill) { pill.style.background = '#d97706'; pill.innerText = '◌ MENGHITUNG KOMPOSIT GEE...'; }
       if (desc) desc.innerText = 'Memproses kalkulasi Google Earth Engine Cloud Compute...';
       if (computeStatus) { computeStatus.style.display = 'block'; computeStatus.innerText = 'Menghubungi GEE Serverless API...'; }
+    } else if (status === 'error') {
+      if (pill) { pill.style.background = '#ef4444'; pill.innerText = '✕ GEE TIDAK TERSEDIA'; }
+      if (desc) desc.innerText = 'Layanan GEE Cloud Compute tidak dapat dihubungi. Menampilkan raster NASA GIBS WMS.';
+      if (computeStatus) computeStatus.style.display = 'none';
     } else {
       if (pill) { pill.style.background = '#0284c7'; pill.innerText = '● NASA GIBS WMS (1 KM RASTER)'; }
       if (desc) desc.innerText = 'Aliran raster citra satelit NASA MODIS L3 Land Surface Temperature (Komposit 8-Harian 1 km). Bebas tutupan awan (Clear-Sky QA Masked).';

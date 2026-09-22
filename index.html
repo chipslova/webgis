@@ -48,7 +48,7 @@
     <div id="offline-banner" class="offline-banner" style="display: none;" role="alert">
       <span class="offline-icon" aria-hidden="true">⚠️</span>
       <div class="offline-text">
-        <strong>Mode Offline</strong> — Koneksi internet terputus. Citra satelit dan lapisan peta baru tidak dapat dimuat hingga koneksi kembali pulih.
+        <strong>Offline Shell / Cache Antarmuka</strong> — Koneksi internet terputus. Antarmuka dan berkas lokal tetap dapat diakses, namun citra satelit dan data live memerlukan koneksi internet untuk memuat ubin baru.
       </div>
     </div>
 
@@ -782,6 +782,9 @@
                     <span>.KML (Earth)</span>
                   </button>
                 </div>
+                <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 10px; padding: 6px 8px; border-radius: 6px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
+                  📐 <em>Catatan: Pengukuran jarak dan luas menggunakan kalkulasi geodesik sferoidal WGS84 (@turf/turf) untuk estimasi visual spasial — bukan pengukuran batas tanah/kadastral resmi.</em>
+                </div>
               </div>
             </section>
 
@@ -812,6 +815,7 @@
                   <input type="text" id="input-save-project-name" placeholder="Nama tampilan (misal: IKN 2025)..." aria-label="Nama tampilan tersimpan" />
                   <button id="btn-save-current-project" class="btn btn-primary-outline btn-save-project">Simpan</button>
                 </div>
+                <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 6px;">💡 <em>Tampilan tersimpan disimpan secara lokal pada peramban perangkat ini (localStorage).</em></div>
                 <div id="saved-projects-list" class="saved-projects-list"></div>
               </div>
             </section>

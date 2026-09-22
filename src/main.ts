@@ -346,13 +346,16 @@ class WebGISApp {
 
   private bindProjectionEvents() {
     const btn = document.getElementById('btn-toggle-globe');
-    const label = document.getElementById('globe-btn-label');
-    if (!btn || !label) return;
+    if (!btn) return;
 
     const updateLabel = () => {
-      const current = this.mapManager.getProjection();
-      label.innerText = current === 'globe' ? '3D Globe Mode' : '2D Mercator Mode';
-      btn.classList.toggle('active', current === 'globe');
+      const isGlobe = this.mapManager.getProjection() === 'globe';
+      btn.classList.toggle('active', isGlobe);
+      const label = document.getElementById('globe-btn-label');
+      if (label) {
+        label.innerText = isGlobe ? 'Proyeksi Mercator 2D' : 'Proyeksi Bola 3D';
+      }
+      btn.setAttribute('title', isGlobe ? 'Beralih ke Proyeksi Peta Datar (Mercator 2D)' : 'Beralih ke Proyeksi Bola Bumi (3D Globe)');
     };
 
     updateLabel();
@@ -374,6 +377,11 @@ class WebGISApp {
       const map = this.mapManager.getMap();
       if (!map) return;
 
+      const prevCenter = map.getCenter();
+      const prevZoom = map.getZoom();
+      const prevPitch = map.getPitch();
+      const prevBearing = map.getBearing();
+
       // 1. Reset map camera to Indonesia archipelago view
       map.flyTo({
         center: [117.89, -2.55],
@@ -388,7 +396,7 @@ class WebGISApp {
       const globeBtn = document.getElementById('btn-toggle-globe');
       const globeLabel = document.getElementById('globe-btn-label');
       if (globeBtn) globeBtn.classList.remove('active');
-      if (globeLabel) globeLabel.innerText = '3D Globe Mode';
+      if (globeLabel) globeLabel.innerText = 'Proyeksi Bola 3D';
 
       // 3. Reset basemap to default Esri Imagery and opacity to 100%
       this.mapManager.setBasemap(DEFAULT_BASEMAP_ID);
@@ -421,7 +429,23 @@ class WebGISApp {
       this.activeLayersUI?.render();
       this.dynamicLegendUI?.render();
 
-      showToast('Tampilan peta dikembalikan ke posisi awal', 'info');
+      showToast('Tampilan peta dikembalikan ke posisi awal', {
+        type: 'info',
+        durationMs: 6000,
+        action: {
+          label: '↩️ Urungkan',
+          onClick: () => {
+            map.flyTo({
+              center: prevCenter,
+              zoom: prevZoom,
+              pitch: prevPitch,
+              bearing: prevBearing,
+              duration: 1500
+            });
+            showToast('Posisi kamera dipulihkan', 'info', 2000);
+          }
+        }
+      });
     });
   }
 
@@ -688,7 +712,7 @@ class WebGISApp {
       const activeProduct = this.pikselLoader?.getActiveProduct();
       const year = this.pikselLoader?.getSelectedYear() || '2025';
       if (activeProduct) {
-        subInput.value = `${activeProduct.name} (${year}) • OGC WMS (10m)`;
+        subInput.value = `${activeProduct.name} (${year}) • OGC WMS (${activeProduct.resolution || '10m'})`;
       }
     }
 

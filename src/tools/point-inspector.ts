@@ -140,17 +140,17 @@ export class PointInspector {
     if (pikselProduct) {
       const year = this.pikselLoader?.getSelectedYear() || '2025';
       activeLayerName = `${pikselProduct.name} (${year})`;
-      activeLayerCategory = 'Piksel OGC WMS (10m)';
+      activeLayerCategory = `Piksel OGC WMS (${pikselProduct.resolution || '10m'})`;
     } else if (this.geeLoader) {
-      if (this.geeLoader.isLayerVisible('lst')) {
-        activeLayerName = 'MODIS Daytime LST Heatmap (2020–2026)';
-        activeLayerCategory = 'GEE Thermal Case Study';
-      } else if (this.geeLoader.isLayerVisible('elevation')) {
-        activeLayerName = 'USGS SRTM Ground Elevation DEM (30m)';
-        activeLayerCategory = 'GEE Elevation Case Study';
-      } else if (this.geeLoader.isLayerVisible('landcover') || this.geeLoader.isLayerVisible('lc')) {
-        activeLayerName = 'Sentinel-2 10m Land Use & Land Cover (LULC)';
-        activeLayerCategory = 'Sentinel-2 10m High-Resolution';
+      if (this.geeLoader.isLayerVisible('lst-day')) {
+        activeLayerName = 'NASA MODIS Daytime LST (1 km)';
+        activeLayerCategory = 'NASA LP DAAC · MOD11A2 / MYD11A2';
+      } else if (this.geeLoader.isLayerVisible('lst-night')) {
+        activeLayerName = 'NASA MODIS Nighttime LST (1 km)';
+        activeLayerCategory = 'NASA LP DAAC · MOD11A2 / MYD11A2';
+      } else if (this.geeLoader.isLayerVisible('landcover')) {
+        activeLayerName = 'ESA WorldCover 10m (Tutupan Lahan)';
+        activeLayerCategory = 'ESA / Impact Observatory (10m)';
       }
     }
 

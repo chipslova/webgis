@@ -10,7 +10,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.3.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-165%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-168%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
   <img src="docs/preview.jpg" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
@@ -60,7 +60,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
   * **NIR Surface Reflectance**
   * **Observation Density** (Scene acquisition count & coverage)
 * **Real-Time Spectral & Visual Filter Controls**: Non-destructive client-side adjustment of Brightness, Contrast, and Saturation sliders for enhanced optical feature extraction.
-* **Landsat 9 Surface Reflectance (30m)**: USGS/NASA surface reflectance (2021–2026).
+* **Landsat 9 Surface Reflectance (30m)**: USGS/NASA surface reflectance (2022–2025).
 * **Piksel Flood Hazard Modeling**: Hydrological floodplain classifications (`flood_hazard_rp02` & `rp10`) for priority study areas.
 * **Piksel Data Cube Tile Index**: Interactive overlay of 1,631 Open Data Cube tile boundaries across Indonesian territory.
 
@@ -146,7 +146,7 @@ graph TD
 | :--- | :--- | :--- | :--- | :--- |
 | **Sentinel-2 GeoMAD** | BIG Piksel / ESA | 10 meters | 2017 – 2025 | OGC WMS 1.3.0 (PNG / Edge Proxy) |
 | **Spectral Indices (NDVI/NDWI)** | Open Data Cube | 10 meters | Annual Composites | OGC WMS 1.3.0 |
-| **Landsat 9 Analysis** | USGS / NASA | 30 meters | 2021 – 2026 | OGC WMS 1.3.0 |
+| **Landsat 9 Analysis** | USGS / NASA | 30 meters | 2022 – 2025 | OGC WMS 1.3.0 |
 | **Flood Hazard Models** | BIG Hidrologi | 10 meters | Priority Study Areas | OGC WMS 1.3.0 |
 | **MODIS Land Surface Temp** | NASA LP DAAC (MOD11A2 / MYD11A2) | 1,000 meters (1 km) | 2000 – Present (8-Day) | NASA GIBS WMS & GEE Serverless Compute |
 | **Regional Thermal Model Grid** | GEE / NOAA CFSv2 Approximation | ~50 km Vector Grid | 2020 – 2026 | GeoJSON (Lazy Fetch / Fallback) |
@@ -167,7 +167,7 @@ graph TD
 * **Mapping Engine**: [MapLibre GL JS](https://maplibre.org/) (v6.3.0)
 * **Spatial Calculations**: [@turf/turf](https://turfjs.org/) (Modular imports: `@turf/helpers`, `@turf/length`, `@turf/area`, `@turf/buffer`, `@turf/distance`)
 * **Raster / Vector Protocols**: OGC WMS 1.3.0, NASA GIBS WMS, PMTiles, GeoJSON, TileJSON
-* **Testing Framework**: [Vitest](https://vitest.dev/) (165 unit, integration & E2E tests across 23 test suites — 100% passing)
+* **Testing Framework**: [Vitest](https://vitest.dev/) (168 unit, integration & E2E tests across 24 test suites — 100% passing)
 * **Build Tool**: [Vite 6](https://vitejs.dev/)
 * **Package Manager / Runtime**: [Bun](https://bun.sh/)
 

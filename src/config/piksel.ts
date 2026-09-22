@@ -413,59 +413,59 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
   {
     id: 'bromo',
     name: 'Bromo Tengger Semeru',
-    locationName: 'East Java',
+    locationName: 'Medan Vulkanik & Tutupan Lahan',
     center: [112.9485, -7.9514],
     zoom: 12,
     pitch: 35,
-    description: 'Bromo caldera sea of sand and volcanic morphology with GeoMAD True Color.',
+    description: 'Kaldera Bromo, lautan pasir, dan morfologi vulkanik dengan GeoMAD True Color.',
     recommendedProduct: 's2-geomad-rgb'
   },
   {
     id: 'toba',
-    name: 'Lake Toba & Samosir',
-    locationName: 'North Sumatra',
+    name: 'Danau Toba & Samosir',
+    locationName: 'Badan Air & Dataran Tinggi',
     center: [98.8052, 2.5819],
     zoom: 10.5,
     pitch: 20,
-    description: 'Volcanic lake water body and shoreline analysis of Lake Toba using NDWI.',
+    description: 'Analisis badan air dan garis pantai kaldera Danau Toba menggunakan NDWI.',
     recommendedProduct: 's2-ndwi'
   },
   {
     id: 'ikn',
     name: 'IKN Nusantara',
-    locationName: 'East Kalimantan',
+    locationName: 'Pembangunan Kawasan & Kanopi',
     center: [116.7050, -0.9700],
     zoom: 11.5,
     pitch: 25,
-    description: 'Tropical forest canopy monitoring and new capital infrastructure progress with NDVI.',
+    description: 'Pemantauan tutupan hutan tropis dan pembangunan infrastruktur baru dengan NDVI.',
     recommendedProduct: 's2-ndvi'
   },
   {
     id: 'citarum-floodplain',
-    name: 'Karawang & Citarum Floodplain',
-    locationName: 'West Java',
+    name: 'Karawang & Dataran Banjir Citarum',
+    locationName: 'Dataran Banjir & Hidrologi',
     center: [107.2500, -6.2200],
     zoom: 10.5,
-    description: 'Hydrological flood hazard zoning modeling across the downstream Citarum basin.',
+    description: 'Zonasi bahaya banjir hidrologis di sepanjang hilir DAS Citarum.',
     recommendedProduct: 'flood-hazard-rp02'
   },
   {
     id: 'gag-island',
-    name: 'Gag Island (Raja Ampat)',
-    locationName: 'Southwest Papua',
+    name: 'Pulau Gag (Raja Ampat)',
+    locationName: 'Pulau Tropis & Pesisir',
     center: [129.8900, -0.4500],
     zoom: 12.5,
-    description: 'Tropical island morphology and landcover analysis with GeoMAD True Color.',
+    description: 'Morfologi kepulauan tropis dan tutupan vegetasi pesisir dengan GeoMAD True Color.',
     recommendedProduct: 's2-geomad-rgb'
   },
   {
     id: 'merapi',
-    name: 'Mount Merapi',
-    locationName: 'D.I. Yogyakarta',
+    name: 'Gunung Merapi',
+    locationName: 'Kubah Lava & Koridor Lahar',
     center: [110.4463, -7.5407],
     zoom: 12,
     pitch: 30,
-    description: 'Active lava dome morphology, lahar channels, and slope canopy with False Color NIR.',
+    description: 'Morfologi kubah lava aktif, jalur lahar, dan lereng vegetasi dengan False Color NIR.',
     recommendedProduct: 's2-geomad-nir'
   }
 ];

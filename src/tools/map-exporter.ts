@@ -151,7 +151,7 @@ export class MapExporter {
       const activeProduct = this.pikselLoader?.getActiveProduct();
       const activeYear = this.pikselLoader?.getSelectedYear() || '2025';
       const defaultSub = activeProduct
-        ? `${activeProduct.name} (${activeYear}) • OGC WMS (10m)`
+        ? `${activeProduct.name} (${activeYear}) • OGC WMS (${activeProduct.resolution || '10m'})`
         : 'Sistem Informasi Geografis & Analisis Spasial Nasional';
       const subText = options.subtitle?.trim() || defaultSub;
 

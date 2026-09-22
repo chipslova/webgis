@@ -13,19 +13,19 @@ interface ZonalStatsRequestBody {
   endDate?: string;
 }
 
-// ESA WorldCover 10m Classification Legend mapping
-const WORLDCOVER_META: Record<string, { code: number; name: string; nameId: string; color: string }> = {
-  '10': { code: 2, name: 'Trees (Forest)', nameId: 'Tutupan Pohon / Hutan', color: '#358221' },
-  '20': { code: 11, name: 'Shrubland', nameId: 'Semak Belukar', color: '#C6D799' },
-  '30': { code: 11, name: 'Grassland', nameId: 'Padang Rumput', color: '#C6D799' },
-  '40': { code: 5, name: 'Cropland', nameId: 'Pertanian / Sawah', color: '#FFDB5C' },
-  '50': { code: 7, name: 'Built-up Area', nameId: 'Lahan Terbangun / Kota', color: '#ED022A' },
-  '60': { code: 8, name: 'Bare Ground', nameId: 'Lahan Terbuka / Pasir', color: '#EDE9E4' },
-  '70': { code: 9, name: 'Snow / Ice', nameId: 'Salju / Es Abadi', color: '#F2FAFF' },
-  '80': { code: 1, name: 'Water Bodies', nameId: 'Badan Air', color: '#1A5BAB' },
-  '90': { code: 4, name: 'Herbaceous Wetland', nameId: 'Lahan Basah / Rawa', color: '#87D19E' },
-  '95': { code: 4, name: 'Mangroves', nameId: 'Hutan Mangrove', color: '#87D19E' },
-  '100': { code: 10, name: 'Moss & Lichen', nameId: 'Lumut / Lainnya', color: '#C8C8C8' }
+// ESA WorldCover 10m Classification Legend mapping (sampled at 20m for snappy serverless zonal reductions)
+const WORLDCOVER_META: Record<string, { code: number; worldCoverClass: number; name: string; nameId: string; color: string }> = {
+  '10': { code: 2, worldCoverClass: 10, name: 'Trees (Forest)', nameId: 'Tutupan Pohon / Hutan', color: '#358221' },
+  '20': { code: 11, worldCoverClass: 20, name: 'Shrubland', nameId: 'Semak Belukar', color: '#C6D799' },
+  '30': { code: 11, worldCoverClass: 30, name: 'Grassland', nameId: 'Padang Rumput', color: '#C6D799' },
+  '40': { code: 5, worldCoverClass: 40, name: 'Cropland', nameId: 'Pertanian / Sawah', color: '#FFDB5C' },
+  '50': { code: 7, worldCoverClass: 50, name: 'Built-up Area', nameId: 'Lahan Terbangun / Kota', color: '#ED022A' },
+  '60': { code: 8, worldCoverClass: 60, name: 'Bare Ground', nameId: 'Lahan Terbuka / Pasir', color: '#EDE9E4' },
+  '70': { code: 9, worldCoverClass: 70, name: 'Snow / Ice', nameId: 'Salju / Es Abadi', color: '#F2FAFF' },
+  '80': { code: 1, worldCoverClass: 80, name: 'Water Bodies', nameId: 'Badan Air', color: '#1A5BAB' },
+  '90': { code: 4, worldCoverClass: 90, name: 'Herbaceous Wetland', nameId: 'Lahan Basah / Rawa', color: '#87D19E' },
+  '95': { code: 4, worldCoverClass: 95, name: 'Mangroves', nameId: 'Hutan Mangrove', color: '#87D19E' },
+  '100': { code: 10, worldCoverClass: 100, name: 'Moss & Lichen', nameId: 'Lumut / Lainnya', color: '#C8C8C8' }
 };
 
 export default async function handler(req: any, res: any) {

@@ -156,22 +156,24 @@ export default async function handler(req: any, res: any) {
   }
 
   // Graceful response when GEE key is pending configuration in Vercel environment variables
-  // Tells client to use high-resolution GPU vector grid while exposing the configured parameters
+  // Visual raster rendered via NASA GIBS WMS (1 km), while vector baseline uses precomputed regional interpolation
   res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
   return res.status(200).json({
     status: 'fallback',
-    message: 'GEE Service Account Key not configured in Vercel environment. Seamlessly utilizing 1km nationwide GPU vector thermal field.',
-    dataset: 'MODIS/061/MOD11A2 (Terra 8-Day) + MODIS/061/MYD11A2 (Aqua 8-Day)',
+    isFallback: true,
+    message: 'Kunci GEE belum dikonfigurasi. Citra raster termal ditampilkan via NASA GIBS WMS (1 km), kalkulasi vektor menggunakan model aproksimasi regional ~50 km.',
+    dataset: 'NASA LP DAAC MODIS LST (MOD11A2 / MYD11A2) via NASA GIBS WMS',
     satellite,
     mode,
     period: `${start} s.d. ${end}`,
     min: minTemp,
     max: maxTemp,
     palette,
-    resolution: '1 km',
+    resolution: '1 km (NASA GIBS Raster) / ~50 km (Model Fallback)',
     urbanBaseline: 34.8,
     ruralBaseline: 21.2,
     deltaUhi: 13.6,
-    activeStationsCount: 18
+    activeStationsCount: 18,
+    provenance: 'NASA GIBS OGC WMS (1 km) with Precomputed Regional Baseline Model'
   });
 }

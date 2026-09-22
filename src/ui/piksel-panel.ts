@@ -243,10 +243,11 @@ export class PikselPanelUI {
 
     // 3. Filtered Products Catalog
     const categories = [
-      { id: 'all', label: 'All' },
+      { id: 'all', label: 'Semua' },
       { id: 'geomad', label: 'Sentinel-2 GeoMAD' },
-      { id: 'indices', label: 'Spectral Indices' },
-      { id: 'hazard', label: 'Flood Hazard' },
+      { id: 'indices', label: 'Indeks Spektral' },
+      { id: 'quality', label: 'Kualitas & Densitas' },
+      { id: 'hazard', label: 'Bahaya Banjir' },
       { id: 'landsat', label: 'Landsat 9' }
     ];
 
@@ -653,12 +654,12 @@ export class PikselPanelUI {
           const targetNav = this.pikselLoader.autoFlyToOptimalView(clickedId);
           if (targetNav) {
             showToast(
-              `🚀 Camera positioned to study area (${targetNav}) for optimal imagery view.`,
+              `🔍 Citra resolusi tinggi memerlukan zoom lebih dekat — peta diarahkan ke area rekomendasi (${targetNav}).`,
               {
                 type: 'info',
                 durationMs: 7000,
                 action: prevCenter && prevZoom !== null ? {
-                  label: '↩️ Undo',
+                  label: '↩️ Urungkan',
                   onClick: () => {
                     map?.flyTo({
                       center: prevCenter,
@@ -668,7 +669,7 @@ export class PikselPanelUI {
                       duration: 1500,
                       essential: true
                     });
-                    showToast('Returned to previous camera view', 'info', 2000);
+                    showToast('Kembali ke posisi kamera sebelumnya', 'info', 2000);
                   }
                 } : undefined
               }
