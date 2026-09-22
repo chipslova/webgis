@@ -23,6 +23,7 @@ export class MapManager {
   private pikselLoaderRef?: { getAllMapLayerIds?(): string[] } | null;
   private geeLoaderRef?: { getAllMapLayerIds?(): string[] } | null;
   private geojsonLoaderRef?: { getAllMapLayerIds?(): string[] } | null;
+  private spatialAnalysisUIRef?: { getAllMapLayerIds?(): string[] } | null;
   private measureToolRef?: { getAllMapLayerIds?(): string[] } | null;
 
   public setPikselLoader(loader: { getAllMapLayerIds?(): string[] } | null) {
@@ -39,6 +40,10 @@ export class MapManager {
 
   public setGeoJsonLoader(loader: { getAllMapLayerIds?(): string[] } | null) {
     this.geojsonLoaderRef = loader;
+  }
+
+  public setSpatialAnalysisUI(ui: { getAllMapLayerIds?(): string[] } | null) {
+    this.spatialAnalysisUIRef = ui;
   }
 
   public setMeasureTool(tool: { getAllMapLayerIds?(): string[] } | null) {
@@ -407,6 +412,10 @@ export class MapManager {
       'gee-modis-day-wms-layer',
       'gee-modis-night-wms-layer',
       'gee-modis-live-raster-layer',
+      'gee-modis-lst-day-fill',
+      'gee-modis-lst-night-fill',
+      'gee-modis-stations-circles',
+      'gee-modis-stations-labels',
       'gee-elevation-fill',
       'gee-elevation-outline',
       'gee-landcover-fill',
@@ -414,18 +423,30 @@ export class MapManager {
       'gee-lst-fill',
       'gee-lst-outline'
     ];
-    const geeRasterLayerIds = geeAllLayerIds.filter((id: string) => !id.includes('circle') && !id.includes('stations'));
+    const geeRasterLayerIds = geeAllLayerIds.filter(
+      (id: string) => !id.includes('circle') && !id.includes('stations') && !id.includes('labels') && !id.includes('poi')
+    );
 
     // 3. Piksel Grid Boundaries (above GEE/Piksel rasters)
     const pikselGridLayerIds = ['piksel-grid-fill', 'piksel-grid-line'];
 
     // 4. GEE POI Vector Circles & Observations
-    const geeVectorLayerIds = geeAllLayerIds.filter((id: string) => id.includes('circle') || id.includes('stations') || id.includes('poi'));
+    const geeVectorLayerIds = geeAllLayerIds.filter(
+      (id: string) => id.includes('circle') || id.includes('stations') || id.includes('labels') || id.includes('poi')
+    );
 
-    // 5. Custom Vector GeoJSON Layers (Major Cities, Uploaded GeoJSON)
+    // 5. Custom Vector GeoJSON Layers (Major Cities, Uploaded GeoJSON, Proximity Buffer)
     const geojsonLayerIds = this.geojsonLoaderRef?.getAllMapLayerIds?.() || [];
 
-    // 6. Measurement Layers (Always topmost interactive overlay)
+    // 6. Spatial Analysis AOI & Zonal Statistics (Always above rasters & custom GeoJSON)
+    const spatialAnalysisLayerIds = this.spatialAnalysisUIRef?.getAllMapLayerIds?.() || [
+      'aoi-analysis-fill',
+      'aoi-analysis-line',
+      'aoi-rubberband-layer',
+      'aoi-vertices-layer'
+    ];
+
+    // 7. Measurement Layers (Always topmost interactive overlay)
     const measureLayerIds = this.measureToolRef?.getAllMapLayerIds?.() || [
       'measure-fill',
       'measure-line-casing',
@@ -439,6 +460,7 @@ export class MapManager {
       ...pikselGridLayerIds,
       ...geeVectorLayerIds,
       ...geojsonLayerIds,
+      ...spatialAnalysisLayerIds,
       ...measureLayerIds
     ];
 

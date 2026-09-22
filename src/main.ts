@@ -241,6 +241,11 @@ class WebGISApp {
       // Instantiate Spatial Analysis & Zonal Statistics Module
       this.spatialAnalysisUI = new SpatialAnalysisUI(map, 'spatial-analysis-panel');
       this.spatialAnalysisUI.init();
+      this.spatialAnalysisUI.onLayersChange(() => {
+        this.mapManager.enforceLayerOrder();
+      });
+      this.mapManager.setSpatialAnalysisUI(this.spatialAnalysisUI);
+      this.mapManager.onStyleReady(() => this.spatialAnalysisUI?.restoreAfterStyleChange());
       this.commandPaletteUI.setSpatialAnalysisUI(this.spatialAnalysisUI);
 
       // Instantiate Proximity Buffer Analysis Module

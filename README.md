@@ -10,7 +10,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.3.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-172%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-174%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
   <img src="docs/preview.jpg" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
@@ -167,7 +167,7 @@ graph TD
 * **Mesin Pemetaan**: [MapLibre GL JS](https://maplibre.org/) (v6.3.0)
 * **Kalkulasi Spasial**: [@turf/turf](https://turfjs.org/) (Modular: `@turf/helpers`, `@turf/length`, `@turf/area`, `@turf/buffer`, `@turf/distance`)
 * **Protokol Raster / Vektor**: OGC WMS 1.3.0, NASA GIBS WMS, PMTiles, GeoJSON, TileJSON
-* **Framework Pengujian**: [Vitest](https://vitest.dev/) (**172 Unit & Integration Tests** di 25 test suites — 100% Lulus)
+* **Framework Pengujian**: [Vitest](https://vitest.dev/) (**174 Unit & Integration Tests** di 26 test suites — 100% Lulus)
 * **Alat Bangun (Build Tool)**: [Vite 6](https://vitejs.dev/)
 * **Package Manager / Runtime**: [Bun](https://bun.sh/)
 

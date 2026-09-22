@@ -330,6 +330,7 @@ export class GEELoader {
     if (this.activeLayers.size > 0) {
       this.renderAllLayers();
       this.renderHtmlMarkers();
+      this.notifyLayersChange();
     }
   }
 
@@ -681,6 +682,8 @@ export class GEELoader {
     } catch (e) {
       logger.warn('Notice adding MODIS LST monitoring stations layer:', e);
     }
+
+    this.notifyLayersChange();
   }
 
   public renderHtmlMarkers() {
@@ -721,6 +724,8 @@ export class GEELoader {
     if (this.map.getLayer('gee-modis-stations-labels')) {
       this.map.setLayoutProperty('gee-modis-stations-labels', 'visibility', isStationsVis ? 'visible' : 'none');
     }
+
+    this.notifyLayersChange();
   }
 
   private bindLayerEvents() {

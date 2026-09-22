@@ -16,6 +16,7 @@ export class SpatialAnalysisUI {
   private isDrawingAOI: boolean = false;
   private drawnPoints: [number, number][] = [];
   private onResultChangeCallbacks: Array<(res: ZonalAnalysisResult) => void> = [];
+  private onLayersChangeCallbacks: Array<() => void> = [];
   private _boundMouseMove: ((e: any) => void) | null = null;
 
   constructor(map: maplibregl.Map, containerId: string = 'spatial-analysis-panel') {
@@ -27,6 +28,31 @@ export class SpatialAnalysisUI {
     this.initMapLayers();
     this.bindEvents();
     this.render();
+  }
+
+  public onLayersChange(callback: () => void) {
+    this.onLayersChangeCallbacks.push(callback);
+  }
+
+  private notifyLayersChange() {
+    this.onLayersChangeCallbacks.forEach(cb => {
+      try { cb(); } catch (e) { /* ignore */ }
+    });
+  }
+
+  public getAllMapLayerIds(): string[] {
+    return [
+      'aoi-analysis-fill',
+      'aoi-analysis-line',
+      'aoi-rubberband-layer',
+      'aoi-vertices-layer'
+    ];
+  }
+
+  public restoreAfterStyleChange() {
+    this.initMapLayers();
+    this.updateDrawingVisuals();
+    this.notifyLayersChange();
   }
 
   private initMapLayers() {
@@ -43,14 +69,14 @@ export class SpatialAnalysisUI {
         id: 'aoi-analysis-fill',
         type: 'fill',
         source: 'aoi-analysis-source',
-        paint: { 'fill-color': '#06b6d4', 'fill-opacity': 0.25 }
+        paint: { 'fill-color': '#00f0ff', 'fill-opacity': 0.28 }
       });
 
       this.map.addLayer({
         id: 'aoi-analysis-line',
         type: 'line',
         source: 'aoi-analysis-source',
-        paint: { 'line-color': '#00f0ff', 'line-width': 2.5, 'line-dasharray': [3, 2] }
+        paint: { 'line-color': '#00f0ff', 'line-width': 3, 'line-dasharray': [3, 2] }
       });
     }
 
@@ -348,6 +374,8 @@ export class SpatialAnalysisUI {
         }))
       });
     }
+
+    this.notifyLayersChange();
   }
 
   public selectPresetRegion(presetId: string) {
@@ -366,6 +394,7 @@ export class SpatialAnalysisUI {
       src.setData(polyFeature);
     }
 
+    this.notifyLayersChange();
     this.analyzeFeature(polyFeature, preset.name);
   }
 
