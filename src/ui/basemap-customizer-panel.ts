@@ -147,8 +147,10 @@ export class BasemapCustomizerUI {
     });
   }
 
+  private activeFilterGroup: 'all' | 'recommended' | 'thematic' | 'canvas' = 'all';
+
   /**
-   * Renders the full basemap gallery into the sidebar panel
+   * Renders the full basemap gallery into the sidebar panel with interactive category filter tabs
    */
   public renderSidebarBasemapGrid() {
     const grid = document.getElementById('basemap-grid');
@@ -157,13 +159,48 @@ export class BasemapCustomizerUI {
 
     const currentId = this.mapManager?.getCurrentBasemapId() || DEFAULT_BASEMAP_ID;
 
-    const groups = [
-      { key: 'recommended', title: 'Primary Basemaps' },
-      { key: 'thematic', title: 'Topography, Oceans & Relief' },
-      { key: 'canvas', title: 'Open Data & Experimental Styles' }
+    // Filter Tabs Bar
+    const tabsContainer = document.createElement('div');
+    tabsContainer.className = 'basemap-filter-tabs';
+    tabsContainer.setAttribute('role', 'tablist');
+    tabsContainer.setAttribute('aria-label', 'Filter Kategori Peta Dasar');
+
+    const filterOptions: Array<{ key: 'all' | 'recommended' | 'thematic' | 'canvas'; label: string; count: number }> = [
+      { key: 'all', label: 'Semua', count: BASEMAPS.length },
+      { key: 'recommended', label: 'Satelit & Utama', count: BASEMAPS.filter(b => (b.group || 'recommended') === 'recommended').length },
+      { key: 'thematic', label: 'Topografi & Relief', count: BASEMAPS.filter(b => b.group === 'thematic').length },
+      { key: 'canvas', label: 'Data Terbuka', count: BASEMAPS.filter(b => b.group === 'canvas').length }
     ];
 
-    groups.forEach((grp) => {
+    filterOptions.forEach((opt) => {
+      const tabBtn = document.createElement('button');
+      tabBtn.type = 'button';
+      tabBtn.className = `basemap-filter-tab ${this.activeFilterGroup === opt.key ? 'active' : ''}`;
+      tabBtn.setAttribute('role', 'tab');
+      tabBtn.setAttribute('aria-selected', String(this.activeFilterGroup === opt.key));
+      tabBtn.innerHTML = `${opt.label} <span style="font-size: 9px; opacity: 0.8;">(${opt.count})</span>`;
+
+      tabBtn.addEventListener('click', () => {
+        this.activeFilterGroup = opt.key;
+        this.renderSidebarBasemapGrid();
+      });
+
+      tabsContainer.appendChild(tabBtn);
+    });
+
+    grid.appendChild(tabsContainer);
+
+    const groups = [
+      { key: 'recommended', title: 'Satelit & Peta Utama' },
+      { key: 'thematic', title: 'Topografi, Lautan & Relief' },
+      { key: 'canvas', title: 'Data Terbuka & Kanvas Eksperimental' }
+    ];
+
+    const visibleGroups = this.activeFilterGroup === 'all'
+      ? groups
+      : groups.filter(g => g.key === this.activeFilterGroup);
+
+    visibleGroups.forEach((grp) => {
       const groupBasemaps = BASEMAPS.filter((b) => (b.group || 'recommended') === grp.key);
       if (groupBasemaps.length === 0) return;
 
@@ -172,7 +209,7 @@ export class BasemapCustomizerUI {
       groupHeader.innerHTML = `
         <div class="group-title-row">
           <h4>${grp.title}</h4>
-          <span>${groupBasemaps.length} Options</span>
+          <span>${groupBasemaps.length} Pilihan</span>
         </div>
       `;
       grid.appendChild(groupHeader);
@@ -186,7 +223,7 @@ export class BasemapCustomizerUI {
         card.dataset.id = bm.id;
         card.setAttribute('role', 'button');
         card.setAttribute('tabindex', '0');
-        card.setAttribute('aria-label', `Select basemap ${bm.name} category ${bm.category}`);
+        card.setAttribute('aria-label', `Pilih peta dasar ${bm.name} kategori ${bm.category}`);
 
         const formatBadge = bm.format === 'vector'
           ? `<span class="bm-tag-badge vector">🔷 Vector</span>`
@@ -222,7 +259,7 @@ export class BasemapCustomizerUI {
           if (typeof window !== 'undefined' && window.innerWidth <= 768) {
             window.dispatchEvent(new CustomEvent('webgis:collapse-sidebar-if-mobile'));
           }
-          announceToScreenReader(`Basemap changed to ${bm.name} (${bm.category})`);
+          announceToScreenReader(`Peta dasar diubah ke ${bm.name} (${bm.category})`);
           this.syncUI();
         };
 
