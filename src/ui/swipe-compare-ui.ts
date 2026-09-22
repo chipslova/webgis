@@ -81,13 +81,13 @@ export class SwipeCompareUI {
     const showRightYear = (rightProd?.timeEnabled !== false) && rightYears.length > 0;
 
     const leftYearHtml = showLeftYear
-      ? `<select id="swipe-left-year" class="swipe-select year" aria-label="Select left side year">
+      ? `<select id="swipe-left-year" class="swipe-select year" aria-label="Pilih tahun lapisan sisi kiri">
           ${leftYears.map((y) => `<option value="${y}" ${y === leftConfig.year ? 'selected' : ''}>${y}</option>`).join('')}
         </select>`
       : '';
 
     const rightYearHtml = showRightYear
-      ? `<select id="swipe-right-year" class="swipe-select year" aria-label="Select right side year">
+      ? `<select id="swipe-right-year" class="swipe-select year" aria-label="Pilih tahun lapisan sisi kanan">
           ${rightYears.map((y) => `<option value="${y}" ${y === rightConfig.year ? 'selected' : ''}>${y}</option>`).join('')}
         </select>`
       : '';
@@ -100,39 +100,39 @@ export class SwipeCompareUI {
     `
     ).join('');
 
-    const leftLabelText = `${leftProd?.name || 'Left'}${showLeftYear && leftConfig.year ? ` (${leftConfig.year})` : ''}`;
-    const rightLabelText = `${rightProd?.name || 'Right'}${showRightYear && rightConfig.year ? ` (${rightConfig.year})` : ''}`;
+    const leftLabelText = `${leftProd?.name || 'Kiri'}${showLeftYear && leftConfig.year ? ` (${leftConfig.year})` : ''}`;
+    const rightLabelText = `${rightProd?.name || 'Kanan'}${showRightYear && rightConfig.year ? ` (${rightConfig.year})` : ''}`;
 
     const cardContentHtml = this.isCardCollapsed
       ? `
         <!-- Collapsed Mini Pill Toolbar (Maximum Map Visibility) -->
-        <div class="swipe-mini-pill glass-panel" role="toolbar" aria-label="Image Comparison Status">
+        <div class="swipe-mini-pill glass-panel" role="toolbar" aria-label="Status Komparasi Citra">
           <div class="mini-pill-info">
             <span class="mini-pill-dot"></span>
-            <span>Comparison: <strong>${leftLabelText}</strong> vs <strong>${rightLabelText}</strong></span>
+            <span>Komparasi: <strong>${leftLabelText}</strong> vs <strong>${rightLabelText}</strong></span>
           </div>
           <div class="mini-pill-actions">
-            <button id="btn-toggle-swipe-card" class="btn-micro" title="Open Comparison Layer Settings" aria-label="Open Settings">
-              ⚙️ Settings
+            <button id="btn-toggle-swipe-card" class="btn-micro" title="Buka Pengaturan Lapisan Komparasi" aria-label="Buka Pengaturan">
+              ⚙️ Pengaturan
             </button>
-            <button id="btn-close-swipe" class="btn-micro btn-micro-danger" title="Exit Comparison Mode" aria-label="Exit Comparison Mode">
-              ✕ Done
+            <button id="btn-close-swipe" class="btn-micro btn-micro-danger" title="Keluar Mode Komparasi" aria-label="Keluar Mode Komparasi">
+              ✕ Selesai
             </button>
           </div>
         </div>
       `
       : `
         <!-- Expanded Full Control Card -->
-        <div class="swipe-unified-card glass-panel" role="toolbar" aria-label="Satellite Imagery Comparison Controls">
+        <div class="swipe-unified-card glass-panel" role="toolbar" aria-label="Kontrol Komparasi Citra Satelit">
           <div class="swipe-header-row">
             <!-- Left Layer Selector -->
             <div class="swipe-side-box left">
               <div class="swipe-side-tag left">
                 <span class="swipe-tag-dot left"></span>
-                <span>LEFT SIDE</span>
+                <span>SISI KIRI</span>
               </div>
               <div class="swipe-select-group">
-                <select id="swipe-left-prod" class="swipe-select" aria-label="Select left side layer">
+                <select id="swipe-left-prod" class="swipe-select" aria-label="Pilih lapisan citra sisi kiri">
                   ${leftOptionsHtml}
                 </select>
                 ${leftYearHtml}
@@ -145,32 +145,32 @@ export class SwipeCompareUI {
             <!-- Right Layer Selector -->
             <div class="swipe-side-box right">
               <div class="swipe-select-group">
-                <select id="swipe-right-prod" class="swipe-select" aria-label="Select right side layer">
+                <select id="swipe-right-prod" class="swipe-select" aria-label="Pilih lapisan citra sisi kanan">
                   ${rightOptionsHtml}
                 </select>
                 ${rightYearHtml}
               </div>
               <div class="swipe-side-tag right">
-                <span>RIGHT SIDE</span>
+                <span>SISI KANAN</span>
                 <span class="swipe-tag-dot right"></span>
               </div>
             </div>
 
             <!-- Action Buttons: Minimize & Close -->
             <div class="swipe-card-actions">
-              <button id="btn-toggle-swipe-card" class="btn-icon-swipe" title="Hide Menu (Full Map View)" aria-label="Collapse Comparison Menu" type="button">
+              <button id="btn-toggle-swipe-card" class="btn-icon-swipe" title="Sembunyikan Menu (Tampilan Peta Penuh)" aria-label="Sembunyikan menu komparasi" type="button">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
               </button>
-              <button id="btn-close-swipe" class="btn-close-swipe" title="Exit comparison mode" aria-label="Close comparison mode" type="button">
+              <button id="btn-close-swipe" class="btn-close-swipe" title="Keluar dari mode komparasi" aria-label="Tutup mode komparasi" type="button">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                <span>Done</span>
+                <span>Selesai</span>
               </button>
             </div>
           </div>
 
           <!-- Integrated Preset Chips Row -->
           <div class="swipe-presets-row">
-            <span class="presets-row-label">⚡ Studies:</span>
+            <span class="presets-row-label">⚡ Studi Kasus:</span>
             <div class="presets-chips-scroll">
               ${presetsHtml}
             </div>
@@ -180,10 +180,10 @@ export class SwipeCompareUI {
             <div class="swipe-zoom-alert" id="swipe-zoom-alert">
               <div class="swipe-zoom-alert-text">
                 <span class="alert-icon" aria-hidden="true">💡</span>
-                <span>Current zoom (${this.manager.getPrimaryMapZoom().toFixed(1)}). Satellite imagery requires Zoom ≥ 8 to appear.</span>
+                <span>Zoom saat ini (${this.manager.getPrimaryMapZoom().toFixed(1)}). Citra satelit membutuhkan Zoom ≥ 8 agar terlihat jelas.</span>
               </div>
-              <button id="btn-swipe-autozoom" class="btn-swipe-autozoom" type="button" aria-label="Auto zoom to level 9.5">
-                Auto Zoom (9.5) →
+              <button id="btn-swipe-autozoom" class="btn-swipe-autozoom" type="button" aria-label="Zoom otomatis ke level 9.5">
+                Zoom Otomatis (9.5) →
               </button>
             </div>
           ` : ''}
@@ -194,7 +194,7 @@ export class SwipeCompareUI {
       ${cardContentHtml}
 
       <!-- Draggable Split Divider Line & Handle Knob -->
-      <div id="swipe-divider-handle" class="swipe-divider-line" style="left: ${sliderPos}%;" role="separator" aria-valuenow="${sliderPos}" aria-valuemin="0" aria-valuemax="100" tabindex="0" aria-label="Drag to compare left and right imagery">
+      <div id="swipe-divider-handle" class="swipe-divider-line" style="left: ${sliderPos}%;" role="separator" aria-valuenow="${sliderPos}" aria-valuemin="0" aria-valuemax="100" tabindex="0" aria-label="Geser pemisah untuk membandingkan citra sisi kiri dan kanan">
         <div class="swipe-handle-knob">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="15 18 9 12 15 6"/>

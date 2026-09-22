@@ -133,8 +133,8 @@ export class PointInspector {
 
   public inspectCoordinate(lng: number, lat: number, screenPoint?: maplibregl.PointLike) {
     // 1. Check Active Layer Information
-    let activeLayerName = 'Base Map (Basemap)';
-    let activeLayerCategory = 'Basemap';
+    let activeLayerName = 'Peta Dasar (Basemap)';
+    let activeLayerCategory = 'Peta Dasar';
 
     const pikselProduct = this.pikselLoader?.getActiveProduct();
     if (pikselProduct) {
@@ -143,10 +143,10 @@ export class PointInspector {
       activeLayerCategory = `Piksel OGC WMS (${pikselProduct.resolution || '10m'})`;
     } else if (this.geeLoader) {
       if (this.geeLoader.isLayerVisible('lst-day')) {
-        activeLayerName = 'NASA MODIS Daytime LST (1 km)';
+        activeLayerName = 'NASA MODIS LST Siang (1 km)';
         activeLayerCategory = 'NASA LP DAAC · MOD11A2 / MYD11A2';
       } else if (this.geeLoader.isLayerVisible('lst-night')) {
-        activeLayerName = 'NASA MODIS Nighttime LST (1 km)';
+        activeLayerName = 'NASA MODIS LST Malam (1 km)';
         activeLayerCategory = 'NASA LP DAAC · MOD11A2 / MYD11A2';
       } else if (this.geeLoader.isLayerVisible('landcover')) {
         activeLayerName = 'ESA WorldCover 10m (Tutupan Lahan)';
@@ -373,7 +373,7 @@ export class PointInspector {
     }
 
     const lstEl = document.getElementById('insp-lst');
-    if (lstEl) lstEl.innerText = 'Unavailable (WMS Query)';
+    if (lstEl) lstEl.innerText = 'Tidak Tersedia (Kueri WMS)';
 
     if (productNameEl && productValEl) {
       productNameEl.innerText = 'Lapisan Aktif';

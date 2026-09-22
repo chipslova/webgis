@@ -203,8 +203,8 @@
             <!-- Panel: Map & Active Layers -->
             <section id="panel-map" class="sidebar-panel active" role="tabpanel" aria-labelledby="tab-map">
               <div class="panel-header">
-                <h2>Active Layer Stack</h2>
-                <p>Manage active layer hierarchy, opacity, visibility, and spatial synchronization.</p>
+                <h2>Tumpukan Lapisan Aktif</h2>
+                <p>Kelola hierarki lapisan aktif, opasitas, visibilitas, dan sinkronisasi spasial.</p>
               </div>
 
               <!-- Active Basemap Summary & Shortcut Card -->
@@ -213,20 +213,20 @@
                   <div class="active-bm-info">
                     <span class="active-bm-icon">🗺️</span>
                     <div>
-                      <span class="active-bm-sub">CURRENT BASEMAP</span>
+                      <span class="active-bm-sub">PETA DASAR AKTIF</span>
                       <h4 id="active-bm-title" class="active-bm-name">Esri World Imagery</h4>
                     </div>
                   </div>
                   <span id="active-bm-type-badge" class="active-bm-badge">Esri</span>
                 </div>
                 <div class="active-bm-actions">
-                  <button id="btn-sidebar-open-basemaps" class="btn btn-secondary btn-sm" title="Open 16 Basemaps Gallery in Bottom Dock">
+                  <button id="btn-sidebar-open-basemaps" class="btn btn-secondary btn-sm" title="Buka Galeri 16 Peta Dasar di Bilah Bawah">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-                    <span>Change Basemap</span>
+                    <span>Ganti Peta Dasar</span>
                   </button>
-                  <button id="btn-sidebar-open-sublayers" class="btn btn-outline btn-sm" title="Customize Vector Sublayers & Relief">
+                  <button id="btn-sidebar-open-sublayers" class="btn btn-outline btn-sm" title="Kustomisasi Sublapisan Vektor & Relief">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                    <span>Sublayers</span>
+                    <span>Sublapisan</span>
                   </button>
                 </div>
               </div>
@@ -239,25 +239,25 @@
             <section id="panel-piksel" class="sidebar-panel">
               <div class="panel-header">
                 <div class="piksel-panel-badge-row">
-                  <h2>Piksel Earth Observation</h2>
-                  <span class="piksel-national-badge" title="Consuming BIG Piksel Open Data Cube WMS">BIG Piksel WMS</span>
+                  <h2>Observasi Bumi BIG Piksel</h2>
+                  <span class="piksel-national-badge" title="Mengakses Open Data Cube WMS BIG Piksel">BIG Piksel WMS</span>
                 </div>
-                <p>BIG Piksel Data · OGC WMS — Accessing Open Data Cube public staging endpoints from Badan Informasi Geospasial.</p>
+                <p>Data BIG Piksel · OGC WMS — Akses endpoint publik Open Data Cube dari Badan Informasi Geospasial.</p>
               </div>
 
               <!-- Quick Launch Comparison Mode -->
-              <button id="btn-sidebar-start-swipe" class="btn btn-secondary full-width" style="margin-bottom: 12px; gap: 8px; justify-content: center;" title="Open Split-Screen Image Comparison Mode (Swipe)" aria-label="Open Split-Screen Image Comparison Mode">
+              <button id="btn-sidebar-start-swipe" class="btn btn-secondary full-width" style="margin-bottom: 12px; gap: 8px; justify-content: center;" title="Buka Mode Bandingkan Citra Layar Belah (Swipe)" aria-label="Buka Mode Bandingkan Citra Layar Belah">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="8 8 4 12 8 16"/><polyline points="16 8 20 12 16 16"/></svg>
-                <span>Image Comparison (Swipe)</span>
+                <span>Bandingkan Citra (Swipe)</span>
               </button>
 
               <!-- Study Area Presets -->
               <div class="piksel-card">
                 <div class="piksel-card-title-row">
                   <div style="display:flex; align-items:center; gap:6px;">
-                    <h3 style="margin:0;">Priority Monitoring Presets</h3>
+                    <h3 style="margin:0;">Preset Pemantauan Prioritas</h3>
                   </div>
-                  <span class="piksel-hint">Click to fly</span>
+                  <span class="piksel-hint">Klik untuk menuju lokasi</span>
                 </div>
                 <div id="piksel-presets-container" class="piksel-presets-grid">
                   <!-- Dynamically populated presets -->
@@ -274,17 +274,17 @@
               <!-- Info & External Links -->
               <div class="piksel-card piksel-info-card">
                 <div style="display:flex; align-items:center; gap:6px; margin-bottom: 6px;">
-                  <h3 style="margin:0;">Official Portals & Documentation</h3>
+                  <h3 style="margin:0;">Portal Resmi &amp; Dokumentasi</h3>
                 </div>
-                <p>OGC Web Map Services powered by Open Data Cube BIG (Badan Informasi Geospasial) & Geoscience Australia.</p>
+                <p>Layanan Web Map Service (WMS) berbasis Open Data Cube BIG &amp; Geoscience Australia.</p>
                 <div class="piksel-links-group">
                   <a href="https://piksel.big.go.id" target="_blank" rel="noopener noreferrer" class="btn btn-outline full-width">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                    Open Piksel Portal
+                    Buka Portal Piksel
                   </a>
                   <a href="https://explorer.piksel.big.go.id" target="_blank" rel="noopener noreferrer" class="btn btn-secondary full-width">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                    Data Cube Explorer
+                    Eksplorer Data Cube
                   </a>
                 </div>
               </div>
@@ -303,8 +303,8 @@
               <!-- Live GEE Status & Compute State Banner -->
               <div class="gee-disclaimer-banner">
                 <div class="gee-disclaimer-header">
-                  <span><strong>NASA MODIS Land Surface Temp</strong></span>
-                  <span id="gee-live-status-pill" class="gee-disclaimer-tag">⚡ 1KM LAND-MASKED</span>
+                  <span><strong>Suhu Permukaan Daratan NASA MODIS</strong></span>
+                  <span id="gee-live-status-pill" class="gee-disclaimer-tag">⚡ 1 KM LAND-MASKED</span>
                 </div>
                 <p id="gee-status-description" class="gee-status-desc">Peta suhu permukaan radiatif (LST 1 km) seluruh daratan &amp; kepulauan Indonesia via NASA GIBS WMS &amp; GEE Zonal Compute. Wilayah lautan dimasking transparan sesuai standar NASA LP DAAC.</p>
                 <div class="gee-disclaimer-notice">
@@ -331,7 +331,7 @@
               <div class="gee-card gee-metric-comparison">
                 <div class="gee-comparison-header">
                   <span class="gee-section-title">📊 Kontras Suhu Permukaan (LST Difference)</span>
-                  <span class="piksel-hint">Daytime Thermal Contrast</span>
+                  <span class="piksel-hint">Kontras Termal Siang Hari</span>
                 </div>
                 <div class="gee-comparison-grid">
                   <div class="gee-comp-col urban">
@@ -341,7 +341,7 @@
                   </div>
                   <div class="gee-comp-divider">
                     <span class="gee-delta-badge" id="metric-suhi-delta">Δ +13.6 °C</span>
-                    <span class="gee-delta-sub">SUHI Contrast</span>
+                    <span class="gee-delta-sub">Selisih SUHI</span>
                   </div>
                   <div class="gee-comp-col rural">
                     <div class="gee-comp-label">🌲 Bandung (Pegunungan)</div>
@@ -357,7 +357,7 @@
                 <!-- Card Header -->
                 <div class="gee-card-header">
                   <h3 class="gee-card-title">
-                    🌡️ MODIS Land Surface Temperature
+                    🌡️ Suhu Permukaan Daratan MODIS (LST)
                   </h3>
                   <span class="gee-card-badge">1 km · LP DAAC</span>
                 </div>
@@ -379,10 +379,10 @@
                     <div class="gee-layer-row gee-layer-item-clean">
                       <label>
                         <input type="checkbox" id="toggle-gee-lst" aria-label="Toggle MODIS Daytime Land Surface Temperature layer" />
-                        <span>☀️ <strong>Daytime LST</strong> <span class="gee-layer-subtext">(Suhu Siang · 10:30/13:30)</span></span>
+                        <span>☀️ <strong>LST Siang Hari</strong> <span class="gee-layer-subtext">(Suhu Permukaan · 10:30/13:30)</span></span>
                       </label>
                       <div id="gee-lst-opacity-row" class="gee-layer-opacity-box" style="display: none;">
-                        <input type="range" id="gee-lst-day-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opacity for Daytime LST" />
+                        <input type="range" id="gee-lst-day-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas LST Siang Hari" />
                         <span id="gee-lst-day-opacity-val" class="gee-layer-opacity-val">85%</span>
                       </div>
                     </div>
@@ -391,10 +391,10 @@
                     <div class="gee-layer-row gee-layer-item-clean">
                       <label>
                         <input type="checkbox" id="toggle-gee-elevation" aria-label="Toggle MODIS Nighttime Land Surface Temperature layer" />
-                        <span>🌙 <strong>Nighttime LST</strong> <span class="gee-layer-subtext">(Suhu Malam · 22:30/01:30)</span></span>
+                        <span>🌙 <strong>LST Malam Hari</strong> <span class="gee-layer-subtext">(Suhu Permukaan · 22:30/01:30)</span></span>
                       </label>
                       <div id="gee-lst-night-opacity-row" class="gee-layer-opacity-box" style="display: none;">
-                        <input type="range" id="gee-lst-night-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opacity for Nighttime LST" />
+                        <input type="range" id="gee-lst-night-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas LST Malam Hari" />
                         <span id="gee-lst-night-opacity-val" class="gee-layer-opacity-val">85%</span>
                       </div>
                     </div>
@@ -403,10 +403,10 @@
                     <div class="gee-layer-row gee-layer-item-clean">
                       <label>
                         <input type="checkbox" id="toggle-gee-landcover" aria-label="Toggle Sentinel-2 10m Land Cover layer" />
-                        <span>🌳 <strong>Sentinel-2 10m LULC</strong> <span class="gee-layer-subtext">(Tutupan Lahan)</span></span>
+                        <span>🌳 <strong>Tutupan Lahan Sentinel-2 10m</strong> <span class="gee-layer-subtext">(ESA WorldCover)</span></span>
                       </label>
                       <div id="gee-lc-opacity-row" class="gee-layer-opacity-box" style="display: none;">
-                        <input type="range" id="gee-landcover-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opacity for Land Cover" />
+                        <input type="range" id="gee-landcover-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas Tutupan Lahan" />
                         <span id="gee-landcover-opacity-val" class="gee-layer-opacity-val green">85%</span>
                       </div>
                     </div>

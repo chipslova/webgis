@@ -43,11 +43,11 @@ export class GuidedTourUI {
     return [
       {
         id: 1,
-        badge: '1. SATELLITE IMAGERY 10M',
-        title: 'Sentinel-2 GeoMAD (Mount Bromo & Semeru)',
-        subtitle: 'BIG Open Data Cube OGC WMS Service',
-        description: 'The Sentinel-2 MSI satellite captures 10m optical reflectance. Geospatial Information Agency (BIG) processes annual cloud-free composites (GeoMAD) over the Bromo caldera.',
-        tags: ['10m Resolution', 'Cloud-Free (GeoMAD)', 'Geospatial Information Agency'],
+        badge: '1. CITRA SATELIT 10M',
+        title: 'Sentinel-2 GeoMAD (Gunung Bromo & Semeru)',
+        subtitle: 'Layanan OGC WMS Open Data Cube BIG',
+        description: 'Satelit Sentinel-2 MSI merekam pantulan optik 10m. Badan Informasi Geospasial (BIG) memproses komposit bebas awan tahunan (GeoMAD) di atas kaldera Gunung Bromo.',
+        tags: ['Resolusi 10m', 'Bebas Awan (GeoMAD)', 'Badan Informasi Geospasial'],
         action: async () => {
           const map = this.mapManager.getMap();
           if (!map) return;
@@ -80,11 +80,11 @@ export class GuidedTourUI {
       },
       {
         id: 2,
-        badge: '2. REAL GEE MODIS LST',
-        title: 'MODIS 1km Land Surface Temperature (LST) & Urban Heat Island',
-        subtitle: 'NASA Terra (MOD11A1) & Aqua (MYD11A1) Earth Engine Analysis',
-        description: 'NASA Earth observation sensors map Daytime and Nighttime Land Surface Temperature across Indonesia with zero blur, GPU vector rendering, and Urban Heat Island analysis.',
-        tags: ['MODIS Terra + Aqua', '1 km LST', '18 Climate Stations', 'UHI Analysis'],
+        badge: '2. GEE MODIS LST',
+        title: 'Suhu Permukaan Daratan (LST) MODIS 1km & Urban Heat Island',
+        subtitle: 'Analisis Earth Engine Sensor NASA Terra (MOD11A1) & Aqua (MYD11A1)',
+        description: 'Sensor observasi bumi NASA memetakan Suhu Permukaan Daratan Siang dan Malam di seluruh Indonesia dengan rendering vektor GPU dan analisis Urban Heat Island.',
+        tags: ['MODIS Terra + Aqua', 'LST 1 km', '18 Stasiun Iklim', 'Analisis SUHI'],
         action: async () => {
           const map = this.mapManager.getMap();
           if (!map) return;
@@ -119,11 +119,11 @@ export class GuidedTourUI {
       },
       {
         id: 3,
-        badge: '3. TOPOGRAPHY & 3D TERRAIN',
-        title: '3D Terrain Elevation & Building Extrusion (Bandung)',
-        subtitle: 'AWS Terrarium 3D Mesh & WebGL2 Vector Extrusion',
-        description: 'Map renders in 3D WebGL perspective with AWS Terrarium topographic elevation mesh and real-scale OpenFreeMap 3D building volume extrusions over Bandung basin.',
-        tags: ['3D WebGL2', '30m Elevation Mesh', '3D Building Extrusions', 'Detailed Zoom Z14.8'],
+        badge: '3. TOPOGRAFI & MEDAN 3D',
+        title: 'Elevasi Medan 3D & Ekstrusi Bangunan (Bandung)',
+        subtitle: 'Mesh 3D Topografi AWS Terrarium & Ekstrusi Vektor WebGL2',
+        description: 'Peta ditampilkan dalam perspektif WebGL 3D dengan mesh elevasi topografi AWS Terrarium dan ekstrusi volume bangunan 3D skala nyata OpenFreeMap di atas cekungan Bandung.',
+        tags: ['3D WebGL2', 'Mesh Elevasi 30m', 'Ekstrusi Bangunan 3D', 'Zoom Rinci Z14.8'],
         action: async () => {
           const map = this.mapManager.getMap();
           if (!map) return;
@@ -167,7 +167,7 @@ export class GuidedTourUI {
     }
 
     this.renderTourCard();
-    showToast('🚀 Interactive Guided Tour started (3 Steps)', 'info');
+    showToast('🚀 Tur Panduan Interaktif dimulai (3 Langkah)', 'info');
     await this.executeCurrentStep();
   }
 
@@ -177,7 +177,7 @@ export class GuidedTourUI {
       this.overlayEl.remove();
       this.overlayEl = null;
     }
-    showToast('🎉 Tour completed! Enjoy exploring all WebGIS features.', 'success');
+    showToast('🎉 Tur selesai! Selamat mengeksplorasi seluruh fitur WebGIS.', 'success');
   }
 
   private async executeCurrentStep(): Promise<void> {
@@ -224,7 +224,7 @@ export class GuidedTourUI {
       this.overlayEl.id = 'webgis-tour-card';
       this.overlayEl.className = 'webgis-tour-card';
       this.overlayEl.setAttribute('role', 'dialog');
-      this.overlayEl.setAttribute('aria-label', 'Interactive Demo Tour');
+      this.overlayEl.setAttribute('aria-label', 'Tur Panduan Interaktif');
       document.body.appendChild(this.overlayEl);
       existingCard = this.overlayEl;
     }
@@ -241,9 +241,9 @@ export class GuidedTourUI {
       <div class="tour-header">
         <div class="tour-badge-wrap">
           <span class="tour-step-badge">${step.badge}</span>
-          <span class="tour-counter">${this.currentStepIndex + 1} of ${steps.length}</span>
+          <span class="tour-counter">${this.currentStepIndex + 1} dari ${steps.length}</span>
         </div>
-        <button id="btn-tour-close" class="tour-close-btn" title="Close Tour" aria-label="Close demo tour">✕</button>
+        <button id="btn-tour-close" class="tour-close-btn" title="Tutup Tur" aria-label="Tutup tur demo">✕</button>
       </div>
 
       <div class="tour-body">
@@ -261,12 +261,12 @@ export class GuidedTourUI {
         </div>
         <div class="tour-actions">
           ${!isFirst ? `
-            <button id="btn-tour-prev" class="btn-tour-action secondary" aria-label="Previous step">
-              ← Back
+            <button id="btn-tour-prev" class="btn-tour-action secondary" aria-label="Langkah sebelumnya">
+              ← Kembali
             </button>
           ` : ''}
-          <button id="btn-tour-next" class="btn-tour-action primary" aria-label="${isLast ? 'Finish tour' : 'Proceed to next step'}">
-            ${isLast ? '✓ Finish Tour' : 'Next →'}
+          <button id="btn-tour-next" class="btn-tour-action primary" aria-label="${isLast ? 'Selesaikan tur' : 'Lanjut ke langkah berikutnya'}">
+            ${isLast ? '✓ Selesai' : 'Lanjut →'}
           </button>
         </div>
       </div>

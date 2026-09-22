@@ -69,7 +69,7 @@ export class DynamicLegendUI {
             <span class="legend-card-icon">🛰️</span>
             <div>
               <div class="dynamic-legend-title">${activeProduct.name}</div>
-              <div class="dynamic-legend-sub">${activeProduct.category} • Resolution ${activeProduct.resolution} • OGC WMS (BIG)</div>
+              <div class="dynamic-legend-sub">${activeProduct.category} • Resolusi ${activeProduct.resolution} • OGC WMS (BIG)</div>
             </div>
           </div>
           ${swatchesHtml}
@@ -86,16 +86,16 @@ export class DynamicLegendUI {
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">☀️</span>
               <div>
-                <div class="dynamic-legend-title">MODIS Daytime Land Surface Temp (1 km)</div>
-                <div class="dynamic-legend-sub">NASA Terra MOD11A1 & Aqua MYD11A1 Composite (GEE)</div>
+                <div class="dynamic-legend-title">Suhu Permukaan Daratan Siang Hari (MODIS 1 km)</div>
+                <div class="dynamic-legend-sub">Komposit NASA Terra MOD11A1 & Aqua MYD11A1 (GEE)</div>
               </div>
             </div>
             <div class="gee-legend-bar lst-gradient" style="margin-top: 8px;"></div>
             <div class="gee-legend-labels">
-              <span>10°C (Highland)</span>
+              <span>10°C (Dataran Tinggi)</span>
               <span>20°C</span>
               <span>26°C</span>
-              <span>32°C (Urban)</span>
+              <span>32°C (Perkotaan)</span>
               <span>38°C</span>
               <span>42°C+</span>
             </div>
@@ -110,16 +110,16 @@ export class DynamicLegendUI {
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">🌙</span>
               <div>
-                <div class="dynamic-legend-title">MODIS Nighttime Land Surface Temp (1 km)</div>
-                <div class="dynamic-legend-sub">Radiative Surface Cooling (Terra + Aqua LST Night)</div>
+                <div class="dynamic-legend-title">Suhu Permukaan Daratan Malam Hari (MODIS 1 km)</div>
+                <div class="dynamic-legend-sub">Pendinginan Permukaan Radiatif (LST Malam Terra + Aqua)</div>
               </div>
             </div>
             <div class="gee-legend-bar lst-gradient" style="margin-top: 8px;"></div>
             <div class="gee-legend-labels">
-              <span>10°C (Highland)</span>
+              <span>10°C (Dataran Tinggi)</span>
               <span>20°C</span>
               <span>26°C</span>
-              <span>32°C (Urban)</span>
+              <span>32°C (Perkotaan)</span>
               <span>38°C</span>
               <span>42°C+</span>
             </div>
@@ -134,46 +134,46 @@ export class DynamicLegendUI {
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">🗺️</span>
               <div>
-                <div class="dynamic-legend-title">Sentinel-2 10m Land Use & Land Cover (LULC)</div>
-                <div class="dynamic-legend-sub">Global 10m Sentinel-2 Composite · Impact Observatory / Esri</div>
+                <div class="dynamic-legend-title">Tutupan Lahan Sentinel-2 10m (LULC)</div>
+                <div class="dynamic-legend-sub">Komposit Sentinel-2 10m Global · Impact Observatory / Esri</div>
               </div>
             </div>
             <div class="dynamic-legend-swatches" style="margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #1A5BAB;"></span>
-                <span class="dynamic-legend-label">Water</span>
+                <span class="dynamic-legend-label">Air</span>
               </div>
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #358221;"></span>
-                <span class="dynamic-legend-label">Trees (Forest)</span>
+                <span class="dynamic-legend-label">Pohon (Hutan)</span>
               </div>
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #87D19E;"></span>
-                <span class="dynamic-legend-label">Flooded Veg / Mangrove</span>
+                <span class="dynamic-legend-label">Vegetasi Tergenang / Mangrove</span>
               </div>
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #FFDB5C;"></span>
-                <span class="dynamic-legend-label">Crops (Pertanian)</span>
+                <span class="dynamic-legend-label">Pertanian / Tanaman Pangan</span>
               </div>
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #ED022A;"></span>
-                <span class="dynamic-legend-label">Built Area (Kota)</span>
+                <span class="dynamic-legend-label">Area Terbangun / Permukiman</span>
               </div>
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #EDE9E4;"></span>
-                <span class="dynamic-legend-label">Bare Ground (Terbuka)</span>
+                <span class="dynamic-legend-label">Lahan Terbuka / Tanah Terbuka</span>
               </div>
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #C6D799;"></span>
-                <span class="dynamic-legend-label">Rangeland (Semak)</span>
+                <span class="dynamic-legend-label">Padang Rumput / Semak Belukar</span>
               </div>
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #F2FAFF; border: 1px solid rgba(255,255,255,0.3);"></span>
-                <span class="dynamic-legend-label">Snow / Ice</span>
+                <span class="dynamic-legend-label">Salju / Es</span>
               </div>
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #C8C8C8;"></span>
-                <span class="dynamic-legend-label">Clouds</span>
+                <span class="dynamic-legend-label">Awan</span>
               </div>
             </div>
           </div>
@@ -187,18 +187,18 @@ export class DynamicLegendUI {
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">📍</span>
               <div>
-                <div class="dynamic-legend-title">Indonesia 1km MODIS Station Network</div>
-                <div class="dynamic-legend-sub">18 Monitoring Stations · NASA LP DAAC & GEE</div>
+                <div class="dynamic-legend-title">Jaringan Stasiun Pemantauan MODIS 1km Indonesia</div>
+                <div class="dynamic-legend-sub">18 Stasiun Pemantau · NASA LP DAAC & GEE</div>
               </div>
             </div>
             <div class="dynamic-legend-swatches" style="margin-top: 8px;">
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #ef4444; border-radius: 50%;"></span>
-                <span class="dynamic-legend-label">Urban Heat Island Node (Jakarta · Surabaya · Medan)</span>
+                <span class="dynamic-legend-label">Titik Pemantauan Pulau Bahang (SUHI - Jakarta, Surabaya, Medan)</span>
               </div>
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #10b981; border-radius: 50%;"></span>
-                <span class="dynamic-legend-label">Forest Baseline & Highland (Papua · IKN · Gunung Gede)</span>
+                <span class="dynamic-legend-label">Baseline Hutan & Dataran Tinggi (Papua, IKN, Gunung Gede)</span>
               </div>
             </div>
           </div>
@@ -216,15 +216,15 @@ export class DynamicLegendUI {
           <div class="dynamic-legend-card-header">
             <span class="legend-card-icon">📂</span>
             <div>
-              <div class="dynamic-legend-title">Custom Vector Layers (GeoJSON)</div>
-              <div class="dynamic-legend-sub">${visibleCustomLayers.length} active vector layers</div>
+              <div class="dynamic-legend-title">Lapisan Vektor Kustom (GeoJSON)</div>
+              <div class="dynamic-legend-sub">${visibleCustomLayers.length} lapisan vektor aktif</div>
             </div>
           </div>
           <div class="dynamic-legend-swatches" style="margin-top: 8px;">
             ${visibleCustomLayers.map((l: any) => `
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: ${l.color};"></span>
-                <span class="dynamic-legend-label">${escapeHtml(l.name)} (${l.featureCount} features)</span>
+                <span class="dynamic-legend-label">${escapeHtml(l.name)} (${l.featureCount} fitur)</span>
               </div>
             `).join('')}
           </div>
@@ -236,7 +236,7 @@ export class DynamicLegendUI {
     if (activeLayersCount > 0) {
       html += `
         <div class="legend-section-header">
-          <span class="section-title">🛰️ Active Thematic & Imagery Layers (${activeLayersCount})</span>
+          <span class="section-title">🛰️ Lapisan Tematik & Citra Aktif (${activeLayersCount})</span>
         </div>
         ${thematicHtml}
       `;
@@ -244,8 +244,8 @@ export class DynamicLegendUI {
       html += `
         <div class="dynamic-legend-empty">
           <div class="empty-icon">🛰️</div>
-          <div class="empty-title">No Active Imagery or Analysis Layers</div>
-          <p class="empty-desc">Activate imagery in the <strong>Satellite</strong> tab or spatial analysis in the <strong>Analysis</strong> tab to display dynamic legends automatically here.</p>
+          <div class="empty-title">Belum Ada Lapisan Citra atau Analisis Aktif</div>
+          <p class="empty-desc">Aktifkan citra di tab <strong>Satelit</strong> atau analisis spasial di tab <strong>Analisis</strong> untuk menampilkan legenda secara otomatis di sini.</p>
         </div>
       `;
     }
@@ -253,31 +253,31 @@ export class DynamicLegendUI {
     // --- SECTION 2: PERMANENT GENERAL MAP & TOOL SYMBOLS ---
     html += `
       <div class="legend-section-header" style="margin-top: 14px;">
-        <span class="section-title">🗺️ Map Symbols & Standard Features</span>
+        <span class="section-title">🗺️ Simbol Peta & Fitur Standar</span>
       </div>
       <div class="dynamic-legend-card">
         <div class="dynamic-legend-swatches">
           <div class="dynamic-legend-item">
             <span class="legend-symbol point" style="background-color: #f59e0b; width: 12px; height: 12px; min-width: 12px; min-height: 12px; aspect-ratio: 1 / 1; border-radius: 50%; display: inline-block; flex-shrink: 0;"></span>
-            <span class="dynamic-legend-label"><strong>Major Cities</strong> (Sample Capital & Provincial Cities)</span>
+            <span class="dynamic-legend-label"><strong>Kota-Kota Utama</strong> (Sampel Ibukota & Kota Provinsi)</span>
           </div>
           <div class="dynamic-legend-item">
             <span class="legend-symbol line" style="border-top: 2px dashed #10b981; width: 18px; display: inline-block;"></span>
-            <span class="dynamic-legend-label"><strong>National Data Cube Grid</strong> (BIG 10m Scene Tile Index)</span>
+            <span class="dynamic-legend-label"><strong>Grid Data Cube Nasional</strong> (Indeks Tile Scene BIG 10m)</span>
           </div>
           <div class="dynamic-legend-item">
             <span class="legend-symbol line" style="border-top: 2.5px solid #00f0ff; width: 18px; display: inline-block;"></span>
-            <span class="dynamic-legend-label"><strong>Distance Measurement Route</strong> (Turf.js Geodesic)</span>
+            <span class="dynamic-legend-label"><strong>Lintasan Pengukuran Jarak</strong> (Geodesik Turf.js)</span>
           </div>
           <div class="dynamic-legend-item">
             <span class="legend-symbol polygon" style="background-color: rgba(0,240,255,0.3); border: 1.5px solid #00f0ff; width: 14px; height: 14px; border-radius: 3px; display: inline-block;"></span>
-            <span class="dynamic-legend-label"><strong>Area Measurement Polygon</strong> (Turf.js Geodesic)</span>
+            <span class="dynamic-legend-label"><strong>Poligon Pengukuran Luas</strong> (Geodesik Turf.js)</span>
           </div>
           <div class="dynamic-legend-item">
             <span style="display: flex; align-items: center; justify-content: center; width: 16px;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
             </span>
-            <span class="dynamic-legend-label"><strong>Location Marker</strong> (Geocoder Search Result)</span>
+            <span class="dynamic-legend-label"><strong>Penanda Lokasi</strong> (Hasil Pencarian Geocoder)</span>
           </div>
         </div>
       </div>

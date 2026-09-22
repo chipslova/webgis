@@ -89,11 +89,11 @@ export interface PikselPreset {
 }
 
 export const PIKSEL_CATEGORIES: { id: ProductCategory; name: string; icon: string; subtitle: string }[] = [
-  { id: 'geomad', name: 'Sentinel-2 GeoMAD', icon: '', subtitle: 'Cloud-Free 10m Optical & Infrared Composites' },
-  { id: 'indices', name: 'Spectral Indices', icon: '', subtitle: 'Vegetation Density & Surface Water Indices' },
-  { id: 'landsat', name: 'Landsat 9', icon: '', subtitle: 'USGS/NASA 30m Surface Reflectance Observations' },
-  { id: 'hazard', name: 'Flood Hazard', icon: '', subtitle: 'Priority Study Area Hydrological Modeling' },
-  { id: 'quality', name: 'Data Quality', icon: '', subtitle: 'Cloud-Free Observation Statistics' }
+  { id: 'geomad', name: 'Sentinel-2 GeoMAD', icon: '', subtitle: 'Komposit Optik & Inframerah Bebas Awan 10m' },
+  { id: 'indices', name: 'Spectral Indices', icon: '', subtitle: 'Indeks Kerapatan Vegetasi & Badan Air Permukaan' },
+  { id: 'landsat', name: 'Landsat 9', icon: '', subtitle: 'Observasi Reflektansi Permukaan USGS/NASA 30m' },
+  { id: 'hazard', name: 'Flood Hazard', icon: '', subtitle: 'Pemodelan Hidrologi Bahaya Banjir Kawasan Prioritas' },
+  { id: 'quality', name: 'Data Quality', icon: '', subtitle: 'Statistik Pengamatan Bebas Awan Tiap Piksel' }
 ];
 
 // In production (Vercel) route all WMS requests through the Edge proxy so we get
@@ -121,23 +121,23 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     availableYears: S2_YEARS,
     minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'High-resolution 10m annual cloud-free optical composite across Indonesian territory.',
-    whatItShows: 'Natural satellite color photography (RGB): Green rainforest canopies, gray urban built-up areas, and blue water bodies without cloud occlusion.',
-    badge: 'Optical 10m (BIG)',
+    description: 'Komposit optik resolusi tinggi 10m tahunan bebas awan di seluruh wilayah Indonesia.',
+    whatItShows: 'Foto satelit warna alami (RGB): Kanopi hutan hujan hijau, kawasan terbangun abu-abu, dan badan air biru tanpa tutupan awan.',
+    badge: 'Optik 10m (BIG)',
     color: '#10b981',
     resolution: '10 meters',
-    sensor: 'Sentinel-2 MSI (GeoMAD Annual)',
+    sensor: 'Sentinel-2 MSI (GeoMAD Tahunan)',
     legend: {
       type: 'natural',
-      leftLabel: 'Water / Ocean',
-      middleLabel: 'Land / Urban',
-      rightLabel: 'Forest Canopy',
+      leftLabel: 'Air / Laut',
+      middleLabel: 'Lahan / Kota',
+      rightLabel: 'Kanopi Hutan',
       gradientClass: 's2-geomad-gradient',
       swatches: [
-        { label: 'Water (Blue)', color: '#1e40af' },
-        { label: 'Open Land (Beige)', color: '#d4b285' },
-        { label: 'Forest Canopy (Green)', color: '#15803d' },
-        { label: 'Built-up / Urban (Gray)', color: '#94a3b8' }
+        { label: 'Air (Biru)', color: '#1e40af' },
+        { label: 'Lahan Terbuka (Krem)', color: '#d4b285' },
+        { label: 'Kanopi Hutan (Hijau)', color: '#15803d' },
+        { label: 'Area Terbangun (Abu-abu)', color: '#94a3b8' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel / Copernicus Sentinel-2'
@@ -153,23 +153,23 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     availableYears: S2_YEARS,
     minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'Near-Infrared band composite (NIR-Red-Green) highlighting chlorophyll vitality and vegetation biomass.',
-    whatItShows: 'Healthy vegetation appears in bright Red/Magenta due to strong cellular chlorophyll reflectance; water appears dark blue/black; urban areas appear cyan/gray.',
-    badge: 'Infrared 10m',
+    description: 'Komposit saluran Inframerah Dekat (NIR-Red-Green) untuk menonjolkan vitalitas klorofil dan biomassa vegetasi.',
+    whatItShows: 'Vegetasi sehat tampak merah terang/magenta akibat pantulan kuat klorofil seluler; air tampak biru gelap/hitam; kawasan perkotaan tampak sian/abu-abu.',
+    badge: 'Inframerah 10m',
     color: '#ef4444',
     resolution: '10 meters',
     sensor: 'Sentinel-2 MSI (NIR False Color)',
     isComputeHeavy: true,
     legend: {
       type: 'continuous',
-      leftLabel: 'Water / Wetland',
-      middleLabel: 'Built-up / Urban',
-      rightLabel: 'Dense Canopy (Chlorophyll)',
+      leftLabel: 'Air / Rawa',
+      middleLabel: 'Area Terbangun / Kota',
+      rightLabel: 'Kanopi Lebat (Klorofil)',
       gradientClass: 's2-nir-gradient',
       swatches: [
-        { label: 'Water / Wetland (Dark/Blue)', color: '#020617' },
-        { label: 'Built-up / Urban (Cyan/Gray)', color: '#64748b' },
-        { label: 'Dense Chlorophyll (Red/Magenta)', color: '#f43f5e' }
+        { label: 'Air / Rawa (Gelap/Biru)', color: '#020617' },
+        { label: 'Area Terbangun (Sian/Abu-abu)', color: '#64748b' },
+        { label: 'Klorofil Lebat (Merah/Magenta)', color: '#f43f5e' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel / Copernicus Sentinel-2'
@@ -178,7 +178,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
   // 2. Spectral Indices Group
   {
     id: 's2-ndvi',
-    name: 'Vegetation Density Index (NDVI)',
+    name: 'Indeks Kerapatan Vegetasi (NDVI)',
     category: 'indices',
     layer: 's2_geomad_annual_indices',
     style: 'ndvi',
@@ -187,31 +187,31 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     availableYears: S2_YEARS,
     minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'Normalized Difference Vegetation Index from BIG Open Data Cube to map biomass density and forest canopy.',
-    whatItShows: 'Chlorophyll vitality gradient: Dark Green indicates dense/primary tropical forest, yellow indicates sparse shrub/cropland, brown indicates non-vegetated terrain.',
-    badge: 'Biophysical Index',
+    description: 'Normalized Difference Vegetation Index dari Open Data Cube BIG untuk memetakan kerapatan biomassa dan kanopi hutan.',
+    whatItShows: 'Gradien vitalitas klorofil: Hijau tua menunjukkan hutan tropis primer lebat, kuning menunjukkan semak/pertanian, cokelat menunjukkan lahan non-vegetasi.',
+    badge: 'Indeks Biofisik',
     color: '#059669',
     resolution: '10 meters',
     sensor: 'Sentinel-2 GeoMAD Indices',
     isComputeHeavy: true,
     legend: {
       type: 'continuous',
-      leftLabel: 'Water / Non-Veg (-1.0 to 0.0)',
-      middleLabel: 'Sparse (0.2 to 0.4)',
-      rightLabel: 'Dense Forest (0.7 to +1.0)',
+      leftLabel: 'Air / Non-Veg (-1,0 s/d 0,0)',
+      middleLabel: 'Jarang (0,2 s/d 0,4)',
+      rightLabel: 'Hutan Lebat (0,7 s/d +1,0)',
       gradientClass: 'ndvi-gradient',
-      rangeText: 'Index Scale: -1.0 to +1.0',
+      rangeText: 'Skala Indeks: -1,0 s/d +1,0',
       swatches: [
-        { label: 'Water / Non-Veg (-1.0)', color: '#0284c7' },
-        { label: 'Sparse Vegetation (+0.3)', color: '#fde047' },
-        { label: 'Dense Forest (+0.8)', color: '#15803d' }
+        { label: 'Air / Non-Veg (-1,0)', color: '#0284c7' },
+        { label: 'Vegetasi Jarang (+0,3)', color: '#fde047' },
+        { label: 'Hutan Lebat (+0,8)', color: '#15803d' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
   },
   {
     id: 's2-ndwi',
-    name: 'Water & Moisture Index (NDWI)',
+    name: 'Indeks Air & Kelembapan (NDWI)',
     category: 'indices',
     layer: 's2_geomad_annual_indices',
     style: 'ndwi',
@@ -220,30 +220,30 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     availableYears: S2_YEARS,
     minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'Normalized Difference Water Index to delineate open water bodies, lakes, rivers, and wetlands from land.',
-    whatItShows: 'Water spectral reflectance: Deep blue indicates open water bodies, light blue indicates wetlands/marshes, warm tones indicate dry land.',
-    badge: 'Hydrology Index',
+    description: 'Normalized Difference Water Index untuk mendelineasi badan air terbuka, danau, sungai, dan lahan basah dari daratan.',
+    whatItShows: 'Pantulan spektral air: Biru tua menunjukkan badan air terbuka, biru muda menunjukkan lahan basah/rawa, warna hangat menunjukkan daratan kering.',
+    badge: 'Indeks Hidrologi',
     color: '#0284c7',
     resolution: '10 meters',
     sensor: 'Sentinel-2 GeoMAD Indices',
     legend: {
       type: 'continuous',
-      leftLabel: 'Dry Land (-1.0 to -0.2)',
-      middleLabel: 'Moist (0.0)',
-      rightLabel: 'Open Water (+0.3 to +1.0)',
+      leftLabel: 'Daratan Kering (-1,0 s/d -0,2)',
+      middleLabel: 'Lembap (0,0)',
+      rightLabel: 'Badan Air Terbuka (+0,3 s/d +1,0)',
       gradientClass: 'ndwi-gradient',
-      rangeText: 'Index Scale: -1.0 to +1.0',
+      rangeText: 'Skala Indeks: -1,0 s/d +1,0',
       swatches: [
-        { label: 'Dry Land (-0.5)', color: '#b45309' },
-        { label: 'Moist Wetland (0.0)', color: '#67e8f9' },
-        { label: 'Open Water (+0.7)', color: '#1e3a8a' }
+        { label: 'Daratan Kering (-0,5)', color: '#b45309' },
+        { label: 'Lahan Basah Lembap (0,0)', color: '#67e8f9' },
+        { label: 'Badan Air Terbuka (+0,7)', color: '#1e3a8a' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
   },
   {
     id: 's2-bsi',
-    name: 'Bare Soil Index (BSI)',
+    name: 'Indeks Tanah Terbuka (BSI)',
     category: 'indices',
     layer: 's2_geomad_annual_indices',
     style: 'bsi',
@@ -252,24 +252,24 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     availableYears: S2_YEARS,
     minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'Spectral combination of Blue-Red-NIR-SWIR to identify bare ground, land clearing, mining, and construction sites.',
-    whatItShows: 'Bare soil exposure: High values indicate cleared land or active mines, low values indicate canopy or water.',
-    badge: 'Unavailable',
+    description: 'Kombinasi spektral Blue-Red-NIR-SWIR untuk mengidentifikasi tanah terbuka, pembukaan lahan, tambang, dan area konstruksi.',
+    whatItShows: 'Paparan tanah terbuka: Nilai tinggi menunjukkan lahan terbuka atau tambang aktif, nilai rendah menunjukkan tutupan kanopi atau air.',
+    badge: 'Tidak Tersedia',
     color: '#64748b',
     resolution: '10 meters',
     sensor: 'Sentinel-2 GeoMAD Indices',
     isDisabled: true,
-    statusNotice: 'Currently unavailable — upstream OGC server returns HTTP 500. Product not yet active on staging service.',
+    statusNotice: 'Saat ini tidak tersedia — server upstream OGC mengembalikan HTTP 500. Produk belum aktif pada staging.',
     legend: {
       type: 'continuous',
-      leftLabel: 'Vegetation / Water',
-      middleLabel: 'Mixed / Moderate',
-      rightLabel: 'Bare Soil / Mine',
+      leftLabel: 'Vegetasi / Air',
+      middleLabel: 'Campuran / Sedang',
+      rightLabel: 'Tanah Terbuka / Tambang',
       gradientClass: 'bsi-gradient',
       swatches: [
-        { label: 'Dense Canopy (Green)', color: '#064e3b' },
-        { label: 'Mixed Land (Yellow)', color: '#fde047' },
-        { label: 'Bare Soil / Mining (Red)', color: '#dc2626' }
+        { label: 'Kanopi Lebat (Hijau)', color: '#064e3b' },
+        { label: 'Lahan Campuran (Kuning)', color: '#fde047' },
+        { label: 'Tanah Terbuka / Tambang (Merah)', color: '#dc2626' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
@@ -278,7 +278,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
   // 3. Hazard Group
   {
     id: 'flood-hazard-rp02',
-    name: 'Flood Hazard Model (2-Year RP)',
+    name: 'Model Bahaya Banjir (Periode Ulang 2 Thn)',
     category: 'hazard',
     layer: 'flood_hazard_rp02',
     style: 'hazard_class',
@@ -286,30 +286,30 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     timeMode: 'none',
     minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'Annual 50% probability flood hazard zoning from BIG spatial hydrological modeling for priority study areas.',
-    whatItShows: '2-year return period flood inundation hazard zones across alluvial floodplains within validated study areas.',
-    badge: 'Flood RP 2-Yr',
+    description: 'Zonasi bahaya banjir probabilitas tahunan 50% dari pemodelan hidrologi spasial BIG untuk kawasan studi prioritas.',
+    whatItShows: 'Zona bahaya genangan banjir periode ulang 2 tahun di sepanjang dataran banjir aluvial dalam kawasan studi tervalidasi.',
+    badge: 'Banjir PU 2-Thn',
     color: '#3b82f6',
     resolution: '10-30 meters',
-    sensor: 'BIG Spatial Hydrological Model',
+    sensor: 'Model Hidrologi Spasial BIG',
     legend: {
       type: 'categorical',
       items: [
-        { label: 'Low Hazard', color: '#fef08a' },
-        { label: 'Moderate Hazard', color: '#f97316' },
-        { label: 'High Hazard', color: '#dc2626' }
+        { label: 'Bahaya Rendah', color: '#fef08a' },
+        { label: 'Bahaya Sedang', color: '#f97316' },
+        { label: 'Bahaya Tinggi', color: '#dc2626' }
       ],
       swatches: [
-        { label: 'Low Hazard', color: '#fef08a' },
-        { label: 'Moderate Hazard', color: '#f97316' },
-        { label: 'High Hazard', color: '#dc2626' }
+        { label: 'Bahaya Rendah', color: '#fef08a' },
+        { label: 'Bahaya Sedang', color: '#f97316' },
+        { label: 'Bahaya Tinggi', color: '#dc2626' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Ina-Geoportal / Piksel'
   },
   {
     id: 'flood-hazard-rp10',
-    name: 'Flood Hazard Model (10-Year RP)',
+    name: 'Model Bahaya Banjir (Periode Ulang 10 Thn)',
     category: 'hazard',
     layer: 'flood_hazard_rp10',
     style: 'hazard_class',
@@ -317,23 +317,23 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     timeMode: 'none',
     minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'Annual 10% probability flood hazard zoning for disaster risk management in priority study areas.',
-    whatItShows: '10-year return period flood inundation hazard zones across floodplains and coastal plains within validated study areas.',
-    badge: 'Flood RP 10-Yr',
+    description: 'Zonasi bahaya banjir probabilitas tahunan 10% untuk mitigasi risiko bencana pada kawasan studi prioritas.',
+    whatItShows: 'Zona bahaya genangan banjir periode ulang 10 tahun di sepanjang dataran banjir dan pesisir dalam kawasan studi tervalidasi.',
+    badge: 'Banjir PU 10-Thn',
     color: '#8b5cf6',
     resolution: '10-30 meters',
-    sensor: 'BIG Spatial Hydrological Model',
+    sensor: 'Model Hidrologi Spasial BIG',
     legend: {
       type: 'categorical',
       items: [
-        { label: 'Low Hazard', color: '#fef08a' },
-        { label: 'Moderate Hazard', color: '#f97316' },
-        { label: 'High Hazard', color: '#dc2626' }
+        { label: 'Bahaya Rendah', color: '#fef08a' },
+        { label: 'Bahaya Sedang', color: '#f97316' },
+        { label: 'Bahaya Tinggi', color: '#dc2626' }
       ],
       swatches: [
-        { label: 'Low Hazard', color: '#fef08a' },
-        { label: 'Moderate Hazard', color: '#f97316' },
-        { label: 'High Hazard', color: '#dc2626' }
+        { label: 'Bahaya Rendah', color: '#fef08a' },
+        { label: 'Bahaya Sedang', color: '#f97316' },
+        { label: 'Bahaya Tinggi', color: '#dc2626' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Ina-Geoportal / Piksel'
@@ -342,7 +342,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
   // 4. Quality & Statistics Group
   {
     id: 's2-count',
-    name: 'Cloud-Free Observation Count (Scene Count)',
+    name: 'Jumlah Pengamatan Bebas Awan (Scene Count)',
     category: 'quality',
     layer: 's2_geomad_annual_statistics',
     style: 'count',
@@ -351,23 +351,23 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     availableYears: S2_YEARS,
     minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'Number of clear-sky Sentinel-2 acquisitions contributing to each pixel in the annual GeoMAD composite.',
-    whatItShows: 'Observation statistics: Total number of cloud-free scenes contributing to annual GeoMAD pixel estimates.',
-    badge: 'Data Quality',
+    description: 'Jumlah akuisisi Sentinel-2 bebas awan yang menyusun setiap piksel dalam komposit tahunan GeoMAD.',
+    whatItShows: 'Statistik pengamatan: Total adegan (scene) bebas awan yang digunakan untuk estimasi piksel GeoMAD tahunan.',
+    badge: 'Kualitas Data',
     color: '#6366f1',
     resolution: '10 meters',
     sensor: 'Open Data Cube Quality Mask',
     legend: {
       type: 'continuous',
-      leftLabel: 'Low (< 5 Scenes)',
-      middleLabel: 'Moderate (~15 Scenes)',
-      rightLabel: 'High (> 30 Scenes)',
+      leftLabel: 'Rendah (< 5 Scene)',
+      middleLabel: 'Sedang (~15 Scene)',
+      rightLabel: 'Tinggi (> 30 Scene)',
       gradientClass: 'count-gradient',
-      rangeText: 'Cloud-Free Scenes Count per Pixel',
+      rangeText: 'Jumlah Scene Bebas Awan per Piksel',
       swatches: [
-        { label: 'Low Observations (<5)', color: '#4c1d95' },
-        { label: 'Moderate Observations (~15)', color: '#06b6d4' },
-        { label: 'High Observations (>30)', color: '#facc15' }
+        { label: 'Pengamatan Rendah (<5)', color: '#4c1d95' },
+        { label: 'Pengamatan Sedang (~15)', color: '#06b6d4' },
+        { label: 'Pengamatan Tinggi (>30)', color: '#facc15' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
@@ -376,7 +376,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
   // 5. Landsat Group
   {
     id: 'ls9-sr',
-    name: 'Landsat 9 Surface Reflectance (30m)',
+    name: 'Reflektansi Permukaan Landsat 9 (30m)',
     category: 'landsat',
     layer: 'ls9_c2l2_sr',
     style: 'simple_rgb',
@@ -385,24 +385,24 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     availableYears: LS9_YEARS,
     minZoom: 7,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'Multispectral 30m optical surface reflectance from USGS/NASA Landsat 9 in BIG Data Cube.',
-    whatItShows: 'Calibrated surface reflectance: Excellent for multi-decadal historical comparison with Landsat 5/7/8 archives.',
-    badge: 'Multispectral 30m',
+    description: 'Reflektansi permukaan optik multiespektral 30m dari USGS/NASA Landsat 9 dalam Data Cube BIG.',
+    whatItShows: 'Reflektansi permukaan terkalibrasi: Sangat baik untuk perbandingan historis multidekade dengan arsip Landsat 5/7/8.',
+    badge: 'Multispektral 30m',
     color: '#ec4899',
     resolution: '30 meters',
     sensor: 'Landsat 9 OLI-2 (Collection 2 Level-2)',
     isComputeHeavy: true,
-    statusNotice: 'Note: Landsat 9 consists of individual USGS/NASA scenes (areas outside swath pass appear transparent).',
+    statusNotice: 'Catatan: Landsat 9 terdiri dari rekaman scene USGS/NASA individual (area di luar lintasan swath tampak transparan).',
     legend: {
       type: 'natural',
-      leftLabel: 'Water (Dark Blue)',
-      middleLabel: 'Land / Urban (Beige)',
-      rightLabel: 'Canopy (Green)',
+      leftLabel: 'Air (Biru Gelap)',
+      middleLabel: 'Lahan / Kota (Krem)',
+      rightLabel: 'Kanopi (Hijau)',
       gradientClass: 'ls9-sr-gradient',
       swatches: [
-        { label: 'Water (Dark Blue)', color: '#1e40af' },
-        { label: 'Land / Urban (Beige/Gray)', color: '#a8a29e' },
-        { label: 'Forest Canopy (Green)', color: '#15803d' }
+        { label: 'Air (Biru Gelap)', color: '#1e40af' },
+        { label: 'Lahan / Kota (Krem/Abu-abu)', color: '#a8a29e' },
+        { label: 'Kanopi Hutan (Hijau)', color: '#15803d' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) / USGS / NASA'
