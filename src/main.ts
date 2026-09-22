@@ -880,11 +880,16 @@ class WebGISApp {
     const updateOfflineBanner = (online: boolean) => {
       const banner = document.getElementById('offline-banner');
       if (banner) {
-        banner.style.display = online ? 'none' : 'flex';
+        banner.style.display = online === false ? 'flex' : 'none';
       }
     };
 
-    updateOfflineBanner(navigator.onLine);
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      updateOfflineBanner(false);
+    } else {
+      updateOfflineBanner(true);
+    }
+
     this.errorHandler.onNetworkChange((online) => {
       updateOfflineBanner(online);
       if (online) {

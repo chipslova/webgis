@@ -32,7 +32,7 @@ export class ErrorHandler {
       const isExtension = event.filename && (event.filename.startsWith('chrome-extension') || event.filename.startsWith('moz-extension'));
       if (isExtension) return;
 
-      this.showThrottledError('A rendering or system issue occurred. Click reload if the map is unresponsive.', 8000);
+      this.showThrottledError('Terjadi kendala visualisasi atau sistem. Muat ulang halaman jika peta tidak merespons.', 8000);
     });
 
     // 2. Catch unhandled promise rejections
@@ -44,7 +44,7 @@ export class ErrorHandler {
 
       const reasonStr = String(event.reason?.message || event.reason || '');
       if (reasonStr.includes('Failed to fetch') || reasonStr.includes('NetworkError') || reasonStr.includes('Load failed')) {
-        this.showThrottledError('Connection issue with external geospatial server.', 6000);
+        this.showThrottledError('Kendala koneksi dengan server geospasial eksternal.', 6000);
       }
     });
   }
@@ -73,9 +73,13 @@ export class ErrorHandler {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // Initial check
-    if (!this.isOnline) {
-      setTimeout(() => this.showOfflineBanner(), 500);
+    // Initial check - only trigger if explicitly false in a client environment
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      setTimeout(() => {
+        if (navigator.onLine === false) {
+          this.showOfflineBanner();
+        }
+      }, 1000);
     }
   }
 
@@ -121,7 +125,7 @@ export class ErrorHandler {
       this.offlineBanner.innerHTML = `
         <span class="offline-icon" aria-hidden="true">⚠️</span>
         <div class="offline-text">
-          <strong>Offline Mode</strong> — Internet connection lost. Satellite imagery and new layers cannot be loaded until connection is restored.
+          <strong>Offline Shell / Cache Antarmuka</strong> — Koneksi internet terputus. Antarmuka dan berkas lokal tetap dapat diakses, namun citra satelit dan data live memerlukan koneksi internet untuk memuat ubin baru.
         </div>
       `;
       document.body.prepend(this.offlineBanner);

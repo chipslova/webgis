@@ -1,8 +1,8 @@
 # Digital Earth Indonesia WebGIS
 
-An interactive WebGIS platform for exploring Indonesian Earth Observation datasets and spatial analytics workflows. Integrates BIG Piksel OGC Web Map Services (WMS), Google Earth Engine (GEE) Jabodetabek case study datasets, 3D terrain and building extrusions, and client-side geodesic calculations.
+An interactive WebGIS platform for exploring Indonesian Earth Observation datasets and spatial analytics workflows. Integrates BIG Piksel OGC Web Map Services (WMS), Google Earth Engine (GEE) Jabodetabek case study datasets, 3D terrain and building extrusions, client-side pixel sampling, and geodesic spatial calculations.
 
-> **Disclaimer**: Aplikasi peraga independen (*independent demonstration prototype*). Bukan merupakan aplikasi resmi dari Badan Informasi Geospasial (BIG) maupun Geoscience Australia (GA).
+> **Disclaimer**: Aplikasi peraga independen (*independent demonstration prototype*). Dikembangkan secara mandiri oleh [chipslova](https://github.com/chipslova) dan bukan merupakan aplikasi resmi dari Badan Informasi Geospasial (BIG) maupun Geoscience Australia (GA).
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-webgis--three--iota.vercel.app-00f0ff?style=for-the-badge&logo=vercel)](https://webgis-three-iota.vercel.app/)
 [![CI](https://github.com/chipslova/webgis/actions/workflows/ci.yml/badge.svg)](https://github.com/chipslova/webgis/actions)
@@ -18,9 +18,11 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 
 ---
 
-## 🌟 Overview
+## 🌟 Ringkasan Platform / Overview
 
-**Digital Earth Indonesia WebGIS** is built with modern web mapping technologies to provide accessible Earth Observation data visualization and spatial analysis tools for Indonesia. The application connects directly to official geospatial services, renders multi-source analytical layers, and offers interactive inspection tools in a responsive interface.
+**Digital Earth Indonesia WebGIS** adalah platform pemetaan berbasis web modern yang dirancang untuk eksplorasi data Penginderaan Jauh (*Earth Observation*), pemodelan iklim/termal, dan analisis geospasial di wilayah Indonesia.
+
+Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit termal NASA GIBS / MODIS LST, sampling piksel *client-side* Sentinel-2 10m, mesh elevasi 3D Terrarium, serta ekstrusi bangunan 3D dengan antarmuka bilingual yang rapi dan konsisten (Bahasa Indonesia standar untuk UI & terminologi standar internasional untuk format geospasial).
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -29,194 +31,189 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 ├───────────────┬─────────────────────────────────────────────────────────────────────────────────────────┤
 │ BILAH SAMPING │                                  MAPLIBRE GL CANVAS                                     │
 │ ───────────── │                                                                                         │
-│ 🗺️ Peta       │  🛰️  Sentinel-2 GeoMAD 10m Mosaics & Spectral Indices (BIG Piksel OGC WMS)              │
+│ 🗺️ Lapisan    │  🛰️  Sentinel-2 GeoMAD 10m Mosaics & Spectral Indices (BIG Piksel OGC WMS)              │
 │ 🛰️ Satelit    │  🌡️  MODIS Land Surface Temp Thermal Gradient & Urban Heat Island Analysis              │
-│ 📈 Analisis   │  ⛰️  3D Terrarium Elevation Mesh & 3D Building Vector Extrusions (WebGL2)               │
-│ 📏 Ukur       │  📍  Interactive Geodesic Distance & Area Geometries (Turf.js)                          │
-│ 📁 Data       │                                                                                         │
-│ 📋 Legenda    │  ┌───────────────────────────────────────────────────────────────────────────────────┐  │
-│ ℹ️ Tentang    │  │ 🧭 DOCK: [🗺️ 16 Basemaps] [🎛️ Sublayers] [⛰️ 3D Terrain] [📐 Grid ODC]              │  │
-│               │  └───────────────────────────────────────────────────────────────────────────────────┘  │
+│ 🌍 GEE Live   │  ⛰️  3D Terrarium Elevation Mesh & 3D Building Vector Extrusions (WebGL2)               │
+│ 📈 Analisis   │  📍  Interactive Geodesic Distance & Area Geometries (Turf.js)                          │
+│ 📏 Ukur       │                                                                                         │
+│ 📁 Data Hub   │  ┌───────────────────────────────────────────────────────────────────────────────────┐  │
+│ 📋 Legenda    │  │ 🧭 DOCK: [🗺️ 16 Peta Dasar] [🎛️ Sublapisan] [🪟 Bandingkan] [📷 Ekspor Peta]         │  │
+│ ℹ️ Tentang    │  └───────────────────────────────────────────────────────────────────────────────────┘  │
 └───────────────┴─────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🚀 Key Features
+## 🚀 Fitur Unggulan (8 Modul Analisis Geospasial)
 
-### 🧭 1. Guided Tour & Smart Navigation ("Mode Jelajah Nusantara")
-* **Interactive 3-Step Walkthrough**: One-click onboarding tour with synchronized camera fly-tos, automatic dataset activation, and narrative HUD cards:
-  1. **Bromo Tengger Semeru**: 10m Sentinel-2 GeoMAD true-color optical mosaic.
-  2. **Jabodetabek & Jawa Barat**: Google Earth Engine MODIS thermal Land Surface Temp (LST) & Urban Heat Island (UHI) analysis.
-  3. **Bandung Basin**: 3D Terrarium terrain elevation mesh & OpenFreeMap 3D building extrusions.
-* **Smart Auto-Navigation**: When selecting high-resolution satellite products at low zoom levels ($Z < 8$), the camera automatically flies smoothly into the optimal study area preset (e.g. Bromo, IKN, Toba) with an informative toast notification and one-click undo.
-* **Interactive Inset Locator Map**: Miniature overview map of the Indonesian archipelago positioned at the bottom viewport, rendering the live camera bounding box and offering click-to-fly navigation.
+### 🗺️ 1. Lapisan & Peta Dasar (Basemap & Hierarchy Manager)
+* **16 Pilihan Peta Dasar Vektor & Raster**:
+  * ⭐ **Rekomendasi:** Esri World Imagery (Bawaan), Esri World Streets, Rupabumi Indonesia (BIG RBI), OpenStreetMap Standard.
+  * 🎨 **Topografi & Tematik:** Esri Topographic, OpenTopoMap, Esri Shaded Relief, Esri National Geographic, Esri Ocean.
+  * 🌓 **Kanvas & Minimalis:** Esri Light/Dark Gray Canvas, OpenFreeMap Liberty (Vektor), OpenFreeMap Positron (Vektor), Esri Imagery Clarity, OSM Humanitarian, Esri Colored Pencil.
+* **Manajer Hirarki Tumpukan Lapisan (Layer Stack)**: Pengaturan opasitas dinamis (0–100%), visibilitas layer, dan penyusunan urutan tumpukan (*stack order*) secara deterministik.
+* **Sublapisan Vektor Granular**: Kontrol aktif/nonaktif jalan, label jalan, nama tempat (*place labels*), batas administratif, tutupan lahan (*landcover*), perairan, dan poligon bangunan.
 
-### 🛰️ 2. Piksel Earth Observation & Spectral Filter Adjustments
-* **Sentinel-2 GeoMAD Mosaics (10m)**: Annual cloud-free Median Absolute Deviation composites across Indonesia (2017–2025).
-* **Spectral Indices**: Rendered via BIG Piksel OGC Web Map Services:
+### 🛰️ 2. Citra Satelit BIG Piksel & Filter Spektral
+* **Sentinel-2 GeoMAD 10m**: Komposit tahunan bebas awan Median Absolute Deviation (2017–2025) di seluruh kepulauan Indonesia.
+* **Indeks Spektral Satelit (OGC WMS)**:
   * **NDVI** (Normalized Difference Vegetation Index)
   * **NDWI** (Normalized Difference Water Index)
-  * **NIR Surface Reflectance**
-  * **Observation Density** (Scene acquisition count & coverage)
-* **Real-Time Spectral & Visual Filter Controls**: Non-destructive client-side adjustment of Brightness, Contrast, and Saturation sliders for enhanced optical feature extraction.
-* **Landsat 9 Surface Reflectance (30m)**: USGS/NASA surface reflectance (2022–2025).
-* **Piksel Flood Hazard Modeling**: Hydrological floodplain classifications (`flood_hazard_rp02` & `rp10`) for priority study areas.
-* **Piksel Data Cube Tile Index**: Interactive overlay of 1,631 Open Data Cube tile boundaries across Indonesian territory.
+  * **NIR Surface Reflectance** (Pantulan Inframerah Dekat)
+  * **Kerapatan Pengamatan** (*Observation Density*)
+* **Penyesuaian Filter Visual Real-Time**: Kontrol non-destruktif *Brightness* (kecerahan), *Contrast* (kontras), dan *Saturation* (kejenuhan warna) langsung pada kanvas WebGL.
+* **Landsat 9 Surface Reflectance (30m)**: Komposit multispektral USGS/NASA (2022–2025).
+* **Pemodelan Bahaya Banjir (Flood Hazard)**: Klasifikasi periode ulang banjir (`flood_hazard_rp02` & `rp10`) untuk wilayah studi prioritas.
+* **Grid Indeks Open Data Cube (ODC)**: Hamparan interaktif 1.631 batas ubin (*tile boundaries*) ODC di seluruh Indonesia.
 
-### 🌡️ 3. NASA MODIS Land Surface Temperature (LST) & Google Earth Engine Cloud Compute
-* **NASA MODIS 1 km 8-Day Composite LST**: Continuous thermal infrared skin temperature raster ($10^\circ\text{C} \to 42^\circ\text{C}+$) delivered via **NASA GIBS WMS** (`MOD11A2` Terra & `MYD11A2` Aqua) covering the entire Indonesian archipelago and Southeast Asia with transparent ocean masking.
-* **Serverless Zonal Computation (GEE Backend)**: Cloud-based reducer computing authentic zonal pixel statistics (`/api/gee-zonal-stats` & `/api/gee-lst-tiles`) with automatic regional model fallback when API credentials are unconfigured.
-* **18 LST Reference Observation Points**: Curated reference locations across Indonesian islands and elevations with clear-sky QA bitmask metadata (`QA Bitmask 00: error ≤ 1K`) and diurnal day/night temperature deltas.
-* **Harmonic Seasonal Time-Series & Accessible Data View**: Dynamic canvas charts with an accessible data table (`<table>`) separating satellite radiative skin LST from NOAA CFSv2 2-meter air temperature simulations.
-* **Topography & Land Cover Integration**: Sentinel-2 10m LULC (9-class Land Use / Land Cover) and USGS SRTM 30m elevation contours.
+### 🌍 3. GEE Live & Sampling Piksel Satelit Gratis
+* **Sampling Piksel Client-Side (Tanpa Setup Akun)**: Langsung mengekstraksi nilai piksel dari ubin citra Sentinel-2 10m & cuaca real-time Open-Meteo tanpa memerlukan akun berbayar atau konfigurasi server.
+* **Integrasi Google Earth Engine Asli (Opsional)**: Panduan 3-langkah transparan untuk menghubungkan Service Account Google Cloud / GEE resmi via env var Vercel (`GEE_CLIENT_EMAIL` & `GEE_PRIVATE_KEY`).
+* **NASA MODIS Land Surface Temp (LST 1 km)**: Ubin gradien termal suhu permukaan bumi kontinu ($10^\circ\text{C} \to 42^\circ\text{C}+$) via NASA GIBS WMS dengan *ocean masking* transparan.
+* **18 Titik Pengamatan Referensi LST**: Titik tervalidasi MODIS *clear-sky QA bitmask* dengan kalkulasi anomali suhu siang/malam (*diurnal delta*).
+* **Tutupan Lahan & Elevasi SRTM**: Sentinel-2 10m LULC (9 kelas) dan kontur elevasi USGS SRTM 30m.
 
-### 🗺️ 4. Basemaps & 3D Terrain Customization
-* **16 Vector & Raster Basemaps**:
-  * ⭐ **Recommended:** Esri World Imagery (Default), Esri World Streets, Rupabumi Indonesia (BIG RBI), OpenStreetMap Standard.
-  * 🎨 **Topography & Thematic:** Esri Topographic, OpenTopoMap, Esri Shaded Relief, Esri National Geographic, Esri Ocean.
-  * 🌓 **Canvas & Minimalist:** Esri Light/Dark Gray Canvas, OpenFreeMap Liberty (Vector), OpenFreeMap Positron (Vector), Esri Imagery Clarity, OSM Humanitarian, Esri Colored Pencil (Vector).
-* **3D AWS Terrarium Elevation**: Real-time 3D terrain mesh generation with adjustable vertical exaggeration (0.1x – 3.0x).
-* **3D Vector Building Extrusions**: Dynamic OpenFreeMap planet vector building extrusions with smooth perspective camera transitions.
-* **Vector Sublayer Toggles**: Granular control over roads, road labels, place names, admin boundaries, landcover, water, and building polygons.
+### 📈 4. Analisis Geospasial & Grafik Waktu-Nyata
+* **Grafik Runtun Waktu Musiman (Harmonic Time-Series)**: Visualisasi kurva suhu permukaan LST vs simulasi suhu udara 2m NOAA CFSv2 dengan tabel data yang ramah aksesibilitas (*screen-reader friendly*).
+* **Analisis Gradien Termal Urban Heat Island (UHI)**: Perbandingan anomali suhu antara dataran rendah metropolitan (mis. Jakarta 34.8°C) dan dataran tinggi (mis. Bandung 21.2°C).
+* **Profil Elevasi Medan Geodesik**: Pengambilan profil penampang lintang topografi sepanjang rute garis yang digambar pengguna.
 
-### 📍 5. Point Inspector & Feature Query
-* Click anywhere on the map to query:
-  * High-precision coordinates in Decimal Degrees and Degrees Minutes Seconds (DMS).
-  * Rendered vector feature properties (Piksel Tile Grid, POI stations, custom uploaded GeoJSON features).
-  * Visualization context notes clarifying the distinction between visual WMS map representations and raw raster values.
+### 📏 5. Pengukuran Geodesik, Buffer & Mode 3D
+* **Pengukuran Jarak & Luas Geodesik (Turf.js)**: Perhitungan akurat kelengkungan bumi dengan fitur pembatalan titik sudut (*vertex undo* via <kbd>Z</kbd>), penyelesaian rute, dan tooltip pengukuran dinamis.
+* **Analisis Jangkauan Buffer Geodesik**: Pembuatan poligon *buffer* di sekitar titik, garis, dan area dengan kalkulasi total luas poligon ($km^2$) serta pemilihan warna (*color picker*).
+* **Elevasi Medan 3D AWS Terrarium**: Rekonstruksi medan 3D secara *real-time* dengan kontrol perbesaran vertikal (*vertical exaggeration* 0.1x – 3.0x).
+* **Ekstrusi Bangunan 3D OpenFreeMap**: Render 3D poligon bangunan planet secara dinamis dengan transisi kamera halus.
 
-### 📐 6. Spatial Measurement, Buffer & Data Hub
-* **Geodesic Measurement with Vertex Undo**: Spherical geodesic distance and area calculations powered by Turf.js, featuring single-vertex undo (<kbd>Z</kbd>), finish measurement actions, and dynamic tooltip measurements.
-* **Multi-Format Data Import & Export**:
-  * **Import**: Drag-and-drop or file selection for `.geojson`, `.json`, `.kml`, `.csv`, `.tsv`, and `.txt` with automatic coordinate column detection.
-  * **Export**: One-click download to both `.geojson` and XML-sanitized `.kml` formats.
-* **Spatial Proximity Buffer Analysis**: Real-time geodesic buffer polygon generation around points, lines, and polygons with calculated total area (km²).
-* **Spatial Attribute Table Panel**: Full-featured tabular data inspector for custom layers with real-time text search, feature highlighting, and safe HTML escaping.
+### 📁 6. Hub Data Geospasial & Tabel Atribut
+* **Impor Multi-Format**: Drag-and-drop atau pilih berkas `.geojson`, `.json`, `.kml`, `.csv`, `.tsv`, dan `.txt` dengan deteksi otomatis kolom koordinat (Latitude/Longitude).
+* **Ekspor Vektor**: Unduh data spasial yang telah diolah ke format `.geojson` maupun format `.kml` yang telah disanitisasi XML.
+* **Panel Tabel Atribut Spasial**: Inspeksi data tabular interaktif dengan pencarian teks real-time, penyorotan fitur (*feature highlighting*), dan sanitasi karakter HTML yang aman dari serangan XSS.
 
-### 🔗 7. State Sharing, Academic Citations & Cartographic Export
-* **Academic Data Citations**: Formatted APA (7th Ed.) and BibTeX citations with one-click copy buttons in the About panel.
-* **Stateful Permalink URL**: Automatically synchronizes coordinates, zoom, pitch, bearing, active basemap, Sentinel-2 product/year, and GEE layers directly to the URL hash.
-* **Tampilan Tersimpan (Saved Views)**: Save, name, and restore custom camera viewpoints, basemaps, and Piksel satellite products locally via `localStorage`.
-* **Cartographic PNG Export**: High-resolution map export featuring a dynamic bearing-synchronized **North Arrow**, geodesic **Metric Scale Bar** (meters/km), title banner, coordinate metadata, EPSG:3857 CRS tag, and timestamped attribution.
-* **Resilient Edge WMS Proxy**: Edge proxy (`/api/wms-proxy`) featuring 8-second timeouts, single retry on 5xx upstream failures, transparent 1x1 PNG fallback, and edge caching headers.
-* **PWA Offline Support**: Progressive Web App service worker with network-first navigation and cache-first static style strategies.
+### 🪟 7. Alat Pembanding Citra (Swipe Compare) & Ekspor Kartografis
+* **Tirai Pembanding Interaktif (Swipe Compare)**: Membelah layar peta untuk membandingkan dua dataset satelit secara berdampingan dengan slider bergerak halus (mis. True Color vs NDVI Bromo, Citra Satelit vs Peta Jalan, atau Sentinel-2 2017 vs 2025).
+* **Ekspor Peta Kartografis Siap Cetak**:
+  * Pilihan rasio aspek: **16:9** (Widescreen), **4:3** (Standar), **A4** (Landscape), **1:1** (Persegi).
+  * Pilihan resolusi: **1x** (Standar Web) & **2x** (Ultra HD / Cetak).
+  * Format ekspor: **PNG** & **JPEG**.
+  * Elemen kartografi opsional: **North Arrow (Arah Utara Dinamis)**, **Skala Geodesik Metrik**, **Legenda Terintegrasi**, **Koordinat WGS84**, dan **Atribusi Waktu**.
+
+### ℹ️ 8. Sitasi Ilmiah & Tampilan Tersimpan (Saved Views)
+* **Sitasi Akademik Terstandarisasi**: Format sitasi lengkap APA (7th Ed.) dan BibTeX dengan tombol salin 1-klik untuk publikasi atau laporan ilmiah.
+* **Tampilan Tersimpan (Saved Views)**: Simpan, beri nama, dan panggil kembali posisi kamera, peta dasar, dan lapisan satelit pilihan secara lokal di browser via `localStorage`.
+* **Permalink URL Berstatus Lengkap**: Sinkronisasi otomatis posisi koordinat, zoom, sudut *pitch*, *bearing*, peta dasar, dan produk satelit langsung ke URL *hash*.
 
 ---
 
-## 🏗️ Technical Architecture
+## 🏗️ Arsitektur Teknis
 
 ```mermaid
 graph TD
-    subgraph Client_Browser["Client Browser"]
+    subgraph Klien_Browser["Klien Browser (Client-Side)"]
         UI["Antarmuka WebGIS / UI Controls"] --> MM["MapManager / MapLibre GL v6.3"]
-        MM --> Canvas["WebGL2 Interactive Canvas"]
-        MM --> Overview["OverviewMapUI / Inset Locator"]
-        MM --> Turf["Turf.js Geodesic Engine"]
+        MM --> Canvas["WebGL2 Canvas (Map Canvas + 3D Mesh)"]
+        MM --> Overview["OverviewMapUI / Inset Peta Indeks"]
+        MM --> Turf["Turf.js Geodesic Spatial Engine"]
+        MM --> Export["CartographicExportEngine (HTML Canvas)"]
     end
 
-    subgraph Data_Pipeline["Data & Tile Pipeline"]
+    subgraph Jalur_Data["Pipa Data & Endpoint Geospasial"]
         MM -->|Raster WMS Tiles| Proxy["Vercel Edge Proxy /api/wms-proxy"]
         Proxy -->|OGC WMS 1.3.0| BIG["BIG Piksel Open Data Cube Server"]
-        MM -->|Vector & Basemap Tiles| BasemapSrc["Esri / OpenFreeMap / BIG RBI Tile Endpoints"]
-        MM -->|Raster DEM Mesh| AWSDEM["AWS Terrarium 30m Global Mesh"]
-        MM -->|Lazy Asynchronous Fetch| LocalData["/data/*.geojson GEE Datasets & Index"]
+        MM -->|NASA GIBS WMS| NASA["NASA GIBS Earthdata Cloud"]
+        MM -->|Vector & Basemap Tiles| BasemapSrc["Esri / OpenFreeMap / BIG RBI Tiles"]
+        MM -->|Raster DEM Mesh| AWSDEM["AWS Terrarium 30m Global DEM"]
+        MM -->|Lazy Asynchronous Fetch| LocalData["/data/*.geojson (GEE Baseline & Stations)"]
     end
 
-    subgraph Storage_Sync["Storage & Sync"]
+    subgraph Penyimpanan_Sinkronisasi["Sinkronisasi & Status"]
         MM <--> Hash["URL Hash Permalink Sync"]
-        UI <--> LStorage["localStorage Saved Views"]
-        ServiceWorker["Service Worker Cache"] -.-> UI
+        UI <--> LStorage["localStorage (Tampilan Tersimpan)"]
+        ServiceWorker["Service Worker (PWA Shell Cache)"] -.-> UI
     end
 ```
 
-* **XSS Defense-in-Depth**: Strict HTML sanitization on all user-controlled strings (GeoJSON feature properties, filenames, layer labels) combined with strict HTTP Content-Security-Policy headers in `vercel.json`.
-* **Bundle Efficiency**: Heavy static GeoJSON datasets are loaded lazily via asynchronous HTTP requests (`/data/*.geojson`), keeping the core minified JavaScript bundle to ~263 KB (~70 KB gzipped) with modular chunk splitting for MapLibre, Turf.js (`turf-measure` at 6.2 KB), and PMTiles.
-* **Deterministic Layer Stacking**: Centralized `enforceLayerOrder()` maintains visual hierarchy across all basemap switches and layer toggles:
-  $$\text{Measurement} \to \text{Custom GeoJSON} \to \text{GEE POI} \to \text{Piksel Grid} \to \text{GEE Rasters} \to \text{Piksel WMS} \to \text{Basemap}$$
-* **Keyboard & Screen Reader Accessible**: Keyboard-accessible controls and screen-reader announcements via aria-live regions, alongside `aria-label`, `role`, `aria-expanded`, and `aria-selected` attributes on interactive controls, drawers, modals, and tab lists.
-* **Production-Safe Logging**: All debug logging and warnings are gated behind `import.meta.env.DEV` to keep production runtime clean.
-* **WebGL Buffer Preservation**: MapLibre GL JS configured with `preserveDrawingBuffer: true` for clean, artifact-free canvas exports.
+### Keamanan & Efisiensi Sistem
+* **Pertahanan XSS Mendalam (Defense-in-Depth)**: Sanitasi string HTML yang ketat pada seluruh input GeoJSON, nama file, dan popover, diperkuat dengan header HTTP Content-Security-Policy (CSP) di `vercel.json`.
+* **Efisiensi Ukuran Berkas**: Dataset GeoJSON statis dimuat secara *lazy-loading* via HTTP asinkron, menjaga ukuran berkas JavaScript inti tetap ramping (~263 KB / ~70 KB gzipped) dengan pemisahan *chunk* modular untuk MapLibre GL, Turf.js, dan PMTiles.
+* **Hirarki Tumpukan Lapisan Deterministik**: Fungsi terpusat `enforceLayerOrder()` menjamin visualisasi selalu konsisten pada setiap perpindahan peta dasar:
+  $$\text{Pengukuran/Buffer} \to \text{Vektor GeoJSON Kustom} \to \text{Titik Stasiun POI} \to \text{Grid ODC} \to \text{Raster LST GEE} \to \text{WMS Piksel} \to \text{Peta Dasar}$$
+* **Aksesibilitas & Pembaca Layar**: Dukungan penuh navigasi keyboard, region `aria-live` untuk pengumuman perubahan status peta, serta atribut ARIA lengkap pada seluruh panel laci dan tab.
 
 ---
 
-## 📊 Data Sources & Provenance
+## 📊 Sumber Data & Provenansi (Data Provenance)
 
-| Dataset | Provider / Source | Spatial Resolution | Temporal Coverage | Access Protocol |
+| Dataset | Penyedia / Sumber | Resolusi Spasial | Cakupan Waktu | Protokol Akses |
 | :--- | :--- | :--- | :--- | :--- |
-| **Sentinel-2 GeoMAD** | BIG Piksel / ESA | 10 meters | 2017 – 2025 | OGC WMS 1.3.0 (PNG / Edge Proxy) |
-| **Spectral Indices (NDVI/NDWI)** | Open Data Cube | 10 meters | Annual Composites | OGC WMS 1.3.0 |
-| **Landsat 9 Analysis** | USGS / NASA | 30 meters | 2022 – 2025 | OGC WMS 1.3.0 |
-| **Flood Hazard Models** | BIG Hidrologi | 10 meters | Priority Study Areas | OGC WMS 1.3.0 |
-| **MODIS Land Surface Temp** | NASA LP DAAC (MOD11A2 / MYD11A2) | 1,000 meters (1 km) | 2000 – Present (8-Day) | NASA GIBS WMS & GEE Serverless Compute |
-| **Regional Thermal Model Grid** | GEE / NOAA CFSv2 Approximation | ~50 km Vector Grid | 2020 – 2026 | GeoJSON (Lazy Fetch / Fallback) |
-| **LST Reference Observations** | MODIS Clear-Sky Validated Points | Point Feature Collection | Multi-Year Baseline | GeoJSON (Lazy Fetch) |
-| **SRTM Digital Elevation** | USGS / NASA | 30 meters | Static DEM Grid | GeoJSON (Lazy Fetch) |
-| **Sentinel-2 10m LULC** | Impact Observatory / ESRI | 10 meters | Static 9-Class Composite | GeoJSON (Lazy Fetch) |
-| **3D Terrarium DEM** | Mapzen / AWS Open Data | Global DEM | Continuous | Raster DEM TileJSON |
-| **3D Buildings** | OpenFreeMap / OSM | Global Vector | Continuous | Vector Tiles |
-| **National Topographic (RBI)** | BIG Indonesia | Vector Tiles | Multi-Scale | TileJSON / Vector |
-
-> **Note on Satellite Services**: Piksel imagery is accessed via the BIG Piksel OGC Web Map Service staging environment (`ows.staging.piksel.big.go.id`) routed through `/api/wms-proxy`. MODIS continuous thermal imagery is delivered via NASA GIBS OGC WMS with serverless cloud reductions on Google Earth Engine.
+| **Sentinel-2 GeoMAD** | BIG Piksel / ESA | 10 meter | 2017 – 2025 | OGC WMS 1.3.0 (PNG / Edge Proxy) |
+| **Indeks Spektral (NDVI/NDWI)** | Open Data Cube | 10 meter | Komposit Tahunan | OGC WMS 1.3.0 |
+| **Landsat 9 Multispektral** | USGS / NASA | 30 meter | 2022 – 2025 | OGC WMS 1.3.0 |
+| **Model Bahaya Banjir** | BIG Hidrologi | 10 meter | Wilayah Studi Prioritas | OGC WMS 1.3.0 |
+| **MODIS Land Surface Temp** | NASA LP DAAC (MOD11A2 / MYD11A2) | 1.000 meter (1 km) | 2000 – Sekarang (8-Day) | NASA GIBS WMS & GEE Serverless Compute |
+| **Sampling Piksel Satelit** | Sentinel-2 / Open-Meteo | 10 meter | Live Client-Side | Canvas Pixel Extraction & REST API |
+| **Stasiun Referensi LST** | MODIS Clear-Sky QA Points | Titik Pengamatan | Baseline Multi-Tahun | GeoJSON (Lazy Fetch) |
+| **SRTM Digital Elevation** | USGS / NASA | 30 meter | Grid DEM Statis | GeoJSON (Lazy Fetch) |
+| **Sentinel-2 10m LULC** | Impact Observatory / ESRI | 10 meter | Komposit 9 Kelas | GeoJSON (Lazy Fetch) |
+| **3D Terrarium DEM** | Mapzen / AWS Open Data | Global DEM | Kontinu | Raster DEM TileJSON |
+| **3D Buildings** | OpenFreeMap / OSM | Global Vektor | Kontinu | Vector Tiles |
+| **Rupabumi Indonesia (RBI)** | Badan Informasi Geospasial | Vektor | Skala Nasional | TileJSON / Vector |
 
 ---
 
-## 💻 Tech Stack
+## 💻 Tumpukan Teknologi (Tech Stack)
 
-* **Language**: TypeScript 5.x
-* **Mapping Engine**: [MapLibre GL JS](https://maplibre.org/) (v6.3.0)
-* **Spatial Calculations**: [@turf/turf](https://turfjs.org/) (Modular imports: `@turf/helpers`, `@turf/length`, `@turf/area`, `@turf/buffer`, `@turf/distance`)
-* **Raster / Vector Protocols**: OGC WMS 1.3.0, NASA GIBS WMS, PMTiles, GeoJSON, TileJSON
-* **Testing Framework**: [Vitest](https://vitest.dev/) (168 unit, integration & E2E tests across 24 test suites — 100% passing)
-* **Build Tool**: [Vite 6](https://vitejs.dev/)
+* **Bahasa**: TypeScript 5.x (Strict Type Checking)
+* **Mesin Pemetaan**: [MapLibre GL JS](https://maplibre.org/) (v6.3.0)
+* **Kalkulasi Spasial**: [@turf/turf](https://turfjs.org/) (Modular: `@turf/helpers`, `@turf/length`, `@turf/area`, `@turf/buffer`, `@turf/distance`)
+* **Protokol Raster / Vektor**: OGC WMS 1.3.0, NASA GIBS WMS, PMTiles, GeoJSON, TileJSON
+* **Framework Pengujian**: [Vitest](https://vitest.dev/) (**168 Unit & Integration Tests** di 24 test suites — 100% Lulus)
+* **Alat Bangun (Build Tool)**: [Vite 6](https://vitejs.dev/)
 * **Package Manager / Runtime**: [Bun](https://bun.sh/)
 
 ---
 
-## 🛠️ Getting Started
+## 🛠️ Panduan Memulai (Getting Started)
 
-### Prerequisites
-* [Bun](https://bun.sh/) (v1.1 or higher) or Node.js 18+
+### Prasyarat
+* [Bun](https://bun.sh/) (v1.1 atau lebih baru) atau Node.js 18+
 
-### Installation & Development
+### Instalasi & Pengembangan Lokal
 
 ```bash
-# Clone the repository
+# 1. Kloning repositori
 git clone https://github.com/chipslova/webgis.git
 cd webgis
 
-# Install dependencies
+# 2. Pasang dependensi
 bun install
 
-# Start local development server (runs on http://localhost:3000)
+# 3. Jalankan server pengembangan lokal (berjalan di http://localhost:3000)
 bun run dev
 
-# Run unit and integration tests
+# 4. Jalankan rangkaian pengujian unit dan integrasi (168 tests)
 bun run test
 
-# Type-check TypeScript
+# 5. Pemeriksaan tipe data TypeScript
 bun x tsc --noEmit
 
-# Build production bundle
+# 6. Kompilasi paket produksi
 bun run build
 
-# Preview production build locally
+# 7. Pratinjau paket produksi lokal
 bun run preview
 ```
 
 ---
 
-## ⚠️ Known Limitations
+## ⚠️ Batasan & Informasi Teknis
 
-* **Upstream WMS Availability**: Sentinel-2 and Landsat 9 Earth Observation mosaics are served live via the BIG Piksel OGC WMS staging service (`ows.staging.piksel.big.go.id`). Server response times and uptime are subject to upstream infrastructure availability.
-* **Minimum Zoom Thresholds**: High-resolution 10m Sentinel-2 GeoMAD and 30m Landsat 9 layers require zoom level $\ge 8$ (or $\ge 7$ for Landsat) to render on the map.
-* **GEE Case Study Boundary**: The thermal Land Surface Temperature (LST), SRTM 30m elevation, and MODIS land cover layers represent curated historical spatial baseline snapshots focused on the Jabodetabek and West Java study areas (2020–2026).
-* **3D Hardware Acceleration**: Real-time 3D terrain elevation mesh and building extrusions require WebGL2 support on the client browser.
-* **External Basemap Providers**: Basemaps from Esri, Badan Informasi Geospasial (BIG), and OpenStreetMap depend on their respective public tile infrastructure and usage terms.
+* **Ketersediaan Layanan WMS**: Mosaik citra satelit BIG Piksel diakses via staging OGC WMS (`ows.staging.piksel.big.go.id`) yang disalurkan melalui edge proxy `/api/wms-proxy`. Kecepatan dan uptime bergantung pada infrastruktur server upstream.
+* **Batas Zoom Minimum Citra**: Citra resolusi tinggi Sentinel-2 10m dan Landsat 9 30m memerlukan tingkat zoom $Z \ge 8$ (atau $Z \ge 7$ untuk Landsat) agar ubin citra dirender oleh server WMS.
+* **Akselerasi Grafis 3D**: Fitur visualisasi medan 3D dan ekstrusi bangunan memerlukan peramban (*browser*) dengan dukungan WebGL2.
 
 ---
 
-## 📄 License
+## 📄 Lisensi & Hak Cipta
 
-Distributed under the MIT License. See `LICENSE` for details.
-
+Didistribusikan di bawah **Lisensi MIT**. Lihat berkas `LICENSE` untuk rincian lengkap.
+Proyek ini dibuat dan dikelola secara independen oleh [chipslova](https://github.com/chipslova).
