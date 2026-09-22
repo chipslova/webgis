@@ -82,14 +82,14 @@ export class BasemapCustomizerUI {
       item.dataset.id = bm.id;
       item.setAttribute('role', 'button');
       item.setAttribute('tabindex', '0');
-      item.setAttribute('aria-label', `Select basemap ${bm.name} format ${bm.format} category ${bm.category}`);
+      item.setAttribute('aria-label', `Pilih peta dasar ${bm.name} format ${bm.format} kategori ${bm.category}`);
 
       const formatBadge = bm.format === 'vector'
-        ? `<span class="bm-tag-badge vector" title="Vector Basemap: Supports sublayer customization (roads, administrative boundaries, labels)">🔷 Vector</span>`
-        : `<span class="bm-tag-badge raster" title="Raster Basemap: Pixel composite imagery/map">🖼️ Raster</span>`;
+        ? `<span class="bm-tag-badge vector" title="Peta Dasar Vektor: Mendukung kustomisasi sublapisan (jalan, batas wilayah, label)">🔷 Vektor</span>`
+        : `<span class="bm-tag-badge raster" title="Peta Dasar Raster: Citra/peta komposit piksel">🖼️ Raster</span>`;
       
       const maxZoomBadge = bm.maxZoom
-        ? `<span class="bm-tag-badge maxzoom" title="Maximum zoom level ${bm.maxZoom} (Ocean Depth Bathymetry)">⚠️ Max Z${bm.maxZoom}</span>`
+        ? `<span class="bm-tag-badge maxzoom" title="Tingkat zoom maksimum ${bm.maxZoom} (Batimetri Kedalaman Laut)">⚠️ Max Z${bm.maxZoom}</span>`
         : '';
 
       item.innerHTML = `
@@ -226,7 +226,7 @@ export class BasemapCustomizerUI {
         card.setAttribute('aria-label', `Pilih peta dasar ${bm.name} kategori ${bm.category}`);
 
         const formatBadge = bm.format === 'vector'
-          ? `<span class="bm-tag-badge vector">🔷 Vector</span>`
+          ? `<span class="bm-tag-badge vector">🔷 Vektor</span>`
           : `<span class="bm-tag-badge raster">🖼️ Raster</span>`;
         const maxZoomBadge = bm.maxZoom
           ? `<span class="bm-tag-badge maxzoom">⚠️ Max Z${bm.maxZoom}</span>`
@@ -446,7 +446,7 @@ export class BasemapCustomizerUI {
           const map = this.mapManager?.getMap();
           const currentZoom = map && typeof map.getZoom === 'function' ? map.getZoom() : 14;
           if (currentZoom < 11) {
-            this.flyToDemoLocation(`Auto-zooming to Jakarta (Z14.5) to highlight sublayer "${key}" changes!`);
+            this.flyToDemoLocation(`Auto-zooming ke Jakarta (Z14.5) untuk menampilkan perubahan sublayer "${key}"!`);
           }
         }
       });
@@ -545,9 +545,9 @@ export class BasemapCustomizerUI {
     if (titleEl && currentBm) titleEl.textContent = currentBm.name;
     if (badgeEl && currentBm) {
       const isVector = currentBm.format === 'vector';
-      badgeEl.textContent = isVector ? 'VECTOR' : 'RASTER';
+      badgeEl.textContent = isVector ? 'VEKTOR' : 'RASTER';
       badgeEl.className = `active-bm-badge ${currentBm.format}`;
-      badgeEl.title = `${currentBm.name} (${currentBm.category}) • Format: ${isVector ? 'Vector' : 'Raster'}${currentBm.maxZoom ? ` (Max Z${currentBm.maxZoom})` : ''}`;
+      badgeEl.title = `${currentBm.name} (${currentBm.category}) • Format: ${isVector ? 'Vektor' : 'Raster'}${currentBm.maxZoom ? ` (Max Z${currentBm.maxZoom})` : ''}`;
     }
 
     // Sync Basemap Opacity slider
@@ -570,11 +570,11 @@ export class BasemapCustomizerUI {
           <div class="sublayer-notice-content">
             <div class="sublayer-notice-header">
               <span class="lock-icon" aria-hidden="true">🔒</span>
-              <span>Sublayers Require Vector Basemap</span>
+              <span>Sublapisan Membutuhkan Peta Dasar Vektor</span>
             </div>
-            <p>Active basemap (<strong>${currentBm?.name || 'Raster'}</strong>) is a pixel raster image. Road networks, administrative boundaries, and label toggles are only available on <strong>Vector</strong> basemaps.</p>
-            <button type="button" class="btn-notice-switch-vector" id="btn-notice-switch-vector" aria-label="Switch to OpenFreeMap Liberty Vector Basemap">
-              ⚡ Switch to OpenFreeMap Vector
+            <p>Peta dasar aktif (<strong>${currentBm?.name || 'Raster'}</strong>) merupakan gambar raster piksel. Jaringan jalan, batas administrasi, dan label hanya tersedia pada peta dasar <strong>Vektor</strong>.</p>
+            <button type="button" class="btn-notice-switch-vector" id="btn-notice-switch-vector" aria-label="Ganti ke Peta Dasar Vektor OpenFreeMap Liberty">
+              ⚡ Ganti ke Vektor OpenFreeMap
             </button>
           </div>
         `;
@@ -586,7 +586,7 @@ export class BasemapCustomizerUI {
             this.mapManager.setBasemap(targetVectorBm);
           }
           this.customizer.setBasemapId(targetVectorBm);
-          this.flyToDemoLocation('⚡ Switched to OpenFreeMap Vector & auto-zoomed to Jakarta Monas (Z14.5)! Sublayer customization is now active.');
+          this.flyToDemoLocation('⚡ Beralih ke Vektor OpenFreeMap & zoom otomatis ke Monas Jakarta (Z14.5)! Kustomisasi sublapisan kini aktif.');
           this.syncUI();
         });
       }
@@ -599,13 +599,13 @@ export class BasemapCustomizerUI {
       btnSubAll.disabled = isRasterBasemap;
       btnSubAll.style.opacity = isRasterBasemap ? '0.35' : '1';
       btnSubAll.style.cursor = isRasterBasemap ? 'not-allowed' : 'pointer';
-      btnSubAll.title = isRasterBasemap ? 'Only available for Vector basemaps' : 'Enable all sublayers';
+      btnSubAll.title = isRasterBasemap ? 'Hanya tersedia untuk peta dasar Vektor' : 'Aktifkan semua sublapisan';
     }
     if (btnSubMute) {
       btnSubMute.disabled = isRasterBasemap;
       btnSubMute.style.opacity = isRasterBasemap ? '0.35' : '1';
       btnSubMute.style.cursor = isRasterBasemap ? 'not-allowed' : 'pointer';
-      btnSubMute.title = isRasterBasemap ? 'Only available for Vector basemaps' : 'Mute all sublayers';
+      btnSubMute.title = isRasterBasemap ? 'Hanya tersedia untuk peta dasar Vektor' : 'Sembunyikan semua sublapisan';
     }
 
     // 4. Sync Sublayer Popover Checkboxes (dimmed and locked for raster basemaps)
@@ -629,7 +629,7 @@ export class BasemapCustomizerUI {
         parentLabel.style.opacity = isRasterBasemap ? '0.35' : '1';
         parentLabel.style.pointerEvents = isRasterBasemap ? 'none' : 'auto';
         parentLabel.style.cursor = isRasterBasemap ? 'not-allowed' : 'pointer';
-        parentLabel.title = isRasterBasemap ? 'Only editable on Vector basemaps' : '';
+        parentLabel.title = isRasterBasemap ? 'Hanya dapat diedit pada peta dasar Vektor' : '';
       }
     });
 

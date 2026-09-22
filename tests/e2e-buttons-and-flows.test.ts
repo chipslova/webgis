@@ -397,7 +397,7 @@ describe('E2E WebGIS Exhaustive Buttons & Interaction Flow Audit', () => {
 
       const notice = document.getElementById('popover-sublayer-notice');
       expect(notice?.style.display).toBe('block');
-      expect(notice?.textContent).toContain('Sublayers Require Vector Basemap');
+      expect(notice?.textContent).toContain('Sublapisan Membutuhkan Peta Dasar Vektor');
 
       const btnMute = document.getElementById('btn-popover-sublayers-mute') as HTMLButtonElement;
       const btnAll = document.getElementById('btn-popover-sublayers-all') as HTMLButtonElement;

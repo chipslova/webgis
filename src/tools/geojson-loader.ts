@@ -68,47 +68,47 @@ export class GeoJsonLoader {
         {
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [106.8456, -6.2088] },
-          properties: { name: 'Jakarta', category: 'Capital City', population: '10.5M', province: 'DKI Jakarta' }
+          properties: { name: 'Jakarta', category: 'Ibukota Negara', population: '10,5 Juta', province: 'DKI Jakarta' }
         },
         {
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [112.7521, -7.2575] },
-          properties: { name: 'Surabaya', category: 'Metropolis', population: '2.9M', province: 'East Java' }
+          properties: { name: 'Surabaya', category: 'Metropolitan', population: '2,9 Juta', province: 'Jawa Timur' }
         },
         {
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [107.6191, -6.9175] },
-          properties: { name: 'Bandung', category: 'Metropolis', population: '2.5M', province: 'West Java' }
+          properties: { name: 'Bandung', category: 'Metropolitan', population: '2,5 Juta', province: 'Jawa Barat' }
         },
         {
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [98.6722, 3.5952] },
-          properties: { name: 'Medan', category: 'Metropolis', population: '2.4M', province: 'North Sumatra' }
+          properties: { name: 'Medan', category: 'Metropolitan', population: '2,4 Juta', province: 'Sumatera Utara' }
         },
         {
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [119.4327, -5.1477] },
-          properties: { name: 'Makassar', category: 'Metropolis', population: '1.5M', province: 'South Sulawesi' }
+          properties: { name: 'Makassar', category: 'Metropolitan', population: '1,5 Juta', province: 'Sulawesi Selatan' }
         },
         {
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [115.2167, -8.65] },
-          properties: { name: 'Denpasar', category: 'Tourism Hub', population: '0.9M', province: 'Bali' }
+          properties: { name: 'Denpasar', category: 'Pusat Pariwisata', population: '0,9 Juta', province: 'Bali' }
         },
         {
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [116.8312, -1.2379] },
-          properties: { name: 'Balikpapan', category: 'Energy & Port City', population: '0.7M', province: 'East Kalimantan' }
+          properties: { name: 'Balikpapan', category: 'Kota Energi & Pelabuhan', population: '0,7 Juta', province: 'Kalimantan Timur' }
         },
         {
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [116.9856, -0.9625] },
-          properties: { name: 'IKN Nusantara', category: 'Future Capital City', population: 'Developing', province: 'East Kalimantan' }
+          properties: { name: 'IKN Nusantara', category: 'Ibukota Masa Depan', population: 'Dalam Pembangunan', province: 'Kalimantan Timur' }
         }
       ]
     };
 
-    return this.addGeoJSONLayer('sample-indonesia-cities', 'Major Cities of Indonesia', sampleCitiesGeoJSON, '#f59e0b');
+    return this.addGeoJSONLayer('sample-indonesia-cities', 'Kota-Kota Utama Indonesia', sampleCitiesGeoJSON, '#f59e0b');
   }
 
   /**

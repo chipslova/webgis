@@ -622,7 +622,7 @@ export class PikselPanelUI {
       // 3. Product select click — ignore if clicking About accordion or disabled product
       const disabledCard = target.closest('.clean-product-card.is-disabled');
       if (disabledCard) {
-        showToast('This dataset is currently unavailable on the staging OGC service.', 'warning');
+        showToast('Dataset ini saat ini sedang tidak tersedia pada layanan OGC staging.', 'warning');
         return;
       }
 
@@ -633,7 +633,7 @@ export class PikselPanelUI {
       if (clickedId && !target.closest('select') && !target.closest('input') && !target.closest('.card-about-accordion')) {
         const prodObj = PIKSEL_PRODUCTS.find(p => p.id === clickedId);
         if (prodObj?.isDisabled) {
-          showToast('This dataset is currently unavailable on the staging OGC service.', 'warning');
+          showToast('Dataset ini saat ini sedang tidak tersedia pada layanan OGC staging.', 'warning');
           return;
         }
 

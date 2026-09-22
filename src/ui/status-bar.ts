@@ -38,7 +38,7 @@ export class StatusBarUI {
   public setOnlineStatus(online: boolean) {
     if (this.netStatusDot) {
       this.netStatusDot.className = `status-dot ${online ? 'online' : 'offline'}`;
-      this.netStatusDot.setAttribute('title', online ? 'Network Online' : 'Network Offline (Cached)');
+      this.netStatusDot.setAttribute('title', online ? 'Jaringan Terhubung (Online)' : 'Jaringan Terputus (Offline / Cache)');
     }
     if (this.netStatusText) {
       this.netStatusText.textContent = online ? 'Online' : 'Offline';
@@ -72,7 +72,7 @@ export class StatusBarUI {
 
     if (this.coordGroup) {
       this.coordGroup.style.cursor = 'pointer';
-      this.coordGroup.title = 'Click to copy current coordinates';
+      this.coordGroup.title = 'Klik untuk menyalin koordinat saat ini';
       this.coordGroup.addEventListener('click', () => {
         this.copyCurrentCoordinates();
       });

@@ -107,26 +107,26 @@ export class PikselLoader {
     let defaultMsg = '';
     switch (status) {
       case 'idle':
-        defaultMsg = 'No active satellite raster layer';
+        defaultMsg = 'Tidak ada lapisan raster satelit aktif';
         break;
       case 'zoom_too_low':
-        defaultMsg = `Current map zoom level is ${currentZoom}. Zoom in to at least Level ${minZoom} (Island/Province scale) to render high-resolution satellite imagery.`;
+        defaultMsg = `Tingkat zoom peta saat ini adalah ${currentZoom}. Perbesar minimal ke Tingkat ${minZoom} (skala Pulau/Provinsi) untuk merender citra satelit resolusi tinggi.`;
         break;
       case 'requesting':
-        defaultMsg = `Connecting to OGC WMS service for ${prod?.name || ''}...`;
+        defaultMsg = `Menghubungkan ke layanan OGC WMS untuk ${prod?.name || ''}...`;
         break;
       case 'loading':
-        defaultMsg = `Processing raster request at BIG Open Data Cube...`;
+        defaultMsg = `Memproses permintaan raster di BIG Open Data Cube...`;
         break;
       case 'ready':
-        defaultMsg = `${prod?.name || ''} imagery rendered successfully`;
+        defaultMsg = `Citra ${prod?.name || ''} berhasil dirender`;
         break;
       case 'degraded':
       case 'partial':
-        defaultMsg = `Partial raster loaded. Upstream ODC server experienced high latency on some tiles.`;
+        defaultMsg = `Raster termuat sebagian. Server upstream ODC mengalami latensi pada sejumlah tile.`;
         break;
       case 'error':
-        defaultMsg = `OGC WMS service for ${prod?.name || ''} encountered an upstream error (Timeout / HTTP 500).`;
+        defaultMsg = `Layanan OGC WMS untuk ${prod?.name || ''} mengalami kendala upstream (Batas Waktu / HTTP 500).`;
         break;
     }
 

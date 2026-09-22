@@ -85,7 +85,7 @@ export class OverviewMapUI {
             duration: 1000,
             essential: true
           });
-          showToast(`Navigating to coordinates [${lat.toFixed(2)}, ${lng.toFixed(2)}]`, 'info');
+          showToast(`Mengarahkan ke koordinat [${lat.toFixed(2)}, ${lng.toFixed(2)}]`, 'info');
         } catch (err) {
           logger.warn('[OverviewMap] flyTo failed:', err);
         }
@@ -100,7 +100,7 @@ export class OverviewMapUI {
         const lng = parseFloat(btn.dataset.lng || '0');
         const lat = parseFloat(btn.dataset.lat || '0');
         const zoom = parseFloat(btn.dataset.zoom || '6.0');
-        const name = btn.textContent?.trim() || 'Region';
+        const name = btn.textContent?.trim() || 'Wilayah';
 
         if (this.map && typeof this.map.flyTo === 'function') {
           this.map.flyTo({
@@ -109,8 +109,8 @@ export class OverviewMapUI {
             duration: 1200,
             essential: true
           });
-          announceToScreenReader(`Navigating map to ${name}`);
-          showToast(`Flying to ${name}`, 'info');
+          announceToScreenReader(`Mengarahkan peta ke ${name}`);
+          showToast(`Menuju ke ${name}`, 'info');
         }
       });
     });
@@ -138,7 +138,7 @@ export class OverviewMapUI {
       this.popover.style.display = 'block';
       this.toggleBtn?.classList.add('popover-open');
       this.updateViewport();
-      announceToScreenReader('Archipelago Locator Inset Map opened');
+      announceToScreenReader('Peta Inset Penunjuk Kepulauan dibuka');
     } else {
       this.popover.style.display = 'none';
       this.toggleBtn?.classList.remove('popover-open');
