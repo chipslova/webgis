@@ -1,10 +1,13 @@
 // Digital Earth Indonesia WebGIS - Service Worker
-const CACHE_NAME = 'de-webgis-v1.3';
+const CACHE_NAME = 'de-webgis-v1.4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.webmanifest',
   '/favicon.svg',
+  '/apple-touch-icon.png',
+  '/icon-192.png',
+  '/icon-512.png',
   '/basemap/styles/esri-style-imagery.json',
   '/basemap/styles/esri-style-topographic.json',
   '/basemap/styles/esri-style-navigation.json',

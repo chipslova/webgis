@@ -232,7 +232,7 @@
               </div>
 
               <!-- Active Layers Manager Container (TOC) -->
-              <div id="active-layers-container" class="active-layers-widget" style="margin-top: 14px;"></div>
+              <div id="active-layers-container" class="active-layers-widget"></div>
             </section>
 
             <!-- Panel: Piksel Earth Observation (BIG) -->
@@ -246,7 +246,7 @@
               </div>
 
               <!-- Quick Launch Comparison Mode -->
-              <button id="btn-sidebar-start-swipe" class="btn btn-secondary full-width" style="margin-bottom: 12px; gap: 8px; justify-content: center;" title="Buka Mode Bandingkan Citra Layar Belah (Swipe)" aria-label="Buka Mode Bandingkan Citra Layar Belah">
+              <button id="btn-sidebar-start-swipe" class="btn btn-secondary full-width btn-sidebar-swipe" title="Buka Mode Bandingkan Citra Layar Belah (Swipe)" aria-label="Buka Mode Bandingkan Citra Layar Belah">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="8 8 4 12 8 16"/><polyline points="16 8 20 12 16 16"/></svg>
                 <span>Bandingkan Citra (Swipe)</span>
               </button>
@@ -254,8 +254,8 @@
               <!-- Study Area Presets -->
               <div class="piksel-card">
                 <div class="piksel-card-title-row">
-                  <div style="display:flex; align-items:center; gap:6px;">
-                    <h3 style="margin:0;">Preset Pemantauan Prioritas</h3>
+                  <div class="sidebar-section-heading">
+                    <h3>Preset Pemantauan Prioritas</h3>
                   </div>
                   <span class="piksel-hint">Klik untuk menuju lokasi</span>
                 </div>
@@ -273,8 +273,8 @@
 
               <!-- Info & External Links -->
               <div class="piksel-card piksel-info-card">
-                <div style="display:flex; align-items:center; gap:6px; margin-bottom: 6px;">
-                  <h3 style="margin:0;">Portal Resmi &amp; Dokumentasi</h3>
+                <div class="sidebar-section-heading">
+                  <h3>Portal Resmi &amp; Dokumentasi</h3>
                 </div>
                 <p>Layanan Web Map Service (WMS) berbasis Open Data Cube BIG &amp; Geoscience Australia.</p>
                 <div class="piksel-links-group">
@@ -367,7 +367,7 @@
                   <div class="gee-layer-header-row">
                     <span class="gee-layer-header-label">Pilih Lapisan Termal Aktif:</span>
                     <!-- Tile loading indicator -->
-                    <span id="gee-tiles-loading" class="gee-loading-indicator" style="display: none;">
+                    <span id="gee-tiles-loading" class="gee-loading-indicator">
                       <span class="gee-spinner"></span>
                       Memuat ubin...
                     </span>
@@ -381,7 +381,7 @@
                         <input type="checkbox" id="toggle-gee-lst" aria-label="Toggle MODIS Daytime Land Surface Temperature layer" />
                         <span>☀️ <strong>LST Siang Hari</strong> <span class="gee-layer-subtext">(Suhu Permukaan · 10:30/13:30)</span></span>
                       </label>
-                      <div id="gee-lst-opacity-row" class="gee-layer-opacity-box" style="display: none;">
+                      <div id="gee-lst-opacity-row" class="gee-layer-opacity-box">
                         <input type="range" id="gee-lst-day-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas LST Siang Hari" />
                         <span id="gee-lst-day-opacity-val" class="gee-layer-opacity-val">85%</span>
                       </div>
@@ -393,7 +393,7 @@
                         <input type="checkbox" id="toggle-gee-elevation" aria-label="Toggle MODIS Nighttime Land Surface Temperature layer" />
                         <span>🌙 <strong>LST Malam Hari</strong> <span class="gee-layer-subtext">(Suhu Permukaan · 22:30/01:30)</span></span>
                       </label>
-                      <div id="gee-lst-night-opacity-row" class="gee-layer-opacity-box" style="display: none;">
+                      <div id="gee-lst-night-opacity-row" class="gee-layer-opacity-box">
                         <input type="range" id="gee-lst-night-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas LST Malam Hari" />
                         <span id="gee-lst-night-opacity-val" class="gee-layer-opacity-val">85%</span>
                       </div>
@@ -405,7 +405,7 @@
                         <input type="checkbox" id="toggle-gee-landcover" aria-label="Toggle Sentinel-2 10m Land Cover layer" />
                         <span>🌳 <strong>Tutupan Lahan Sentinel-2 10m</strong> <span class="gee-layer-subtext">(ESA WorldCover)</span></span>
                       </label>
-                      <div id="gee-lc-opacity-row" class="gee-layer-opacity-box" style="display: none;">
+                      <div id="gee-lc-opacity-row" class="gee-layer-opacity-box">
                         <input type="range" id="gee-landcover-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas Tutupan Lahan" />
                         <span id="gee-landcover-opacity-val" class="gee-layer-opacity-val green">85%</span>
                       </div>
@@ -423,10 +423,6 @@
 
                 <!-- 2. Thermal Legend Bar -->
                 <div class="gee-legend-box">
-                  <div class="gee-legend-header">
-                    <span>Legenda Suhu LST (°C):</span>
-                    <span class="gee-legend-val">10°C s.d. 42°C+</span>
-                  </div>
                   <div class="gee-legend-bar lst-gradient gee-legend-bar-wrap" aria-hidden="true"></div>
                   <div class="gee-legend-labels">
                     <span>10°C (Dingin)</span>
@@ -439,18 +435,18 @@
                 </div>
 
                 <!-- 2b. Sentinel-2 LULC Legend — visible when landcover is toggled -->
-                <div id="gee-lulc-legend" class="gee-lulc-box" style="display: none;">
+                <div id="gee-lulc-legend" class="gee-lulc-box">
                   <div class="gee-lulc-title">🗺️ Legenda 9 Kelas Sentinel-2 10m LULC</div>
                   <div class="gee-lulc-chips">
-                    <span class="gee-lulc-chip" style="background: #1A5BAB; color: #fff;">🌊 Air</span>
-                    <span class="gee-lulc-chip" style="background: #358221; color: #fff;">🌲 Hutan</span>
-                    <span class="gee-lulc-chip" style="background: #87D19E; color: #000;">💧 Mangrove</span>
-                    <span class="gee-lulc-chip" style="background: #FFDB5C; color: #000;">🌾 Pertanian</span>
-                    <span class="gee-lulc-chip" style="background: #ED022A; color: #fff;">🏢 Terbangun</span>
-                    <span class="gee-lulc-chip" style="background: #EDE9E4; color: #000;">🏜️ Lahan Terbuka</span>
-                    <span class="gee-lulc-chip" style="background: #C6D799; color: #000;">🌿 Semak/Rangeland</span>
-                    <span class="gee-lulc-chip" style="background: #F2FAFF; color: #000;">❄️ Salju</span>
-                    <span class="gee-lulc-chip" style="background: #C8C8C8; color: #000;">☁️ Awan</span>
+                    <span class="gee-lulc-chip chip-water">🌊 Air</span>
+                    <span class="gee-lulc-chip chip-forest">🌲 Hutan</span>
+                    <span class="gee-lulc-chip chip-mangrove">💧 Mangrove</span>
+                    <span class="gee-lulc-chip chip-crop">🌾 Pertanian</span>
+                    <span class="gee-lulc-chip chip-built">🏢 Terbangun</span>
+                    <span class="gee-lulc-chip chip-bare">🏜️ Lahan Terbuka</span>
+                    <span class="gee-lulc-chip chip-shrub">🌿 Semak/Rangeland</span>
+                    <span class="gee-lulc-chip chip-snow">❄️ Salju</span>
+                    <span class="gee-lulc-chip chip-cloud">☁️ Awan</span>
                   </div>
                 </div>
 
@@ -478,8 +474,8 @@
                 <!-- 5. Educational Guidance Callout -->
                 <div class="gee-callout">
                   <div><strong>💡 Panduan Warna Merah:</strong></div>
-                  <div style="margin-top: 2px;">• <strong>Peta LST (Suhu):</strong> Merah = Permukaan daratan panas (34°C–40°C+ saat siang/kemarau). Lautan transparan.</div>
-                  <div style="margin-top: 2px;">• <strong>Tutupan Lahan (LULC):</strong> Merah = Lahan Terbangun / Perkotaan (Built-Up Area).</div>
+                  <div class="mt-xs">• <strong>Peta LST (Suhu):</strong> Merah = Permukaan daratan panas (34°C–40°C+ saat siang/kemarau). Lautan transparan.</div>
+                  <div class="mt-xs">• <strong>Tutupan Lahan (LULC):</strong> Merah = Lahan Terbangun / Perkotaan (Built-Up Area).</div>
                 </div>
               </div>
 
@@ -502,14 +498,14 @@
               </div>
 
               <!-- Seasonal & Multi-Year Time Series Canvas Chart -->
-              <details class="clean-accordion" style="margin-top: 14px;" open>
+              <details class="clean-accordion mt-14" open>
                 <summary>
                   <span>📈 Dinamika Deret Waktu Suhu LST (2020–2026)</span>
                 </summary>
                 <div class="accordion-body">
                   <div class="gee-chart-header">
                     <p class="chart-subtitle gee-chart-sub">Kurva termal komposit 8-harian (MODIS Terra/Aqua 1 km radiatif &amp; NOAA CFSv2 2m udara): Jakarta vs Dataran Tinggi Bandung</p>
-                    <div style="display: flex; gap: 6px;">
+                    <div class="flex-row-gap-6">
                       <button id="btn-toggle-gee-chart-table" class="btn-download-chart" title="Tampilkan data dalam tabel terstruktur" aria-label="Beralih ke tampilan tabel data deret waktu" aria-expanded="false">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
                         <span>Tabel Data</span>
@@ -527,7 +523,7 @@
                   </div>
 
                   <!-- Accessible Data Table Container (Screen-reader & Keyboard accessible) -->
-                  <div id="gee-chart-table-container" style="display: none; margin-top: 10px; overflow-x: auto;"></div>
+                  <div id="gee-chart-table-container" class="gee-chart-table-wrap"></div>
 
                   <div class="chart-legend gee-chart-legend">
                     <span class="legend-badge urban-badge">■ Jakarta Siang LST (Skin)</span>
@@ -539,7 +535,7 @@
 
                   <!-- Special Note Disclaimer Box for Forecast -->
                   <div id="gee-forecast-disclaimer" class="gee-forecast-box">
-                    <strong style="color: #f3e8ff;">📌 Catatan Metodologi:</strong> Garis solid mewakili <em>MODIS Land Surface Temperature (LST)</em> radiatif kulit permukaan tanah (1 km). Garis putus-putus setelah <span id="gee-forecast-date-label" style="font-weight: 700; color: #facc15;">14 September 2026</span> mewakili model numerik fluida atmosfer <em>NOAA CFSv2 2-meter Air Temperature</em>.
+                    <strong class="text-indigo-light">📌 Catatan Metodologi:</strong> Garis solid mewakili <em>MODIS Land Surface Temperature (LST)</em> radiatif kulit permukaan tanah (1 km). Garis putus-putus setelah <span id="gee-forecast-date-label" class="forecast-date-val">14 September 2026</span> mewakili model numerik fluida atmosfer <em>NOAA CFSv2 2-meter Air Temperature</em>.
                   </div>
                 </div>
               </details>
@@ -555,7 +551,7 @@
                   <span>Pusat Unduhan Dataset MODIS LST</span>
                 </summary>
                 <div class="accordion-body">
-                  <p style="margin-bottom: 10px; font-size: 11.5px; color: var(--text-secondary);">Ekspor data observasi dan deret waktu MODIS LST tervalidasi:</p>
+                  <p class="download-desc">Ekspor data observasi dan deret waktu MODIS LST tervalidasi:</p>
                   <div class="download-buttons">
                     <button id="btn-download-geojson" class="btn btn-outline full-width" aria-label="Unduh Dataset GeoJSON 18 Titik Referensi MODIS LST">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -604,17 +600,17 @@
                     </select>
                   </div>
                   <div class="form-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
-                      <label for="buffer-radius-input" class="form-label-sm" style="margin-bottom: 0;">Jarak Radius Jangkauan:</label>
-                      <div class="buffer-input-row" style="width: 80px;">
-                        <input type="number" id="buffer-radius-input" class="form-input form-input-sm" min="0.5" max="100" step="0.5" value="5" placeholder="5" style="text-align: right; padding: 2px 6px;" />
-                        <span class="buffer-unit-label" style="font-size: 10px;">km</span>
+                    <div class="flex-between-center mb-3">
+                      <label for="buffer-radius-input" class="form-label-sm mb-0">Jarak Radius Jangkauan:</label>
+                      <div class="buffer-input-row w-80">
+                        <input type="number" id="buffer-radius-input" class="form-input form-input-sm text-right px-6" min="0.5" max="100" step="0.5" value="5" placeholder="5" />
+                        <span class="buffer-unit-label fs-10">km</span>
                       </div>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
-                      <span style="font-size: 9.5px; color: var(--text-muted);">0.5</span>
-                      <input type="range" id="buffer-radius-slider" min="0.5" max="50" step="0.5" value="5" style="flex: 1; accent-color: #38bdf8; cursor: pointer; height: 5px;" />
-                      <span style="font-size: 9.5px; color: var(--text-muted);">50 km</span>
+                    <div class="buffer-slider-row">
+                      <span class="buffer-slider-val">0.5</span>
+                      <input type="range" id="buffer-radius-slider" min="0.5" max="50" step="0.5" value="5" class="buffer-range-input" />
+                      <span class="buffer-slider-val">50 km</span>
                     </div>
                   </div>
                 </div>
@@ -628,44 +624,44 @@
                 </div>
 
                 <!-- Buffer Color & Opacity Customizer -->
-                <div class="form-group" style="margin-top: 10px;">
+                <div class="form-group mt-10">
                   <label class="form-label-sm">Gaya &amp; Warna Zona Penyangga:</label>
                   <div class="buffer-color-swatches">
-                    <button type="button" class="buffer-color-chip active" data-color="#8b5cf6" style="background: #8b5cf6;" title="Ungu Default"></button>
-                    <button type="button" class="buffer-color-chip" data-color="#ef4444" style="background: #ef4444;" title="Merah Bahaya"></button>
-                    <button type="button" class="buffer-color-chip" data-color="#f59e0b" style="background: #f59e0b;" title="Kuning Waspada"></button>
-                    <button type="button" class="buffer-color-chip" data-color="#0ea5e9" style="background: #0ea5e9;" title="Biru Sempadan Air"></button>
-                    <button type="button" class="buffer-color-chip" data-color="#10b981" style="background: #10b981;" title="Hijau RTH / Lindung"></button>
-                    <button type="button" class="buffer-color-chip" data-color="#f97316" style="background: #f97316;" title="Oranye Siaga"></button>
+                    <button type="button" class="buffer-color-chip active" data-color="#8b5cf6" title="Ungu Default"></button>
+                    <button type="button" class="buffer-color-chip" data-color="#ef4444" title="Merah Bahaya"></button>
+                    <button type="button" class="buffer-color-chip" data-color="#f59e0b" title="Kuning Waspada"></button>
+                    <button type="button" class="buffer-color-chip" data-color="#0ea5e9" title="Biru Sempadan Air"></button>
+                    <button type="button" class="buffer-color-chip" data-color="#10b981" title="Hijau RTH / Lindung"></button>
+                    <button type="button" class="buffer-color-chip" data-color="#f97316" title="Oranye Siaga"></button>
                     <input type="color" id="buffer-color-custom" value="#8b5cf6" class="buffer-color-picker" title="Warna Kustom" />
                   </div>
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
-                    <span style="font-size: 10px; color: var(--text-muted);">Transparansi Buffer:</span>
-                    <span id="buffer-opacity-val" style="font-size: 10px; font-weight: 600; color: #38bdf8;">45%</span>
+                  <div class="flex-between-center mt-6">
+                    <span class="fs-10 text-muted">Transparansi Buffer:</span>
+                    <span id="buffer-opacity-val" class="buffer-val-badge">45%</span>
                   </div>
-                  <input type="range" id="buffer-opacity-slider" min="10" max="100" step="5" value="45" style="width: 100%; accent-color: #38bdf8; cursor: pointer; height: 5px; margin-top: 2px;" />
+                  <input type="range" id="buffer-opacity-slider" min="10" max="100" step="5" value="45" class="buffer-opacity-slider" />
                 </div>
 
                 <!-- Auto-Replace Previous Buffer Toggle -->
-                <div class="form-group" style="margin-top: 10px; margin-bottom: 2px;">
-                  <label style="display: flex; align-items: center; gap: 7px; font-size: 10px; color: #cbd5e1; cursor: pointer; user-select: none;">
-                    <input type="checkbox" id="buffer-auto-replace" checked style="accent-color: #38bdf8; cursor: pointer; width: 14px; height: 14px;" />
+                <div class="form-group mt-10 mb-2">
+                  <label class="buffer-auto-replace-label">
+                    <input type="checkbox" id="buffer-auto-replace" checked class="buffer-checkbox" />
                     <span>Gantikan buffer aktif sebelumnya secara otomatis</span>
                   </label>
                 </div>
 
-                <div class="buffer-action-row" style="display: flex; gap: 8px; margin-top: 10px;">
-                  <button id="btn-run-buffer-analysis" class="btn btn-primary" style="flex: 1;" aria-label="Jalankan kalkulasi buffer spasial">
+                <div class="buffer-action-row mt-10">
+                  <button id="btn-run-buffer-analysis" class="btn btn-primary flex-1" aria-label="Jalankan kalkulasi buffer spasial">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
                     Hitung Buffer
                   </button>
-                  <button id="btn-clear-buffer-analysis" class="btn btn-outline" style="white-space: nowrap; color: #f87171; border-color: rgba(239, 68, 68, 0.4); padding: 6px 12px;" title="Hapus seluruh layer buffer aktif dari peta">
+                  <button id="btn-clear-buffer-analysis" class="btn btn-outline btn-clear-danger" title="Hapus seluruh layer buffer aktif dari peta">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                     Hapus Buffer
                   </button>
                 </div>
 
-                <div id="buffer-analysis-status" class="analysis-status-box" style="display: none;"></div>
+                <div id="buffer-analysis-status" class="analysis-status-box"></div>
               </div>
 
               <!-- Module 3: Spatial Intersect Analysis (Tumpang Tindih Spasial) -->
@@ -682,31 +678,31 @@
                 </p>
 
                 <!-- Operation Mode Selector Tabs (Irisan / Kurangi / Gabung / Beda Simetris) -->
-                <div class="intersect-op-section" style="margin-top: 10px;">
-                  <label class="form-label-sm" style="display: block; margin-bottom: 5px;">Pilih Operasi Spasial (Set Theory):</label>
-                  <div class="intersect-op-tabs" style="display: flex; gap: 4px; background: rgba(15, 23, 42, 0.6); padding: 3px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <button type="button" class="btn-chip intersect-op-btn active" data-mode="intersect" style="flex: 1; justify-content: center; font-size: 11px; padding: 5px 2px;">
+                <div class="intersect-op-section mt-10">
+                  <label class="form-label-sm block-label">Pilih Operasi Spasial (Set Theory):</label>
+                  <div class="intersect-op-tabs">
+                    <button type="button" class="btn-chip intersect-op-btn active" data-mode="intersect">
                       <span>⚔️ Irisan</span>
                     </button>
-                    <button type="button" class="btn-chip intersect-op-btn" data-mode="difference" style="flex: 1; justify-content: center; font-size: 11px; padding: 5px 2px;">
+                    <button type="button" class="btn-chip intersect-op-btn" data-mode="difference">
                       <span>✂️ Kurangi</span>
                     </button>
-                    <button type="button" class="btn-chip intersect-op-btn" data-mode="union" style="flex: 1; justify-content: center; font-size: 11px; padding: 5px 2px;">
+                    <button type="button" class="btn-chip intersect-op-btn" data-mode="union">
                       <span>🔗 Gabung</span>
                     </button>
-                    <button type="button" class="btn-chip intersect-op-btn" data-mode="sym_difference" style="flex: 1; justify-content: center; font-size: 11px; padding: 5px 2px;">
+                    <button type="button" class="btn-chip intersect-op-btn" data-mode="sym_difference">
                       <span>⚡ Beda (XOR)</span>
                     </button>
                   </div>
-                  <div id="intersect-op-desc" class="intersect-op-desc" style="font-size: 10.5px; color: var(--color-cyan, #00f0ff); background: rgba(0, 240, 255, 0.08); padding: 5px 8px; border-radius: 6px; border: 1px solid rgba(0, 240, 255, 0.2); margin-top: 6px;">
+                  <div id="intersect-op-desc" class="intersect-op-desc">
                     ⚔️ <strong>Irisan:</strong> Ambil area perpotongan eksklusif di antara dua wilayah.
                   </div>
                 </div>
 
                 <!-- Quick 1-Click Target Selector Chips -->
-                <div class="intersect-quick-section" style="margin-top: 10px;">
-                  <label class="form-label-sm" style="display: block; margin-bottom: 5px;">Pilih Data yang Ingin Ditemukan / Diiris:</label>
-                  <div class="intersect-target-chips" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
+                <div class="intersect-quick-section mt-10">
+                  <label class="form-label-sm block-label">Pilih Data yang Ingin Ditemukan / Diiris:</label>
+                  <div class="intersect-target-chips mb-8">
                     <button type="button" class="btn-chip active" id="chip-target-cities" data-target="cities">
                       <span>🏛️ Kota-Kota Besar</span>
                     </button>
@@ -723,7 +719,7 @@
                 </div>
 
                 <!-- Manual Dropdowns (Shown when "Pilih Manual" is active) -->
-                <div class="intersect-form-grid" id="intersect-custom-selectors" style="display: none;">
+                <div class="intersect-form-grid intersect-custom-grid" id="intersect-custom-selectors">
                   <div class="form-group">
                     <label for="intersect-layer-a" class="form-label-sm">Wilayah Acuan (Poligon / AOI):</label>
                     <select id="intersect-layer-a" class="form-select form-select-sm">
@@ -731,7 +727,7 @@
                     </select>
                   </div>
 
-                  <div class="form-group" style="margin-top: 6px;">
+                  <div class="form-group mt-6">
                     <label for="intersect-layer-b" class="form-label-sm">Lapisan Target yang Diiris:</label>
                     <select id="intersect-layer-b" class="form-select form-select-sm">
                       <option value="" disabled selected>Pilih lapisan target...</option>
@@ -740,33 +736,33 @@
                 </div>
 
                 <!-- Intersect Styling Customizer -->
-                <div class="form-group" style="margin-top: 10px;">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <label class="form-label-sm" style="margin-bottom: 0;">Warna Sorotan Hasil:</label>
-                    <span id="intersect-opacity-val" style="font-size: 10px; font-weight: 600; color: #00f0ff;">70%</span>
+                <div class="form-group mt-10">
+                  <div class="flex-between-center mb-4">
+                    <label class="form-label-sm mb-0">Warna Sorotan Hasil:</label>
+                    <span id="intersect-opacity-val" class="intersect-val-badge">70%</span>
                   </div>
                   <div class="intersect-color-swatches">
-                    <button type="button" class="intersect-color-chip active" data-color="#00f0ff" style="background: #00f0ff;" title="Sian Neon"></button>
-                    <button type="button" class="intersect-color-chip" data-color="#38bdf8" style="background: #38bdf8;" title="Biru Langit"></button>
-                    <button type="button" class="intersect-color-chip" data-color="#10b981" style="background: #10b981;" title="Hijau Emerald"></button>
-                    <button type="button" class="intersect-color-chip" data-color="#f59e0b" style="background: #f59e0b;" title="Kuning Amber"></button>
-                    <button type="button" class="intersect-color-chip" data-color="#ec4899" style="background: #ec4899;" title="Magenta"></button>
+                    <button type="button" class="intersect-color-chip active" data-color="#00f0ff" title="Sian Neon"></button>
+                    <button type="button" class="intersect-color-chip" data-color="#38bdf8" title="Biru Langit"></button>
+                    <button type="button" class="intersect-color-chip" data-color="#10b981" title="Hijau Emerald"></button>
+                    <button type="button" class="intersect-color-chip" data-color="#f59e0b" title="Kuning Amber"></button>
+                    <button type="button" class="intersect-color-chip" data-color="#ec4899" title="Magenta"></button>
                     <input type="color" id="intersect-color-custom" value="#00f0ff" class="buffer-color-picker" title="Warna Kustom" />
                   </div>
                 </div>
 
-                <div class="intersect-action-row" style="display: flex; gap: 8px; margin-top: 12px;">
-                  <button id="btn-run-intersect-analysis" class="btn btn-primary" style="flex: 1;" aria-label="Jalankan kalkulasi spatial overlay / intersect">
+                <div class="intersect-action-row mt-12">
+                  <button id="btn-run-intersect-analysis" class="btn btn-primary flex-1" aria-label="Jalankan kalkulasi spatial overlay / intersect">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="9" r="6"/><circle cx="15" cy="15" r="6"/></svg>
                     Jalankan Analisis Spasial
                   </button>
-                  <button id="btn-clear-intersect-analysis" class="btn btn-outline" style="white-space: nowrap; color: #f87171; border-color: rgba(239, 68, 68, 0.4); padding: 6px 12px;" title="Hapus hasil irisan dari peta">
+                  <button id="btn-clear-intersect-analysis" class="btn btn-outline btn-clear-danger" title="Hapus hasil irisan dari peta">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                     Hapus
                   </button>
                 </div>
 
-                <div id="intersect-analysis-status" class="analysis-status-box" style="display: none;"></div>
+                <div id="intersect-analysis-status" class="analysis-status-box"></div>
               </div>
 
               <!-- Module 4: Riwayat & Info Metodologi -->
@@ -795,12 +791,12 @@
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/></svg>
                   Ukur Luas Poligon
                 </button>
-                <div style="display: flex; gap: 6px;">
-                  <button id="btn-measure-undo" class="btn btn-outline" style="flex: 1;" aria-label="Undo titik terakhir (Z)" title="Undo titik pengukuran terakhir (Keyboard: Z)">
+                <div class="flex-row-gap-6">
+                  <button id="btn-measure-undo" class="btn btn-outline flex-1" aria-label="Undo titik terakhir (Z)" title="Undo titik pengukuran terakhir (Keyboard: Z)">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
                     Undo
                   </button>
-                  <button id="btn-measure-clear" class="btn btn-danger-outline" style="flex: 1;" aria-label="Hapus semua pengukuran dan rute">
+                  <button id="btn-measure-clear" class="btn btn-danger-outline flex-1" aria-label="Hapus semua pengukuran dan rute">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                     Hapus Semua
                   </button>
@@ -808,7 +804,7 @@
               </div>
 
               <!-- Interactive Measure Instructions Box -->
-              <div id="measure-instruction-box" class="measure-instruction-box" style="display: none;">
+              <div id="measure-instruction-box" class="measure-instruction-box">
                 <div class="measure-instruction-title">Panduan Pengukuran Aktif:</div>
                 <ul class="measure-instruction-list">
                   <li><strong>Klik / Ketuk:</strong> Tambah titik pada kanvas peta.</li>
@@ -818,12 +814,12 @@
                 </ul>
               </div>
 
-              <div id="measure-result-card" class="result-card" style="display:none;" role="status" aria-live="polite">
+              <div id="measure-result-card" class="result-card" role="status" aria-live="polite">
                 <div class="result-title">Hasil Pengukuran</div>
                 <div id="measure-result-value" class="result-value">0 km</div>
                 
                 <!-- Elevation Profile Section (Only shown when measuring distance with 3D terrain) -->
-                <div id="measure-elevation-profile" class="measure-elevation-profile" style="display: none;">
+                <div id="measure-elevation-profile" class="measure-elevation-profile">
                   <div class="profile-header">
                     <span class="profile-title">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
@@ -853,7 +849,7 @@
 
                   <div id="measure-elevation-chart-container" class="profile-chart-container">
                     <svg id="measure-elevation-svg" class="profile-svg" viewBox="0 0 320 120" preserveAspectRatio="none"></svg>
-                    <div id="profile-chart-tooltip" class="profile-chart-tooltip" style="display: none;"></div>
+                    <div id="profile-chart-tooltip" class="profile-chart-tooltip"></div>
                   </div>
                   <div class="profile-chart-hint">Geser kursor di atas grafik untuk melacak titik &amp; elevasi di peta</div>
                 </div>
@@ -868,7 +864,7 @@
                     <span>.KML (Earth)</span>
                   </button>
                 </div>
-                <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 10px; padding: 6px 8px; border-radius: 6px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
+                <div class="analysis-note-box">
                   📐 <em>Catatan: Pengukuran jarak dan luas menggunakan kalkulasi geodesik sferoidal WGS84 (@turf/turf) untuk estimasi visual spasial — bukan pengukuran batas tanah/kadastral resmi.</em>
                 </div>
               </div>
@@ -883,12 +879,12 @@
               <div class="upload-dropzone" id="geojson-dropzone" role="button" tabindex="0" aria-label="Klik untuk memilih berkas atau seret berkas GeoJSON, KML, atau CSV ke sini">
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
                 <p><strong>Klik untuk memilih berkas</strong> atau seret &amp; lepas GeoJSON / KML / CSV di sini</p>
-                <input type="file" id="file-geojson-input" accept=".geojson,.json,.kml,.csv,.tsv,.txt" style="display:none;" aria-label="Pilih berkas GeoJSON, KML, atau CSV dari perangkat" />
+                <input type="file" id="file-geojson-input" class="d-none" accept=".geojson,.json,.kml,.csv,.tsv,.txt" aria-label="Pilih berkas GeoJSON, KML, atau CSV dari perangkat" />
               </div>
-              <button id="btn-load-sample" class="btn btn-secondary full-width" style="margin-top: 12px;">
+              <button id="btn-load-sample" class="btn btn-secondary full-width mt-12">
                 Muat Sampel Kota-Kota Besar Indonesia
               </button>
-              <div id="layers-list" class="layers-list-container" style="margin-top: 16px;"></div>
+              <div id="layers-list" class="layers-list-container mt-16"></div>
 
               <!-- Saved Views / Bookmark Manager -->
               <div class="saved-projects-section">
@@ -901,7 +897,7 @@
                   <input type="text" id="input-save-project-name" placeholder="Nama tampilan (misal: IKN 2025)..." aria-label="Nama tampilan tersimpan" />
                   <button id="btn-save-current-project" class="btn btn-primary-outline btn-save-project">Simpan</button>
                 </div>
-                <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 6px;">💡 <em>Tampilan tersimpan disimpan secara lokal pada peramban perangkat ini (localStorage).</em></div>
+                <div class="data-storage-note">💡 <em>Tampilan tersimpan disimpan secara lokal pada peramban perangkat ini (localStorage).</em></div>
                 <div id="saved-projects-list" class="saved-projects-list"></div>
               </div>
             </section>
@@ -918,10 +914,10 @@
                 <!-- Dynamically populated from main.ts updateDynamicLegend() -->
               </div>
 
-              <div class="legend-tip-box" style="margin-top: 16px;">
+              <div class="legend-tip-box mt-16">
                 <div class="legend-tip-title">🛰️ Jelajahi Produk Satelit Tambahan</div>
                 <p>Buka katalog <strong>Satelit</strong> untuk memilih Sentinel-2 GeoMAD, Landsat, indeks spektral, atau model bahaya banjir.</p>
-                <button id="btn-goto-piksel-tab" class="btn btn-secondary full-width" style="margin-top: 8px;">
+                <button id="btn-goto-piksel-tab" class="btn btn-secondary full-width mt-8">
                   Buka Katalog Satelit →
                 </button>
               </div>
@@ -969,7 +965,7 @@
 
               <!-- Quick Start Guide -->
               <div class="architecture-card quickstart-card">
-                <div style="font-size: 12px; font-weight: 600; color: #00f0ff; margin-bottom: 10px;">
+                <div class="quickstart-title">
                   🚀 PANDUAN MULAI CEPAT
                 </div>
                 <div class="quickstart-steps">
@@ -1002,8 +998,8 @@
                     </div>
                   </div>
                 </div>
-                <button id="btn-quick-tour" class="btn btn-tour-banner full-width" style="margin-top: 12px;" aria-label="Mulai tur interaktif 30 detik WebGIS">
-                  <span style="font-size: 15px;" aria-hidden="true">🚀</span>
+                <button id="btn-quick-tour" class="btn btn-tour-banner full-width mt-12" aria-label="Mulai tur interaktif 30 detik WebGIS">
+                  <span class="fs-15" aria-hidden="true">🚀</span>
                   <span>Mulai Tur Panduan (Demo 30 Detik)</span>
                 </button>
               </div>
@@ -1035,8 +1031,8 @@
                 <summary>
                   <span>📊 Spesifikasi Teknis & Matriks Data</span>
                 </summary>
-                <div class="accordion-body" style="padding: 0;">
-                  <div style="overflow-x: auto; width: 100%;">
+                <div class="accordion-body p-0">
+                  <div class="table-responsive">
                     <table class="data-matrix-table">
                       <thead>
                         <tr>
@@ -1096,12 +1092,12 @@
               </details>
 
               <!-- Scientific Citation & BibTeX Box -->
-              <details class="clean-accordion" open style="margin-top: 12px;">
+              <details class="clean-accordion mt-12" open>
                 <summary>
                   <span>📜 Format Sitasi & Bibliografi (APA & BibTeX)</span>
                 </summary>
                 <div class="accordion-body">
-                  <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">
+                  <p class="citation-note">
                     Gunakan format sitasi berikut untuk publikasi akademik, skripsi, tesis, atau laporan teknis:
                   </p>
                   
@@ -1118,7 +1114,7 @@
                   </div>
 
                   <!-- BibTeX Format -->
-                  <div class="citation-block" style="margin-top: 8px;">
+                  <div class="citation-block mt-8">
                     <div class="citation-header">
                       <span class="citation-format-tag">Format BibTeX</span>
                       <button class="btn-copy-citation icon-btn-sm" data-target="citation-bibtex-text" title="Salin format BibTeX" aria-label="Salin sitasi format BibTeX">

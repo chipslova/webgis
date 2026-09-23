@@ -269,26 +269,25 @@ class WebGISApp {
       });
       this.bufferAnalysisUI.init();
 
-      // Instantiate Spatial Intersect Analysis Module (Lazy loaded to optimize initial bundle size)
-      const { IntersectAnalysisUI } = await import('./ui/intersect-analysis-ui');
-      this.intersectAnalysisUI = new IntersectAnalysisUI(
-        map,
-        this.geojsonLoader,
-        this.spatialAnalysisUI,
-        () => {
-          this.mapManager.enforceLayerOrder();
-          this.dynamicLegendUI?.render();
-        }
-      );
-      this.intersectAnalysisUI.init();
-
-      // Refresh buffer & intersect layers dropdown whenever analysis tab is opened
+      // Refresh buffer & lazy-load intersect layers dropdown whenever analysis tab is opened
       this.sidebarUI.onTabChange((tabId) => {
         if (tabId === 'analysis') {
           this.bufferAnalysisUI?.updateLayerSelect();
-          this.intersectAnalysisUI?.updateLayerSelect();
+          this.getOrInitIntersectUI().then((ui) => ui?.updateLayerSelect());
         }
       });
+
+      // Pre-fetch on first hover or interaction with intersect container
+      const intersectContainer = document.getElementById('intersect-analysis-container');
+      if (intersectContainer) {
+        const prefetch = () => {
+          this.getOrInitIntersectUI();
+          intersectContainer.removeEventListener('pointerenter', prefetch);
+          intersectContainer.removeEventListener('focusin', prefetch);
+        };
+        intersectContainer.addEventListener('pointerenter', prefetch, { once: true });
+        intersectContainer.addEventListener('focusin', prefetch, { once: true });
+      }
 
       // Instantiate Attribute Table & Shortcuts Modal
       this.attributeTableUI = new AttributeTableUI(map, this.geojsonLoader);
@@ -1199,6 +1198,32 @@ class WebGISApp {
 
   public getCommandPaletteUI(): CommandPaletteUI | null {
     return this.commandPaletteUI;
+  }
+
+  public async getOrInitIntersectUI(): Promise<IntersectAnalysisUI | null> {
+    if (this.intersectAnalysisUI) return this.intersectAnalysisUI;
+    if (!this.geojsonLoader || !this.spatialAnalysisUI) return null;
+
+    const map = this.mapManager.getMap();
+    if (!map) return null;
+
+    try {
+      const { IntersectAnalysisUI } = await import('./ui/intersect-analysis-ui');
+      this.intersectAnalysisUI = new IntersectAnalysisUI(
+        map,
+        this.geojsonLoader,
+        this.spatialAnalysisUI,
+        () => {
+          this.mapManager.enforceLayerOrder();
+          this.dynamicLegendUI?.render();
+        }
+      );
+      this.intersectAnalysisUI.init();
+      return this.intersectAnalysisUI;
+    } catch (err) {
+      logger.error('[WebGISApp] Failed to lazy-load IntersectAnalysisUI:', err);
+      return null;
+    }
   }
 }
 

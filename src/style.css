@@ -11194,5 +11194,213 @@ html, body, #app {
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
 }
 
+/* ==========================================================================
+   Utility & Modular Panel Classes (Inline Style Elimination)
+   ========================================================================== */
+.mt-2 { margin-top: 2px !important; }
+.mt-4 { margin-top: 4px !important; }
+.mt-6 { margin-top: 6px !important; }
+.mt-8 { margin-top: 8px !important; }
+.mt-10 { margin-top: 10px !important; }
+.mt-12 { margin-top: 12px !important; }
+.mt-14 { margin-top: 14px !important; }
+.mt-16 { margin-top: 16px !important; }
+.mb-0 { margin-bottom: 0 !important; }
+.mb-2 { margin-bottom: 2px !important; }
+.mb-3 { margin-bottom: 3px !important; }
+.mb-4 { margin-bottom: 4px !important; }
+.mb-5 { margin-bottom: 5px !important; }
+.mb-6 { margin-bottom: 6px !important; }
+.mb-8 { margin-bottom: 8px !important; }
+.mb-10 { margin-bottom: 10px !important; }
+.p-0 { padding: 0 !important; }
+.px-6 { padding-left: 6px !important; padding-right: 6px !important; }
+.w-80 { width: 80px !important; }
+.w-full { width: 100% !important; }
+.text-right { text-align: right !important; }
+.fs-10 { font-size: 10px !important; }
+.fs-15 { font-size: 15px !important; }
+.flex-1 { flex: 1 !important; }
+
+.flex-between-center {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-align-center {
+  display: flex;
+  align-items: center;
+}
+
+.flex-row-gap-6 {
+  display: flex;
+  gap: 6px;
+}
+
+.flex-row-gap-8 {
+  display: flex;
+  gap: 8px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.block-label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* Buffer & Analysis Specific Styling */
+.buffer-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.buffer-slider-val {
+  font-size: 9.5px;
+  color: var(--text-muted);
+}
+
+.buffer-range-input {
+  flex: 1;
+  accent-color: #38bdf8;
+  cursor: pointer;
+  height: 5px;
+}
+
+.buffer-val-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #38bdf8;
+}
+
+.buffer-opacity-slider {
+  width: 100%;
+  accent-color: #38bdf8;
+  cursor: pointer;
+  height: 5px;
+  margin-top: 2px;
+}
+
+.buffer-auto-replace-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  color: #cbd5e1;
+  cursor: pointer;
+  user-select: none;
+}
+
+.buffer-checkbox {
+  accent-color: #38bdf8;
+  cursor: pointer;
+  width: 14px;
+  height: 14px;
+}
+
+.btn-clear-danger {
+  white-space: nowrap;
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  padding: 6px 12px !important;
+}
+
+.btn-clear-danger:hover {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: #ef4444 !important;
+}
+
+.intersect-val-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #00f0ff;
+}
+
+/* GEE LULC Legend Chips */
+.chip-water { background: #1A5BAB; color: #fff; }
+.chip-forest { background: #358221; color: #fff; }
+.chip-mangrove { background: #87D19E; color: #000; }
+.chip-crop { background: #FFDB5C; color: #000; }
+.chip-built { background: #ED022A; color: #fff; }
+.chip-bare { background: #EDE9E4; color: #000; }
+.chip-shrub { background: #C6D799; color: #000; }
+.chip-snow { background: #F2FAFF; color: #000; }
+.chip-cloud { background: #C8C8C8; color: #000; }
+
+.text-indigo-light { color: #f3e8ff !important; }
+.forecast-date-val { font-weight: 700; color: #facc15; }
+.download-desc { margin-bottom: 10px; font-size: 11.5px; color: var(--text-secondary); }
+.gee-chart-table-wrap { margin-top: 10px; overflow-x: auto; }
+
+/* About & Quickstart Specific Styling */
+.quickstart-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #00f0ff;
+  margin-bottom: 10px;
+}
+
+.citation-note {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.analysis-note-box {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-top: 10px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Sidebar Panels Clean Utilities & Swatches */
+.d-none { display: none; }
+.flex-1 { flex: 1; }
+.mt-xs { margin-top: 2px; }
+.mt-6 { margin-top: 6px; }
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-14 { margin-top: 14px; }
+.mt-16 { margin-top: 16px; }
+
+.active-layers-widget { margin-top: 14px; }
+.btn-sidebar-swipe { margin-bottom: 12px; gap: 8px; justify-content: center; }
+.sidebar-section-heading { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.sidebar-section-heading h3 { margin: 0; }
+
+.gee-loading-indicator { display: none; }
+.gee-layer-opacity-box { display: none; }
+.gee-lulc-box { display: none; }
+.analysis-status-box { display: none; }
+.intersect-custom-grid { display: none; }
+
+.measure-instruction-box { display: none; }
+.result-card { display: none; }
+.measure-elevation-profile { display: none; }
+.profile-chart-tooltip { display: none; }
+.data-storage-note { font-size: 10.5px; color: var(--text-muted); margin-top: 6px; }
+
+/* Buffer & Intersect Color Palette Swatches */
+.buffer-color-chip[data-color="#8b5cf6"], .intersect-color-chip[data-color="#8b5cf6"] { background: #8b5cf6; }
+.buffer-color-chip[data-color="#ef4444"], .intersect-color-chip[data-color="#ef4444"] { background: #ef4444; }
+.buffer-color-chip[data-color="#f59e0b"], .intersect-color-chip[data-color="#f59e0b"] { background: #f59e0b; }
+.buffer-color-chip[data-color="#0ea5e9"], .intersect-color-chip[data-color="#0ea5e9"] { background: #0ea5e9; }
+.buffer-color-chip[data-color="#10b981"], .intersect-color-chip[data-color="#10b981"] { background: #10b981; }
+.buffer-color-chip[data-color="#f97316"], .intersect-color-chip[data-color="#f97316"] { background: #f97316; }
+.intersect-color-chip[data-color="#00f0ff"] { background: #00f0ff; }
+.intersect-color-chip[data-color="#38bdf8"] { background: #38bdf8; }
+.intersect-color-chip[data-color="#ec4899"] { background: #ec4899; }
+
+
+
 
 

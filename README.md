@@ -10,7 +10,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.10.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-197%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-223%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
   <img src="docs/preview.jpg" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
@@ -118,7 +118,7 @@ Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit 
 ```mermaid
 graph TD
     subgraph Klien_Browser["Klien Browser (Client-Side)"]
-        UI["Antarmuka WebGIS / UI Controls"] --> MM["MapManager / MapLibre GL v6.3"]
+        UI["Antarmuka WebGIS / UI Controls"] --> MM["MapManager / MapLibre GL v6.10"]
         MM --> Canvas["WebGL2 Canvas (Map Canvas + 3D Mesh)"]
         MM --> Overview["OverviewMapUI / Inset Peta Indeks"]
         MM --> Turf["Turf.js Geodesic Spatial Engine"]
@@ -176,7 +176,7 @@ graph TD
 * **Mesin Pemetaan**: [MapLibre GL JS](https://maplibre.org/) (v6.10.0)
 * **Kalkulasi Spasial**: [@turf/turf](https://turfjs.org/) (Modular: `@turf/helpers`, `@turf/length`, `@turf/area`, `@turf/buffer`, `@turf/distance`, `@turf/intersect`, `@turf/difference`, `@turf/union`, `@turf/bbox`, `@turf/boolean-point-in-polygon`)
 * **Protokol Raster / Vektor**: OGC WMS 1.3.0, NASA GIBS WMS, PMTiles, GeoJSON, TileJSON
-* **Framework Pengujian**: [Vitest](https://vitest.dev/) (**197 Unit & Integration Tests** di 28 test suites — 100% Lulus)
+* **Framework Pengujian**: [Vitest](https://vitest.dev/) (**223 Unit & Integration Tests** di 33 test suites — 100% Lulus)
 * **Alat Bangun (Build Tool)**: [Vite 6](https://vitejs.dev/)
 * **Package Manager / Runtime**: [Bun](https://bun.sh/)
 
@@ -200,7 +200,7 @@ bun install
 # 3. Jalankan server pengembangan lokal (berjalan di http://localhost:3000)
 bun run dev
 
-# 4. Jalankan rangkaian pengujian unit dan integrasi (197 tests)
+# 4. Jalankan rangkaian pengujian unit dan integrasi (223 tests)
 bun run test
 
 # 5. Pemeriksaan tipe data TypeScript
