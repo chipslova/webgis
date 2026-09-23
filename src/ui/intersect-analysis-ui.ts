@@ -306,13 +306,13 @@ export class IntersectAnalysisUI {
         const opDescEl = document.getElementById('intersect-op-desc');
         if (opDescEl) {
           if (mode === 'intersect') {
-            opDescEl.innerText = '⚔️ Irisan: Ambil area perpotongan eksklusif di antara dua wilayah.';
+            opDescEl.innerHTML = '⚔️ <strong>Irisan:</strong> Cari objek atau area yang berada tepat di dalam batas wilayah.';
           } else if (mode === 'difference') {
-            opDescEl.innerText = '✂️ Pemotongan: Kurangi area Lapisan A dengan batas Lapisan B.';
+            opDescEl.innerHTML = '✂️ <strong>Potong:</strong> Kurangi wilayah pertama dengan memotong bagian yang bertabrakan dengan wilayah kedua.';
           } else if (mode === 'union') {
-            opDescEl.innerText = '🔗 Penggabungan: Satukan kedua area menjadi satu kesatuan wilayah.';
+            opDescEl.innerHTML = '🔗 <strong>Gabung:</strong> Satukan dua wilayah menjadi satu batas wilayah utuh yang berkesinambungan.';
           } else if (mode === 'sym_difference') {
-            opDescEl.innerText = '⚡ Beda Simetris: Ambil area unik tanpa bagian yang saling tumpang tindih.';
+            opDescEl.innerHTML = '⚡ <strong>Beda:</strong> Ambil area unik dari kedua wilayah tanpa bagian tengah yang saling tumpang tindih.';
           }
         }
       });
@@ -360,8 +360,6 @@ export class IntersectAnalysisUI {
     chipCustom?.addEventListener('click', () => {
       updateActiveChip(chipCustom);
       if (customSelectors) customSelectors.style.display = 'flex';
-      const advDetails = document.getElementById('intersect-advanced-details') as HTMLDetailsElement | null;
-      if (advDetails) advDetails.open = true;
     });
 
     runBtn?.addEventListener('click', () => this.runAnalysis());
