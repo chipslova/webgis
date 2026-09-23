@@ -301,9 +301,9 @@ describe('Full WebGIS Feature & Button Audit', () => {
         isMoving: vi.fn().mockReturnValue(false),
         isZooming: vi.fn().mockReturnValue(false),
         isRotating: vi.fn().mockReturnValue(false),
-        _camera: { transform: { width: 800, height: 600, center: { lng: 106, lat: -6 }, zoom: 10, pitch: 0, bearing: 0, getCoveringTilesDetailsProvider: vi.fn().mockReturnValue({ allowWorldCopies: vi.fn().mockReturnValue(false) }) } },
+        _camera: { transform: { width: 800, height: 600, center: { lng: 106, lat: -6 }, zoom: 10, pitch: 0, bearing: 0, isLocationOccluded: vi.fn().mockReturnValue(false), getCoveringTilesDetailsProvider: vi.fn().mockReturnValue({ allowWorldCopies: vi.fn().mockReturnValue(false) }) } },
         project: vi.fn().mockReturnValue(new maplibregl.Point(100, 100)),
-        transform: { width: 800, height: 600, center: { lng: 106, lat: -6 }, zoom: 10, pitch: 0, bearing: 0, locationPoint: vi.fn().mockReturnValue(new maplibregl.Point(100, 100)), getCoveringTilesDetailsProvider: vi.fn().mockReturnValue({ allowWorldCopies: vi.fn().mockReturnValue(false) }) },
+        transform: { width: 800, height: 600, center: { lng: 106, lat: -6 }, zoom: 10, pitch: 0, bearing: 0, locationPoint: vi.fn().mockReturnValue(new maplibregl.Point(100, 100)), isLocationOccluded: vi.fn().mockReturnValue(false), getCoveringTilesDetailsProvider: vi.fn().mockReturnValue({ allowWorldCopies: vi.fn().mockReturnValue(false) }) },
         getCanvas: vi.fn().mockReturnValue({ style: {} }),
         getCanvasContainer: vi.fn().mockReturnValue(containerDiv)
       };

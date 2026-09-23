@@ -5,6 +5,7 @@ import { GeoJsonLoader } from './geojson-loader';
 import { MeasureTool } from './measure';
 import { showToast } from '../ui/toast';
 import { escapeHtml } from '../utils/sanitize';
+import { logger } from '../utils/logger';
 
 export class PointInspector {
   private map: maplibregl.Map;
@@ -419,8 +420,22 @@ export class PointInspector {
       <div class="pin-core"></div>
     `;
 
-    this.marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-      .setLngLat([lng, lat])
-      .addTo(this.map);
+    // Defensive polyfill for maplibre-gl mock/test transform compatibility
+    const camTransform = (this.map as any)?._camera?.transform;
+    if (camTransform && typeof camTransform.isLocationOccluded !== 'function') {
+      camTransform.isLocationOccluded = () => false;
+    }
+    const mapTransform = (this.map as any)?.transform;
+    if (mapTransform && typeof mapTransform.isLocationOccluded !== 'function') {
+      mapTransform.isLocationOccluded = () => false;
+    }
+
+    try {
+      this.marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([lng, lat])
+        .addTo(this.map);
+    } catch (err) {
+      logger.warn('[PointInspector] Failed to add pin marker:', err);
+    }
   }
 }

@@ -7,10 +7,10 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-webgis--three--iota.vercel.app-00f0ff?style=for-the-badge&logo=vercel)](https://webgis-three-iota.vercel.app/)
 [![CI](https://github.com/chipslova/webgis/actions/workflows/ci.yml/badge.svg)](https://github.com/chipslova/webgis/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.3.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
+[![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.10.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-174%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-197%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
   <img src="docs/preview.jpg" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
@@ -78,9 +78,18 @@ Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit 
 * **Analisis Gradien Termal Urban Heat Island (UHI)**: Perbandingan anomali suhu antara dataran rendah metropolitan (mis. Jakarta 34.8°C) dan dataran tinggi (mis. Bandung 21.2°C).
 * **Profil Elevasi Medan Geodesik**: Pengambilan profil penampang lintang topografi sepanjang rute garis yang digambar pengguna.
 
-### 📏 5. Pengukuran Geodesik, Buffer & Mode 3D
-* **Pengukuran Jarak & Luas Geodesik (Turf.js)**: Perhitungan akurat kelengkungan bumi dengan fitur pembatalan titik sudut (*vertex undo* via <kbd>Z</kbd>), penyelesaian rute, dan tooltip pengukuran dinamis.
-* **Analisis Jangkauan Buffer Geodesik**: Pembuatan poligon *buffer* di sekitar titik, garis, dan area dengan kalkulasi total luas poligon ($km^2$) serta pemilihan warna (*color picker*).
+### 📏 5. Pengukuran Geodesik, Buffer, Studio Tumpang Tindih & Mode 3D
+* **Bilah Aksi Floating Pengukuran (Measure Floating Action Pill)**: Mode pengukuran interaktif layar penuh dengan bilah aksi melayang (*floating pill*) yang menyajikan tombol *Undo* (<kbd>Z</kbd>), *Batal*, dan *Selesai*, serta proteksi eksklusi timbal balik (*mutual exclusion*) dengan modul penggambaran lainnya.
+* **Analisis Jangkauan Buffer Geodesik**: Pembuatan zona jangkauan radius lingkaran (buffer geodesik) di sekitar titik, jalur, atau batas poligon dengan kalkulasi total luas poligon ($km^2$), kustomisasi opasitas, pemilihan warna (*color picker*), dan opsi pergantian otomatis (*auto-replace*).
+* **Studio Tumpang Tindih Spasial (Spatial Overlay & Intersect Studio)**:
+  * **4 Operasi Teori Himpunan Topologi**:
+    * ⚔️ **Irisan (*Intersection* / $A \cap B$):** Memotong poligon Layer A dan Layer B secara geometris.
+    * ✂️ **Kurangi (*Difference / Erase* / $A - B$):** Menghapus wilayah poligon target dari wilayah acuan.
+    * 🔗 **Gabung (*Union* / $A \cup B$):** Menyatukan dua poligon menjadi satu geometri kontinu.
+    * ⚡ **Beda Simetris (*Symmetric Difference / XOR* / $A \triangle B$):** Mengambil area eksklusif tanpa bagian tumpang tindih.
+  * **Analisis Multi-Lapisan Sekaligus (*Batch Cascade Overlay*)**: Uji batas wilayah AOI terhadap seluruh lapisan vektor aktif dalam 1-klik.
+  * **Distribusi Tematik Kategori**: Visualisasi persentase distribusi kategori objek hasil irisan (*count*, $km^2$, $ha$, $\%$) dengan grafik batang bertema *dark glassmorphism*.
+  * **Interaksi Peta Real-Time**: Penyorotan geometri (*Hover Slicing*) saat mengarahkan kursor ke tabel hasil, pemfokusan kamera (*Click-to-FlyTo*), dan ekspor instan (.GeoJSON, .CSV, .KML).
 * **Elevasi Medan 3D AWS Terrarium**: Rekonstruksi medan 3D secara *real-time* dengan kontrol perbesaran vertikal (*vertical exaggeration* 0.1x – 3.0x).
 * **Ekstrusi Bangunan 3D OpenFreeMap**: Render 3D poligon bangunan planet secara dinamis dengan transisi kamera halus.
 
@@ -164,10 +173,10 @@ graph TD
 ## 💻 Tumpukan Teknologi (Tech Stack)
 
 * **Bahasa**: TypeScript 5.x (Strict Type Checking)
-* **Mesin Pemetaan**: [MapLibre GL JS](https://maplibre.org/) (v6.3.0)
-* **Kalkulasi Spasial**: [@turf/turf](https://turfjs.org/) (Modular: `@turf/helpers`, `@turf/length`, `@turf/area`, `@turf/buffer`, `@turf/distance`)
+* **Mesin Pemetaan**: [MapLibre GL JS](https://maplibre.org/) (v6.10.0)
+* **Kalkulasi Spasial**: [@turf/turf](https://turfjs.org/) (Modular: `@turf/helpers`, `@turf/length`, `@turf/area`, `@turf/buffer`, `@turf/distance`, `@turf/intersect`, `@turf/difference`, `@turf/union`, `@turf/bbox`, `@turf/boolean-point-in-polygon`)
 * **Protokol Raster / Vektor**: OGC WMS 1.3.0, NASA GIBS WMS, PMTiles, GeoJSON, TileJSON
-* **Framework Pengujian**: [Vitest](https://vitest.dev/) (**174 Unit & Integration Tests** di 26 test suites — 100% Lulus)
+* **Framework Pengujian**: [Vitest](https://vitest.dev/) (**197 Unit & Integration Tests** di 28 test suites — 100% Lulus)
 * **Alat Bangun (Build Tool)**: [Vite 6](https://vitejs.dev/)
 * **Package Manager / Runtime**: [Bun](https://bun.sh/)
 
@@ -191,7 +200,7 @@ bun install
 # 3. Jalankan server pengembangan lokal (berjalan di http://localhost:3000)
 bun run dev
 
-# 4. Jalankan rangkaian pengujian unit dan integrasi (168 tests)
+# 4. Jalankan rangkaian pengujian unit dan integrasi (197 tests)
 bun run test
 
 # 5. Pemeriksaan tipe data TypeScript

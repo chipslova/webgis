@@ -26,7 +26,7 @@ import { SwipeCompareUI } from './ui/swipe-compare-ui';
 import { CommandPaletteUI } from './ui/command-palette';
 import { SpatialAnalysisUI } from './ui/spatial-analysis-ui';
 import { BufferAnalysisUI } from './ui/buffer-analysis-ui';
-import { IntersectAnalysisUI } from './ui/intersect-analysis-ui';
+import type { IntersectAnalysisUI } from './ui/intersect-analysis-ui';
 import { AttributeTableUI } from './ui/attribute-table-panel';
 import { ShortcutsModalUI } from './ui/shortcuts-modal';
 import { OverviewMapUI } from './ui/overview-map';
@@ -269,7 +269,8 @@ class WebGISApp {
       });
       this.bufferAnalysisUI.init();
 
-      // Instantiate Spatial Intersect Analysis Module
+      // Instantiate Spatial Intersect Analysis Module (Lazy loaded to optimize initial bundle size)
+      const { IntersectAnalysisUI } = await import('./ui/intersect-analysis-ui');
       this.intersectAnalysisUI = new IntersectAnalysisUI(
         map,
         this.geojsonLoader,
