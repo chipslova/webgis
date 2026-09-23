@@ -533,11 +533,6 @@ class WebGISApp {
       this.dynamicLegendUI?.render();
     });
 
-    const finishBtn = document.getElementById('btn-measure-finish');
-    finishBtn?.addEventListener('click', () => {
-      this.measureTool?.finishMeasurement();
-    });
-
     const exportGeoJsonBtn = document.getElementById('btn-measure-download-geojson');
     exportGeoJsonBtn?.addEventListener('click', () => {
       if (!this.measureTool || !this.measureTool.hasActiveMeasurement()) {
