@@ -47,6 +47,11 @@ export class IntersectAnalysisUI {
   public init() {
     this.initMapLayers();
     this.bindEvents();
+    if (!this.spatialAnalysisUI?.getActiveAOIPolygon || !this.spatialAnalysisUI.getActiveAOIPolygon()) {
+      if (this.spatialAnalysisUI && typeof this.spatialAnalysisUI.selectPresetRegion === 'function') {
+        this.spatialAnalysisUI.selectPresetRegion('indonesia-national');
+      }
+    }
     this.updateAOIStatusCard();
     this.updateLayerSelect();
 
@@ -69,15 +74,15 @@ export class IntersectAnalysisUI {
 
     if (activeAOI) {
       card.classList.add('active');
-      icon.innerText = '✅';
-      const aoiName = activeAOI.properties?.name || 'Area Poligon Aktif';
-      label.innerText = `Wilayah Aktif: ${aoiName}`;
-      sublabel.innerText = 'Batas area siap digunakan untuk mencari objek!';
+      icon.innerText = '🇮🇩';
+      const aoiName = activeAOI.properties?.name || 'Seluruh Wilayah Indonesia (Nasional)';
+      label.innerText = aoiName.toLowerCase().includes('wilayah') ? aoiName : `Wilayah Aktif: ${aoiName}`;
+      sublabel.innerText = 'Cakupan aktif: Menjangkau data bahaya bencana & fasilitas di seluruh Indonesia';
     } else {
-      card.classList.remove('active');
-      icon.innerText = '📍';
-      label.innerText = 'Belum ada wilayah yang dipilih';
-      sublabel.innerText = 'Pilih contoh instan atau gambar di peta';
+      card.classList.add('active');
+      icon.innerText = '🇮🇩';
+      label.innerText = 'Seluruh Wilayah Indonesia (Nasional)';
+      sublabel.innerText = 'Cakupan aktif: Menjangkau seluruh data bahaya & faskes dari Sabang sampai Merauke';
     }
   }
 
@@ -275,8 +280,27 @@ export class IntersectAnalysisUI {
     const customColorInput = document.getElementById('intersect-color-custom') as HTMLInputElement | null;
 
     // 0. Quick Step 1 AOI Setup (Preset or Freehand Drawing)
+    const btnResetIndonesia = document.getElementById('btn-reset-indonesia-aoi');
     const btnSampleAOI = document.getElementById('btn-quick-sample-aoi');
     const btnDrawAOI = document.getElementById('btn-quick-draw-aoi');
+
+    btnResetIndonesia?.addEventListener('click', () => {
+      if (this.spatialAnalysisUI && typeof this.spatialAnalysisUI.selectPresetRegion === 'function') {
+        this.spatialAnalysisUI.selectPresetRegion('indonesia-national');
+      }
+      this.updateAOIStatusCard();
+      this.updateLayerSelect();
+
+      const chipDisaster = document.getElementById('chip-target-disaster');
+      updateActiveChip(chipDisaster);
+      if (customSelectors) customSelectors.style.display = 'none';
+
+      const opDescEl = document.getElementById('intersect-op-desc');
+      if (opDescEl) {
+        opDescEl.innerHTML = '🇮🇩 <strong>Cakupan Seluruh Indonesia:</strong> Mendeteksi seluruh zona bahaya bencana & faskes di seluruh Indonesia!';
+      }
+      showToast('🇮🇩 Cakupan Wilayah: Seluruh Indonesia Aktif!', 'info');
+    });
 
     btnSampleAOI?.addEventListener('click', () => {
       if (this.geojsonLoader.getLayers().length === 0) {
@@ -547,13 +571,12 @@ export class IntersectAnalysisUI {
       this.updateLayerSelect();
     }
 
-    // 1. Auto-activate sample AOI (DKI Jakarta) if user has not picked or drawn an area yet
+    // 1. Auto-activate nationwide AOI (Seluruh Indonesia) if user has not picked or drawn an area yet
     if (!this.spatialAnalysisUI || !this.spatialAnalysisUI.getActiveAOIPolygon()) {
       if (this.spatialAnalysisUI && typeof this.spatialAnalysisUI.selectPresetRegion === 'function') {
-        this.spatialAnalysisUI.selectPresetRegion('dki-jakarta');
+        this.spatialAnalysisUI.selectPresetRegion('indonesia-national');
         this.updateAOIStatusCard();
         this.updateLayerSelect();
-        showToast('Menggunakan wilayah contoh DKI Jakarta secara otomatis...', 'info');
       }
     }
 
@@ -1085,18 +1108,18 @@ export class IntersectAnalysisUI {
     if (id === '__aoi_active__') {
       let aoi = this.spatialAnalysisUI?.getActiveAOIPolygon ? this.spatialAnalysisUI.getActiveAOIPolygon() : null;
       if (!aoi) {
-        // Safe fallback polygon for DKI Jakarta
+        // Safe fallback polygon for Entire Indonesian Archipelago
         aoi = {
           type: 'Feature',
-          properties: { name: 'DKI Jakarta (Contoh)' },
+          properties: { name: '🇮🇩 Seluruh Wilayah Indonesia (Nasional)' },
           geometry: {
             type: 'Polygon',
             coordinates: [[
-              [106.68, -6.08],
-              [106.98, -6.08],
-              [106.98, -6.38],
-              [106.68, -6.38],
-              [106.68, -6.08]
+              [94.5, 6.5],
+              [141.5, 6.5],
+              [141.5, -11.5],
+              [94.5, -11.5],
+              [94.5, 6.5]
             ]]
           }
         };

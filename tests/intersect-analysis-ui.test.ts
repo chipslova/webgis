@@ -19,6 +19,7 @@ describe('IntersectAnalysisUI', () => {
           <span id="intersect-aoi-icon">📍</span>
           <span id="intersect-aoi-label">Belum ada wilayah</span>
           <span id="intersect-aoi-sublabel">Pilih contoh</span>
+          <button type="button" id="btn-reset-indonesia-aoi">Seluruh Indonesia</button>
           <button type="button" id="btn-quick-sample-aoi">Contoh DKI Jakarta</button>
           <button type="button" id="btn-quick-merapi-aoi">Contoh Merapi</button>
           <button type="button" id="btn-quick-bandung-aoi">Contoh Bandung</button>
@@ -246,5 +247,14 @@ describe('IntersectAnalysisUI', () => {
     chipDisaster?.dispatchEvent(new Event('click'));
     expect(chipDisaster.classList.contains('active')).toBe(true);
     expect(selB.value).toBe('__disaster_zones__');
+  });
+
+  it('should reset coverage to indonesia-national when clicking reset Indonesia button', () => {
+    ui.init();
+
+    const btnResetIndonesia = document.getElementById('btn-reset-indonesia-aoi') as HTMLButtonElement;
+    btnResetIndonesia?.dispatchEvent(new Event('click'));
+
+    expect(mockSpatialAnalysisUI.selectPresetRegion).toHaveBeenCalledWith('indonesia-national');
   });
 });

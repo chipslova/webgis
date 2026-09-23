@@ -100,6 +100,20 @@ export interface PresetRegion {
 
 export const PRESET_REGIONS: PresetRegion[] = [
   {
+    id: 'indonesia-national',
+    name: '🇮🇩 Seluruh Wilayah Indonesia (Nasional)',
+    description: 'Cakupan Nasional 38 Provinsi & Seluruh Kepulauan Indonesia',
+    center: [118.0, -2.5],
+    zoom: 5.1,
+    coordinates: [[
+      [94.5, 6.5],
+      [141.5, 6.5],
+      [141.5, -11.5],
+      [94.5, -11.5],
+      [94.5, 6.5]
+    ]]
+  },
+  {
     id: 'ikn-nusantara',
     name: 'IKN Nusantara (KIPP & Sepaku)',
     description: 'Kawasan Inti Pusat Pemerintahan & Wilayah Pengembangan IKN Kalimantan Timur',
