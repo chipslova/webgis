@@ -20,6 +20,9 @@ describe('IntersectAnalysisUI', () => {
           <span id="intersect-aoi-label">Belum ada wilayah</span>
           <span id="intersect-aoi-sublabel">Pilih contoh</span>
           <button type="button" id="btn-quick-sample-aoi">Contoh DKI Jakarta</button>
+          <button type="button" id="btn-quick-merapi-aoi">Contoh Merapi</button>
+          <button type="button" id="btn-quick-bandung-aoi">Contoh Bandung</button>
+          <button type="button" id="btn-quick-ikn-aoi">Contoh IKN Sepaku</button>
           <button type="button" id="btn-quick-draw-aoi">Gambar di Peta</button>
         </div>
 
@@ -32,7 +35,9 @@ describe('IntersectAnalysisUI', () => {
         <div id="intersect-op-desc">⚔️ Irisan</div>
 
         <div class="intersect-target-chips">
-          <button type="button" class="btn-chip active" id="chip-target-cities" data-target="cities">Kota</button>
+          <button type="button" class="btn-chip active" id="chip-target-disaster" data-target="disaster-zones">Zona Bahaya</button>
+          <button type="button" class="btn-chip" id="chip-target-facilities" data-target="facilities">Faskes</button>
+          <button type="button" class="btn-chip" id="chip-target-cities" data-target="cities">Kota</button>
           <button type="button" class="btn-chip" id="chip-target-stations" data-target="stations">Stasiun</button>
           <button type="button" class="btn-chip" id="chip-target-all" data-target="all">Semua</button>
           <button type="button" class="btn-chip" id="chip-target-custom" data-target="custom">Manual</button>
@@ -209,5 +214,37 @@ describe('IntersectAnalysisUI', () => {
     quickSampleBtn.dispatchEvent(new Event('click'));
 
     expect(mockSpatialAnalysisUI.selectPresetRegion).toHaveBeenCalledWith('dki-jakarta');
+  });
+
+  it('should trigger Bandung, Merapi, and IKN presets when clicking regional buttons', () => {
+    ui.init();
+
+    const btnMerapi = document.getElementById('btn-quick-merapi-aoi') as HTMLButtonElement;
+    btnMerapi?.dispatchEvent(new Event('click'));
+    expect(mockSpatialAnalysisUI.selectPresetRegion).toHaveBeenCalledWith('merapi-krb3');
+
+    const btnBandung = document.getElementById('btn-quick-bandung-aoi') as HTMLButtonElement;
+    btnBandung?.dispatchEvent(new Event('click'));
+    expect(mockSpatialAnalysisUI.selectPresetRegion).toHaveBeenCalledWith('cekungan-bandung');
+
+    const btnIkn = document.getElementById('btn-quick-ikn-aoi') as HTMLButtonElement;
+    btnIkn?.dispatchEvent(new Event('click'));
+    expect(mockSpatialAnalysisUI.selectPresetRegion).toHaveBeenCalledWith('ikn-nusantara');
+  });
+
+  it('should switch target to disaster zones and facilities correctly', () => {
+    ui.init();
+
+    const chipDisaster = document.getElementById('chip-target-disaster') as HTMLButtonElement;
+    const chipFacilities = document.getElementById('chip-target-facilities') as HTMLButtonElement;
+    const selB = document.getElementById('intersect-layer-b') as HTMLSelectElement;
+
+    chipFacilities?.dispatchEvent(new Event('click'));
+    expect(chipFacilities.classList.contains('active')).toBe(true);
+    expect(selB.value).toBe('__critical_facilities__');
+
+    chipDisaster?.dispatchEvent(new Event('click'));
+    expect(chipDisaster.classList.contains('active')).toBe(true);
+    expect(selB.value).toBe('__disaster_zones__');
   });
 });

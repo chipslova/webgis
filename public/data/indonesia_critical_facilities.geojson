@@ -1,0 +1,273 @@
+{
+  "type": "FeatureCollection",
+  "name": "Fasilitas Vital, Kesehatan & Evakuasi Bencana Nasional",
+  "description": "Titik Rumah Sakit Rujukan, Sekolah Penting, dan Posko Siaga Bencana di Berbagai Wilayah Indonesia - Sumber: OSM, Kemenkes & InaRISK BNPB",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-jkt-01",
+        "name": "RSUD Koja Jakarta Utara (Zona Pesisir)",
+        "island": "Jawa",
+        "region": "DKI Jakarta",
+        "type": "Kesehatan",
+        "category": "Rumah Sakit Rujukan",
+        "capacity": "450 Bed + Ruang ICU Darurat",
+        "risk_status": "Terancam Banjir Pasang Rob"
+      },
+      "geometry": { "type": "Point", "coordinates": [106.898, -6.118] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-jkt-02",
+        "name": "RSPI Sulianti Saroso (Sunter)",
+        "island": "Jawa",
+        "region": "DKI Jakarta",
+        "type": "Kesehatan",
+        "category": "Rumah Sakit Khusus Penyakit Infeksi",
+        "capacity": "180 Bed Ruang Isolasi",
+        "risk_status": "Zona Sempadan Banjir Rob"
+      },
+      "geometry": { "type": "Point", "coordinates": [106.862, -6.132] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-jkt-03",
+        "name": "SMAN 13 Jakarta Utara (Koja)",
+        "island": "Jawa",
+        "region": "DKI Jakarta",
+        "type": "Pendidikan",
+        "category": "Sekolah & Posko Pengungsian Sementara",
+        "capacity": "950 Siswa & Guru",
+        "risk_status": "Terancam Genangan Rob"
+      },
+      "geometry": { "type": "Point", "coordinates": [106.892, -6.125] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-jkt-04",
+        "name": "RSUPN Dr. Cipto Mangunkusumo (Pusat)",
+        "island": "Jawa",
+        "region": "DKI Jakarta",
+        "type": "Kesehatan",
+        "category": "Rumah Sakit Rujukan Nasional",
+        "capacity": "1.000+ Bed Utama",
+        "risk_status": "Zona Aman Terlindung"
+      },
+      "geometry": { "type": "Point", "coordinates": [106.845, -6.197] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-bdg-01",
+        "name": "SMAN 1 Lembang (Zona Sesar Lembang)",
+        "island": "Jawa",
+        "region": "Bandung Raya",
+        "type": "Pendidikan",
+        "category": "Sekolah di Jalur Patahan",
+        "capacity": "820 Siswa",
+        "risk_status": "Jalur Patahan Aktif Sesar Lembang"
+      },
+      "geometry": { "type": "Point", "coordinates": [107.618, -6.818] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-bdg-02",
+        "name": "Observatorium Bosscha Lembang",
+        "island": "Jawa",
+        "region": "Bandung Raya",
+        "type": "Riset & Cagar Budaya",
+        "category": "Fasilitas Riset Astronomi",
+        "capacity": "Cagar Budaya Nasional ITB",
+        "risk_status": "Zona Koridor Sesar Lembang"
+      },
+      "geometry": { "type": "Point", "coordinates": [107.616, -6.825] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-bdg-03",
+        "name": "RSUP Dr. Hasan Sadikin Bandung",
+        "island": "Jawa",
+        "region": "Bandung Raya",
+        "type": "Kesehatan",
+        "category": "Rumah Sakit Rujukan Jawa Barat",
+        "capacity": "900 Bed Pasien",
+        "risk_status": "Zona Aman Inti Kota"
+      },
+      "geometry": { "type": "Point", "coordinates": [107.599, -6.896] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-diy-01",
+        "name": "SDN Kinahrejo (Lereng Merapi)",
+        "island": "Jawa",
+        "region": "D.I. Yogyakarta",
+        "type": "Pendidikan",
+        "category": "Sekolah Dasar KRB III",
+        "capacity": "180 Siswa",
+        "risk_status": "KRB III Erupsi Awan Panas Merapi"
+      },
+      "geometry": { "type": "Point", "coordinates": [110.448, -7.585] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-diy-02",
+        "name": "Puskesmas Pembantu Glagaharjo",
+        "island": "Jawa",
+        "region": "D.I. Yogyakarta",
+        "type": "Kesehatan",
+        "category": "Fasilitas Medis Darurat",
+        "capacity": "Pustu Medis Merapi",
+        "risk_status": "KRB III Erupsi Awan Panas Merapi"
+      },
+      "geometry": { "type": "Point", "coordinates": [110.462, -7.580] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-diy-03",
+        "name": "RS Panti Nugroho Pakem (Zona Aman)",
+        "island": "Jawa",
+        "region": "D.I. Yogyakarta",
+        "type": "Kesehatan",
+        "category": "Rumah Sakit Evakuasi",
+        "capacity": "120 Bed IGD",
+        "risk_status": "Zona Aman Evakuasi Merapi"
+      },
+      "geometry": { "type": "Point", "coordinates": [110.418, -7.665] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-sby-01",
+        "name": "RSUD Dr. Soetomo Surabaya",
+        "island": "Jawa",
+        "region": "Jawa Timur",
+        "type": "Kesehatan",
+        "category": "Rumah Sakit Rujukan Jawa Timur",
+        "capacity": "1.400 Bed Utama",
+        "risk_status": "Zona Aman"
+      },
+      "geometry": { "type": "Point", "coordinates": [112.758, -7.268] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-sby-02",
+        "name": "Puskesmas Waru (Sidoarjo - Dekat Patahan)",
+        "island": "Jawa",
+        "region": "Jawa Timur",
+        "type": "Kesehatan",
+        "category": "Puskesmas Kawasan Urban",
+        "capacity": "Layanan 24 Jam",
+        "risk_status": "Koridor Sesar Surabaya-Waru"
+      },
+      "geometry": { "type": "Point", "coordinates": [112.728, -7.348] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-ikn-01",
+        "name": "RS Pratama Sepaku (Kawasan IKN)",
+        "island": "Kalimantan",
+        "region": "IKN Nusantara",
+        "type": "Kesehatan",
+        "category": "Rumah Sakit Daerah IKN",
+        "capacity": "100 Bed + Trauma Center",
+        "risk_status": "Siaga Karhutla Gambut"
+      },
+      "geometry": { "type": "Point", "coordinates": [116.715, -0.965] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-ikn-02",
+        "name": "Posko Siaga Karhutla & BPBD Semoi",
+        "island": "Kalimantan",
+        "region": "IKN Nusantara",
+        "type": "Evakuasi / Damkar",
+        "category": "Pos Pemadam Karhutla IKN",
+        "capacity": "Armada Tangki Air Manggala Agni",
+        "risk_status": "Zona Rawan Karhutla Gambut"
+      },
+      "geometry": { "type": "Point", "coordinates": [116.680, -0.940] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-palu-01",
+        "name": "RSUD Anutapura Palu (Rekonstruksi Pasca-Likuifaksi)",
+        "island": "Sulawesi",
+        "region": "Sulawesi Tengah",
+        "type": "Kesehatan",
+        "category": "Rumah Sakit Tahan Gempa",
+        "capacity": "320 Bed Pasien",
+        "risk_status": "Dekat Patahan Sesar Palu-Koro"
+      },
+      "geometry": { "type": "Point", "coordinates": [119.865, -0.898] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-palu-02",
+        "name": "SMAN 1 Palu (Pusat Pengungsian)",
+        "island": "Sulawesi",
+        "region": "Sulawesi Tengah",
+        "type": "Pendidikan",
+        "category": "Sekolah & Shelter Gempa",
+        "capacity": "1.100 Siswa",
+        "risk_status": "Zona Siaga Sesar Palu-Koro"
+      },
+      "geometry": { "type": "Point", "coordinates": [119.882, -0.892] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-bali-01",
+        "name": "RSUD Karangasem (Amlapura)",
+        "island": "Bali",
+        "region": "Bali",
+        "type": "Kesehatan",
+        "category": "Rumah Sakit Rujukan Bencana Agung",
+        "capacity": "210 Bed + IGD Bencana",
+        "risk_status": "Zona Siaga Erupsi Gunung Agung"
+      },
+      "geometry": { "type": "Point", "coordinates": [115.602, -8.455] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-bali-02",
+        "name": "Pos Pengamatan Gunung Agung Rendang",
+        "island": "Bali",
+        "region": "Bali",
+        "type": "Riset / Vulkanologi",
+        "category": "Pos Pantau PVMBG",
+        "capacity": "Stasiun Seismik 24 Jam",
+        "risk_status": "Dekat KRB III Gunung Agung"
+      },
+      "geometry": { "type": "Point", "coordinates": [115.445, -8.415] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-smb-01",
+        "name": "SMAN 1 Bukittinggi (Dekat Sesar Sianok)",
+        "island": "Sumatera",
+        "region": "Sumatera Barat",
+        "type": "Pendidikan",
+        "category": "Sekolah Kawasan Patahan",
+        "capacity": "850 Siswa",
+        "risk_status": "Koridor Sesar Semangko Sianok"
+      },
+      "geometry": { "type": "Point", "coordinates": [100.365, -0.305] }
+    }
+  ]
+}

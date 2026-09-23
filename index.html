@@ -732,13 +732,19 @@
                       </div>
                     </div>
                     <div class="intersect-quick-aoi-row mt-8">
-                      <button type="button" id="btn-quick-sample-aoi" class="btn btn-secondary btn-sm flex-1" title="Gunakan wilayah DKI Jakarta sebagai contoh perkotaan">
+                      <button type="button" id="btn-quick-sample-aoi" class="btn btn-secondary btn-sm flex-1" title="Wilayah DKI Jakarta (Banjir Rob &amp; UHI)">
                         <span>🎯 DKI Jakarta</span>
                       </button>
-                      <button type="button" id="btn-quick-merapi-aoi" class="btn btn-secondary btn-sm flex-1" style="background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); color: #fca5a5;" title="Simulasi Nyata Bencana: Zona Merah KRB III Erupsi Merapi (PVMBG/BNPB)">
-                        <span>🌋 KRB III Merapi</span>
+                      <button type="button" id="btn-quick-merapi-aoi" class="btn btn-secondary btn-sm flex-1" style="background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); color: #fca5a5;" title="Zona Merah KRB III Erupsi Merapi (PVMBG/BNPB)">
+                        <span>🌋 Merapi</span>
                       </button>
-                      <button type="button" id="btn-quick-draw-aoi" class="btn btn-outline btn-sm flex-1" title="Mulai menggambar poligon bebas di peta">
+                      <button type="button" id="btn-quick-bandung-aoi" class="btn btn-secondary btn-sm flex-1" style="background: rgba(234, 179, 8, 0.18); border-color: rgba(234, 179, 8, 0.5); color: #fef08a;" title="Wilayah Cekungan Bandung (Sesar Lembang)">
+                        <span>🏔️ Bandung</span>
+                      </button>
+                      <button type="button" id="btn-quick-ikn-aoi" class="btn btn-secondary btn-sm flex-1" style="background: rgba(16, 185, 129, 0.18); border-color: rgba(16, 185, 129, 0.5); color: #a7f3d0;" title="Kawasan Inti IKN Sepaku (Karhutla &amp; Gambut)">
+                        <span>🌲 IKN Sepaku</span>
+                      </button>
+                      <button type="button" id="btn-quick-draw-aoi" class="btn btn-outline btn-sm flex-1" title="Mulai menggambar poligon bebas di mana saja di Indonesia">
                         <span>✏️ Gambar Bebas</span>
                       </button>
                     </div>
@@ -752,10 +758,13 @@
                     <span class="intersect-step-title">Data yang Ingin Ditemukan / Dipadukan:</span>
                   </div>
                   <div class="intersect-target-chips">
-                    <button type="button" class="btn-chip" id="chip-target-merapi-fac" data-target="merapi-facilities" title="Sekolah &amp; Puskesmas di Lereng Merapi (OSM &amp; BNPB)">
-                      <span>🏥 Faskes &amp; Sekolah Merapi</span>
+                    <button type="button" class="btn-chip active" id="chip-target-disaster" data-target="disaster-zones" title="Poligon Zona Bahaya Bencana Se-Indonesia (InaRISK BNPB / PVMBG: Sesar Gempa, Erupsi, Banjir Rob, Karhutla)">
+                      <span>🚨 Zona Bahaya Bencana (InaRISK)</span>
                     </button>
-                    <button type="button" class="btn-chip active" id="chip-target-cities" data-target="cities" title="Titik kota-kota metropolitan">
+                    <button type="button" class="btn-chip" id="chip-target-facilities" data-target="facilities" title="Rumah Sakit, Faskes &amp; Sekolah Se-Indonesia (Kemenkes &amp; OSM)">
+                      <span>🏥 Faskes &amp; Sekolah (Nasional)</span>
+                    </button>
+                    <button type="button" class="btn-chip" id="chip-target-cities" data-target="cities" title="Titik kota-kota metropolitan">
                       <span>🏛️ Kota-Kota Besar</span>
                     </button>
                     <button type="button" class="btn-chip" id="chip-target-stations" data-target="stations" title="Titik stasiun suhu termal LST">

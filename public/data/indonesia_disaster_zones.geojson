@@ -1,0 +1,224 @@
+{
+  "type": "FeatureCollection",
+  "name": "Zona Kerawanan & Bahaya Bencana Nasional Indonesia",
+  "description": "Kompilasi Zona Bahaya Bencana Resmi Seluruh Indonesia (InaRISK BNPB, PVMBG Badan Geologi ESDM, & BMKG): Sesar Gempa Aktif, Erupsi Gunung Api, Banjir Rob Pesisir, Likuifaksi, & Karhutla",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "disaster-jkt-rob",
+        "name": "Zona Bahaya Banjir Rob & Amblesan Pesisir Jakarta",
+        "island": "Jawa",
+        "province": "DKI Jakarta",
+        "category": "Banjir Rob & Land Subsidence",
+        "danger_level": "Bahaya Tinggi (Genangan Pasang Laut & Tanggul Kritis)",
+        "source": "BPBD DKI Jakarta & InaRISK BNPB",
+        "threat_desc": "Kawasan pesisir utara Jakarta dengan penurunan tanah 5-10 cm/tahun dan ancaman rob pasang laut Muara Baru - Ancol - Cilincing."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [106.72, -6.14],
+            [106.80, -6.13],
+            [106.88, -6.12],
+            [106.96, -6.13],
+            [106.96, -6.07],
+            [106.72, -6.07],
+            [106.72, -6.14]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "disaster-bdg-lembang",
+        "name": "Zona Patahan Sesar Lembang (Patahan Aktif Gempa)",
+        "island": "Jawa",
+        "province": "Jawa Barat",
+        "category": "Sesar Gempa Tektonik",
+        "danger_level": "Sangat Rawan (Potensi Gempa Darat Dangkal M 6.8)",
+        "source": "Badan Geologi PVMBG & Pusat Studi Gempa Nasional (PusGen)",
+        "threat_desc": "Koridor sesar aktif sepanjang 29 km dari Padalarang hingga Jatinangor yang melintasi kawasan padat Lembang dan Bandung Utara."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [107.50, -6.84],
+            [107.60, -6.82],
+            [107.72, -6.81],
+            [107.72, -6.85],
+            [107.60, -6.86],
+            [107.50, -6.88],
+            [107.50, -6.84]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "disaster-merapi-krb3",
+        "name": "KRB III Erupsi Gunung Merapi (Zona Merah Awan Panas)",
+        "island": "Jawa",
+        "province": "D.I. Yogyakarta & Jawa Tengah",
+        "category": "Erupsi Gunung Api",
+        "danger_level": "Bahaya Ekstrem (Awan Panas Guguran & Aliran Piroklastik)",
+        "source": "PVMBG Badan Geologi ESDM & BNPB",
+        "threat_desc": "Radius bahaya primer erupsi Merapi meliputi hulu Kali Gendol, Kaliurang, Kali Krasak, dan Kali Kuning."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [110.446, -7.505],
+            [110.475, -7.520],
+            [110.490, -7.550],
+            [110.485, -7.585],
+            [110.470, -7.615],
+            [110.450, -7.630],
+            [110.435, -7.625],
+            [110.420, -7.600],
+            [110.405, -7.575],
+            [110.400, -7.545],
+            [110.415, -7.520],
+            [110.446, -7.505]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "disaster-sby-waru",
+        "name": "Zona Sesar Aktif Surabaya-Waru",
+        "island": "Jawa",
+        "province": "Jawa Timur",
+        "category": "Sesar Gempa Tektonik",
+        "danger_level": "Bahaya Sedang - Tinggi (Patahan Darat Urban)",
+        "source": "Pusat Studi Gempa Nasional (PusGen)",
+        "threat_desc": "Segmen sesar aktif yang melintasi pusat aglomerasi Surabaya Selatan, Waru, dan Sidoarjo."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [112.65, -7.34],
+            [112.75, -7.32],
+            [112.83, -7.30],
+            [112.83, -7.34],
+            [112.75, -7.36],
+            [112.65, -7.38],
+            [112.65, -7.34]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "disaster-ikn-karhutla",
+        "name": "Zona Rawan Karhutla & Gambut Sepaku - IKN",
+        "island": "Kalimantan",
+        "province": "Kalimantan Timur",
+        "category": "Kebakaran Hutan & Lahan",
+        "danger_level": "Bahaya Tinggi Musim Kemarau (Gambut Kering)",
+        "source": "KLHK Sipongi & BPBD Penajam Paser Utara",
+        "threat_desc": "Zona tanah gambut dan vegetasi sekunder rawan api saat musim kemarau di perbatasan Sepaku dan Samboja."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [116.60, -0.92],
+            [116.78, -0.92],
+            [116.78, -1.04],
+            [116.60, -1.04],
+            [116.60, -0.92]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "disaster-palu-koro",
+        "name": "Zona Patahan Sesar Palu-Koro & Likuifaksi",
+        "island": "Sulawesi",
+        "province": "Sulawesi Tengah",
+        "category": "Sesar Gempa & Likuifaksi",
+        "danger_level": "Zona Merah Terlarang Bangun (Bahaya Amblesan Likuifaksi)",
+        "source": "Kementerian ATR/BPN & Badan Geologi ESDM",
+        "threat_desc": "Sesar geser aktif dengan pergeseran 4 cm/tahun serta zona aliran tanah likuifaksi Petobo, Balaroa, dan Jono Oge."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [119.82, -0.94],
+            [119.88, -0.88],
+            [119.92, -0.85],
+            [119.94, -0.88],
+            [119.90, -0.92],
+            [119.84, -0.96],
+            [119.82, -0.94]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "disaster-bali-agung",
+        "name": "KRB III Erupsi Gunung Agung (Karangasem)",
+        "island": "Bali",
+        "province": "Bali",
+        "category": "Erupsi Gunung Api",
+        "danger_level": "Bahaya Tinggi (Lontaran Batu Pijar & Lahar Hujan)",
+        "source": "PVMBG Badan Geologi ESDM & BPBD Bali",
+        "threat_desc": "Radius 6-9 km dari kawah puncak Gunung Agung yang terancam guguran piroklastik dan lahar Telaga Waja."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [115.48, -8.32],
+            [115.54, -8.32],
+            [115.56, -8.37],
+            [115.53, -8.41],
+            [115.47, -8.39],
+            [115.45, -8.35],
+            [115.48, -8.32]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "disaster-sumbar-sianok",
+        "name": "Zona Sesar Semangko Segmen Sianok (Bukittinggi)",
+        "island": "Sumatera",
+        "province": "Sumatera Barat",
+        "category": "Sesar Gempa Tektonik",
+        "danger_level": "Sangat Rawan (Patahan Sianok Potensi Gempa Darat M 7.0)",
+        "source": "Pusat Studi Gempa Nasional (PusGen)",
+        "threat_desc": "Patahan geser darat Sumatera sepanjang Lembah Ngarai Sianok - Danau Singkarak."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [100.32, -0.32],
+            [100.40, -0.28],
+            [100.41, -0.30],
+            [100.34, -0.34],
+            [100.32, -0.32]
+          ]
+        ]
+      }
+    }
+  ]
+}

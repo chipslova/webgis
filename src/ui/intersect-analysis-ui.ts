@@ -230,6 +230,9 @@ export class IntersectAnalysisUI {
       optionsHtmlB += '<option value="__aoi_active__">🎯 Wilayah AOI Aktif (Poligon Gambaran)</option>';
     }
 
+    optionsHtmlA += '<option value="__disaster_zones__">🚨 Zona Bahaya Bencana Se-Indonesia (InaRISK & PVMBG)</option>';
+    optionsHtmlB += '<option value="__disaster_zones__">🚨 Zona Bahaya Bencana Se-Indonesia (InaRISK & PVMBG)</option>';
+    optionsHtmlB += '<option value="__critical_facilities__">🏥 Fasilitas Kesehatan & Objek Vital Nasional (Kemenkes & OSM)</option>';
     optionsHtmlA += '<option value="__gee_stations__">🌡️ Stasiun Observasi MODIS LST (18 Titik Indonesia)</option>';
     optionsHtmlB += '<option value="__gee_stations__">🌡️ Stasiun Observasi MODIS LST (18 Titik Indonesia)</option>';
     optionsHtmlB += '<option value="__merapi_facilities__">🏥 Faskes & Sekolah Lereng Merapi (OSM & BNPB)</option>';
@@ -284,7 +287,16 @@ export class IntersectAnalysisUI {
       }
       this.updateAOIStatusCard();
       this.updateLayerSelect();
-      showToast('Wilayah DKI Jakarta siap digunakan sebagai wilayah pencarian!', 'info');
+
+      const chipDisaster = document.getElementById('chip-target-disaster');
+      updateActiveChip(chipDisaster);
+      if (customSelectors) customSelectors.style.display = 'none';
+
+      const opDescEl = document.getElementById('intersect-op-desc');
+      if (opDescEl) {
+        opDescEl.innerHTML = '🎯 <strong>Simulasi DKI Jakarta:</strong> Menganalisis zonasi bahaya banjir rob, amblesan pesisir Jakarta & fasilitas medis rujukan!';
+      }
+      showToast('🎯 Wilayah DKI Jakarta Aktif: Siap dianalisis terhadap Zona Bahaya Banjir Rob!', 'info');
     });
 
     const btnMerapiAOI = document.getElementById('btn-quick-merapi-aoi');
@@ -294,9 +306,8 @@ export class IntersectAnalysisUI {
       }
       this.updateAOIStatusCard();
 
-      // Automatically pair with Merapi public facilities target
-      const chipMerapi = document.getElementById('chip-target-merapi-fac');
-      updateActiveChip(chipMerapi);
+      const chipDisaster = document.getElementById('chip-target-disaster');
+      updateActiveChip(chipDisaster);
       if (customSelectors) customSelectors.style.display = 'none';
 
       // Set mode to intersect
@@ -315,6 +326,42 @@ export class IntersectAnalysisUI {
       showToast('🌋 Simulasi Bencana Aktif: Zona Bahaya KRB III Merapi vs Sekolah & Fasilitas Medis!', 'info');
     });
 
+    const btnBandungAOI = document.getElementById('btn-quick-bandung-aoi');
+    btnBandungAOI?.addEventListener('click', () => {
+      if (this.spatialAnalysisUI && typeof this.spatialAnalysisUI.selectPresetRegion === 'function') {
+        this.spatialAnalysisUI.selectPresetRegion('cekungan-bandung');
+      }
+      this.updateAOIStatusCard();
+
+      const chipDisaster = document.getElementById('chip-target-disaster');
+      updateActiveChip(chipDisaster);
+      if (customSelectors) customSelectors.style.display = 'none';
+
+      const opDescEl = document.getElementById('intersect-op-desc');
+      if (opDescEl) {
+        opDescEl.innerHTML = '🏔️ <strong>Simulasi Sesar Lembang:</strong> Mendeteksi jalur patahan gempa aktif Sesar Lembang yang membelah wilayah Bandung Raya!';
+      }
+      showToast('🏔️ Wilayah Bandung Raya Aktif: Siap dianalisis terhadap Zona Sesar Lembang!', 'info');
+    });
+
+    const btnIknAOI = document.getElementById('btn-quick-ikn-aoi');
+    btnIknAOI?.addEventListener('click', () => {
+      if (this.spatialAnalysisUI && typeof this.spatialAnalysisUI.selectPresetRegion === 'function') {
+        this.spatialAnalysisUI.selectPresetRegion('ikn-nusantara');
+      }
+      this.updateAOIStatusCard();
+
+      const chipDisaster = document.getElementById('chip-target-disaster');
+      updateActiveChip(chipDisaster);
+      if (customSelectors) customSelectors.style.display = 'none';
+
+      const opDescEl = document.getElementById('intersect-op-desc');
+      if (opDescEl) {
+        opDescEl.innerHTML = '🌲 <strong>Simulasi IKN Sepaku:</strong> Mendeteksi zona kerawanan kebakaran hutan & lahan gambut (Karhutla) di Sepaku IKN!';
+      }
+      showToast('🌲 Wilayah IKN Sepaku Aktif: Siap dianalisis terhadap Zona Kerentanan Bencana!', 'info');
+    });
+
     btnDrawAOI?.addEventListener('click', () => {
       if (this.geojsonLoader.getLayers().length === 0) {
         this.geojsonLoader.loadSampleData();
@@ -326,6 +373,8 @@ export class IntersectAnalysisUI {
 
     // 1. Operation Mode Pills (Intersect, Difference, Union, XOR)
     const opPills = document.querySelectorAll<HTMLButtonElement>('.intersect-op-btn');
+    const chipDisaster = document.getElementById('chip-target-disaster');
+    const chipFacilities = document.getElementById('chip-target-facilities');
     const chipCities = document.getElementById('chip-target-cities');
     const chipStations = document.getElementById('chip-target-stations');
     const chipMerapiFac = document.getElementById('chip-target-merapi-fac');
@@ -350,35 +399,53 @@ export class IntersectAnalysisUI {
 
         if (mode === 'difference' || mode === 'union' || mode === 'sym_difference') {
           // Point targets cannot be cut or unioned geometrically with polygons.
-          // Auto-switch to polygon cutter target if a point target was active.
+          // Auto-switch to polygon hazard or cutter target if a point target was active.
           const activeChip = document.querySelector('.intersect-target-chips .btn-chip.active') as HTMLElement | null;
-          if (activeChip && (activeChip.id === 'chip-target-cities' || activeChip.id === 'chip-target-stations')) {
-            updateActiveChip(chipCutter);
+          if (activeChip && (activeChip.id === 'chip-target-cities' || activeChip.id === 'chip-target-stations' || activeChip.id === 'chip-target-facilities')) {
+            updateActiveChip(chipDisaster || chipCutter);
             if (customSelectors) customSelectors.style.display = 'none';
           }
         } else if (mode === 'intersect') {
           const activeChip = document.querySelector('.intersect-target-chips .btn-chip.active') as HTMLElement | null;
           if (activeChip && activeChip.id === 'chip-target-cutter') {
-            updateActiveChip(chipCities);
+            updateActiveChip(chipDisaster || chipCities);
             if (customSelectors) customSelectors.style.display = 'none';
           }
         }
 
         if (opDescEl) {
           if (mode === 'intersect') {
-            opDescEl.innerHTML = '⚔️ <strong>Irisan:</strong> Cari objek titik kota/stasiun atau perbatasan wilayah yang berada tepat di dalam batas area.';
+            opDescEl.innerHTML = '⚔️ <strong>Irisan:</strong> Cari objek zona bahaya bencana, fasilitas publik/medis, atau stasiun di dalam batas wilayah.';
           } else if (mode === 'difference') {
-            opDescEl.innerHTML = '✂️ <strong>Potong:</strong> Kurangi wilayah DKI Jakarta dengan memotong bagian yang bertabrakan dengan Bidang Pemotong (Bodetabek). Sisi timur Jakarta akan tergunting dan menyisakan sisi barat!';
+            opDescEl.innerHTML = '✂️ <strong>Potong:</strong> Kurangi wilayah dengan memotong bagian yang bertabrakan dengan zona bahaya bencana atau bidang pemotong!';
           } else if (mode === 'union') {
-            opDescEl.innerHTML = '🔗 <strong>Gabung:</strong> Satukan wilayah DKI Jakarta dengan Bidang Bodetabek menjadi satu kesatuan poligon megapolitan utuh!';
+            opDescEl.innerHTML = '🔗 <strong>Gabung:</strong> Satukan wilayah dengan zona bahaya atau bidang tetangga menjadi satu kesatuan poligon utuh!';
           } else if (mode === 'sym_difference') {
-            opDescEl.innerHTML = '⚡ <strong>Beda:</strong> Ambil area unik kedua wilayah (Jakarta Barat & Bodetabek Timur), sedangkan area perbatasan tengah dibuang!';
+            opDescEl.innerHTML = '⚡ <strong>Beda:</strong> Ambil area unik kedua wilayah, sedangkan area tumpang tindih tengah dibuang!';
           }
         }
       });
     });
 
     // 2. Quick Target Selection Chips (Langkah 2)
+    chipDisaster?.addEventListener('click', () => {
+      updateActiveChip(chipDisaster);
+      if (customSelectors) customSelectors.style.display = 'none';
+      const selA = document.getElementById('intersect-layer-a') as HTMLSelectElement | null;
+      const selB = document.getElementById('intersect-layer-b') as HTMLSelectElement | null;
+      if (selA) selA.value = '__aoi_active__';
+      if (selB) selB.value = '__disaster_zones__';
+    });
+
+    chipFacilities?.addEventListener('click', () => {
+      updateActiveChip(chipFacilities);
+      if (customSelectors) customSelectors.style.display = 'none';
+      const selA = document.getElementById('intersect-layer-a') as HTMLSelectElement | null;
+      const selB = document.getElementById('intersect-layer-b') as HTMLSelectElement | null;
+      if (selA) selA.value = '__aoi_active__';
+      if (selB) selB.value = '__critical_facilities__';
+    });
+
     chipCities?.addEventListener('click', () => {
       updateActiveChip(chipCities);
       if (customSelectors) customSelectors.style.display = 'none';
@@ -472,7 +539,7 @@ export class IntersectAnalysisUI {
   public async runAnalysis() {
     const statusBox = document.getElementById('intersect-analysis-status');
     const activeChip = document.querySelector('.intersect-target-chips .btn-chip.active') as HTMLElement | null;
-    const targetType = activeChip?.dataset.target || 'cities';
+    const targetType = activeChip?.dataset.target || 'disaster-zones';
 
     // 0. Auto-ensure sample vector data is present if target is cities
     if (targetType === 'cities' && this.geojsonLoader.getLayers().length === 0) {
@@ -501,9 +568,15 @@ export class IntersectAnalysisUI {
     const selectB = document.getElementById('intersect-layer-b') as HTMLSelectElement | null;
 
     let idA = selectA?.value || '__aoi_active__';
-    let idB = selectB?.value || '__gee_stations__';
+    let idB = selectB?.value || '__disaster_zones__';
 
-    if (targetType === 'cities') {
+    if (targetType === 'disaster-zones') {
+      idA = '__aoi_active__';
+      idB = '__disaster_zones__';
+    } else if (targetType === 'facilities') {
+      idA = '__aoi_active__';
+      idB = '__critical_facilities__';
+    } else if (targetType === 'cities') {
       idA = '__aoi_active__';
       const layers = this.geojsonLoader.getLayers();
       idB = layers.length > 0 ? layers[0].id : '__gee_stations__';
@@ -620,6 +693,24 @@ export class IntersectAnalysisUI {
       if (res.ok) {
         const data = await res.json();
         targetLayers.push({ id: '__gee_stations__', name: 'Stasiun Observasi LST', data });
+      }
+    } catch (_) {}
+
+    // Add Disaster Hazard Zones
+    try {
+      const res = await fetch('/data/indonesia_disaster_zones.geojson');
+      if (res.ok) {
+        const data = await res.json();
+        targetLayers.push({ id: '__disaster_zones__', name: 'Zona Bahaya Bencana (InaRISK & PVMBG)', data });
+      }
+    } catch (_) {}
+
+    // Add Critical Facilities
+    try {
+      const res = await fetch('/data/indonesia_critical_facilities.geojson');
+      if (res.ok) {
+        const data = await res.json();
+        targetLayers.push({ id: '__critical_facilities__', name: 'Fasilitas Kritis & Faskes Nasional', data });
       }
     } catch (_) {}
 
@@ -1017,6 +1108,30 @@ export class IntersectAnalysisUI {
         },
         aoi.properties?.name || 'Wilayah Aktif'
       ];
+    }
+
+    if (id === '__disaster_zones__') {
+      try {
+        const res = await fetch('/data/indonesia_disaster_zones.geojson');
+        if (!res.ok) throw new Error('Failed to fetch disaster zones');
+        const data = await res.json();
+        return [data, 'Zona Bahaya Bencana Se-Indonesia'];
+      } catch (err) {
+        logger.error('[IntersectAnalysisUI] Failed to load disaster zones:', err);
+        return [null, 'Zona Bahaya Bencana Se-Indonesia'];
+      }
+    }
+
+    if (id === '__critical_facilities__') {
+      try {
+        const res = await fetch('/data/indonesia_critical_facilities.geojson');
+        if (!res.ok) throw new Error('Failed to fetch critical facilities');
+        const data = await res.json();
+        return [data, 'Faskes & Fasilitas Kritis Nasional'];
+      } catch (err) {
+        logger.error('[IntersectAnalysisUI] Failed to load critical facilities:', err);
+        return [null, 'Faskes & Fasilitas Kritis Nasional'];
+      }
     }
 
     if (id === '__gee_stations__') {
