@@ -232,6 +232,7 @@ export class IntersectAnalysisUI {
 
     optionsHtmlA += '<option value="__gee_stations__">🌡️ Stasiun Observasi MODIS LST (18 Titik Indonesia)</option>';
     optionsHtmlB += '<option value="__gee_stations__">🌡️ Stasiun Observasi MODIS LST (18 Titik Indonesia)</option>';
+    optionsHtmlB += '<option value="__sample_cutter__">🛡️ Kawasan Bodetabek (Bidang Pemotong / Poligon)</option>';
 
     layers.forEach((l) => {
       const featCount = l.data.features.length;
@@ -296,31 +297,9 @@ export class IntersectAnalysisUI {
 
     // 1. Operation Mode Pills (Intersect, Difference, Union, XOR)
     const opPills = document.querySelectorAll<HTMLButtonElement>('.intersect-op-btn');
-    opPills.forEach((pill) => {
-      pill.addEventListener('click', (e) => {
-        e.preventDefault();
-        opPills.forEach((p) => p.classList.remove('active'));
-        pill.classList.add('active');
-        const mode = (pill.dataset.mode as SpatialOverlayMode) || 'intersect';
-        this.currentMode = mode;
-        const opDescEl = document.getElementById('intersect-op-desc');
-        if (opDescEl) {
-          if (mode === 'intersect') {
-            opDescEl.innerHTML = '⚔️ <strong>Irisan:</strong> Cari objek atau area yang berada tepat di dalam batas wilayah.';
-          } else if (mode === 'difference') {
-            opDescEl.innerHTML = '✂️ <strong>Potong:</strong> Kurangi wilayah pertama dengan memotong bagian yang bertabrakan dengan wilayah kedua.';
-          } else if (mode === 'union') {
-            opDescEl.innerHTML = '🔗 <strong>Gabung:</strong> Satukan dua wilayah menjadi satu batas wilayah utuh yang berkesinambungan.';
-          } else if (mode === 'sym_difference') {
-            opDescEl.innerHTML = '⚡ <strong>Beda:</strong> Ambil area unik dari kedua wilayah tanpa bagian tengah yang saling tumpang tindih.';
-          }
-        }
-      });
-    });
-
-    // 2. Quick Target Selection Chips (Langkah 2)
     const chipCities = document.getElementById('chip-target-cities');
     const chipStations = document.getElementById('chip-target-stations');
+    const chipCutter = document.getElementById('chip-target-cutter');
     const chipAll = document.getElementById('chip-target-all');
     const chipCustom = document.getElementById('chip-target-custom');
     const customSelectors = document.getElementById('intersect-custom-selectors');
@@ -330,6 +309,46 @@ export class IntersectAnalysisUI {
       targetBtn?.classList.add('active');
     };
 
+    opPills.forEach((pill) => {
+      pill.addEventListener('click', (e) => {
+        e.preventDefault();
+        opPills.forEach((p) => p.classList.remove('active'));
+        pill.classList.add('active');
+        const mode = (pill.dataset.mode as SpatialOverlayMode) || 'intersect';
+        this.currentMode = mode;
+        const opDescEl = document.getElementById('intersect-op-desc');
+
+        if (mode === 'difference' || mode === 'union' || mode === 'sym_difference') {
+          // Point targets cannot be cut or unioned geometrically with polygons.
+          // Auto-switch to polygon cutter target if a point target was active.
+          const activeChip = document.querySelector('.intersect-target-chips .btn-chip.active') as HTMLElement | null;
+          if (activeChip && (activeChip.id === 'chip-target-cities' || activeChip.id === 'chip-target-stations')) {
+            updateActiveChip(chipCutter);
+            if (customSelectors) customSelectors.style.display = 'none';
+          }
+        } else if (mode === 'intersect') {
+          const activeChip = document.querySelector('.intersect-target-chips .btn-chip.active') as HTMLElement | null;
+          if (activeChip && activeChip.id === 'chip-target-cutter') {
+            updateActiveChip(chipCities);
+            if (customSelectors) customSelectors.style.display = 'none';
+          }
+        }
+
+        if (opDescEl) {
+          if (mode === 'intersect') {
+            opDescEl.innerHTML = '⚔️ <strong>Irisan:</strong> Cari objek titik kota/stasiun atau perbatasan wilayah yang berada tepat di dalam batas area.';
+          } else if (mode === 'difference') {
+            opDescEl.innerHTML = '✂️ <strong>Potong:</strong> Kurangi wilayah DKI Jakarta dengan memotong bagian yang bertabrakan dengan Bidang Pemotong (Bodetabek). Sisi timur Jakarta akan tergunting dan menyisakan sisi barat!';
+          } else if (mode === 'union') {
+            opDescEl.innerHTML = '🔗 <strong>Gabung:</strong> Satukan wilayah DKI Jakarta dengan Bidang Bodetabek menjadi satu kesatuan poligon megapolitan utuh!';
+          } else if (mode === 'sym_difference') {
+            opDescEl.innerHTML = '⚡ <strong>Beda:</strong> Ambil area unik kedua wilayah (Jakarta Barat & Bodetabek Timur), sedangkan area perbatasan tengah dibuang!';
+          }
+        }
+      });
+    });
+
+    // 2. Quick Target Selection Chips (Langkah 2)
     chipCities?.addEventListener('click', () => {
       updateActiveChip(chipCities);
       if (customSelectors) customSelectors.style.display = 'none';
@@ -350,6 +369,15 @@ export class IntersectAnalysisUI {
       const selB = document.getElementById('intersect-layer-b') as HTMLSelectElement | null;
       if (selA) selA.value = '__aoi_active__';
       if (selB) selB.value = '__gee_stations__';
+    });
+
+    chipCutter?.addEventListener('click', () => {
+      updateActiveChip(chipCutter);
+      if (customSelectors) customSelectors.style.display = 'none';
+      const selA = document.getElementById('intersect-layer-a') as HTMLSelectElement | null;
+      const selB = document.getElementById('intersect-layer-b') as HTMLSelectElement | null;
+      if (selA) selA.value = '__aoi_active__';
+      if (selB) selB.value = '__sample_cutter__';
     });
 
     chipAll?.addEventListener('click', () => {
@@ -443,6 +471,9 @@ export class IntersectAnalysisUI {
     } else if (targetType === 'stations') {
       idA = '__aoi_active__';
       idB = '__gee_stations__';
+    } else if (targetType === 'cutter') {
+      idA = '__aoi_active__';
+      idB = '__sample_cutter__';
     }
 
     if (statusBox) {
@@ -956,6 +987,32 @@ export class IntersectAnalysisUI {
         logger.error('[IntersectAnalysisUI] Failed to load stations:', err);
         return [null, 'Stasiun Observasi MODIS LST'];
       }
+    }
+
+    if (id === '__sample_cutter__') {
+      const cutterPolygon: GeoJSON.FeatureCollection = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            properties: {
+              name: 'Kawasan Bodetabek (Bidang Pemotong)',
+              category: 'Kawasan Pembanding / Pemotong'
+            },
+            geometry: {
+              type: 'Polygon',
+              coordinates: [[
+                [106.82, -6.08],
+                [107.15, -6.08],
+                [107.15, -6.38],
+                [106.82, -6.38],
+                [106.82, -6.08]
+              ]]
+            }
+          }
+        ]
+      };
+      return [cutterPolygon, 'Kawasan Bodetabek (Bidang Pemotong)'];
     }
 
     const layer = this.geojsonLoader.getLayer(id);

@@ -573,14 +573,30 @@
                   <h2>Analisis Spasial</h2>
                   <span class="piksel-national-badge analysis-badge">Turf.js + Spatial Intersection</span>
                 </div>
-                <p>Alat estimasi profil zonal wilayah (AOI) dan analisis proximity buffer geodesik interaktif.</p>
+                <p>Pilih alat analisis yang Anda butuhkan: tumpang tindih wilayah, profil zonal tutupan lahan, atau radius buffer.</p>
+              </div>
+
+              <!-- Sub-Tab Switcher for Analysis Tools -->
+              <div class="analysis-subnav" role="tablist" aria-label="Pilih Alat Analisis">
+                <button type="button" class="analysis-subnav-btn active" data-subtab="intersect" id="subtab-intersect" role="tab" aria-selected="true" title="Studio Tumpang Tindih Wilayah (Irisan, Potong, Gabung, Beda)">
+                  <span class="subnav-icon" aria-hidden="true">⚔️</span>
+                  <span>Tumpang Tindih</span>
+                </button>
+                <button type="button" class="analysis-subnav-btn" data-subtab="zonal" id="subtab-zonal" role="tab" aria-selected="false" title="Statistik AOI (Tutupan Lahan &amp; Suhu Permukaan)">
+                  <span class="subnav-icon" aria-hidden="true">📊</span>
+                  <span>Statistik AOI</span>
+                </button>
+                <button type="button" class="analysis-subnav-btn" data-subtab="buffer" id="subtab-buffer" role="tab" aria-selected="false" title="Analisis Jangkauan / Radius Buffer Geodesik">
+                  <span class="subnav-icon" aria-hidden="true">⭕</span>
+                  <span>Radius Buffer</span>
+                </button>
               </div>
 
               <!-- Module 1: Zonal Statistics & Land Cover / Thermal AOI Analysis -->
-              <div id="spatial-analysis-panel"></div>
+              <div id="spatial-analysis-panel" class="analysis-subpanel"></div>
 
               <!-- Module 2: Proximity Buffer Analysis -->
-              <div class="analysis-card buffer-analysis-card" id="buffer-analysis-container">
+              <div class="analysis-card buffer-analysis-card analysis-subpanel" id="buffer-analysis-container">
                 <div class="analysis-card-header">
                   <div class="analysis-card-title">
                     <span class="analysis-icon">⭕</span>
@@ -665,7 +681,7 @@
               </div>
 
               <!-- Module 3: Spatial Overlay & Intersect Analysis -->
-              <div class="analysis-card intersect-analysis-card" id="intersect-analysis-container">
+              <div class="analysis-card intersect-analysis-card analysis-subpanel" id="intersect-analysis-container">
                 <div class="analysis-card-header">
                   <div class="analysis-card-title">
                     <span class="analysis-icon" aria-hidden="true">⚔️</span>
@@ -730,14 +746,17 @@
                 <div class="intersect-step-card mt-10">
                   <div class="intersect-step-header">
                     <span class="intersect-step-badge">Target</span>
-                    <span class="intersect-step-title">Data yang Ingin Ditemukan:</span>
+                    <span class="intersect-step-title">Data yang Ingin Ditemukan / Dipadukan:</span>
                   </div>
                   <div class="intersect-target-chips">
-                    <button type="button" class="btn-chip active" id="chip-target-cities" data-target="cities">
+                    <button type="button" class="btn-chip active" id="chip-target-cities" data-target="cities" title="Titik kota-kota metropolitan">
                       <span>🏛️ Kota-Kota Besar</span>
                     </button>
-                    <button type="button" class="btn-chip" id="chip-target-stations" data-target="stations">
+                    <button type="button" class="btn-chip" id="chip-target-stations" data-target="stations" title="Titik stasiun suhu termal LST">
                       <span>🌡️ Stasiun Cuaca LST</span>
+                    </button>
+                    <button type="button" class="btn-chip" id="chip-target-cutter" data-target="cutter" title="Bidang poligon tetangga yang bertubrukan (Bodetabek)">
+                      <span>🛡️ Bidang Pemotong (Bodetabek)</span>
                     </button>
                     <button type="button" class="btn-chip" id="chip-target-all" data-target="all" title="Uji wilayah terhadap semua data aktif">
                       <span>✨ Semua Data</span>

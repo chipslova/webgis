@@ -63,6 +63,7 @@ class WebGISApp {
   private intersectAnalysisUI: IntersectAnalysisUI | null = null;
   private attributeTableUI: AttributeTableUI | null = null;
   private shortcutsModalUI: ShortcutsModalUI | null = null;
+  private switchAnalysisSubtab?: (subtab: 'intersect' | 'zonal' | 'buffer') => void;
   private errorHandler: ErrorHandler;
 
   constructor() {
@@ -269,6 +270,9 @@ class WebGISApp {
       });
       this.bufferAnalysisUI.init();
 
+      // Initialize Analysis Subnav Switcher (Tumpang Tindih, Statistik AOI, Radius Buffer)
+      this.switchAnalysisSubtab = this.initAnalysisSubnav();
+
       // Refresh buffer & lazy-load intersect layers dropdown whenever analysis tab is opened
       this.sidebarUI.onTabChange((tabId) => {
         if (tabId === 'analysis') {
@@ -298,11 +302,8 @@ class WebGISApp {
       this.dataPanelUI.onNavigateToBufferAnalysis((layerId) => {
         this.sidebarUI.setActiveTab('analysis');
         this.sidebarUI.setOpen(true);
+        this.switchAnalysisSubtab?.('buffer');
         this.bufferAnalysisUI?.selectLayer(layerId);
-        const container = document.getElementById('buffer-analysis-container');
-        if (container) {
-          container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
         showToast('Lapisan dipilih di modul Analisis Zona Penyangga', 'info');
       });
       this.commandPaletteUI.setAttributeTableUI(this.attributeTableUI);
@@ -1224,6 +1225,53 @@ class WebGISApp {
       logger.error('[WebGISApp] Failed to lazy-load IntersectAnalysisUI:', err);
       return null;
     }
+  }
+
+  private initAnalysisSubnav(): (subtab: 'intersect' | 'zonal' | 'buffer') => void {
+    const subnavButtons = document.querySelectorAll<HTMLButtonElement>('.analysis-subnav-btn');
+    const panelZonal = document.getElementById('spatial-analysis-panel');
+    const panelBuffer = document.getElementById('buffer-analysis-container');
+    const panelIntersect = document.getElementById('intersect-analysis-container');
+
+    const switchSubtab = (subtab: 'intersect' | 'zonal' | 'buffer') => {
+      subnavButtons.forEach((btn) => {
+        const isActive = btn.dataset.subtab === subtab;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+
+      if (panelIntersect) {
+        panelIntersect.style.display = subtab === 'intersect' ? 'block' : 'none';
+        panelIntersect.classList.toggle('active', subtab === 'intersect');
+      }
+      if (panelZonal) {
+        panelZonal.style.display = subtab === 'zonal' ? 'block' : 'none';
+        panelZonal.classList.toggle('active', subtab === 'zonal');
+      }
+      if (panelBuffer) {
+        panelBuffer.style.display = subtab === 'buffer' ? 'block' : 'none';
+        panelBuffer.classList.toggle('active', subtab === 'buffer');
+      }
+
+      if (subtab === 'intersect') {
+        this.getOrInitIntersectUI().then((ui) => ui?.updateLayerSelect());
+      } else if (subtab === 'buffer') {
+        this.bufferAnalysisUI?.updateLayerSelect();
+      }
+    };
+
+    subnavButtons.forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const subtab = btn.dataset.subtab as 'intersect' | 'zonal' | 'buffer';
+        if (subtab) switchSubtab(subtab);
+      });
+    });
+
+    // Default to 'intersect' (Studio Tumpang Tindih)
+    switchSubtab('intersect');
+
+    return switchSubtab;
   }
 }
 
