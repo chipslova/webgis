@@ -958,6 +958,7 @@ class WebGISApp {
           .register('/sw.js')
           .then((reg) => {
             logger.info('[ServiceWorker] Successfully registered with scope:', reg.scope);
+            reg.update().catch(() => {});
           })
           .catch((err) => {
             logger.warn('[ServiceWorker] Registration failed:', err);

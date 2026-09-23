@@ -1,5 +1,5 @@
 // Digital Earth Indonesia WebGIS - Service Worker
-const CACHE_NAME = 'de-webgis-v1.1';
+const CACHE_NAME = 'de-webgis-v1.3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
