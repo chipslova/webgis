@@ -1,0 +1,163 @@
+{
+  "type": "FeatureCollection",
+  "name": "Fasilitas Publik & Posko Warga Kawasan Lereng Merapi",
+  "description": "Titik Fasilitas Kesehatan, Sekolah, dan Posko Evakuasi di Kawasan Lereng Gunung Merapi (Sleman & Sekitarnya) - Sumber: OSM & InaRISK BNPB",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-01",
+        "name": "SD Negeri Kinahrejo",
+        "type": "Pendidikan",
+        "subdistrict": "Cangkringan",
+        "capacity": "180 Siswa & Guru",
+        "phone": "(0274) 895xxx",
+        "category": "Sekolah Dasar"
+      },
+      "geometry": { "type": "Point", "coordinates": [110.448, -7.585] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-02",
+        "name": "Puskesmas Pembantu Glagaharjo",
+        "type": "Kesehatan",
+        "subdistrict": "Cangkringan",
+        "capacity": "Klinik Rawat Jalan Darurat",
+        "phone": "(0274) 895xxx",
+        "category": "Fasilitas Kesehatan"
+      },
+      "geometry": { "type": "Point", "coordinates": [110.462, -7.580] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-03",
+        "name": "Posko Pantau & SAR Kaliurang",
+        "type": "Evakuasi / SAR",
+        "subdistrict": "Pakem",
+        "capacity": "Pos Aju 50 Personel",
+        "phone": "115 (Basarnas)",
+        "category": "Pos Siaga Bencana"
+      },
+      "geometry": { "type": "Point", "coordinates": [110.430, -7.602] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-04",
+        "name": "Pustu Kepuharjo Cangkringan",
+        "type": "Kesehatan",
+        "subdistrict": "Cangkringan",
+        "capacity": "Pos Medis Desa",
+        "phone": "(0274) 896xxx",
+        "category": "Fasilitas Kesehatan"
+      },
+      "geometry": { "type": "Point", "coordinates": [110.445, -7.605] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-05",
+        "name": "SD Negeri Bronggang Argomulyo",
+        "type": "Pendidikan",
+        "subdistrict": "Cangkringan",
+        "capacity": "210 Siswa",
+        "phone": "(0274) 895xxx",
+        "category": "Sekolah Dasar"
+      },
+      "geometry": { "type": "Point", "coordinates": [110.455, -7.618] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-06",
+        "name": "Pos Pengamatan Gunung Merapi Kaliurang",
+        "type": "Pemerintahan / Riset",
+        "subdistrict": "Pakem",
+        "capacity": "Pos Vulkanologi PVMBG",
+        "phone": "(0274) 895123",
+        "category": "Observasi Vulkanologi"
+      },
+      "geometry": { "type": "Point", "coordinates": [110.428, -7.598] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-07",
+        "name": "Posko Evakuasi Ngrangkah",
+        "type": "Evakuasi",
+        "subdistrict": "Cangkringan",
+        "capacity": "Kapasitas 350 Jiwa",
+        "phone": "Radio Komunitas Merapi",
+        "category": "Pos Evakuasi Sementara"
+      },
+      "geometry": { "type": "Point", "coordinates": [110.442, -7.590] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-08",
+        "name": "RS Panti Nugroho Pakem (Zona Aman)",
+        "type": "Kesehatan",
+        "subdistrict": "Pakem",
+        "capacity": "120 Bed Pasien + IGD Bencana",
+        "phone": "(0274) 895186",
+        "category": "Rumah Sakit Rujukan"
+      },
+      "geometry": { "type": "Point", "coordinates": [110.418, -7.665] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-09",
+        "name": "SMA Negeri 1 Pakem (Zona Aman)",
+        "type": "Pendidikan / Barak",
+        "subdistrict": "Pakem",
+        "capacity": "Kapasitas Pengungsian 500 Jiwa",
+        "phone": "(0274) 895176",
+        "category": "Barak Pengungsian"
+      },
+      "geometry": { "type": "Point", "coordinates": [110.420, -7.662] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-10",
+        "name": "Puskesmas Rawat Inap Pakem (Zona Aman)",
+        "type": "Kesehatan",
+        "subdistrict": "Pakem",
+        "capacity": "Posko Kesehatan 24 Jam",
+        "phone": "(0274) 895155",
+        "category": "Puskesmas 24 Jam"
+      },
+      "geometry": { "type": "Point", "coordinates": [110.416, -7.668] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-11",
+        "name": "Balai Desa Umbulharjo (Titik Kumpul Evakuasi)",
+        "type": "Pemerintahan",
+        "subdistrict": "Cangkringan",
+        "capacity": "Kapasitas 400 Jiwa",
+        "phone": "(0274) 895xxx",
+        "category": "Titik Kumpul Evakuasi"
+      },
+      "geometry": { "type": "Point", "coordinates": [110.435, -7.648] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fac-12",
+        "name": "Stadion Maguwoharjo (Shelter Pengungsi Terpadu)",
+        "type": "Evakuasi Nasional",
+        "subdistrict": "Depok, Sleman",
+        "capacity": "Kapasitas >5.000 Jiwa",
+        "phone": "BPBD DIY 112",
+        "category": "Pusat Evakuasi Utama"
+      },
+      "geometry": { "type": "Point", "coordinates": [110.435, -7.750] }
+    }
+  ]
+}

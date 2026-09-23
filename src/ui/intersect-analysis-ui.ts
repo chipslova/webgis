@@ -232,6 +232,7 @@ export class IntersectAnalysisUI {
 
     optionsHtmlA += '<option value="__gee_stations__">🌡️ Stasiun Observasi MODIS LST (18 Titik Indonesia)</option>';
     optionsHtmlB += '<option value="__gee_stations__">🌡️ Stasiun Observasi MODIS LST (18 Titik Indonesia)</option>';
+    optionsHtmlB += '<option value="__merapi_facilities__">🏥 Faskes & Sekolah Lereng Merapi (OSM & BNPB)</option>';
     optionsHtmlB += '<option value="__sample_cutter__">🛡️ Kawasan Bodetabek (Bidang Pemotong / Poligon)</option>';
 
     layers.forEach((l) => {
@@ -286,6 +287,34 @@ export class IntersectAnalysisUI {
       showToast('Wilayah DKI Jakarta siap digunakan sebagai wilayah pencarian!', 'info');
     });
 
+    const btnMerapiAOI = document.getElementById('btn-quick-merapi-aoi');
+    btnMerapiAOI?.addEventListener('click', () => {
+      if (this.spatialAnalysisUI && typeof this.spatialAnalysisUI.selectPresetRegion === 'function') {
+        this.spatialAnalysisUI.selectPresetRegion('merapi-krb3');
+      }
+      this.updateAOIStatusCard();
+
+      // Automatically pair with Merapi public facilities target
+      const chipMerapi = document.getElementById('chip-target-merapi-fac');
+      updateActiveChip(chipMerapi);
+      if (customSelectors) customSelectors.style.display = 'none';
+
+      // Set mode to intersect
+      const intersectPill = document.querySelector('.intersect-op-btn[data-mode="intersect"]') as HTMLButtonElement | null;
+      if (intersectPill) {
+        opPills.forEach((p) => p.classList.remove('active'));
+        intersectPill.classList.add('active');
+        this.currentMode = 'intersect';
+      }
+
+      const opDescEl = document.getElementById('intersect-op-desc');
+      if (opDescEl) {
+        opDescEl.innerHTML = '🌋 <strong>Simulasi Bencana Merapi:</strong> Menghitung sekolah, puskesmas, dan posko yang berada di dalam zona bahaya awan panas KRB III Merapi!';
+      }
+
+      showToast('🌋 Simulasi Bencana Aktif: Zona Bahaya KRB III Merapi vs Sekolah & Fasilitas Medis!', 'info');
+    });
+
     btnDrawAOI?.addEventListener('click', () => {
       if (this.geojsonLoader.getLayers().length === 0) {
         this.geojsonLoader.loadSampleData();
@@ -299,6 +328,7 @@ export class IntersectAnalysisUI {
     const opPills = document.querySelectorAll<HTMLButtonElement>('.intersect-op-btn');
     const chipCities = document.getElementById('chip-target-cities');
     const chipStations = document.getElementById('chip-target-stations');
+    const chipMerapiFac = document.getElementById('chip-target-merapi-fac');
     const chipCutter = document.getElementById('chip-target-cutter');
     const chipAll = document.getElementById('chip-target-all');
     const chipCustom = document.getElementById('chip-target-custom');
@@ -369,6 +399,15 @@ export class IntersectAnalysisUI {
       const selB = document.getElementById('intersect-layer-b') as HTMLSelectElement | null;
       if (selA) selA.value = '__aoi_active__';
       if (selB) selB.value = '__gee_stations__';
+    });
+
+    chipMerapiFac?.addEventListener('click', () => {
+      updateActiveChip(chipMerapiFac);
+      if (customSelectors) customSelectors.style.display = 'none';
+      const selA = document.getElementById('intersect-layer-a') as HTMLSelectElement | null;
+      const selB = document.getElementById('intersect-layer-b') as HTMLSelectElement | null;
+      if (selA) selA.value = '__aoi_active__';
+      if (selB) selB.value = '__merapi_facilities__';
     });
 
     chipCutter?.addEventListener('click', () => {
@@ -474,6 +513,9 @@ export class IntersectAnalysisUI {
     } else if (targetType === 'cutter') {
       idA = '__aoi_active__';
       idB = '__sample_cutter__';
+    } else if (targetType === 'merapi-facilities') {
+      idA = '__aoi_active__';
+      idB = '__merapi_facilities__';
     }
 
     if (statusBox) {
@@ -986,6 +1028,30 @@ export class IntersectAnalysisUI {
       } catch (err) {
         logger.error('[IntersectAnalysisUI] Failed to load stations:', err);
         return [null, 'Stasiun Observasi MODIS LST'];
+      }
+    }
+
+    if (id === '__merapi_facilities__') {
+      try {
+        const res = await fetch('/data/merapi_public_facilities.geojson');
+        if (!res.ok) throw new Error('Failed to fetch Merapi facilities');
+        const data = await res.json();
+        return [data, 'Faskes & Sekolah Lereng Merapi'];
+      } catch (err) {
+        logger.error('[IntersectAnalysisUI] Failed to load Merapi facilities:', err);
+        return [null, 'Faskes & Sekolah Lereng Merapi'];
+      }
+    }
+
+    if (id === '__merapi_hazard__') {
+      try {
+        const res = await fetch('/data/merapi_hazard_zone.geojson');
+        if (!res.ok) throw new Error('Failed to fetch Merapi hazard zone');
+        const data = await res.json();
+        return [data, 'KRB III Gunung Merapi (Zona Merah)'];
+      } catch (err) {
+        logger.error('[IntersectAnalysisUI] Failed to load Merapi hazard zone:', err);
+        return [null, 'KRB III Gunung Merapi (Zona Merah)'];
       }
     }
 

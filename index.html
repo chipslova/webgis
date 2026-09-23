@@ -732,11 +732,14 @@
                       </div>
                     </div>
                     <div class="intersect-quick-aoi-row mt-8">
-                      <button type="button" id="btn-quick-sample-aoi" class="btn btn-secondary btn-sm flex-1" title="Gunakan wilayah DKI Jakarta sebagai contoh langsung">
-                        <span>🎯 Contoh (DKI Jakarta)</span>
+                      <button type="button" id="btn-quick-sample-aoi" class="btn btn-secondary btn-sm flex-1" title="Gunakan wilayah DKI Jakarta sebagai contoh perkotaan">
+                        <span>🎯 DKI Jakarta</span>
+                      </button>
+                      <button type="button" id="btn-quick-merapi-aoi" class="btn btn-secondary btn-sm flex-1" style="background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); color: #fca5a5;" title="Simulasi Nyata Bencana: Zona Merah KRB III Erupsi Merapi (PVMBG/BNPB)">
+                        <span>🌋 KRB III Merapi</span>
                       </button>
                       <button type="button" id="btn-quick-draw-aoi" class="btn btn-outline btn-sm flex-1" title="Mulai menggambar poligon bebas di peta">
-                        <span>✏️ Gambar di Peta</span>
+                        <span>✏️ Gambar Bebas</span>
                       </button>
                     </div>
                   </div>
@@ -749,6 +752,9 @@
                     <span class="intersect-step-title">Data yang Ingin Ditemukan / Dipadukan:</span>
                   </div>
                   <div class="intersect-target-chips">
+                    <button type="button" class="btn-chip" id="chip-target-merapi-fac" data-target="merapi-facilities" title="Sekolah &amp; Puskesmas di Lereng Merapi (OSM &amp; BNPB)">
+                      <span>🏥 Faskes &amp; Sekolah Merapi</span>
+                    </button>
                     <button type="button" class="btn-chip active" id="chip-target-cities" data-target="cities" title="Titik kota-kota metropolitan">
                       <span>🏛️ Kota-Kota Besar</span>
                     </button>

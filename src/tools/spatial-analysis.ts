@@ -128,6 +128,27 @@ export const PRESET_REGIONS: PresetRegion[] = [
     ]]
   },
   {
+    id: 'merapi-krb3',
+    name: 'KRB III Gunung Merapi (Zona Merah Bahaya Tinggi)',
+    description: 'Kawasan Rawan Bencana Awan Panas & Aliran Lahar Erupsi Merapi (PVMBG & BNPB)',
+    center: [110.446, -7.575],
+    zoom: 11.8,
+    coordinates: [[
+      [110.446, -7.505],
+      [110.475, -7.520],
+      [110.490, -7.550],
+      [110.485, -7.585],
+      [110.470, -7.615],
+      [110.450, -7.630],
+      [110.435, -7.625],
+      [110.420, -7.600],
+      [110.405, -7.575],
+      [110.400, -7.545],
+      [110.415, -7.520],
+      [110.446, -7.505]
+    ]]
+  },
+  {
     id: 'cekungan-bandung',
     name: 'Cekungan Bandung Raya (Dataran Tinggi)',
     description: 'Wilayah Cekungan Bandung (Highland Microclimate & Pertanian)',

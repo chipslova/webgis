@@ -1,0 +1,39 @@
+{
+  "type": "FeatureCollection",
+  "name": "Kawasan Rawan Bencana (KRB) III Gunung Merapi",
+  "description": "Zona Merah Bahaya Tinggi Erupsi Gunung Merapi (Awan Panas, Aliran Lahar, & Piroklastik) - Sumber: PVMBG Badan Geologi ESDM & BNPB",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "merapi-krb-3",
+        "name": "KRB III Gunung Merapi (Zona Merah Bahaya Tinggi)",
+        "zone": "KRB III",
+        "danger_level": "Bahaya Tinggi / Sangat Rawan",
+        "hazards": "Awan Panas (Wedhus Gembel), Guguran Batu Pijar, Lontaran Abu Pekat, Aliran Lahar Hujan",
+        "source": "PVMBG Badan Geologi ESDM & InaRISK BNPB",
+        "category": "Zona Rawan Bencana",
+        "description": "Kawasan yang sering terlanda awan panas guguran dan aliran piroklastik primer saat erupsi Merapi."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [110.446, -7.505],
+            [110.475, -7.520],
+            [110.490, -7.550],
+            [110.485, -7.585],
+            [110.470, -7.615],
+            [110.450, -7.630],
+            [110.435, -7.625],
+            [110.420, -7.600],
+            [110.405, -7.575],
+            [110.400, -7.545],
+            [110.415, -7.520],
+            [110.446, -7.505]
+          ]
+        ]
+      }
+    }
+  ]
+}
