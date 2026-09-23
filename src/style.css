@@ -9531,25 +9531,49 @@ html, body, #app {
 .analysis-card-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 8px;
   margin-bottom: 8px;
 }
 
 .analysis-card-title {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  align-items: flex-start;
+  gap: 7px;
+  flex: 1;
+  min-width: 0;
 }
 
-.analysis-card-title h3 {
+.analysis-card-title h3,
+.analysis-card-heading {
   margin: 0;
   font-size: 12px;
   font-weight: 600;
-  color: #fff;
+  color: #ffffff;
+  line-height: 1.35;
 }
 
 .analysis-icon {
-  font-size: 15px;
+  font-size: 14px;
+  line-height: 1.2;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.analysis-tag-badge {
+  font-size: 9.5px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 12px;
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 1px;
 }
 
 .analysis-desc {

@@ -447,15 +447,13 @@ export class SpatialAnalysisUI {
     if (!container) return;
 
     container.innerHTML = `
-      <div class="spatial-analysis-card">
+      <div class="analysis-card spatial-analysis-card">
         <div class="analysis-card-header">
           <div class="analysis-card-title">
-            <span class="analysis-icon">📊</span>
-            <span class="analysis-card-heading">Analisis Spasial Zonal (Sentinel-2 &amp; LST)</span>
+            <span class="analysis-icon" aria-hidden="true">📊</span>
+            <h3>Analisis Spasial Zonal (Sentinel-2 &amp; LST)</h3>
           </div>
-          <span class="analysis-tag-badge">
-            Open Data Satelit
-          </span>
+          <span class="piksel-hint">Open Data Satelit</span>
         </div>
 
         <p class="analysis-desc">
