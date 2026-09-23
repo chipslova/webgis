@@ -150,9 +150,20 @@ export class IntersectAnalysisUI {
 
     if (valA && selectA.querySelector(`option[value="${valA}"]`)) {
       selectA.value = valA;
+    } else if (activeAOI) {
+      selectA.value = '__aoi_active__';
+    } else if (layers.length > 0) {
+      selectA.value = layers[0].id;
     }
+
     if (valB && selectB.querySelector(`option[value="${valB}"]`)) {
       selectB.value = valB;
+    } else if (layers.length > 0 && layers[0].id !== selectA.value) {
+      selectB.value = layers[0].id;
+    } else if (layers.length > 1) {
+      selectB.value = layers[1].id;
+    } else {
+      selectB.value = '__gee_stations__';
     }
   }
 
