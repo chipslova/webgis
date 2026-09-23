@@ -9,7 +9,7 @@ describe('SpatialIntersectAnalyzer', () => {
     features: [
       {
         type: 'Feature',
-        properties: { name: 'Kota Wilayah A', id: 'poly-a' },
+        properties: { name: 'Kota Wilayah A', id: 'poly-a', category: 'Urban' },
         geometry: {
           type: 'Polygon',
           coordinates: [
@@ -31,7 +31,7 @@ describe('SpatialIntersectAnalyzer', () => {
     features: [
       {
         type: 'Feature',
-        properties: { name: 'Kawasan Industri B', id: 'poly-b' },
+        properties: { name: 'Kawasan Industri B', id: 'poly-b', category: 'Industrial' },
         geometry: {
           type: 'Polygon',
           coordinates: [
@@ -53,7 +53,7 @@ describe('SpatialIntersectAnalyzer', () => {
     features: [
       {
         type: 'Feature',
-        properties: { name: 'Pulau Terpencil C', id: 'poly-c' },
+        properties: { name: 'Pulau Terpencil C', id: 'poly-c', category: 'Island' },
         geometry: {
           type: 'Polygon',
           coordinates: [
@@ -83,6 +83,14 @@ describe('SpatialIntersectAnalyzer', () => {
       },
       {
         type: 'Feature',
+        properties: { name: 'Stasiun Gambir', category: 'Transit' },
+        geometry: {
+          type: 'Point',
+          coordinates: [106.83, -6.17] // Inside polyA
+        }
+      },
+      {
+        type: 'Feature',
         properties: { name: 'Pelabuhan Merak', category: 'Port' },
         geometry: {
           type: 'Point',
@@ -97,7 +105,7 @@ describe('SpatialIntersectAnalyzer', () => {
     features: [
       {
         type: 'Feature',
-        properties: { name: 'Jalur Tol Jakarta-Cikampek' },
+        properties: { name: 'Jalur Tol Jakarta-Cikampek', category: 'Highway' },
         geometry: {
           type: 'LineString',
           coordinates: [
@@ -110,7 +118,7 @@ describe('SpatialIntersectAnalyzer', () => {
     ]
   };
 
-  describe('Polygon-Polygon Geometric Intersection', () => {
+  describe('Polygon-Polygon Geometric Intersection (Irisan)', () => {
     it('should compute overlapping polygon intersection and area correctly', () => {
       const result = SpatialIntersectAnalyzer.intersect(polyA, polyB_overlapping, {
         layerAName: 'Wilayah A',
@@ -118,6 +126,7 @@ describe('SpatialIntersectAnalyzer', () => {
       });
 
       expect(result.success).toBe(true);
+      expect(result.mode).toBe('intersect');
       expect(result.intersectedCount).toBe(1);
       expect(result.intersectedAreaKm2).toBeGreaterThan(0);
       expect(result.intersectedAreaHa).toBeGreaterThan(0);
@@ -149,6 +158,61 @@ describe('SpatialIntersectAnalyzer', () => {
     });
   });
 
+  describe('Polygon Geometric Difference (Pemotongan / Erase)', () => {
+    it('should compute difference subtracting layer B from layer A', () => {
+      const result = SpatialIntersectAnalyzer.difference(polyA, polyB_overlapping, {
+        layerAName: 'Wilayah A',
+        layerBName: 'Industri B'
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.mode).toBe('difference');
+      expect(result.intersectedCount).toBe(1);
+      expect(result.intersectedAreaKm2).toBeGreaterThan(0);
+      expect(result.data?.features.length).toBe(1);
+    });
+
+    it('should retain full polygon A if subtracting disjoint polygon C', () => {
+      const result = SpatialIntersectAnalyzer.difference(polyA, polyC_disjoint, {
+        layerAName: 'Wilayah A',
+        layerBName: 'Pulau C'
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.intersectedCount).toBe(1);
+      expect(result.intersectedAreaKm2).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Polygon Geometric Union (Penggabungan)', () => {
+    it('should merge overlapping polygons into a single union geometry', () => {
+      const result = SpatialIntersectAnalyzer.union(polyA, polyB_overlapping, {
+        layerAName: 'Wilayah A',
+        layerBName: 'Industri B'
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.mode).toBe('union');
+      expect(result.intersectedCount).toBeGreaterThanOrEqual(1);
+      expect(result.intersectedAreaKm2).toBeGreaterThan(0);
+      expect(result.data?.features.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe('Polygon Symmetric Difference (Beda Simetris / XOR)', () => {
+    it('should compute exclusive areas of polyA and polyB without the overlap', () => {
+      const result = SpatialIntersectAnalyzer.symmetricDifference(polyA, polyB_overlapping, {
+        layerAName: 'Wilayah A',
+        layerBName: 'Industri B'
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.mode).toBe('sym_difference');
+      expect(result.intersectedCount).toBeGreaterThanOrEqual(1);
+      expect(result.intersectedAreaKm2).toBeGreaterThan(0);
+    });
+  });
+
   describe('Point-in-Polygon Overlay', () => {
     it('should filter points inside the polygon when polygon is Layer A and points are Layer B', () => {
       const result = SpatialIntersectAnalyzer.intersect(polyA, pointsLayer, {
@@ -157,10 +221,10 @@ describe('SpatialIntersectAnalyzer', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.intersectedCount).toBe(1);
-      expect(result.data?.features.length).toBe(1);
-      expect(result.data?.features[0].properties?.name).toBe('Stasiun Pusat Jakarta');
-      expect(result.featureSummaries[0].name).toContain('Stasiun Pusat Jakarta');
+      expect(result.intersectedCount).toBe(2);
+      expect(result.data?.features.length).toBe(2);
+      expect(result.data?.features.some((f) => f.properties?.name === 'Stasiun Pusat Jakarta')).toBe(true);
+      expect(result.data?.features.some((f) => f.properties?.name === 'Pelabuhan Merak')).toBe(false);
     });
 
     it('should filter points inside the polygon when points are Layer A and polygon is Layer B', () => {
@@ -170,8 +234,8 @@ describe('SpatialIntersectAnalyzer', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.intersectedCount).toBe(1);
-      expect(result.data?.features[0].properties?.name).toBe('Stasiun Pusat Jakarta');
+      expect(result.intersectedCount).toBe(2);
+      expect(result.data?.features.some((f) => f.properties?.name === 'Stasiun Pusat Jakarta')).toBe(true);
     });
   });
 
@@ -185,6 +249,65 @@ describe('SpatialIntersectAnalyzer', () => {
       expect(result.success).toBe(true);
       expect(result.intersectedCount).toBe(1);
       expect(result.data?.features[0].properties?.name).toBe('Jalur Tol Jakarta-Cikampek');
+    });
+  });
+
+  describe('Thematic Category Breakdown', () => {
+    it('should compute category distributions with percentages and colors', () => {
+      const result = SpatialIntersectAnalyzer.intersect(polyA, pointsLayer, {
+        layerAName: 'Wilayah A',
+        layerBName: 'Titik Stasiun'
+      });
+
+      expect(result.categoryBreakdowns.length).toBeGreaterThan(0);
+      const transitCat = result.categoryBreakdowns.find((c) => c.category === 'Transit');
+      expect(transitCat).toBeDefined();
+      expect(transitCat?.count).toBe(2);
+      expect(transitCat?.percentage).toBe(100);
+      expect(transitCat?.color).toBeDefined();
+    });
+  });
+
+  describe('Multi-Layer Batch Cascade Overlay', () => {
+    it('should batch overlay a base polygon across multiple vector target layers', () => {
+      const targets = [
+        { id: 'ind-b', name: 'Kawasan Industri', data: polyB_overlapping },
+        { id: 'pts', name: 'Titik Stasiun', data: pointsLayer },
+        { id: 'disjoint', name: 'Pulau C', data: polyC_disjoint }
+      ];
+
+      const batchResult = SpatialIntersectAnalyzer.batchOverlay(polyA, targets, {
+        mode: 'intersect',
+        layerAName: 'AOI Jakarta'
+      });
+
+      expect(batchResult.totalLayersProcessed).toBe(3);
+      expect(batchResult.totalIntersectedCount).toBe(3); // 1 poly + 2 pts + 0 disjoint
+      expect(batchResult.totalIntersectedAreaKm2).toBeGreaterThan(0);
+      expect(batchResult.results.length).toBe(3);
+      expect(batchResult.results[0].result.intersectedCount).toBe(1);
+      expect(batchResult.results[1].result.intersectedCount).toBe(2);
+      expect(batchResult.results[2].result.intersectedCount).toBe(0);
+    });
+  });
+
+  describe('Generic Overlay Dispatcher and Mode Labels', () => {
+    it('should route correctly to each mode using overlay()', () => {
+      const resIntersect = SpatialIntersectAnalyzer.overlay(polyA, polyB_overlapping, { mode: 'intersect' });
+      expect(resIntersect.mode).toBe('intersect');
+      expect(SpatialIntersectAnalyzer.getModeLabel('intersect')).toContain('Irisan');
+
+      const resDiff = SpatialIntersectAnalyzer.overlay(polyA, polyB_overlapping, { mode: 'difference' });
+      expect(resDiff.mode).toBe('difference');
+      expect(SpatialIntersectAnalyzer.getModeLabel('difference')).toContain('Difference');
+
+      const resUnion = SpatialIntersectAnalyzer.overlay(polyA, polyB_overlapping, { mode: 'union' });
+      expect(resUnion.mode).toBe('union');
+      expect(SpatialIntersectAnalyzer.getModeLabel('union')).toContain('Union');
+
+      const resSym = SpatialIntersectAnalyzer.overlay(polyA, polyB_overlapping, { mode: 'sym_difference' });
+      expect(resSym.mode).toBe('sym_difference');
+      expect(SpatialIntersectAnalyzer.getModeLabel('sym_difference')).toContain('Beda');
     });
   });
 

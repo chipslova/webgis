@@ -1,9 +1,12 @@
 import * as maplibregl from 'maplibre-gl';
+import { bbox } from '@turf/bbox';
 import { GeoJsonLoader } from '../tools/geojson-loader';
 import { SpatialAnalysisUI } from './spatial-analysis-ui';
 import {
   SpatialIntersectAnalyzer,
-  IntersectAnalysisResult
+  SpatialOverlayMode,
+  IntersectAnalysisResult,
+  BatchOverlayResult
 } from '../tools/spatial-intersect';
 import { showToast } from './toast';
 import { announceToScreenReader } from '../utils/a11y';
@@ -16,8 +19,18 @@ export class IntersectAnalysisUI {
   private onLayersChangeCallback?: () => void;
 
   private activeResult: IntersectAnalysisResult | null = null;
+  private activeBatchResult: BatchOverlayResult | null = null;
+  private currentMode: SpatialOverlayMode = 'intersect';
   private selectedColor: string = '#00f0ff'; // Neon Cyan default for WebGIS dark theme
   private selectedOpacity: number = 0.70;
+
+  public getActiveResult(): IntersectAnalysisResult | null {
+    return this.activeResult;
+  }
+
+  public getActiveBatchResult(): BatchOverlayResult | null {
+    return this.activeBatchResult;
+  }
 
   constructor(
     map: maplibregl.Map,
@@ -41,7 +54,10 @@ export class IntersectAnalysisUI {
     return [
       'intersect-result-fill',
       'intersect-result-line',
-      'intersect-result-points'
+      'intersect-result-points',
+      'intersect-hover-fill',
+      'intersect-hover-line',
+      'intersect-hover-points'
     ];
   }
 
@@ -59,6 +75,7 @@ export class IntersectAnalysisUI {
     if (!this.map || !this.map.getStyle()) return;
 
     try {
+      // 1. Main Result Source & Layers
       if (!this.map.getSource('intersect-result-source')) {
         this.map.addSource('intersect-result-source', {
           type: 'geojson',
@@ -66,7 +83,6 @@ export class IntersectAnalysisUI {
         });
       }
 
-      // 1. Polygon Fill
       if (!this.map.getLayer('intersect-result-fill')) {
         this.map.addLayer({
           id: 'intersect-result-fill',
@@ -80,7 +96,6 @@ export class IntersectAnalysisUI {
         });
       }
 
-      // 2. Line & Polygon Casing
       if (!this.map.getLayer('intersect-result-line')) {
         this.map.addLayer({
           id: 'intersect-result-line',
@@ -95,7 +110,6 @@ export class IntersectAnalysisUI {
         });
       }
 
-      // 3. Point Circles
       if (!this.map.getLayer('intersect-result-points')) {
         this.map.addLayer({
           id: 'intersect-result-points',
@@ -108,6 +122,56 @@ export class IntersectAnalysisUI {
             'circle-stroke-width': 2.5,
             'circle-stroke-color': '#ffffff',
             'circle-opacity': 0.95
+          }
+        });
+      }
+
+      // 2. Interactive Hover Highlight Source & Layers
+      if (!this.map.getSource('intersect-hover-source')) {
+        this.map.addSource('intersect-hover-source', {
+          type: 'geojson',
+          data: { type: 'FeatureCollection', features: [] }
+        });
+      }
+
+      if (!this.map.getLayer('intersect-hover-fill')) {
+        this.map.addLayer({
+          id: 'intersect-hover-fill',
+          type: 'fill',
+          source: 'intersect-hover-source',
+          filter: ['any', ['==', '$type', 'Polygon']],
+          paint: {
+            'fill-color': '#facc15',
+            'fill-opacity': 0.65
+          }
+        });
+      }
+
+      if (!this.map.getLayer('intersect-hover-line')) {
+        this.map.addLayer({
+          id: 'intersect-hover-line',
+          type: 'line',
+          source: 'intersect-hover-source',
+          paint: {
+            'line-color': '#facc15',
+            'line-width': 4,
+            'line-opacity': 1
+          }
+        });
+      }
+
+      if (!this.map.getLayer('intersect-hover-points')) {
+        this.map.addLayer({
+          id: 'intersect-hover-points',
+          type: 'circle',
+          source: 'intersect-hover-source',
+          filter: ['any', ['==', '$type', 'Point']],
+          paint: {
+            'circle-radius': 11,
+            'circle-color': '#facc15',
+            'circle-stroke-width': 3,
+            'circle-stroke-color': '#ffffff',
+            'circle-opacity': 1
           }
         });
       }
@@ -127,15 +191,14 @@ export class IntersectAnalysisUI {
     const layers = this.geojsonLoader.getLayers();
     const activeAOI = this.spatialAnalysisUI.getActiveAOIPolygon();
 
-    let optionsHtmlA = '<option value="" disabled selected>Pilih lapisan input A (Dasar / Wilayah)...</option>';
-    let optionsHtmlB = '<option value="" disabled selected>Pilih lapisan input B (Target / Overlay)...</option>';
+    let optionsHtmlA = '<option value="" disabled selected>Pilih lapisan wilayah acuan...</option>';
+    let optionsHtmlB = '<option value="" disabled selected>Pilih lapisan target...</option>';
 
     if (activeAOI) {
       optionsHtmlA += '<option value="__aoi_active__">🎯 Wilayah AOI Aktif (Poligon Gambaran)</option>';
       optionsHtmlB += '<option value="__aoi_active__">🎯 Wilayah AOI Aktif (Poligon Gambaran)</option>';
     }
 
-    // Add GEE Stations option if available
     optionsHtmlA += '<option value="__gee_stations__">🌡️ Stasiun Observasi MODIS LST (18 Titik Indonesia)</option>';
     optionsHtmlB += '<option value="__gee_stations__">🌡️ Stasiun Observasi MODIS LST (18 Titik Indonesia)</option>';
 
@@ -175,15 +238,44 @@ export class IntersectAnalysisUI {
     const colorChips = document.querySelectorAll<HTMLButtonElement>('.intersect-color-chip');
     const customColorInput = document.getElementById('intersect-color-custom') as HTMLInputElement | null;
 
-    // Quick Target Selection Chips
+    // 1. Operation Mode Pills (Intersect, Difference, Union, XOR)
+    const opPills = document.querySelectorAll<HTMLButtonElement>('.intersect-op-btn');
+    opPills.forEach((pill) => {
+      pill.addEventListener('click', (e) => {
+        e.preventDefault();
+        opPills.forEach((p) => p.classList.remove('active'));
+        pill.classList.add('active');
+        const mode = (pill.dataset.mode as SpatialOverlayMode) || 'intersect';
+        this.currentMode = mode;
+        const opDescEl = document.getElementById('intersect-op-desc');
+        if (opDescEl) {
+          if (mode === 'intersect') {
+            opDescEl.innerText = '⚔️ Irisan: Ambil area perpotongan eksklusif di antara dua wilayah.';
+          } else if (mode === 'difference') {
+            opDescEl.innerText = '✂️ Pemotongan: Kurangi area Lapisan A dengan batas Lapisan B.';
+          } else if (mode === 'union') {
+            opDescEl.innerText = '🔗 Penggabungan: Satukan kedua area menjadi satu kesatuan wilayah.';
+          } else if (mode === 'sym_difference') {
+            opDescEl.innerText = '⚡ Beda Simetris: Ambil area unik tanpa bagian yang saling tumpang tindih.';
+          }
+        }
+      });
+    });
+
+    // 2. Quick Target Selection Chips
     const chipCities = document.getElementById('chip-target-cities');
     const chipStations = document.getElementById('chip-target-stations');
+    const chipAll = document.getElementById('chip-target-all');
     const chipCustom = document.getElementById('chip-target-custom');
     const customSelectors = document.getElementById('intersect-custom-selectors');
 
-    chipCities?.addEventListener('click', () => {
+    const updateActiveChip = (targetBtn: HTMLElement | null) => {
       document.querySelectorAll('.intersect-target-chips .btn-chip').forEach((c) => c.classList.remove('active'));
-      chipCities.classList.add('active');
+      targetBtn?.classList.add('active');
+    };
+
+    chipCities?.addEventListener('click', () => {
+      updateActiveChip(chipCities);
       if (customSelectors) customSelectors.style.display = 'none';
       const selA = document.getElementById('intersect-layer-a') as HTMLSelectElement | null;
       const selB = document.getElementById('intersect-layer-b') as HTMLSelectElement | null;
@@ -193,8 +285,7 @@ export class IntersectAnalysisUI {
     });
 
     chipStations?.addEventListener('click', () => {
-      document.querySelectorAll('.intersect-target-chips .btn-chip').forEach((c) => c.classList.remove('active'));
-      chipStations.classList.add('active');
+      updateActiveChip(chipStations);
       if (customSelectors) customSelectors.style.display = 'none';
       const selA = document.getElementById('intersect-layer-a') as HTMLSelectElement | null;
       const selB = document.getElementById('intersect-layer-b') as HTMLSelectElement | null;
@@ -202,9 +293,13 @@ export class IntersectAnalysisUI {
       if (selB) selB.value = '__gee_stations__';
     });
 
+    chipAll?.addEventListener('click', () => {
+      updateActiveChip(chipAll);
+      if (customSelectors) customSelectors.style.display = 'none';
+    });
+
     chipCustom?.addEventListener('click', () => {
-      document.querySelectorAll('.intersect-target-chips .btn-chip').forEach((c) => c.classList.remove('active'));
-      chipCustom.classList.add('active');
+      updateActiveChip(chipCustom);
       if (customSelectors) customSelectors.style.display = 'flex';
     });
 
@@ -249,16 +344,22 @@ export class IntersectAnalysisUI {
   }
 
   public async runAnalysis() {
+    const statusBox = document.getElementById('intersect-analysis-status');
+    const activeChip = document.querySelector('.intersect-target-chips .btn-chip.active') as HTMLElement | null;
+    const targetType = activeChip?.dataset.target || 'cities';
+
+    // 1. Batch Multi-Layer Mode
+    if (targetType === 'all') {
+      await this.runBatchAnalysis();
+      return;
+    }
+
+    // 2. Standard Pair Overlay Mode
     const selectA = document.getElementById('intersect-layer-a') as HTMLSelectElement | null;
     const selectB = document.getElementById('intersect-layer-b') as HTMLSelectElement | null;
-    const statusBox = document.getElementById('intersect-analysis-status');
 
     let idA = selectA?.value || '__aoi_active__';
     let idB = selectB?.value || '__gee_stations__';
-
-    // Check if user is using quick target chips
-    const activeChip = document.querySelector('.intersect-target-chips .btn-chip.active') as HTMLElement | null;
-    const targetType = activeChip?.dataset.target || 'cities';
 
     if (targetType === 'cities') {
       idA = '__aoi_active__';
@@ -269,20 +370,19 @@ export class IntersectAnalysisUI {
       idB = '__gee_stations__';
     }
 
-    // Verify Active AOI
     if (idA === '__aoi_active__' && !this.spatialAnalysisUI.getActiveAOIPolygon()) {
-      showToast('Gambar area AOI di atas (atau pilih preset kota) terlebih dahulu untuk diiris!', 'warning');
+      showToast('Gambar area AOI di atas (atau pilih preset kota) terlebih dahulu!', 'warning');
       document.getElementById('spatial-analysis-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       if (statusBox) {
         statusBox.style.display = 'block';
         statusBox.className = 'analysis-status-box warning';
-        statusBox.innerHTML = `⚠️ <strong>Area AOI Belum Ada:</strong> Silakan klik <strong>Gambar AOI Bebas</strong> atau pilih preset wilayah prioritas di bagian atas.`;
+        statusBox.innerHTML = `⚠️ <strong>Area AOI Belum Ada:</strong> Silakan klik <strong>Gambar AOI Bebas</strong> atau pilih preset wilayah di bagian atas.`;
       }
       return;
     }
 
     if (idA === idB) {
-      showToast('Lapisan Input A dan B harus berbeda untuk analisis irisan!', 'warning');
+      showToast('Lapisan Input A dan B harus berbeda untuk analisis overlay!', 'warning');
       return;
     }
 
@@ -292,7 +392,7 @@ export class IntersectAnalysisUI {
       statusBox.innerHTML = `
         <div style="display: flex; align-items: center; gap: 8px;">
           <div class="hud-spinner" style="width: 14px; height: 14px; border-width: 2px;"></div>
-          <span><strong>Menghitung irisan spasial (Spatial Intersect)...</strong></span>
+          <span><strong>Memproses ${SpatialIntersectAnalyzer.getModeLabel(this.currentMode)}...</strong></span>
         </div>
       `;
     }
@@ -315,15 +415,17 @@ export class IntersectAnalysisUI {
 
       this.initMapLayers();
 
-      const result = SpatialIntersectAnalyzer.intersect(dataA, dataB, {
+      const result = SpatialIntersectAnalyzer.overlay(dataA, dataB, {
+        mode: this.currentMode,
         layerAName: nameA,
         layerBName: nameB
       });
 
       this.activeResult = result;
+      this.activeBatchResult = null;
 
       if (!result.success) {
-        showToast(result.error || 'Gagal memproses intersect', 'error');
+        showToast(result.error || 'Gagal memproses overlay', 'error');
         if (statusBox) {
           statusBox.className = 'analysis-status-box warning';
           statusBox.innerHTML = `⚠️ <strong>Gagal:</strong> ${result.error || 'Tidak dapat memproses irisan.'}`;
@@ -344,17 +446,70 @@ export class IntersectAnalysisUI {
       }
 
       showToast(
-        `Analisis Intersect selesai: ${result.intersectedCount} fitur beririsan ditemukan!`,
+        `${result.modeLabel} selesai: ${result.intersectedCount} fitur ditemukan!`,
         'success'
       );
       announceToScreenReader(
-        `Analisis tumpang tindih spasial selesai. ${result.intersectedCount} fitur beririsan dengan total luas ${result.intersectedAreaKm2} kilometer persegi.`
+        `Analisis ${result.modeLabel} selesai. ${result.intersectedCount} fitur dengan total luas ${result.intersectedAreaKm2} kilometer persegi.`
       );
     } catch (err: any) {
       logger.error('[IntersectAnalysisUI] Execution error:', err);
       showToast(`Error: ${err?.message || 'Gagal memproses analisis'}`, 'error');
       if (statusBox) statusBox.style.display = 'none';
     }
+  }
+
+  private async runBatchAnalysis() {
+    const statusBox = document.getElementById('intersect-analysis-status');
+    const aoi = this.spatialAnalysisUI.getActiveAOIPolygon();
+
+    if (!aoi) {
+      showToast('Gambar area AOI di atas terlebih dahulu untuk analisis multi-lapisan!', 'warning');
+      document.getElementById('spatial-analysis-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    const baseFC: GeoJSON.FeatureCollection = {
+      type: 'FeatureCollection',
+      features: [aoi]
+    };
+
+    const targetLayers: { id: string; name: string; data: GeoJSON.FeatureCollection }[] = [];
+
+    // Add Cities Layer
+    const customLayers = this.geojsonLoader.getLayers();
+    for (const l of customLayers) {
+      targetLayers.push({ id: l.id, name: l.name, data: l.data });
+    }
+
+    // Add GEE Stations
+    try {
+      const res = await fetch('/data/gee_cfsv2_stations.geojson');
+      if (res.ok) {
+        const data = await res.json();
+        targetLayers.push({ id: '__gee_stations__', name: 'Stasiun Observasi LST', data });
+      }
+    } catch (_) {}
+
+    if (statusBox) {
+      statusBox.style.display = 'block';
+      statusBox.className = 'analysis-status-box';
+      statusBox.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="hud-spinner" style="width: 14px; height: 14px; border-width: 2px;"></div>
+          <span><strong>Menganalisis AOI terhadap ${targetLayers.length} lapisan aktif...</strong></span>
+        </div>
+      `;
+    }
+
+    const batchRes = SpatialIntersectAnalyzer.batchOverlay(baseFC, targetLayers, {
+      mode: this.currentMode,
+      layerAName: 'Wilayah AOI'
+    });
+
+    this.activeBatchResult = batchRes;
+    this.renderBatchResults(batchRes);
+    showToast(`Analisis Multi-Lapisan selesai untuk ${targetLayers.length} layer!`, 'success');
   }
 
   private renderResults(result: IntersectAnalysisResult) {
@@ -368,8 +523,8 @@ export class IntersectAnalysisUI {
       statusBox.className = 'analysis-status-box warning';
       statusBox.innerHTML = `
         <div style="font-size: 11px;">
-          <strong style="color: #facc15;">ℹ️ Tidak Ditemukan Irisan Spasial:</strong><br>
-          Tidak ada bagian dari <strong>${result.layerBName}</strong> yang berpotongan atau berada di dalam area <strong>${result.layerAName}</strong> (Disjoint).
+          <strong style="color: #facc15;">ℹ️ Tidak Ditemukan Hasil ${result.modeLabel}:</strong><br>
+          Tidak ada bagian dari <strong>${result.layerBName}</strong> yang beririsan dengan <strong>${result.layerAName}</strong> (Disjoint).
         </div>
       `;
       return;
@@ -383,34 +538,59 @@ export class IntersectAnalysisUI {
     if (result.intersectedAreaKm2 > 0) {
       areaMetricHtml = `
         <div class="intersect-metric-box">
-          <span class="intersect-metric-label">Luas Irisan (Overlap)</span>
-          <span class="intersect-metric-val" style="color: #38bdf8;">${result.intersectedAreaKm2.toLocaleString('id-ID')} km²</span>
+          <span class="intersect-metric-label">Luas Area Hasil (${result.modeLabel.split(' ')[0]})</span>
+          <span class="intersect-metric-val" style="color: #00f0ff;">${result.intersectedAreaKm2.toLocaleString('id-ID')} km²</span>
           <span class="intersect-metric-sub">(${result.intersectedAreaHa.toLocaleString('id-ID')} ha · ${result.overlapPercentage}% dari ${result.layerAName})</span>
         </div>
       `;
     }
 
-    // Build summaries table if summaries exist
+    // Category Thematic Breakdown Bars
+    let catBreakdownHtml = '';
+    if (result.categoryBreakdowns.length > 0) {
+      const bars = result.categoryBreakdowns.map((cat) => `
+        <div style="margin-bottom: 5px;">
+          <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 2px;">
+            <span style="font-weight: 600; color: #fff;">${cat.category}</span>
+            <span style="color: #94a3b8;">${cat.count} objek · ${cat.percentage}%</span>
+          </div>
+          <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
+            <div style="width: ${cat.percentage}%; height: 100%; background: ${cat.color}; border-radius: 3px; transition: width 0.3s ease;"></div>
+          </div>
+        </div>
+      `).join('');
+
+      catBreakdownHtml = `
+        <div style="margin-top: 10px; padding: 8px 10px; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px;">
+          <span style="font-size: 10px; font-weight: 700; color: #00f0ff; text-transform: uppercase; letter-spacing: 0.3px; display: block; margin-bottom: 6px;">
+            📊 Distribusi Tematik Kategori:
+          </span>
+          ${bars}
+        </div>
+      `;
+    }
+
+    // Interactive Summaries Table (with Hover Slicing & Click FlyTo)
     let tableHtml = '';
     if (result.featureSummaries.length > 0) {
       const rows = result.featureSummaries.slice(0, 15).map((f, idx) => {
-        const areaBadge = f.areaKm2 ? `<span style="color: #38bdf8; font-size: 9.5px;">${f.areaKm2} km²</span>` : `<span style="color: var(--text-muted); font-size: 9.5px;">${f.type}</span>`;
+        const areaBadge = f.areaKm2 ? `<span style="color: #00f0ff; font-size: 9.5px;">${f.areaKm2} km²</span>` : `<span style="color: var(--text-muted); font-size: 9.5px;">${f.type}</span>`;
         return `
-          <tr>
+          <tr class="intersect-table-row" data-idx="${idx}" style="cursor: pointer; transition: background 0.15s ease;">
             <td style="padding: 4px 6px; font-size: 10px; border-bottom: 1px solid rgba(255,255,255,0.06);">${idx + 1}</td>
-            <td style="padding: 4px 6px; font-size: 10px; font-weight: 600; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.06); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${f.name}">${f.name}</td>
+            <td style="padding: 4px 6px; font-size: 10px; font-weight: 600; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.06); max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${f.name}">${f.name}</td>
             <td style="padding: 4px 6px; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.06);">${areaBadge}</td>
           </tr>
         `;
       }).join('');
 
       tableHtml = `
-        <div style="margin-top: 8px; max-height: 140px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; background: rgba(0,0,0,0.3);">
+        <div style="margin-top: 8px; max-height: 130px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; background: rgba(0,0,0,0.3);">
           <table style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead>
               <tr style="background: rgba(255,255,255,0.05); font-size: 9.5px; color: var(--text-muted);">
                 <th style="padding: 4px 6px;">#</th>
-                <th style="padding: 4px 6px;">Nama Fitur Irisan</th>
+                <th style="padding: 4px 6px;">Nama Fitur</th>
                 <th style="padding: 4px 6px; text-align: right;">Ukuran / Tipe</th>
               </tr>
             </thead>
@@ -419,13 +599,14 @@ export class IntersectAnalysisUI {
             </tbody>
           </table>
         </div>
+        <span style="font-size: 9px; color: var(--text-muted); display: block; margin-top: 3px;">💡 Arahkan kursor ke baris tabel untuk menyorot geometri di peta.</span>
       `;
     }
 
     statusBox.innerHTML = `
       ${warningHtml}
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <strong style="color: #00f0ff; font-size: 11px;">⚔️ Hasil Irisan Wilayah (Overlay):</strong>
+        <strong style="color: #00f0ff; font-size: 11px;">⚔️ Hasil ${result.modeLabel}:</strong>
         <span style="font-size: 9.5px; padding: 2px 8px; border-radius: 10px; background: rgba(0, 240, 255, 0.15); border: 1px solid rgba(0, 240, 255, 0.4); color: #00f0ff; font-weight: 600;">
           ${result.intersectedCount} Fitur Ditemukan
         </span>
@@ -433,17 +614,18 @@ export class IntersectAnalysisUI {
 
       <div class="intersect-metrics-grid">
         <div class="intersect-metric-box">
-          <span class="intersect-metric-label">Jumlah Objek Beririsan</span>
+          <span class="intersect-metric-label">Jumlah Objek Ditemukan</span>
           <span class="intersect-metric-val" style="color: #4ade80;">${result.intersectedCount} Objek</span>
           <span class="intersect-metric-sub">${result.layerAName} ∩ ${result.layerBName}</span>
         </div>
         ${areaMetricHtml}
       </div>
 
+      ${catBreakdownHtml}
       ${tableHtml}
 
       <div class="intersect-action-buttons-row" style="margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-        <button id="btn-intersect-flyto" class="btn btn-secondary btn-sm" style="font-size: 10px; padding: 5px 6px; justify-content: center;" title="Arahkan kamera peta ke cakupan irisan">
+        <button id="btn-intersect-flyto" class="btn btn-secondary btn-sm" style="font-size: 10px; padding: 5px 6px; justify-content: center;" title="Arahkan kamera peta ke cakupan hasil">
           <span>👁️ Fokuskan Peta</span>
         </button>
         <button id="btn-intersect-download-geojson" class="btn btn-outline btn-sm btn-export-geo" style="font-size: 10px; padding: 5px 6px; justify-content: center;" title="Unduh GeoJSON">
@@ -458,30 +640,127 @@ export class IntersectAnalysisUI {
       </div>
     `;
 
-    // Bind result action buttons
-    document.getElementById('btn-intersect-flyto')?.addEventListener('click', () => {
-      this.flyToResult();
-    });
+    // Bind action buttons
+    document.getElementById('btn-intersect-flyto')?.addEventListener('click', () => this.flyToResult());
+    document.getElementById('btn-intersect-download-geojson')?.addEventListener('click', () => this.downloadGeoJSON());
+    document.getElementById('btn-intersect-download-csv')?.addEventListener('click', () => this.downloadCSV());
+    document.getElementById('btn-intersect-download-kml')?.addEventListener('click', () => this.downloadKML());
 
-    document.getElementById('btn-intersect-download-geojson')?.addEventListener('click', () => {
-      this.downloadGeoJSON();
-    });
+    // Bind interactive table row hover & click
+    const tableRows = statusBox.querySelectorAll<HTMLTableRowElement>('.intersect-table-row');
+    tableRows.forEach((row) => {
+      const idx = Number(row.dataset.idx);
+      const feat = result.data?.features[idx];
 
-    document.getElementById('btn-intersect-download-csv')?.addEventListener('click', () => {
-      this.downloadCSV();
-    });
+      row.addEventListener('mouseenter', () => {
+        row.style.background = 'rgba(0, 240, 255, 0.12)';
+        if (feat) this.highlightFeatureOnMap(feat);
+      });
 
-    document.getElementById('btn-intersect-download-kml')?.addEventListener('click', () => {
-      this.downloadKML();
+      row.addEventListener('mouseleave', () => {
+        row.style.background = 'transparent';
+        this.clearHighlightOnMap();
+      });
+
+      row.addEventListener('click', () => {
+        if (feat) this.flyToFeature(feat);
+      });
     });
+  }
+
+  private renderBatchResults(batch: BatchOverlayResult) {
+    const statusBox = document.getElementById('intersect-analysis-status');
+    if (!statusBox) return;
+
+    statusBox.style.display = 'block';
+    statusBox.className = 'analysis-status-box success';
+
+    const cards = batch.results.map((r) => {
+      const count = r.result.intersectedCount;
+      const areaVal = r.result.intersectedAreaKm2 > 0 ? `${r.result.intersectedAreaKm2} km²` : `${count} Fitur`;
+      const badgeClass = count > 0 ? 'badge-success' : 'badge-muted';
+      return `
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; margin-bottom: 4px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 4px;">
+          <div>
+            <div style="font-size: 10.5px; font-weight: 600; color: #fff;">${r.layerName}</div>
+            <div style="font-size: 9px; color: var(--text-muted);">${r.result.layerAName} ∩ ${r.layerName}</div>
+          </div>
+          <span style="font-size: 10px; font-weight: 700; color: #00f0ff;" class="${badgeClass}">
+            ${areaVal}
+          </span>
+        </div>
+      `;
+    }).join('');
+
+    statusBox.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <strong style="color: #00f0ff; font-size: 11px;">🌐 Hasil Multi-Lapisan (Batch Overlay):</strong>
+        <span style="font-size: 9.5px; padding: 2px 8px; border-radius: 10px; background: rgba(0, 240, 255, 0.15); color: #00f0ff; font-weight: 600;">
+          ${batch.totalLayersProcessed} Lapisan
+        </span>
+      </div>
+
+      <div class="intersect-metrics-grid">
+        <div class="intersect-metric-box">
+          <span class="intersect-metric-label">Total Fitur Terkena</span>
+          <span class="intersect-metric-val" style="color: #4ade80;">${batch.totalIntersectedCount} Objek</span>
+          <span class="intersect-metric-sub">Diuji terhadap ${batch.baseLayerName}</span>
+        </div>
+        <div class="intersect-metric-box">
+          <span class="intersect-metric-label">Total Luas Irisan</span>
+          <span class="intersect-metric-val" style="color: #00f0ff;">${batch.totalIntersectedAreaKm2} km²</span>
+          <span class="intersect-metric-sub">Akumulasi seluruh layer</span>
+        </div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        ${cards}
+      </div>
+    `;
+  }
+
+  public highlightFeatureOnMap(feature: GeoJSON.Feature) {
+    const src = this.map.getSource('intersect-hover-source') as maplibregl.GeoJSONSource;
+    if (src && typeof src.setData === 'function') {
+      src.setData({
+        type: 'FeatureCollection',
+        features: [feature]
+      });
+    }
+  }
+
+  public clearHighlightOnMap() {
+    const src = this.map.getSource('intersect-hover-source') as maplibregl.GeoJSONSource;
+    if (src && typeof src.setData === 'function') {
+      src.setData({ type: 'FeatureCollection', features: [] });
+    }
+  }
+
+  public flyToFeature(feature: GeoJSON.Feature) {
+    if (!feature.geometry) return;
+    try {
+      const b = bbox(feature) as [number, number, number, number];
+      this.map.fitBounds(
+        [
+          [b[0], b[1]],
+          [b[2], b[3]]
+        ],
+        { padding: 80, maxZoom: 14, duration: 1000 }
+      );
+      this.highlightFeatureOnMap(feature);
+    } catch (e) {
+      logger.warn('[IntersectAnalysisUI] flyToFeature error:', e);
+    }
   }
 
   public clearAnalysis() {
     this.activeResult = null;
+    this.activeBatchResult = null;
     const src = this.map.getSource('intersect-result-source') as maplibregl.GeoJSONSource;
     if (src && typeof src.setData === 'function') {
       src.setData({ type: 'FeatureCollection', features: [] });
     }
+    this.clearHighlightOnMap();
 
     const statusBox = document.getElementById('intersect-analysis-status');
     if (statusBox) {
@@ -489,7 +768,7 @@ export class IntersectAnalysisUI {
       statusBox.innerHTML = '';
     }
 
-    showToast('Lapisan dan hasil analisis intersect telah dibersihkan.', 'info');
+    showToast('Lapisan dan hasil analisis overlay telah dibersihkan.', 'info');
     if (this.onLayersChangeCallback) {
       this.onLayersChangeCallback();
     }
@@ -497,7 +776,7 @@ export class IntersectAnalysisUI {
 
   public flyToResult() {
     if (!this.activeResult || !this.activeResult.bbox) {
-      showToast('Tidak ada batas cakupan wilayah irisan untuk difokuskan.', 'warning');
+      showToast('Tidak ada batas cakupan wilayah hasil untuk difokuskan.', 'warning');
       return;
     }
 
@@ -507,9 +786,8 @@ export class IntersectAnalysisUI {
         [b[0], b[1]],
         [b[2], b[3]]
       ],
-      { padding: 60, duration: 1200, maxZoom: 14 }
+      { padding: 60, maxZoom: 13, duration: 1200 }
     );
-    showToast('Kamera peta diarahkan ke cakupan hasil irisan.', 'info');
   }
 
   private downloadGeoJSON() {
@@ -518,33 +796,35 @@ export class IntersectAnalysisUI {
       return;
     }
 
-    const jsonStr = JSON.stringify(this.activeResult.data, null, 2);
-    const blob = new Blob([jsonStr], { type: 'application/geo+json' });
+    const str = JSON.stringify(this.activeResult.data, null, 2);
+    const blob = new Blob([str], { type: 'application/geo+json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `intersect_${this.sanitizeFilename(this.activeResult.layerAName)}_${this.sanitizeFilename(this.activeResult.layerBName)}_${Date.now()}.geojson`;
+    a.download = `overlay_${this.activeResult.mode}_${Date.now()}.geojson`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast('Hasil intersect GeoJSON berhasil diunduh!', 'success');
+    showToast('Berkas GeoJSON hasil overlay berhasil diunduh!', 'success');
   }
 
   private downloadCSV() {
     if (!this.activeResult || !this.activeResult.featureSummaries || this.activeResult.featureSummaries.length === 0) {
-      showToast('Tidak ada baris data irisan untuk diunduh.', 'warning');
+      showToast('Tidak ada ringkasan fitur untuk diunduh sebagai CSV.', 'warning');
       return;
     }
 
-    const headers = ['No', 'Nama_Fitur', 'Tipe_Geometri', 'Luas_km2', 'Lapisan_A', 'Lapisan_B'];
-    const rows = this.activeResult.featureSummaries.map((f, idx) => [
-      idx + 1,
-      `"${(f.name || '').replace(/"/g, '""')}"`,
-      `"${f.type || ''}"`,
+    const headers = ['No', 'Nama Fitur', 'Tipe Geometri', 'Kategori', 'Luas (km2)', 'Luas (Ha)', 'Lapisan Basis', 'Lapisan Target'];
+    const rows = this.activeResult.featureSummaries.map((f, i) => [
+      i + 1,
+      `"${f.name.replace(/"/g, '""')}"`,
+      f.type,
+      `"${(f.category || 'Umum').replace(/"/g, '""')}"`,
       f.areaKm2 || 0,
-      `"${(f.layerA || '').replace(/"/g, '""')}"`,
-      `"${(f.layerB || '').replace(/"/g, '""')}"`
+      f.areaHa || 0,
+      `"${f.layerA.replace(/"/g, '""')}"`,
+      `"${f.layerB.replace(/"/g, '""')}"`
     ]);
 
     const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
@@ -552,26 +832,26 @@ export class IntersectAnalysisUI {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `intersect_summary_${Date.now()}.csv`;
+    a.download = `overlay_summary_${Date.now()}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast('Ringkasan intersect CSV berhasil diunduh!', 'success');
+    showToast('Ringkasan overlay CSV berhasil diunduh!', 'success');
   }
 
   private downloadKML() {
     if (!this.activeResult || !this.activeResult.data) {
-      showToast('Tidak ada data irisan untuk diunduh.', 'warning');
+      showToast('Tidak ada data overlay untuk diunduh.', 'warning');
       return;
     }
 
     try {
       import('../utils/kml-exporter').then(({ geoJsonToKml, downloadKml }) => {
-        const title = `Intersect ${this.activeResult?.layerAName} x ${this.activeResult?.layerBName}`;
+        const title = `${this.activeResult?.modeLabel}: ${this.activeResult?.layerAName} x ${this.activeResult?.layerBName}`;
         const kmlString = geoJsonToKml(this.activeResult!.data!, title);
-        downloadKml(kmlString, `intersect_${Date.now()}.kml`);
-        showToast('Hasil intersect KML berhasil diunduh!', 'success');
+        downloadKml(kmlString, `overlay_${Date.now()}.kml`);
+        showToast('Hasil overlay KML berhasil diunduh!', 'success');
       });
     } catch {
       showToast('Gagal memproses ekspor KML.', 'error');
@@ -609,9 +889,5 @@ export class IntersectAnalysisUI {
     }
 
     return [null, 'Lapisan'];
-  }
-
-  private sanitizeFilename(name: string): string {
-    return name.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
   }
 }

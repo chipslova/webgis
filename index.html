@@ -673,13 +673,35 @@
                 <div class="analysis-card-header">
                   <div class="analysis-card-title">
                     <span class="analysis-icon" aria-hidden="true">⚔️</span>
-                    <h3>Analisis Irisan Wilayah (Intersect)</h3>
+                    <h3>Studio Tumpang Tindih Spasial (Overlay & Intersect)</h3>
                   </div>
-                  <span class="piksel-hint">Spatial Overlay</span>
+                  <span class="piksel-hint">Spatial Set Theory</span>
                 </div>
                 <p class="analysis-desc">
-                  Temukan fitur/objek yang berada di dalam wilayah AOI Anda atau potong data vektor lain secara instan.
+                  Temukan fitur/objek di dalam wilayah AOI, potong poligon, gabung area, atau analisis multi-layer sekaligus secara instan.
                 </p>
+
+                <!-- Operation Mode Selector Tabs (Irisan / Kurangi / Gabung / Beda Simetris) -->
+                <div class="intersect-op-section" style="margin-top: 10px;">
+                  <label class="form-label-sm" style="display: block; margin-bottom: 5px;">Pilih Operasi Spasial (Set Theory):</label>
+                  <div class="intersect-op-tabs" style="display: flex; gap: 4px; background: rgba(15, 23, 42, 0.6); padding: 3px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08);">
+                    <button type="button" class="btn-chip intersect-op-btn active" data-mode="intersect" style="flex: 1; justify-content: center; font-size: 11px; padding: 5px 2px;">
+                      <span>⚔️ Irisan</span>
+                    </button>
+                    <button type="button" class="btn-chip intersect-op-btn" data-mode="difference" style="flex: 1; justify-content: center; font-size: 11px; padding: 5px 2px;">
+                      <span>✂️ Kurangi</span>
+                    </button>
+                    <button type="button" class="btn-chip intersect-op-btn" data-mode="union" style="flex: 1; justify-content: center; font-size: 11px; padding: 5px 2px;">
+                      <span>🔗 Gabung</span>
+                    </button>
+                    <button type="button" class="btn-chip intersect-op-btn" data-mode="sym_difference" style="flex: 1; justify-content: center; font-size: 11px; padding: 5px 2px;">
+                      <span>⚡ Beda (XOR)</span>
+                    </button>
+                  </div>
+                  <div id="intersect-op-desc" class="intersect-op-desc" style="font-size: 10.5px; color: var(--color-cyan, #00f0ff); background: rgba(0, 240, 255, 0.08); padding: 5px 8px; border-radius: 6px; border: 1px solid rgba(0, 240, 255, 0.2); margin-top: 6px;">
+                    ⚔️ <strong>Irisan:</strong> Ambil area perpotongan eksklusif di antara dua wilayah.
+                  </div>
+                </div>
 
                 <!-- Quick 1-Click Target Selector Chips -->
                 <div class="intersect-quick-section" style="margin-top: 10px;">
@@ -690,6 +712,9 @@
                     </button>
                     <button type="button" class="btn-chip" id="chip-target-stations" data-target="stations">
                       <span>🌡️ Stasiun Cuaca LST</span>
+                    </button>
+                    <button type="button" class="btn-chip" id="chip-target-all" data-target="all" title="Uji AOI terhadap semua layer vektor aktif sekaligus">
+                      <span>✨ Semua Layer (Batch)</span>
                     </button>
                     <button type="button" class="btn-chip" id="chip-target-custom" data-target="custom">
                       <span>⚙️ Pilih Manual</span>
@@ -717,7 +742,7 @@
                 <!-- Intersect Styling Customizer -->
                 <div class="form-group" style="margin-top: 10px;">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <label class="form-label-sm" style="margin-bottom: 0;">Warna Sorotan Irisan:</label>
+                    <label class="form-label-sm" style="margin-bottom: 0;">Warna Sorotan Hasil:</label>
                     <span id="intersect-opacity-val" style="font-size: 10px; font-weight: 600; color: #00f0ff;">70%</span>
                   </div>
                   <div class="intersect-color-swatches">
@@ -731,9 +756,9 @@
                 </div>
 
                 <div class="intersect-action-row" style="display: flex; gap: 8px; margin-top: 12px;">
-                  <button id="btn-run-intersect-analysis" class="btn btn-primary" style="flex: 1;" aria-label="Jalankan kalkulasi spatial intersect">
+                  <button id="btn-run-intersect-analysis" class="btn btn-primary" style="flex: 1;" aria-label="Jalankan kalkulasi spatial overlay / intersect">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="9" r="6"/><circle cx="15" cy="15" r="6"/></svg>
-                    Jalankan Irisan Spasial
+                    Jalankan Analisis Spasial
                   </button>
                   <button id="btn-clear-intersect-analysis" class="btn btn-outline" style="white-space: nowrap; color: #f87171; border-color: rgba(239, 68, 68, 0.4); padding: 6px 12px;" title="Hapus hasil irisan dari peta">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
