@@ -3,6 +3,8 @@ import { lineString, polygon } from '@turf/helpers';
 import { length } from '@turf/length';
 import { area } from '@turf/area';
 import { logger } from '../utils/logger';
+import { showToast } from '../ui/toast';
+import { announceToScreenReader } from '../utils/a11y';
 
 export type MeasureMode = 'none' | 'distance' | 'area';
 
@@ -39,6 +41,9 @@ export class MeasureTool {
   private tooltip: maplibregl.Popup | null = null;
   private hoverMarker: maplibregl.Marker | null = null;
   private onResultCallback?: (result: MeasureResult) => void;
+  private onFinishCallback?: () => void;
+  private onCancelCallback?: () => void;
+  private onModeChangeCallback?: (mode: MeasureMode) => void;
 
   constructor(map: maplibregl.Map) {
     this.map = map;
@@ -176,7 +181,23 @@ export class MeasureTool {
       }, { passive: true });
     } catch (_) {}
 
-    // Keyboard support: Escape cancels measuring, 'z'/'Z' undoes last vertex
+    // Floating Measurement Pill Action Buttons
+    if (typeof document !== 'undefined') {
+      document.getElementById('btn-measure-pill-undo')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.undoLastPoint();
+      });
+      document.getElementById('btn-measure-pill-cancel')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.cancelMeasurement();
+      });
+      document.getElementById('btn-measure-pill-finish')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.finishMeasurement();
+      });
+    }
+
+    // Keyboard support: Escape cancels measuring, 'z'/'Z' undoes last vertex, 'Enter' finishes
     if (typeof window !== 'undefined') {
       window.addEventListener('keydown', (e: KeyboardEvent) => {
         if (this.mode === 'none') return;
@@ -185,12 +206,71 @@ export class MeasureTool {
         if (isInput) return;
 
         if (e.key === 'Escape') {
-          this.setMode('none');
-          this.clear();
+          e.preventDefault();
+          this.cancelMeasurement();
         } else if ((e.key === 'z' || e.key === 'Z') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          e.preventDefault();
           this.undoLastPoint();
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          this.finishMeasurement();
         }
       });
+    }
+  }
+
+  public showFloatingPill() {
+    const pill = typeof document !== 'undefined' ? document.getElementById('measure-floating-pill') : null;
+    if (pill) {
+      pill.style.display = 'flex';
+      this.updateFloatingPill();
+    }
+  }
+
+  public hideFloatingPill() {
+    const pill = typeof document !== 'undefined' ? document.getElementById('measure-floating-pill') : null;
+    if (pill) {
+      pill.style.display = 'none';
+    }
+  }
+
+  public updateFloatingPill(hoverCoord?: [number, number]) {
+    const statusText = typeof document !== 'undefined' ? document.getElementById('measure-pill-status-text') : null;
+    if (!statusText) return;
+
+    const n = this.points.length;
+    if (this.mode === 'distance') {
+      if (n === 0) {
+        statusText.innerHTML = '📏 <strong>Mode Ukur Jarak:</strong> Klik peta untuk simpul jalur...';
+      } else if (n === 1) {
+        statusText.innerHTML = '📍 <strong>1 Titik:</strong> Klik titik berikutnya untuk mengukur jarak...';
+      } else {
+        const coords = hoverCoord ? [...this.points, hoverCoord] : this.points;
+        const line = lineString(coords);
+        const lengthKm = length(line, { units: 'kilometers' });
+        const formatted = lengthKm >= 1 ? `${lengthKm.toFixed(2)} km` : `${(lengthKm * 1000).toFixed(0)} m`;
+        statusText.innerHTML = `📏 <strong>Jarak: ${formatted} (${n} Simpul):</strong> Klik titik baru atau <strong>Selesai</strong>`;
+      }
+    } else if (this.mode === 'area') {
+      if (n === 0) {
+        statusText.innerHTML = '📐 <strong>Mode Ukur Luas:</strong> Klik peta untuk simpul batas...';
+      } else if (n < 3) {
+        statusText.innerHTML = `📍 <strong>${n} Simpul:</strong> Butuh minimal ${3 - n} titik lagi...`;
+      } else {
+        const coords = hoverCoord ? [...this.points, hoverCoord] : this.points;
+        const polyCoords = [...coords, coords[0]];
+        const poly = polygon([polyCoords]);
+        const areaSqM = area(poly);
+        let formatted = '';
+        if (areaSqM >= 1000000) {
+          formatted = `${(areaSqM / 1000000).toFixed(2)} km²`;
+        } else if (areaSqM >= 10000) {
+          formatted = `${(areaSqM / 10000).toFixed(2)} ha`;
+        } else {
+          formatted = `${areaSqM.toFixed(0)} m²`;
+        }
+        statusText.innerHTML = `📐 <strong>Luas: ${formatted} (${n} Simpul):</strong> Klik titik baru atau <strong>Selesai</strong>`;
+      }
     }
   }
 
@@ -202,11 +282,33 @@ export class MeasureTool {
     if (this.map && this.map.getLayer('measure-fill')) {
       this.map.setLayoutProperty('measure-fill', 'visibility', mode === 'area' ? 'visible' : 'none');
     }
+
     if (mode === 'none') {
       this.map.getCanvas().style.cursor = '';
-      if (this.tooltip) this.tooltip.remove();
+      if (this.tooltip) {
+        try { this.tooltip.remove(); } catch {}
+        this.tooltip = null;
+      }
+      this.hideFloatingPill();
+      if (typeof document !== 'undefined') {
+        document.body.classList.remove('measure-drawing-active');
+      }
     } else {
       this.map.getCanvas().style.cursor = 'crosshair';
+      if (typeof document !== 'undefined') {
+        document.body.classList.add('measure-drawing-active');
+        const inspectorCard = document.getElementById('floating-inspector-card');
+        if (inspectorCard) inspectorCard.classList.remove('active');
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('webgis:collapse-sidebar-for-drawing'));
+      }
+      this.showFloatingPill();
+      announceToScreenReader(`Mode pengukuran ${mode === 'distance' ? 'jarak garis' : 'luas poligon'} aktif. Klik peta untuk menandai titik.`);
+    }
+
+    if (this.onModeChangeCallback) {
+      this.onModeChangeCallback(mode);
     }
   }
 
@@ -227,20 +329,66 @@ export class MeasureTool {
     this.points.push(coord);
     this.renderFeatures(this.points);
     this.updateTooltip(coord, this.points);
+    this.updateFloatingPill();
   }
 
   private updateTempDraw(currentHover: [number, number]) {
     const tempPoints = [...this.points, currentHover];
     this.renderFeatures(tempPoints);
     this.updateTooltip(currentHover, tempPoints);
+    this.updateFloatingPill(currentHover);
   }
 
   public finishMeasurement() {
     if (this.points.length > 0) {
+      if (this.mode === 'area' && this.points.length < 3) {
+        showToast('Minimal 3 titik koordinat diperlukan untuk membentuk poligon luas!', 'warning');
+        return;
+      }
+      if (this.mode === 'distance' && this.points.length < 2) {
+        showToast('Minimal 2 titik koordinat diperlukan untuk mengukur jarak!', 'warning');
+        return;
+      }
+
       this.isFinished = true;
       this.renderFeatures(this.points, true);
       const lastPoint = this.points[this.points.length - 1];
       this.updateTooltip(lastPoint, this.points);
+      this.hideFloatingPill();
+      if (typeof document !== 'undefined') {
+        document.body.classList.remove('measure-drawing-active');
+      }
+      this.map.getCanvas().style.cursor = '';
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('webgis:restore-sidebar-after-drawing'));
+      }
+
+      showToast('Pengukuran selesai. Hasil ditampilkan pada bilah sisi.', 'success');
+      if (this.onFinishCallback) {
+        this.onFinishCallback();
+      }
+    }
+  }
+
+  public cancelMeasurement() {
+    this.mode = 'none';
+    this.isFinished = false;
+    this.clear();
+    this.hideFloatingPill();
+    if (typeof document !== 'undefined') {
+      document.body.classList.remove('measure-drawing-active');
+    }
+    this.map.getCanvas().style.cursor = '';
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('webgis:restore-sidebar-after-drawing'));
+    }
+    showToast('Pengukuran dibatalkan', 'info');
+    if (this.onCancelCallback) {
+      this.onCancelCallback();
+    }
+    if (this.onModeChangeCallback) {
+      this.onModeChangeCallback('none');
     }
   }
 
@@ -254,13 +402,14 @@ export class MeasureTool {
       source.setData(this.geojson);
     }
     if (this.tooltip) {
-      this.tooltip.remove();
+      try { this.tooltip.remove(); } catch {}
       this.tooltip = null;
     }
     this.highlightProfileCoordinate(null);
     if (this.onResultCallback) {
       this.onResultCallback({ text: '0', mode: this.mode, profile: null });
     }
+    this.updateFloatingPill();
   }
 
   /** Remove the last placed vertex (Undo). Triggers re-render and tooltip update. */
@@ -269,10 +418,26 @@ export class MeasureTool {
     this.points.pop();
     if (this.points.length === 0) {
       this.clear();
+      this.updateFloatingPill();
+      showToast('Titik pengukuran dihapus', 'info');
     } else {
       this.renderFeatures(this.points);
       this.updateTooltip(this.points[this.points.length - 1], this.points);
+      this.updateFloatingPill();
+      showToast('Titik terakhir dihapus', 'info');
     }
+  }
+
+  public onFinish(callback: () => void) {
+    this.onFinishCallback = callback;
+  }
+
+  public onCancel(callback: () => void) {
+    this.onCancelCallback = callback;
+  }
+
+  public onModeChange(callback: (mode: MeasureMode) => void) {
+    this.onModeChangeCallback = callback;
   }
 
   private renderFeatures(coords: [number, number][], _isFinal: boolean = false) {
@@ -473,18 +638,22 @@ export class MeasureTool {
       text = 'Klik peta untuk mengukur (Klik-ganda / Klik-kanan untuk selesai)';
     }
 
-    if (!this.tooltip) {
-      this.tooltip = new maplibregl.Popup({
-        closeButton: false,
-        closeOnClick: false,
-        className: 'measure-tooltip'
-      });
-    }
+    try {
+      if (!this.tooltip) {
+        this.tooltip = new maplibregl.Popup({
+          closeButton: false,
+          closeOnClick: false,
+          className: 'measure-tooltip'
+        });
+      }
 
-    this.tooltip
-      .setLngLat(position)
-      .setHTML(`<div style="padding: 6px 10px; font-weight: 600; font-size: 12px; color: #0f172a; background: white; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">${text}</div>`)
-      .addTo(this.map);
+      this.tooltip
+        .setLngLat(position)
+        .setHTML(`<div style="padding: 6px 10px; font-weight: 600; font-size: 12px; color: #0f172a; background: white; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">${text}</div>`)
+        .addTo(this.map);
+    } catch {
+      // Gracefully handle headless/mock environments where map container is unmounted
+    }
 
     const profile = this.computeElevationProfile(coords);
 

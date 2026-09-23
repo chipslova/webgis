@@ -9834,7 +9834,8 @@ html, body, #app {
 /* ==========================================================================
    Interactive Drawing Floating Pill Toolbar
    ========================================================================== */
-.aoi-floating-pill {
+.aoi-floating-pill,
+.measure-floating-pill {
   position: absolute;
   top: 18px;
   left: 50%;
@@ -9932,7 +9933,8 @@ html, body, #app {
 }
 
 @media (max-width: 768px) {
-  .aoi-floating-pill {
+  .aoi-floating-pill,
+  .measure-floating-pill {
     top: 10px;
     padding: 6px 10px;
     gap: 8px;

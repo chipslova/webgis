@@ -195,11 +195,19 @@ class WebGISApp {
       this.pikselPanelUI.init();
       this.geePanelUI.init();
 
-      // Lazy-load GEE datasets on-demand when the GEE tab is selected
+      // Handle sidebar tab changes: cleanup active tools and lazy-load datasets
       this.sidebarUI.onTabChange((tabId) => {
         if (this.swipeCompareManager?.isActive()) {
           this.swipeCompareManager.deactivate();
         }
+        // Cancel active drawing/measuring when user switches away from the respective tab
+        if (tabId !== 'measure' && this.measureTool?.isDrawingActive()) {
+          this.measureTool.cancelMeasurement();
+        }
+        if (tabId !== 'analysis' && this.spatialAnalysisUI?.isDrawingActive()) {
+          this.spatialAnalysisUI.cancelDrawing();
+        }
+
         if (tabId === 'gee') {
           this.geeLoader?.loadGEEDatasets();
           this.geePanelUI?.renderTimeSeriesChart();
@@ -469,17 +477,44 @@ class WebGISApp {
       if (instructionBox) {
         instructionBox.style.display = mode && mode !== 'none' ? 'block' : 'none';
       }
+      if (distBtn) distBtn.classList.toggle('active', mode === 'distance');
+      if (areaBtn) areaBtn.classList.toggle('active', mode === 'area');
     };
+
+    if (this.measureTool) {
+      this.measureTool.onModeChange((_mode) => {
+        updateInstructionVisibility();
+      });
+      this.measureTool.onCancel(() => {
+        updateInstructionVisibility();
+        const card = document.getElementById('measure-result-card');
+        if (card) card.style.display = 'none';
+        this.dynamicLegendUI?.render();
+      });
+      this.measureTool.onFinish(() => {
+        updateInstructionVisibility();
+        this.dynamicLegendUI?.render();
+      });
+    }
+
+    // Cancel active measure when requested (e.g. from AOI drawing start)
+    window.addEventListener('webgis:cancel-active-measure', () => {
+      if (this.measureTool && this.measureTool.getMode() !== 'none') {
+        this.measureTool.cancelMeasurement();
+        updateInstructionVisibility();
+      }
+    });
 
     distBtn?.addEventListener('click', () => {
       if (!this.measureTool) return;
       if (this.swipeCompareManager?.isActive()) {
         this.swipeCompareManager.deactivate();
       }
+      if (this.spatialAnalysisUI?.isDrawingActive()) {
+        this.spatialAnalysisUI.cancelDrawing();
+      }
       const current = this.measureTool.getMode();
       this.measureTool.setMode(current === 'distance' ? 'none' : 'distance');
-      distBtn.classList.toggle('active', this.measureTool.getMode() === 'distance');
-      areaBtn?.classList.remove('active');
       updateInstructionVisibility();
       this.dynamicLegendUI?.render();
     });
@@ -489,10 +524,11 @@ class WebGISApp {
       if (this.swipeCompareManager?.isActive()) {
         this.swipeCompareManager.deactivate();
       }
+      if (this.spatialAnalysisUI?.isDrawingActive()) {
+        this.spatialAnalysisUI.cancelDrawing();
+      }
       const current = this.measureTool.getMode();
       this.measureTool.setMode(current === 'area' ? 'none' : 'area');
-      areaBtn.classList.toggle('active', this.measureTool.getMode() === 'area');
-      distBtn?.classList.remove('active');
       updateInstructionVisibility();
       this.dynamicLegendUI?.render();
     });
@@ -532,9 +568,7 @@ class WebGISApp {
     });
 
     clearBtn?.addEventListener('click', () => {
-      this.measureTool?.clear();
-      distBtn?.classList.remove('active');
-      areaBtn?.classList.remove('active');
+      this.measureTool?.cancelMeasurement();
       updateInstructionVisibility();
       const card = document.getElementById('measure-result-card');
       if (card) card.style.display = 'none';

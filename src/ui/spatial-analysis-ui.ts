@@ -151,12 +151,21 @@ export class SpatialAnalysisUI {
     });
   }
 
+  public isDrawingActive(): boolean {
+    return this.isDrawingAOI;
+  }
+
   public startDrawing() {
     this.isDrawingAOI = true;
     this.drawnPoints = [];
     this.updateDrawingVisuals();
 
     document.body.classList.add('aoi-drawing-active');
+
+    // Cancel any active measurement session so click listeners don't collide
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('webgis:cancel-active-measure'));
+    }
 
     // Close any active point inspector so it doesn't obstruct drawing
     const inspectorCard = document.getElementById('floating-inspector-card');

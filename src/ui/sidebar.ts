@@ -3,7 +3,7 @@ export type TabId = 'map' | 'piksel' | 'gee' | 'analysis' | 'measure' | 'data' |
 export class SidebarUI {
   private activeTab: TabId = 'map';
   private isOpen: boolean = true;
-  private onTabChangeCallback?: (tabId: TabId) => void;
+  private tabChangeCallbacks: ((tabId: TabId) => void)[] = [];
 
   constructor() {
     this.bindEvents();
@@ -113,8 +113,12 @@ export class SidebarUI {
       }
     });
 
-    if (this.onTabChangeCallback) {
-      this.onTabChangeCallback(tabId);
+    for (const callback of this.tabChangeCallbacks) {
+      try {
+        callback(tabId);
+      } catch (err) {
+        console.error('[SidebarUI] Error in tabChangeCallback:', err);
+      }
     }
   }
 
@@ -162,6 +166,6 @@ export class SidebarUI {
   }
 
   public onTabChange(callback: (tabId: TabId) => void) {
-    this.onTabChangeCallback = callback;
+    this.tabChangeCallbacks.push(callback);
   }
 }

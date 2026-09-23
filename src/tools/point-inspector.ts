@@ -39,11 +39,12 @@ export class PointInspector {
       if (!this.isEnabled) return;
       if (document.body.classList.contains('swipe-mode-active')) return;
       if (document.body.classList.contains('aoi-drawing-active')) return;
+      if (document.body.classList.contains('measure-drawing-active')) return;
       if (this.measureTool && this.measureTool.getMode() !== 'none') return;
 
       // Ignore if user clicked on another interactive marker, sidebar, dock, or drawing pill
       const originalTarget = (e.originalEvent?.target as HTMLElement);
-      if (originalTarget && (originalTarget.closest('.mapboxgl-marker') || originalTarget.closest('#sidebar') || originalTarget.closest('.sidebar') || originalTarget.closest('.floating-inspector-card') || originalTarget.closest('.bottom-tools-dock') || originalTarget.closest('.glass-popover') || originalTarget.closest('.app-header') || originalTarget.closest('.swipe-ui-root') || originalTarget.closest('#swipe-compare-overlay') || originalTarget.closest('.aoi-floating-pill'))) {
+      if (originalTarget && (originalTarget.closest('.mapboxgl-marker') || originalTarget.closest('#sidebar') || originalTarget.closest('.sidebar') || originalTarget.closest('.floating-inspector-card') || originalTarget.closest('.bottom-tools-dock') || originalTarget.closest('.glass-popover') || originalTarget.closest('.app-header') || originalTarget.closest('.swipe-ui-root') || originalTarget.closest('#swipe-compare-overlay') || originalTarget.closest('.aoi-floating-pill') || originalTarget.closest('.measure-floating-pill'))) {
         return;
       }
 
