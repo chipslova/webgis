@@ -47,7 +47,38 @@ export class IntersectAnalysisUI {
   public init() {
     this.initMapLayers();
     this.bindEvents();
+    this.updateAOIStatusCard();
     this.updateLayerSelect();
+
+    if (this.spatialAnalysisUI && typeof this.spatialAnalysisUI.onLayersChange === 'function') {
+      this.spatialAnalysisUI.onLayersChange(() => {
+        this.updateAOIStatusCard();
+        this.updateLayerSelect();
+      });
+    }
+  }
+
+  public updateAOIStatusCard() {
+    const card = document.getElementById('intersect-aoi-status-card');
+    const icon = document.getElementById('intersect-aoi-icon');
+    const label = document.getElementById('intersect-aoi-label');
+    const sublabel = document.getElementById('intersect-aoi-sublabel');
+    const activeAOI = this.spatialAnalysisUI?.getActiveAOIPolygon ? this.spatialAnalysisUI.getActiveAOIPolygon() : null;
+
+    if (!card || !icon || !label || !sublabel) return;
+
+    if (activeAOI) {
+      card.classList.add('active');
+      icon.innerText = '✅';
+      const aoiName = activeAOI.properties?.name || 'Area Poligon Aktif';
+      label.innerText = `Wilayah Aktif: ${aoiName}`;
+      sublabel.innerText = 'Batas area siap digunakan untuk mencari objek!';
+    } else {
+      card.classList.remove('active');
+      icon.innerText = '📍';
+      label.innerText = 'Belum ada wilayah yang dipilih';
+      sublabel.innerText = 'Pilih contoh instan atau gambar di peta';
+    }
   }
 
   public getAllMapLayerIds(): string[] {
@@ -238,6 +269,31 @@ export class IntersectAnalysisUI {
     const colorChips = document.querySelectorAll<HTMLButtonElement>('.intersect-color-chip');
     const customColorInput = document.getElementById('intersect-color-custom') as HTMLInputElement | null;
 
+    // 0. Quick Step 1 AOI Setup (Preset or Freehand Drawing)
+    const btnSampleAOI = document.getElementById('btn-quick-sample-aoi');
+    const btnDrawAOI = document.getElementById('btn-quick-draw-aoi');
+
+    btnSampleAOI?.addEventListener('click', () => {
+      if (this.geojsonLoader.getLayers().length === 0) {
+        this.geojsonLoader.loadSampleData();
+      }
+      if (this.spatialAnalysisUI && typeof this.spatialAnalysisUI.selectPresetRegion === 'function') {
+        this.spatialAnalysisUI.selectPresetRegion('dki-jakarta');
+      }
+      this.updateAOIStatusCard();
+      this.updateLayerSelect();
+      showToast('Wilayah DKI Jakarta siap digunakan sebagai wilayah pencarian!', 'info');
+    });
+
+    btnDrawAOI?.addEventListener('click', () => {
+      if (this.geojsonLoader.getLayers().length === 0) {
+        this.geojsonLoader.loadSampleData();
+      }
+      if (this.spatialAnalysisUI && typeof this.spatialAnalysisUI.startDrawing === 'function') {
+        this.spatialAnalysisUI.startDrawing();
+      }
+    });
+
     // 1. Operation Mode Pills (Intersect, Difference, Union, XOR)
     const opPills = document.querySelectorAll<HTMLButtonElement>('.intersect-op-btn');
     opPills.forEach((pill) => {
@@ -262,7 +318,7 @@ export class IntersectAnalysisUI {
       });
     });
 
-    // 2. Quick Target Selection Chips
+    // 2. Quick Target Selection Chips (Langkah 2)
     const chipCities = document.getElementById('chip-target-cities');
     const chipStations = document.getElementById('chip-target-stations');
     const chipAll = document.getElementById('chip-target-all');
@@ -277,6 +333,9 @@ export class IntersectAnalysisUI {
     chipCities?.addEventListener('click', () => {
       updateActiveChip(chipCities);
       if (customSelectors) customSelectors.style.display = 'none';
+      if (this.geojsonLoader.getLayers().length === 0) {
+        this.geojsonLoader.loadSampleData();
+      }
       const selA = document.getElementById('intersect-layer-a') as HTMLSelectElement | null;
       const selB = document.getElementById('intersect-layer-b') as HTMLSelectElement | null;
       if (selA) selA.value = '__aoi_active__';
@@ -301,6 +360,8 @@ export class IntersectAnalysisUI {
     chipCustom?.addEventListener('click', () => {
       updateActiveChip(chipCustom);
       if (customSelectors) customSelectors.style.display = 'flex';
+      const advDetails = document.getElementById('intersect-advanced-details') as HTMLDetailsElement | null;
+      if (advDetails) advDetails.open = true;
     });
 
     runBtn?.addEventListener('click', () => this.runAnalysis());
@@ -348,13 +409,29 @@ export class IntersectAnalysisUI {
     const activeChip = document.querySelector('.intersect-target-chips .btn-chip.active') as HTMLElement | null;
     const targetType = activeChip?.dataset.target || 'cities';
 
-    // 1. Batch Multi-Layer Mode
+    // 0. Auto-ensure sample vector data is present if target is cities
+    if (targetType === 'cities' && this.geojsonLoader.getLayers().length === 0) {
+      this.geojsonLoader.loadSampleData();
+      this.updateLayerSelect();
+    }
+
+    // 1. Auto-activate sample AOI (DKI Jakarta) if user has not picked or drawn an area yet
+    if (!this.spatialAnalysisUI || !this.spatialAnalysisUI.getActiveAOIPolygon()) {
+      if (this.spatialAnalysisUI && typeof this.spatialAnalysisUI.selectPresetRegion === 'function') {
+        this.spatialAnalysisUI.selectPresetRegion('dki-jakarta');
+        this.updateAOIStatusCard();
+        this.updateLayerSelect();
+        showToast('Menggunakan wilayah contoh DKI Jakarta secara otomatis...', 'info');
+      }
+    }
+
+    // 2. Batch Multi-Layer Mode
     if (targetType === 'all') {
       await this.runBatchAnalysis();
       return;
     }
 
-    // 2. Standard Pair Overlay Mode
+    // 3. Standard Pair Overlay Mode
     const selectA = document.getElementById('intersect-layer-a') as HTMLSelectElement | null;
     const selectB = document.getElementById('intersect-layer-b') as HTMLSelectElement | null;
 
@@ -370,29 +447,13 @@ export class IntersectAnalysisUI {
       idB = '__gee_stations__';
     }
 
-    if (idA === '__aoi_active__' && !this.spatialAnalysisUI.getActiveAOIPolygon()) {
-      showToast('Gambar area AOI di atas (atau pilih preset kota) terlebih dahulu!', 'warning');
-      document.getElementById('spatial-analysis-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      if (statusBox) {
-        statusBox.style.display = 'block';
-        statusBox.className = 'analysis-status-box warning';
-        statusBox.innerHTML = `⚠️ <strong>Area AOI Belum Ada:</strong> Silakan klik <strong>Gambar AOI Bebas</strong> atau pilih preset wilayah di bagian atas.`;
-      }
-      return;
-    }
-
-    if (idA === idB) {
-      showToast('Lapisan Input A dan B harus berbeda untuk analisis overlay!', 'warning');
-      return;
-    }
-
     if (statusBox) {
       statusBox.style.display = 'block';
       statusBox.className = 'analysis-status-box';
       statusBox.innerHTML = `
         <div style="display: flex; align-items: center; gap: 8px;">
           <div class="hud-spinner" style="width: 14px; height: 14px; border-width: 2px;"></div>
-          <span><strong>Memproses ${SpatialIntersectAnalyzer.getModeLabel(this.currentMode)}...</strong></span>
+          <span><strong>Mencari objek dalam wilayah (${SpatialIntersectAnalyzer.getModeLabel(this.currentMode)})...</strong></span>
         </div>
       `;
     }
@@ -860,14 +921,30 @@ export class IntersectAnalysisUI {
 
   private async resolveLayerData(id: string): Promise<[GeoJSON.FeatureCollection | null, string]> {
     if (id === '__aoi_active__') {
-      const aoi = this.spatialAnalysisUI.getActiveAOIPolygon();
-      if (!aoi) return [null, 'Wilayah AOI Aktif'];
+      let aoi = this.spatialAnalysisUI?.getActiveAOIPolygon ? this.spatialAnalysisUI.getActiveAOIPolygon() : null;
+      if (!aoi) {
+        // Safe fallback polygon for DKI Jakarta
+        aoi = {
+          type: 'Feature',
+          properties: { name: 'DKI Jakarta (Contoh)' },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [[
+              [106.68, -6.08],
+              [106.98, -6.08],
+              [106.98, -6.38],
+              [106.68, -6.38],
+              [106.68, -6.08]
+            ]]
+          }
+        };
+      }
       return [
         {
           type: 'FeatureCollection',
           features: [aoi]
         },
-        'Wilayah AOI Aktif'
+        aoi.properties?.name || 'Wilayah Aktif'
       ];
     }
 

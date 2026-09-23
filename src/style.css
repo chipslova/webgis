@@ -11400,6 +11400,108 @@ html, body, #app {
 .intersect-color-chip[data-color="#38bdf8"] { background: #38bdf8; }
 .intersect-color-chip[data-color="#ec4899"] { background: #ec4899; }
 
+/* Simplified Intersect Step-by-Step UI */
+.intersect-step-card {
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.intersect-step-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.intersect-step-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(0, 240, 255, 0.15);
+  color: #00f0ff;
+  border: 1px solid rgba(0, 240, 255, 0.3);
+}
+
+.intersect-step-title {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.intersect-aoi-status-box {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 10px;
+  transition: all 0.25s ease;
+}
+
+.intersect-aoi-status-box.active {
+  background: rgba(0, 240, 255, 0.06);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.1);
+}
+
+.intersect-aoi-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.intersect-aoi-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.intersect-aoi-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.intersect-aoi-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.intersect-aoi-status-box.active .intersect-aoi-label {
+  color: #00f0ff;
+}
+
+.intersect-aoi-sublabel {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.intersect-quick-aoi-row {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-run-intersect-hero {
+  padding: 10px 16px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #0284c7 0%, #00f0ff 100%) !important;
+  border: none !important;
+  color: #02131e !important;
+  box-shadow: 0 4px 16px rgba(0, 240, 255, 0.3) !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-run-intersect-hero:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 240, 255, 0.45) !important;
+  filter: brightness(1.08);
+}
+
+
 
 
 

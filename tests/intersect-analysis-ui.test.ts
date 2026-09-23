@@ -15,6 +15,14 @@ describe('IntersectAnalysisUI', () => {
   beforeEach(() => {
     document.body.innerHTML = `
       <div id="intersect-analysis-container">
+        <div id="intersect-aoi-status-card" class="intersect-aoi-status-box">
+          <span id="intersect-aoi-icon">📍</span>
+          <span id="intersect-aoi-label">Belum ada wilayah</span>
+          <span id="intersect-aoi-sublabel">Pilih contoh</span>
+          <button type="button" id="btn-quick-sample-aoi">Contoh DKI Jakarta</button>
+          <button type="button" id="btn-quick-draw-aoi">Gambar di Peta</button>
+        </div>
+
         <div class="intersect-op-tabs">
           <button type="button" class="btn-chip intersect-op-btn active" data-mode="intersect">⚔️ Irisan</button>
           <button type="button" class="btn-chip intersect-op-btn" data-mode="difference">✂️ Kurangi</button>
@@ -43,7 +51,7 @@ describe('IntersectAnalysisUI', () => {
         <input type="range" id="intersect-opacity-slider" value="70" />
         <span id="intersect-opacity-val">70%</span>
 
-        <button id="btn-run-intersect-analysis">Jalankan</button>
+        <button id="btn-run-intersect-analysis">Temukan Objek Sekarang</button>
         <button id="btn-clear-intersect-analysis">Hapus</button>
 
         <div id="intersect-analysis-status" style="display: none;"></div>
@@ -73,7 +81,8 @@ describe('IntersectAnalysisUI', () => {
           data: { type: 'FeatureCollection', features: [] }
         }
       ]),
-      getLayerById: vi.fn()
+      getLayerById: vi.fn(),
+      loadSampleData: vi.fn()
     };
 
     mockSpatialAnalysisUI = {
@@ -92,7 +101,10 @@ describe('IntersectAnalysisUI', () => {
             ]
           ]
         }
-      })
+      }),
+      selectPresetRegion: vi.fn(),
+      startDrawing: vi.fn(),
+      onLayersChange: vi.fn()
     };
 
     onLayersChangeCallback = vi.fn();
@@ -178,5 +190,24 @@ describe('IntersectAnalysisUI', () => {
     colorChip.dispatchEvent(new Event('click'));
 
     expect(mockMap.setPaintProperty).toHaveBeenCalledWith('intersect-result-fill', 'fill-color', '#38bdf8');
+  });
+
+  it('should reflect active AOI status in the simplified step card', () => {
+    ui.init();
+
+    const statusCard = document.getElementById('intersect-aoi-status-card');
+    const label = document.getElementById('intersect-aoi-label');
+
+    expect(statusCard?.classList.contains('active')).toBe(true);
+    expect(label?.innerText).toContain('AOI Test');
+  });
+
+  it('should trigger sample preset selection when clicking quick sample button', () => {
+    ui.init();
+
+    const quickSampleBtn = document.getElementById('btn-quick-sample-aoi') as HTMLButtonElement;
+    quickSampleBtn.dispatchEvent(new Event('click'));
+
+    expect(mockSpatialAnalysisUI.selectPresetRegion).toHaveBeenCalledWith('dki-jakarta');
   });
 });

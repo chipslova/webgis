@@ -664,97 +664,73 @@
                 <div id="buffer-analysis-status" class="analysis-status-box"></div>
               </div>
 
-              <!-- Module 3: Spatial Intersect Analysis (Tumpang Tindih Spasial) -->
+              <!-- Module 3: Spatial Intersect / Area Query (Cari Objek dalam Wilayah) -->
               <div class="analysis-card intersect-analysis-card" id="intersect-analysis-container">
                 <div class="analysis-card-header">
                   <div class="analysis-card-title">
                     <span class="analysis-icon" aria-hidden="true">⚔️</span>
-                    <h3>Studio Tumpang Tindih Spasial (Overlay & Intersect)</h3>
+                    <h3>Cari Objek di Dalam Wilayah (Irisan)</h3>
                   </div>
-                  <span class="piksel-hint">Spatial Set Theory</span>
+                  <span class="piksel-national-badge" title="Filter & Potong Objek Berdasarkan Wilayah">Mudah &amp; Cepat</span>
                 </div>
                 <p class="analysis-desc">
-                  Temukan fitur/objek di dalam wilayah AOI, potong poligon, gabung area, atau analisis multi-layer sekaligus secara instan.
+                  Temukan kota, stasiun observasi, atau fasilitas yang berada di dalam batas area pilihanmu.
                 </p>
 
-                <!-- Operation Mode Selector Tabs (Irisan / Kurangi / Gabung / Beda Simetris) -->
-                <div class="intersect-op-section mt-10">
-                  <label class="form-label-sm block-label">Pilih Operasi Spasial (Set Theory):</label>
-                  <div class="intersect-op-tabs">
-                    <button type="button" class="btn-chip intersect-op-btn active" data-mode="intersect">
-                      <span>⚔️ Irisan</span>
-                    </button>
-                    <button type="button" class="btn-chip intersect-op-btn" data-mode="difference">
-                      <span>✂️ Kurangi</span>
-                    </button>
-                    <button type="button" class="btn-chip intersect-op-btn" data-mode="union">
-                      <span>🔗 Gabung</span>
-                    </button>
-                    <button type="button" class="btn-chip intersect-op-btn" data-mode="sym_difference">
-                      <span>⚡ Beda (XOR)</span>
-                    </button>
+                <!-- Langkah 1: Tentukan Wilayah Acuan -->
+                <div class="intersect-step-card mt-10">
+                  <div class="intersect-step-header">
+                    <span class="intersect-step-badge">Langkah 1</span>
+                    <span class="intersect-step-title">Tentukan Wilayah / Area:</span>
                   </div>
-                  <div id="intersect-op-desc" class="intersect-op-desc">
-                    ⚔️ <strong>Irisan:</strong> Ambil area perpotongan eksklusif di antara dua wilayah.
+
+                  <!-- Tampilan Status Wilayah (Dinamis) -->
+                  <div id="intersect-aoi-status-card" class="intersect-aoi-status-box">
+                    <div id="intersect-aoi-info" class="intersect-aoi-info">
+                      <span id="intersect-aoi-icon" class="intersect-aoi-icon">📍</span>
+                      <div class="intersect-aoi-text">
+                        <span id="intersect-aoi-label" class="intersect-aoi-label">Belum ada wilayah yang dipilih</span>
+                        <span id="intersect-aoi-sublabel" class="intersect-aoi-sublabel">Pilih contoh instan atau gambar di peta</span>
+                      </div>
+                    </div>
+                    <div class="intersect-quick-aoi-row mt-8">
+                      <button type="button" id="btn-quick-sample-aoi" class="btn btn-secondary btn-sm flex-1" title="Gunakan wilayah DKI Jakarta sebagai contoh langsung">
+                        <span>🎯 Contoh (DKI Jakarta)</span>
+                      </button>
+                      <button type="button" id="btn-quick-draw-aoi" class="btn btn-outline btn-sm flex-1" title="Mulai menggambar poligon bebas di peta">
+                        <span>✏️ Gambar di Peta</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                <!-- Quick 1-Click Target Selector Chips -->
-                <div class="intersect-quick-section mt-10">
-                  <label class="form-label-sm block-label">Pilih Data yang Ingin Ditemukan / Diiris:</label>
-                  <div class="intersect-target-chips mb-8">
+                <!-- Langkah 2: Pilih Data Target (Objek yang Ingin Ditemukan) -->
+                <div class="intersect-step-card mt-10">
+                  <div class="intersect-step-header">
+                    <span class="intersect-step-badge">Langkah 2</span>
+                    <span class="intersect-step-title">Pilih Data yang Ingin Dicari:</span>
+                  </div>
+                  <div class="intersect-target-chips">
                     <button type="button" class="btn-chip active" id="chip-target-cities" data-target="cities">
                       <span>🏛️ Kota-Kota Besar</span>
                     </button>
                     <button type="button" class="btn-chip" id="chip-target-stations" data-target="stations">
                       <span>🌡️ Stasiun Cuaca LST</span>
                     </button>
-                    <button type="button" class="btn-chip" id="chip-target-all" data-target="all" title="Uji AOI terhadap semua layer vektor aktif sekaligus">
-                      <span>✨ Semua Layer (Batch)</span>
+                    <button type="button" class="btn-chip" id="chip-target-all" data-target="all" title="Uji wilayah terhadap semua data aktif">
+                      <span>✨ Semua Data</span>
                     </button>
-                    <button type="button" class="btn-chip" id="chip-target-custom" data-target="custom">
+                    <button type="button" class="btn-chip" id="chip-target-custom" data-target="custom" title="Pilih layer manual secara spesifik">
                       <span>⚙️ Pilih Manual</span>
                     </button>
                   </div>
                 </div>
 
-                <!-- Manual Dropdowns (Shown when "Pilih Manual" is active) -->
-                <div class="intersect-form-grid intersect-custom-grid" id="intersect-custom-selectors">
-                  <div class="form-group">
-                    <label for="intersect-layer-a" class="form-label-sm">Wilayah Acuan (Poligon / AOI):</label>
-                    <select id="intersect-layer-a" class="form-select form-select-sm">
-                      <option value="" disabled selected>Pilih lapisan wilayah...</option>
-                    </select>
-                  </div>
-
-                  <div class="form-group mt-6">
-                    <label for="intersect-layer-b" class="form-label-sm">Lapisan Target yang Diiris:</label>
-                    <select id="intersect-layer-b" class="form-select form-select-sm">
-                      <option value="" disabled selected>Pilih lapisan target...</option>
-                    </select>
-                  </div>
-                </div>
-
-                <!-- Intersect Styling Customizer -->
-                <div class="form-group mt-10">
-                  <div class="flex-between-center mb-4">
-                    <label class="form-label-sm mb-0">Warna Sorotan Hasil:</label>
-                    <span id="intersect-opacity-val" class="intersect-val-badge">70%</span>
-                  </div>
-                  <div class="intersect-color-swatches">
-                    <button type="button" class="intersect-color-chip active" data-color="#00f0ff" title="Sian Neon"></button>
-                    <button type="button" class="intersect-color-chip" data-color="#38bdf8" title="Biru Langit"></button>
-                    <button type="button" class="intersect-color-chip" data-color="#10b981" title="Hijau Emerald"></button>
-                    <button type="button" class="intersect-color-chip" data-color="#f59e0b" title="Kuning Amber"></button>
-                    <button type="button" class="intersect-color-chip" data-color="#ec4899" title="Magenta"></button>
-                    <input type="color" id="intersect-color-custom" value="#00f0ff" class="buffer-color-picker" title="Warna Kustom" />
-                  </div>
-                </div>
-
+                <!-- Tombol Aksi Utama yang Sangat Jelas -->
                 <div class="intersect-action-row mt-12">
-                  <button id="btn-run-intersect-analysis" class="btn btn-primary flex-1" aria-label="Jalankan kalkulasi spatial overlay / intersect">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="9" r="6"/><circle cx="15" cy="15" r="6"/></svg>
-                    Jalankan Analisis Spasial
+                  <button id="btn-run-intersect-analysis" class="btn btn-primary flex-1 btn-run-intersect-hero" aria-label="Jalankan pencarian objek di dalam wilayah">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <span>Temukan Objek Sekarang</span>
                   </button>
                   <button id="btn-clear-intersect-analysis" class="btn btn-outline btn-clear-danger" title="Hapus hasil irisan dari peta">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -763,6 +739,73 @@
                 </div>
 
                 <div id="intersect-analysis-status" class="analysis-status-box"></div>
+
+                <!-- Opsi Lanjutan (Tersimpan rapi di dalam accordion agar pemula tidak bingung) -->
+                <details class="clean-accordion mt-12" id="intersect-advanced-details">
+                  <summary>
+                    <span class="fs-11 text-secondary">⚙️ Opsi Lanjutan (Operasi Potong, Gabung, &amp; Kustomisasi)</span>
+                  </summary>
+                  <div class="accordion-body">
+                    <!-- Mode Operasi Topologi Spasial -->
+                    <div class="intersect-op-section">
+                      <label class="form-label-sm block-label">Jenis Operasi Geometri:</label>
+                      <div class="intersect-op-tabs">
+                        <button type="button" class="btn-chip intersect-op-btn active" data-mode="intersect">
+                          <span>⚔️ Irisan (Dalam Area)</span>
+                        </button>
+                        <button type="button" class="btn-chip intersect-op-btn" data-mode="difference">
+                          <span>✂️ Kurangi (Potong)</span>
+                        </button>
+                        <button type="button" class="btn-chip intersect-op-btn" data-mode="union">
+                          <span>🔗 Gabung (Union)</span>
+                        </button>
+                        <button type="button" class="btn-chip intersect-op-btn" data-mode="sym_difference">
+                          <span>⚡ Beda Simetris</span>
+                        </button>
+                      </div>
+                      <div id="intersect-op-desc" class="intersect-op-desc mt-6">
+                        ⚔️ <strong>Irisan:</strong> Ambil objek/area yang berada tepat di dalam wilayah.
+                      </div>
+                    </div>
+
+                    <!-- Manual Dropdowns (Pilih Lapisan Manual) -->
+                    <div class="intersect-form-grid intersect-custom-grid mt-10" id="intersect-custom-selectors">
+                      <div class="form-group">
+                        <label for="intersect-layer-a" class="form-label-sm">Lapisan Acuan (Poligon / Wilayah):</label>
+                        <select id="intersect-layer-a" class="form-select form-select-sm">
+                          <option value="" disabled selected>Pilih lapisan wilayah...</option>
+                        </select>
+                      </div>
+
+                      <div class="form-group mt-6">
+                        <label for="intersect-layer-b" class="form-label-sm">Lapisan Target yang Ingin Diuji:</label>
+                        <select id="intersect-layer-b" class="form-select form-select-sm">
+                          <option value="" disabled selected>Pilih lapisan target...</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Intersect Styling Customizer -->
+                    <div class="form-group mt-10">
+                      <div class="flex-between-center mb-4">
+                        <label class="form-label-sm mb-0">Warna Sorotan Hasil:</label>
+                        <span id="intersect-opacity-val" class="intersect-val-badge">70%</span>
+                      </div>
+                      <div class="intersect-color-swatches">
+                        <button type="button" class="intersect-color-chip active" data-color="#00f0ff" title="Sian Neon"></button>
+                        <button type="button" class="intersect-color-chip" data-color="#38bdf8" title="Biru Langit"></button>
+                        <button type="button" class="intersect-color-chip" data-color="#10b981" title="Hijau Emerald"></button>
+                        <button type="button" class="intersect-color-chip" data-color="#f59e0b" title="Kuning Amber"></button>
+                        <button type="button" class="intersect-color-chip" data-color="#ec4899" title="Magenta"></button>
+                        <input type="color" id="intersect-color-custom" value="#00f0ff" class="buffer-color-picker" title="Warna Kustom" />
+                      </div>
+                      <div class="flex-between-center mt-6">
+                        <span class="fs-10 text-muted">Transparansi Sorotan:</span>
+                      </div>
+                      <input type="range" id="intersect-opacity-slider" min="10" max="100" step="5" value="70" class="buffer-opacity-slider" />
+                    </div>
+                  </div>
+                </details>
               </div>
 
               <!-- Module 4: Riwayat & Info Metodologi -->
