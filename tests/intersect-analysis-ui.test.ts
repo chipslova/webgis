@@ -249,12 +249,13 @@ describe('IntersectAnalysisUI', () => {
     expect(selB.value).toBe('__disaster_zones__');
   });
 
-  it('should reset coverage to indonesia-national when clicking reset Indonesia button', () => {
+  it('should reset coverage to nationwide when clicking reset Indonesia button', () => {
+    mockSpatialAnalysisUI.clearAOI = vi.fn();
     ui.init();
 
     const btnResetIndonesia = document.getElementById('btn-reset-indonesia-aoi') as HTMLButtonElement;
     btnResetIndonesia?.dispatchEvent(new Event('click'));
 
-    expect(mockSpatialAnalysisUI.selectPresetRegion).toHaveBeenCalledWith('indonesia-national');
+    expect(mockSpatialAnalysisUI.clearAOI).toHaveBeenCalled();
   });
 });

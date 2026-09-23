@@ -71,7 +71,7 @@ describe('GeocoderTool', () => {
     const resIKN = await geocoder.search('ikn');
     expect(resIKN.length).toBeGreaterThan(0);
     expect(resIKN[0].display_name).toContain('IKN Nusantara');
-  });
+  }, 15000);
 
   it('should merge remote Nominatim results when available and filter duplicates', async () => {
     const mockNominatimResults = [

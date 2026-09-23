@@ -47,11 +47,6 @@ export class IntersectAnalysisUI {
   public init() {
     this.initMapLayers();
     this.bindEvents();
-    if (!this.spatialAnalysisUI?.getActiveAOIPolygon || !this.spatialAnalysisUI.getActiveAOIPolygon()) {
-      if (this.spatialAnalysisUI && typeof this.spatialAnalysisUI.selectPresetRegion === 'function') {
-        this.spatialAnalysisUI.selectPresetRegion('indonesia-national');
-      }
-    }
     this.updateAOIStatusCard();
     this.updateLayerSelect();
 
@@ -285,8 +280,15 @@ export class IntersectAnalysisUI {
     const btnDrawAOI = document.getElementById('btn-quick-draw-aoi');
 
     btnResetIndonesia?.addEventListener('click', () => {
-      if (this.spatialAnalysisUI && typeof this.spatialAnalysisUI.selectPresetRegion === 'function') {
-        this.spatialAnalysisUI.selectPresetRegion('indonesia-national');
+      if (this.spatialAnalysisUI && typeof this.spatialAnalysisUI.clearAOI === 'function') {
+        this.spatialAnalysisUI.clearAOI();
+      }
+      if (this.map && typeof this.map.flyTo === 'function') {
+        this.map.flyTo({
+          center: [118.0, -2.5],
+          zoom: 4.8,
+          duration: 1000
+        });
       }
       this.updateAOIStatusCard();
       this.updateLayerSelect();
@@ -297,9 +299,9 @@ export class IntersectAnalysisUI {
 
       const opDescEl = document.getElementById('intersect-op-desc');
       if (opDescEl) {
-        opDescEl.innerHTML = '🇮🇩 <strong>Cakupan Seluruh Indonesia:</strong> Mendeteksi seluruh zona bahaya bencana & faskes di seluruh Indonesia!';
+        opDescEl.innerHTML = '🇮🇩 <strong>Cakupan Seluruh Indonesia:</strong> Mendeteksi seluruh zona bahaya bencana &amp; faskes di seluruh Indonesia!';
       }
-      showToast('🇮🇩 Cakupan Wilayah: Seluruh Indonesia Aktif!', 'info');
+      showToast('🇮🇩 Cakupan Wilayah: Seluruh Indonesia Aktif (Tanpa Batasan Poligon)', 'info');
     });
 
     btnSampleAOI?.addEventListener('click', () => {
@@ -571,14 +573,6 @@ export class IntersectAnalysisUI {
       this.updateLayerSelect();
     }
 
-    // 1. Auto-activate nationwide AOI (Seluruh Indonesia) if user has not picked or drawn an area yet
-    if (!this.spatialAnalysisUI || !this.spatialAnalysisUI.getActiveAOIPolygon()) {
-      if (this.spatialAnalysisUI && typeof this.spatialAnalysisUI.selectPresetRegion === 'function') {
-        this.spatialAnalysisUI.selectPresetRegion('indonesia-national');
-        this.updateAOIStatusCard();
-        this.updateLayerSelect();
-      }
-    }
 
     // 2. Batch Multi-Layer Mode
     if (targetType === 'all') {
@@ -629,14 +623,40 @@ export class IntersectAnalysisUI {
       const [dataA, nameA] = await this.resolveLayerData(idA);
       const [dataB, nameB] = await this.resolveLayerData(idB);
 
-      if (!dataA || !dataA.features || dataA.features.length === 0) {
-        showToast(`Lapisan "${nameA}" tidak memiliki data yang valid.`, 'warning');
+      if (!dataB || !dataB.features || dataB.features.length === 0) {
+        showToast(`Lapisan "${nameB}" tidak memiliki data yang valid.`, 'warning');
         if (statusBox) statusBox.style.display = 'none';
         return;
       }
 
-      if (!dataB || !dataB.features || dataB.features.length === 0) {
-        showToast(`Lapisan "${nameB}" tidak memiliki data yang valid.`, 'warning');
+      // If idA is active AOI and user did NOT draw any polygon,
+      // it means: Nationwide coverage across all of Indonesia!
+      if (idA === '__aoi_active__' && !dataA) {
+        this.initMapLayers();
+        const result = SpatialIntersectAnalyzer.wrapNationwideResult(dataB, nameB);
+        this.activeResult = result;
+        this.activeBatchResult = null;
+        this.renderResults(result);
+
+        const src = this.map.getSource('intersect-result-source') as maplibregl.GeoJSONSource;
+        if (src && typeof src.setData === 'function') {
+          src.setData(dataB);
+        }
+
+        if (this.map && typeof this.map.flyTo === 'function') {
+          this.map.flyTo({
+            center: [118.0, -2.5],
+            zoom: 4.8,
+            duration: 1200
+          });
+        }
+
+        showToast(`Ditemukan ${result.intersectedCount} objek dalam cakupan seluruh Indonesia!`, 'success');
+        return;
+      }
+
+      if (!dataA || !dataA.features || dataA.features.length === 0) {
+        showToast(`Lapisan "${nameA}" tidak memiliki data yang valid.`, 'warning');
         if (statusBox) statusBox.style.display = 'none';
         return;
       }
@@ -1106,31 +1126,17 @@ export class IntersectAnalysisUI {
 
   private async resolveLayerData(id: string): Promise<[GeoJSON.FeatureCollection | null, string]> {
     if (id === '__aoi_active__') {
-      let aoi = this.spatialAnalysisUI?.getActiveAOIPolygon ? this.spatialAnalysisUI.getActiveAOIPolygon() : null;
-      if (!aoi) {
-        // Safe fallback polygon for Entire Indonesian Archipelago
-        aoi = {
-          type: 'Feature',
-          properties: { name: '🇮🇩 Seluruh Wilayah Indonesia (Nasional)' },
-          geometry: {
-            type: 'Polygon',
-            coordinates: [[
-              [94.5, 6.5],
-              [141.5, 6.5],
-              [141.5, -11.5],
-              [94.5, -11.5],
-              [94.5, 6.5]
-            ]]
-          }
-        };
+      const aoi = this.spatialAnalysisUI?.getActiveAOIPolygon ? this.spatialAnalysisUI.getActiveAOIPolygon() : null;
+      if (aoi) {
+        return [
+          {
+            type: 'FeatureCollection',
+            features: [aoi]
+          },
+          aoi.properties?.name || 'Wilayah Gambaran Aktif'
+        ];
       }
-      return [
-        {
-          type: 'FeatureCollection',
-          features: [aoi]
-        },
-        aoi.properties?.name || 'Wilayah Aktif'
-      ];
+      return [null, '🇮🇩 Seluruh Wilayah Indonesia (Nasional)'];
     }
 
     if (id === '__disaster_zones__') {

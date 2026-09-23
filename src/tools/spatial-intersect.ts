@@ -145,6 +145,71 @@ export class SpatialIntersectAnalyzer {
   }
 
   /**
+   * Prepares a clean nationwide presentation result when no specific AOI filter polygon is active.
+   * Directly maps features without synthetic bounding-box clipping artifacts.
+   */
+  public static wrapNationwideResult(
+    layerB: GeoJSON.FeatureCollection,
+    layerBName: string = 'Data Nasional'
+  ): IntersectAnalysisResult {
+    const featureSummaries: IntersectFeatureSummary[] = [];
+    let totalAreaKm2 = 0;
+
+    for (let i = 0; i < layerB.features.length; i++) {
+      const f = layerB.features[i];
+      if (!f || !f.geometry) continue;
+
+      const name = this.getFeatureName(f, `Fitur #${i + 1}`);
+      const cat = this.getFeatureCategory(f);
+      let areaKm2 = 0;
+      let areaHa = 0;
+
+      if (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon') {
+        const aM2 = area(f as Feature<Polygon | MultiPolygon>);
+        areaKm2 = aM2 / 1_000_000;
+        areaHa = areaKm2 * 100;
+        totalAreaKm2 += areaKm2;
+      }
+
+      featureSummaries.push({
+        name,
+        type: f.geometry.type,
+        category: cat,
+        areaKm2: Number(areaKm2.toFixed(4)),
+        areaHa: Number(areaHa.toFixed(2)),
+        layerA: '🇮🇩 Seluruh Indonesia',
+        layerB: layerBName,
+        properties: f.properties || {}
+      });
+    }
+
+    let boundingBox: [number, number, number, number] | undefined;
+    try {
+      boundingBox = bbox(layerB) as [number, number, number, number];
+    } catch (_) {}
+
+    const categoryBreakdowns = this.computeCategoryBreakdown(layerB.features, totalAreaKm2);
+
+    return {
+      success: true,
+      mode: 'intersect',
+      modeLabel: 'Cakupan Nasional',
+      data: layerB,
+      layerAName: '🇮🇩 Seluruh Indonesia (Nasional)',
+      layerBName,
+      totalFeatures: layerB.features.length,
+      intersectedCount: layerB.features.length,
+      intersectedAreaKm2: Number(totalAreaKm2.toFixed(4)),
+      intersectedAreaHa: Number((totalAreaKm2 * 100).toFixed(2)),
+      sourceAAreaKm2: 1_904_569,
+      overlapPercentage: 100,
+      bbox: boundingBox,
+      featureSummaries,
+      categoryBreakdowns
+    };
+  }
+
+  /**
    * Computes the geometric and topological overlay between Layer A and Layer B.
    * Supports 4 set theory operations:
    * - 'intersect': A ∩ B

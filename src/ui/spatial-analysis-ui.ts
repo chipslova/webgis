@@ -412,6 +412,17 @@ export class SpatialAnalysisUI {
     this.analyzeFeature(polyFeature, preset.name);
   }
 
+  public clearAOI() {
+    this.activeAOIFeature = null;
+    this.drawnPoints = [];
+    const src = this.map.getSource('aoi-analysis-source') as maplibregl.GeoJSONSource;
+    if (src && typeof src.setData === 'function') {
+      src.setData({ type: 'FeatureCollection', features: [] });
+    }
+    this.clearAuxLayers();
+    this.notifyLayersChange();
+  }
+
   public async analyzeFeature(
     feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>,
     label: string
