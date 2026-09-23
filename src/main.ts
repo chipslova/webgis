@@ -26,6 +26,7 @@ import { SwipeCompareUI } from './ui/swipe-compare-ui';
 import { CommandPaletteUI } from './ui/command-palette';
 import { SpatialAnalysisUI } from './ui/spatial-analysis-ui';
 import { BufferAnalysisUI } from './ui/buffer-analysis-ui';
+import { IntersectAnalysisUI } from './ui/intersect-analysis-ui';
 import { AttributeTableUI } from './ui/attribute-table-panel';
 import { ShortcutsModalUI } from './ui/shortcuts-modal';
 import { OverviewMapUI } from './ui/overview-map';
@@ -59,6 +60,7 @@ class WebGISApp {
   private commandPaletteUI: CommandPaletteUI | null = null;
   private spatialAnalysisUI: SpatialAnalysisUI | null = null;
   private bufferAnalysisUI: BufferAnalysisUI | null = null;
+  private intersectAnalysisUI: IntersectAnalysisUI | null = null;
   private attributeTableUI: AttributeTableUI | null = null;
   private shortcutsModalUI: ShortcutsModalUI | null = null;
   private errorHandler: ErrorHandler;
@@ -142,6 +144,7 @@ class WebGISApp {
           this.mapManager.enforceLayerOrder();
           this.dynamicLegendUI?.render();
           this.bufferAnalysisUI?.updateLayerSelect();
+          this.intersectAnalysisUI?.updateLayerSelect();
         }
       );
 
@@ -156,6 +159,7 @@ class WebGISApp {
       this.mapManager.onStyleReady(() => this.geojsonLoader?.reattachLayersIfNeeded());
       this.mapManager.onStyleReady(() => this.geeLoader?.restoreAfterStyleChange());
       this.mapManager.onStyleReady(() => this.measureTool?.restoreAfterStyleChange());
+      this.mapManager.onStyleReady(() => this.intersectAnalysisUI?.restoreAfterStyleChange());
       this.mapManager.onStyleReady(() => {
         const bmId = this.mapManager.getCurrentBasemapId();
         this.basemapCustomizer?.setBasemapId(bmId);
@@ -176,6 +180,7 @@ class WebGISApp {
       this.geojsonLoader.onLayersChange(() => {
         this.mapManager.enforceLayerOrder();
         this.dynamicLegendUI?.render();
+        this.intersectAnalysisUI?.updateLayerSelect();
       });
 
       // Instantiate Active Layers UI manager with seamless tab router integration
@@ -264,10 +269,23 @@ class WebGISApp {
       });
       this.bufferAnalysisUI.init();
 
-      // Refresh buffer layers dropdown whenever analysis tab is opened
+      // Instantiate Spatial Intersect Analysis Module
+      this.intersectAnalysisUI = new IntersectAnalysisUI(
+        map,
+        this.geojsonLoader,
+        this.spatialAnalysisUI,
+        () => {
+          this.mapManager.enforceLayerOrder();
+          this.dynamicLegendUI?.render();
+        }
+      );
+      this.intersectAnalysisUI.init();
+
+      // Refresh buffer & intersect layers dropdown whenever analysis tab is opened
       this.sidebarUI.onTabChange((tabId) => {
         if (tabId === 'analysis') {
           this.bufferAnalysisUI?.updateLayerSelect();
+          this.intersectAnalysisUI?.updateLayerSelect();
         }
       });
 

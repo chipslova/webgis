@@ -438,6 +438,13 @@ export class MapManager {
     // 5. Custom Vector GeoJSON Layers (Major Cities, Uploaded GeoJSON, Proximity Buffer)
     const geojsonLayerIds = this.geojsonLoaderRef?.getAllMapLayerIds?.() || [];
 
+    // 5b. Spatial Intersect Analysis Result Layers
+    const intersectLayerIds = [
+      'intersect-result-fill',
+      'intersect-result-line',
+      'intersect-result-points'
+    ];
+
     // 6. Spatial Analysis AOI & Zonal Statistics (Always above rasters & custom GeoJSON)
     const spatialAnalysisLayerIds = this.spatialAnalysisUIRef?.getAllMapLayerIds?.() || [
       'aoi-analysis-fill',
@@ -460,6 +467,7 @@ export class MapManager {
       ...pikselGridLayerIds,
       ...geeVectorLayerIds,
       ...geojsonLayerIds,
+      ...intersectLayerIds,
       ...spatialAnalysisLayerIds,
       ...measureLayerIds
     ];

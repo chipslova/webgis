@@ -13,6 +13,7 @@ export class SpatialAnalysisUI {
   private containerId: string;
   private activeResult: ZonalAnalysisResult | null = null;
   private activeResultSubTab: 'landcover' | 'thermal' | 'forecast' = 'landcover';
+  private activeAOIFeature: any = null;
   private isDrawingAOI: boolean = false;
   private drawnPoints: [number, number][] = [];
   private onResultChangeCallbacks: Array<(res: ZonalAnalysisResult) => void> = [];
@@ -22,6 +23,10 @@ export class SpatialAnalysisUI {
   constructor(map: maplibregl.Map, containerId: string = 'spatial-analysis-panel') {
     this.map = map;
     this.containerId = containerId;
+  }
+
+  public getActiveAOIPolygon(): GeoJSON.Feature<any> | null {
+    return this.activeAOIFeature;
   }
 
   public init() {
@@ -422,6 +427,7 @@ export class SpatialAnalysisUI {
       `;
     }
 
+    this.activeAOIFeature = feature;
     const result = await SpatialAnalysisEngine.computeZonalStatsWithGEE(feature, label);
     this.activeResult = result;
 

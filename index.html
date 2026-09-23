@@ -679,13 +679,74 @@
                 <div id="buffer-analysis-status" class="analysis-status-box" style="display: none;"></div>
               </div>
 
-              <!-- Module 3: Riwayat & Info Metodologi -->
+              <!-- Module 3: Spatial Intersect Analysis (Tumpang Tindih Spasial) -->
+              <div class="analysis-card intersect-analysis-card" id="intersect-analysis-container">
+                <div class="analysis-card-header">
+                  <div class="analysis-card-title">
+                    <span class="analysis-icon" aria-hidden="true">⚔️</span>
+                    <h3>Analisis Irisan (Spatial Intersect)</h3>
+                  </div>
+                  <span class="piksel-hint">Turf.js Overlay</span>
+                </div>
+                <p class="analysis-desc">
+                  Potong dan hitung irisan geometris antara dua lapisan data vektor atau wilayah AOI aktif (Polygon-Polygon, Point-in-Polygon).
+                </p>
+
+                <div class="intersect-form-grid">
+                  <div class="form-group">
+                    <label for="intersect-layer-a" class="form-label-sm">Lapisan Sumber A (Dasar / Wilayah):</label>
+                    <select id="intersect-layer-a" class="form-select form-select-sm">
+                      <option value="" disabled selected>Pilih lapisan input A (Dasar / Wilayah)...</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group" style="margin-top: 8px;">
+                    <label for="intersect-layer-b" class="form-label-sm">Lapisan Sumber B (Target / Overlay):</label>
+                    <select id="intersect-layer-b" class="form-select form-select-sm">
+                      <option value="" disabled selected>Pilih lapisan input B (Target / Overlay)...</option>
+                    </select>
+                  </div>
+
+                  <!-- Intersect Styling Customizer -->
+                  <div class="form-group" style="margin-top: 10px;">
+                    <label class="form-label-sm">Warna &amp; Transparansi Geometri Irisan:</label>
+                    <div class="intersect-color-swatches">
+                      <button type="button" class="intersect-color-chip active" data-color="#f97316" style="background: #f97316;" title="Oranye Tajam"></button>
+                      <button type="button" class="intersect-color-chip" data-color="#00f0ff" style="background: #00f0ff;" title="Sian Neon"></button>
+                      <button type="button" class="intersect-color-chip" data-color="#10b981" style="background: #10b981;" title="Hijau Emerald"></button>
+                      <button type="button" class="intersect-color-chip" data-color="#ec4899" style="background: #ec4899;" title="Magenta"></button>
+                      <button type="button" class="intersect-color-chip" data-color="#eab308" style="background: #eab308;" title="Kuning"></button>
+                      <input type="color" id="intersect-color-custom" value="#f97316" class="buffer-color-picker" title="Warna Kustom" />
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+                      <span style="font-size: 10px; color: var(--text-muted);">Transparansi Irisan:</span>
+                      <span id="intersect-opacity-val" style="font-size: 10px; font-weight: 600; color: #38bdf8;">65%</span>
+                    </div>
+                    <input type="range" id="intersect-opacity-slider" min="10" max="100" step="5" value="65" style="width: 100%; accent-color: #38bdf8; cursor: pointer; height: 5px; margin-top: 2px;" />
+                  </div>
+                </div>
+
+                <div class="intersect-action-row" style="display: flex; gap: 8px; margin-top: 10px;">
+                  <button id="btn-run-intersect-analysis" class="btn btn-primary" style="flex: 1;" aria-label="Jalankan kalkulasi spatial intersect">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="9" r="6"/><circle cx="15" cy="15" r="6"/></svg>
+                    Hitung Irisan
+                  </button>
+                  <button id="btn-clear-intersect-analysis" class="btn btn-outline" style="white-space: nowrap; color: #f87171; border-color: rgba(239, 68, 68, 0.4); padding: 6px 12px;" title="Hapus hasil irisan dari peta">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    Hapus
+                  </button>
+                </div>
+
+                <div id="intersect-analysis-status" class="analysis-status-box" style="display: none;"></div>
+              </div>
+
+              <!-- Module 4: Riwayat & Info Metodologi -->
               <div class="analysis-info-card">
                 <div class="analysis-info-header">
-                  <span>ℹ️ Metodologi Analisis</span>
+                  <span>ℹ️ Metodologi Analisis Spasial</span>
                 </div>
                 <p class="analysis-info-text">
-                  Kalkulasi luas, jarak, dan poligon buffer menggunakan komputasi geodesik WGS84 pada library <code>@turf/buffer</code> dan <code>@turf/area</code>.
+                  Kalkulasi luas, jarak, buffer, dan irisan (intersect) menggunakan komputasi geodesik WGS84 pada library <code>@turf/buffer</code>, <code>@turf/intersect</code>, dan <code>@turf/area</code>.
                 </p>
               </div>
             </section>
