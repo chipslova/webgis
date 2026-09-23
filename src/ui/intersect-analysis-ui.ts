@@ -16,8 +16,8 @@ export class IntersectAnalysisUI {
   private onLayersChangeCallback?: () => void;
 
   private activeResult: IntersectAnalysisResult | null = null;
-  private selectedColor: string = '#f97316'; // Vivid Orange default for contrast
-  private selectedOpacity: number = 0.65;
+  private selectedColor: string = '#00f0ff'; // Neon Cyan default for WebGIS dark theme
+  private selectedOpacity: number = 0.70;
 
   constructor(
     map: maplibregl.Map,
@@ -175,6 +175,39 @@ export class IntersectAnalysisUI {
     const colorChips = document.querySelectorAll<HTMLButtonElement>('.intersect-color-chip');
     const customColorInput = document.getElementById('intersect-color-custom') as HTMLInputElement | null;
 
+    // Quick Target Selection Chips
+    const chipCities = document.getElementById('chip-target-cities');
+    const chipStations = document.getElementById('chip-target-stations');
+    const chipCustom = document.getElementById('chip-target-custom');
+    const customSelectors = document.getElementById('intersect-custom-selectors');
+
+    chipCities?.addEventListener('click', () => {
+      document.querySelectorAll('.intersect-target-chips .btn-chip').forEach((c) => c.classList.remove('active'));
+      chipCities.classList.add('active');
+      if (customSelectors) customSelectors.style.display = 'none';
+      const selA = document.getElementById('intersect-layer-a') as HTMLSelectElement | null;
+      const selB = document.getElementById('intersect-layer-b') as HTMLSelectElement | null;
+      if (selA) selA.value = '__aoi_active__';
+      const layers = this.geojsonLoader.getLayers();
+      if (selB && layers.length > 0) selB.value = layers[0].id;
+    });
+
+    chipStations?.addEventListener('click', () => {
+      document.querySelectorAll('.intersect-target-chips .btn-chip').forEach((c) => c.classList.remove('active'));
+      chipStations.classList.add('active');
+      if (customSelectors) customSelectors.style.display = 'none';
+      const selA = document.getElementById('intersect-layer-a') as HTMLSelectElement | null;
+      const selB = document.getElementById('intersect-layer-b') as HTMLSelectElement | null;
+      if (selA) selA.value = '__aoi_active__';
+      if (selB) selB.value = '__gee_stations__';
+    });
+
+    chipCustom?.addEventListener('click', () => {
+      document.querySelectorAll('.intersect-target-chips .btn-chip').forEach((c) => c.classList.remove('active'));
+      chipCustom.classList.add('active');
+      if (customSelectors) customSelectors.style.display = 'flex';
+    });
+
     runBtn?.addEventListener('click', () => this.runAnalysis());
     clearBtn?.addEventListener('click', () => this.clearAnalysis());
 
@@ -193,7 +226,7 @@ export class IntersectAnalysisUI {
       chip.addEventListener('click', () => {
         colorChips.forEach((c) => c.classList.remove('active'));
         chip.classList.add('active');
-        const color = chip.dataset.color || '#f97316';
+        const color = chip.dataset.color || '#00f0ff';
         this.updateColor(color);
       });
     });
@@ -220,23 +253,38 @@ export class IntersectAnalysisUI {
     const selectB = document.getElementById('intersect-layer-b') as HTMLSelectElement | null;
     const statusBox = document.getElementById('intersect-analysis-status');
 
-    if (!selectA || !selectA.value) {
-      showToast('Pilih Lapisan Input A terlebih dahulu!', 'warning');
+    let idA = selectA?.value || '__aoi_active__';
+    let idB = selectB?.value || '__gee_stations__';
+
+    // Check if user is using quick target chips
+    const activeChip = document.querySelector('.intersect-target-chips .btn-chip.active') as HTMLElement | null;
+    const targetType = activeChip?.dataset.target || 'cities';
+
+    if (targetType === 'cities') {
+      idA = '__aoi_active__';
+      const layers = this.geojsonLoader.getLayers();
+      idB = layers.length > 0 ? layers[0].id : '__gee_stations__';
+    } else if (targetType === 'stations') {
+      idA = '__aoi_active__';
+      idB = '__gee_stations__';
+    }
+
+    // Verify Active AOI
+    if (idA === '__aoi_active__' && !this.spatialAnalysisUI.getActiveAOIPolygon()) {
+      showToast('Gambar area AOI di atas (atau pilih preset kota) terlebih dahulu untuk diiris!', 'warning');
+      document.getElementById('spatial-analysis-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (statusBox) {
+        statusBox.style.display = 'block';
+        statusBox.className = 'analysis-status-box warning';
+        statusBox.innerHTML = `⚠️ <strong>Area AOI Belum Ada:</strong> Silakan klik <strong>Gambar AOI Bebas</strong> atau pilih preset wilayah prioritas di bagian atas.`;
+      }
       return;
     }
 
-    if (!selectB || !selectB.value) {
-      showToast('Pilih Lapisan Input B (Target Irisan) terlebih dahulu!', 'warning');
-      return;
-    }
-
-    if (selectA.value === selectB.value) {
+    if (idA === idB) {
       showToast('Lapisan Input A dan B harus berbeda untuk analisis irisan!', 'warning');
       return;
     }
-
-    const idA = selectA.value;
-    const idB = selectB.value;
 
     if (statusBox) {
       statusBox.style.display = 'block';
@@ -377,17 +425,17 @@ export class IntersectAnalysisUI {
     statusBox.innerHTML = `
       ${warningHtml}
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <strong style="color: #38bdf8; font-size: 11px;">⚔️ Hasil Analisis Irisan (Intersect):</strong>
-        <span style="font-size: 9.5px; padding: 2px 6px; border-radius: 10px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-weight: 600;">
-          ${result.intersectedCount} Fitur
+        <strong style="color: #00f0ff; font-size: 11px;">⚔️ Hasil Irisan Wilayah (Overlay):</strong>
+        <span style="font-size: 9.5px; padding: 2px 8px; border-radius: 10px; background: rgba(0, 240, 255, 0.15); border: 1px solid rgba(0, 240, 255, 0.4); color: #00f0ff; font-weight: 600;">
+          ${result.intersectedCount} Fitur Ditemukan
         </span>
       </div>
 
       <div class="intersect-metrics-grid">
         <div class="intersect-metric-box">
-          <span class="intersect-metric-label">Jumlah Fitur Beririsan</span>
+          <span class="intersect-metric-label">Jumlah Objek Beririsan</span>
           <span class="intersect-metric-val" style="color: #4ade80;">${result.intersectedCount} Objek</span>
-          <span class="intersect-metric-sub">Irisan: ${result.layerAName} ∩ ${result.layerBName}</span>
+          <span class="intersect-metric-sub">${result.layerAName} ∩ ${result.layerBName}</span>
         </div>
         ${areaMetricHtml}
       </div>

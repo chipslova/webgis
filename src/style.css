@@ -11055,17 +11055,27 @@ html, body, #app {
   cursor: pointer;
 }
 
-/* Intersect Analysis Card & Grid Layout */
+/* Intersect Analysis Card & Unified Layout */
 .intersect-analysis-card {
   margin-top: 14px;
-  border-left: 3px solid #f97316 !important;
+}
+
+.intersect-quick-section {
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 8px 10px;
 }
 
 .intersect-form-grid {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-top: 10px;
+  margin-top: 8px;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 8px 10px;
 }
 
 .intersect-metrics-grid {
@@ -11082,7 +11092,7 @@ html, body, #app {
 }
 
 .intersect-metric-box {
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(15, 23, 42, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 6px;
   padding: 8px 10px;
@@ -11111,4 +11121,5 @@ html, body, #app {
   margin-top: 2px;
   line-height: 1.3;
 }
+
 
