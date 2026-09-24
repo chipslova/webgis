@@ -156,7 +156,10 @@ export class GEEPanelUI {
         btn.innerText = 'Menghubungi GEE...';
 
         try {
-          const res = await this.geeLoader.computeLiveGEE({ satellite, mode, start, end });
+          const [res] = await Promise.all([
+            this.geeLoader.computeLiveGEE({ satellite, mode, start, end }),
+            this.geeLoader.isLayerVisible('precipitation') ? this.geeLoader.computeLivePrecipitation(start) : Promise.resolve(null)
+          ]);
           if (res && res.status === 'live') {
             showToast('Komposit GEE Live berhasil dihitung!', 'success');
           } else {

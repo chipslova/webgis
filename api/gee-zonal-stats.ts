@@ -2,7 +2,6 @@
 // Endpoint: /api/gee-zonal-stats
 
 export const config = {
-  runtime: 'nodejs',
   maxDuration: 30 // Allow up to 30s for complex planetary cloud reductions
 };
 
@@ -31,17 +30,26 @@ const WORLDCOVER_META: Record<string, { code: number; worldCoverClass: number; n
 import { checkRateLimit, getClientIp } from './_rate-limit';
 
 export default async function handler(req: any, res: any) {
+  const sendJson = (status: number, data: any) => {
+    if (typeof res.status === 'function') {
+      return res.status(status).json(data);
+    }
+    res.statusCode = status;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(data));
+  };
+
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return res.status ? res.status(200).end() : (res.statusCode = 200, res.end());
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed. Use POST with GeoJSON geometry payload.' });
+    return sendJson(405, { error: 'Method Not Allowed. Use POST with GeoJSON geometry payload.' });
   }
 
   // Rate Limiting (30 requests/minute per IP)
@@ -54,7 +62,7 @@ export default async function handler(req: any, res: any) {
 
   if (!rateLimit.allowed) {
     res.setHeader('Retry-After', String(rateLimit.retryAfter));
-    return res.status(429).json({
+    return sendJson(429, {
       error: 'Terlalu banyak permintaan analisis zonal (Rate limit exceeded). Batas: 30 kueri/menit per IP.',
       retryAfter: rateLimit.retryAfter
     });
@@ -220,7 +228,7 @@ export default async function handler(req: any, res: any) {
         const hotspotAreaKm2 = Number((totalAreaKm2 * Math.min(1.0, builtUpRatio * 1.2)).toFixed(2));
         const hotspotPercentage = Number(((hotspotAreaKm2 / totalAreaKm2) * 100).toFixed(1));
 
-        return res.status(200).json({
+        return sendJson(200, {
           status: 'success',
           isRealGEE: true,
           source: 'Google Earth Engine Cloud Cluster (Live Planetary Reduction)',
@@ -247,7 +255,7 @@ export default async function handler(req: any, res: any) {
   }
 
   // If GEE Service Account Key is not configured in Vercel environment
-  return res.status(200).json({
+  return sendJson(200, {
     status: 'unconfigured',
     isRealGEE: false,
     message: 'Kunci Service Account Google Earth Engine belum dipasang di Vercel Environment Variables.',

@@ -1,11 +1,4 @@
-// Vercel Serverless Function: Real-Time Google Earth Engine CHIRPS Daily Precipitation
-// Endpoint: /api/gee-precipitation-tiles
-
 import { checkRateLimit, getClientIp } from './_rate-limit';
-
-export const config = {
-  runtime: 'nodejs'
-};
 
 interface GEEPrecipRequest {
   date?: string;
@@ -17,17 +10,26 @@ interface GEEPrecipRequest {
 }
 
 export default async function handler(req: any, res: any) {
+  const sendJson = (status: number, data: any) => {
+    if (typeof res.status === 'function') {
+      return res.status(status).json(data);
+    }
+    res.statusCode = status;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(data));
+  };
+
   // Handle CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return res.status ? res.status(200).end() : (res.statusCode = 200, res.end());
   }
 
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+    return sendJson(405, { error: 'Method Not Allowed' });
   }
 
   // Rate Limiting (60 requests/minute per IP)
@@ -40,11 +42,15 @@ export default async function handler(req: any, res: any) {
 
   if (!rateLimit.allowed) {
     res.setHeader('Retry-After', String(rateLimit.retryAfter));
-    return res.status(429).json({
+    return sendJson(429, {
       error: 'Terlalu banyak permintaan ubin curah hujan GEE. Batas: 60 kueri/menit.',
       retryAfter: rateLimit.retryAfter
     });
   }
+
+  const query = (req.query && typeof req.query === 'object')
+    ? req.query
+    : (req.url ? Object.fromEntries(new URL(req.url, 'http://localhost').searchParams) : {});
 
   const {
     date = '2024-08-01',
@@ -53,7 +59,7 @@ export default async function handler(req: any, res: any) {
     min: customMin,
     max: customMax,
     bbox
-  } = req.query as GEEPrecipRequest;
+  } = (query || {}) as GEEPrecipRequest;
 
   const startDate = start || date;
   const endDate = end || startDate;
@@ -124,7 +130,7 @@ export default async function handler(req: any, res: any) {
         });
 
         res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000');
-        return res.status(200).json({
+        return sendJson(200, {
           status: 'live',
           isFallback: false,
           tileUrlTemplate: mapId.urlFormat,
@@ -147,7 +153,7 @@ export default async function handler(req: any, res: any) {
 
   // Fallback response with calibrated high-resolution NASA GIBS WMS
   res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
-  return res.status(200).json({
+  return sendJson(200, {
     status: 'fallback',
     isFallback: true,
     message: 'Kunci GEE belum dikonfigurasi. Menggunakan citra raster presipitasi resmi beresolusi tinggi.',

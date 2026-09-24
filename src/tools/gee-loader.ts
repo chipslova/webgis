@@ -24,6 +24,7 @@ export class GEELoader {
 
   // Live GEE Serverless state
   private liveTileUrlTemplate: string | null = null;
+  private livePrecipTileUrlTemplate: string | null = null;
   private currentStatus: GEEStatus = 'fallback';
   private currentParams: GEEQueryParams = {
     satellite: 'terra',
@@ -223,6 +224,25 @@ export class GEELoader {
     }
   }
 
+  public async computeLivePrecipitation(date?: string): Promise<any> {
+    const d = date || this.currentParams.start || '2024-08-01';
+    try {
+      const res = await fetch(`/api/gee-precipitation-tiles?start=${d}&end=${d}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status === 'live' && data.tileUrlTemplate) {
+          this.livePrecipTileUrlTemplate = data.tileUrlTemplate;
+          this.renderAllLayers();
+          return data;
+        }
+      }
+    } catch (e) {
+      logger.warn('[GEELoader] GEE precipitation serverless check note:', e);
+    }
+    this.livePrecipTileUrlTemplate = null;
+    return null;
+  }
+
   private applyLiveRasterLayer(tileUrlTemplate: string) {
     if (!this.map || !this.map.getStyle()) return;
 
@@ -292,6 +312,9 @@ export class GEELoader {
       await this.ensureDataLoaded();
       this.activeLayers.add(key);
       this.layerVisibilities.set(key, true);
+      if (key === 'precipitation') {
+        this.computeLivePrecipitation().catch(() => {});
+      }
     } else {
       this.activeLayers.delete(key);
       // Clean up legacy aliases to prevent sync drift
@@ -590,7 +613,8 @@ export class GEELoader {
 
     // --- 3b. NASA GPM & CHIRPS DAILY PRECIPITATION RATE (WMS RASTER) ---
     try {
-      const precipWmsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=512&HEIGHT=512&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${selectedDate}&BBOX={bbox-epsg-3857}`;
+      const defaultPrecipUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${selectedDate}&BBOX={bbox-epsg-3857}`;
+      const precipWmsUrl = this.livePrecipTileUrlTemplate || defaultPrecipUrl;
       const precipSourceId = 'gee-precipitation-wms-source';
       const precipLayerId = 'gee-precipitation-wms-layer';
 
@@ -607,8 +631,8 @@ export class GEELoader {
           this.map.setLayoutProperty(precipLayerId, 'visibility', isPrecipVis ? 'visible' : 'none');
           this.map.setPaintProperty(precipLayerId, 'raster-opacity', this.getLayerOpacity('precipitation'));
           this.map.setPaintProperty(precipLayerId, 'raster-resampling', 'linear');
-          this.map.setPaintProperty(precipLayerId, 'raster-contrast', 0.25);
-          this.map.setPaintProperty(precipLayerId, 'raster-saturation', 0.2);
+          this.map.setPaintProperty(precipLayerId, 'raster-contrast', 0.35);
+          this.map.setPaintProperty(precipLayerId, 'raster-saturation', 0.35);
         } else {
           this.map.addLayer({
             id: precipLayerId,
@@ -618,8 +642,8 @@ export class GEELoader {
             paint: {
               'raster-opacity': this.getLayerOpacity('precipitation'),
               'raster-resampling': 'linear',
-              'raster-contrast': 0.25,
-              'raster-saturation': 0.2,
+              'raster-contrast': 0.35,
+              'raster-saturation': 0.35,
               'raster-fade-duration': 150
             }
           }, beforeLayerId);
@@ -628,7 +652,7 @@ export class GEELoader {
         this.map.addSource(precipSourceId, {
           type: 'raster',
           tiles: [precipWmsUrl],
-          tileSize: 512,
+          tileSize: 256,
           maxzoom: 12
         });
 
@@ -640,8 +664,8 @@ export class GEELoader {
           paint: {
             'raster-opacity': this.getLayerOpacity('precipitation'),
             'raster-resampling': 'linear',
-            'raster-contrast': 0.25,
-            'raster-saturation': 0.2,
+            'raster-contrast': 0.35,
+            'raster-saturation': 0.35,
             'raster-fade-duration': 150
           }
         }, beforeLayerId);
