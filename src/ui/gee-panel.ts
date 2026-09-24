@@ -189,11 +189,16 @@ export class GEEPanelUI {
     applyToggle('toggle-gee-elevation', 'lst-night', 'gee-lst-night-opacity-row');
     applyToggle('toggle-gee-surface', 'lst-night', 'gee-lst-night-opacity-row');
     applyToggle('toggle-gee-landcover', 'landcover', 'gee-lc-opacity-row', 'gee-lulc-legend');
-    applyToggle('toggle-gee-lc', 'landcover', 'gee-lc-opacity-row', 'gee-lulc-legend');
     applyToggle('toggle-gee-precipitation', 'precipitation', 'gee-precip-opacity-row', 'gee-precip-legend');
     applyToggle('toggle-gee-rainfall', 'precipitation', 'gee-precip-opacity-row', 'gee-precip-legend');
     applyToggle('toggle-gee-poi', 'stations');
     applyToggle('toggle-gee-stations', 'stations');
+
+    const isThermalActive = this.geeLoader.isLayerVisible('lst-day') || this.geeLoader.isLayerVisible('lst-night');
+    const thermalLegendBox = document.getElementById('gee-thermal-legend-box');
+    if (thermalLegendBox) {
+      thermalLegendBox.style.display = isThermalActive ? 'block' : 'none';
+    }
   }
 
   // ── Per-layer opacity sliders ────────────────────────────────────────────────
