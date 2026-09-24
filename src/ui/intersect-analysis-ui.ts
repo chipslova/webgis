@@ -33,6 +33,10 @@ export class IntersectAnalysisUI {
     return this.activeBatchResult;
   }
 
+  public getCurrentWizardStep(): 1 | 2 | 3 {
+    return this.currentWizardStep;
+  }
+
   constructor(
     map: maplibregl.Map,
     geojsonLoader: GeoJsonLoader,
