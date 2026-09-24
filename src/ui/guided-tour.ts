@@ -80,11 +80,11 @@ export class GuidedTourUI {
       },
       {
         id: 2,
-        badge: '2. GEE MODIS LST',
-        title: 'Suhu Permukaan Daratan (LST) MODIS 1km & Urban Heat Island',
-        subtitle: 'Analisis Earth Engine Sensor NASA Terra (MOD11A1) & Aqua (MYD11A1)',
-        description: 'Sensor observasi bumi NASA memetakan Suhu Permukaan Daratan Siang dan Malam di seluruh Indonesia dengan rendering vektor GPU dan analisis Urban Heat Island.',
-        tags: ['MODIS Terra + Aqua', 'LST 1 km', '18 Stasiun Iklim', 'Analisis SUHI'],
+        badge: '2. IKLIM & SUHU GEE',
+        title: 'Suhu Permukaan MODIS LST, Curah Hujan & Urban Heat Island',
+        subtitle: 'Analisis Termal MODIS Terra/Aqua, Presipitasi CHIRPS/GPM, & Tutupan Lahan',
+        description: 'Observasi iklim dan termal: pantau Suhu Permukaan Daratan (LST Siang/Malam), dinamika curah hujan satelit harian, dan klasifikasi tutupan lahan Sentinel-2 10m.',
+        tags: ['MODIS LST 1 km', 'Curah Hujan GPM/CHIRPS', '18 Stasiun Iklim', 'Sentinel-2 10m LULC'],
         action: async () => {
           const map = this.mapManager.getMap();
           if (!map) return;

@@ -68,8 +68,9 @@ Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit 
 
 ### 🌍 3. GEE Live & Sampling Piksel Satelit Gratis
 * **Sampling Piksel Client-Side (Tanpa Setup Akun)**: Langsung mengekstraksi nilai piksel dari ubin citra Sentinel-2 10m & cuaca real-time Open-Meteo tanpa memerlukan akun berbayar atau konfigurasi server.
-* **Integrasi Google Earth Engine Asli (Opsional)**: Panduan 3-langkah transparan untuk menghubungkan Service Account Google Cloud / GEE resmi via env var Vercel (`GEE_CLIENT_EMAIL` & `GEE_PRIVATE_KEY`).
+* **Integrasi Google Earth Engine Asli (Opsional)**: Panduan 3-langkah transparan untuk menghubungkan Service Account Google Cloud / GEE resmi via env var Vercel (`GEE_CLIENT_EMAIL` & `GEE_PRIVATE_KEY` / `GEE_SERVICE_ACCOUNT_KEY`).
 * **NASA MODIS Land Surface Temp (LST 1 km)**: Ubin gradien termal suhu permukaan bumi kontinu ($10^\circ\text{C} \to 42^\circ\text{C}+$) via NASA GIBS WMS dengan *ocean masking* transparan.
+* **Curah Hujan Harian (CHIRPS & NASA GPM IMERG)**: Lapisan presipitasi satelit harian global dengan palet warna kontras tinggi (mm/hari) dan dukungan komputasi GEE CHIRPS 0.05° (~5.5 km).
 * **18 Titik Pengamatan Referensi LST**: Titik tervalidasi MODIS *clear-sky QA bitmask* dengan kalkulasi anomali suhu siang/malam (*diurnal delta*).
 * **Tutupan Lahan & Elevasi SRTM**: Sentinel-2 10m LULC (9 kelas) dan kontur elevasi USGS SRTM 30m.
 
@@ -78,16 +79,11 @@ Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit 
 * **Analisis Gradien Termal Urban Heat Island (UHI)**: Perbandingan anomali suhu antara dataran rendah metropolitan (mis. Jakarta 34.8°C) dan dataran tinggi (mis. Bandung 21.2°C).
 * **Profil Elevasi Medan Geodesik**: Pengambilan profil penampang lintang topografi sepanjang rute garis yang digambar pengguna.
 
-### 📏 5. Pengukuran Geodesik, Buffer, Studio Tumpang Tindih & Mode 3D
+### 📏 5. Pengukuran Geodesik, Buffer & Analisis Spasial
 * **Bilah Aksi Floating Pengukuran (Measure Floating Action Pill)**: Mode pengukuran interaktif layar penuh dengan bilah aksi melayang (*floating pill*) yang menyajikan tombol *Undo* (<kbd>Z</kbd>), *Batal*, dan *Selesai*, serta proteksi eksklusi timbal balik (*mutual exclusion*) dengan modul penggambaran lainnya.
 * **Analisis Jangkauan Buffer Geodesik**: Pembuatan zona jangkauan radius lingkaran (buffer geodesik) di sekitar titik, jalur, atau batas poligon dengan kalkulasi total luas poligon ($km^2$), kustomisasi opasitas, pemilihan warna (*color picker*), dan opsi pergantian otomatis (*auto-replace*).
-* **Studio Tumpang Tindih Spasial (Spatial Overlay & Intersect Studio)**:
-  * **4 Operasi Teori Himpunan Topologi**:
-    * ⚔️ **Irisan (*Intersection* / $A \cap B$):** Memotong poligon Layer A dan Layer B secara geometris.
-    * ✂️ **Kurangi (*Difference / Erase* / $A - B$):** Menghapus wilayah poligon target dari wilayah acuan.
-    * 🔗 **Gabung (*Union* / $A \cup B$):** Menyatukan dua poligon menjadi satu geometri kontinu.
-    * ⚡ **Beda Simetris (*Symmetric Difference / XOR* / $A \triangle B$):** Mengambil area eksklusif tanpa bagian tumpang tindih.
-  * **Analisis Multi-Lapisan Sekaligus (*Batch Cascade Overlay*)**: Uji batas wilayah AOI terhadap seluruh lapisan vektor aktif dalam 1-klik.
+* **Statistik Zonal AOI Real-Time**: Kalkulasi komposisi tutupan lahan dan statistik termal pada poligon yang digambar bebas oleh pengguna.
+* **Mesin Tumpang Tindih Spasial (Spatial Overlay Engine - Core)**: Mesin komputasi Turf.js untuk 4 operasi himpunan (Irisan/Intersection, Kurangi/Difference, Gabung/Union, Beda Simetris/XOR) yang teruji 100% dan disiapkan untuk peluncuran antarmuka Overlay Studio v2.
   * **Distribusi Tematik Kategori**: Visualisasi persentase distribusi kategori objek hasil irisan (*count*, $km^2$, $ha$, $\%$) dengan grafik batang bertema *dark glassmorphism*.
   * **Interaksi Peta Real-Time**: Penyorotan geometri (*Hover Slicing*) saat mengarahkan kursor ke tabel hasil, pemfokusan kamera (*Click-to-FlyTo*), dan ekspor instan (.GeoJSON, .CSV, .KML).
 * **Elevasi Medan 3D AWS Terrarium**: Rekonstruksi medan 3D secara *real-time* dengan kontrol perbesaran vertikal (*vertical exaggeration* 0.1x – 3.0x).
@@ -195,16 +191,20 @@ git clone https://github.com/chipslova/webgis.git
 cd webgis
 
 # 2. Pasang dependensi
+# Menggunakan Bun (Direkomendasikan):
 bun install
 
-# 3. Jalankan server pengembangan lokal (berjalan di http://localhost:3000)
-bun run dev
+# ATAU menggunakan npm (sudah terkonfigurasi otomatis via .npmrc legacy-peer-deps=true):
+npm install
 
-# 4. Jalankan rangkaian pengujian unit dan integrasi (225 tests)
-bun run test
+# 3. Jalankan server pengembangan lokal (berjalan di http://localhost:3000)
+bun run dev      # atau: npm run dev
+
+# 4. Jalankan rangkaian pengujian unit dan integrasi
+bun run test     # atau: npm run test
 
 # 5. Pemeriksaan tipe data TypeScript
-bun x tsc --noEmit
+bun run typecheck # atau: npm run typecheck
 
 # 6. Kompilasi paket produksi
 bun run build

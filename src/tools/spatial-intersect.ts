@@ -1,3 +1,16 @@
+/**
+ * ============================================================================
+ * SPATIAL INTERSECT & OVERLAY ANALYSIS ENGINE (STANDALONE GEOSPATIAL ENGINE)
+ * ============================================================================
+ * Status: Mesin komputasi spasial Turf.js untuk Analisis Tumpang Tindih
+ * (Intersect, Union, Difference, Point-in-Polygon).
+ *
+ * TODO: re-enable di UI setelah redesign UX tumpang-tindih (Overlay Studio v2).
+ * Modul ini sengaja dipertahankan sebagai standalone engine yang teruji 100%
+ * untuk persiapan peluncuran antarmuka analisis spasial tingkat lanjut.
+ * ============================================================================
+ */
+
 import { featureCollection } from '@turf/helpers';
 import type { Feature, Polygon, MultiPolygon } from 'geojson';
 import { intersect } from '@turf/intersect';

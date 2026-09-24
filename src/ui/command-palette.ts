@@ -348,6 +348,76 @@ export class CommandPaletteUI {
         }
       },
       {
+        id: 'tool-gee-precip',
+        category: 'tools',
+        categoryLabel: '⚡ Alat & Analisis',
+        title: 'Curah Hujan Harian (CHIRPS & NASA GPM)',
+        subtitle: 'Pantau intensitas presipitasi harian (mm/hari) di seluruh kepulauan Indonesia',
+        icon: '🌧️',
+        keywords: ['hujan', 'curah hujan', 'precipitation', 'rainfall', 'chirps', 'gpm', 'imerg', 'cuaca', 'presipitasi', 'gee', 'iklim'],
+        action: () => {
+          this.sidebarUI.setActiveTab('gee');
+          this.geeLoader?.toggleLayer('precipitation', true);
+          showToast('Lapisan Curah Hujan Harian diaktifkan', 'info');
+        }
+      },
+      {
+        id: 'tool-gee-landcover',
+        category: 'tools',
+        categoryLabel: '⚡ Alat & Analisis',
+        title: 'Tutupan Lahan Sentinel-2 10m (ESA WorldCover)',
+        subtitle: 'Peta klasifikasi tutupan lahan 9 kelas resolusi tinggi 10 meter',
+        icon: '🌳',
+        keywords: ['tutupan lahan', 'land cover', 'lulc', 'esa', 'worldcover', 'sentinel', 'hutan', 'sawah', 'terbangun'],
+        action: () => {
+          this.sidebarUI.setActiveTab('gee');
+          this.geeLoader?.toggleLayer('landcover', true);
+          showToast('Lapisan Tutupan Lahan Sentinel-2 10m diaktifkan', 'info');
+        }
+      },
+      {
+        id: 'tool-gee-lst-day',
+        category: 'tools',
+        categoryLabel: '⚡ Alat & Analisis',
+        title: 'Suhu Permukaan Daratan Siang (MODIS LST Day 1km)',
+        subtitle: 'Peta radiatif suhu permukaan tanah siang hari (Terra 10:30 / Aqua 13:30)',
+        icon: '☀️',
+        keywords: ['suhu', 'lst', 'day', 'siang', 'modis', 'temperature', 'panas', 'uhi', 'termal'],
+        action: () => {
+          this.sidebarUI.setActiveTab('gee');
+          this.geeLoader?.toggleLayer('lst-day', true);
+          showToast('Lapisan MODIS LST Siang Hari diaktifkan', 'info');
+        }
+      },
+      {
+        id: 'tool-gee-lst-night',
+        category: 'tools',
+        categoryLabel: '⚡ Alat & Analisis',
+        title: 'Suhu Permukaan Daratan Malam (MODIS LST Night 1km)',
+        subtitle: 'Peta radiatif suhu permukaan tanah malam hari (Terra 22:30 / Aqua 01:30)',
+        icon: '🌙',
+        keywords: ['suhu', 'lst', 'night', 'malam', 'modis', 'temperature', 'dingin', 'termal'],
+        action: () => {
+          this.sidebarUI.setActiveTab('gee');
+          this.geeLoader?.toggleLayer('lst-night', true);
+          showToast('Lapisan MODIS LST Malam Hari diaktifkan', 'info');
+        }
+      },
+      {
+        id: 'tool-gee-stations',
+        category: 'tools',
+        categoryLabel: '⚡ Alat & Analisis',
+        title: '18 Titik Referensi Observasi LST & Iklim',
+        subtitle: 'Tampilkan jaringan 18 titik pemantau suhu permukaan di kota & regional Indonesia',
+        icon: '📍',
+        keywords: ['stasiun', 'titik', 'stations', 'observasi', 'poi', 'kota', 'jakarta', 'ikn', 'lembang'],
+        action: () => {
+          this.sidebarUI.setActiveTab('gee');
+          this.geeLoader?.toggleLayer('stations', true);
+          showToast('18 Titik Referensi Observasi LST ditampilkan', 'info');
+        }
+      },
+      {
         id: 'tool-terrain-3d',
         category: 'tools',
         categoryLabel: '⚡ Alat & Analisis',

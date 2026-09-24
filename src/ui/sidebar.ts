@@ -4,6 +4,7 @@ export class SidebarUI {
   private activeTab: TabId = 'map';
   private isOpen: boolean = true;
   private tabChangeCallbacks: ((tabId: TabId) => void)[] = [];
+  private resizeTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     this.bindEvents();
@@ -149,9 +150,20 @@ export class SidebarUI {
         : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>`;
     }
 
-    window.dispatchEvent(new Event('resize'));
-    setTimeout(() => {
+    if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('resize'));
+    }
+
+    if (this.resizeTimeoutId) {
+      clearTimeout(this.resizeTimeoutId);
+      this.resizeTimeoutId = null;
+    }
+
+    this.resizeTimeoutId = setTimeout(() => {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('resize'));
+      }
+      this.resizeTimeoutId = null;
     }, 320);
   }
 
@@ -167,5 +179,12 @@ export class SidebarUI {
 
   public onTabChange(callback: (tabId: TabId) => void) {
     this.tabChangeCallbacks.push(callback);
+  }
+
+  public destroy(): void {
+    if (this.resizeTimeoutId) {
+      clearTimeout(this.resizeTimeoutId);
+      this.resizeTimeoutId = null;
+    }
   }
 }
