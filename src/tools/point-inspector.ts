@@ -144,7 +144,10 @@ export class PointInspector {
       activeLayerName = `${pikselProduct.name} (${year})`;
       activeLayerCategory = `Piksel OGC WMS (${pikselProduct.resolution || '10m'})`;
     } else if (this.geeLoader) {
-      if (this.geeLoader.isLayerVisible('lst-day')) {
+      if (this.geeLoader.isLayerVisible('precipitation')) {
+        activeLayerName = 'Curah Hujan Harian Satelit (NASA GPM / CHIRPS)';
+        activeLayerCategory = 'Presipitasi Satelit · mm/hari';
+      } else if (this.geeLoader.isLayerVisible('lst-day')) {
         activeLayerName = 'NASA MODIS LST Siang (1 km)';
         activeLayerCategory = 'NASA LP DAAC · MOD11A2 / MYD11A2';
       } else if (this.geeLoader.isLayerVisible('lst-night')) {
@@ -219,8 +222,19 @@ export class PointInspector {
     
     if (!pikselProduct) {
       if (rasterStatusEl) {
-        rasterStatusEl.innerText = 'Peta visual (Tidak ada citra WMS aktif)';
-        rasterStatusEl.style.color = 'var(--text-muted)';
+        if (this.geeLoader?.isLayerVisible('precipitation')) {
+          rasterStatusEl.innerText = 'Presipitasi Satelit Aktif (NASA GPM / CHIRPS · mm/hari)';
+          rasterStatusEl.style.color = '#38bdf8';
+        } else if (this.geeLoader?.isLayerVisible('lst-day') || this.geeLoader?.isLayerVisible('lst-night')) {
+          rasterStatusEl.innerText = 'Radiansi Termal MODIS LST 1km Aktif (Klik titik stasiun untuk observasi detail)';
+          rasterStatusEl.style.color = '#f59e0b';
+        } else if (this.geeLoader?.isLayerVisible('landcover')) {
+          rasterStatusEl.innerText = 'Sentinel-2 10m LULC Aktif (Klasifikasi Tutupan Lahan ESA)';
+          rasterStatusEl.style.color = '#10b981';
+        } else {
+          rasterStatusEl.innerText = 'Peta visual (Tidak ada citra WMS aktif)';
+          rasterStatusEl.style.color = 'var(--text-muted)';
+        }
       }
       return;
     }
