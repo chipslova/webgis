@@ -204,6 +204,29 @@ export class DynamicLegendUI {
           </div>
         `;
       }
+
+      if (this.geeLoader.isLayerVisible('precipitation') || this.geeLoader.isLayerVisible('curah-hujan') || this.geeLoader.isLayerVisible('rainfall')) {
+        activeLayersCount++;
+        thematicHtml += `
+          <div class="dynamic-legend-card">
+            <div class="dynamic-legend-card-header">
+              <span class="legend-card-icon">🌧️</span>
+              <div>
+                <div class="dynamic-legend-title">Curah Hujan Harian (CHIRPS &amp; NASA GPM)</div>
+                <div class="dynamic-legend-sub">NASA IMERG Precipitation Rate · Resolusi Harian Bebas Awan</div>
+              </div>
+            </div>
+            <div class="gee-legend-bar" style="height: 8px; border-radius: 4px; margin-top: 8px; background: linear-gradient(90deg, #f8fafc 0%, #7dd3fc 15%, #0284c7 35%, #16a34a 55%, #eab308 75%, #ef4444 90%, #7e22ce 100%);" aria-hidden="true"></div>
+            <div class="gee-legend-labels" style="font-size: 10px; display: flex; justify-content: space-between; color: var(--text-muted); margin-top: 4px;">
+              <span>0 mm (Nihil)</span>
+              <span>5 mm</span>
+              <span>15 mm (Sedang)</span>
+              <span>30 mm (Lebat)</span>
+              <span>50 mm+ (Ekstrem)</span>
+            </div>
+          </div>
+        `;
+      }
     }
 
     // 3. Custom GeoJSON Layers

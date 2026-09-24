@@ -31,6 +31,13 @@ describe('GEE Land Surface Temperature (LST) & Thermal Layer Suite', () => {
           <span id="gee-landcover-opacity-val">85%</span>
         </div>
 
+        <input type="checkbox" id="toggle-gee-precipitation" />
+        <div id="gee-precip-opacity-row" style="display: none;">
+          <input type="range" id="gee-precip-opacity" min="0" max="100" value="85" />
+          <span id="gee-precip-opacity-val">85%</span>
+        </div>
+        <div id="gee-precip-legend" style="display: none;"></div>
+
         <input type="checkbox" id="toggle-gee-poi" />
         <div id="gee-lulc-legend" style="display: none;"></div>
 
@@ -194,5 +201,31 @@ describe('GEE Land Surface Temperature (LST) & Thermal Layer Suite', () => {
     expect(mapMock.addLayer).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'gee-modis-stations-labels' })
     );
+  });
+
+  it('should toggle precipitation layer and adjust its opacity correctly', async () => {
+    const precipCheckbox = document.getElementById('toggle-gee-precipitation') as HTMLInputElement;
+    expect(precipCheckbox).not.toBeNull();
+    expect(precipCheckbox.checked).toBe(false);
+
+    precipCheckbox.checked = true;
+    precipCheckbox.dispatchEvent(new Event('change'));
+
+    await new Promise((r) => setTimeout(r, 50));
+
+    expect(geeLoader.isLayerActive('precipitation')).toBe(true);
+    expect(geeLoader.isLayerVisible('precipitation')).toBe(true);
+
+    const opacityRow = document.getElementById('gee-precip-opacity-row');
+    expect(opacityRow?.style.display).toBe('flex');
+
+    const slider = document.getElementById('gee-precip-opacity') as HTMLInputElement;
+    const valLabel = document.getElementById('gee-precip-opacity-val');
+
+    slider.value = '60';
+    slider.dispatchEvent(new Event('input'));
+
+    expect(valLabel?.innerText).toBe('60%');
+    expect(geeLoader.getLayerOpacity('precipitation')).toBe(0.6);
   });
 });

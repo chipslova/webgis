@@ -190,6 +190,8 @@ export class GEEPanelUI {
     applyToggle('toggle-gee-surface', 'lst-night', 'gee-lst-night-opacity-row');
     applyToggle('toggle-gee-landcover', 'landcover', 'gee-lc-opacity-row', 'gee-lulc-legend');
     applyToggle('toggle-gee-lc', 'landcover', 'gee-lc-opacity-row', 'gee-lulc-legend');
+    applyToggle('toggle-gee-precipitation', 'precipitation', 'gee-precip-opacity-row', 'gee-precip-legend');
+    applyToggle('toggle-gee-rainfall', 'precipitation', 'gee-precip-opacity-row', 'gee-precip-legend');
     applyToggle('toggle-gee-poi', 'stations');
     applyToggle('toggle-gee-stations', 'stations');
   }
@@ -211,6 +213,7 @@ export class GEEPanelUI {
     bind('gee-lst-day-opacity', 'gee-lst-day-opacity-val', 'lst-day');
     bind('gee-lst-night-opacity', 'gee-lst-night-opacity-val', 'lst-night');
     bind('gee-landcover-opacity', 'gee-landcover-opacity-val', 'landcover');
+    bind('gee-precip-opacity', 'gee-precip-opacity-val', 'precipitation');
 
     // Chart PNG download
     document.getElementById('btn-download-chart-png')?.addEventListener('click', () => {
@@ -245,6 +248,8 @@ export class GEEPanelUI {
     attachToggle('toggle-gee-surface', 'lst-night');
     attachToggle('toggle-gee-landcover', 'landcover');
     attachToggle('toggle-gee-lc', 'landcover');
+    attachToggle('toggle-gee-precipitation', 'precipitation');
+    attachToggle('toggle-gee-rainfall', 'precipitation');
     attachToggle('toggle-gee-poi', 'stations');
     attachToggle('toggle-gee-stations', 'stations');
 

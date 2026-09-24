@@ -411,7 +411,19 @@
                       </div>
                     </div>
 
-                    <!-- 4. Indonesia Observation Nodes -->
+                    <!-- 4. NASA GPM & CHIRPS Daily Precipitation -->
+                    <div class="gee-layer-row gee-layer-item-clean">
+                      <label>
+                        <input type="checkbox" id="toggle-gee-precipitation" aria-label="Toggle NASA GPM Daily Precipitation layer" />
+                        <span>🌧️ <strong>Curah Hujan Harian</strong> <span class="gee-layer-subtext">(CHIRPS &amp; NASA GPM · mm/hari)</span></span>
+                      </label>
+                      <div id="gee-precip-opacity-row" class="gee-layer-opacity-box">
+                        <input type="range" id="gee-precip-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas Curah Hujan" />
+                        <span id="gee-precip-opacity-val" class="gee-layer-opacity-val" style="color: #38bdf8;">85%</span>
+                      </div>
+                    </div>
+
+                    <!-- 5. Indonesia Observation Nodes -->
                     <div class="gee-layer-item-clean">
                       <label>
                         <input type="checkbox" id="toggle-gee-poi" aria-label="Toggle Indonesia LST Observation Reference Points layer" />
@@ -450,6 +462,22 @@
                   </div>
                 </div>
 
+                <!-- 2c. Precipitation Legend — visible when precipitation is toggled -->
+                <div id="gee-precip-legend" class="gee-lulc-box" style="display: none; border-color: rgba(56, 189, 248, 0.3); background: rgba(8, 20, 36, 0.7);">
+                  <div class="gee-lulc-title" style="color: #38bdf8;">🌧️ Legenda Intensitas Curah Hujan (mm/hari)</div>
+                  <div class="gee-legend-bar" style="height: 8px; border-radius: 4px; margin: 6px 0; background: linear-gradient(90deg, #f8fafc 0%, #7dd3fc 15%, #0284c7 35%, #16a34a 55%, #eab308 75%, #ef4444 90%, #7e22ce 100%);" aria-hidden="true"></div>
+                  <div class="gee-legend-labels" style="font-size: 10px; display: flex; justify-content: space-between; color: var(--text-muted);">
+                    <span>0 (Kering)</span>
+                    <span>5 mm</span>
+                    <span>15 mm</span>
+                    <span>30 mm</span>
+                    <span>50 mm+ (Ekstrem)</span>
+                  </div>
+                  <div style="font-size: 10px; color: var(--text-muted); margin-top: 5px;">
+                    Sumber: <code>NASA IMERG Early/Daily &amp; CHIRPS UCSB</code> · Cakupan Global / Seluruh Indonesia
+                  </div>
+                </div>
+
                 <!-- 3. Satellite & Period Filters -->
                 <div class="gee-filter-grid">
                   <div>
@@ -473,9 +501,10 @@
 
                 <!-- 5. Educational Guidance Callout -->
                 <div class="gee-callout">
-                  <div><strong>💡 Panduan Warna Merah:</strong></div>
+                  <div><strong>💡 Panduan Warna Merah &amp; Curah Hujan:</strong></div>
                   <div class="mt-xs">• <strong>Peta LST (Suhu):</strong> Merah = Permukaan daratan panas (34°C–40°C+ saat siang/kemarau). Lautan transparan.</div>
                   <div class="mt-xs">• <strong>Tutupan Lahan (LULC):</strong> Merah = Lahan Terbangun / Perkotaan (Built-Up Area).</div>
+                  <div class="mt-xs">• <strong>Curah Hujan (CHIRPS/GPM):</strong> Biru-Hijau = Hujan ringan/sedang (5–20 mm), Kuning-Merah-Ungu = Hujan lebat/ekstrem (&gt;30 mm/hari).</div>
                 </div>
               </div>
 

@@ -164,6 +164,8 @@ export class ActiveLayersUI {
     const isGeeElvVis       = this.geeLoader.isLayerVisible('elevation');
     const isGeeLcActive     = this.geeLoader.isLayerActive('landcover');
     const isGeeLcVis        = this.geeLoader.isLayerVisible('landcover');
+    const isGeePrecipActive = this.geeLoader.isLayerActive('precipitation');
+    const isGeePrecipVis    = this.geeLoader.isLayerVisible('precipitation');
 
     let layerCount = 0;
     if (activePiksel) layerCount++;
@@ -172,6 +174,7 @@ export class ActiveLayersUI {
     if (isGeeLstActive) layerCount++;
     if (isGeeElvActive) layerCount++;
     if (isGeeLcActive) layerCount++;
+    if (isGeePrecipActive) layerCount++;
     layerCount += customLayers.length;
     if (hasMeasure) layerCount++;
 
@@ -390,6 +393,34 @@ export class ActiveLayersUI {
         });
       }
 
+      // 7b. GEE Precipitation (NASA GPM / CHIRPS)
+      if (isGeePrecipActive) {
+        const precipOpacityPct = Math.round(this.geeLoader.getLayerOpacity('precipitation') * 100);
+        itemsHtml += this.buildRow({
+          id: 'gee-precipitation',
+          name: 'Curah Hujan Harian',
+          meta: 'NASA GPM · CHIRPS · mm/hari',
+          color: '#38bdf8',
+          isVisible: isGeePrecipVis,
+          opacityPct: precipOpacityPct,
+          eyeBtnClass: 'btn-toggle-gee-precip',
+          removeBtnClass: 'btn-remove-gee-precip',
+          opacitySliderClass: 'gee-precip-opacity-slider',
+          details: [
+            { label: 'Sensor/Misi', value: 'NASA GPM IMERG & CHIRPS Daily' },
+            { label: 'Parameter', value: 'Intensitas Presipitasi Permukaan' },
+            { label: 'Satuan', value: 'Milimeter per hari (mm/hari)' },
+            { label: 'Cakupan', value: 'Seluruh Wilayah Indonesia' },
+          ],
+          legendHtml: `
+            <div class="gee-legend-bar" style="height: 6px; border-radius: 3px; margin: 4px 0; background: linear-gradient(90deg, #f8fafc 0%, #7dd3fc 15%, #0284c7 35%, #16a34a 55%, #eab308 75%, #ef4444 90%, #7e22ce 100%);"></div>
+            <div class="gee-legend-labels" style="font-size: 9.5px; color: var(--text-muted); display:flex; justify-content:space-between;">
+              <span>0 mm</span><span>15 mm</span><span>50 mm+</span>
+            </div>
+          `
+        });
+      }
+
       // 8. Piksel OGC Satellite
       if (activePiksel) {
         const pikselOpacityPct = Math.round(this.pikselLoader.getOpacity() * 100);
@@ -594,6 +625,12 @@ export class ActiveLayersUI {
         return;
       }
 
+      if (target.closest('.btn-toggle-gee-precip')) {
+        this.geeLoader.setLayerVisible('precipitation', !this.geeLoader.isLayerVisible('precipitation'));
+        this.render();
+        return;
+      }
+
       const toggleGeoJsonBtn = target.closest('.btn-toggle-geojson') as HTMLElement;
       if (toggleGeoJsonBtn?.dataset.id) {
         const layer = this.geojsonLoader.getLayers().find(l => l.id === toggleGeoJsonBtn.dataset.id);
@@ -674,6 +711,13 @@ export class ActiveLayersUI {
         return;
       }
 
+      if (target.closest('.btn-remove-gee-precip')) {
+        this.geeLoader.toggleLayer('precipitation', false);
+        if (this.expandedLayerId === 'gee-precipitation') this.expandedLayerId = null;
+        this.render();
+        return;
+      }
+
       const deleteGeoJsonBtn = target.closest('.btn-delete-active-geojson') as HTMLElement;
       if (deleteGeoJsonBtn?.dataset.id) {
         if (this.expandedLayerId === deleteGeoJsonBtn.dataset.id) this.expandedLayerId = null;
@@ -705,6 +749,9 @@ export class ActiveLayersUI {
         updateLabel();
       } else if (target.classList.contains('gee-lc-opacity-slider')) {
         this.geeLoader.setLayerOpacity('landcover', Number(target.value) / 100);
+        updateLabel();
+      } else if (target.classList.contains('gee-precip-opacity-slider')) {
+        this.geeLoader.setLayerOpacity('precipitation', Number(target.value) / 100);
         updateLabel();
       } else if (target.classList.contains('geojson-opacity-slider') && target.dataset.id) {
         this.geojsonLoader.setLayerOpacity(target.dataset.id, Number(target.value) / 100);

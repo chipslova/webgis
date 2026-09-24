@@ -40,13 +40,18 @@ export class GEELoader {
     ['lst-day', false],
     ['lst-night', false],
     ['stations', false],
+    ['precipitation', false],
     // Aliases
     ['air-temp', false],
     ['surface-temp', false],
     ['lst', false],
     ['elevation', false],
     ['poi', false],
-    ['landcover', false]
+    ['landcover', false],
+    ['rainfall', false],
+    ['curah-hujan', false],
+    ['chirps', false],
+    ['gpm', false]
   ]);
   // Independent layer opacities
   private layerOpacities: Map<string, number> = new Map([
@@ -56,7 +61,12 @@ export class GEELoader {
     ['surface-temp', 0.85],
     ['lst', 0.85],
     ['elevation', 0.85],
-    ['landcover', 0.85]
+    ['landcover', 0.85],
+    ['precipitation', 0.85],
+    ['rainfall', 0.85],
+    ['curah-hujan', 0.85],
+    ['chirps', 0.85],
+    ['gpm', 0.85]
   ]);
 
   private isEventsBound: boolean = false;
@@ -104,6 +114,7 @@ export class GEELoader {
     if (layerId === 'elevation' || layerId === 'surface-temp' || layerId === 'lst-night') return 'lst-night';
     if (layerId === 'poi' || layerId === 'stations') return 'stations';
     if (layerId === 'landcover' || layerId === 'lc') return 'landcover';
+    if (layerId === 'precipitation' || layerId === 'rainfall' || layerId === 'curah-hujan' || layerId === 'chirps' || layerId === 'gpm') return 'precipitation';
     return layerId;
   }
 
@@ -158,6 +169,7 @@ export class GEELoader {
       'gee-modis-day-wms-layer',
       'gee-modis-night-wms-layer',
       'gee-modis-landcover-layer',
+      'gee-precipitation-wms-layer',
       'gee-modis-live-raster-layer',
       'gee-modis-lst-day-fill',
       'gee-modis-lst-night-fill',
@@ -294,6 +306,11 @@ export class GEELoader {
         this.activeLayers.delete('poi');
       } else if (key === 'landcover') {
         this.activeLayers.delete('lc');
+      } else if (key === 'precipitation') {
+        this.activeLayers.delete('rainfall');
+        this.activeLayers.delete('curah-hujan');
+        this.activeLayers.delete('chirps');
+        this.activeLayers.delete('gpm');
       }
     }
 
@@ -316,6 +333,9 @@ export class GEELoader {
     }
     if (this.map.getLayer('gee-modis-landcover-layer') && (key === 'landcover' || layerId === 'landcover')) {
       this.map.setPaintProperty('gee-modis-landcover-layer', 'raster-opacity', opacity);
+    }
+    if (this.map.getLayer('gee-precipitation-wms-layer') && (key === 'precipitation' || layerId === 'precipitation')) {
+      this.map.setPaintProperty('gee-precipitation-wms-layer', 'raster-opacity', opacity);
     }
     if (this.map.getLayer('gee-modis-lst-day-fill') && key === 'lst-day') {
       this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-opacity', 0.0001);
@@ -340,7 +360,7 @@ export class GEELoader {
   }
 
   public setOpacity(opacity: number) {
-    ['lst-day', 'lst-night', 'air-temp', 'surface-temp', 'lst', 'elevation', 'landcover'].forEach((id) => this.setLayerOpacity(id, opacity));
+    ['lst-day', 'lst-night', 'air-temp', 'surface-temp', 'lst', 'elevation', 'landcover', 'precipitation'].forEach((id) => this.setLayerOpacity(id, opacity));
   }
 
   public getOpacity(): number {
@@ -386,6 +406,7 @@ export class GEELoader {
     const isDayVis = this.isLayerVisible('lst-day');
     const isNightVis = this.isLayerVisible('lst-night');
     const isLcVis = this.isLayerVisible('landcover');
+    const isPrecipVis = this.isLayerVisible('precipitation');
     const isStationsVis = this.isLayerVisible('stations');
 
     // Prepare point collection for Gaussian heatmap interpolation (continuous, zero-box surface)
@@ -567,6 +588,61 @@ export class GEELoader {
       logger.warn('[GEELoader] Notice adding Sentinel-2 10m Land Cover raster layer:', e);
     }
 
+    // --- 3b. NASA GPM & CHIRPS DAILY PRECIPITATION RATE (WMS RASTER) ---
+    try {
+      const precipWmsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${selectedDate}&BBOX={bbox-epsg-3857}`;
+      const precipSourceId = 'gee-precipitation-wms-source';
+      const precipLayerId = 'gee-precipitation-wms-layer';
+
+      const beforeLayerId = this.map.getLayer('gee-modis-stations-circles')
+        ? 'gee-modis-stations-circles'
+        : undefined;
+
+      const existingPrecipSource = this.map.getSource(precipSourceId) as any;
+      if (existingPrecipSource) {
+        if (typeof existingPrecipSource.setTiles === 'function') {
+          existingPrecipSource.setTiles([precipWmsUrl]);
+        }
+        if (this.map.getLayer(precipLayerId)) {
+          this.map.setLayoutProperty(precipLayerId, 'visibility', isPrecipVis ? 'visible' : 'none');
+          this.map.setPaintProperty(precipLayerId, 'raster-opacity', this.getLayerOpacity('precipitation'));
+        } else {
+          this.map.addLayer({
+            id: precipLayerId,
+            type: 'raster',
+            source: precipSourceId,
+            layout: { visibility: isPrecipVis ? 'visible' : 'none' },
+            paint: {
+              'raster-opacity': this.getLayerOpacity('precipitation'),
+              'raster-resampling': 'linear',
+              'raster-fade-duration': 200
+            }
+          }, beforeLayerId);
+        }
+      } else {
+        this.map.addSource(precipSourceId, {
+          type: 'raster',
+          tiles: [precipWmsUrl],
+          tileSize: 256,
+          maxzoom: 12
+        });
+
+        this.map.addLayer({
+          id: precipLayerId,
+          type: 'raster',
+          source: precipSourceId,
+          layout: { visibility: isPrecipVis ? 'visible' : 'none' },
+          paint: {
+            'raster-opacity': this.getLayerOpacity('precipitation'),
+            'raster-resampling': 'linear',
+            'raster-fade-duration': 200
+          }
+        }, beforeLayerId);
+      }
+    } catch (e) {
+      logger.warn('[GEELoader] Notice adding NASA Precipitation WMS layer:', e);
+    }
+
     // --- 4. Transparent Polygon Layers for Click & Hover Temperature Interception ---
     try {
       if (!this.map.getLayer('gee-modis-lst-day-fill')) {
@@ -701,6 +777,7 @@ export class GEELoader {
     const isDayVis = this.isLayerVisible('lst-day');
     const isNightVis = this.isLayerVisible('lst-night');
     const isLcVis = this.isLayerVisible('landcover');
+    const isPrecipVis = this.isLayerVisible('precipitation');
     const isStationsVis = this.isLayerVisible('stations');
 
     if (this.map.getLayer('gee-modis-day-wms-layer')) {
@@ -711,6 +788,9 @@ export class GEELoader {
     }
     if (this.map.getLayer('gee-modis-landcover-layer')) {
       this.map.setLayoutProperty('gee-modis-landcover-layer', 'visibility', isLcVis ? 'visible' : 'none');
+    }
+    if (this.map.getLayer('gee-precipitation-wms-layer')) {
+      this.map.setLayoutProperty('gee-precipitation-wms-layer', 'visibility', isPrecipVis ? 'visible' : 'none');
     }
     if (this.map.getLayer('gee-modis-lst-day-fill')) {
       this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', isDayVis ? 'visible' : 'none');
