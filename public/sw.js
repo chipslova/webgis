@@ -1,5 +1,5 @@
 // Digital Earth Indonesia WebGIS - Service Worker
-const CACHE_NAME = 'de-webgis-v1.4';
+const CACHE_NAME = 'de-webgis-v1.5';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -8,11 +8,13 @@ const STATIC_ASSETS = [
   '/apple-touch-icon.png',
   '/icon-192.png',
   '/icon-512.png',
-  '/basemap/styles/esri-style-imagery.json',
+  '/basemap/styles/esri-style-streets.json',
   '/basemap/styles/esri-style-topographic.json',
-  '/basemap/styles/esri-style-navigation.json',
-  '/basemap/styles/esri-style-darkgray.json',
-  '/basemap/styles/esri-style-streets.json'
+  '/basemap/styles/esri-style-imagery-clarity.json',
+  '/basemap/styles/osm-style-humanitarian.json',
+  '/basemap/styles/carto-style-dark-matter.json',
+  '/basemap/styles/carto-style-voyager.json',
+  '/basemap/styles/big-style-rbi.json'
 ];
 
 self.addEventListener('install', (event) => {
