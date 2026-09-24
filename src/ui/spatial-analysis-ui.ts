@@ -7,6 +7,7 @@ import {
 import { polygon } from '@turf/helpers';
 import { showToast } from './toast';
 import { announceToScreenReader } from '../utils/a11y';
+import { escapeHtml } from '../utils/sanitize';
 
 export class SpatialAnalysisUI {
   private map: maplibregl.Map;
@@ -237,6 +238,8 @@ export class SpatialAnalysisUI {
     const statusEl = document.getElementById('aoi-draw-status');
     const presetContainer = document.getElementById('aoi-preset-container');
 
+    const simpulCount = this.drawnPoints.length;
+
     if (drawBtn) drawBtn.style.display = 'inline-flex';
     if (drawingActions) drawingActions.style.display = 'none';
     if (finishBtn) finishBtn.style.display = 'none';
@@ -245,7 +248,7 @@ export class SpatialAnalysisUI {
     if (presetContainer) presetContainer.style.display = 'flex';
     if (statusEl) statusEl.style.display = 'none';
 
-    this.analyzeFeature(polyFeature, `Area Kustom (${this.drawnPoints.length} Simpul)`);
+    this.analyzeFeature(polyFeature, `Area Kustom (${simpulCount} Simpul)`);
   }
 
   public cancelDrawing() {
@@ -396,6 +399,8 @@ export class SpatialAnalysisUI {
     const preset = PRESET_REGIONS.find((p) => p.id === presetId);
     if (!preset) return;
 
+    this.showLoadingState(preset.name);
+
     this.map.flyTo({
       center: preset.center,
       zoom: preset.zoom,
@@ -423,26 +428,69 @@ export class SpatialAnalysisUI {
     this.notifyLayersChange();
   }
 
-  public async analyzeFeature(
-    feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>,
-    label: string
-  ) {
+  public showLoadingState(label: string) {
     const container = document.getElementById('aoi-analysis-results-container');
     if (container) {
       container.innerHTML = `
-        <div class="aoi-loading-card">
-          <div class="hud-spinner aoi-spinner"></div>
+        <div class="aoi-loading-card" role="status" aria-live="polite">
+          <div class="aoi-loading-spinner-wrap">
+            <div class="aoi-loading-spinner"></div>
+            <span class="aoi-loading-spinner-icon">🛰️</span>
+          </div>
           <div class="aoi-loading-title">Menganalisis Piksel Satelit &amp; Suhu Permukaan...</div>
+          <div class="aoi-loading-target">📍 ${escapeHtml(label)}</div>
           <div class="aoi-loading-subtitle">Memproses data raster Sentinel-2 10m LULC &amp; Open-Meteo Live LST...</div>
+          <div class="aoi-loading-progress-track">
+            <div class="aoi-loading-progress-bar"></div>
+          </div>
         </div>
       `;
     }
 
-    this.activeAOIFeature = feature;
-    const result = await SpatialAnalysisEngine.computeZonalStatsWithGEE(feature, label);
-    this.activeResult = result;
+    const presetSelect = document.getElementById('select-preset-aoi') as HTMLSelectElement | null;
+    if (presetSelect) {
+      presetSelect.disabled = true;
+      presetSelect.classList.add('loading');
+    }
+    const drawBtn = document.getElementById('btn-start-draw-aoi') as HTMLButtonElement | null;
+    if (drawBtn) {
+      drawBtn.disabled = true;
+      drawBtn.classList.add('loading');
+    }
+  }
 
+  public hideLoadingState() {
+    const presetSelect = document.getElementById('select-preset-aoi') as HTMLSelectElement | null;
+    if (presetSelect) {
+      presetSelect.disabled = false;
+      presetSelect.classList.remove('loading');
+      presetSelect.value = '';
+    }
+    const drawBtn = document.getElementById('btn-start-draw-aoi') as HTMLButtonElement | null;
+    if (drawBtn) {
+      drawBtn.disabled = false;
+      drawBtn.classList.remove('loading');
+    }
+  }
+
+  public async analyzeFeature(
+    feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>,
+    label: string
+  ) {
+    this.showLoadingState(label);
+    showToast(`Menganalisis data spasial untuk ${label}...`, 'info');
+
+    this.activeAOIFeature = feature;
+
+    const [result] = await Promise.all([
+      SpatialAnalysisEngine.computeZonalStatsWithGEE(feature, label),
+      new Promise((resolve) => setTimeout(resolve, 600))
+    ]);
+
+    this.activeResult = result;
+    this.hideLoadingState();
     this.renderResult(result);
+
     if (result.isRealGEE) {
       showToast(`Analisis piksel real GEE selesai untuk ${label} (${result.totalPixelCount?.toLocaleString('id-ID')} piksel)`, 'success');
     } else if (result.isClientSampled) {
@@ -651,14 +699,14 @@ export class SpatialAnalysisUI {
         <!-- Region Title Header -->
         <div class="aoi-result-header">
           <div class="aoi-result-title-wrap">
-            <div class="aoi-result-title" title="${res.regionName}">
-              ${res.regionName}
+            <div class="aoi-result-title" title="${escapeHtml(res.regionName)}">
+              ${escapeHtml(res.regionName)}
             </div>
             <div class="aoi-result-timestamp">
-              Dianalisis: ${res.timestamp}
+              Dianalisis: ${escapeHtml(res.timestamp)}
             </div>
           </div>
-          <button id="btn-export-aoi-csv" class="btn btn-secondary btn-export-csv">
+          <button id="btn-export-aoi-csv" class="btn btn-secondary btn-export-csv" title="Unduh data statistik spasial sebagai CSV">
             📥 Unduh CSV
           </button>
         </div>

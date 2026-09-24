@@ -11600,250 +11600,348 @@ html, body, #app {
 
 
 /* ==========================================================================
-   Intersect Analysis — 3-Step Wizard UI
+   SPATIAL ANALYSIS: AOI CONTROLS, LOADING STATE & RESULT CARDS
    ========================================================================== */
 
-/* ── Wizard Panel Visibility ───────────────────────────────────────────── */
-.intersect-wizard-panel {
-  display: none;
-  animation: analysis-subpanel-fade 0.2s ease-out;
-}
-.intersect-wizard-panel.active {
-  display: block;
+/* ── AOI Controls & Drawing Toolbar ───────────────────────────────────────── */
+.aoi-control-box {
+  margin-bottom: 12px;
 }
 
-/* ── Stepper ───────────────────────────────────────────────────────────── */
-.intersect-wizard-stepper {
-  display: flex;
+.aoi-btn-full {
+  width: 100%;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0;
-  padding: 4px 0 14px;
-}
-
-.wizard-step-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  cursor: default;
-}
-
-.wizard-step-dot {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  color: #475569;
-  transition: all 0.25s ease;
-}
-
-.wizard-step-item.active .wizard-step-dot {
-  background: linear-gradient(135deg, #0284c7 0%, #00f0ff 100%);
-  border-color: #00f0ff;
-  color: #02131e;
-  box-shadow: 0 0 14px rgba(0, 240, 255, 0.45);
-}
-
-.wizard-step-item.done .wizard-step-dot {
-  background: rgba(16, 185, 129, 0.18);
-  border-color: #10b981;
-  color: #10b981;
-  font-size: 0; /* hide number */
-}
-.wizard-step-item.done .wizard-step-dot::after {
-  content: '✓';
+  gap: 8px;
+  padding: 9px 14px;
+  font-weight: 600;
   font-size: 12px;
+  letter-spacing: -0.01em;
 }
 
-.wizard-step-label {
-  font-size: 9.5px;
+.aoi-btn-full.loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.aoi-actions-3col {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.aoi-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 10px;
+  font-size: 11px;
   font-weight: 600;
-  color: #475569;
-  transition: color 0.25s ease;
-  white-space: nowrap;
-  letter-spacing: 0.02em;
-}
-.wizard-step-item.active .wizard-step-label { color: #00f0ff; }
-.wizard-step-item.done  .wizard-step-label { color: #10b981; }
-
-.wizard-step-line {
-  flex: 1;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.08);
-  margin: 0 6px 18px; /* vertical offset to align with dot centres */
-  min-width: 20px;
-  transition: background 0.3s ease;
-}
-.wizard-step-line.done {
-  background: rgba(16, 185, 129, 0.5);
 }
 
-/* ── Step question header ─────────────────────────────────────────────── */
-.wizard-step-question {
-  font-size: 13px;
-  font-weight: 600;
-  color: #e2e8f0;
-  margin: 0 0 12px;
-  line-height: 1.4;
-}
-
-/* ── Step 1: Area Option Cards ───────────────────────────────────────── */
-.wizard-area-options {
+.aoi-preset-box {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-top: 8px;
 }
 
-.wizard-area-btn {
+.aoi-preset-divider {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1.5px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  cursor: pointer;
-  text-align: left;
-  transition: border-color 0.18s ease, background 0.18s ease;
-  color: #cbd5e1;
-  width: 100%;
-}
-.wizard-area-btn:hover {
-  border-color: rgba(0, 240, 255, 0.3);
-  background: rgba(0, 240, 255, 0.06);
-}
-.wizard-area-btn.active {
-  border-color: #00f0ff;
-  background: rgba(0, 240, 255, 0.1);
+  gap: 8px;
+  margin: 2px 0;
 }
 
-.wizard-area-icon {
-  font-size: 22px;
-  flex-shrink: 0;
-  line-height: 1;
-}
-.wizard-area-text {
+.aoi-divider-line {
   flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.aoi-divider-label {
+  font-size: 10px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.aoi-preset-select {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 11.5px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #f1f5f9;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.aoi-preset-select:focus,
+.aoi-preset-select:hover {
+  border-color: rgba(0, 240, 255, 0.45);
+}
+
+.aoi-preset-select.loading {
+  opacity: 0.65;
+  cursor: wait;
+  border-color: #00f0ff;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
+}
+
+/* ── AOI Empty State ──────────────────────────────────────────────────────── */
+.aoi-empty-box {
+  text-align: center;
+  padding: 24px 16px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  margin-top: 4px;
+}
+
+.aoi-empty-icon {
+  font-size: 26px;
+  margin-bottom: 6px;
+}
+
+.aoi-empty-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-bottom: 4px;
+}
+
+.aoi-empty-subtitle {
+  font-size: 10.5px;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+/* ── AOI Dynamic Loading State ────────────────────────────────────────────── */
+.aoi-loading-card {
+  position: relative;
+  overflow: hidden;
+  padding: 22px 16px;
+  background: linear-gradient(135deg, rgba(16, 25, 44, 0.95), rgba(11, 17, 32, 0.98));
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 16px rgba(0, 240, 255, 0.12);
   display: flex;
   flex-direction: column;
-  gap: 2px;
-}
-.wizard-area-text strong {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #f1f5f9;
-}
-.wizard-area-text span {
-  font-size: 10.5px;
-  color: #94a3b8;
-}
-.wizard-area-check {
-  font-size: 14px;
-  color: #00f0ff;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-.wizard-area-btn.active .wizard-area-check {
-  opacity: 1;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  animation: fadeIn 0.25s ease-out;
 }
 
-/* ── Navigation Row ───────────────────────────────────────────────────── */
-.wizard-nav-row {
+.aoi-loading-spinner-wrap {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.aoi-loading-spinner {
+  position: absolute;
+  inset: 0;
+  border: 3px solid rgba(0, 240, 255, 0.15);
+  border-top-color: #00f0ff;
+  border-right-color: rgba(0, 240, 255, 0.6);
+  border-radius: 50%;
+  animation: aoiSpin 0.9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.aoi-loading-spinner-icon {
+  font-size: 20px;
+  line-height: 1;
+  animation: aoiPulse 1.8s ease-in-out infinite;
+}
+
+.aoi-loading-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.aoi-loading-target {
+  font-size: 12px;
+  font-weight: 600;
+  color: #00f0ff;
+  background: rgba(0, 240, 255, 0.08);
+  padding: 3px 10px;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.aoi-loading-subtitle {
+  font-size: 10.5px;
+  color: #94a3b8;
+  line-height: 1.4;
+  max-width: 290px;
+}
+
+.aoi-loading-progress-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-top: 6px;
+  position: relative;
+}
+
+.aoi-loading-progress-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 45%;
+  background: linear-gradient(90deg, transparent, #00f0ff, transparent);
+  border-radius: 9999px;
+  animation: aoiProgress 1.4s ease-in-out infinite;
+}
+
+@keyframes aoiSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes aoiPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.12); opacity: 0.85; }
+}
+
+@keyframes aoiProgress {
+  0% { left: -45%; }
+  100% { left: 100%; }
+}
+
+/* ── AOI Result Card & Template Header ────────────────────────────────────── */
+.aoi-result-card {
+  background: linear-gradient(135deg, rgba(16, 25, 44, 0.95), rgba(11, 17, 32, 0.98));
+  border: 1px solid rgba(0, 240, 255, 0.22);
+  border-radius: 10px;
+  padding: 13px 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  animation: fadeIn 0.25s ease-out;
+}
+
+.aoi-result-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.aoi-result-title-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.aoi-result-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f8fafc;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  word-break: break-word;
+}
+
+.aoi-result-timestamp {
+  font-size: 11px;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-top: 3px;
+  letter-spacing: 0.01em;
+}
+
+.btn-export-csv {
+  flex-shrink: 0;
+  font-size: 11px;
+  padding: 5px 9px;
+  gap: 4px;
+}
+
+.aoi-banner {
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}
+.aoi-banner.gee-cloud {
+  background: rgba(14, 165, 233, 0.12);
+  border: 1px solid rgba(14, 165, 233, 0.3);
+}
+.aoi-banner.client-sampled {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+.aoi-banner.estimation {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+.aoi-banner-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  margin-bottom: 4px;
 }
-
-/* ── Step 2: Target Cards Grid ────────────────────────────────────────── */
-.intersect-target-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.intersect-target-card {
+.aoi-banner-title-wrap {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  padding: 12px 12px 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1.5px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  cursor: pointer;
-  text-align: left;
-  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
-  color: #cbd5e1;
-  width: 100%;
-  /* override btn-chip defaults */
-  border-radius: 10px !important;
-  padding: 12px !important;
+  align-items: center;
+  gap: 6px;
 }
-.intersect-target-card:hover {
-  border-color: rgba(0, 240, 255, 0.35);
-  background: rgba(0, 240, 255, 0.07);
-}
-.intersect-target-card.active {
-  border-color: #00f0ff;
-  background: rgba(0, 240, 255, 0.12);
-  box-shadow: 0 0 14px rgba(0, 240, 255, 0.18);
-}
-
-.target-card-icon {
-  font-size: 20px;
-  line-height: 1;
-  margin-bottom: 2px;
-}
-.target-card-title {
-  font-size: 11.5px;
+.aoi-banner-title {
+  font-size: 11px;
   font-weight: 700;
   color: #f1f5f9;
-  line-height: 1.3;
-  display: block;
 }
-.target-card-desc {
-  font-size: 9.5px;
-  color: #64748b;
-  line-height: 1.45;
-  display: block;
+.aoi-banner-tag {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
 }
-.intersect-target-card.active .target-card-title { color: #00f0ff; }
-.intersect-target-card.active .target-card-desc  { color: #94a3b8; }
-
-/* ── Step 3: Summary Box ──────────────────────────────────────────────── */
-.intersect-wizard-summary {
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(0, 240, 255, 0.25);
-  border-radius: 10px;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.summary-row {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 11.5px;
-}
-.summary-key {
-  flex-shrink: 0;
-  font-weight: 600;
+.aoi-banner-body {
+  font-size: 10.5px;
   color: #94a3b8;
-  min-width: 74px;
+  line-height: 1.4;
 }
-.summary-val {
-  color: #e2e8f0;
-  font-weight: 500;
+.aoi-banner-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+.aoi-pill-tag {
+  font-size: 9.5px;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.aoi-link-btn {
+  font-size: 9.5px;
+  color: #38bdf8;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 
