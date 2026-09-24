@@ -26,7 +26,6 @@ import { SwipeCompareUI } from './ui/swipe-compare-ui';
 import { CommandPaletteUI } from './ui/command-palette';
 import { SpatialAnalysisUI } from './ui/spatial-analysis-ui';
 import { BufferAnalysisUI } from './ui/buffer-analysis-ui';
-import type { IntersectAnalysisUI } from './ui/intersect-analysis-ui';
 import { AttributeTableUI } from './ui/attribute-table-panel';
 import { ShortcutsModalUI } from './ui/shortcuts-modal';
 import { OverviewMapUI } from './ui/overview-map';
@@ -60,10 +59,9 @@ class WebGISApp {
   private commandPaletteUI: CommandPaletteUI | null = null;
   private spatialAnalysisUI: SpatialAnalysisUI | null = null;
   private bufferAnalysisUI: BufferAnalysisUI | null = null;
-  private intersectAnalysisUI: IntersectAnalysisUI | null = null;
   private attributeTableUI: AttributeTableUI | null = null;
   private shortcutsModalUI: ShortcutsModalUI | null = null;
-  private switchAnalysisSubtab?: (subtab: 'intersect' | 'zonal' | 'buffer') => void;
+  private switchAnalysisSubtab?: (subtab: 'zonal' | 'buffer') => void;
   private errorHandler: ErrorHandler;
 
   constructor() {
@@ -145,7 +143,6 @@ class WebGISApp {
           this.mapManager.enforceLayerOrder();
           this.dynamicLegendUI?.render();
           this.bufferAnalysisUI?.updateLayerSelect();
-          this.intersectAnalysisUI?.updateLayerSelect();
         }
       );
 
@@ -160,7 +157,6 @@ class WebGISApp {
       this.mapManager.onStyleReady(() => this.geojsonLoader?.reattachLayersIfNeeded());
       this.mapManager.onStyleReady(() => this.geeLoader?.restoreAfterStyleChange());
       this.mapManager.onStyleReady(() => this.measureTool?.restoreAfterStyleChange());
-      this.mapManager.onStyleReady(() => this.intersectAnalysisUI?.restoreAfterStyleChange());
       this.mapManager.onStyleReady(() => {
         const bmId = this.mapManager.getCurrentBasemapId();
         this.basemapCustomizer?.setBasemapId(bmId);
@@ -181,7 +177,6 @@ class WebGISApp {
       this.geojsonLoader.onLayersChange(() => {
         this.mapManager.enforceLayerOrder();
         this.dynamicLegendUI?.render();
-        this.intersectAnalysisUI?.updateLayerSelect();
       });
 
       // Instantiate Active Layers UI manager with seamless tab router integration
@@ -273,25 +268,12 @@ class WebGISApp {
       // Initialize Analysis Subnav Switcher (Tumpang Tindih, Statistik AOI, Radius Buffer)
       this.switchAnalysisSubtab = this.initAnalysisSubnav();
 
-      // Refresh buffer & lazy-load intersect layers dropdown whenever analysis tab is opened
+      // Refresh buffer layers dropdown whenever analysis tab is opened
       this.sidebarUI.onTabChange((tabId) => {
         if (tabId === 'analysis') {
           this.bufferAnalysisUI?.updateLayerSelect();
-          this.getOrInitIntersectUI().then((ui) => ui?.updateLayerSelect());
         }
       });
-
-      // Pre-fetch on first hover or interaction with intersect container
-      const intersectContainer = document.getElementById('intersect-analysis-container');
-      if (intersectContainer) {
-        const prefetch = () => {
-          this.getOrInitIntersectUI();
-          intersectContainer.removeEventListener('pointerenter', prefetch);
-          intersectContainer.removeEventListener('focusin', prefetch);
-        };
-        intersectContainer.addEventListener('pointerenter', prefetch, { once: true });
-        intersectContainer.addEventListener('focusin', prefetch, { once: true });
-      }
 
       // Instantiate Attribute Table & Shortcuts Modal
       this.attributeTableUI = new AttributeTableUI(map, this.geojsonLoader);
@@ -1201,46 +1183,18 @@ class WebGISApp {
     return this.commandPaletteUI;
   }
 
-  public async getOrInitIntersectUI(): Promise<IntersectAnalysisUI | null> {
-    if (this.intersectAnalysisUI) return this.intersectAnalysisUI;
-    if (!this.geojsonLoader || !this.spatialAnalysisUI) return null;
-
-    const map = this.mapManager.getMap();
-    if (!map) return null;
-
-    try {
-      const { IntersectAnalysisUI } = await import('./ui/intersect-analysis-ui');
-      this.intersectAnalysisUI = new IntersectAnalysisUI(
-        map,
-        this.geojsonLoader,
-        this.spatialAnalysisUI,
-        () => {
-          this.mapManager.enforceLayerOrder();
-          this.dynamicLegendUI?.render();
-        }
-      );
-      this.intersectAnalysisUI.init();
-      return this.intersectAnalysisUI;
-    } catch (err) {
-      logger.error('[WebGISApp] Failed to lazy-load IntersectAnalysisUI:', err);
-      return null;
-    }
-  }
-
-  private initAnalysisSubnav(): (subtab: 'intersect' | 'zonal' | 'buffer') => void {
+  private initAnalysisSubnav(): (subtab: 'zonal' | 'buffer') => void {
     const subnavButtons = document.querySelectorAll<HTMLButtonElement>('.analysis-subnav-btn');
     const panelZonal = document.getElementById('spatial-analysis-panel');
     const panelBuffer = document.getElementById('buffer-analysis-container');
-    const panelIntersect = document.getElementById('intersect-analysis-container');
     const subtitleEl = document.getElementById('analysis-subnav-subtitle');
 
-    const SUBTAB_DESCRIPTIONS: Record<'buffer' | 'zonal' | 'intersect', string> = {
+    const SUBTAB_DESCRIPTIONS: Record<'buffer' | 'zonal', string> = {
       buffer: '⭕ <strong>Radius Buffer:</strong> <em>"Apa saja objek atau fasilitas di sekitar lokasi ini dalam jarak tertentu?"</em>',
-      zonal: '📊 <strong>Statistik AOI:</strong> <em>"Apa karakteristik &amp; isi di dalam area ini (tutupan lahan Sentinel-2 &amp; suhu LST)?"</em>',
-      intersect: '⚔️ <strong>Tumpang Tindih:</strong> <em>"Di mana dua area atau data spasial ini saling bertabrakan / beririsan?"</em>'
+      zonal: '📊 <strong>Statistik AOI:</strong> <em>"Apa karakteristik &amp; isi di dalam area ini (tutupan lahan Sentinel-2 &amp; suhu LST)?"</em>'
     };
 
-    const switchSubtab = (subtab: 'intersect' | 'zonal' | 'buffer') => {
+    const switchSubtab = (subtab: 'zonal' | 'buffer') => {
       subnavButtons.forEach((btn) => {
         const isActive = btn.dataset.subtab === subtab;
         btn.classList.toggle('active', isActive);
@@ -1251,10 +1205,6 @@ class WebGISApp {
         subtitleEl.innerHTML = SUBTAB_DESCRIPTIONS[subtab];
       }
 
-      if (panelIntersect) {
-        panelIntersect.style.display = subtab === 'intersect' ? 'block' : 'none';
-        panelIntersect.classList.toggle('active', subtab === 'intersect');
-      }
       if (panelZonal) {
         panelZonal.style.display = subtab === 'zonal' ? 'block' : 'none';
         panelZonal.classList.toggle('active', subtab === 'zonal');
@@ -1264,9 +1214,7 @@ class WebGISApp {
         panelBuffer.classList.toggle('active', subtab === 'buffer');
       }
 
-      if (subtab === 'intersect') {
-        this.getOrInitIntersectUI().then((ui) => ui?.updateLayerSelect());
-      } else if (subtab === 'buffer') {
+      if (subtab === 'buffer') {
         this.bufferAnalysisUI?.updateLayerSelect();
       }
     };
@@ -1274,12 +1222,12 @@ class WebGISApp {
     subnavButtons.forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        const subtab = btn.dataset.subtab as 'intersect' | 'zonal' | 'buffer';
+        const subtab = btn.dataset.subtab as 'zonal' | 'buffer';
         if (subtab) switchSubtab(subtab);
       });
     });
 
-    // Default to 'buffer' (Analisis Jangkauan / Radius Buffer - paling mudah dipahami)
+    // Default to 'buffer' (Analisis Jangkauan / Radius Buffer)
     switchSubtab('buffer');
 
     return switchSubtab;

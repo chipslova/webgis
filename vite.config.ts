@@ -21,12 +21,6 @@ export default defineConfig({
           maplibre: ['maplibre-gl'],
           'turf-measure': ['@turf/area', '@turf/length', '@turf/helpers'],
           'spatial-buffer': ['@turf/buffer', '@/tools/spatial-buffer'],
-          'spatial-overlay': [
-            '@turf/intersect',
-            '@turf/difference',
-            '@turf/union',
-            '@/tools/spatial-intersect'
-          ],
           pmtiles: ['pmtiles']
         }
       }
