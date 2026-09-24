@@ -362,7 +362,28 @@
                   <span class="gee-card-badge">1 km · LP DAAC</span>
                 </div>
 
-                <!-- 1. Primary Layer Switcher — with per-layer opacity -->
+                <!-- 1. Parameter Satelit & Periode Musim (Filter Utama di Atas) -->
+                <div class="gee-filter-grid">
+                  <div>
+                    <label for="gee-satellite-select" class="gee-filter-label">Satelit</label>
+                    <select id="gee-satellite-select" class="form-select gee-filter-select">
+                      <option value="combined">Terra + Aqua</option>
+                      <option value="terra" selected>Terra (Pagi 10:30)</option>
+                      <option value="aqua">Aqua (Siang 13:30)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="gee-period-select" class="gee-filter-label">Periode Musim</label>
+                    <select id="gee-period-select" class="form-select gee-filter-select">
+                      <option value="2024-08-01|2024-08-31" selected>Kemarau / Aug 2024</option>
+                      <option value="2024-04-01|2024-04-30">Pancaroba / Apr 2024</option>
+                      <option value="2024-01-01|2024-01-31">Musim Hujan / Jan 2024</option>
+                      <option value="2025-08-01|2025-08-31">Kemarau / Aug 2025</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- 2. Primary Layer Switcher — with per-layer opacity -->
                 <div class="gee-panel-container">
                   <div class="gee-layer-header-row">
                     <span class="gee-layer-header-label">Pilih Lapisan Termal Aktif:</span>
@@ -478,28 +499,7 @@
                   </div>
                 </div>
 
-                <!-- 3. Satellite & Period Filters -->
-                <div class="gee-filter-grid">
-                  <div>
-                    <label for="gee-satellite-select" class="gee-filter-label">Satelit</label>
-                    <select id="gee-satellite-select" class="form-select gee-filter-select">
-                      <option value="combined">Terra + Aqua</option>
-                      <option value="terra" selected>Terra (Pagi 10:30)</option>
-                      <option value="aqua">Aqua (Siang 13:30)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label for="gee-period-select" class="gee-filter-label">Periode Musim</label>
-                    <select id="gee-period-select" class="form-select gee-filter-select">
-                      <option value="2024-08-01|2024-08-31" selected>Kemarau / Aug 2024</option>
-                      <option value="2024-04-01|2024-04-30">Pancaroba / Apr 2024</option>
-                      <option value="2024-01-01|2024-01-31">Musim Hujan / Jan 2024</option>
-                      <option value="2025-08-01|2025-08-31">Kemarau / Aug 2025</option>
-                    </select>
-                  </div>
-                </div>
-
-                <!-- 5. Educational Guidance Callout -->
+                <!-- 3. Educational Guidance Callout -->
                 <div class="gee-callout">
                   <div><strong>💡 Panduan Warna Merah &amp; Curah Hujan:</strong></div>
                   <div class="mt-xs">• <strong>Peta LST (Suhu):</strong> Merah = Permukaan daratan panas (34°C–40°C+ saat siang/kemarau). Lautan transparan.</div>
