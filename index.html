@@ -685,50 +685,35 @@
                 <div id="buffer-analysis-status" class="analysis-status-box"></div>
               </div>
 
-              <!-- Module 3: Spatial Overlay & Intersect Analysis -->
+              <!-- Module 3: Spatial Overlay & Intersect Analysis (Wizard) -->
               <div class="analysis-card intersect-analysis-card analysis-subpanel" id="intersect-analysis-container">
-                <div class="analysis-card-header">
-                  <div class="analysis-card-title">
-                    <span class="analysis-icon" aria-hidden="true">⚔️</span>
-                    <h3>Studio Tumpang Tindih Wilayah (Overlay &amp; Intersect)</h3>
-                  </div>
-                  <span class="piksel-national-badge" title="4 Operasi Geometri Spasial">4 Operasi</span>
-                </div>
-                <p class="analysis-desc">
-                  Analisis hubungan antar wilayah: cari data yang bertumpuk, potong batas poligon, atau gabungkan dua area.
-                </p>
 
-                <!-- 1. Pilihan 4 Operasi Spasial (Irisan / Potong / Gabung / Beda) -->
-                <div class="intersect-op-section mt-10">
-                  <label class="form-label-sm block-label">Pilih Jenis Operasi:</label>
-                  <div class="intersect-op-tabs">
-                    <button type="button" class="btn-chip intersect-op-btn active" data-mode="intersect" title="Cari data yang berada di dalam wilayah">
-                      <span>⚔️ Irisan</span>
-                    </button>
-                    <button type="button" class="btn-chip intersect-op-btn" data-mode="difference" title="Potong atau kurangi area pertama dengan area kedua">
-                      <span>✂️ Potong</span>
-                    </button>
-                    <button type="button" class="btn-chip intersect-op-btn" data-mode="union" title="Satukan kedua wilayah jadi satu area utuh">
-                      <span>🔗 Gabung</span>
-                    </button>
-                    <button type="button" class="btn-chip intersect-op-btn" data-mode="sym_difference" title="Ambil area unik tanpa bagian yang tumpang tindih">
-                      <span>⚡ Beda</span>
-                    </button>
+                <!-- Wizard Progress Stepper -->
+                <div class="intersect-wizard-stepper">
+                  <div class="wizard-step-item active" data-step="1">
+                    <div class="wizard-step-dot">1</div>
+                    <span class="wizard-step-label">Pilih Wilayah</span>
                   </div>
-                  <!-- Penjelasan interaktif langsung di bawah tombol -->
-                  <div id="intersect-op-desc" class="intersect-op-desc mt-6">
-                    ⚔️ <strong>Irisan:</strong> Cari objek atau data yang berada tepat di dalam batas wilayah.
+                  <div class="wizard-step-line"></div>
+                  <div class="wizard-step-item" data-step="2">
+                    <div class="wizard-step-dot">2</div>
+                    <span class="wizard-step-label">Pilih Data</span>
+                  </div>
+                  <div class="wizard-step-line"></div>
+                  <div class="wizard-step-item" data-step="3">
+                    <div class="wizard-step-dot">3</div>
+                    <span class="wizard-step-label">Jalankan</span>
                   </div>
                 </div>
 
-                <!-- 2. Langkah 1: Wilayah Acuan (Dengan tombol contoh & status aktif) -->
-                <div class="intersect-step-card mt-10">
-                  <div class="intersect-step-header">
-                    <span class="intersect-step-badge">Wilayah</span>
-                    <span class="intersect-step-title">Wilayah Acuan:</span>
-                  </div>
+                <!-- ╔══════════════════════════════════════════════════════════ -->
+                <!-- ║ STEP 1: Pilih Wilayah Acuan                              -->
+                <!-- ╚══════════════════════════════════════════════════════════ -->
+                <div class="intersect-wizard-panel active" id="intersect-step-1">
+                  <p class="wizard-step-question">📍 Di mana area yang ingin kamu analisis?</p>
 
-                  <div id="intersect-aoi-status-card" class="intersect-aoi-status-box active">
+                  <!-- AOI state holder (hidden visually, used by JS & tests) -->
+                  <div id="intersect-aoi-status-card" class="intersect-aoi-status-box active" style="display:none;" aria-hidden="true">
                     <div id="intersect-aoi-info" class="intersect-aoi-info">
                       <span id="intersect-aoi-icon" class="intersect-aoi-icon">🇮🇩</span>
                       <div class="intersect-aoi-text">
@@ -736,55 +721,83 @@
                         <span id="intersect-aoi-sublabel" class="intersect-aoi-sublabel">Mendeteksi zona bahaya &amp; faskes dari Sabang sampai Merauke</span>
                       </div>
                     </div>
-                    <div class="intersect-quick-aoi-row mt-8">
-                      <button type="button" id="btn-reset-indonesia-aoi" class="btn btn-secondary btn-sm flex-1" style="background: rgba(0, 240, 255, 0.15); border-color: rgba(0, 240, 255, 0.4); color: #00f0ff;" title="Cakupan seluruh Indonesia (Semua bencana &amp; faskes muncul langsung)">
-                        <span>🇮🇩 Seluruh Indonesia</span>
-                      </button>
-                      <button type="button" id="btn-quick-draw-aoi" class="btn btn-outline btn-sm flex-1" title="Mulai menggambar poligon bebas di peta jika ingin membatasi wilayah acuan">
-                        <span>✏️ Gambar Bebas</span>
-                      </button>
-                    </div>
-                    <!-- Hidden buttons for test backward compatibility -->
-                    <div style="display: none;" aria-hidden="true">
-                      <button type="button" id="btn-quick-sample-aoi"></button>
-                      <button type="button" id="btn-quick-merapi-aoi"></button>
-                      <button type="button" id="btn-quick-bandung-aoi"></button>
-                      <button type="button" id="btn-quick-ikn-aoi"></button>
-                    </div>
+                  </div>
+
+                  <div class="wizard-area-options">
+                    <button type="button" id="btn-reset-indonesia-aoi" class="wizard-area-btn active" title="Cakupan seluruh Indonesia — semua data bencana &amp; faskes langsung terlihat">
+                      <span class="wizard-area-icon">🇮🇩</span>
+                      <div class="wizard-area-text">
+                        <strong>Seluruh Indonesia</strong>
+                        <span>Cakupan nasional — semua data bencana &amp; faskes terlihat</span>
+                      </div>
+                      <span class="wizard-area-check" aria-hidden="true">✓</span>
+                    </button>
+                    <button type="button" id="btn-quick-draw-aoi" class="wizard-area-btn" title="Gambar poligon bebas di peta untuk batasi wilayah spesifik">
+                      <span class="wizard-area-icon">✏️</span>
+                      <div class="wizard-area-text">
+                        <strong>Gambar Area Sendiri</strong>
+                        <span>Seret &amp; lepas poligon di peta untuk batasi wilayah spesifik</span>
+                      </div>
+                      <span class="wizard-area-check" aria-hidden="true">✓</span>
+                    </button>
+                  </div>
+
+                  <!-- Hidden buttons for backward test compatibility -->
+                  <div style="display:none;" aria-hidden="true">
+                    <button type="button" id="btn-quick-sample-aoi"></button>
+                    <button type="button" id="btn-quick-merapi-aoi"></button>
+                    <button type="button" id="btn-quick-bandung-aoi"></button>
+                    <button type="button" id="btn-quick-ikn-aoi"></button>
+                  </div>
+
+                  <div class="wizard-nav-row mt-14">
+                    <div></div>
+                    <button type="button" class="btn btn-primary" id="btn-wizard-next-1">Pilih Data yang Dicari →</button>
                   </div>
                 </div>
 
-                <!-- 3. Langkah 2: Objek / Lapisan Target -->
-                <div class="intersect-step-card mt-10">
-                  <div class="intersect-step-header">
-                    <span class="intersect-step-badge">Target</span>
-                    <span class="intersect-step-title">Data yang Ingin Ditemukan / Dipadukan:</span>
-                  </div>
-                  <div class="intersect-target-chips">
-                    <button type="button" class="btn-chip active" id="chip-target-disaster" data-target="disaster-zones" title="Poligon Zona Bahaya Bencana Se-Indonesia (InaRISK BNPB / PVMBG: Sesar Gempa, Erupsi, Banjir Rob, Karhutla)">
-                      <span>🚨 Zona Bahaya Bencana (InaRISK)</span>
+                <!-- ╔══════════════════════════════════════════════════════════ -->
+                <!-- ║ STEP 2: Pilih Data Target                                -->
+                <!-- ╚══════════════════════════════════════════════════════════ -->
+                <div class="intersect-wizard-panel" id="intersect-step-2">
+                  <p class="wizard-step-question">🔍 Mau cari apa di dalam wilayah itu?</p>
+
+                  <div class="intersect-target-chips intersect-target-grid">
+                    <button type="button" class="btn-chip intersect-target-card active" id="chip-target-disaster" data-target="disaster-zones">
+                      <span class="target-card-icon">🚨</span>
+                      <strong class="target-card-title">Zona Bahaya Bencana</strong>
+                      <span class="target-card-desc">Sesar gempa, erupsi, banjir rob, karhutla (InaRISK BNPB)</span>
                     </button>
-                    <button type="button" class="btn-chip" id="chip-target-facilities" data-target="facilities" title="Rumah Sakit, Faskes &amp; Sekolah Se-Indonesia (Kemenkes &amp; OSM)">
-                      <span>🏥 Faskes &amp; Sekolah (Nasional)</span>
+                    <button type="button" class="btn-chip intersect-target-card" id="chip-target-facilities" data-target="facilities">
+                      <span class="target-card-icon">🏥</span>
+                      <strong class="target-card-title">Faskes &amp; Sekolah</strong>
+                      <span class="target-card-desc">RS, Puskesmas, sekolah se-Indonesia (Kemenkes &amp; OSM)</span>
                     </button>
-                    <button type="button" class="btn-chip" id="chip-target-cities" data-target="cities" title="Titik kota-kota metropolitan">
-                      <span>🏛️ Kota-Kota Besar</span>
+                    <button type="button" class="btn-chip intersect-target-card" id="chip-target-cities" data-target="cities">
+                      <span class="target-card-icon">🏛️</span>
+                      <strong class="target-card-title">Kota-Kota Besar</strong>
+                      <span class="target-card-desc">Ibu kota &amp; kota metropolitan Indonesia</span>
                     </button>
-                    <button type="button" class="btn-chip" id="chip-target-stations" data-target="stations" title="Titik stasiun suhu termal LST">
-                      <span>🌡️ Stasiun Cuaca LST</span>
+                    <button type="button" class="btn-chip intersect-target-card" id="chip-target-stations" data-target="stations">
+                      <span class="target-card-icon">🌡️</span>
+                      <strong class="target-card-title">Stasiun Cuaca LST</strong>
+                      <span class="target-card-desc">18 titik observasi suhu permukaan MODIS</span>
                     </button>
-                    <button type="button" class="btn-chip" id="chip-target-cutter" data-target="cutter" title="Bidang poligon tetangga yang bertubrukan (Bodetabek)">
-                      <span>🛡️ Bidang Pemotong (Bodetabek)</span>
+                    <button type="button" class="btn-chip intersect-target-card" id="chip-target-all" data-target="all">
+                      <span class="target-card-icon">✨</span>
+                      <strong class="target-card-title">Semua Dataset</strong>
+                      <span class="target-card-desc">Analisis semua dataset sekaligus dalam satu klik</span>
                     </button>
-                    <button type="button" class="btn-chip" id="chip-target-all" data-target="all" title="Uji wilayah terhadap semua data aktif">
-                      <span>✨ Semua Data</span>
+                    <button type="button" class="btn-chip intersect-target-card" id="chip-target-custom" data-target="custom">
+                      <span class="target-card-icon">⚙️</span>
+                      <strong class="target-card-title">Data Kustom</strong>
+                      <span class="target-card-desc">Pilih file GeoJSON/KML milik kamu sendiri</span>
                     </button>
-                    <button type="button" class="btn-chip" id="chip-target-custom" data-target="custom" title="Pilih lapisan manual dari file GeoJSON">
-                      <span>⚙️ Pilih Manual</span>
-                    </button>
+                    <!-- Hidden for backward test compatibility -->
+                    <button type="button" class="btn-chip" id="chip-target-cutter" data-target="cutter" style="display:none;" aria-hidden="true"></button>
                   </div>
 
-                  <!-- Dropdown Manual (hanya muncul saat "Pilih Manual" diklik) -->
+                  <!-- Custom selectors (visible only when "Data Kustom" is selected) -->
                   <div class="intersect-form-grid intersect-custom-grid mt-8" id="intersect-custom-selectors">
                     <div class="form-group">
                       <label for="intersect-layer-a" class="form-label-sm">Lapisan Wilayah A (Wilayah Acuan):</label>
@@ -799,48 +812,94 @@
                       </select>
                     </div>
                   </div>
+
+                  <div class="wizard-nav-row mt-14">
+                    <button type="button" class="btn btn-outline" id="btn-wizard-back-2">← Ubah Wilayah</button>
+                    <button type="button" class="btn btn-primary" id="btn-wizard-next-2">Lihat Ringkasan →</button>
+                  </div>
                 </div>
 
-                <!-- 4. Tombol Eksekusi -->
-                <div class="intersect-action-row mt-12">
-                  <button id="btn-run-intersect-analysis" class="btn btn-primary flex-1 btn-run-intersect-hero" aria-label="Jalankan analisis tumpang tindih spasial">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/></svg>
-                    <span>Jalankan Analisis</span>
-                  </button>
-                  <button id="btn-clear-intersect-analysis" class="btn btn-outline btn-clear-danger" title="Hapus hasil analisis dari peta">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    Hapus
-                  </button>
-                </div>
+                <!-- ╔══════════════════════════════════════════════════════════ -->
+                <!-- ║ STEP 3: Konfirmasi & Jalankan                            -->
+                <!-- ╚══════════════════════════════════════════════════════════ -->
+                <div class="intersect-wizard-panel" id="intersect-step-3">
+                  <p class="wizard-step-question">✅ Siap dijalankan — periksa dulu ringkasannya:</p>
 
-                <div id="intersect-analysis-status" class="analysis-status-box"></div>
-
-                <!-- 5. Kustomisasi Tampilan Hasil (Warna & Transparansi) -->
-                <details class="clean-accordion mt-10">
-                  <summary>
-                    <span class="fs-11 text-secondary">🎨 Kustomisasi Warna &amp; Transparansi Hasil</span>
-                  </summary>
-                  <div class="accordion-body">
-                    <div class="form-group">
-                      <div class="flex-between-center mb-4">
-                        <label class="form-label-sm mb-0">Warna Sorotan:</label>
-                        <span id="intersect-opacity-val" class="intersect-val-badge">70%</span>
-                      </div>
-                      <div class="intersect-color-swatches">
-                        <button type="button" class="intersect-color-chip active" data-color="#00f0ff" title="Sian Neon"></button>
-                        <button type="button" class="intersect-color-chip" data-color="#38bdf8" title="Biru Langit"></button>
-                        <button type="button" class="intersect-color-chip" data-color="#10b981" title="Hijau Emerald"></button>
-                        <button type="button" class="intersect-color-chip" data-color="#f59e0b" title="Kuning Amber"></button>
-                        <button type="button" class="intersect-color-chip" data-color="#ec4899" title="Magenta"></button>
-                        <input type="color" id="intersect-color-custom" value="#00f0ff" class="buffer-color-picker" title="Warna Kustom" />
-                      </div>
-                      <div class="flex-between-center mt-6">
-                        <span class="fs-10 text-muted">Transparansi:</span>
-                      </div>
-                      <input type="range" id="intersect-opacity-slider" min="10" max="100" step="5" value="70" class="buffer-opacity-slider" />
+                  <div class="intersect-wizard-summary">
+                    <div class="summary-row">
+                      <span class="summary-key">📍 Wilayah</span>
+                      <span class="summary-val" id="summary-area-label">Seluruh Indonesia</span>
+                    </div>
+                    <div class="summary-row">
+                      <span class="summary-key">🔍 Mencari</span>
+                      <span class="summary-val" id="summary-target-label">Zona Bahaya Bencana</span>
+                    </div>
+                    <div class="summary-row">
+                      <span class="summary-key">⚙️ Mode</span>
+                      <span class="summary-val" id="summary-mode-label">Temukan objek di dalam wilayah</span>
                     </div>
                   </div>
-                </details>
+
+                  <!-- Advanced options (collapsed — for power users) -->
+                  <details class="clean-accordion mt-10">
+                    <summary>
+                      <span class="fs-11 text-secondary">⚙️ Opsi Lanjutan — Ganti Jenis Operasi (opsional)</span>
+                    </summary>
+                    <div class="accordion-body">
+                      <div class="intersect-op-tabs mt-6">
+                        <button type="button" class="btn-chip intersect-op-btn active" data-mode="intersect" title="Cari data yang berada di dalam wilayah">
+                          <span>⚔️ Irisan</span>
+                        </button>
+                        <button type="button" class="btn-chip intersect-op-btn" data-mode="difference" title="Potong atau kurangi area pertama dengan area kedua">
+                          <span>✂️ Potong</span>
+                        </button>
+                        <button type="button" class="btn-chip intersect-op-btn" data-mode="union" title="Satukan kedua wilayah jadi satu area utuh">
+                          <span>🔗 Gabung</span>
+                        </button>
+                        <button type="button" class="btn-chip intersect-op-btn" data-mode="sym_difference" title="Ambil area unik tanpa bagian yang tumpang tindih">
+                          <span>⚡ Beda</span>
+                        </button>
+                      </div>
+                      <div id="intersect-op-desc" class="intersect-op-desc mt-6">
+                        ⚔️ <strong>Irisan:</strong> Cari objek atau data yang berada tepat di dalam batas wilayah.
+                      </div>
+                      <div class="form-group mt-10">
+                        <div class="flex-between-center mb-4">
+                          <label class="form-label-sm mb-0">Warna Sorotan Hasil:</label>
+                          <span id="intersect-opacity-val" class="intersect-val-badge">70%</span>
+                        </div>
+                        <div class="intersect-color-swatches">
+                          <button type="button" class="intersect-color-chip active" data-color="#00f0ff" title="Sian Neon"></button>
+                          <button type="button" class="intersect-color-chip" data-color="#38bdf8" title="Biru Langit"></button>
+                          <button type="button" class="intersect-color-chip" data-color="#10b981" title="Hijau Emerald"></button>
+                          <button type="button" class="intersect-color-chip" data-color="#f59e0b" title="Kuning Amber"></button>
+                          <button type="button" class="intersect-color-chip" data-color="#ec4899" title="Magenta"></button>
+                          <input type="color" id="intersect-color-custom" value="#00f0ff" class="buffer-color-picker" title="Warna Kustom" />
+                        </div>
+                        <input type="range" id="intersect-opacity-slider" min="10" max="100" step="5" value="70" class="buffer-opacity-slider mt-6" />
+                      </div>
+                    </div>
+                  </details>
+
+                  <!-- Action row -->
+                  <div class="intersect-action-row mt-12">
+                    <button type="button" class="btn btn-outline" id="btn-wizard-back-3">← Ubah Data</button>
+                    <button id="btn-run-intersect-analysis" class="btn btn-primary flex-1 btn-run-intersect-hero" aria-label="Jalankan analisis tumpang tindih spasial">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/></svg>
+                      <span>🚀 Jalankan Sekarang</span>
+                    </button>
+                  </div>
+
+                  <div class="mt-8">
+                    <button id="btn-clear-intersect-analysis" class="btn btn-outline btn-clear-danger full-width" title="Hapus hasil analisis dari peta">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                      Hapus Hasil dari Peta
+                    </button>
+                  </div>
+
+                  <div id="intersect-analysis-status" class="analysis-status-box"></div>
+                </div>
+
               </div>
 
               <!-- Module 4: Riwayat & Info Metodologi -->

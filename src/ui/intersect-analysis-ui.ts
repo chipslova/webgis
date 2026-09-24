@@ -23,6 +23,7 @@ export class IntersectAnalysisUI {
   private currentMode: SpatialOverlayMode = 'intersect';
   private selectedColor: string = '#00f0ff'; // Neon Cyan default for WebGIS dark theme
   private selectedOpacity: number = 0.70;
+  private currentWizardStep: 1 | 2 | 3 = 1;
 
   public getActiveResult(): IntersectAnalysisResult | null {
     return this.activeResult;
@@ -49,6 +50,7 @@ export class IntersectAnalysisUI {
     this.bindEvents();
     this.updateAOIStatusCard();
     this.updateLayerSelect();
+    this.goToWizardStep(1);
 
     if (this.spatialAnalysisUI && typeof this.spatialAnalysisUI.onLayersChange === 'function') {
       this.spatialAnalysisUI.onLayersChange(() => {
@@ -267,6 +269,26 @@ export class IntersectAnalysisUI {
   }
 
   private bindEvents() {
+    // Wizard Navigation
+    const updateWizardAreaActive = (activeId: string) => {
+      document.querySelectorAll<HTMLElement>('.wizard-area-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.id === activeId);
+      });
+    };
+
+    const btnWizardNext1 = document.getElementById('btn-wizard-next-1');
+    const btnWizardBack2 = document.getElementById('btn-wizard-back-2');
+    const btnWizardNext2 = document.getElementById('btn-wizard-next-2');
+    const btnWizardBack3 = document.getElementById('btn-wizard-back-3');
+
+    btnWizardNext1?.addEventListener('click', () => this.goToWizardStep(2));
+    btnWizardBack2?.addEventListener('click', () => this.goToWizardStep(1));
+    btnWizardNext2?.addEventListener('click', () => {
+      this.updateWizardSummary();
+      this.goToWizardStep(3);
+    });
+    btnWizardBack3?.addEventListener('click', () => this.goToWizardStep(2));
+
     const runBtn = document.getElementById('btn-run-intersect-analysis');
     const clearBtn = document.getElementById('btn-clear-intersect-analysis');
     const opacitySlider = document.getElementById('intersect-opacity-slider') as HTMLInputElement | null;
@@ -301,6 +323,7 @@ export class IntersectAnalysisUI {
       if (opDescEl) {
         opDescEl.innerHTML = '🇮🇩 <strong>Cakupan Seluruh Indonesia:</strong> Mendeteksi seluruh zona bahaya bencana &amp; faskes di seluruh Indonesia!';
       }
+      updateWizardAreaActive('btn-reset-indonesia-aoi');
       showToast('🇮🇩 Cakupan Wilayah: Seluruh Indonesia Aktif (Tanpa Batasan Poligon)', 'info');
     });
 
@@ -389,6 +412,7 @@ export class IntersectAnalysisUI {
     });
 
     btnDrawAOI?.addEventListener('click', () => {
+      updateWizardAreaActive('btn-quick-draw-aoi');
       if (this.geojsonLoader.getLayers().length === 0) {
         this.geojsonLoader.loadSampleData();
       }
@@ -1231,5 +1255,55 @@ export class IntersectAnalysisUI {
     }
 
     return [null, 'Lapisan'];
+  }
+
+  private goToWizardStep(step: 1 | 2 | 3): void {
+    this.currentWizardStep = step;
+
+    document.querySelectorAll<HTMLElement>('.intersect-wizard-panel').forEach(p => {
+      p.classList.remove('active');
+      p.style.display = 'none';
+    });
+
+    const target = document.getElementById(`intersect-step-${step}`);
+    if (target) {
+      target.classList.add('active');
+      target.style.display = 'block';
+    }
+
+    document.querySelectorAll<HTMLElement>('.wizard-step-item').forEach(item => {
+      const itemStep = parseInt(item.dataset.step || '0');
+      item.classList.toggle('active', itemStep === step);
+      item.classList.toggle('done', itemStep < step);
+    });
+
+    document.querySelectorAll<HTMLElement>('.wizard-step-line').forEach((line, i) => {
+      line.classList.toggle('done', i + 1 < step);
+    });
+  }
+
+  private updateWizardSummary(): void {
+    const areaEl = document.getElementById('intersect-aoi-label');
+    const areaText = areaEl?.innerText || 'Seluruh Indonesia';
+
+    const activeChip = document.querySelector<HTMLElement>('.intersect-target-chips .btn-chip.active');
+    const titleEl = activeChip?.querySelector<HTMLElement>('.target-card-title');
+    const targetText = titleEl?.textContent?.trim() || 'Zona Bahaya Bencana';
+
+    const activeOpBtn = document.querySelector<HTMLElement>('.intersect-op-btn.active');
+    const modeKey = (activeOpBtn as HTMLButtonElement | null)?.dataset.mode || 'intersect';
+    const modeLabels: Record<string, string> = {
+      intersect: 'Temukan objek di dalam wilayah',
+      difference: 'Potong & hapus area yang tumpang tindih',
+      union: 'Gabungkan kedua area jadi satu',
+      sym_difference: 'Ambil area unik, buang yang tumpang tindih'
+    };
+
+    const elArea = document.getElementById('summary-area-label');
+    const elTarget = document.getElementById('summary-target-label');
+    const elMode = document.getElementById('summary-mode-label');
+    if (elArea) elArea.textContent = areaText;
+    if (elTarget) elTarget.textContent = targetText;
+    if (elMode) elMode.textContent = modeLabels[modeKey] || 'Temukan objek di dalam wilayah';
   }
 }

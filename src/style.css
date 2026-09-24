@@ -11599,8 +11599,251 @@ html, body, #app {
 }
 
 
+/* ==========================================================================
+   Intersect Analysis — 3-Step Wizard UI
+   ========================================================================== */
 
+/* ── Wizard Panel Visibility ───────────────────────────────────────────── */
+.intersect-wizard-panel {
+  display: none;
+  animation: analysis-subpanel-fade 0.2s ease-out;
+}
+.intersect-wizard-panel.active {
+  display: block;
+}
 
+/* ── Stepper ───────────────────────────────────────────────────────────── */
+.intersect-wizard-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 4px 0 14px;
+}
 
+.wizard-step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: default;
+}
+
+.wizard-step-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  transition: all 0.25s ease;
+}
+
+.wizard-step-item.active .wizard-step-dot {
+  background: linear-gradient(135deg, #0284c7 0%, #00f0ff 100%);
+  border-color: #00f0ff;
+  color: #02131e;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.45);
+}
+
+.wizard-step-item.done .wizard-step-dot {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: #10b981;
+  color: #10b981;
+  font-size: 0; /* hide number */
+}
+.wizard-step-item.done .wizard-step-dot::after {
+  content: '✓';
+  font-size: 12px;
+}
+
+.wizard-step-label {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #475569;
+  transition: color 0.25s ease;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.wizard-step-item.active .wizard-step-label { color: #00f0ff; }
+.wizard-step-item.done  .wizard-step-label { color: #10b981; }
+
+.wizard-step-line {
+  flex: 1;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0 6px 18px; /* vertical offset to align with dot centres */
+  min-width: 20px;
+  transition: background 0.3s ease;
+}
+.wizard-step-line.done {
+  background: rgba(16, 185, 129, 0.5);
+}
+
+/* ── Step question header ─────────────────────────────────────────────── */
+.wizard-step-question {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+/* ── Step 1: Area Option Cards ───────────────────────────────────────── */
+.wizard-area-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wizard-area-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.18s ease, background 0.18s ease;
+  color: #cbd5e1;
+  width: 100%;
+}
+.wizard-area-btn:hover {
+  border-color: rgba(0, 240, 255, 0.3);
+  background: rgba(0, 240, 255, 0.06);
+}
+.wizard-area-btn.active {
+  border-color: #00f0ff;
+  background: rgba(0, 240, 255, 0.1);
+}
+
+.wizard-area-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.wizard-area-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.wizard-area-text strong {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+.wizard-area-text span {
+  font-size: 10.5px;
+  color: #94a3b8;
+}
+.wizard-area-check {
+  font-size: 14px;
+  color: #00f0ff;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.wizard-area-btn.active .wizard-area-check {
+  opacity: 1;
+}
+
+/* ── Navigation Row ───────────────────────────────────────────────────── */
+.wizard-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* ── Step 2: Target Cards Grid ────────────────────────────────────────── */
+.intersect-target-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.intersect-target-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 12px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  color: #cbd5e1;
+  width: 100%;
+  /* override btn-chip defaults */
+  border-radius: 10px !important;
+  padding: 12px !important;
+}
+.intersect-target-card:hover {
+  border-color: rgba(0, 240, 255, 0.35);
+  background: rgba(0, 240, 255, 0.07);
+}
+.intersect-target-card.active {
+  border-color: #00f0ff;
+  background: rgba(0, 240, 255, 0.12);
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.18);
+}
+
+.target-card-icon {
+  font-size: 20px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.target-card-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+  line-height: 1.3;
+  display: block;
+}
+.target-card-desc {
+  font-size: 9.5px;
+  color: #64748b;
+  line-height: 1.45;
+  display: block;
+}
+.intersect-target-card.active .target-card-title { color: #00f0ff; }
+.intersect-target-card.active .target-card-desc  { color: #94a3b8; }
+
+/* ── Step 3: Summary Box ──────────────────────────────────────────────── */
+.intersect-wizard-summary {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 11.5px;
+}
+.summary-key {
+  flex-shrink: 0;
+  font-weight: 600;
+  color: #94a3b8;
+  min-width: 74px;
+}
+.summary-val {
+  color: #e2e8f0;
+  font-weight: 500;
+}
 
 
