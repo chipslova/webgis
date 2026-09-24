@@ -590,7 +590,7 @@ export class GEELoader {
 
     // --- 3b. NASA GPM & CHIRPS DAILY PRECIPITATION RATE (WMS RASTER) ---
     try {
-      const precipWmsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${selectedDate}&BBOX={bbox-epsg-3857}`;
+      const precipWmsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=512&HEIGHT=512&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${selectedDate}&BBOX={bbox-epsg-3857}`;
       const precipSourceId = 'gee-precipitation-wms-source';
       const precipLayerId = 'gee-precipitation-wms-layer';
 
@@ -606,6 +606,7 @@ export class GEELoader {
         if (this.map.getLayer(precipLayerId)) {
           this.map.setLayoutProperty(precipLayerId, 'visibility', isPrecipVis ? 'visible' : 'none');
           this.map.setPaintProperty(precipLayerId, 'raster-opacity', this.getLayerOpacity('precipitation'));
+          this.map.setPaintProperty(precipLayerId, 'raster-resampling', 'nearest');
         } else {
           this.map.addLayer({
             id: precipLayerId,
@@ -614,8 +615,8 @@ export class GEELoader {
             layout: { visibility: isPrecipVis ? 'visible' : 'none' },
             paint: {
               'raster-opacity': this.getLayerOpacity('precipitation'),
-              'raster-resampling': 'linear',
-              'raster-fade-duration': 200
+              'raster-resampling': 'nearest',
+              'raster-fade-duration': 150
             }
           }, beforeLayerId);
         }
@@ -623,7 +624,7 @@ export class GEELoader {
         this.map.addSource(precipSourceId, {
           type: 'raster',
           tiles: [precipWmsUrl],
-          tileSize: 256,
+          tileSize: 512,
           maxzoom: 12
         });
 
@@ -634,8 +635,8 @@ export class GEELoader {
           layout: { visibility: isPrecipVis ? 'visible' : 'none' },
           paint: {
             'raster-opacity': this.getLayerOpacity('precipitation'),
-            'raster-resampling': 'linear',
-            'raster-fade-duration': 200
+            'raster-resampling': 'nearest',
+            'raster-fade-duration': 150
           }
         }, beforeLayerId);
       }
