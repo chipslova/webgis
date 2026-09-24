@@ -71,7 +71,7 @@ export class IntersectAnalysisUI {
       card.classList.add('active');
       icon.innerText = '🇮🇩';
       const aoiName = activeAOI.properties?.name || 'Seluruh Wilayah Indonesia (Nasional)';
-      label.innerText = aoiName.toLowerCase().includes('wilayah') ? aoiName : `Wilayah Aktif: ${aoiName}`;
+      label.innerText = aoiName.toLowerCase().includes('wilayah') ? aoiName : `Wilayah Acuan: ${aoiName}`;
       sublabel.innerText = 'Cakupan aktif: Menjangkau data bahaya bencana & fasilitas di seluruh Indonesia';
     } else {
       card.classList.add('active');
@@ -226,8 +226,8 @@ export class IntersectAnalysisUI {
     let optionsHtmlB = '<option value="" disabled selected>Pilih lapisan target...</option>';
 
     if (activeAOI) {
-      optionsHtmlA += '<option value="__aoi_active__">🎯 Wilayah AOI Aktif (Poligon Gambaran)</option>';
-      optionsHtmlB += '<option value="__aoi_active__">🎯 Wilayah AOI Aktif (Poligon Gambaran)</option>';
+      optionsHtmlA += '<option value="__aoi_active__">🎯 Wilayah Acuan Aktif (AOI / Poligon Gambaran)</option>';
+      optionsHtmlB += '<option value="__aoi_active__">🎯 Wilayah Acuan Aktif (AOI / Poligon Gambaran)</option>';
     }
 
     optionsHtmlA += '<option value="__disaster_zones__">🚨 Zona Bahaya Bencana Se-Indonesia (InaRISK & PVMBG)</option>';
@@ -712,7 +712,7 @@ export class IntersectAnalysisUI {
     const aoi = this.spatialAnalysisUI.getActiveAOIPolygon();
 
     if (!aoi) {
-      showToast('Gambar area AOI di atas terlebih dahulu untuk analisis multi-lapisan!', 'warning');
+      showToast('Tentukan Wilayah Acuan terlebih dahulu untuk analisis multi-lapisan!', 'warning');
       document.getElementById('spatial-analysis-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
@@ -763,14 +763,14 @@ export class IntersectAnalysisUI {
       statusBox.innerHTML = `
         <div style="display: flex; align-items: center; gap: 8px;">
           <div class="hud-spinner" style="width: 14px; height: 14px; border-width: 2px;"></div>
-          <span><strong>Menganalisis AOI terhadap ${targetLayers.length} lapisan aktif...</strong></span>
+          <span><strong>Menganalisis Wilayah Acuan terhadap ${targetLayers.length} lapisan aktif...</strong></span>
         </div>
       `;
     }
 
     const batchRes = SpatialIntersectAnalyzer.batchOverlay(baseFC, targetLayers, {
       mode: this.currentMode,
-      layerAName: 'Wilayah AOI'
+      layerAName: 'Wilayah Acuan'
     });
 
     this.activeBatchResult = batchRes;

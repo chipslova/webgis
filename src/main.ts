@@ -1232,6 +1232,13 @@ class WebGISApp {
     const panelZonal = document.getElementById('spatial-analysis-panel');
     const panelBuffer = document.getElementById('buffer-analysis-container');
     const panelIntersect = document.getElementById('intersect-analysis-container');
+    const subtitleEl = document.getElementById('analysis-subnav-subtitle');
+
+    const SUBTAB_DESCRIPTIONS: Record<'buffer' | 'zonal' | 'intersect', string> = {
+      buffer: '⭕ <strong>Radius Buffer:</strong> <em>"Apa saja objek atau fasilitas di sekitar lokasi ini dalam jarak tertentu?"</em>',
+      zonal: '📊 <strong>Statistik AOI:</strong> <em>"Apa karakteristik &amp; isi di dalam area ini (tutupan lahan Sentinel-2 &amp; suhu LST)?"</em>',
+      intersect: '⚔️ <strong>Tumpang Tindih:</strong> <em>"Di mana dua area atau data spasial ini saling bertabrakan / beririsan?"</em>'
+    };
 
     const switchSubtab = (subtab: 'intersect' | 'zonal' | 'buffer') => {
       subnavButtons.forEach((btn) => {
@@ -1239,6 +1246,10 @@ class WebGISApp {
         btn.classList.toggle('active', isActive);
         btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
       });
+
+      if (subtitleEl && SUBTAB_DESCRIPTIONS[subtab]) {
+        subtitleEl.innerHTML = SUBTAB_DESCRIPTIONS[subtab];
+      }
 
       if (panelIntersect) {
         panelIntersect.style.display = subtab === 'intersect' ? 'block' : 'none';
@@ -1268,8 +1279,8 @@ class WebGISApp {
       });
     });
 
-    // Default to 'intersect' (Studio Tumpang Tindih)
-    switchSubtab('intersect');
+    // Default to 'buffer' (Analisis Jangkauan / Radius Buffer - paling mudah dipahami)
+    switchSubtab('buffer');
 
     return switchSubtab;
   }

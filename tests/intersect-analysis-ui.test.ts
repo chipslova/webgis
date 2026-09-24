@@ -144,7 +144,7 @@ describe('IntersectAnalysisUI', () => {
 
     expect(selectA.options.length).toBeGreaterThan(0);
     expect(selectB.options.length).toBeGreaterThan(0);
-    expect(selectA.innerHTML).toContain('Wilayah AOI Aktif');
+    expect(selectA.innerHTML).toContain('Wilayah Acuan Aktif');
   });
 
   it('should switch operation modes when clicking mode buttons', () => {
