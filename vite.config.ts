@@ -21,6 +21,17 @@ export default defineConfig(({ mode }) => {
           server.middlewares.use(async (req, res, next) => {
             if (req.url && req.url.startsWith('/api/gemini-navigator')) {
               try {
+                let raw = '';
+                for await (const chunk of req) {
+                  raw += chunk;
+                }
+                if (raw) {
+                  try {
+                    (req as any).body = JSON.parse(raw);
+                  } catch {
+                    (req as any).body = raw;
+                  }
+                }
                 const { default: geminiHandler } = await import('./api/gemini-navigator');
                 await geminiHandler(req, res);
               } catch (err: any) {

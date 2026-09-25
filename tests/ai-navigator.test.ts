@@ -75,6 +75,13 @@ describe('Google Gemini AI Map Navigator & Copilot', () => {
     });
 
     it('should enforce rate limiting per IP address (Layer 1 Protection)', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          candidates: [{ content: { parts: [{ text: 'OK' }] } }]
+        })
+      } as any);
+
       const mockReq = {
         method: 'POST',
         headers: { 'x-forwarded-for': '182.253.10.5' },
@@ -85,7 +92,6 @@ describe('Google Gemini AI Map Navigator & Copilot', () => {
       for (let i = 0; i < 10; i++) {
         const res = createMockRes();
         await geminiHandler(mockReq, res);
-        // Will be 500 (missing key) or 400, but not 429
         expect(res._getStatus()).not.toBe(429);
       }
 

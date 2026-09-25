@@ -220,27 +220,14 @@ export default async function handler(req: any, res: any) {
     });
   }
 
-  // Parse Body
-  let body: GeminiNavigatorRequest;
-  try {
-    body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    if (!body && typeof req.on === 'function') {
-      // Buffer from raw stream if needed
-      body = await new Promise((resolve, reject) => {
-        let raw = '';
-        req.on('data', (chunk: any) => (raw += chunk));
-        req.on('end', () => {
-          try {
-            resolve(JSON.parse(raw));
-          } catch (e) {
-            reject(e);
-          }
-        });
-        req.on('error', reject);
-      });
+  // Parse Body safely
+  let body: GeminiNavigatorRequest = req.body || {};
+  if (typeof body === 'string') {
+    try {
+      body = JSON.parse(body);
+    } catch {
+      return sendJson(400, { error: 'Format JSON body tidak valid.' });
     }
-  } catch {
-    return sendJson(400, { error: 'Format JSON body tidak valid.' });
   }
 
   const rawPrompt = (body?.prompt || '').trim();
@@ -312,8 +299,8 @@ ${contextDescription}`;
     }
   };
 
-  // Try gemini-2.0-flash, fallback to gemini-1.5-flash
-  const models = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+  // Try gemini-3.8-flash, fallback to gemini-3.7-flash, gemini-3.5-flash, gemini-flash-latest
+  const models = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
   let lastError = null;
 
   for (const model of models) {
@@ -329,9 +316,9 @@ ${contextDescription}`;
 
       if (!response.ok) {
         const errText = await response.text();
-        // If 404 model not found, try next model
-        if (response.status === 404) {
-          lastError = new Error(`Model ${model} not available: ${errText}`);
+        // If 404 model not found or 503 high demand, try next model
+        if (response.status === 404 || response.status === 503) {
+          lastError = new Error(`Model ${model} status ${response.status}: ${errText}`);
           continue;
         }
         // If 429 quota error from Google

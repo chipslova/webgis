@@ -126,10 +126,23 @@ export class AINavigator {
         body: JSON.stringify(payload)
       });
 
-      const data = await response.json();
+      const rawText = await response.text();
+      let data: any = null;
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        const snippet = rawText.replace(/<[^>]*>?/gm, '').slice(0, 160).trim();
+        const errorMsg = `Respon server (${response.status}): ${snippet || 'Format respons bukan JSON.'}`;
+        return {
+          success: false,
+          reply: errorMsg,
+          actions: [],
+          error: errorMsg
+        };
+      }
 
       if (!response.ok) {
-        const errorMsg = data.error || `Error ${response.status}: Permintaan AI gagal diproses.`;
+        const errorMsg = data?.error || `Error ${response.status}: Permintaan AI gagal diproses.`;
         return {
           success: false,
           reply: errorMsg,
