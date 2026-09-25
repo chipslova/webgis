@@ -29,6 +29,8 @@ import { BufferAnalysisUI } from './ui/buffer-analysis-ui';
 import { AttributeTableUI } from './ui/attribute-table-panel';
 import { ShortcutsModalUI } from './ui/shortcuts-modal';
 import { OverviewMapUI } from './ui/overview-map';
+import { AINavigator } from './tools/ai-navigator';
+import { AIAssistantDockUI } from './ui/ai-assistant-dock';
 import { ErrorHandler } from './utils/error-handler';
 import { setupUniversalEscapeHandler, announceToScreenReader, closeMenu, toggleMenu } from './utils/a11y';
 import { escapeHtml } from './utils/sanitize';
@@ -61,6 +63,8 @@ class WebGISApp {
   private bufferAnalysisUI: BufferAnalysisUI | null = null;
   private attributeTableUI: AttributeTableUI | null = null;
   private shortcutsModalUI: ShortcutsModalUI | null = null;
+  private aiNavigator: AINavigator | null = null;
+  private aiAssistantDockUI: AIAssistantDockUI | null = null;
   private switchAnalysisSubtab?: (subtab: 'zonal' | 'buffer') => void;
   private errorHandler: ErrorHandler;
 
@@ -316,6 +320,13 @@ class WebGISApp {
       // Instantiate Point Inspector & Overview Locator Inset Map
       this.pointInspector = new PointInspector(map, this.pikselLoader, this.geeLoader, this.geojsonLoader, this.measureTool);
       new OverviewMapUI(map);
+
+      // Instantiate AI Map Navigator & Geospatial Copilot (Zero-Cost Gemini Dock)
+      this.aiNavigator = new AINavigator(this.mapManager, this.sidebarUI);
+      this.aiNavigator.setMeasureTool(this.measureTool);
+      this.aiNavigator.setSpatialAnalysisUI(this.spatialAnalysisUI);
+      this.aiNavigator.setSwipeCompareUI(this.swipeCompareUI);
+      this.aiAssistantDockUI = new AIAssistantDockUI(this.aiNavigator);
 
       // Bind measurement callbacks
       this.measureTool.onResult((res) => {
@@ -857,6 +868,7 @@ class WebGISApp {
       });
     };
 
+    bindItem('more-item-ai', () => this.aiAssistantDockUI?.setOpen(true));
     bindItem('more-item-tour', () => document.getElementById('btn-start-tour')?.click());
     bindItem('more-item-reset', () => document.getElementById('btn-reset-map')?.click());
     bindItem('more-item-import', () => document.getElementById('btn-quick-import')?.click());
@@ -969,8 +981,13 @@ class WebGISApp {
         return false;
       },
       () => {
-        // 1b. Modals (Export, GEE Setup, Shortcuts)
+        // 1b. Modals (Export, GEE Setup, Shortcuts) & AI Dock
         let closed = false;
+        const aiDock = document.getElementById('ai-assistant-dock');
+        if (aiDock && !aiDock.classList.contains('hidden')) {
+          this.aiAssistantDockUI?.setOpen(false);
+          closed = true;
+        }
         ['modal-map-export', 'modal-gee-setup', 'modal-shortcuts'].forEach((id) => {
           const m = document.getElementById(id);
           if (m && m.style.display !== 'none') {

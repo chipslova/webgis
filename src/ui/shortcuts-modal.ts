@@ -20,6 +20,7 @@ export const GIS_SHORTCUTS: ShortcutGroup[] = [
   {
     category: 'Navigasi & Tampilan',
     items: [
+      { key: 'Alt + A', description: 'Buka / Tutup AI Map Navigator (Gemini Copilot)' },
       { key: 'Ctrl + K / ⌘K', description: 'Buka Palet Perintah / Pencarian Cepat' },
       { key: 'A', description: 'Buka Tab Analisis Spasial (Zonal AOI & Buffer)' },
       { key: 'B', description: 'Buka Galeri Peta Dasar (Basemap)' },
