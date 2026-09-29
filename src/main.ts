@@ -321,7 +321,7 @@ class WebGISApp {
       this.pointInspector = new PointInspector(map, this.pikselLoader, this.geeLoader, this.geojsonLoader, this.measureTool);
       new OverviewMapUI(map);
 
-      // Instantiate AI Map Navigator & Geospatial Copilot (Zero-Cost Gemini Dock)
+      // Instantiate AI Map Navigator & Geospatial Copilot (Gemini Dock)
       this.aiNavigator = new AINavigator(this.mapManager, this.sidebarUI);
       this.aiNavigator.setMeasureTool(this.measureTool);
       this.aiNavigator.setSpatialAnalysisUI(this.spatialAnalysisUI);

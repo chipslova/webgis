@@ -14,7 +14,6 @@ export interface AINavigatorResponse {
   reply: string;
   actions: AIAction[];
   error?: string;
-  isFreeTier?: boolean;
 }
 
 export interface AINavigatorCallbacks {
@@ -160,8 +159,7 @@ export class AINavigator {
       return {
         success: true,
         reply: data.reply || 'Perintah berhasil dijalankan.',
-        actions,
-        isFreeTier: data.isFreeTier
+        actions
       };
     } catch (err: any) {
       const errorMsg = `Koneksi gagal: ${err?.message || 'Tidak dapat terhubung ke server AI.'}`;

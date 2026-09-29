@@ -288,7 +288,7 @@ export default async function handler(req: any, res?: any): Promise<Response | v
       const dailyQuota = checkAndIncrementDailyQuota();
       if (!dailyQuota.allowed) {
         return send(429, {
-          error: `Batas kapasitas harian AI gratis WebGIS (${GLOBAL_DAILY_CEILING} kueri/hari) telah tercapai demi menjamin biaya $0. Reset dalam ${dailyQuota.resetInHours} jam.`,
+          error: `Batas kapasitas harian AI WebGIS (${GLOBAL_DAILY_CEILING} kueri/hari) telah tercapai untuk menjaga kestabilan sistem. Silakan coba kembali dalam ${dailyQuota.resetInHours} jam.`,
           dailyQuotaExceeded: true,
           resetInHours: dailyQuota.resetInHours
         }, limitHeaders);
@@ -354,7 +354,7 @@ ${contextDescription}`;
           }
           if (response.status === 429) {
             return send(429, {
-              error: 'Batas kuota gratis Google Gemini sedang penuh (Google 429). Mohon tunggu beberapa saat dan coba kembali.',
+              error: 'Kapasitas server AI sedang penuh (429). Mohon tunggu beberapa saat dan coba kembali.',
               retryAfter: 30
             }, limitHeaders);
           }
@@ -401,8 +401,7 @@ ${contextDescription}`;
           success: true,
           reply: replyText.trim(),
           actions,
-          modelUsed: model,
-          isFreeTier: true
+          modelUsed: model
         }, limitHeaders);
       } catch (e: any) {
         lastError = e;

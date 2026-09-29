@@ -58,7 +58,6 @@ export class AIAssistantDockUI {
           <path d="M17 19h4"/>
         </svg>
         <span class="ai-fab-text">AI Copilot</span>
-        <span class="ai-fab-badge">GRATIS</span>
       `;
       document.body.appendChild(fab);
     }
@@ -84,7 +83,7 @@ export class AIAssistantDockUI {
             <div>
               <div class="ai-dock-title">
                 <span>AI Map Navigator</span>
-                <span class="ai-zero-cost-tag" title="Terkonfigurasi dengan Google Gemini Free Tier dan perlindungan kuota harian">Rp 0 / Bebas Biaya</span>
+                <span class="ai-status-tag" title="AI Copilot siap membantu eksplorasi peta"><span class="ai-status-dot"></span>Online</span>
               </div>
               <div class="ai-dock-subtitle">Didukung Google Gemini Flash • Pengendali Navigasi Peta Otomatis</div>
             </div>
@@ -102,7 +101,7 @@ export class AIAssistantDockUI {
         <!-- Optional Custom Key Drawer (Hidden by default) -->
         <div id="ai-dock-settings-panel" class="ai-dock-settings-panel hidden">
           <div class="ai-settings-desc">
-            Kunci server bawaan telah aktif dengan proteksi kuota <strong>Rp 0 (Bebas Biaya)</strong>. Jika Anda ingin menggunakan API Key Gemini pribadi tanpa batas kuota bersama:
+            Asisten AI terhubung ke layanan server default. Anda dapat memasukkan API Key Gemini pribadi jika ingin menggunakan kuota komputasi mandiri:
           </div>
           <div class="ai-settings-input-group">
             <input type="password" id="ai-custom-key-input" placeholder="Masukkan Gemini API Key pribadi (opsional)..." autocomplete="off" />
@@ -137,8 +136,8 @@ export class AIAssistantDockUI {
             </button>
           </form>
           <div class="ai-dock-guard-badge">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span>Proteksi Anti-Tagihan: Batas IP & Kuota Harian Terproteksi 100% Bebas Biaya</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span>AI Copilot Engine • Siap bernavigasi dan menganalisis spasial</span>
           </div>
         </div>
       `;
@@ -232,7 +231,7 @@ export class AIAssistantDockUI {
         const val = customKeyInput.value.trim();
         this.navigator.setCustomApiKey(val);
         if (keyStatus) {
-          keyStatus.textContent = val ? 'Kunci kustom tersimpan di browser.' : 'Kunci kustom dihapus (kembali ke kunci server gratis).';
+          keyStatus.textContent = val ? 'Kunci kustom tersimpan di browser.' : 'Kunci kustom dihapus (kembali ke kunci server default).';
           keyStatus.style.color = '#10b981';
           setTimeout(() => {
             if (keyStatus) keyStatus.textContent = '';
