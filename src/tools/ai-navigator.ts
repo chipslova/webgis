@@ -79,9 +79,12 @@ export class AINavigator {
   }
 
   /**
-   * Dispatches user prompt to the zero-bill Gemini Navigator serverless endpoint
+   * Dispatches user prompt to the Gemini Navigator serverless endpoint
    */
-  public async sendPrompt(userPrompt: string): Promise<AINavigatorResponse> {
+  public async sendPrompt(
+    userPrompt: string,
+    history?: Array<{ role: 'user' | 'model'; text: string }>
+  ): Promise<AINavigatorResponse> {
     const map = this.mapManager.getMap();
 
     // Collect current spatial context
@@ -100,6 +103,7 @@ export class AINavigator {
 
     const payload = {
       prompt: userPrompt,
+      history: history || [],
       context: {
         center,
         zoom,

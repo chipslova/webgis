@@ -132,6 +132,83 @@ describe('Google Gemini AI Map Navigator & Copilot', () => {
 
       process.env.GEMINI_API_KEY = originalEnv;
     });
+
+    it('should return rich text for conceptual questions without calling tools', async () => {
+      process.env.GEMINI_API_KEY = 'mock-key';
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          candidates: [
+            {
+              content: {
+                parts: [
+                  { text: 'NDVI (Normalized Difference Vegetation Index) adalah indeks untuk mengukur kehijauan vegetasi.' }
+                ]
+              }
+            }
+          ]
+        })
+      } as any);
+
+      const req = {
+        method: 'POST',
+        headers: { 'x-forwarded-for': '182.253.10.8' },
+        body: {
+          prompt: 'Apa itu NDVI?',
+          history: [
+            { role: 'user', text: 'Halo' },
+            { role: 'model', text: 'Halo! Ada yang bisa saya bantu?' }
+          ]
+        }
+      };
+      const res = createMockRes();
+
+      await geminiHandler(req, res);
+      expect(res._getStatus()).toBe(200);
+      const body = res._getBody();
+      expect(body.success).toBe(true);
+      expect(body.reply).toContain('Normalized Difference Vegetation Index');
+      expect(body.actions).toEqual([]);
+    });
+
+    it('should handle simultaneous text explanation and tool action', async () => {
+      process.env.GEMINI_API_KEY = 'mock-key';
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          candidates: [
+            {
+              content: {
+                parts: [
+                  { text: 'Gunung Bromo adalah gunung berapi aktif di Jawa Timur.' },
+                  {
+                    functionCall: {
+                      name: 'flyToLocation',
+                      args: { locationName: 'Gunung Bromo', longitude: 112.953, latitude: -7.942 }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        })
+      } as any);
+
+      const req = {
+        method: 'POST',
+        headers: { 'x-forwarded-for': '182.253.10.9' },
+        body: { prompt: 'Ceritakan tentang Gunung Bromo' }
+      };
+      const res = createMockRes();
+
+      await geminiHandler(req, res);
+      expect(res._getStatus()).toBe(200);
+      const body = res._getBody();
+      expect(body.success).toBe(true);
+      expect(body.reply).toContain('gunung berapi aktif');
+      expect(body.actions).toHaveLength(1);
+      expect(body.actions[0].name).toBe('flyToLocation');
+    });
   });
 
   describe('Client AINavigator Tool & Action Execution', () => {

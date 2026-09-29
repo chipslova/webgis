@@ -23,13 +23,14 @@ export class AIAssistantDockUI {
   private messages: ChatMessage[] = [];
 
   private quickSuggestions = [
-    { label: '🌋 Bromo 3D', prompt: 'Terbangkan kamera ke Gunung Bromo dengan sudut 3D miring 60 derajat' },
+    { label: '🌋 Bromo 3D', prompt: 'Terbangkan kamera ke Gunung Bromo dalam 3D dan jelaskan status geologinya' },
+    { label: '🌿 Apa itu NDVI?', prompt: 'Apa itu indeks vegetasi NDVI dan bagaimana cara melihatnya di WebGIS ini?' },
+    { label: '🏛️ IKN Nusantara', prompt: 'Arahkan peta ke Ibu Kota Nusantara (IKN) dan jelaskan konsep pembangunannya' },
+    { label: '📏 Cara Ukur Peta', prompt: 'Bagaimana cara mengukur jarak dan melihat profil elevasi di peta ini?' },
     { label: '🛰️ Citra Satelit', prompt: 'Ubah peta dasar menjadi citra satelit resolusi tinggi' },
-    { label: '🏛️ IKN Nusantara', prompt: 'Arahkan peta ke kawasan Ibu Kota Nusantara (IKN)' },
     { label: '🌧️ Stasiun Cuaca', prompt: 'Tampilkan stasiun pengamatan cuaca di Pulau Jawa' },
     { label: '🌍 Bola Bumi 3D', prompt: 'Ubah proyeksi peta menjadi Bola Bumi 3D Globe' },
-    { label: '📐 Ukur Jarak', prompt: 'Aktifkan alat pengukuran jarak' },
-    { label: '🌊 Danau Toba', prompt: 'Terbang ke Danau Toba Sumatera Utara' }
+    { label: '💡 Fitur WebGIS', prompt: 'Fitur analisis dan data spasial apa saja yang tersedia di WebGIS ini?' }
   ];
 
   constructor(navigator: AINavigator) {
@@ -85,7 +86,7 @@ export class AIAssistantDockUI {
                 <span>AI Map Navigator</span>
                 <span class="ai-status-tag" title="AI Copilot siap membantu eksplorasi peta"><span class="ai-status-dot"></span>Online</span>
               </div>
-              <div class="ai-dock-subtitle">Didukung Google Gemini Flash • Pengendali Navigasi Peta Otomatis</div>
+              <div class="ai-dock-subtitle">Asisten Cerdas & Pengendali Peta • Tanya Apa Saja atau Kendalikan Peta</div>
             </div>
           </div>
           <div class="ai-dock-actions">
@@ -124,11 +125,11 @@ export class AIAssistantDockUI {
             <input
               type="text"
               id="ai-dock-input"
-              placeholder="Perintahkan AI (cth: 'Terbang ke Danau Toba', 'Ganti ke Citra Satelit')..."
-              maxlength="400"
+              placeholder="Tanyakan apa saja atau perintahkan peta (cth: 'Apa itu NDVI?', 'Terbang ke Bromo 3D')..."
+              maxlength="600"
               autocomplete="off"
             />
-            <button type="submit" id="ai-dock-send-btn" class="ai-dock-send-btn" title="Kirim Perintah" aria-label="Kirim Perintah">
+            <button type="submit" id="ai-dock-send-btn" class="ai-dock-send-btn" title="Kirim Pertanyaan / Perintah" aria-label="Kirim Pertanyaan / Perintah">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="22" y1="2" x2="11" y2="13"/>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -183,7 +184,7 @@ export class AIAssistantDockUI {
     this.messages.push({
       id: 'welcome',
       sender: 'ai',
-      text: 'Halo! Saya **AI Map Navigator** untuk Digital Earth Indonesia. Anda dapat meminta saya untuk mengendalikan peta, menerbangkan kamera ke kota atau gunung dalam 3D, mengganti basemap satelit, atau mencari stasiun cuaca. Apa yang ingin Anda jelajahi hari ini?',
+      text: 'Halo! Saya **AI Copilot & Geospatial Assistant** untuk Digital Earth Indonesia. 🌐\n\nAnda dapat **bertanya hal apa pun**—seperti konsep sains, geografi, citra satelit, atau cara penggunaan fitur WebGIS ini—maupun **memerintahkan saya mengendalikan peta** secara otomatis (terbang ke lokasi 3D, ubah basemap, ukur jarak, hingga filter stasiun cuaca).\n\nApa yang ingin Anda ketahui atau jelajahi hari ini?',
       timestamp: new Date()
     });
     this.renderMessages();
@@ -297,8 +298,18 @@ export class AIAssistantDockUI {
     // Disable input while executing
     if (this.sendBtnEl) this.sendBtnEl.disabled = true;
 
+    // Collect previous messages for conversational context (exclude errors & welcome)
+    const history = this.messages
+      .slice(0, -1)
+      .filter((m) => !m.isError && m.id !== 'welcome')
+      .slice(-6)
+      .map((m) => ({
+        role: (m.sender === 'user' ? 'user' : 'model') as 'user' | 'model',
+        text: m.text
+      }));
+
     try {
-      const res = await this.navigator.sendPrompt(query);
+      const res = await this.navigator.sendPrompt(query, history);
 
       const aiMsg: ChatMessage = {
         id: String(Date.now() + 1),
@@ -323,6 +334,17 @@ export class AIAssistantDockUI {
       this.renderMessages();
       this.inputEl?.focus();
     }
+  }
+
+  private formatMessageText(text: string): string {
+    let safe = escapeHtml(text);
+    // Inline code `code`
+    safe = safe.replace(/`([^`]+)`/g, '<code>$1</code>');
+    // Bold **text**
+    safe = safe.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // Italic *text*
+    safe = safe.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+    return safe;
   }
 
   private renderMessages() {
@@ -360,8 +382,7 @@ export class AIAssistantDockUI {
           .join('');
       }
 
-      // Convert simple markdown **bold**
-      let formattedText = escapeHtml(msg.text).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      const formattedText = this.formatMessageText(msg.text);
 
       bubble.innerHTML = `
         <div class="ai-bubble ${msg.isError ? 'ai-bubble-error' : ''}">
@@ -381,7 +402,7 @@ export class AIAssistantDockUI {
           <div class="ai-typing-indicator">
             <span></span><span></span><span></span>
           </div>
-          <span class="ai-thinking-text">Gemini sedang menavigasi...</span>
+          <span class="ai-thinking-text">Gemini sedang berpikir & menganalisis...</span>
         </div>
       `;
       this.messagesContainerEl.appendChild(loader);

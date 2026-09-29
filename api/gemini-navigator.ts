@@ -262,8 +262,8 @@ export default async function handler(req: any, res?: any): Promise<Response | v
       return send(400, { error: 'Prompt pertanyaan/perintah tidak boleh kosong.' }, limitHeaders);
     }
 
-    // 3. Layer 3: Input Clamping (Max 400 chars)
-    const prompt = rawPrompt.slice(0, 400);
+    // 3. Layer 3: Input Clamping (Max 600 chars)
+    const prompt = rawPrompt.slice(0, 600);
 
     // 4. API Key Resolution
     let headerKey = '';
@@ -301,22 +301,79 @@ export default async function handler(req: any, res?: any): Promise<Response | v
       ? `Konteks Peta Saat Ini: Pusat=[${mapContext.center?.[0]?.toFixed?.(3) || 117.89}, ${mapContext.center?.[1]?.toFixed?.(3) || -2.55}], Zoom=${mapContext.zoom?.toFixed?.(1) || 4.5}, Basemap=${mapContext.basemapId || 'esri-imagery'}, Proyeksi=${mapContext.projection || 'mercator'}.`
       : 'Konteks Peta: Tampilan default kepulauan Indonesia.';
 
-    const systemPrompt = `Anda adalah "AI Navigator & Geospatial Copilot" resmi untuk platform WebGIS "Digital Earth Indonesia".
-Tugas utama Anda:
-1. Membantu pengguna menjelajahi peta, gunung api, kota, kepulauan, dan stasiun iklim di Indonesia dan dunia.
-2. Ketika pengguna meminta terbang, navigasi, melihat lokasi, mencari tempat, mengganti basemap, beralih ke bola bumi 3D, memfilter stasiun cuaca, atau membuka alat, SELALU panggil fungsi (tool call) yang relevan (misalnya flyToLocation, switchBasemap, toggleProjection, filterStations, activateTool).
-3. Berikan koordinat geospasial WGS84 yang akurat untuk kota/gunung/pulau di Indonesia (misal: Bromo [112.953, -7.942], Merapi [110.442, -7.540], IKN Nusantara [116.700, -0.970], Danau Toba [98.880, 2.684], Monas Jakarta [106.827, -6.175], dsb).
-4. Gunakan sudut kemiringan pitch 50-60 derajat untuk pemandangan 3D gunung atau landmark perbukitan.
-5. Jawab dalam Bahasa Indonesia yang ramah, ringkas (maksimal 2-3 kalimat), dan langsung ke inti navigasi.
+    const systemPrompt = `Anda adalah "AI Geospatial Copilot & Smart Assistant" resmi untuk platform WebGIS "Digital Earth Indonesia".
+
+Peran & Karakter Anda:
+1. Anda adalah asisten cerdas, ramah, edukatif, dan berwawasan luas.
+2. Anda BUKAN hanya navigator peta, tetapi juga mitra diskusi geospasial serba bisa. Anda DAPAT menjawab berbagai macam pertanyaan pengguna:
+   - Pertanyaan umum (sains, geografi, iklim, sejarah wilayah, astronomi, lingkungan, matematika, sapaan santai, dll).
+   - Konsep geospasial & remote sensing (NDVI, NDWI, citra satelit Sentinel vs Landsat, resolusi spasial, koordinat WGS84, proyeksi Mercator vs Globe, GIS buffer, dll).
+   - Panduan dan cara penggunaan fitur-fitur di WebGIS ini.
+   - Fakta, data geologi, dan geografi tempat di Indonesia dan dunia (gunung api, kota, kepulauan, danau, dsb).
+
+Katalog Fitur WebGIS "Digital Earth Indonesia":
+- Basemap: Citra Satelit Esri ('esri-imagery'), Jalan Kota ('esri-streets'), Peta RBI BIG ('big-rbi'), OSM ('osm-standard'), Topografi ('esri-topographic'), Kanvas Gelap ('esri-dark-grey'), OpenTopoMap ('open-topo'), Relief ('esri-relief'), NatGeo ('esri-natgeo'), Samudera ('esri-ocean').
+- Tampilan 3D: Mesh elevasi pegunungan 3D (AWS Terrarium) dan ekstrusi bangunan 3D planet (OpenFreeMap).
+- Proyeksi: Bola Bumi 3D Globe vs Peta Datar Mercator 2D.
+- Satelit Piksel BIG: Sentinel-2 time series (2018-2025) True Color RGB, Indeks Vegetasi (NDVI), Indeks Air (NDWI), Indeks Bangunan (NDBI) dari Badan Informasi Geospasial (BIG).
+- Google Earth Engine: Suhu permukaan tanah harian (LST MODIS), Tutupan Lahan ESA WorldCover 10m, dan Analisis Zonal Statistik.
+- Stasiun Cuaca CFSv2: 440+ stasiun pengamatan meteorologi di Indonesia dengan data suhu, presipitasi, dan elevasi.
+- Alat Ukur (Measure): Mengukur jarak lintasan & luas poligon serta profil elevasi permukaan tanah (ketinggian mdpl).
+- Tirai Pembanding (Swipe): Split-screen membandingkan 2 basemap atau layer citra secara langsung.
+- Point Inspector: Klik sembarang titik di peta untuk melihat koordinat, elevasi mdpl, suhu permukaan LST, dan tutupan lahan.
+- Tabel Atribut: Eksplorasi data tabel tabular dengan pencarian dan filter ekspresi.
+- Impor & Ekspor: KML, GeoJSON, Shapefile, CSV, dan Ekspor Cetak Peta PNG/PDF.
+
+Aturan Pemanggilan Fungsi (Tool Calling):
+1. JIKA pengguna bertanya hal umum, konsep teori, sapaan, tips, panduan fitur, atau pertanyaan non-lokasi:
+   - Jawablah secara lengkap, jelas, ramah, dan terstruktur dalam Bahasa Indonesia menggunakan format markdown (**bold**, daftar poin, dll).
+   - JANGAN memanggil fungsi navigasi apa pun jika tidak dibutuhkan.
+2. JIKA pengguna meminta untuk bernavigasi ke suatu tempat (misal: "terbang ke Bromo", "lihat Jakarta", "ke Danau Toba", "ganti basemap satelit", "jadikan 3D globe", "buka alat ukur"):
+   - Panggil fungsi/tool yang relevan (flyToLocation, switchBasemap, toggleProjection, activateTool, filterStations).
+   - Selalu sertakan teks penjelasan singkat atau fakta menarik mengenai tempat/tindakan tersebut di respon Anda.
+3. JIKA pengguna BERTANYA tentang suatu lokasi atau objek geografis spesifik (misal: "Di mana IKN dan bagaimana konsepnya?", "Ceritakan tentang Gunung Merapi", "Apa itu Danau Toba?"):
+   - Berikan jawaban edukatif yang komprehensif tentang lokasi tersebut.
+   - SEKALIGUS panggil fungsi flyToLocation dengan koordinat WGS84 yang akurat dan sudut pitch 50-60 derajat (jika gunung/bukit) agar peta otomatis memperlihatkan lokasinya kepada pengguna!
+4. Koordinat WGS84 penting Indonesia:
+   - Gunung Bromo: [112.953, -7.942], zoom 13.5, pitch 60
+   - Gunung Merapi: [110.442, -7.540], zoom 13.5, pitch 60
+   - IKN Nusantara (Sepaku): [116.700, -0.970], zoom 12.5, pitch 45
+   - Monas Jakarta: [106.827, -6.175], zoom 14.5, pitch 50
+   - Danau Toba: [98.880, 2.684], zoom 10.5, pitch 45
+   - Labuan Bajo / Komodo: [119.880, -8.490], zoom 12.0, pitch 50
+   - Raja Ampat: [130.500, -0.500], zoom 10.0, pitch 40
+
 ${contextDescription}`;
 
-    const payload = {
-      contents: [
-        {
-          role: 'user',
-          parts: [{ text: prompt }]
+    // 7. Build Conversation Contents (with multi-turn history)
+    const contents: Array<{ role: string; parts: Array<{ text: string }> }> = [];
+
+    if (Array.isArray(body?.history)) {
+      let lastRole = '';
+      for (const item of body.history.slice(-6)) {
+        const role = (item.role === 'model' || item.role === 'assistant' || item.role === 'ai') ? 'model' : 'user';
+        const text = typeof item.text === 'string' ? item.text.trim() : '';
+        if (text && role !== lastRole) {
+          contents.push({
+            role,
+            parts: [{ text: text.slice(0, 500) }]
+          });
+          lastRole = role;
         }
-      ],
+      }
+    }
+
+    if (contents.length > 0 && contents[contents.length - 1].role === 'user') {
+      contents.pop();
+    }
+
+    contents.push({
+      role: 'user',
+      parts: [{ text: prompt }]
+    });
+
+    const payload = {
+      contents,
       systemInstruction: {
         parts: [{ text: systemPrompt }]
       },
@@ -326,12 +383,12 @@ ${contextDescription}`;
         }
       ],
       generationConfig: {
-        temperature: 0.2,
-        maxOutputTokens: 400
+        temperature: 0.4,
+        maxOutputTokens: 1200
       }
     };
 
-    // 7. Request to Google Gemini with automatic model fallback
+    // 8. Request to Google Gemini with automatic model fallback
     const models = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
     let lastError: Error | null = null;
 
@@ -372,7 +429,7 @@ ${contextDescription}`;
 
         for (const part of parts) {
           if (part.text) {
-            replyText += part.text;
+            replyText += (replyText ? '\n\n' : '') + part.text;
           }
           if (part.functionCall) {
             actions.push({
@@ -385,16 +442,20 @@ ${contextDescription}`;
         if (!replyText.trim() && actions.length > 0) {
           const first = actions[0];
           if (first.name === 'flyToLocation') {
-            replyText = `Mengarahkan kamera peta ke ${first.args.locationName || 'lokasi tujuan'}...`;
+            replyText = `Mengarahkan kamera peta ke **${first.args.locationName || 'lokasi tujuan'}**...`;
           } else if (first.name === 'switchBasemap') {
-            replyText = `Mengubah peta dasar ke gaya "${first.args.basemapId}"...`;
+            replyText = `Mengubah peta dasar ke gaya **${first.args.basemapId}**...`;
           } else if (first.name === 'toggleProjection') {
-            replyText = `Mengalihkan proyeksi peta ke ${first.args.projection === 'globe' ? 'Bola Bumi 3D' : 'Mercator 2D'}...`;
+            replyText = `Mengalihkan proyeksi peta ke **${first.args.projection === 'globe' ? 'Bola Bumi 3D' : 'Mercator 2D'}**...`;
           } else if (first.name === 'activateTool') {
-            replyText = `Membuka alat spasial "${first.args.toolName}"...`;
+            replyText = `Membuka alat spasial **${first.args.toolName}**...`;
+          } else if (first.name === 'filterStations') {
+            replyText = `Memfilter stasiun cuaca dengan kata kunci **"${first.args.query || ''}"**...`;
           } else {
             replyText = 'Menjalankan perintah navigasi peta...';
           }
+        } else if (!replyText.trim()) {
+          replyText = 'Saya siap membantu Anda. Silakan tanyakan hal apa pun seputar peta, geospasial, atau fitur WebGIS ini.';
         }
 
         return send(200, {
