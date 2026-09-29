@@ -97,9 +97,15 @@ const GIS_FUNCTION_DECLARATIONS = [
             'open-topo',
             'esri-relief',
             'esri-natgeo',
-            'esri-ocean'
+            'esri-ocean',
+            'esri-light-grey',
+            'openfreemap-liberty',
+            'openfreemap-positron',
+            'esri-clarity',
+            'osm-humanitarian',
+            'esri-colorpencil'
           ],
-          description: 'Target basemap ID: "esri-imagery" (Citra Satelit), "esri-streets" (Jalan Kota), "big-rbi" (Peta Topografi Nasional RBI BIG), "osm-standard" (OpenStreetMap), "esri-topographic" (Topografi & Kontur), "esri-dark-grey" (Kanvas Gelap), "open-topo" (OpenTopoMap), "esri-relief" (Relief Bayangan), "esri-ocean" (Batimetri Laut).'
+          description: 'Target basemap ID (16 choices): "esri-imagery" (Citra Satelit), "esri-streets" (Jalan Kota), "big-rbi" (Peta Topografi Nasional RBI BIG), "osm-standard" (OpenStreetMap), "esri-topographic" (Topografi & Kontur), "esri-dark-grey" (Kanvas Gelap), "open-topo" (OpenTopoMap), "esri-relief" (Relief Bayangan), "esri-natgeo" (National Geographic), "esri-ocean" (Batimetri Laut), "esri-light-grey" (Kanvas Terang), "openfreemap-liberty" (Vektor OpenFreeMap Liberty), "openfreemap-positron" (Vektor Positron), "esri-clarity" (Citra Bebas Awan Clarity), "osm-humanitarian" (OSM Kemanusiaan), "esri-colorpencil" (Vektor Artistik Pensil Warna).'
         }
       },
       required: ['basemapId']
@@ -312,7 +318,10 @@ Peran & Karakter Anda:
    - Fakta, data geologi, dan geografi tempat di Indonesia dan dunia (gunung api, kota, kepulauan, danau, dsb).
 
 Katalog Fitur WebGIS "Digital Earth Indonesia":
-- Basemap: Citra Satelit Esri ('esri-imagery'), Jalan Kota ('esri-streets'), Peta RBI BIG ('big-rbi'), OSM ('osm-standard'), Topografi ('esri-topographic'), Kanvas Gelap ('esri-dark-grey'), OpenTopoMap ('open-topo'), Relief ('esri-relief'), NatGeo ('esri-natgeo'), Samudera ('esri-ocean').
+- Basemap (Total 16 Peta Dasar Aktif):
+  * Rekomendasi/Utama (6): Esri Citra Satelit ('esri-imagery'), Esri Jalan Kota ('esri-streets'), BIG Rupa Bumi Indonesia ('big-rbi'), OpenStreetMap Standar ('osm-standard'), Esri Topografi & Kontur ('esri-topographic'), Esri Kanvas Abu Gelap ('esri-dark-grey').
+  * Topografi & Tematik (5): OpenTopoMap ('open-topo'), Esri Relief Bayangan ('esri-relief'), Esri National Geographic ('esri-natgeo'), Esri Batimetri Laut ('esri-ocean'), Esri Kanvas Abu Terang ('esri-light-grey').
+  * Data Terbuka & Kanvas (5): OpenFreeMap Liberty Vektor ('openfreemap-liberty'), OpenFreeMap Positron Vektor ('openfreemap-positron'), Esri Citra Clarity Bebas Awan ('esri-clarity'), OSM Humanitarian ('osm-humanitarian'), Esri Pensil Warna Artistik ('esri-colorpencil').
 - Tampilan 3D: Mesh elevasi pegunungan 3D (AWS Terrarium) dan ekstrusi bangunan 3D planet (OpenFreeMap).
 - Proyeksi: Bola Bumi 3D Globe vs Peta Datar Mercator 2D.
 - Satelit Piksel BIG: Sentinel-2 time series (2018-2025) True Color RGB, Indeks Vegetasi (NDVI), Indeks Air (NDWI), Indeks Bangunan (NDBI) dari Badan Informasi Geospasial (BIG).
