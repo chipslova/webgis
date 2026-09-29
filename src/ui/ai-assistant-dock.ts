@@ -24,9 +24,11 @@ export class AIAssistantDockUI {
 
   private quickSuggestions = [
     { label: '🌋 Bromo 3D', prompt: 'Terbangkan kamera ke Gunung Bromo dalam 3D dan jelaskan status geologinya' },
+    { label: '🌊 Danau Toba', prompt: 'Terbangkan kamera ke Danau Toba dan jelaskan sejarah letusan supervolcano-nya' },
     { label: '🌿 Apa itu NDVI?', prompt: 'Apa itu indeks vegetasi NDVI dan bagaimana cara melihatnya di WebGIS ini?' },
     { label: '🏛️ IKN Nusantara', prompt: 'Arahkan peta ke Ibu Kota Nusantara (IKN) dan jelaskan konsep pembangunannya' },
     { label: '📏 Cara Ukur Peta', prompt: 'Bagaimana cara mengukur jarak dan melihat profil elevasi di peta ini?' },
+    { label: '🗺️ Bandingkan Peta', prompt: 'Buka mode komparasi layar swipe untuk membandingkan dua peta dasar' },
     { label: '🛰️ Citra Satelit', prompt: 'Ubah peta dasar menjadi citra satelit resolusi tinggi' },
     { label: '🌧️ Stasiun Cuaca', prompt: 'Tampilkan stasiun pengamatan cuaca di Pulau Jawa' },
     { label: '🌍 Bola Bumi 3D', prompt: 'Ubah proyeksi peta menjadi Bola Bumi 3D Globe' },
@@ -402,7 +404,7 @@ export class AIAssistantDockUI {
           <div class="ai-typing-indicator">
             <span></span><span></span><span></span>
           </div>
-          <span class="ai-thinking-text">Gemini sedang berpikir & menganalisis...</span>
+          <span class="ai-thinking-text">AI Copilot sedang menganalisis data spasial...</span>
         </div>
       `;
       this.messagesContainerEl.appendChild(loader);
