@@ -326,6 +326,8 @@ class WebGISApp {
       this.aiNavigator.setMeasureTool(this.measureTool);
       this.aiNavigator.setSpatialAnalysisUI(this.spatialAnalysisUI);
       this.aiNavigator.setSwipeCompareUI(this.swipeCompareUI);
+      this.aiNavigator.setGEELoader(this.geeLoader);
+      this.aiNavigator.setPikselLoader(this.pikselLoader);
       this.aiAssistantDockUI = new AIAssistantDockUI(this.aiNavigator);
 
       // Bind measurement callbacks

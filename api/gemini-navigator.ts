@@ -170,6 +170,37 @@ export const GIS_FUNCTION_DECLARATIONS = [
       },
       required: ['toolName']
     }
+  },
+  {
+    name: 'toggleLayer',
+    description: 'Toggle or activate a specific thematic data layer on the map canvas (e.g. curah hujan CHIRPS/GPM, tutupan lahan Sentinel-2 ESA WorldCover, suhu permukaan tanah MODIS LST, indeks vegetasi NDVI, indeks air NDWI, indeks perkotaan NDBI, bahaya banjir, stasiun cuaca).',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        layerId: {
+          type: 'STRING',
+          enum: [
+            'precipitation',
+            'landcover',
+            'lst-day',
+            'lst-night',
+            'stations',
+            's2-geomad-rgb',
+            's2-indices-ndvi',
+            's2-indices-ndwi',
+            's2-indices-ndbi',
+            'hazard-flood',
+            'tile-grid'
+          ],
+          description: 'The layer ID to toggle: "precipitation" (Curah Hujan Harian CHIRPS & GPM), "landcover" (Tutupan Lahan Sentinel-2 10m ESA WorldCover), "lst-day" (Suhu Permukaan Daratan Siang MODIS), "lst-night" (Suhu Permukaan Daratan Malam MODIS), "stations" (18 Stasiun Observasi LST & Iklim), "s2-geomad-rgb" (Citra Satelit Sentinel-2 True Color), "s2-indices-ndvi" (Indeks Kerapatan Vegetasi), "s2-indices-ndwi" (Indeks Air Permukaan), "s2-indices-ndbi" (Indeks Bangunan Perkotaan), "hazard-flood" (Peta Bahaya Banjir Kawasan Prioritas), "tile-grid" (Batas Grid Open Data Cube).'
+        },
+        visible: {
+          type: 'BOOLEAN',
+          description: 'True to activate/show the layer (default), or false to hide/disable.'
+        }
+      },
+      required: ['layerId']
+    }
   }
 ];
 
@@ -315,9 +346,13 @@ JANGAN PERNAH HANYA MEMINDAHKAN KAMERA TANPA MEMBERIKAN JAWABAN TERTULIS!
 1. Jika pengguna bertanya tentang tempat atau objek geografi (misal: "Apa itu Gunung Bromo?", "Ceritakan tentang Danau Toba", "Di mana IKN dan bagaimana pembangunannya?", "Kenapa terjadi gempa di Cianjur?"):
    - Berikan jawaban edukatif yang jelas, padat, informatif, dan mendalam (2-3 paragraf ringkas berbobot) di properti "reply"!
    - SEKALIGUS sertakan aksi "flyToLocation" di properti "actions" agar peta terbang ke lokasi tersebut!
-2. Jika pengguna bertanya konsep teori, sains, GIS, remote sensing, atau sapaan santai (misal: "Apa itu NDVI?", "Bagaimana cara kerja satelit?", "Siapa kamu?", "Halo"):
+2. Jika pengguna bertanya atau ingin melihat data tematik spesifik (misal: "Tampilkan curah hujan", "Bagaimana tutupan lahan di IKN?", "Suhu permukaan siang di Jakarta", "Lihat indeks vegetasi NDVI", "Peta bahaya banjir"):
+   - Berikan jawaban informatif mengenai data/fenomena tersebut di "reply"!
+   - SELALU sertakan aksi "toggleLayer" dengan "layerId" yang sesuai di properti "actions" agar lapisan data langsung aktif dan terlihat di peta!
+   - Jika pengguna menyebutkan lokasi tertentu, sertakan JUGA aksi "flyToLocation" ke lokasi tersebut!
+3. Jika pengguna bertanya konsep teori, sains, GIS, remote sensing, atau sapaan santai (misal: "Apa itu NDVI?", "Bagaimana cara kerja satelit?", "Siapa kamu?", "Halo"):
    - Jawablah secara lengkap, ramah, dan terstruktur di "reply", dengan "actions": [].
-3. Jika pengguna meminta navigasi murni (misal: "Ganti ke citra satelit", "Aktifkan 3D Globe", "Buka alat ukur"):
+4. Jika pengguna meminta navigasi murni (misal: "Ganti ke citra satelit", "Aktifkan 3D Globe", "Buka alat ukur"):
    - Berikan teks konfirmasi ramah di "reply" (misal: "Peta dasar telah diubah ke Citra Satelit Esri.") dan sertakan aksi yang sesuai di "actions".
 
 FORMAT OUTPUT:
@@ -344,14 +379,28 @@ DAFTAR AKSI (ACTIONS) YANG TERSEDIA:
    - Danau Toba: [98.880, 2.684], zoom 10.5, pitch 45
    - Labuan Bajo / Komodo: [119.880, -8.490], zoom 12.0, pitch 50
    - Raja Ampat: [130.500, -0.500], zoom 10.0, pitch 40
-2. "switchBasemap"
+2. "toggleLayer"
+   args: { "layerId": string, "visible"?: boolean }
+   Pilihan layerId:
+   - "precipitation" (Curah Hujan Harian Satelit CHIRPS & NASA GPM)
+   - "landcover" (Tutupan Lahan Sentinel-2 10m ESA WorldCover 9 kelas)
+   - "lst-day" (Suhu Permukaan Daratan Siang MODIS LST Day 1km)
+   - "lst-night" (Suhu Permukaan Daratan Malam MODIS LST Night 1km)
+   - "stations" (18 Titik Stasiun & Observasi LST)
+   - "s2-geomad-rgb" (Citra Satelit Sentinel-2 True Color 10m)
+   - "s2-indices-ndvi" (Indeks Kerapatan Vegetasi NDVI 10m)
+   - "s2-indices-ndwi" (Indeks Badan Air Permukaan NDWI 10m)
+   - "s2-indices-ndbi" (Indeks Kawasan Bangunan Perkotaan NDBI 10m)
+   - "hazard-flood" (Pemodelan Bahaya Banjir Kawasan Prioritas)
+   - "tile-grid" (Batas Grid Open Data Cube 1.631 Tile)
+3. "switchBasemap"
    args: { "basemapId": string }
    Pilihan (16 basemap): 'esri-imagery', 'esri-streets', 'big-rbi', 'osm-standard', 'esri-topographic', 'esri-dark-grey', 'open-topo', 'esri-relief', 'esri-natgeo', 'esri-ocean', 'esri-light-grey', 'openfreemap-liberty', 'openfreemap-positron', 'esri-clarity', 'osm-humanitarian', 'esri-colorpencil'
-3. "toggleProjection"
+4. "toggleProjection"
    args: { "projection": "globe" | "mercator" }
-4. "filterStations"
+5. "filterStations"
    args: { "query": string }
-5. "activateTool"
+6. "activateTool"
    args: { "toolName": "measure" | "spatial-analysis" | "point-inspector" | "swipe-compare" | "attribute-table" | "basemap-gallery" | "reset-view" | "start-tour" }
 
 KATALOG FITUR WEBGIS:
@@ -501,6 +550,8 @@ ${contextDescription}`;
           const first = actions[0];
           if (first.name === 'flyToLocation') {
             replyText = `Mengarahkan kamera peta ke **${first.args.locationName || 'lokasi tujuan'}**...`;
+          } else if (first.name === 'toggleLayer') {
+            replyText = `Mengaktifkan lapisan data **${first.args.layerId}** pada peta...`;
           } else if (first.name === 'switchBasemap') {
             replyText = `Mengubah peta dasar ke gaya **${first.args.basemapId}**...`;
           } else if (first.name === 'toggleProjection') {

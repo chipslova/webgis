@@ -375,6 +375,23 @@ export class AIAssistantDockUI {
             } else if (a.name === 'activateTool') {
               label = `Alat: ${a.args.toolName}`;
               icon = '🛠️';
+            } else if (a.name === 'toggleLayer') {
+              const layerNames: Record<string, { label: string; icon: string }> = {
+                precipitation: { label: 'Curah Hujan Harian (CHIRPS & GPM)', icon: '🌧️' },
+                landcover: { label: 'Tutupan Lahan 10m (ESA WorldCover)', icon: '🌳' },
+                'lst-day': { label: 'Suhu LST Siang (MODIS 1km)', icon: '☀️' },
+                'lst-night': { label: 'Suhu LST Malam (MODIS 1km)', icon: '🌙' },
+                stations: { label: '18 Stasiun Iklim LST', icon: '📍' },
+                's2-geomad-rgb': { label: 'Citra Sentinel-2 True Color 10m', icon: '🛰️' },
+                's2-indices-ndvi': { label: 'Indeks Vegetasi NDVI 10m', icon: '🌿' },
+                's2-indices-ndwi': { label: 'Indeks Air NDWI 10m', icon: '💧' },
+                's2-indices-ndbi': { label: 'Indeks Bangunan NDBI 10m', icon: '🏙️' },
+                'hazard-flood': { label: 'Bahaya Banjir Prioritas', icon: '🌊' },
+                'tile-grid': { label: 'Batas Grid Data Cube', icon: '🔲' }
+              };
+              const info = layerNames[a.args.layerId] || { label: a.args.layerId, icon: '📑' };
+              label = `Lapisan Aktif: ${info.label}`;
+              icon = info.icon;
             } else if (a.name === 'filterStations') {
               label = `Filter Stasiun: "${a.args.query || 'Semua'}"`;
               icon = '🌦️';

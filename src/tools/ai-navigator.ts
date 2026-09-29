@@ -29,6 +29,8 @@ export class AINavigator {
   private measureToolRef?: any;
   private spatialAnalysisUIRef?: any;
   private swipeCompareUIRef?: any;
+  private geeLoaderRef?: any;
+  private pikselLoaderRef?: any;
   private customApiKey: string = '';
 
   constructor(mapManager: MapManager, sidebarUI?: SidebarUI | null) {
@@ -51,6 +53,14 @@ export class AINavigator {
 
   public setSwipeCompareUI(ui: any) {
     this.swipeCompareUIRef = ui;
+  }
+
+  public setGEELoader(loader: any) {
+    this.geeLoaderRef = loader;
+  }
+
+  public setPikselLoader(loader: any) {
+    this.pikselLoaderRef = loader;
   }
 
   private loadCustomApiKey() {
@@ -319,6 +329,62 @@ export class AINavigator {
             if (btnTour) btnTour.click();
             break;
           }
+        }
+        break;
+      }
+
+      case 'toggleLayer': {
+        const layerId = (args.layerId || '').trim();
+        const visible = args.visible !== false;
+
+        if (!layerId) break;
+
+        // 1. Google Earth Engine layers: precipitation, landcover, lst-day, lst-night, stations
+        if (['precipitation', 'rainfall', 'curah-hujan', 'chirps', 'gpm', 'landcover', 'lc', 'lst-day', 'lst-night', 'stations', 'poi', 'surface-temp'].includes(layerId)) {
+          if (this.geeLoaderRef?.toggleLayer) {
+            await this.geeLoaderRef.toggleLayer(layerId, visible);
+          }
+          if (visible && this.sidebarUI) {
+            this.sidebarUI.setActiveTab('gee');
+          }
+
+          const labels: Record<string, string> = {
+            precipitation: 'Curah Hujan Harian Satelit (CHIRPS & GPM)',
+            landcover: 'Tutupan Lahan Sentinel-2 10m (ESA WorldCover)',
+            'lst-day': 'Suhu Permukaan Daratan Siang (MODIS LST Day 1km)',
+            'lst-night': 'Suhu Permukaan Daratan Malam (MODIS LST Night 1km)',
+            stations: '18 Stasiun & Titik Observasi Iklim'
+          };
+          const label = labels[layerId] || layerId;
+          showToast(`Lapisan ${label} ${visible ? 'diaktifkan di peta' : 'disembunyikan'}.`, 'success', 3000);
+          break;
+        }
+
+        // 2. Open Data Cube Tile Grid
+        if (layerId === 'tile-grid' || layerId === 'grid') {
+          if (this.pikselLoaderRef?.setGridVisible) {
+            this.pikselLoaderRef.setGridVisible(visible);
+          }
+          showToast(`Batas Grid Ubin Open Data Cube ${visible ? 'ditampilkan' : 'disembunyikan'}.`, 'info', 2500);
+          break;
+        }
+
+        // 3. BIG Piksel Satellite products: s2-geomad-rgb, s2-indices-ndvi, s2-indices-ndwi, s2-indices-ndbi, hazard-flood, etc.
+        if (this.pikselLoaderRef?.setActiveProduct) {
+          this.pikselLoaderRef.setActiveProduct(visible ? layerId : null);
+          if (visible && this.sidebarUI) {
+            this.sidebarUI.setActiveTab('piksel');
+          }
+
+          const pikselLabels: Record<string, string> = {
+            's2-geomad-rgb': 'Citra Satelit Sentinel-2 True Color 10m',
+            's2-indices-ndvi': 'Indeks Kerapatan Vegetasi NDVI (Sentinel-2 10m)',
+            's2-indices-ndwi': 'Indeks Badan Air Permukaan NDWI (Sentinel-2 10m)',
+            's2-indices-ndbi': 'Indeks Area Terbangun NDBI (Sentinel-2 10m)',
+            'hazard-flood': 'Peta Pemodelan Bahaya Banjir Prioritas'
+          };
+          const label = pikselLabels[layerId] || layerId;
+          showToast(`Lapisan Satelit ${label} ${visible ? 'diaktifkan di peta' : 'dinonaktifkan'}.`, 'success', 3000);
         }
         break;
       }

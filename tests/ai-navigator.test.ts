@@ -287,5 +287,52 @@ describe('Google Gemini AI Map Navigator & Copilot', () => {
       expect(nav.getCustomApiKey()).toBe('');
       expect(localStorage.getItem('webgis_gemini_custom_key')).toBeNull();
     });
+
+    it('should execute toggleLayer action to activate GEE rainfall and land cover layers', async () => {
+      const mockGeeLoader = {
+        toggleLayer: vi.fn().mockResolvedValue(true)
+      };
+      const mockSidebar = {
+        setActiveTab: vi.fn()
+      };
+
+      const nav = new AINavigator(mockMapManager, mockSidebar as any);
+      nav.setGEELoader(mockGeeLoader);
+
+      // 1. Activate rainfall layer
+      await nav.executeAction({
+        name: 'toggleLayer',
+        args: { layerId: 'precipitation', visible: true }
+      });
+      expect(mockGeeLoader.toggleLayer).toHaveBeenCalledWith('precipitation', true);
+      expect(mockSidebar.setActiveTab).toHaveBeenCalledWith('gee');
+
+      // 2. Activate land cover layer
+      await nav.executeAction({
+        name: 'toggleLayer',
+        args: { layerId: 'landcover', visible: true }
+      });
+      expect(mockGeeLoader.toggleLayer).toHaveBeenCalledWith('landcover', true);
+    });
+
+    it('should execute toggleLayer action to activate Piksel satellite products (NDVI, RGB)', async () => {
+      const mockPikselLoader = {
+        setActiveProduct: vi.fn(),
+        setGridVisible: vi.fn()
+      };
+      const mockSidebar = {
+        setActiveTab: vi.fn()
+      };
+
+      const nav = new AINavigator(mockMapManager, mockSidebar as any);
+      nav.setPikselLoader(mockPikselLoader);
+
+      await nav.executeAction({
+        name: 'toggleLayer',
+        args: { layerId: 's2-indices-ndvi', visible: true }
+      });
+      expect(mockPikselLoader.setActiveProduct).toHaveBeenCalledWith('s2-indices-ndvi');
+      expect(mockSidebar.setActiveTab).toHaveBeenCalledWith('piksel');
+    });
   });
 });
