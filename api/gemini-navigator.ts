@@ -313,7 +313,7 @@ PERAN & TUGAS UTAMA (SANGAT PENTING):
 Pengguna menggunakan antarmuka ini untuk BERTANYA hal-hal seputar geografi, sains, fakta tempat, tutorial WebGIS, dll.
 JANGAN PERNAH HANYA MEMINDAHKAN KAMERA TANPA MEMBERIKAN JAWABAN TERTULIS!
 1. Jika pengguna bertanya tentang tempat atau objek geografi (misal: "Apa itu Gunung Bromo?", "Ceritakan tentang Danau Toba", "Di mana IKN dan bagaimana pembangunannya?", "Kenapa terjadi gempa di Cianjur?"):
-   - Berikan jawaban edukatif yang lengkap, informatif, ramah, dan mendalam di properti "reply"!
+   - Berikan jawaban edukatif yang jelas, padat, informatif, dan mendalam (2-3 paragraf ringkas berbobot) di properti "reply"!
    - SEKALIGUS sertakan aksi "flyToLocation" di properti "actions" agar peta terbang ke lokasi tersebut!
 2. Jika pengguna bertanya konsep teori, sains, GIS, remote sensing, atau sapaan santai (misal: "Apa itu NDVI?", "Bagaimana cara kerja satelit?", "Siapa kamu?", "Halo"):
    - Jawablah secara lengkap, ramah, dan terstruktur di "reply", dengan "actions": [].
@@ -372,13 +372,13 @@ ${contextDescription}`;
 
     if (Array.isArray(body?.history)) {
       let lastRole = '';
-      for (const item of body.history.slice(-6)) {
+      for (const item of body.history.slice(-4)) {
         const role = (item.role === 'model' || item.role === 'assistant' || item.role === 'ai') ? 'model' : 'user';
         const text = typeof item.text === 'string' ? item.text.trim() : '';
         if (text && role !== lastRole) {
           contents.push({
             role,
-            parts: [{ text: text.slice(0, 500) }]
+            parts: [{ text: text.slice(0, 400) }]
           });
           lastRole = role;
         }
@@ -402,28 +402,47 @@ ${contextDescription}`;
       generationConfig: {
         responseMimeType: 'application/json',
         temperature: 0.4,
-        maxOutputTokens: 1500
+        maxOutputTokens: 650
       }
     };
 
-    // 8. Request to Google Gemini with automatic model fallback
-    const models = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
+    // 8. Request to Google Gemini with automatic model fallback & global time budget
+    const models = ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-flash-latest'];
+    const startTime = Date.now();
+    const TOTAL_BUDGET_MS = 17000; // Keep safely below Vercel's 25s execution ceiling
     let lastError: Error | null = null;
 
     for (const model of models) {
+      const elapsed = Date.now() - startTime;
+      const remainingBudget = TOTAL_BUDGET_MS - elapsed;
+      if (remainingBudget < 2500) {
+        // Not enough time left for another attempt without risking Vercel 504 timeout kill
+        break;
+      }
+
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
+        const controller = new AbortController();
+        const timeoutMs = Math.min(6500, remainingBudget);
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+        let response: Response;
+        try {
+          response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+          });
+        } finally {
+          clearTimeout(timeoutId);
+        }
 
         if (!response.ok) {
           const errText = await response.text();
-          if (response.status === 404 || response.status === 503) {
+          if (response.status === 404 || response.status === 503 || response.status === 504) {
             lastError = new Error(`Model ${model} (${response.status}): ${errText}`);
             continue;
           }
@@ -505,11 +524,14 @@ ${contextDescription}`;
         }, limitHeaders);
       } catch (e: any) {
         lastError = e;
+        if (e?.name === 'AbortError') {
+          lastError = new Error('Waktu tunggu respons habis (timeout)');
+        }
       }
     }
 
-    return send(500, {
-      error: `Gagal berkomunikasi dengan Google Gemini API: ${lastError?.message || 'Network error'}`
+    return send(504, {
+      error: `Server AI sedang mengalami antrean padat (${lastError?.message || 'Koneksi timeout'}). Silakan coba tanyakan kembali.`
     }, limitHeaders);
   } catch (err: any) {
     return send(500, {

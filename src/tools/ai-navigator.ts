@@ -122,20 +122,79 @@ export class AINavigator {
       headers['X-Gemini-Key'] = this.customApiKey;
     }
 
-    try {
-      const response = await fetch('/api/gemini-navigator', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(payload)
-      });
+    const sendRequest = async (isRetry = false): Promise<AINavigatorResponse> => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 22000);
 
-      const rawText = await response.text();
-      let data: any = null;
       try {
-        data = JSON.parse(rawText);
-      } catch {
-        const snippet = rawText.replace(/<[^>]*>?/gm, '').slice(0, 160).trim();
-        const errorMsg = `Respon server (${response.status}): ${snippet || 'Format respons bukan JSON.'}`;
+        const response = await fetch('/api/gemini-navigator', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        // If 503 or 504 on first attempt, retry once after 1s
+        if (!isRetry && (response.status === 503 || response.status === 504)) {
+          logger.warn(`[AINavigator] Received ${response.status}, retrying once in 1s...`);
+          await new Promise(res => setTimeout(res, 1000));
+          return sendRequest(true);
+        }
+
+        const rawText = await response.text();
+        let data: any = null;
+        try {
+          data = JSON.parse(rawText);
+        } catch {
+          const snippet = rawText.replace(/<[^>]*>?/gm, '').slice(0, 160).trim();
+          const errorMsg = `Respon server (${response.status}): ${snippet || 'Format respons bukan JSON.'}`;
+          return {
+            success: false,
+            reply: errorMsg,
+            actions: [],
+            error: errorMsg
+          };
+        }
+
+        if (!response.ok) {
+          const errorMsg = data?.error || `Error ${response.status}: Permintaan AI gagal diproses.`;
+          return {
+            success: false,
+            reply: errorMsg,
+            actions: [],
+            error: errorMsg
+          };
+        }
+
+        // Execute returned function calling actions
+        const actions: AIAction[] = Array.isArray(data.actions) ? data.actions : [];
+        for (const action of actions) {
+          await this.executeAction(action);
+        }
+
+        return {
+          success: true,
+          reply: data.reply || 'Perintah berhasil dijalankan.',
+          actions
+        };
+      } catch (err: any) {
+        clearTimeout(timeoutId);
+
+        // Auto retry once on network error or abort
+        if (!isRetry) {
+          logger.warn('[AINavigator] Transient network error, retrying once...', err);
+          await new Promise(res => setTimeout(res, 1000));
+          return sendRequest(true);
+        }
+
+        const isTimeout = err?.name === 'AbortError' || err?.message?.toLowerCase().includes('timeout') || err?.message?.toLowerCase().includes('aborted');
+        const errorMsg = isTimeout
+          ? 'Waktu tunggu habis (server AI sedang sibuk). Silakan tanyakan kembali.'
+          : `Koneksi gagal: ${err?.message || 'Tidak dapat terhubung ke server AI.'}`;
+
+        logger.error('[AINavigator] Prompt error:', err);
         return {
           success: false,
           reply: errorMsg,
@@ -143,38 +202,9 @@ export class AINavigator {
           error: errorMsg
         };
       }
+    };
 
-      if (!response.ok) {
-        const errorMsg = data?.error || `Error ${response.status}: Permintaan AI gagal diproses.`;
-        return {
-          success: false,
-          reply: errorMsg,
-          actions: [],
-          error: errorMsg
-        };
-      }
-
-      // Execute returned function calling actions
-      const actions: AIAction[] = Array.isArray(data.actions) ? data.actions : [];
-      for (const action of actions) {
-        await this.executeAction(action);
-      }
-
-      return {
-        success: true,
-        reply: data.reply || 'Perintah berhasil dijalankan.',
-        actions
-      };
-    } catch (err: any) {
-      const errorMsg = `Koneksi gagal: ${err?.message || 'Tidak dapat terhubung ke server AI.'}`;
-      logger.error('[AINavigator] Prompt error:', err);
-      return {
-        success: false,
-        reply: errorMsg,
-        actions: [],
-        error: errorMsg
-      };
-    }
+    return sendRequest(false);
   }
 
   /**
