@@ -9053,6 +9053,17 @@ html, body, #app {
 }
 
 /* MapLibre Attribution & Scale Bar Spacing & Clean Legibility */
+.maplibregl-ctrl-bottom-left {
+  bottom: 8px !important;
+  left: 14px !important;
+  z-index: var(--z-controls);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  pointer-events: auto;
+}
+
 .maplibregl-ctrl-bottom-right {
   bottom: 8px !important;
   right: 12px !important;
@@ -11992,7 +12003,7 @@ html, body, #app {
 /* Floating Action Button (FAB) */
 .ai-floating-fab {
   position: fixed;
-  bottom: 48px;
+  bottom: calc(var(--footer-height, 34px) + env(safe-area-inset-bottom, 0px) + 14px);
   right: 20px;
   z-index: var(--z-dock, 44);
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
@@ -12035,12 +12046,12 @@ html, body, #app {
 /* Floating AI Dock Window */
 .ai-assistant-dock {
   position: fixed;
-  bottom: 104px;
+  bottom: calc(var(--footer-height, 34px) + env(safe-area-inset-bottom, 0px) + 68px);
   right: 20px;
   width: 380px;
   max-width: calc(100vw - 32px);
   height: 540px;
-  max-height: calc(100vh - 130px);
+  max-height: calc(100vh - var(--header-height, 56px) - var(--footer-height, 34px) - 80px);
   z-index: var(--z-popover, 45);
   background: rgba(11, 17, 32, 0.94);
   backdrop-filter: blur(20px);

@@ -227,14 +227,14 @@ export class MapManager {
         maxWidth: 150,
         unit: 'metric'
       }),
-      'bottom-right'
+      'bottom-left'
     );
 
     this.map.addControl(
       new maplibregl.AttributionControl({
         compact: true
       }),
-      'bottom-right'
+      'bottom-left'
     );
 
     // Error & WebGL Context Resilience Handlers
