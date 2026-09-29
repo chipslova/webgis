@@ -44,9 +44,10 @@ export class AIAssistantDockUI {
 
   private initDOM() {
     // 1. Create Floating Action Button (FAB)
-    let fab = document.getElementById('ai-floating-fab');
+    let fab = document.getElementById('ai-floating-fab') as HTMLButtonElement | null;
     if (!fab) {
       fab = document.createElement('button');
+      fab.type = 'button';
       fab.id = 'ai-floating-fab';
       fab.className = 'ai-floating-fab';
       fab.title = 'AI Navigator & Geospatial Copilot (Alt+A)';
@@ -92,10 +93,10 @@ export class AIAssistantDockUI {
             </div>
           </div>
           <div class="ai-dock-actions">
-            <button id="ai-dock-settings-btn" class="ai-dock-icon-btn" title="Pengaturan Kunci API Kustom (Opsional)" aria-label="Pengaturan">
+            <button type="button" id="ai-dock-settings-btn" class="ai-dock-icon-btn" title="Pengaturan Kunci API Kustom (Opsional)" aria-label="Pengaturan">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             </button>
-            <button id="ai-dock-close-btn" class="ai-dock-icon-btn" title="Tutup Jendela AI" aria-label="Tutup">
+            <button type="button" id="ai-dock-close-btn" class="ai-dock-icon-btn" title="Tutup Jendela AI" aria-label="Tutup">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
             </button>
           </div>
@@ -108,7 +109,7 @@ export class AIAssistantDockUI {
           </div>
           <div class="ai-settings-input-group">
             <input type="password" id="ai-custom-key-input" placeholder="Masukkan Gemini API Key pribadi (opsional)..." autocomplete="off" />
-            <button id="ai-custom-key-save" class="btn btn-primary btn-sm">Simpan</button>
+            <button type="button" id="ai-custom-key-save" class="btn btn-primary btn-sm">Simpan</button>
           </div>
           <div id="ai-settings-status" class="ai-settings-status"></div>
         </div>
@@ -147,6 +148,7 @@ export class AIAssistantDockUI {
       document.body.appendChild(dock);
     }
     this.containerEl = dock;
+
     this.messagesContainerEl = document.getElementById('ai-dock-messages');
     this.inputEl = document.getElementById('ai-dock-input') as HTMLInputElement;
     this.sendBtnEl = document.getElementById('ai-dock-send-btn') as HTMLButtonElement;
@@ -172,7 +174,9 @@ export class AIAssistantDockUI {
       chip.className = 'ai-suggestion-chip';
       chip.textContent = item.label;
       chip.title = item.prompt;
-      chip.addEventListener('click', () => {
+      chip.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         if (this.inputEl) {
           this.inputEl.value = item.prompt;
           this.handleSend();
@@ -195,6 +199,7 @@ export class AIAssistantDockUI {
   private bindEvents() {
     // FAB click
     this.floatingFabEl?.addEventListener('click', (e) => {
+      e.preventDefault();
       e.stopPropagation();
       this.toggle();
     });
@@ -202,13 +207,18 @@ export class AIAssistantDockUI {
     // Header AI button if present
     this.headerBtnEl = document.getElementById('btn-ai-assistant');
     this.headerBtnEl?.addEventListener('click', (e) => {
+      e.preventDefault();
       e.stopPropagation();
       this.toggle();
     });
 
     // Close button
     const closeBtn = document.getElementById('ai-dock-close-btn');
-    closeBtn?.addEventListener('click', () => this.setOpen(false));
+    closeBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.setOpen(false);
+    });
 
     // Form submit
     const form = document.getElementById('ai-dock-form');
@@ -217,10 +227,19 @@ export class AIAssistantDockUI {
       this.handleSend();
     });
 
+    // Explicit Send button click handler
+    this.sendBtnEl?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.handleSend();
+    });
+
     // Settings Toggle
     const settingsBtn = document.getElementById('ai-dock-settings-btn');
     const settingsPanel = document.getElementById('ai-dock-settings-panel');
-    settingsBtn?.addEventListener('click', () => {
+    settingsBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       settingsPanel?.classList.toggle('hidden');
     });
 
@@ -229,7 +248,9 @@ export class AIAssistantDockUI {
     const customKeyInput = document.getElementById('ai-custom-key-input') as HTMLInputElement;
     const keyStatus = document.getElementById('ai-settings-status');
 
-    saveKeyBtn?.addEventListener('click', () => {
+    saveKeyBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       if (customKeyInput) {
         const val = customKeyInput.value.trim();
         this.navigator.setCustomApiKey(val);
@@ -254,8 +275,7 @@ export class AIAssistantDockUI {
       }
     });
 
-    // Prevent map click propagation
-    this.containerEl?.addEventListener('pointerdown', (e) => e.stopPropagation());
+    // Prevent map wheel zooming when scrolling inside AI dock
     this.containerEl?.addEventListener('wheel', (e) => e.stopPropagation());
   }
 
@@ -281,7 +301,13 @@ export class AIAssistantDockUI {
   private async handleSend() {
     if (!this.inputEl || this.isLoading) return;
     const query = this.inputEl.value.trim();
-    if (!query) return;
+    if (!query) {
+      this.inputEl.focus();
+      const wrapper = this.inputEl.closest('.ai-dock-input-wrapper');
+      wrapper?.classList.add('ai-input-shake');
+      setTimeout(() => wrapper?.classList.remove('ai-input-shake'), 400);
+      return;
+    }
 
     this.inputEl.value = '';
 
@@ -360,7 +386,7 @@ export class AIAssistantDockUI {
       let actionBadgesHtml = '';
       if (msg.actions && msg.actions.length > 0) {
         actionBadgesHtml = msg.actions
-          .map((a) => {
+          .map((a, idx) => {
             let label = a.name;
             let icon = '⚡';
             if (a.name === 'flyToLocation') {
@@ -390,13 +416,21 @@ export class AIAssistantDockUI {
                 'tile-grid': { label: 'Batas Grid Data Cube', icon: '🔲' }
               };
               const info = layerNames[a.args.layerId] || { label: a.args.layerId, icon: '📑' };
-              label = `Lapisan Aktif: ${info.label}`;
+              label = `Lapisan: ${info.label}`;
               icon = info.icon;
             } else if (a.name === 'filterStations') {
               label = `Filter Stasiun: "${a.args.query || 'Semua'}"`;
               icon = '🌦️';
             }
-            return `<div class="ai-action-badge"><span class="ai-badge-icon">${icon}</span> <span>${escapeHtml(label)}</span></div>`;
+            return `
+              <button type="button" class="ai-action-badge" data-action-idx="${idx}" title="Klik untuk menerapkan ulang aksi ini pada peta">
+                <span class="ai-badge-left">
+                  <span class="ai-badge-icon">${icon}</span>
+                  <span class="ai-badge-label">${escapeHtml(label)}</span>
+                </span>
+                <span class="ai-badge-action-hint">Terapkan ↻</span>
+              </button>
+            `;
           })
           .join('');
       }
@@ -410,6 +444,41 @@ export class AIAssistantDockUI {
           <div class="ai-bubble-time">${msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
         </div>
       `;
+
+      // Bind interactive action badge clicks
+      if (msg.actions && msg.actions.length > 0) {
+        bubble.querySelectorAll<HTMLButtonElement>('.ai-action-badge').forEach((badgeBtn) => {
+          badgeBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const actionIdx = parseInt(badgeBtn.getAttribute('data-action-idx') || '0', 10);
+            const action = msg.actions?.[actionIdx];
+            if (action) {
+              badgeBtn.classList.add('ai-badge-executing');
+              const hintEl = badgeBtn.querySelector('.ai-badge-action-hint');
+              if (hintEl) hintEl.textContent = 'Menerapkan...';
+              try {
+                await this.navigator.executeAction(action);
+                badgeBtn.classList.remove('ai-badge-executing');
+                badgeBtn.classList.add('ai-badge-success');
+                if (hintEl) hintEl.textContent = '✓ Diterapkan';
+                setTimeout(() => {
+                  badgeBtn.classList.remove('ai-badge-success');
+                  if (hintEl) hintEl.textContent = 'Terapkan ↻';
+                }, 2200);
+              } catch (err) {
+                badgeBtn.classList.remove('ai-badge-executing');
+                if (hintEl) hintEl.textContent = 'Gagal';
+                setTimeout(() => {
+                  if (hintEl) hintEl.textContent = 'Terapkan ↻';
+                }, 2000);
+                console.error('Failed to execute action from badge:', err);
+              }
+            }
+          });
+        });
+      }
+
       this.messagesContainerEl!.appendChild(bubble);
     });
 
