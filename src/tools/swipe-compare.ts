@@ -340,7 +340,9 @@ export class SwipeCompareManager {
     }
 
     setTimeout(() => {
-      this.primaryMap.resize();
+      if (typeof this.primaryMap?.resize === 'function') {
+        this.primaryMap.resize();
+      }
     }, 150);
 
     this.notify();

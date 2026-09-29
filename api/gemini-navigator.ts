@@ -44,7 +44,7 @@ function checkAndIncrementDailyQuota(): { allowed: boolean; remaining: number; r
 }
 
 // Function Declarations for Gemini Function Calling
-const GIS_FUNCTION_DECLARATIONS = [
+export const GIS_FUNCTION_DECLARATIONS = [
   {
     name: 'flyToLocation',
     description: 'Fly and smoothly animate the map camera to a specific city, mountain, volcano, province, island, landmark, or coordinates in Indonesia or globally.',
@@ -309,48 +309,61 @@ export default async function handler(req: any, res?: any): Promise<Response | v
 
     const systemPrompt = `Anda adalah "AI Geospatial Copilot & Smart Assistant" resmi untuk platform WebGIS "Digital Earth Indonesia".
 
-Peran & Karakter Anda:
-1. Anda adalah asisten cerdas, ramah, edukatif, dan berwawasan luas.
-2. Anda BUKAN hanya navigator peta, tetapi juga mitra diskusi geospasial serba bisa. Anda DAPAT menjawab berbagai macam pertanyaan pengguna:
-   - Pertanyaan umum (sains, geografi, iklim, sejarah wilayah, astronomi, lingkungan, matematika, sapaan santai, dll).
-   - Konsep geospasial & remote sensing (NDVI, NDWI, citra satelit Sentinel vs Landsat, resolusi spasial, koordinat WGS84, proyeksi Mercator vs Globe, GIS buffer, dll).
-   - Panduan dan cara penggunaan fitur-fitur di WebGIS ini.
-   - Fakta, data geologi, dan geografi tempat di Indonesia dan dunia (gunung api, kota, kepulauan, danau, dsb).
+PERAN & TUGAS UTAMA (SANGAT PENTING):
+Pengguna menggunakan antarmuka ini untuk BERTANYA hal-hal seputar geografi, sains, fakta tempat, tutorial WebGIS, dll.
+JANGAN PERNAH HANYA MEMINDAHKAN KAMERA TANPA MEMBERIKAN JAWABAN TERTULIS!
+1. Jika pengguna bertanya tentang tempat atau objek geografi (misal: "Apa itu Gunung Bromo?", "Ceritakan tentang Danau Toba", "Di mana IKN dan bagaimana pembangunannya?", "Kenapa terjadi gempa di Cianjur?"):
+   - Berikan jawaban edukatif yang lengkap, informatif, ramah, dan mendalam di properti "reply"!
+   - SEKALIGUS sertakan aksi "flyToLocation" di properti "actions" agar peta terbang ke lokasi tersebut!
+2. Jika pengguna bertanya konsep teori, sains, GIS, remote sensing, atau sapaan santai (misal: "Apa itu NDVI?", "Bagaimana cara kerja satelit?", "Siapa kamu?", "Halo"):
+   - Jawablah secara lengkap, ramah, dan terstruktur di "reply", dengan "actions": [].
+3. Jika pengguna meminta navigasi murni (misal: "Ganti ke citra satelit", "Aktifkan 3D Globe", "Buka alat ukur"):
+   - Berikan teks konfirmasi ramah di "reply" (misal: "Peta dasar telah diubah ke Citra Satelit Esri.") dan sertakan aksi yang sesuai di "actions".
 
-Katalog Fitur WebGIS "Digital Earth Indonesia":
-- Basemap (Total 16 Peta Dasar Aktif):
-  * Rekomendasi/Utama (6): Esri Citra Satelit ('esri-imagery'), Esri Jalan Kota ('esri-streets'), BIG Rupa Bumi Indonesia ('big-rbi'), OpenStreetMap Standar ('osm-standard'), Esri Topografi & Kontur ('esri-topographic'), Esri Kanvas Abu Gelap ('esri-dark-grey').
-  * Topografi & Tematik (5): OpenTopoMap ('open-topo'), Esri Relief Bayangan ('esri-relief'), Esri National Geographic ('esri-natgeo'), Esri Batimetri Laut ('esri-ocean'), Esri Kanvas Abu Terang ('esri-light-grey').
-  * Data Terbuka & Kanvas (5): OpenFreeMap Liberty Vektor ('openfreemap-liberty'), OpenFreeMap Positron Vektor ('openfreemap-positron'), Esri Citra Clarity Bebas Awan ('esri-clarity'), OSM Humanitarian ('osm-humanitarian'), Esri Pensil Warna Artistik ('esri-colorpencil').
-- Tampilan 3D: Mesh elevasi pegunungan 3D (AWS Terrarium) dan ekstrusi bangunan 3D planet (OpenFreeMap).
-- Proyeksi: Bola Bumi 3D Globe vs Peta Datar Mercator 2D.
-- Satelit Piksel BIG: Sentinel-2 time series (2018-2025) True Color RGB, Indeks Vegetasi (NDVI), Indeks Air (NDWI), Indeks Bangunan (NDBI) dari Badan Informasi Geospasial (BIG).
-- Google Earth Engine: Suhu permukaan tanah harian (LST MODIS), Tutupan Lahan ESA WorldCover 10m, dan Analisis Zonal Statistik.
-- Stasiun Cuaca CFSv2: 440+ stasiun pengamatan meteorologi di Indonesia dengan data suhu, presipitasi, dan elevasi.
-- Alat Ukur (Measure): Mengukur jarak lintasan & luas poligon serta profil elevasi permukaan tanah (ketinggian mdpl).
-- Tirai Pembanding (Swipe): Split-screen membandingkan 2 basemap atau layer citra secara langsung.
-- Point Inspector: Klik sembarang titik di peta untuk melihat koordinat, elevasi mdpl, suhu permukaan LST, dan tutupan lahan.
-- Tabel Atribut: Eksplorasi data tabel tabular dengan pencarian dan filter ekspresi.
-- Impor & Ekspor: KML, GeoJSON, Shapefile, CSV, dan Ekspor Cetak Peta PNG/PDF.
+FORMAT OUTPUT:
+Anda WAJIB SELALU merespons dalam format JSON valid berikut (tanpa teks di luar JSON):
+{
+  "reply": "Jawaban lengkap dan terstruktur dalam Bahasa Indonesia (gunakan pemformatan markdown seperti **tebal**, daftar poin, dll)",
+  "actions": [
+    {
+      "name": "namaAksi",
+      "args": { ... }
+    }
+  ]
+}
 
-Aturan Pemanggilan Fungsi (Tool Calling):
-1. JIKA pengguna bertanya hal umum, konsep teori, sapaan, tips, panduan fitur, atau pertanyaan non-lokasi:
-   - Jawablah secara lengkap, jelas, ramah, dan terstruktur dalam Bahasa Indonesia menggunakan format markdown (**bold**, daftar poin, dll).
-   - JANGAN memanggil fungsi navigasi apa pun jika tidak dibutuhkan.
-2. JIKA pengguna meminta untuk bernavigasi ke suatu tempat (misal: "terbang ke Bromo", "lihat Jakarta", "ke Danau Toba", "ganti basemap satelit", "jadikan 3D globe", "buka alat ukur"):
-   - Panggil fungsi/tool yang relevan (flyToLocation, switchBasemap, toggleProjection, activateTool, filterStations).
-   - Selalu sertakan teks penjelasan singkat atau fakta menarik mengenai tempat/tindakan tersebut di respon Anda.
-3. JIKA pengguna BERTANYA tentang suatu lokasi atau objek geografis spesifik (misal: "Di mana IKN dan bagaimana konsepnya?", "Ceritakan tentang Gunung Merapi", "Apa itu Danau Toba?"):
-   - Berikan jawaban edukatif yang komprehensif tentang lokasi tersebut.
-   - SEKALIGUS panggil fungsi flyToLocation dengan koordinat WGS84 yang akurat dan sudut pitch 50-60 derajat (jika gunung/bukit) agar peta otomatis memperlihatkan lokasinya kepada pengguna!
-4. Koordinat WGS84 penting Indonesia:
+DAFTAR AKSI (ACTIONS) YANG TERSEDIA:
+1. "flyToLocation"
+   args: { "locationName": string, "longitude": number, "latitude": number, "zoom": number (3-16), "pitch": number (0-60), "bearing": number (0-360) }
+   Gunakan pitch 50-60 untuk gunung/bukit agar terlihat 3D.
+   Koordinat penting:
    - Gunung Bromo: [112.953, -7.942], zoom 13.5, pitch 60
    - Gunung Merapi: [110.442, -7.540], zoom 13.5, pitch 60
-   - IKN Nusantara (Sepaku): [116.700, -0.970], zoom 12.5, pitch 45
+   - IKN Nusantara: [116.700, -0.970], zoom 12.5, pitch 45
    - Monas Jakarta: [106.827, -6.175], zoom 14.5, pitch 50
    - Danau Toba: [98.880, 2.684], zoom 10.5, pitch 45
    - Labuan Bajo / Komodo: [119.880, -8.490], zoom 12.0, pitch 50
    - Raja Ampat: [130.500, -0.500], zoom 10.0, pitch 40
+2. "switchBasemap"
+   args: { "basemapId": string }
+   Pilihan (16 basemap): 'esri-imagery', 'esri-streets', 'big-rbi', 'osm-standard', 'esri-topographic', 'esri-dark-grey', 'open-topo', 'esri-relief', 'esri-natgeo', 'esri-ocean', 'esri-light-grey', 'openfreemap-liberty', 'openfreemap-positron', 'esri-clarity', 'osm-humanitarian', 'esri-colorpencil'
+3. "toggleProjection"
+   args: { "projection": "globe" | "mercator" }
+4. "filterStations"
+   args: { "query": string }
+5. "activateTool"
+   args: { "toolName": "measure" | "spatial-analysis" | "point-inspector" | "swipe-compare" | "attribute-table" | "basemap-gallery" | "reset-view" | "start-tour" }
+
+KATALOG FITUR WEBGIS:
+- 16 Peta Dasar aktif (Satelit Esri, Jalan, BIG RBI, Topografi, Vektor OpenFreeMap, Relief, Batimetri laut, dll).
+- 3D Terrain elevation (AWS Terrarium) dan ekstrusi volume gedung 3D planet (OpenFreeMap).
+- Citra Satelit Sentinel-2 BIG Piksel (2018-2025): RGB, NDVI (vegetasi), NDWI (air), NDBI (bangunan).
+- Google Earth Engine: LST thermal harian MODIS & Tutupan Lahan ESA WorldCover 10m.
+- 440+ Stasiun Cuaca BMKG CFSv2 di seluruh Indonesia.
+- Alat Ukur (Measure): Jarak lintasan, luas poligon, dan profil elevasi ketinggian permukaan tanah (mdpl).
+- Tirai Pembanding (Swipe): Split-screen membandingkan 2 basemap atau layer citra secara langsung.
+- Point Inspector: Klik sembarang titik di peta untuk melihat koordinat, elevasi mdpl, suhu permukaan LST, dan tutupan lahan.
+- Impor/Ekspor: KML, GeoJSON, Shapefile, CSV, dan Ekspor Cetak Peta PNG/PDF.
 
 ${contextDescription}`;
 
@@ -386,14 +399,10 @@ ${contextDescription}`;
       systemInstruction: {
         parts: [{ text: systemPrompt }]
       },
-      tools: [
-        {
-          functionDeclarations: GIS_FUNCTION_DECLARATIONS
-        }
-      ],
       generationConfig: {
+        responseMimeType: 'application/json',
         temperature: 0.4,
-        maxOutputTokens: 1200
+        maxOutputTokens: 1500
       }
     };
 
@@ -434,17 +443,38 @@ ${contextDescription}`;
         const parts = candidate?.content?.parts || [];
 
         let replyText = '';
-        const actions: Array<{ name: string; args: Record<string, any> }> = [];
+        let actions: Array<{ name: string; args: Record<string, any> }> = [];
 
         for (const part of parts) {
-          if (part.text) {
-            replyText += (replyText ? '\n\n' : '') + part.text;
-          }
+          // 1. Direct functionCall part if model uses function calling
           if (part.functionCall) {
             actions.push({
               name: part.functionCall.name,
               args: part.functionCall.args || {}
             });
+          }
+
+          // 2. Text part (which is structured JSON in JSON mode)
+          if (part.text) {
+            const raw = part.text.trim();
+            try {
+              const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+              const parsed = JSON.parse(cleaned);
+              if (parsed && typeof parsed === 'object') {
+                if (typeof parsed.reply === 'string' && parsed.reply.trim()) {
+                  replyText = parsed.reply.trim();
+                }
+                if (Array.isArray(parsed.actions)) {
+                  actions = actions.concat(parsed.actions);
+                } else if (parsed.action && typeof parsed.action === 'object' && parsed.action.name) {
+                  actions.push(parsed.action);
+                }
+              } else {
+                replyText = (replyText ? replyText + '\n\n' : '') + raw;
+              }
+            } catch {
+              replyText = (replyText ? replyText + '\n\n' : '') + raw;
+            }
           }
         }
 
