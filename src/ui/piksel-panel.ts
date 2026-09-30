@@ -129,12 +129,9 @@ export class PikselPanelUI {
           <div class="timelapse-header">
             <div class="timelapse-title-wrap">
               <span class="timelapse-icon" aria-hidden="true">⏳</span>
-              <div>
-                <span class="timelapse-heading">Time-Lapse Multitemporal</span>
-                <span class="timelapse-sub">Dinamika Perubahan Spasial ${chronologicalYears[0]}–${chronologicalYears[chronologicalYears.length - 1]}</span>
-              </div>
+              <span class="timelapse-heading" title="Time-Lapse Multitemporal (${chronologicalYears[0]}–${chronologicalYears[chronologicalYears.length - 1]})">Time-Lapse Multitemporal</span>
             </div>
-            <div class="timelapse-badge-pill ${isPlaying ? 'is-playing' : ''}">
+            <div class="timelapse-badge-pill ${isPlaying ? 'is-playing' : ''}" title="Tahun aktif saat ini (${chronologicalYears[0]}–${chronologicalYears[chronologicalYears.length - 1]})">
               <span class="timelapse-badge-dot" aria-hidden="true"></span>
               <span id="timelapse-current-year-badge">${currentYear}</span>
             </div>
