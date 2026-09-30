@@ -180,9 +180,26 @@ describe('Spatial Analysis & AOI Zonal Statistics Engine', () => {
     };
 
     const csvOutput = SpatialAnalysisEngine.exportToCSV(mockSampledResult);
+    expect(csvOutput.startsWith('\uFEFF')).toBe(true);
     expect(csvOutput).toContain('SAMPLING PIKSEL CITRA SATELIT ASLI (Sentinel-2 10m LULC & Open-Meteo LST - 100% Free)');
     expect(csvOutput).toContain('Sentinel-2 10m LULC (ArcGIS/Esri) + Open-Meteo Realtime');
     expect(csvOutput).toContain('12.500');
     expect(csvOutput).toContain('Lahan Terbangun / Kota');
+  });
+
+  it('should generate print-ready executive HTML report via generateReportHTML', () => {
+    const iknPreset = PRESET_REGIONS.find((p) => p.id === 'ikn-nusantara')!;
+    const polyFeature = polygon(iknPreset.coordinates);
+    const result = SpatialAnalysisEngine.computeZonalStats(polyFeature, iknPreset.name);
+
+    const reportHtml = SpatialAnalysisEngine.generateReportHTML(result);
+
+    expect(reportHtml).toContain('<!DOCTYPE html>');
+    expect(reportHtml).toContain('LAPORAN ANALISIS STATISTIK ZONAL (AOI)');
+    expect(reportHtml).toContain(iknPreset.name);
+    expect(reportHtml).toContain('@media print');
+    expect(reportHtml).toContain('Distribusi Tutupan Lahan (Sentinel-2 10m LULC)');
+    expect(reportHtml).toContain('Profil Termal &amp; Urban Heat Island (NASA MODIS LST)');
+    expect(reportHtml).toContain('window.print()');
   });
 });

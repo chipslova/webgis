@@ -741,6 +741,166 @@ export class SpatialAnalysisEngine {
       });
     }
 
-    return lines.join('\r\n');
+    // Prefix with UTF-8 BOM (\uFEFF) for immediate compatibility with Excel, Numbers, and Google Sheets
+    return '\uFEFF' + lines.join('\r\n');
+  }
+
+  /**
+   * Generates a beautifully styled, print-ready HTML summary report for the AOI Zonal Statistics.
+   * Can be printed directly or saved as PDF via browser print dialog.
+   */
+  public static generateReportHTML(result: ZonalAnalysisResult): string {
+    const safeName = result.regionName;
+    const lulcRows = result.landCoverBreakdown.map(stat => `
+      <tr>
+        <td style="padding: 6px 10px; border-bottom: 1px solid #e2e8f0; font-family: monospace;">${stat.code}</td>
+        <td style="padding: 6px 10px; border-bottom: 1px solid #e2e8f0;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: ${stat.color};"></span>
+            <strong>${stat.nameId}</strong> <span style="color: #64748b; font-size: 11px;">(${stat.name})</span>
+          </div>
+        </td>
+        <td style="padding: 6px 10px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600;">${stat.areaKm2.toLocaleString('id-ID')} km²</td>
+        <td style="padding: 6px 10px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 700; color: #0284c7;">${stat.percentage}%</td>
+      </tr>
+    `).join('');
+
+    const forecastRows = result.thermalForecast ? result.thermalForecast.forecastDays.map(d => `
+      <td style="padding: 8px; text-align: center; border: 1px solid #e2e8f0; background: #f8fafc;">
+        <div style="font-size: 11px; font-weight: 700; color: #475569;">${d.dayLabel}</div>
+        <div style="font-size: 10px; color: #64748b;">${d.date}</div>
+        <div style="font-size: 13px; font-weight: 800; color: #dc2626; margin-top: 4px;">${d.maxTempC}°C</div>
+        <div style="font-size: 11px; color: #0284c7;">${d.minTempC}°C</div>
+      </td>
+    `).join('') : '';
+
+    return `<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <title>Laporan Analisis Zonal AOI - ${safeName}</title>
+  <style>
+    @media print {
+      body { margin: 0; padding: 20px; font-size: 12px; }
+      .no-print { display: none !important; }
+      @page { margin: 15mm; size: A4 portrait; }
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #0f172a; line-height: 1.5; padding: 30px; background: #ffffff; max-width: 900px; margin: 0 auto; }
+    .header { border-bottom: 2px solid #0284c7; padding-bottom: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .title { font-size: 20px; font-weight: 800; color: #0f172a; margin: 0 0 4px 0; }
+    .sub { font-size: 12px; color: #64748b; margin: 0; }
+    .meta-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .meta-label { font-size: 10.5px; font-weight: 600; text-transform: uppercase; color: #64748b; }
+    .meta-value { font-size: 14px; font-weight: 700; color: #0f172a; margin-top: 2px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    .kpi-card { background: #f1f5f9; border-radius: 8px; padding: 12px; border-left: 4px solid #0284c7; }
+    .kpi-card.thermal { border-left-color: #ea580c; }
+    .kpi-card.uhi { border-left-color: #ef4444; }
+    .kpi-card.dominant { border-left-color: #10b981; }
+    .section-title { font-size: 14px; font-weight: 700; color: #1e293b; margin: 20px 0 10px 0; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }
+    th { background: #f1f5f9; text-align: left; padding: 8px 10px; border-bottom: 2px solid #cbd5e1; font-weight: 700; color: #334155; font-size: 11px; text-transform: uppercase; }
+    .footer { margin-top: 30px; padding-top: 14px; border-top: 1px solid #e2e8f0; font-size: 10px; color: #94a3b8; display: flex; justify-content: space-between; }
+    .print-btn-bar { margin-bottom: 20px; display: flex; gap: 8px; }
+    .print-btn { background: #0284c7; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; }
+    .print-btn:hover { background: #0369a1; }
+  </style>
+</head>
+<body>
+  <div class="no-print print-btn-bar">
+    <button class="print-btn" onclick="window.print()">🖨️ Cetak / Simpan sebagai PDF</button>
+    <button class="print-btn" style="background: #475569;" onclick="window.close()">✕ Tutup</button>
+  </div>
+
+  <div class="header">
+    <div>
+      <h1 class="title">LAPORAN ANALISIS STATISTIK ZONAL (AOI)</h1>
+      <p class="sub">Digital Earth Indonesia WebGIS &middot; Penginderaan Jauh &amp; Pemodelan Geospasial</p>
+    </div>
+    <div style="text-align: right;">
+      <span style="display: inline-block; padding: 4px 8px; background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 11px; border-radius: 4px; border: 1px solid #bae6fd;">
+        ${result.isRealGEE ? '⚡ GOOGLE EARTH ENGINE' : result.isClientSampled ? '🛰️ SENTINEL-2 10M SAMPLING' : 'MODEL PROXY'}
+      </span>
+    </div>
+  </div>
+
+  <div class="meta-box">
+    <div>
+      <div class="meta-label">Wilayah Analisis</div>
+      <div class="meta-value">${safeName}</div>
+    </div>
+    <div>
+      <div class="meta-label">Waktu Komputasi</div>
+      <div class="meta-value">${result.timestamp}</div>
+    </div>
+    <div>
+      <div class="meta-label">Luas Wilayah</div>
+      <div class="meta-value">${result.totalAreaKm2.toLocaleString('id-ID')} km² (${result.totalAreaHa.toLocaleString('id-ID')} ha)</div>
+    </div>
+    <div>
+      <div class="meta-label">Total Piksel Dianalisis</div>
+      <div class="meta-value">${result.totalPixelCount?.toLocaleString('id-ID') || '-'} piksel</div>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card dominant">
+      <div class="meta-label">Kelas Dominan</div>
+      <div class="meta-value" style="color: #047857;">${result.dominantClass}</div>
+    </div>
+    <div class="kpi-card thermal">
+      <div class="meta-label">Suhu Rata-rata (LST)</div>
+      <div class="meta-value" style="color: #c2410c;">${result.thermalStats.meanTempC}°C</div>
+    </div>
+    <div class="kpi-card uhi">
+      <div class="meta-label">Area Hotspot UHI (>34°C)</div>
+      <div class="meta-value" style="color: #b91c1c;">${result.thermalStats.hotspotAreaKm2.toLocaleString('id-ID')} km² (${result.thermalStats.hotspotPercentage}%)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="meta-label">Rentang Suhu Permukaan</div>
+      <div class="meta-value">${result.thermalStats.minTempC}°C – ${result.thermalStats.maxTempC}°C</div>
+    </div>
+  </div>
+
+  <h2 class="section-title">🌿 Distribusi Tutupan Lahan (Sentinel-2 10m LULC)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 60px;">Kode</th>
+        <th>Klasifikasi Tutupan Lahan</th>
+        <th style="text-align: right;">Luas Area</th>
+        <th style="text-align: right;">Proporsi</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${lulcRows}
+    </tbody>
+  </table>
+
+  <h2 class="section-title">🔥 Profil Termal &amp; Urban Heat Island (NASA MODIS LST)</h2>
+  <p style="font-size: 11.5px; color: #475569; margin: 4px 0 10px 0;">
+    Pengukuran suhu kinetik permukaan tanah (Land Surface Temperature) siang hari bebas awan. 
+    Wilayah dengan proporsi hotspot UHI >34°C sebesar <strong>${result.thermalStats.hotspotPercentage}%</strong> mengindikasikan tingkat pemanasan lokal 
+    ${result.thermalStats.hotspotPercentage > 40 ? 'Tinggi (Kritis)' : result.thermalStats.hotspotPercentage > 20 ? 'Sedang' : 'Rendah/Sejuk'}.
+  </p>
+
+  ${result.thermalForecast && result.thermalForecast.forecastDays.length > 0 ? `
+    <h2 class="section-title">🔮 Prakiraan Tren Suhu (Model Numerik ${result.thermalForecast.modelName})</h2>
+    <table style="margin-bottom: 8px;">
+      <tr>
+        ${forecastRows}
+      </tr>
+    </table>
+    <div style="font-size: 10px; color: #64748b; font-style: italic;">
+      * Data prakiraan merupakan simulasi model atmosfer numerik untuk estimasi iklim mikro, bukan observasi penginderaan jauh masa depan.
+    </div>
+  ` : ''}
+
+  <div class="footer">
+    <div>Sumber Data: Badan Informasi Geospasial (BIG) Piksel &middot; ESA Copernicus Sentinel-2 &middot; NASA MODIS &middot; Open-Meteo</div>
+    <div>Digital Earth Indonesia WebGIS &copy; 2026</div>
+  </div>
+</body>
+</html>`;
   }
 }

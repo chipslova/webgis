@@ -706,9 +706,17 @@ export class SpatialAnalysisUI {
               Dianalisis: ${escapeHtml(res.timestamp)}
             </div>
           </div>
-          <button id="btn-export-aoi-csv" class="btn btn-secondary btn-export-csv" title="Unduh data statistik spasial sebagai CSV">
-            📥 Unduh CSV
-          </button>
+          <div class="aoi-export-action-group" style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+            <button id="btn-export-aoi-csv" class="btn btn-secondary btn-export-csv" title="Unduh data statistik spasial sebagai CSV (Kompatibel Excel)">
+              📥 CSV
+            </button>
+            <button id="btn-export-aoi-report" class="btn btn-secondary btn-export-report" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);" title="Buka dan cetak / simpan Laporan Ringkasan PDF">
+              🖨️ PDF
+            </button>
+            <button id="btn-export-aoi-geojson" class="btn btn-secondary btn-export-geojson" title="Unduh poligon AOI & statistik sebagai GeoJSON">
+              🌐 GeoJSON
+            </button>
+          </div>
         </div>
 
         ${bannerHtml}
@@ -882,6 +890,14 @@ export class SpatialAnalysisUI {
       this.downloadCSV(res);
     });
 
+    document.getElementById('btn-export-aoi-report')?.addEventListener('click', () => {
+      this.openReportPrint(res);
+    });
+
+    document.getElementById('btn-export-aoi-geojson')?.addEventListener('click', () => {
+      this.downloadGeoJSON(res);
+    });
+
     document.getElementById('btn-open-gee-setup-modal')?.addEventListener('click', () => {
       const modal = document.getElementById('modal-gee-setup');
       if (modal) modal.style.display = 'flex';
@@ -907,6 +923,59 @@ export class SpatialAnalysisUI {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     showToast('Laporan Analisis Spasial (CSV) berhasil diunduh!', 'success');
+  }
+
+  public openReportPrint(res: ZonalAnalysisResult) {
+    const html = SpatialAnalysisEngine.generateReportHTML(res);
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+      showToast('Membuka Laporan Ringkasan Analisis Zonal (siap cetak / simpan PDF)...', 'info');
+    } else {
+      showToast('Popup diblokir peramban. Izinkan popup untuk mencetak laporan.', 'warning');
+    }
+  }
+
+  public downloadGeoJSON(res: ZonalAnalysisResult) {
+    if (!res.geojson) {
+      showToast('Geometri AOI tidak tersedia untuk diekspor.', 'warning');
+      return;
+    }
+    const enrichedFeature = {
+      type: 'Feature',
+      geometry: res.geojson.geometry,
+      properties: {
+        regionName: res.regionName,
+        timestamp: res.timestamp,
+        totalAreaKm2: res.totalAreaKm2,
+        totalAreaHa: res.totalAreaHa,
+        dominantClass: res.dominantClass,
+        thermalMeanC: res.thermalStats.meanTempC,
+        thermalMinC: res.thermalStats.minTempC,
+        thermalMaxC: res.thermalStats.maxTempC,
+        uhiHotspotAreaKm2: res.thermalStats.hotspotAreaKm2,
+        uhiHotspotPct: res.thermalStats.hotspotPercentage,
+        computationSource: res.computationSource || (res.isRealGEE ? 'GEE Cloud' : res.isClientSampled ? 'Client-Sampled 10m' : 'Model Proxy'),
+        landCoverBreakdown: res.landCoverBreakdown
+      }
+    };
+    const fc: GeoJSON.FeatureCollection = {
+      type: 'FeatureCollection',
+      features: [enrichedFeature as any]
+    };
+    const jsonStr = JSON.stringify(fc, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/geo+json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const safeName = res.regionName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `aoi_${safeName}_${Date.now()}.geojson`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('Poligon AOI (GeoJSON) berhasil diunduh!', 'success');
   }
 
   public getActiveResult(): ZonalAnalysisResult | null {

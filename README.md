@@ -10,7 +10,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.10.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-244%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-245%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
   <img src="docs/preview.jpg" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
@@ -92,6 +92,10 @@ Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit 
 * **Bilah Aksi Floating Pengukuran (Measure Floating Action Pill)**: Mode pengukuran interaktif layar penuh dengan bilah aksi melayang (*floating pill*) yang menyajikan tombol *Undo* (<kbd>Z</kbd>), *Batal*, dan *Selesai*, serta proteksi eksklusi timbal balik (*mutual exclusion*) dengan modul penggambaran lainnya.
 * **Analisis Jangkauan Buffer Geodesik**: Pembuatan zona jangkauan radius lingkaran (buffer geodesik) di sekitar titik, jalur, atau batas poligon dengan kalkulasi total luas poligon ($km^2$), kustomisasi opasitas, pemilihan warna (*color picker*), dan opsi pergantian otomatis (*auto-replace*).
 * **Statistik Zonal AOI Real-Time**: Kalkulasi komposisi tutupan lahan dan statistik termal pada poligon yang digambar bebas oleh pengguna.
+* **Ekspor Laporan Analisis AOI Komprehensif**:
+  * **🖨️ Laporan Ringkasan Cetak / Simpan PDF**: Menghasilkan dokumen format A4 siap cetak dengan kop resmi, ringkasan KPI, tabel tutupan lahan berpalet warna, profil anomali suhu UHI, prakiraan iklim mikro, dan atribusi sumber data.
+  * **📥 CSV Terstandardisasi**: Ekspor tabel data tabular lengkap dengan *byte order mark* (BOM UTF-8) yang langsung rapi saat dibuka di Microsoft Excel dan Google Sheets tanpa masalah karakter mojibake.
+  * **🌐 Ekspor Geometri & Atribut Poligon (.GeoJSON)**: Mengunduh batas poligon AOI lengkap dengan metadata statistik zonal yang disematkan langsung pada properti fitur untuk kebutuhan analisis lanjutan di software SIG desktop (QGIS/ArcGIS).
 * **Mesin Tumpang Tindih Spasial (Spatial Overlay Engine - Core)**: Mesin komputasi Turf.js untuk 4 operasi himpunan (Irisan/Intersection, Kurangi/Difference, Gabung/Union, Beda Simetris/XOR) yang teruji 100% dan disiapkan untuk peluncuran antarmuka Overlay Studio v2.
   * **Distribusi Tematik Kategori**: Visualisasi persentase distribusi kategori objek hasil irisan (*count*, $km^2$, $ha$, $\%$) dengan grafik batang bertema *dark glassmorphism*.
   * **Interaksi Peta Real-Time**: Penyorotan geometri (*Hover Slicing*) saat mengarahkan kursor ke tabel hasil, pemfokusan kamera (*Click-to-FlyTo*), dan ekspor instan (.GeoJSON, .CSV, .KML).
