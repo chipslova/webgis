@@ -1,4 +1,4 @@
-import { PikselLoader, PikselLoadingState } from '../tools/piksel-loader';
+import { PikselLoader, PikselLoadingState, TimeLapseState } from '../tools/piksel-loader';
 import {
   PIKSEL_PRODUCTS,
   PIKSEL_PRESETS,
@@ -26,7 +26,15 @@ export class PikselPanelUI {
     this.bindEvents();
 
     this.pikselLoader.onLayersChange(() => {
-      this.render();
+      if (this.pikselLoader.isTimeLapsePlaying()) {
+        this.updateTimeLapseUI(this.pikselLoader.getTimeLapseState());
+      } else {
+        this.render();
+      }
+    });
+
+    this.pikselLoader.onTimeLapseChange((state) => {
+      this.updateTimeLapseUI(state);
     });
 
     this.pikselLoader.onLoadingStateChange((state) => {
@@ -108,6 +116,62 @@ export class PikselPanelUI {
         }
       }
 
+      const chronologicalYears = this.pikselLoader.getChronologicalYears();
+      const currentYearIndex = Math.max(0, chronologicalYears.indexOf(currentYear));
+      const isPlaying = this.pikselLoader.isTimeLapsePlaying();
+      const currentSpeed = this.pikselLoader.getTimeLapseSpeed();
+
+      const timelapseHtml = activeProduct.timeEnabled ? `
+        <div class="piksel-timelapse-box" role="region" aria-label="Kontrol Animasi Time-Lapse Satelit">
+          <div class="timelapse-header">
+            <div class="timelapse-title-wrap">
+              <span class="timelapse-icon" aria-hidden="true">⏳</span>
+              <div>
+                <span class="timelapse-heading">Time-Lapse Multitemporal</span>
+                <span class="timelapse-sub">Dinamika Perubahan Spasial ${chronologicalYears[0]}–${chronologicalYears[chronologicalYears.length - 1]}</span>
+              </div>
+            </div>
+            <div class="timelapse-badge-pill ${isPlaying ? 'is-playing' : ''}">
+              <span class="timelapse-badge-dot" aria-hidden="true"></span>
+              <span id="timelapse-current-year-badge">${currentYear}</span>
+            </div>
+          </div>
+
+          <div class="timelapse-controls-bar">
+            <div class="timelapse-playback-btns">
+              <button id="btn-timelapse-prev" class="timelapse-btn" title="Tahun Sebelumnya (Mundur)" aria-label="Tahun Sebelumnya">
+                ⏮
+              </button>
+              <button id="btn-timelapse-play" class="timelapse-btn btn-play-pulse ${isPlaying ? 'is-active' : ''}" title="${isPlaying ? 'Jeda Animasi Time-Lapse' : 'Putar Animasi Time-Lapse'}" aria-label="Putar atau Jeda Animasi">
+                ${isPlaying ? '⏸ Jeda' : '▶ Putar'}
+              </button>
+              <button id="btn-timelapse-next" class="timelapse-btn" title="Tahun Berikutnya (Maju)" aria-label="Tahun Berikutnya">
+                ⏭
+              </button>
+            </div>
+
+            <div class="timelapse-speed-toggle" role="group" aria-label="Kecepatan Pemutaran">
+              <button class="timelapse-speed-btn ${currentSpeed === 3500 ? 'active' : ''}" data-speed="3500" title="Lambat (3.5s per tahun)">0.5x</button>
+              <button class="timelapse-speed-btn ${currentSpeed === 2000 ? 'active' : ''}" data-speed="2000" title="Normal (2s per tahun)">1x</button>
+              <button class="timelapse-speed-btn ${currentSpeed === 1000 ? 'active' : ''}" data-speed="1000" title="Cepat (1s per tahun)">2x</button>
+            </div>
+          </div>
+
+          <div class="timelapse-scrubber-wrap">
+            <div class="timelapse-slider-container">
+              <input type="range" id="timelapse-slider" min="0" max="${chronologicalYears.length - 1}" value="${currentYearIndex}" class="timelapse-slider" aria-label="Timeline Tahun Satelit" />
+            </div>
+            <div class="timelapse-ticks">
+              ${chronologicalYears.map((yr) => `
+                <button class="timelapse-tick-btn ${yr === currentYear ? 'is-active' : ''}" data-year="${yr}" title="Pilih Tahun ${yr}">
+                  ${yr.slice(2)}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      ` : '';
+
       activeControlHtml = `
         <div class="piksel-active-box" role="region" aria-label="Kontrol untuk ${activeProduct.name}">
           <div class="active-box-header">
@@ -127,6 +191,9 @@ export class PikselPanelUI {
           <div id="piksel-status-alert-slot" class="status-alert-slot">
             ${this.getStatusBadgeHtml(this.currentLoadingState)}
           </div>
+
+          <!-- Time-Lapse Multitemporal Player -->
+          ${timelapseHtml}
 
           <!-- Controls: Year & Opacity -->
           <div class="active-controls-grid">
@@ -714,6 +781,36 @@ export class PikselPanelUI {
         showToast('Filter tampilan spektral telah diatur ulang ke standar', 'info');
         return;
       }
+
+      // 9. Time-Lapse Play / Pause
+      if (target.closest('#btn-timelapse-play')) {
+        this.pikselLoader.toggleTimeLapse();
+        return;
+      }
+
+      // 10. Time-Lapse Prev / Next Step
+      if (target.closest('#btn-timelapse-prev')) {
+        this.pikselLoader.stepTimeLapse(-1);
+        return;
+      }
+      if (target.closest('#btn-timelapse-next')) {
+        this.pikselLoader.stepTimeLapse(1);
+        return;
+      }
+
+      // 11. Time-Lapse Year Tick Button Click
+      const tickBtn = target.closest('.timelapse-tick-btn') as HTMLElement;
+      if (tickBtn && tickBtn.dataset.year) {
+        this.pikselLoader.setSelectedYear(tickBtn.dataset.year);
+        return;
+      }
+
+      // 12. Time-Lapse Speed Selector Click
+      const speedBtn = target.closest('.timelapse-speed-btn') as HTMLElement;
+      if (speedBtn && speedBtn.dataset.speed) {
+        this.pikselLoader.setTimeLapseSpeed(Number(speedBtn.dataset.speed));
+        return;
+      }
     });
 
     container.addEventListener('input', (e) => {
@@ -723,6 +820,12 @@ export class PikselPanelUI {
         const text = document.getElementById('piksel-opacity-text');
         if (text) text.innerText = `${val}%`;
         this.pikselLoader.setOpacity(val / 100);
+      } else if (target.id === 'timelapse-slider') {
+        const years = this.pikselLoader.getChronologicalYears();
+        const idx = Number(target.value);
+        if (years[idx]) {
+          this.pikselLoader.setSelectedYear(years[idx]);
+        }
       } else if (target.id === 'piksel-filter-brightness') {
         const val = Number(target.value);
         const text = document.getElementById('piksel-brightness-val');
@@ -751,6 +854,48 @@ export class PikselPanelUI {
     });
 
     this.isEventsBound = true;
+  }
+
+  private updateTimeLapseUI(state: TimeLapseState) {
+    const badge = document.getElementById('timelapse-current-year-badge');
+    if (badge) badge.innerText = state.year;
+
+    const badgePill = document.querySelector('.timelapse-badge-pill');
+    if (badgePill) {
+      badgePill.classList.toggle('is-playing', state.isPlaying);
+    }
+
+    const yearSelect = document.getElementById('piksel-year-select') as HTMLSelectElement | null;
+    if (yearSelect && yearSelect.value !== state.year) {
+      yearSelect.value = state.year;
+    }
+
+    const slider = document.getElementById('timelapse-slider') as HTMLInputElement | null;
+    if (slider) {
+      const idx = state.availableYears.indexOf(state.year);
+      if (idx !== -1 && slider.value !== String(idx)) {
+        slider.value = String(idx);
+      }
+    }
+
+    const playBtn = document.getElementById('btn-timelapse-play');
+    if (playBtn) {
+      playBtn.innerHTML = state.isPlaying ? '⏸ Jeda' : '▶ Putar';
+      playBtn.classList.toggle('is-active', state.isPlaying);
+      playBtn.title = state.isPlaying ? 'Jeda Animasi Time-Lapse' : 'Putar Animasi Time-Lapse';
+    }
+
+    const container = document.getElementById('panel-piksel');
+    if (container) {
+      container.querySelectorAll('.timelapse-tick-btn').forEach((btn) => {
+        const el = btn as HTMLElement;
+        el.classList.toggle('is-active', el.dataset.year === state.year);
+      });
+      container.querySelectorAll('.timelapse-speed-btn').forEach((btn) => {
+        const el = btn as HTMLElement;
+        el.classList.toggle('active', Number(el.dataset.speed) === state.speedMs);
+      });
+    }
   }
 
   public syncUIStates() {

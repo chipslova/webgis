@@ -10,7 +10,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.10.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-237%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-239%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
   <img src="docs/preview.jpg" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
@@ -63,6 +63,7 @@ Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit 
 
 ### 🛰️ 2. Citra Satelit BIG Piksel & Filter Spektral
 * **Sentinel-2 GeoMAD 10m**: Komposit tahunan bebas awan Median Absolute Deviation (2017–2025) di seluruh kepulauan Indonesia.
+* **Time-Lapse Multitemporal Satelit (2017–2025)**: Pemutar animasi perubahan spasial otomatis dengan tombol Play ▶ / Pause ⏸, kontrol langkah mundur/maju (⏮/⏭), pengatur kecepatan pemutaran (0.5x, 1x, 2x), timeline scrubber interaktif, dan tombol pintas tahunan.
 * **Indeks Spektral Satelit**:
   * **NDVI** (Normalized Difference Vegetation Index): Mengukur biomassa & kanopi hutan tropis.
   * **NDWI** (Normalized Difference Water Index): Delineasi badan air, danau, dan kelembapan.

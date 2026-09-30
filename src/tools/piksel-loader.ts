@@ -6,6 +6,13 @@ import { showToast } from '../ui/toast';
 
 export type PikselStatusCode = 'idle' | 'zoom_too_low' | 'requesting' | 'loading' | 'ready' | 'degraded' | 'partial' | 'error';
 
+export interface TimeLapseState {
+  isPlaying: boolean;
+  year: string;
+  speedMs: number;
+  availableYears: string[];
+}
+
 export interface PikselDiagnostics {
   productId: string | null;
   productName?: string;
@@ -46,6 +53,11 @@ export class PikselLoader {
   private isEventsBound: boolean = false;
   private onLoadingCallback: ((state: PikselLoadingState) => void) | null = null;
   private onLayersChangeCallbacks: Array<() => void> = [];
+
+  // Time-Lapse Animator State
+  private timeLapseTimer: ReturnType<typeof setInterval> | null = null;
+  private timeLapseSpeedMs: number = 2000;
+  private onTimeLapseChangeCallbacks: Array<(state: TimeLapseState) => void> = [];
 
   // Request Manager State
   private requestCounter: number = 0;
@@ -391,6 +403,109 @@ export class PikselLoader {
       }
     }
     this.notifyLayersChange();
+    this.notifyTimeLapseChange();
+  }
+
+  // --- Time-Lapse Animator Methods ---
+
+  public isTimeLapsePlaying(): boolean {
+    return this.timeLapseTimer !== null;
+  }
+
+  public getTimeLapseSpeed(): number {
+    return this.timeLapseSpeedMs;
+  }
+
+  public setTimeLapseSpeed(speedMs: number) {
+    this.timeLapseSpeedMs = Math.max(500, Math.min(10000, speedMs));
+    if (this.isTimeLapsePlaying()) {
+      this.pauseTimeLapse();
+      this.playTimeLapse();
+    } else {
+      this.notifyTimeLapseChange();
+    }
+  }
+
+  public onTimeLapseChange(callback: (state: TimeLapseState) => void) {
+    this.onTimeLapseChangeCallbacks.push(callback);
+  }
+
+  public getTimeLapseState(): TimeLapseState {
+    return {
+      isPlaying: this.isTimeLapsePlaying(),
+      year: this.selectedYear,
+      speedMs: this.timeLapseSpeedMs,
+      availableYears: this.getChronologicalYears()
+    };
+  }
+
+  private notifyTimeLapseChange() {
+    const state = this.getTimeLapseState();
+    this.onTimeLapseChangeCallbacks.forEach((cb) => {
+      try {
+        cb(state);
+      } catch (e) {
+        logger.warn('[PikselLoader] Error in onTimeLapseChange callback:', e);
+      }
+    });
+  }
+
+  public getChronologicalYears(): string[] {
+    const prod = this.getActiveProduct();
+    if (!prod || !prod.availableYears || prod.availableYears.length === 0) {
+      return [this.selectedYear];
+    }
+    return [...prod.availableYears].sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+  }
+
+  public stepTimeLapse(direction: 1 | -1) {
+    const years = this.getChronologicalYears();
+    if (years.length <= 1) return;
+
+    let currentIndex = years.indexOf(this.selectedYear);
+    if (currentIndex === -1) currentIndex = 0;
+
+    let nextIndex = currentIndex + direction;
+    if (nextIndex >= years.length) {
+      nextIndex = 0;
+    } else if (nextIndex < 0) {
+      nextIndex = years.length - 1;
+    }
+
+    const nextYear = years[nextIndex];
+    this.setSelectedYear(nextYear);
+  }
+
+  public playTimeLapse() {
+    const prod = this.getActiveProduct();
+    if (!prod || !prod.timeEnabled) return;
+
+    if (this.timeLapseTimer) {
+      clearInterval(this.timeLapseTimer);
+      this.timeLapseTimer = null;
+    }
+
+    this.timeLapseTimer = setInterval(() => {
+      this.stepTimeLapse(1);
+    }, this.timeLapseSpeedMs);
+
+    this.notifyTimeLapseChange();
+  }
+
+  public pauseTimeLapse() {
+    if (this.timeLapseTimer) {
+      clearInterval(this.timeLapseTimer);
+      this.timeLapseTimer = null;
+      this.notifyTimeLapseChange();
+    }
+  }
+
+  public toggleTimeLapse() {
+    if (this.isTimeLapsePlaying()) {
+      this.pauseTimeLapse();
+    } else {
+      this.playTimeLapse();
+    }
   }
 
   public getOpacity(): number {
@@ -436,6 +551,9 @@ export class PikselLoader {
   public setActiveProduct(productId: string | null) {
     if (productId === 's2-ndbi') {
       productId = 's2-indices-ndbi';
+    }
+    if (this.isTimeLapsePlaying()) {
+      this.pauseTimeLapse();
     }
     this.activeProductId = productId;
     const currentReqId = ++this.requestCounter;

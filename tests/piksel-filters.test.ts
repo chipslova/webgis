@@ -127,4 +127,107 @@ describe('Satellite Image Filter Adjustments (Brightness, Contrast, Saturation)'
       type: 'raster'
     }));
   });
+
+  it('should manage Time-Lapse multitemporal playback and stepping', () => {
+    vi.useFakeTimers();
+    const mockMap: any = createMockMap();
+    const loader = new PikselLoader(mockMap);
+    loader.setActiveProduct('s2-geomad-rgb');
+
+    const years = loader.getChronologicalYears();
+    expect(years[0]).toBe('2017');
+    expect(years[years.length - 1]).toBe('2025');
+
+    loader.setSelectedYear('2020');
+    expect(loader.getSelectedYear()).toBe('2020');
+
+    // Step forward
+    loader.stepTimeLapse(1);
+    expect(loader.getSelectedYear()).toBe('2021');
+
+    // Step backward
+    loader.stepTimeLapse(-1);
+    expect(loader.getSelectedYear()).toBe('2020');
+
+    // Wrap around backward
+    loader.setSelectedYear('2017');
+    loader.stepTimeLapse(-1);
+    expect(loader.getSelectedYear()).toBe('2025');
+
+    // Wrap around forward
+    loader.stepTimeLapse(1);
+    expect(loader.getSelectedYear()).toBe('2017');
+
+    // Play & Pause
+    expect(loader.isTimeLapsePlaying()).toBe(false);
+    loader.setTimeLapseSpeed(1000);
+    expect(loader.getTimeLapseSpeed()).toBe(1000);
+
+    loader.playTimeLapse();
+    expect(loader.isTimeLapsePlaying()).toBe(true);
+
+    vi.advanceTimersByTime(1000);
+    expect(loader.getSelectedYear()).toBe('2018');
+
+    vi.advanceTimersByTime(1000);
+    expect(loader.getSelectedYear()).toBe('2019');
+
+    loader.pauseTimeLapse();
+    expect(loader.isTimeLapsePlaying()).toBe(false);
+
+    vi.advanceTimersByTime(2000);
+    expect(loader.getSelectedYear()).toBe('2019');
+
+    vi.useRealTimers();
+  });
+
+  it('should render Time-Lapse UI widget and handle play/pause/step/tick interactions', () => {
+    const mockMap: any = createMockMap();
+    const loader = new PikselLoader(mockMap);
+    const panelUI = new PikselPanelUI(loader);
+    panelUI.init();
+
+    loader.setActiveProduct('s2-geomad-rgb');
+    panelUI.render();
+
+    const playBtn = document.getElementById('btn-timelapse-play') as HTMLButtonElement;
+    const prevBtn = document.getElementById('btn-timelapse-prev') as HTMLButtonElement;
+    const nextBtn = document.getElementById('btn-timelapse-next') as HTMLButtonElement;
+    const slider = document.getElementById('timelapse-slider') as HTMLInputElement;
+    const badge = document.getElementById('timelapse-current-year-badge');
+    const tick2022 = document.querySelector('.timelapse-tick-btn[data-year="2022"]') as HTMLButtonElement;
+
+    expect(playBtn).not.toBeNull();
+    expect(prevBtn).not.toBeNull();
+    expect(nextBtn).not.toBeNull();
+    expect(slider).not.toBeNull();
+    expect(badge).not.toBeNull();
+    expect(tick2022).not.toBeNull();
+
+    // Click tick 2022
+    tick2022.click();
+    expect(loader.getSelectedYear()).toBe('2022');
+    expect(document.getElementById('timelapse-current-year-badge')?.innerText).toBe('2022');
+
+    // Click next
+    const nextBtnFresh = document.getElementById('btn-timelapse-next') as HTMLButtonElement;
+    nextBtnFresh.click();
+    expect(loader.getSelectedYear()).toBe('2023');
+    expect(document.getElementById('timelapse-current-year-badge')?.innerText).toBe('2023');
+
+    // Click prev
+    const prevBtnFresh = document.getElementById('btn-timelapse-prev') as HTMLButtonElement;
+    prevBtnFresh.click();
+    expect(loader.getSelectedYear()).toBe('2022');
+
+    // Toggle play
+    const playBtnFresh = document.getElementById('btn-timelapse-play') as HTMLButtonElement;
+    playBtnFresh.click();
+    expect(loader.isTimeLapsePlaying()).toBe(true);
+    expect(document.getElementById('btn-timelapse-play')?.innerHTML).toContain('Jeda');
+
+    playBtnFresh.click();
+    expect(loader.isTimeLapsePlaying()).toBe(false);
+    expect(document.getElementById('btn-timelapse-play')?.innerHTML).toContain('Putar');
+  });
 });
