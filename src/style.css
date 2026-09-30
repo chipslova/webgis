@@ -3563,19 +3563,24 @@ html, body, #app {
 
 /* Active Box (Luminous & Prominent) */
 .piksel-active-box {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, #10192c 100%);
-  border: 1px solid rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(13, 27, 46, 0.94) 50%, rgba(10, 20, 35, 0.97) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-top: 3px solid var(--prod-theme, #38bdf8);
   border-radius: var(--radius-md);
-  padding: 14px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  padding: 16px;
+  box-shadow: 0 10px 32px -4px rgba(0, 0, 0, 0.6), 0 0 24px -6px rgba(56, 189, 248, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(16px);
+  position: relative;
+  transition: all 0.3s ease;
+  margin-bottom: 12px;
 }
 
 .active-box-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .active-box-title-wrap {
@@ -3585,48 +3590,76 @@ html, body, #app {
 }
 
 .active-live-dot {
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 10px #10b981;
-  animation: pulseDot 1.5s infinite;
+  background: var(--prod-theme, #10b981);
+  box-shadow: 0 0 12px var(--prod-theme, #10b981);
   flex-shrink: 0;
+  position: relative;
+}
+
+.active-live-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid var(--prod-theme, #10b981);
+  opacity: 0.6;
+  animation: pingRing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes pingRing {
+  75%, 100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
 }
 
 .active-box-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: #ffffff;
-  margin: 0 0 2px 0;
+  letter-spacing: -0.2px;
+  line-height: 1.25;
+  margin: 0 0 4px 0;
 }
 
 .active-box-badge {
-  display: inline-block;
-  font-size: 9.5px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
   font-weight: 700;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid;
-  padding: 1px 6px;
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 2px 8px;
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+  letter-spacing: 0.2px;
 }
 
 .btn-deactivate-chip {
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #f87171;
-  padding: 4px 8px;
-  border-radius: 4px;
+  background: rgba(244, 63, 94, 0.08);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  color: #fb7185;
+  padding: 5px 10px;
+  border-radius: 20px;
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .btn-deactivate-chip:hover {
-  background: #ef4444;
+  background: rgba(244, 63, 94, 0.25);
+  border-color: #f43f5e;
   color: #ffffff;
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.4);
+  transform: scale(1.02);
 }
 
 .piksel-empty-prompt {
@@ -4207,29 +4240,34 @@ html, body, #app {
 }
 
 .clean-product-card {
-  background: #131d31;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #111a2c;
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: var(--radius-md);
-  padding: 10px 12px;
+  padding: 12px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 14px;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
   box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
 }
 
 .clean-product-card:hover {
-  background: #18253e;
-  border-color: rgba(56, 189, 248, 0.45);
-  transform: translateY(-1px);
+  background: #16223b;
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), 0 0 12px rgba(56, 189, 248, 0.15);
+  transform: translateY(-2px);
 }
 
 .clean-product-card.is-active {
-  border-color: #10b981;
-  background: rgba(16, 185, 129, 0.08);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.16) 0%, rgba(13, 23, 40, 0.95) 100%);
+  border: 1px solid #10b981;
+  border-left: 4px solid #10b981;
+  box-shadow: 0 4px 22px rgba(16, 185, 129, 0.25), inset 0 0 15px rgba(16, 185, 129, 0.06);
 }
 
 .clean-product-card.is-disabled {
@@ -4266,6 +4304,51 @@ html, body, #app {
   border: 1px solid rgba(100, 116, 139, 0.25);
   border-radius: var(--radius-sm);
   flex-shrink: 0;
+}
+
+.btn-select-product {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.btn-select-product:hover {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+  transform: scale(1.03);
+}
+
+.btn-select-product.btn-active-state {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  border: 1px solid #34d399;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.5);
+  transform: scale(1.03);
+}
+
+.active-pill-badge {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  background: rgba(16, 185, 129, 0.25);
+  border: 1px solid #10b981;
+  color: #34d399;
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 6px;
+  animation: pulseGlow 2s infinite;
 }
 
 .card-main-info {

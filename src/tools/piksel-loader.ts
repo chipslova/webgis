@@ -43,7 +43,7 @@ export class PikselLoader {
   private map: maplibregl.Map;
   private activeProductId: string | null = null;
   private selectedYear: string = '2025';
-  private currentOpacity: number = 0.85;
+  private currentOpacity: number = 1.0;
   private currentBrightness: number = 0;
   private currentContrast: number = 0;
   private currentSaturation: number = 0;

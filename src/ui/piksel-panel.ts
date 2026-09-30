@@ -176,13 +176,13 @@ export class PikselPanelUI {
       ` : '';
 
       activeControlHtml = `
-        <div class="piksel-active-box" role="region" aria-label="Kontrol untuk ${activeProduct.name}">
+        <div class="piksel-active-box" style="--prod-theme: ${activeProduct.color};" role="region" aria-label="Kontrol untuk ${activeProduct.name}">
           <div class="active-box-header">
             <div class="active-box-title-wrap">
               <span class="active-live-dot ${this.currentLoadingState.status}" aria-hidden="true"></span>
               <div>
                 <h4 class="active-box-title">${activeProduct.name}</h4>
-                <span class="active-box-badge" style="border-color:${activeProduct.color}66; color:${activeProduct.color};">${activeProduct.badge}</span>
+                <span class="active-box-badge" style="border-color:${activeProduct.color}88; color:${activeProduct.color};">${activeProduct.badge}</span>
               </div>
             </div>
             <button id="btn-clear-piksel-layer" class="btn-deactivate-chip" aria-label="Hapus lapisan ${activeProduct.name}" title="Nonaktifkan lapisan aktif ini">
@@ -347,11 +347,12 @@ export class PikselPanelUI {
         : (years?.[0] ?? '');
 
       return `
-        <div class="clean-product-card ${isActive ? 'is-active' : ''}" data-id="${prod.id}">
+        <div class="clean-product-card ${isActive ? 'is-active' : ''}" data-id="${prod.id}" style="--prod-color: ${prod.color};">
           <div class="card-main-info">
             <div class="card-title-line">
               <span class="card-color-dot" style="background:${prod.color};" aria-hidden="true"></span>
               <strong class="card-name">${prod.name}</strong>
+              ${isActive ? `<span class="active-pill-badge" aria-label="Aktif">Aktif</span>` : ''}
             </div>
             <p class="card-brief-desc" style="font-size: 11.5px; color: var(--text-muted); margin: 4px 0 6px 0; line-height: 1.35;">
               ${prod.whatItShows || prod.description}
