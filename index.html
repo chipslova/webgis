@@ -167,6 +167,8 @@
       <div class="app-body">
         <!-- Sidebar Panel Drawer -->
         <aside id="sidebar" class="sidebar" aria-expanded="true" aria-label="Panel Kontrol Bilah Sisi WebGIS">
+          <!-- Mobile Drawer Drag Handle Indicator -->
+          <div class="mobile-drawer-handle" aria-hidden="true" title="Geser untuk menutup/membuka bilah sisi"></div>
           <!-- Navigation Tab Icons -->
           <nav class="sidebar-nav" role="tablist" aria-label="Tab Panel Kontrol">
             <button class="sidebar-tab-btn active" data-tab="map" id="tab-map" role="tab" aria-selected="true" aria-controls="panel-map" aria-label="Peta & Lapisan Aktif" title="Peta & Lapisan Aktif">
@@ -1537,6 +1539,11 @@
             <span id="net-status-dot" class="status-dot online"></span>
             <span id="net-status-text">Online</span>
           </span>
+          <span class="status-divider" aria-hidden="true">|</span>
+          <button id="btn-toggle-eco-mode" class="btn-text-sm eco-mode-btn" title="Mode Hemat Daya & GPU (Optimasi Perangkat Ringan / Baterai)" aria-label="Toggle Mode Hemat GPU">
+            <span class="eco-icon" aria-hidden="true">🍃</span>
+            <span id="eco-mode-text">Eco GPU</span>
+          </button>
           <span class="status-divider" aria-hidden="true">|</span>
           <button id="btn-copy-coords" class="btn-text-sm" aria-label="Salin koordinat peta saat ini ke papan klip">Salin Koordinat</button>
           <span class="status-divider" aria-hidden="true">|</span>

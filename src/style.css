@@ -2239,6 +2239,11 @@ html, body, #app {
   background: linear-gradient(90deg, #b45309 0%, #fde047 30%, #67e8f9 60%, #0284c7 85%, #1e3a8a 100%);
 }
 
+/* 4b. NBR: Severe Burn Scar Deep Purple/Red -> Moderate Orange -> Regrowth Yellow -> Healthy Dense Canopy */
+.legend-gradient.nbr-gradient {
+  background: linear-gradient(90deg, #881337 0%, #dc2626 25%, #ea580c 50%, #fde047 75%, #15803d 100%);
+}
+
 /* 5. BSI: Dense Vegetation Dark Slate/Green -> Mixed Tan -> Bare Soil Bright Orange/Red */
 .legend-gradient.bsi-gradient {
   background: linear-gradient(90deg, #064e3b 0%, #10b981 25%, #fde047 55%, #ea580c 85%, #991b1b 100%);
@@ -3998,6 +4003,10 @@ html, body, #app {
 
 .active-legend-bar.ndwi-gradient {
   background: linear-gradient(90deg, #b45309 0%, #fde047 30%, #67e8f9 60%, #0284c7 85%, #1e3a8a 100%);
+}
+
+.active-legend-bar.nbr-gradient {
+  background: linear-gradient(90deg, #881337 0%, #dc2626 25%, #ea580c 50%, #fde047 75%, #15803d 100%);
 }
 
 .active-legend-bar.bsi-gradient {
@@ -12831,3 +12840,76 @@ html, body, #app {
     z-index: 999;
   }
 }
+
+/* ==========================================================================
+   Eco Mode & Mobile Drawer Touch Controls (Tahap 5)
+   ========================================================================== */
+.eco-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary, #94a3b8);
+  padding: 2px 7px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 11px;
+  font-weight: 500;
+  user-select: none;
+}
+
+.eco-mode-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.eco-mode-btn.is-active {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #34d399;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+}
+
+.eco-mode-btn.is-active .eco-icon {
+  animation: ecoPulse 2.5s infinite;
+}
+
+@keyframes ecoPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.75; transform: scale(1.12); }
+}
+
+/* Mobile Drawer Drag Handle Indicator */
+.mobile-drawer-handle {
+  display: none;
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.25);
+  margin: 8px auto 4px auto;
+  cursor: grab;
+  transition: background 0.2s ease;
+  touch-action: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-drawer-handle {
+    display: block;
+  }
+
+  .mobile-drawer-handle:hover,
+  .mobile-drawer-handle:active {
+    background: rgba(255, 255, 255, 0.55);
+  }
+
+  /* Smooth swipe transitions for sidebar drawer */
+  .sidebar {
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+    touch-action: pan-y;
+  }
+}
+

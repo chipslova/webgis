@@ -10,7 +10,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.10.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-245%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-256%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
   <img src="docs/preview.jpg" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
@@ -67,9 +67,12 @@ Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit 
 * **Indeks Spektral Satelit**:
   * **NDVI** (Normalized Difference Vegetation Index): Mengukur biomassa & kanopi hutan tropis.
   * **NDWI** (Normalized Difference Water Index): Delineasi badan air, danau, dan kelembapan.
+  * **NBR** (Normalized Burn Ratio): Deteksi luka kebakaran hutan (Karhutla), degradasi kubah gambut, dan keparahan luka bakar berbasis rasio spektral NIR (B8) vs SWIR (B12) 10m dengan palet gradien keparahan 4-kelas.
   * **NDBI** (Normalized Difference Built-up Index): Pemetaan kawasan terbangun Sentinel-2 10m terintegrasi dengan ekstrusi gedung 3D otomatis.
+  * **BSI Fallback Cerdas** (Bare Soil Index): Pemetaan tanah terbuka yang didukung fallback otomatis ke komposit spektral resolusi tinggi saat server OGC mengalami kendala.
   * **NIR Surface Reflectance**: Pantulan inframerah dekat untuk klorofil vegetasi.
   * **Kerapatan Pengamatan** (*Observation Density*): Statistik jumlah scene bebas awan per piksel.
+* **Preset Pantauan Prioritas & Karhutla**: Navigasi 1-klik ke kawasan vulkanik Bromo & Merapi, IKN Nusantara, Danau Toba, Dataran Banjir Citarum, serta hotspot Karhutla di **Lahan Gambut Sebangau (Palangka Raya)** dan **Pesisir Riau (Semenanjung Kampar)**.
 * **Penyesuaian Filter Visual Real-Time**: Kontrol non-destruktif *Brightness* (kecerahan), *Contrast* (kontras), dan *Saturation* (kejenuhan warna) langsung pada kanvas WebGL.
 * **Landsat 9 Surface Reflectance (30m)**: Komposit multispektral USGS/NASA (2022–2025).
 * **Pemodelan Bahaya Banjir (Flood Hazard)**: Klasifikasi periode ulang banjir (`flood_hazard_rp02` & `rp10`) untuk wilayah studi prioritas.
@@ -116,8 +119,10 @@ Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit 
   * Format ekspor: **PNG** & **JPEG**.
   * Elemen kartografi opsional: **North Arrow (Arah Utara Dinamis)**, **Skala Geodesik Metrik**, **Legenda Terintegrasi**, **Koordinat WGS84**, dan **Atribusi Waktu**.
 
-### ℹ️ 8. Sitasi Ilmiah & Tampilan Tersimpan (Saved Views)
+### ℹ️ 8. Sitasi Ilmiah, Mode Hemat GPU & Optimasi Mobile
 * **Sitasi Akademik Terstandarisasi**: Format sitasi lengkap APA (7th Ed.) dan BibTeX dengan tombol salin 1-klik untuk publikasi atau laporan ilmiah.
+* **Mode Hemat GPU & Daya (Eco-Mode Auto-Detection)**: Deteksi otomatis profil spesifikasi perangkat (CPU cores, RAM, GPU renderer WebGL, level baterai) dengan toggle 1-klik di bilah status (`🍃 Eco GPU`) untuk membatasi beban fill-rate kanvas 1x dan kemiringan kamera 45° demi kelancaran perangkat ringan.
+* **Navigasi Drawer Touch Mobile**: Gestur usap layar sentuh (*touch swipe*) responsif pada ponsel dan tablet — geser ke kiri untuk menutup bilah drawer dan geser dari tepi kiri untuk membukanya kembali secara instan dengan indikator pegangan drag handle.
 * **Tampilan Tersimpan (Saved Views)**: Simpan, beri nama, dan panggil kembali posisi kamera, peta dasar, dan lapisan satelit pilihan secara lokal di browser via `localStorage`.
 * **Permalink URL Berstatus Lengkap**: Sinkronisasi otomatis posisi koordinat, zoom, sudut *pitch*, *bearing*, peta dasar, dan produk satelit langsung ke URL *hash*.
 

@@ -30,6 +30,8 @@ describe('Satellite Image Filter Adjustments (Brightness, Contrast, Saturation)'
     removeSource: vi.fn(),
     setPaintProperty: vi.fn(),
     setLayoutProperty: vi.fn(),
+    flyTo: vi.fn(),
+    easeTo: vi.fn(),
   });
 
   it('should initialize with default filter values (0) and update filters correctly', () => {
@@ -230,4 +232,63 @@ describe('Satellite Image Filter Adjustments (Brightness, Contrast, Saturation)'
     expect(loader.isTimeLapsePlaying()).toBe(false);
     expect(document.getElementById('btn-timelapse-play')?.innerHTML).toContain('Putar');
   });
+
+  it('should activate s2-indices-nbr (Normalized Burn Ratio) and render Karhutla legend', () => {
+    const mockMap: any = createMockMap();
+    const loader = new PikselLoader(mockMap);
+    const panelUI = new PikselPanelUI(loader);
+    panelUI.init();
+
+    loader.setActiveProduct('s2-indices-nbr');
+    const activeProduct = loader.getActiveProduct();
+
+    expect(activeProduct).toBeDefined();
+    expect(activeProduct?.id).toBe('s2-indices-nbr');
+    expect(activeProduct?.name).toContain('NBR');
+    expect(activeProduct?.badge).toBe('Indeks Karhutla');
+    expect(activeProduct?.timeEnabled).toBe(true);
+    expect(activeProduct?.legend.type).toBe('continuous');
+    if (activeProduct?.legend.type === 'continuous') {
+      expect(activeProduct.legend.gradientClass).toBe('nbr-gradient');
+      expect(activeProduct.legend.swatches?.length).toBeGreaterThanOrEqual(4);
+    }
+
+    panelUI.render();
+    const card = document.querySelector('.clean-product-card[data-id="s2-indices-nbr"]');
+    expect(card).not.toBeNull();
+    expect(card?.classList.contains('is-active')).toBe(true);
+  });
+
+  it('should navigate to Karhutla peatland presets and recommend s2-indices-nbr', () => {
+    const mockMap: any = createMockMap();
+    const loader = new PikselLoader(mockMap);
+    const presets = loader.getPresets();
+
+    const palangkaPreset = presets.find((p) => p.id === 'palangka-raya-karhutla');
+    expect(palangkaPreset).toBeDefined();
+    expect(palangkaPreset?.recommendedProduct).toBe('s2-indices-nbr');
+
+    const riauPreset = presets.find((p) => p.id === 'riau-peatland');
+    expect(riauPreset).toBeDefined();
+    expect(riauPreset?.recommendedProduct).toBe('s2-indices-nbr');
+
+    loader.flyToPreset(palangkaPreset!);
+    expect(mockMap.flyTo).toHaveBeenCalledWith(expect.objectContaining({
+      center: palangkaPreset!.center,
+      zoom: palangkaPreset!.zoom
+    }));
+    expect(loader.getActiveProductId()).toBe('s2-indices-nbr');
+  });
+
+  it('should have s2-bsi enabled with smart fallback notice', () => {
+    const mockMap: any = createMockMap();
+    const loader = new PikselLoader(mockMap);
+    const bsiProduct = loader.getProducts().find((p) => p.id === 's2-bsi');
+
+    expect(bsiProduct).toBeDefined();
+    expect(bsiProduct?.isDisabled).toBe(false);
+    expect(bsiProduct?.badge).toBe('Fallback Mode');
+    expect(bsiProduct?.statusNotice).toContain('fallback cerdas');
+  });
 });
+

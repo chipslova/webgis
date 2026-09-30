@@ -33,6 +33,7 @@ export class CommandPaletteUI {
   private attributeTableUI: any = null;
   private shortcutsModalUI: any = null;
   private spatialAnalysisUI: SpatialAnalysisUI | null = null;
+  private ecoModeManager: any = null;
 
   private isOpen: boolean = false;
   private selectedIndex: number = 0;
@@ -42,6 +43,10 @@ export class CommandPaletteUI {
 
   public setSpatialAnalysisUI(ui: SpatialAnalysisUI | null) {
     this.spatialAnalysisUI = ui;
+  }
+
+  public setEcoModeManager(manager: any) {
+    this.ecoModeManager = manager;
   }
 
   constructor(
@@ -291,6 +296,22 @@ export class CommandPaletteUI {
         action: () => {
           if (this.shortcutsModalUI) {
             this.shortcutsModalUI.open();
+          }
+        }
+      },
+      {
+        id: 'tool-toggle-eco-mode',
+        category: 'tools',
+        categoryLabel: '⚡ Alat & Analisis',
+        title: 'Toggle Mode Hemat GPU & Baterai (Eco Mode)',
+        subtitle: 'Optimalkan kinerja rendering untuk perangkat low-end / laptop hemat daya',
+        icon: '🍃',
+        keywords: ['eco', 'hemat', 'gpu', 'baterai', 'battery', 'performance', 'low-end', 'power', 'ringan'],
+        action: () => {
+          if (this.ecoModeManager) {
+            this.ecoModeManager.toggleEcoMode();
+          } else {
+            showToast('Mode Hemat GPU belum siap', 'info');
           }
         }
       },

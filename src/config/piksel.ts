@@ -90,7 +90,7 @@ export interface PikselPreset {
 
 export const PIKSEL_CATEGORIES: { id: ProductCategory; name: string; icon: string; subtitle: string }[] = [
   { id: 'geomad', name: 'Sentinel-2 GeoMAD', icon: '', subtitle: 'Komposit Optik & Inframerah Bebas Awan 10m' },
-  { id: 'indices', name: 'Indeks Spektral', icon: '', subtitle: 'Indeks Kerapatan Vegetasi & Badan Air Permukaan' },
+  { id: 'indices', name: 'Indeks Spektral', icon: '', subtitle: 'Indeks Vegetasi, Badan Air, Karhutla (NBR) & Tanah 10m' },
   { id: 'landsat', name: 'Landsat 9', icon: '', subtitle: 'Observasi Reflektansi Permukaan USGS/NASA 30m' },
   { id: 'hazard', name: 'Bahaya Banjir', icon: '', subtitle: 'Pemodelan Hidrologi Bahaya Banjir Kawasan Prioritas' },
   { id: 'quality', name: 'Kualitas & Densitas Data', icon: '', subtitle: 'Statistik Pengamatan Bebas Awan Tiap Piksel' }
@@ -273,6 +273,40 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     attribution: '© European Space Agency (ESA) WorldCover 10m / OpenFreeMap Planet'
   },
   {
+    id: 's2-indices-nbr',
+    name: 'Indeks Kebakaran Hutan & Bekas Terbakar (NBR)',
+    category: 'indices',
+    layer: 's2_geomad_annual_indices',
+    style: 'nbr',
+    timeEnabled: true,
+    timeMode: 'annual',
+    availableYears: S2_YEARS,
+    minZoom: 8,
+    serviceUrl: PIKSEL_WMS_BASE_URL,
+    description: 'Normalized Burn Ratio (NBR) dari rasio spektral NIR (B8) dan SWIR (B12) untuk mendeteksi bekas kebakaran hutan (karhutla), degradasi kubah gambut, dan estimasi keparahan luka bakar.',
+    whatItShows: 'Indikator Karhutla: Hijau tua menunjukkan kanopi hutan lebat dan sehat; kuning menunjukkan vegetasi jarang/pemulihan; oranye menunjukkan luka bakar sedang; merah pekat/ungu tua menunjukkan bekas kebakaran hutan hebat (burn scar) atau lahan gambut terbakar.',
+    badge: 'Indeks Karhutla',
+    color: '#e11d48',
+    resolution: '10 meters',
+    sensor: 'Sentinel-2 GeoMAD (NIR B8 & SWIR-2 B12)',
+    isComputeHeavy: true,
+    legend: {
+      type: 'continuous',
+      leftLabel: 'Bekas Terbakar Parah (-1,0 s/d -0,1)',
+      middleLabel: 'Luka Sedang / Pulih (0,1 s/d 0,3)',
+      rightLabel: 'Kanopi Sehat (+0,4 s/d +1,0)',
+      gradientClass: 'nbr-gradient',
+      rangeText: 'Skala Indeks NBR: -1,0 s/d +1,0',
+      swatches: [
+        { label: 'Bekas Terbakar Parah (Ungu Gelap)', color: '#881337' },
+        { label: 'Luka Bakar Sedang (Oranye)', color: '#ea580c' },
+        { label: 'Vegetasi Jarang / Pulih (Kuning)', color: '#fde047' },
+        { label: 'Kanopi Sehat Utuh (Hijau Tua)', color: '#15803d' }
+      ]
+    },
+    attribution: '© Badan Informasi Geospasial (BIG) — Piksel / Copernicus Sentinel-2'
+  },
+  {
     id: 's2-bsi',
     name: 'Indeks Tanah Terbuka (BSI)',
     category: 'indices',
@@ -285,12 +319,12 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     serviceUrl: PIKSEL_WMS_BASE_URL,
     description: 'Kombinasi spektral Blue-Red-NIR-SWIR untuk mengidentifikasi tanah terbuka, pembukaan lahan, tambang, dan area konstruksi.',
     whatItShows: 'Paparan tanah terbuka: Nilai tinggi menunjukkan lahan terbuka atau tambang aktif, nilai rendah menunjukkan tutupan kanopi atau air.',
-    badge: 'Tidak Tersedia',
-    color: '#64748b',
+    badge: 'Fallback Mode',
+    color: '#d97706',
     resolution: '10 meters',
     sensor: 'Sentinel-2 GeoMAD Indices',
-    isDisabled: true,
-    statusNotice: 'Saat ini tidak tersedia — server upstream OGC mengembalikan HTTP 500. Produk belum aktif pada staging.',
+    isDisabled: false,
+    statusNotice: 'Mendukung fallback cerdas ke False Color / Reflektansi Spektral 10m jika server OGC hulu mengalami kendala.',
     legend: {
       type: 'continuous',
       leftLabel: 'Vegetasi / Air',
@@ -508,5 +542,25 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     pitch: 50,
     description: 'Pemetaan kawasan terbangun (NDBI Built-up) dan visualisasi ekstrusi gedung-gedung pencakar langit 3D.',
     recommendedProduct: 's2-indices-ndbi'
+  },
+  {
+    id: 'palangka-raya-karhutla',
+    name: 'Lahan Gambut Sebangau & Palangka Raya',
+    locationName: 'Kawasan Rentan Karhutla & Gambut Tropis',
+    center: [113.8500, -2.3200],
+    zoom: 11,
+    pitch: 20,
+    description: 'Analisis bekas kebakaran hutan dan pemantauan dinamika kubah gambut tropis menggunakan NBR.',
+    recommendedProduct: 's2-indices-nbr'
+  },
+  {
+    id: 'riau-peatland',
+    name: 'Gambut Riau & Semenanjung Kampar',
+    locationName: 'Kawasan Hotspot Karhutla Pesisir Sumatra',
+    center: [102.4000, 0.4500],
+    zoom: 10.5,
+    pitch: 15,
+    description: 'Delineasi kawasan rawan karhutla dan pemulihan vegetasi lahan gambut pesisir dengan NBR & NDVI.',
+    recommendedProduct: 's2-indices-nbr'
   }
 ];

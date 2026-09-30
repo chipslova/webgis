@@ -9,14 +9,66 @@ export class SidebarUI {
   constructor() {
     this.bindEvents();
     this.bindGlobalCollapseEvent();
+    this.bindTouchDrawerGestures();
+  }
+
+  private bindTouchDrawerGestures() {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+
+    const sidebarEl = document.getElementById('sidebar');
+    if (sidebarEl) {
+      sidebarEl.addEventListener('touchstart', (e: TouchEvent) => {
+        if (e.touches.length === 1) {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+          touchStartTime = Date.now();
+        }
+      }, { passive: true });
+
+      sidebarEl.addEventListener('touchend', (e: TouchEvent) => {
+        if (e.changedTouches.length === 1) {
+          const deltaX = e.changedTouches[0].clientX - touchStartX;
+          const deltaY = e.changedTouches[0].clientY - touchStartY;
+          const deltaTime = Date.now() - touchStartTime;
+
+          // If horizontal swipe to the left by > 45px within 600ms, close sidebar
+          if (this.isOpen && deltaX < -45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2 && deltaTime < 600) {
+            this.setOpen(false);
+          }
+        }
+      }, { passive: true });
+    }
+
+    // Edge swipe listener on document for opening collapsed drawer
+    document.addEventListener('touchstart', (e: TouchEvent) => {
+      if (!this.isOpen && e.touches.length === 1 && e.touches[0].clientX < 32) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchStartTime = Date.now();
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e: TouchEvent) => {
+      if (!this.isOpen && touchStartX < 32 && e.changedTouches.length === 1) {
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
+        const deltaY = e.changedTouches[0].clientY - touchStartY;
+        const deltaTime = Date.now() - touchStartTime;
+
+        // If swipe right from left edge by > 45px
+        if (deltaX > 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2 && deltaTime < 600) {
+          this.setOpen(true);
+        }
+      }
+      touchStartX = 9999;
+    }, { passive: true });
   }
 
   private bindEvents() {
-    // Prevent touch & pointer events inside sidebar from propagating to the map canvas
+    // Prevent pointerdown inside sidebar from propagating to the map canvas
     const sidebarEl = document.getElementById('sidebar');
     if (sidebarEl) {
-      sidebarEl.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
-      sidebarEl.addEventListener('touchmove', (e) => e.stopPropagation(), { passive: true });
       sidebarEl.addEventListener('pointerdown', (e) => e.stopPropagation());
     }
 

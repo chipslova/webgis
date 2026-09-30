@@ -35,11 +35,13 @@ import { ErrorHandler } from './utils/error-handler';
 import { setupUniversalEscapeHandler, announceToScreenReader, closeMenu, toggleMenu } from './utils/a11y';
 import { escapeHtml } from './utils/sanitize';
 import { logger } from './utils/logger';
+import { EcoModeManager } from './tools/eco-mode';
 
 class WebGISApp {
   private mapManager: MapManager;
   private sidebarUI: SidebarUI;
   private statusBarUI: StatusBarUI;
+  private ecoModeManager: EcoModeManager | null = null;
   private geocoderTool: GeocoderTool | null = null;
   private measureTool: MeasureTool | null = null;
   private geojsonLoader: GeoJsonLoader | null = null;
@@ -223,6 +225,10 @@ class WebGISApp {
       // Connect Map instance to Basemap Customizer
       this.basemapCustomizer?.setMap(map);
 
+      // Initialize Low-Spec / GPU Eco-Mode Auto-Detection & Manager
+      this.ecoModeManager = new EcoModeManager(map, this.basemapCustomizer);
+      this.statusBarUI.setEcoModeManager(this.ecoModeManager);
+
       // Initialize Interactive Guided Tour
       this.guidedTourUI = new GuidedTourUI(
         this.mapManager,
@@ -251,6 +257,7 @@ class WebGISApp {
         this.swipeCompareManager,
         this.guidedTourUI
       );
+      this.commandPaletteUI.setEcoModeManager(this.ecoModeManager);
 
       // Instantiate Spatial Analysis & Zonal Statistics Module
       this.spatialAnalysisUI = new SpatialAnalysisUI(map, 'spatial-analysis-panel');

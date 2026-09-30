@@ -269,7 +269,7 @@ describe('Full WebGIS Feature & Button Audit', () => {
 
   describe('4. Piksel EO WMS Temporal & TimeMode Architecture', () => {
     it('should have correct timeMode defined for all Piksel products', () => {
-      const annualProducts = ['s2-geomad-rgb', 's2-geomad-nir', 's2-ndvi', 's2-ndwi', 's2-bsi', 's2-count'];
+      const annualProducts = ['s2-geomad-rgb', 's2-geomad-nir', 's2-ndvi', 's2-ndwi', 's2-indices-nbr', 's2-bsi', 's2-count'];
       annualProducts.forEach((id) => {
         const prod = PIKSEL_PRODUCTS.find(p => p.id === id);
         expect(prod).toBeDefined();

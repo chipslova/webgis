@@ -1,5 +1,6 @@
 import { showToast } from './toast';
 import { announceToScreenReader } from '../utils/a11y';
+import { EcoModeManager } from '../tools/eco-mode';
 
 export class StatusBarUI {
   private latEl: HTMLElement | null;
@@ -11,6 +12,9 @@ export class StatusBarUI {
   private coordGroup: HTMLElement | null;
   private netStatusDot: HTMLElement | null = null;
   private netStatusText: HTMLElement | null = null;
+  private ecoBtn: HTMLButtonElement | null = null;
+  private ecoText: HTMLElement | null = null;
+  private ecoModeManager?: EcoModeManager;
 
   private currentLat: number = 0;
   private currentLng: number = 0;
@@ -31,8 +35,36 @@ export class StatusBarUI {
     this.coordGroup = document.querySelector('.status-group');
     this.netStatusDot = document.getElementById('net-status-dot');
     this.netStatusText = document.getElementById('net-status-text');
+    this.ecoBtn = document.getElementById('btn-toggle-eco-mode') as HTMLButtonElement;
+    this.ecoText = document.getElementById('eco-mode-text');
 
     this.bindEvents();
+  }
+
+  public setEcoModeManager(manager: EcoModeManager) {
+    this.ecoModeManager = manager;
+    if (this.ecoBtn) {
+      this.ecoBtn.addEventListener('click', () => {
+        this.ecoModeManager?.toggleEcoMode();
+      });
+    }
+    this.ecoModeManager.onChange((isActive) => {
+      this.updateEcoUI(isActive);
+    });
+    this.updateEcoUI(this.ecoModeManager.isEcoMode());
+  }
+
+  private updateEcoUI(isActive: boolean) {
+    if (this.ecoBtn) {
+      this.ecoBtn.classList.toggle('is-active', isActive);
+      this.ecoBtn.setAttribute('aria-pressed', String(isActive));
+      this.ecoBtn.title = isActive
+        ? 'Mode Hemat GPU Aktif (Resolusi 1x & Kemiringan Dibatasi). Klik untuk Performa Penuh.'
+        : 'Mode Hemat Daya & GPU (Optimasi Perangkat Ringan / Baterai). Klik untuk Mengaktifkan.';
+    }
+    if (this.ecoText) {
+      this.ecoText.textContent = isActive ? 'Eco Aktif' : 'Eco GPU';
+    }
   }
 
   public setOnlineStatus(online: boolean) {
