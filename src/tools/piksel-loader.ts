@@ -65,8 +65,21 @@ export class PikselLoader {
   private activeSourceId: string | null = null;
   private activeLayerId: string | null = null;
 
+  // Double-Buffering & Cross-Fade Ping-Pong State (Time-Lapse Smooth Transition)
+  private activeSlot: number = 0;
+  private prefetchedYear: string | null = null;
+  private crossFadeCleanupTimer: ReturnType<typeof setTimeout> | null = null;
+
   public getActiveLayerId(): string | null {
     return this.activeLayerId;
+  }
+
+  public getLayerIdForSlot(productId: string, slot: number): string {
+    return slot === 0 ? `piksel-raster-${productId}` : `piksel-raster-${productId}-buf`;
+  }
+
+  public getSourceIdForSlot(productId: string, slot: number): string {
+    return slot === 0 ? `piksel-raster-src-${productId}` : `piksel-raster-src-${productId}-buf`;
   }
 
   private basemapCustomizerRef?: any;
@@ -398,8 +411,8 @@ export class PikselLoader {
       if (product && product.timeEnabled) {
         const currentReqId = ++this.requestCounter;
         this.activeRequestId = currentReqId;
-        this.cleanupActiveRasterLayer();
-        this.renderRasterLayer(product, currentReqId);
+        // Smooth Double-Buffering Cross-Fade: keep old year visible as backplate while loading new year
+        this.transitionToYear(product, year, currentReqId);
       }
     }
     this.notifyLayersChange();
@@ -485,6 +498,9 @@ export class PikselLoader {
       this.timeLapseTimer = null;
     }
 
+    // Immediately prefetch the upcoming frame into dormant GPU memory for instant first step
+    this.prefetchNextYear();
+
     this.timeLapseTimer = setInterval(() => {
       this.stepTimeLapse(1);
     }, this.timeLapseSpeedMs);
@@ -520,6 +536,7 @@ export class PikselLoader {
     const ids: string[] = [];
     PIKSEL_PRODUCTS.forEach((p) => {
       ids.push(`piksel-raster-${p.id}`);
+      ids.push(`piksel-raster-${p.id}-buf`);
     });
     ids.push('piksel-grid-fill', 'piksel-grid-line');
     return ids;
@@ -611,33 +628,48 @@ export class PikselLoader {
   private cleanupActiveRasterLayer() {
     if (!this.map) return;
 
-    PIKSEL_PRODUCTS.forEach((prod) => {
-      const lId = `piksel-raster-${prod.id}`;
-      const sId = `piksel-raster-src-${prod.id}`;
+    if (this.crossFadeCleanupTimer) {
+      clearTimeout(this.crossFadeCleanupTimer);
+      this.crossFadeCleanupTimer = null;
+    }
 
-      if (this.map.getLayer(lId)) {
-        try {
-          this.map.removeLayer(lId);
-        } catch (_) {}
-      }
-      if (this.map.getSource(sId)) {
-        try {
-          this.map.removeSource(sId);
-        } catch (_) {}
-      }
+    PIKSEL_PRODUCTS.forEach((prod) => {
+      [0, 1].forEach((slot) => {
+        const lId = this.getLayerIdForSlot(prod.id, slot);
+        const sId = this.getSourceIdForSlot(prod.id, slot);
+
+        if (this.map.getLayer(lId)) {
+          try {
+            this.map.removeLayer(lId);
+          } catch (_) {}
+        }
+        if (this.map.getSource(sId)) {
+          try {
+            this.map.removeSource(sId);
+          } catch (_) {}
+        }
+      });
     });
 
     this.activeSourceId = null;
     this.activeLayerId = null;
+    this.activeSlot = 0;
+    this.prefetchedYear = null;
   }
 
   /**
    * Constructs the authentic OGC WMS URL for MapLibre Web Mercator tiling
    */
-  private buildWmsTileUrl(product: PikselProduct): string {
+  private buildWmsTileUrl(product: PikselProduct, targetYear?: string): string {
     if (product.id === 's2-indices-ndbi') {
       return `${product.serviceUrl}?bbox={bbox-epsg-3857}&bboxSR=3857&imageSR=3857&size=256,256&format=png&transparent=true&f=image`;
     }
+
+    const yearToUse = targetYear || (
+      (product.availableYears && product.availableYears.includes(this.selectedYear))
+        ? this.selectedYear
+        : (product.availableYears ? product.availableYears[0] : this.selectedYear)
+    );
 
     const params = new URLSearchParams({
       SERVICE: 'WMS',
@@ -653,10 +685,6 @@ export class PikselLoader {
     });
 
     if (product.timeEnabled) {
-      const yearToUse = (product.availableYears && product.availableYears.includes(this.selectedYear))
-        ? this.selectedYear
-        : (product.availableYears ? product.availableYears[0] : this.selectedYear);
-
       switch (product.timeMode) {
         case 'year-range':
           params.set('TIME', `${yearToUse}-01-01/${yearToUse}-12-31`);
@@ -673,7 +701,7 @@ export class PikselLoader {
       product: product.id,
       layer: product.layer,
       style: product.style,
-      year: this.selectedYear,
+      year: yearToUse,
       timeMode: product.timeMode,
       url
     });
@@ -687,8 +715,10 @@ export class PikselLoader {
     if (!this.map) return;
     if (requestId !== this.activeRequestId) return;
 
-    const sourceId = `piksel-raster-src-${product.id}`;
-    const layerId = `piksel-raster-${product.id}`;
+    const slot = 0;
+    this.activeSlot = slot;
+    const sourceId = this.getSourceIdForSlot(product.id, slot);
+    const layerId = this.getLayerIdForSlot(product.id, slot);
     const tileUrl = this.buildWmsTileUrl(product);
     const minZoom = product.minZoom ?? 8;
 
@@ -701,7 +731,7 @@ export class PikselLoader {
     this.tilesFailed = 0;
     this.requestStartTime = performance.now();
 
-    const currentZoom = this.map.getZoom();
+    const currentZoom = typeof this.map.getZoom === 'function' ? this.map.getZoom() : 10;
     if (currentZoom < minZoom) {
       this.emitState('zoom_too_low');
     } else {
@@ -732,20 +762,218 @@ export class PikselLoader {
         source: sourceId,
         minzoom: minZoom,
         maxzoom: 18,
-        layout: { visibility: 'visible' },
+        layout: { visibility: this.rasterVisible ? 'visible' : 'none' },
         paint: {
           'raster-opacity': this.currentOpacity,
-          'raster-fade-duration': 250,
+          'raster-fade-duration': 300,
           'raster-brightness-min': this.currentBrightness > 0 ? this.currentBrightness * 0.5 : 0,
           'raster-brightness-max': this.currentBrightness < 0 ? Math.max(0.2, 1 + this.currentBrightness * 0.5) : 1,
           'raster-contrast': this.currentContrast,
           'raster-saturation': this.currentSaturation
         }
       });
+
+      // If time-enabled, prime the upcoming frame in background cache
+      if (product.timeEnabled && product.availableYears && product.availableYears.length > 1) {
+        setTimeout(() => this.prefetchNextYear(), 500);
+      }
     } catch (e) {
       ErrorHandler.getInstance().showThrottledError(`Failed to load satellite layer ${product.name}.`);
       logger.warn(`[PikselLoader] Layer error for ${product.id}:`, e);
       this.emitState('error', `Failed to add WMS layer: ${(e as Error).message}`);
+    }
+  }
+
+  /**
+   * Pre-fetches the subsequent chronological year's tiles in the background idle slot
+   * so the next transition has 0ms latency and 0% basemap leakage.
+   */
+  public prefetchNextYear() {
+    if (!this.map || !this.activeProductId) return;
+    const prod = this.getActiveProduct();
+    if (!prod || !prod.timeEnabled || !prod.availableYears || prod.availableYears.length <= 1) return;
+
+    const years = this.getChronologicalYears();
+    const currentIndex = years.indexOf(this.selectedYear);
+    if (currentIndex === -1) return;
+
+    const nextIndex = (currentIndex + 1) % years.length;
+    const nextYear = years[nextIndex];
+
+    const idleSlot = this.activeSlot === 0 ? 1 : 0;
+    const prefetchSourceId = this.getSourceIdForSlot(prod.id, idleSlot);
+    const prefetchLayerId = this.getLayerIdForSlot(prod.id, idleSlot);
+    const tileUrl = this.buildWmsTileUrl(prod, nextYear);
+    const minZoom = prod.minZoom ?? 8;
+
+    try {
+      if (this.map.getLayer(prefetchLayerId)) {
+        this.map.removeLayer(prefetchLayerId);
+      }
+      if (this.map.getSource(prefetchSourceId)) {
+        this.map.removeSource(prefetchSourceId);
+      }
+
+      this.map.addSource(prefetchSourceId, {
+        type: 'raster',
+        tiles: [tileUrl],
+        tileSize: 256,
+        minzoom: minZoom,
+        maxzoom: 18,
+        attribution: prod.attribution || '© Badan Informasi Geospasial (BIG) — Piksel'
+      });
+
+      this.map.addLayer({
+        id: prefetchLayerId,
+        type: 'raster',
+        source: prefetchSourceId,
+        minzoom: minZoom,
+        maxzoom: 18,
+        layout: { visibility: 'visible' },
+        paint: {
+          'raster-opacity': 0.0001, // Dormant in GPU memory, invisible to user
+          'raster-fade-duration': 300,
+          'raster-brightness-min': this.currentBrightness > 0 ? this.currentBrightness * 0.5 : 0,
+          'raster-brightness-max': this.currentBrightness < 0 ? Math.max(0.2, 1 + this.currentBrightness * 0.5) : 1,
+          'raster-contrast': this.currentContrast,
+          'raster-saturation': this.currentSaturation
+        }
+      });
+      this.prefetchedYear = nextYear;
+    } catch (_) {}
+  }
+
+  /**
+   * Performs seamless Double-Buffering cross-fade transition between years without basemap flicker.
+   */
+  private transitionToYear(product: PikselProduct, targetYear: string, requestId: number) {
+    if (!this.map) return;
+    if (requestId !== this.activeRequestId) return;
+
+    const currentSlot = this.activeSlot;
+    const nextSlot = currentSlot === 0 ? 1 : 0;
+
+    const currentLayerId = this.getLayerIdForSlot(product.id, currentSlot);
+    const currentSourceId = this.getSourceIdForSlot(product.id, currentSlot);
+
+    const nextLayerId = this.getLayerIdForSlot(product.id, nextSlot);
+    const nextSourceId = this.getSourceIdForSlot(product.id, nextSlot);
+
+    const minZoom = product.minZoom ?? 8;
+    const currentZoom = typeof this.map.getZoom === 'function' ? this.map.getZoom() : 10;
+
+    // Check if nextLayerId was already pre-fetched in GPU memory
+    const isPrefetched = this.prefetchedYear === targetYear && this.map.getLayer(nextLayerId);
+
+    if (isPrefetched) {
+      // 0ms instant transition!
+      try {
+        if (typeof this.map.setPaintProperty === 'function') {
+          this.map.setPaintProperty(nextLayerId, 'raster-opacity', this.currentOpacity);
+        }
+      } catch (_) {}
+
+      this.activeSlot = nextSlot;
+      this.activeLayerId = nextLayerId;
+      this.activeSourceId = nextSourceId;
+      this.prefetchedYear = null;
+
+      // Clean up previous year layer after cross-fade duration (350ms)
+      if (this.crossFadeCleanupTimer) {
+        clearTimeout(this.crossFadeCleanupTimer);
+      }
+      this.crossFadeCleanupTimer = setTimeout(() => {
+        try {
+          if (this.map && typeof this.map.getLayer === 'function' && this.map.getLayer(currentLayerId)) {
+            this.map.removeLayer(currentLayerId);
+          }
+          if (this.map && typeof this.map.getSource === 'function' && this.map.getSource(currentSourceId)) {
+            this.map.removeSource(currentSourceId);
+          }
+        } catch (_) {}
+      }, 350);
+
+      // Pre-fetch subsequent frame into newly-vacated slot
+      if (this.isTimeLapsePlaying()) {
+        setTimeout(() => this.prefetchNextYear(), 400);
+      }
+      return;
+    }
+
+    // Manual jump or unprefetched transition:
+    // Add nextLayerId ON TOP of currentLayerId so currentLayerId acts as solid backplate (0% basemap leakage)
+    const tileUrl = this.buildWmsTileUrl(product, targetYear);
+    this.activeSourceId = nextSourceId;
+    this.activeLayerId = nextLayerId;
+    this.activeSlot = nextSlot;
+
+    this.tilesRequested = 0;
+    this.tilesLoaded = 0;
+    this.tilesFailed = 0;
+    this.requestStartTime = performance.now();
+
+    if (currentZoom < minZoom) {
+      this.emitState('zoom_too_low');
+    } else {
+      this.emitState('requesting');
+    }
+
+    try {
+      if (this.map.getLayer(nextLayerId)) {
+        this.map.removeLayer(nextLayerId);
+      }
+      if (this.map.getSource(nextSourceId)) {
+        this.map.removeSource(nextSourceId);
+      }
+
+      this.map.addSource(nextSourceId, {
+        type: 'raster',
+        tiles: [tileUrl],
+        tileSize: 256,
+        minzoom: minZoom,
+        maxzoom: 18,
+        attribution: product.attribution || '© Badan Informasi Geospasial (BIG) — Piksel'
+      });
+
+      this.map.addLayer({
+        id: nextLayerId,
+        type: 'raster',
+        source: nextSourceId,
+        minzoom: minZoom,
+        maxzoom: 18,
+        layout: { visibility: this.rasterVisible ? 'visible' : 'none' },
+        paint: {
+          'raster-opacity': this.currentOpacity,
+          'raster-fade-duration': 300,
+          'raster-brightness-min': this.currentBrightness > 0 ? this.currentBrightness * 0.5 : 0,
+          'raster-brightness-max': this.currentBrightness < 0 ? Math.max(0.2, 1 + this.currentBrightness * 0.5) : 1,
+          'raster-contrast': this.currentContrast,
+          'raster-saturation': this.currentSaturation
+        }
+      });
+
+      // Keep currentLayerId visible until new tiles have cross-faded in (500ms)
+      if (this.crossFadeCleanupTimer) {
+        clearTimeout(this.crossFadeCleanupTimer);
+      }
+      this.crossFadeCleanupTimer = setTimeout(() => {
+        try {
+          if (this.map && typeof this.map.getLayer === 'function' && this.map.getLayer(currentLayerId)) {
+            this.map.removeLayer(currentLayerId);
+          }
+          if (this.map && typeof this.map.getSource === 'function' && this.map.getSource(currentSourceId)) {
+            this.map.removeSource(currentSourceId);
+          }
+        } catch (_) {}
+      }, 500);
+
+      // Pre-fetch subsequent frame
+      if (this.isTimeLapsePlaying()) {
+        setTimeout(() => this.prefetchNextYear(), 600);
+      }
+    } catch (e) {
+      logger.warn(`[PikselLoader] Cross-fade transition fallback for ${product.id}:`, e);
+      this.renderRasterLayer(product, requestId);
     }
   }
 
@@ -759,10 +987,12 @@ export class PikselLoader {
     this.rasterVisible = visible;
     if (!this.map || !this.activeProductId) return;
 
-    const layerId = `piksel-raster-${this.activeProductId}`;
-    if (this.map.getLayer(layerId)) {
-      this.map.setLayoutProperty(layerId, 'visibility', visible ? 'visible' : 'none');
-    }
+    [0, 1].forEach((slot) => {
+      const layerId = this.getLayerIdForSlot(this.activeProductId!, slot);
+      if (typeof this.map.getLayer === 'function' && this.map.getLayer(layerId)) {
+        this.map.setLayoutProperty(layerId, 'visibility', visible ? 'visible' : 'none');
+      }
+    });
     this.notifyLayersChange();
   }
 
@@ -771,10 +1001,12 @@ export class PikselLoader {
 
     if (!this.map || !this.activeProductId) return;
 
-    const layerId = `piksel-raster-${this.activeProductId}`;
-    if (this.map.getLayer(layerId)) {
-      this.map.setPaintProperty(layerId, 'raster-opacity', opacity);
-    }
+    [0, 1].forEach((slot) => {
+      const layerId = this.getLayerIdForSlot(this.activeProductId!, slot);
+      if (typeof this.map.getLayer === 'function' && this.map.getLayer(layerId)) {
+        this.map.setPaintProperty(layerId, 'raster-opacity', opacity);
+      }
+    });
     this.notifyLayersChange();
   }
 
@@ -810,18 +1042,20 @@ export class PikselLoader {
 
   private applyRasterFilters() {
     if (!this.map || !this.activeProductId) return;
-    const layerId = `piksel-raster-${this.activeProductId}`;
-    if (!this.map.getLayer(layerId)) return;
-
     const bMin = this.currentBrightness > 0 ? this.currentBrightness * 0.5 : 0;
     const bMax = this.currentBrightness < 0 ? Math.max(0.2, 1 + this.currentBrightness * 0.5) : 1;
 
-    try {
-      this.map.setPaintProperty(layerId, 'raster-brightness-min', bMin);
-      this.map.setPaintProperty(layerId, 'raster-brightness-max', bMax);
-      this.map.setPaintProperty(layerId, 'raster-contrast', this.currentContrast);
-      this.map.setPaintProperty(layerId, 'raster-saturation', this.currentSaturation);
-    } catch (_) {}
+    [0, 1].forEach((slot) => {
+      const layerId = this.getLayerIdForSlot(this.activeProductId!, slot);
+      if (typeof this.map.getLayer === 'function' && this.map.getLayer(layerId)) {
+        try {
+          this.map.setPaintProperty(layerId, 'raster-brightness-min', bMin);
+          this.map.setPaintProperty(layerId, 'raster-brightness-max', bMax);
+          this.map.setPaintProperty(layerId, 'raster-contrast', this.currentContrast);
+          this.map.setPaintProperty(layerId, 'raster-saturation', this.currentSaturation);
+        } catch (_) {}
+      }
+    });
   }
 
   public setGridVisible(visible: boolean) {
