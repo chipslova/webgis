@@ -90,7 +90,7 @@ export interface PikselPreset {
 
 export const PIKSEL_CATEGORIES: { id: ProductCategory; name: string; icon: string; subtitle: string }[] = [
   { id: 'geomad', name: 'Sentinel-2 GeoMAD', icon: '', subtitle: 'Komposit Optik & Inframerah Bebas Awan 10m' },
-  { id: 'indices', name: 'Indeks Spektral', icon: '', subtitle: 'Indeks Vegetasi, Badan Air, Karhutla (NBR) & Tanah 10m' },
+  { id: 'indices', name: 'Indeks Spektral', icon: '', subtitle: 'Indeks Vegetasi (NDVI), Air (NDWI), Bangunan (NDBI) & Kelembapan (NDMI) 10m' },
   { id: 'landsat', name: 'Landsat 9', icon: '', subtitle: 'Observasi Reflektansi Permukaan USGS/NASA 30m' },
   { id: 'hazard', name: 'Bahaya Banjir', icon: '', subtitle: 'Pemodelan Hidrologi Bahaya Banjir Kawasan Prioritas' },
   { id: 'quality', name: 'Kualitas & Densitas Data', icon: '', subtitle: 'Statistik Pengamatan Bebas Awan Tiap Piksel' }
@@ -535,23 +535,33 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     recommendedProduct: 's2-geomad-nir'
   },
   {
+    id: 'jakarta-urban',
+    name: 'DKI Jakarta & Sekitarnya',
+    locationName: 'Kerapatan Tapak Bangunan & Perkotaan',
+    center: [106.8272, -6.1754],
+    zoom: 11,
+    pitch: 20,
+    description: 'Delineasi kawasan perkotaan dan konsentrasi tapak bangunan fisik menggunakan NDBI (tampak magenta/ungu pekat pada area pemukiman padat).',
+    recommendedProduct: 's2-ndbi'
+  },
+  {
     id: 'palangka-raya-karhutla',
-    name: 'Lahan Gambut Sebangau & Palangka Raya',
-    locationName: 'Kelembapan Kubah Gambut vs Kota',
+    name: 'Taman Nasional Sebangau',
+    locationName: 'Hutan Rawa Gambut & Kelembapan Kanopi',
     center: [113.8500, -2.3200],
     zoom: 11,
     pitch: 20,
-    description: 'Analisis kadar air vegetasi NDMI: Kubah gambut Sebangau tampak biru tua karena kanopi basah lebat, sedangkan pusat kota Palangka Raya tampak putih/pucat karena rendah kadar air.',
+    description: 'Analisis kadar air vegetasi rawa gambut primer dengan NDMI (tampak biru tua karena tutupan kanopi basah dan tergenang alami).',
     recommendedProduct: 's2-ndmi'
   },
   {
     id: 'riau-peatland',
-    name: 'Gambut Riau & Semenanjung Kampar',
+    name: 'Semenanjung Kampar',
     locationName: 'Kadar Air Kanopi Gambut Pesisir',
     center: [102.4000, 0.4500],
     zoom: 10.5,
     pitch: 15,
-    description: 'Pemantauan status hidrologis gambut Semenanjung Kampar: Warna biru tua menandakan tutupan kanopi berair, sedangkan area memutih menandakan defisit kelembapan kanopi.',
+    description: 'Pemantauan kadar air kanopi vegetasi gambut pesisir Sumatra dengan NDMI (tampak gradien biru sesuai kelembapan kanopi).',
     recommendedProduct: 's2-ndmi'
   }
 ];

@@ -250,7 +250,7 @@ describe('Satellite Image Filter Adjustments (Brightness, Contrast, Saturation)'
     expect(card?.classList.contains('is-active')).toBe(true);
   });
 
-  it('should navigate to Karhutla peatland presets and recommend s2-ndmi', () => {
+  it('should navigate to Sebangau, Kampar, and Jakarta presets with correct recommended products', () => {
     const mockMap: any = createMockMap();
     const loader = new PikselLoader(mockMap);
     const presets = loader.getPresets();
@@ -262,6 +262,10 @@ describe('Satellite Image Filter Adjustments (Brightness, Contrast, Saturation)'
     const riauPreset = presets.find((p) => p.id === 'riau-peatland');
     expect(riauPreset).toBeDefined();
     expect(riauPreset?.recommendedProduct).toBe('s2-ndmi');
+
+    const jktPreset = presets.find((p) => p.id === 'jakarta-urban');
+    expect(jktPreset).toBeDefined();
+    expect(jktPreset?.recommendedProduct).toBe('s2-ndbi');
 
     loader.flyToPreset(palangkaPreset!);
     expect(mockMap.flyTo).toHaveBeenCalledWith(expect.objectContaining({
