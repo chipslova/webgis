@@ -24,11 +24,13 @@
     "@turf/length": "7.4.0",
     "@turf/union": "7.4.0",
     "maplibre-gl": "6.10.0",
-    "pmtiles": "3.2.1"
+    "pmtiles": "3.2.1",
+    "shpjs": "^6.2.0"
   },
   "devDependencies": {
     "@turf/distance": "7.4.0",
     "@types/node": "26.2.0",
+    "@types/shpjs": "^3.4.7",
     "happy-dom": "20.14.0",
     "typescript": "5.9.3",
     "vite": "6.4.3",

@@ -443,6 +443,10 @@ export class GeoJsonLoader {
     return Array.from(this.customLayers.values());
   }
 
+  public getCustomLayers(): CustomLayerItem[] {
+    return this.getLayers();
+  }
+
   public getLayer(layerId: string): CustomLayerItem | undefined {
     return this.customLayers.get(layerId);
   }
@@ -539,6 +543,74 @@ export class GeoJsonLoader {
       return {
         success: false,
         error: `Failed to read file: ${err?.message || 'Unrecognized format'}`
+      };
+    }
+  }
+
+  /**
+   * Parses an ESRI Shapefile .zip buffer and adds each extracted FeatureCollection as a distinct custom layer.
+   */
+  public async loadFromZipBuffer(
+    fileName: string,
+    buffer: ArrayBuffer,
+    customColor?: string
+  ): Promise<{
+    success: boolean;
+    layersCreated?: string[];
+    error?: string;
+    totalFeatures?: number;
+    layerNames?: string[];
+  }> {
+    try {
+      const { parseShapefileZip } = await import('../utils/shapefile-parser');
+      const res = await parseShapefileZip(buffer, fileName);
+
+      if (!res.success || !res.layers || res.layers.length === 0) {
+        return {
+          success: false,
+          error: res.error || 'Gagal memproses berkas Shapefile .zip.'
+        };
+      }
+
+      const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4'];
+      const layersCreated: string[] = [];
+      const layerNames: string[] = [];
+      let totalFeatures = 0;
+
+      res.layers.forEach((item, idx) => {
+        const layerId = `layer-shp-${Date.now()}-${idx}-${Math.floor(Math.random() * 1000)}`;
+        const layerColor = customColor || palette[idx % palette.length];
+        const added = this.addGeoJSONLayer(layerId, item.fileName, item.geojson, layerColor);
+        if (added) {
+          layersCreated.push(layerId);
+          layerNames.push(item.fileName);
+          totalFeatures += item.featureCount;
+        }
+      });
+
+      if (layersCreated.length === 0) {
+        return {
+          success: false,
+          error: 'Koordinat pada Shapefile melebihi batas WGS84 atau tidak memiliki fitur yang valid.'
+        };
+      }
+
+      // Zoom to the first added layer so the user sees it immediately
+      if (layersCreated.length > 0) {
+        this.zoomToLayer(layersCreated[0]);
+      }
+
+      return {
+        success: true,
+        layersCreated,
+        layerNames,
+        totalFeatures
+      };
+    } catch (err: any) {
+      logger.error('[GeoJsonLoader] Error in loadFromZipBuffer:', err);
+      return {
+        success: false,
+        error: `Gagal memproses Shapefile: ${err?.message || 'Format tidak didukung'}`
       };
     }
   }

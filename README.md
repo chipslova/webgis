@@ -10,7 +10,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.10.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-239%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-244%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
   <img src="docs/preview.jpg" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
@@ -99,7 +99,8 @@ Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit 
 * **Ekstrusi Bangunan 3D OpenFreeMap**: Render 3D poligon bangunan planet secara dinamis dengan transisi kamera halus.
 
 ### 📁 6. Hub Data Geospasial & Tabel Atribut
-* **Impor Multi-Format**: Drag-and-drop atau pilih berkas `.geojson`, `.json`, `.kml`, `.csv`, `.tsv`, dan `.txt` dengan deteksi otomatis kolom koordinat (Latitude/Longitude).
+* **Impor Multi-Format Terpadu**: Drag-and-drop atau pilih berkas ESRI Shapefile (`.zip` terkompresi `.shp`, `.dbf`, `.shx`, `.prj`), `.geojson`, `.json`, `.kml`, `.csv`, `.tsv`, dan `.txt` dengan deteksi otomatis kolom koordinat (Latitude/Longitude).
+* **Dukungan Multi-Layer Shapefile Archive**: Ekstraksi otomatis arsip `.zip` multi-layer (mis. poligon batas, jaringan jalan, dan titik fasilitas sekaligus) menjadi lapisan-lapisan vektor terpisah dengan palet warna otomatis dan pembacaan tabel atribut (`.dbf`).
 * **Ekspor Vektor**: Unduh data spasial yang telah diolah ke format `.geojson` maupun format `.kml` yang telah disanitisasi XML.
 * **Panel Tabel Atribut Spasial**: Inspeksi data tabular interaktif dengan pencarian teks real-time, penyorotan fitur (*feature highlighting*), dan sanitasi karakter HTML yang aman dari serangan XSS.
 

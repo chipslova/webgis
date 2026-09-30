@@ -242,12 +242,35 @@ export class DataPanelUI {
     });
   }
 
-  private handleGeoJSONFile(file: File) {
-    // 1. File size limit guard (25MB)
-    const MAX_SIZE_BYTES = 25 * 1024 * 1024;
+  private async handleGeoJSONFile(file: File) {
+    const isZip = file.name.toLowerCase().endsWith('.zip');
+    const MAX_SIZE_BYTES = isZip ? 50 * 1024 * 1024 : 25 * 1024 * 1024;
     if (file.size > MAX_SIZE_BYTES) {
       const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-      showToast(`Ukuran berkas (${sizeMB} MB) melebihi batas maksimum 25 MB untuk stabilitas peramban.`, 'error', 5000);
+      const limitMB = isZip ? 50 : 25;
+      showToast(`Ukuran berkas (${sizeMB} MB) melebihi batas maksimum ${limitMB} MB untuk stabilitas peramban.`, 'error', 5000);
+      return;
+    }
+
+    if (isZip) {
+      showToast(`Mengekstrak dan memproses Shapefile "${file.name}"...`, 'info', 3000);
+      try {
+        const buffer = await file.arrayBuffer();
+        const res = await this.geojsonLoader.loadFromZipBuffer(file.name, buffer);
+        if (res.success) {
+          this.render();
+          this.sidebarUI.setActiveTab('data');
+          this.onLayerChange();
+          const countStr = res.layersCreated && res.layersCreated.length > 1
+            ? `${res.layersCreated.length} lapisan (${res.totalFeatures} total fitur)`
+            : `${res.totalFeatures} fitur`;
+          showToast(`Shapefile "${file.name}" berhasil diimpor: ${countStr}!`, 'success', 4500);
+        } else {
+          showToast(res.error || `Gagal memproses Shapefile "${file.name}".`, 'error', 5000);
+        }
+      } catch (err: any) {
+        showToast(`Gagal membaca berkas Shapefile: ${err.message || 'Format tidak valid'}`, 'error');
+      }
       return;
     }
 
