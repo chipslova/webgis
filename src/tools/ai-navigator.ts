@@ -378,9 +378,13 @@ export class AINavigator {
 
           const pikselLabels: Record<string, string> = {
             's2-geomad-rgb': 'Citra Satelit Sentinel-2 True Color 10m',
-            's2-indices-ndvi': 'Indeks Kerapatan Vegetasi NDVI (Sentinel-2 10m)',
-            's2-indices-ndwi': 'Indeks Badan Air Permukaan NDWI (Sentinel-2 10m)',
-            's2-indices-nbr': 'Indeks Kebakaran Hutan NBR (Sentinel-2 10m)',
+            's2-geomad-nir': 'Citra Satelit False Color NIR 10m',
+            's2-ndvi': 'Indeks Kerapatan Vegetasi NDVI (Sentinel-2 10m)',
+            's2-ndwi': 'Indeks Badan Air Permukaan NDWI (Sentinel-2 10m)',
+            's2-ndbi': 'Indeks Area Terbangun NDBI (Sentinel-2 10m)',
+            's2-ndmi': 'Indeks Kelembapan Kanopi & Gambut NDMI (Sentinel-2 10m)',
+            'flood-hazard-rp02': 'Peta Bahaya Banjir PU 2-Tahun',
+            'flood-hazard-rp10': 'Peta Bahaya Banjir PU 10-Tahun',
             'hazard-flood': 'Peta Pemodelan Bahaya Banjir Prioritas'
           };
           const label = pikselLabels[layerId] || layerId;

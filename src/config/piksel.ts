@@ -242,38 +242,70 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
   },
   {
-    id: 's2-indices-nbr',
-    name: 'Indeks Kebakaran Hutan & Bekas Terbakar (NBR)',
+    id: 's2-ndbi',
+    name: 'Indeks Area Terbangun (NDBI)',
     category: 'indices',
     layer: 's2_geomad_annual_indices',
-    style: 'nbr',
+    style: 'ndbi',
     timeEnabled: true,
     timeMode: 'annual',
     availableYears: S2_YEARS,
     minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'Normalized Burn Ratio (NBR) dari rasio spektral NIR (B8) dan SWIR (B12) untuk mendeteksi bekas kebakaran hutan (karhutla), degradasi kubah gambut, dan estimasi keparahan luka bakar.',
-    whatItShows: 'Indikator Karhutla: Hijau tua menunjukkan kanopi hutan lebat dan sehat; kuning menunjukkan vegetasi jarang/pemulihan; oranye menunjukkan luka bakar sedang; merah pekat/ungu tua menunjukkan bekas kebakaran hutan hebat (burn scar) atau lahan gambut terbakar.',
-    badge: 'Indeks Karhutla',
-    color: '#e11d48',
+    description: 'Normalized Difference Built-Up Index resmi dari BIG Piksel (SWIR - NIR) untuk mendeteksi sebaran wilayah perkotaan, infrastruktur, dan tapak bangunan.',
+    whatItShows: 'Kawasan perkotaan & bangunan: Nilai positif (warna merah/oranye) menunjukkan pemukiman padat dan struktur fisik; nilai negatif menunjukkan air dan tutupan vegetasi.',
+    badge: 'Indeks Bangunan (BIG)',
+    color: '#f97316',
     resolution: '10 meters',
-    sensor: 'Sentinel-2 GeoMAD (NIR B8 & SWIR-2 B12)',
+    sensor: 'Sentinel-2 GeoMAD Indices',
     isComputeHeavy: true,
     legend: {
       type: 'continuous',
-      leftLabel: 'Bekas Terbakar Parah (-1,0 s/d -0,1)',
-      middleLabel: 'Luka Sedang / Pulih (0,1 s/d 0,3)',
-      rightLabel: 'Kanopi Sehat (+0,4 s/d +1,0)',
-      gradientClass: 'nbr-gradient',
-      rangeText: 'Skala Indeks NBR: -1,0 s/d +1,0',
+      leftLabel: 'Air / Vegetasi (-1,0 s/d 0,0)',
+      middleLabel: 'Campuran / Terbuka (0,0 s/d 0,2)',
+      rightLabel: 'Area Terbangun (+0,3 s/d +1,0)',
+      gradientClass: 'ndbi-gradient',
+      rangeText: 'Skala Indeks NDBI: -1,0 s/d +1,0',
       swatches: [
-        { label: 'Bekas Terbakar Parah (Ungu Gelap)', color: '#881337' },
-        { label: 'Luka Bakar Sedang (Oranye)', color: '#ea580c' },
-        { label: 'Vegetasi Jarang / Pulih (Kuning)', color: '#fde047' },
-        { label: 'Kanopi Sehat Utuh (Hijau Tua)', color: '#15803d' }
+        { label: 'Vegetasi / Air (Biru)', color: '#0284c7' },
+        { label: 'Lahan Terbuka (Kuning)', color: '#fde047' },
+        { label: 'Area Terbangun / Kota (Merah)', color: '#dc2626' }
       ]
     },
-    attribution: '© Badan Informasi Geospasial (BIG) — Piksel / Copernicus Sentinel-2'
+    attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
+  },
+  {
+    id: 's2-ndmi',
+    name: 'Indeks Kelembapan Kanopi & Gambut (NDMI)',
+    category: 'indices',
+    layer: 's2_geomad_annual_indices',
+    style: 'ndmi',
+    timeEnabled: true,
+    timeMode: 'annual',
+    availableYears: S2_YEARS,
+    minZoom: 8,
+    serviceUrl: PIKSEL_WMS_BASE_URL,
+    description: 'Normalized Difference Moisture Index resmi dari BIG Piksel (NIR - SWIR) untuk mendeteksi kadar air kanopi dan tingkat kelembapan kubah lahan gambut.',
+    whatItShows: 'Kelembapan & Stres Air: Nilai tinggi (warna biru tua) menunjukkan kanopi basah dan kubah gambut jenuh air; nilai rendah (kuning/cokelat) menunjukkan vegetasi mengalami defisit kelembapan/kering rentan karhutla.',
+    badge: 'Indeks Kelembapan (BIG)',
+    color: '#06b6d4',
+    resolution: '10 meters',
+    sensor: 'Sentinel-2 GeoMAD Indices',
+    isComputeHeavy: true,
+    legend: {
+      type: 'continuous',
+      leftLabel: 'Kering / Rentan (-1,0 s/d -0,2)',
+      middleLabel: 'Kelembapan Sedang (0,0)',
+      rightLabel: 'Kanopi Lembap / Basah (+0,3 s/d +1,0)',
+      gradientClass: 'ndmi-gradient',
+      rangeText: 'Skala Indeks NDMI: -1,0 s/d +1,0',
+      swatches: [
+        { label: 'Kering / Defisit Air (Cokelat/Kuning)', color: '#d97706' },
+        { label: 'Kelembapan Sedang (Sian)', color: '#38bdf8' },
+        { label: 'Kubah Basah / Jenuh Air (Biru Tua)', color: '#1e3a8a' }
+      ]
+    },
+    attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
   },
   {
     id: 's2-bsi',
@@ -288,12 +320,12 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     serviceUrl: PIKSEL_WMS_BASE_URL,
     description: 'Kombinasi spektral Blue-Red-NIR-SWIR untuk mengidentifikasi tanah terbuka, pembukaan lahan, tambang, dan area konstruksi.',
     whatItShows: 'Paparan tanah terbuka: Nilai tinggi menunjukkan lahan terbuka atau tambang aktif, nilai rendah menunjukkan tutupan kanopi atau air.',
-    badge: 'Fallback Mode',
+    badge: 'Server Maintenance',
     color: '#d97706',
     resolution: '10 meters',
     sensor: 'Sentinel-2 GeoMAD Indices',
-    isDisabled: false,
-    statusNotice: 'Mendukung fallback cerdas ke False Color / Reflektansi Spektral 10m jika server OGC hulu mengalami kendala.',
+    isDisabled: true,
+    statusNotice: 'Layanan hulu BIG Open Data Cube sedang mengalami kendala internal fungsi (Error 500 upstream). Dinonaktifkan sementara sampai tim teknis BIG merilis perbaikan.',
     legend: {
       type: 'continuous',
       leftLabel: 'Vegetasi / Air',
@@ -509,8 +541,8 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     center: [113.8500, -2.3200],
     zoom: 11,
     pitch: 20,
-    description: 'Analisis bekas kebakaran hutan dan pemantauan dinamika kubah gambut tropis menggunakan NBR.',
-    recommendedProduct: 's2-indices-nbr'
+    description: 'Analisis status hidrologis kubah gambut tropis dan pemantauan kekeringan kanopi menggunakan NDMI.',
+    recommendedProduct: 's2-ndmi'
   },
   {
     id: 'riau-peatland',
@@ -519,7 +551,7 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     center: [102.4000, 0.4500],
     zoom: 10.5,
     pitch: 15,
-    description: 'Delineasi kawasan rawan karhutla dan pemulihan vegetasi lahan gambut pesisir dengan NBR & NDVI.',
-    recommendedProduct: 's2-indices-nbr'
+    description: 'Delineasi kawasan rawan karhutla dan pemantauan kadar air kanopi lahan gambut pesisir dengan NDMI & NDVI.',
+    recommendedProduct: 's2-ndmi'
   }
 ];

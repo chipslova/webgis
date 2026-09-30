@@ -224,62 +224,62 @@ describe('Satellite Image Filter Adjustments (Brightness, Contrast, Saturation)'
     expect(document.getElementById('btn-timelapse-play')?.innerHTML).toContain('Putar');
   });
 
-  it('should activate s2-indices-nbr (Normalized Burn Ratio) and render Karhutla legend', () => {
+  it('should activate s2-ndmi (Normalized Difference Moisture Index) and render moisture legend', () => {
     const mockMap: any = createMockMap();
     const loader = new PikselLoader(mockMap);
     const panelUI = new PikselPanelUI(loader);
     panelUI.init();
 
-    loader.setActiveProduct('s2-indices-nbr');
+    loader.setActiveProduct('s2-ndmi');
     const activeProduct = loader.getActiveProduct();
 
     expect(activeProduct).toBeDefined();
-    expect(activeProduct?.id).toBe('s2-indices-nbr');
-    expect(activeProduct?.name).toContain('NBR');
-    expect(activeProduct?.badge).toBe('Indeks Karhutla');
+    expect(activeProduct?.id).toBe('s2-ndmi');
+    expect(activeProduct?.name).toContain('NDMI');
+    expect(activeProduct?.badge).toContain('Indeks Kelembapan');
     expect(activeProduct?.timeEnabled).toBe(true);
     expect(activeProduct?.legend.type).toBe('continuous');
     if (activeProduct?.legend.type === 'continuous') {
-      expect(activeProduct.legend.gradientClass).toBe('nbr-gradient');
-      expect(activeProduct.legend.swatches?.length).toBeGreaterThanOrEqual(4);
+      expect(activeProduct.legend.gradientClass).toBe('ndmi-gradient');
+      expect(activeProduct.legend.swatches?.length).toBeGreaterThanOrEqual(3);
     }
 
     panelUI.render();
-    const card = document.querySelector('.clean-product-card[data-id="s2-indices-nbr"]');
+    const card = document.querySelector('.clean-product-card[data-id="s2-ndmi"]');
     expect(card).not.toBeNull();
     expect(card?.classList.contains('is-active')).toBe(true);
   });
 
-  it('should navigate to Karhutla peatland presets and recommend s2-indices-nbr', () => {
+  it('should navigate to Karhutla peatland presets and recommend s2-ndmi', () => {
     const mockMap: any = createMockMap();
     const loader = new PikselLoader(mockMap);
     const presets = loader.getPresets();
 
     const palangkaPreset = presets.find((p) => p.id === 'palangka-raya-karhutla');
     expect(palangkaPreset).toBeDefined();
-    expect(palangkaPreset?.recommendedProduct).toBe('s2-indices-nbr');
+    expect(palangkaPreset?.recommendedProduct).toBe('s2-ndmi');
 
     const riauPreset = presets.find((p) => p.id === 'riau-peatland');
     expect(riauPreset).toBeDefined();
-    expect(riauPreset?.recommendedProduct).toBe('s2-indices-nbr');
+    expect(riauPreset?.recommendedProduct).toBe('s2-ndmi');
 
     loader.flyToPreset(palangkaPreset!);
     expect(mockMap.flyTo).toHaveBeenCalledWith(expect.objectContaining({
       center: palangkaPreset!.center,
       zoom: palangkaPreset!.zoom
     }));
-    expect(loader.getActiveProductId()).toBe('s2-indices-nbr');
+    expect(loader.getActiveProductId()).toBe('s2-ndmi');
   });
 
-  it('should have s2-bsi enabled with smart fallback notice', () => {
+  it('should have s2-bsi disabled with upstream server error notice', () => {
     const mockMap: any = createMockMap();
     const loader = new PikselLoader(mockMap);
     const bsiProduct = loader.getProducts().find((p) => p.id === 's2-bsi');
 
     expect(bsiProduct).toBeDefined();
-    expect(bsiProduct?.isDisabled).toBe(false);
-    expect(bsiProduct?.badge).toBe('Fallback Mode');
-    expect(bsiProduct?.statusNotice).toContain('fallback cerdas');
+    expect(bsiProduct?.isDisabled).toBe(true);
+    expect(bsiProduct?.badge).toBe('Server Maintenance');
+    expect(bsiProduct?.statusNotice).toContain('Error 500 upstream');
   });
 });
 

@@ -2239,9 +2239,14 @@ html, body, #app {
   background: linear-gradient(90deg, #b45309 0%, #fde047 30%, #67e8f9 60%, #0284c7 85%, #1e3a8a 100%);
 }
 
-/* 4b. NBR: Severe Burn Scar Deep Purple/Red -> Moderate Orange -> Regrowth Yellow -> Healthy Dense Canopy */
-.legend-gradient.nbr-gradient {
-  background: linear-gradient(90deg, #881337 0%, #dc2626 25%, #ea580c 50%, #fde047 75%, #15803d 100%);
+/* 4b. NDBI: Water/Forest Blue/Green -> Mixed Tan -> Built-Up Urban Red/Orange */
+.legend-gradient.ndbi-gradient {
+  background: linear-gradient(90deg, #0284c7 0%, #10b981 30%, #fde047 60%, #ea580c 85%, #dc2626 100%);
+}
+
+/* 4c. NDMI: Dry Vegetation Brown/Yellow -> Moderate Cyan -> Saturated Peat/Water Deep Blue */
+.legend-gradient.ndmi-gradient {
+  background: linear-gradient(90deg, #b45309 0%, #fde047 30%, #38bdf8 65%, #0284c7 85%, #1e3a8a 100%);
 }
 
 /* 5. BSI: Dense Vegetation Dark Slate/Green -> Mixed Tan -> Bare Soil Bright Orange/Red */
@@ -4005,8 +4010,12 @@ html, body, #app {
   background: linear-gradient(90deg, #b45309 0%, #fde047 30%, #67e8f9 60%, #0284c7 85%, #1e3a8a 100%);
 }
 
-.active-legend-bar.nbr-gradient {
-  background: linear-gradient(90deg, #881337 0%, #dc2626 25%, #ea580c 50%, #fde047 75%, #15803d 100%);
+.active-legend-bar.ndbi-gradient {
+  background: linear-gradient(90deg, #0284c7 0%, #10b981 30%, #fde047 60%, #ea580c 85%, #dc2626 100%);
+}
+
+.active-legend-bar.ndmi-gradient {
+  background: linear-gradient(90deg, #b45309 0%, #fde047 30%, #38bdf8 65%, #0284c7 85%, #1e3a8a 100%);
 }
 
 .active-legend-bar.bsi-gradient {

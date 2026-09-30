@@ -409,9 +409,13 @@ export class AIAssistantDockUI {
                 'lst-night': { label: 'Suhu LST Malam (MODIS 1km)', icon: '🌙' },
                 stations: { label: '18 Stasiun Iklim LST', icon: '📍' },
                 's2-geomad-rgb': { label: 'Citra Sentinel-2 True Color 10m', icon: '🛰️' },
-                's2-indices-ndvi': { label: 'Indeks Vegetasi NDVI 10m', icon: '🌿' },
-                's2-indices-ndwi': { label: 'Indeks Air NDWI 10m', icon: '💧' },
-                's2-indices-nbr': { label: 'Indeks Karhutla NBR 10m', icon: '🔥' },
+                's2-geomad-nir': { label: 'Citra Sentinel-2 False Color NIR 10m', icon: '🍁' },
+                's2-ndvi': { label: 'Indeks Vegetasi NDVI 10m', icon: '🌿' },
+                's2-ndwi': { label: 'Indeks Air NDWI 10m', icon: '💧' },
+                's2-ndbi': { label: 'Indeks Bangunan NDBI 10m', icon: '🏙️' },
+                's2-ndmi': { label: 'Indeks Kelembapan NDMI 10m', icon: '💧' },
+                'flood-hazard-rp02': { label: 'Bahaya Banjir PU 2-Thn', icon: '🌊' },
+                'flood-hazard-rp10': { label: 'Bahaya Banjir PU 10-Thn', icon: '🌊' },
                 'hazard-flood': { label: 'Bahaya Banjir Prioritas', icon: '🌊' },
                 'tile-grid': { label: 'Batas Grid Data Cube', icon: '🔲' }
               };

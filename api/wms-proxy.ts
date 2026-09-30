@@ -111,45 +111,6 @@ export default async function handler(req: Request): Promise<Response> {
     });
   }
 
-  // Smart fallback for experimental / indices products (NBR / BSI)
-  // If upstream OGC GeoServer returns 4xx/5xx for specialized styles, fallback to Sentinel-2 False Color NIR (B8-B4-B3)
-  const requestedStyle = (url.searchParams.get('STYLES') || url.searchParams.get('styles') || '').toLowerCase();
-  const requestedLayer = (url.searchParams.get('LAYERS') || url.searchParams.get('layers') || '').toLowerCase();
-
-  if (isImageRequest && (!response || response.status >= 400) && (requestedStyle === 'nbr' || requestedStyle === 'bsi' || requestedLayer === 's2_geomad_annual_indices')) {
-    try {
-      const fbParams = new URLSearchParams(url.searchParams);
-      fbParams.set('LAYERS', 's2_geomad_annual_spectral');
-      fbParams.set('STYLES', 'false_color_nir');
-      const fbUrl = `${UPSTREAM_WMS_URL}?${fbParams.toString()}`;
-
-      const fbController = new AbortController();
-      const fbTimeout = setTimeout(() => fbController.abort(), 6000);
-      const fbResponse = await fetch(fbUrl, {
-        method: req.method,
-        headers: {
-          'User-Agent': 'Digital-Earth-Indonesia-WebGIS/1.0 (Edge-Proxy-Fallback)',
-          'Accept': '*/*'
-        },
-        signal: fbController.signal
-      });
-      clearTimeout(fbTimeout);
-
-      if (fbResponse.ok) {
-        const fbHeaders = new Headers(fbResponse.headers);
-        fbHeaders.set('Access-Control-Allow-Origin', '*');
-        fbHeaders.set('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
-        fbHeaders.set('X-Proxy-Fallback', 's2-geomad-spectral-nir');
-        return new Response(fbResponse.body, {
-          status: fbResponse.status,
-          headers: fbHeaders
-        });
-      }
-    } catch (_) {
-      // Continue to transparent 1x1 fallback
-    }
-  }
-
   // Fallback if upstream is down or 5xx
   if (isImageRequest) {
     return new Response(TRANSPARENT_1X1_PNG, {
