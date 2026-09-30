@@ -107,4 +107,24 @@ describe('Satellite Image Filter Adjustments (Brightness, Contrast, Saturation)'
     resetBtn.click();
     expect(loader.getFilters().brightness).toBe(0);
   });
+
+  it('should activate s2-indices-ndbi and trigger 3D buildings on basemapCustomizer', () => {
+    const mockMap: any = createMockMap();
+    const loader = new PikselLoader(mockMap);
+    const mockCustomizer = {
+      toggleSublayer: vi.fn(),
+      toggle3DBuildings: vi.fn()
+    };
+    loader.setBasemapCustomizer(mockCustomizer);
+
+    loader.setActiveProduct('s2-indices-ndbi');
+
+    expect(loader.getActiveProduct()?.id).toBe('s2-indices-ndbi');
+    expect(mockCustomizer.toggleSublayer).toHaveBeenCalledWith('buildings', true);
+    expect(mockCustomizer.toggle3DBuildings).toHaveBeenCalledWith(true);
+    expect(mockMap.addLayer).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'piksel-raster-s2-indices-ndbi',
+      type: 'raster'
+    }));
+  });
 });

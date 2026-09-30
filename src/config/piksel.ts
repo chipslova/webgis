@@ -242,6 +242,37 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
   },
   {
+    id: 's2-indices-ndbi',
+    name: 'Indeks Kawasan Bangunan (NDBI / Built-Up)',
+    category: 'indices',
+    layer: 'Sentinel2_10m_LandCover',
+    style: 'builtup',
+    timeEnabled: false,
+    timeMode: 'none',
+    minZoom: 10,
+    serviceUrl: 'https://ic.imagery1.arcgis.com/arcgis/rest/services/Sentinel2_10m_LandCover/ImageServer/exportImage',
+    description: 'Pemetaan densitas kawasan terbangun, infrastruktur, dan ekspansi perkotaan berbasis Sentinel-2 10m ESA WorldCover dipadukan dengan ekstrusi Bangunan 3D.',
+    whatItShows: 'Kawasan fisik bangunan perkotaan & permukiman (warna oranye/merah) dipadukan dengan poligon ekstrusi bangunan 3D di area padat penduduk.',
+    badge: 'Kawasan Bangunan 10m',
+    color: '#f97316',
+    resolution: '10 meters',
+    sensor: 'Sentinel-2 (ESA WorldCover 10m & OpenFreeMap 3D)',
+    legend: {
+      type: 'categorical',
+      items: [
+        { label: 'Area Terbangun / Permukiman', color: '#dc2626' },
+        { label: 'Infrastruktur Jalan / Perkotaan', color: '#f97316' },
+        { label: 'Bangunan Ekstrusi 3D (Z≥12)', color: '#00f0ff' }
+      ],
+      swatches: [
+        { label: 'Area Terbangun (Merah)', color: '#dc2626' },
+        { label: 'Infrastruktur (Oranye)', color: '#f97316' },
+        { label: 'Bangunan 3D (Sian)', color: '#00f0ff' }
+      ]
+    },
+    attribution: '© European Space Agency (ESA) WorldCover 10m / OpenFreeMap Planet'
+  },
+  {
     id: 's2-bsi',
     name: 'Indeks Tanah Terbuka (BSI)',
     category: 'indices',
@@ -467,5 +498,15 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     pitch: 30,
     description: 'Morfologi kubah lava aktif, jalur lahar, dan lereng vegetasi dengan False Color NIR.',
     recommendedProduct: 's2-geomad-nir'
+  },
+  {
+    id: 'jakarta-builtup',
+    name: 'Metropolitan Jakarta & Jabodetabek',
+    locationName: 'Kawasan Terbangun & Gedung 3D',
+    center: [106.8272, -6.1754],
+    zoom: 14.5,
+    pitch: 50,
+    description: 'Pemetaan kawasan terbangun (NDBI Built-up) dan visualisasi ekstrusi gedung-gedung pencakar langit 3D.',
+    recommendedProduct: 's2-indices-ndbi'
   }
 ];
