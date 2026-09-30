@@ -411,7 +411,7 @@ export class AIAssistantDockUI {
                 's2-geomad-rgb': { label: 'Citra Sentinel-2 True Color 10m', icon: '🛰️' },
                 's2-indices-ndvi': { label: 'Indeks Vegetasi NDVI 10m', icon: '🌿' },
                 's2-indices-ndwi': { label: 'Indeks Air NDWI 10m', icon: '💧' },
-                's2-indices-ndbi': { label: 'Indeks Bangunan NDBI 10m', icon: '🏙️' },
+                's2-indices-nbr': { label: 'Indeks Karhutla NBR 10m', icon: '🔥' },
                 'hazard-flood': { label: 'Bahaya Banjir Prioritas', icon: '🌊' },
                 'tile-grid': { label: 'Batas Grid Data Cube', icon: '🔲' }
               };

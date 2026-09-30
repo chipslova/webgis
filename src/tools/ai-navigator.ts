@@ -369,7 +369,7 @@ export class AINavigator {
           break;
         }
 
-        // 3. BIG Piksel Satellite products: s2-geomad-rgb, s2-indices-ndvi, s2-indices-ndwi, s2-indices-ndbi, hazard-flood, etc.
+        // 3. BIG Piksel Satellite products: s2-geomad-rgb, s2-indices-ndvi, s2-indices-ndwi, s2-indices-nbr, hazard-flood, etc.
         if (this.pikselLoaderRef?.setActiveProduct) {
           this.pikselLoaderRef.setActiveProduct(visible ? layerId : null);
           if (visible && this.sidebarUI) {
@@ -380,7 +380,7 @@ export class AINavigator {
             's2-geomad-rgb': 'Citra Satelit Sentinel-2 True Color 10m',
             's2-indices-ndvi': 'Indeks Kerapatan Vegetasi NDVI (Sentinel-2 10m)',
             's2-indices-ndwi': 'Indeks Badan Air Permukaan NDWI (Sentinel-2 10m)',
-            's2-indices-ndbi': 'Indeks Area Terbangun NDBI (Sentinel-2 10m)',
+            's2-indices-nbr': 'Indeks Kebakaran Hutan NBR (Sentinel-2 10m)',
             'hazard-flood': 'Peta Pemodelan Bahaya Banjir Prioritas'
           };
           const label = pikselLabels[layerId] || layerId;

@@ -188,11 +188,11 @@ export const GIS_FUNCTION_DECLARATIONS = [
             's2-geomad-rgb',
             's2-indices-ndvi',
             's2-indices-ndwi',
-            's2-indices-ndbi',
+            's2-indices-nbr',
             'hazard-flood',
             'tile-grid'
           ],
-          description: 'The layer ID to toggle: "precipitation" (Curah Hujan Harian CHIRPS & GPM), "landcover" (Tutupan Lahan Sentinel-2 10m ESA WorldCover), "lst-day" (Suhu Permukaan Daratan Siang MODIS), "lst-night" (Suhu Permukaan Daratan Malam MODIS), "stations" (18 Stasiun Observasi LST & Iklim), "s2-geomad-rgb" (Citra Satelit Sentinel-2 True Color), "s2-indices-ndvi" (Indeks Kerapatan Vegetasi), "s2-indices-ndwi" (Indeks Air Permukaan), "s2-indices-ndbi" (Indeks Bangunan Perkotaan), "hazard-flood" (Peta Bahaya Banjir Kawasan Prioritas), "tile-grid" (Batas Grid Open Data Cube).'
+          description: 'The layer ID to toggle: "precipitation" (Curah Hujan Harian CHIRPS & GPM), "landcover" (Tutupan Lahan Sentinel-2 10m ESA WorldCover), "lst-day" (Suhu Permukaan Daratan Siang MODIS), "lst-night" (Suhu Permukaan Daratan Malam MODIS), "stations" (18 Stasiun Observasi LST & Iklim), "s2-geomad-rgb" (Citra Satelit Sentinel-2 True Color), "s2-indices-ndvi" (Indeks Kerapatan Vegetasi), "s2-indices-ndwi" (Indeks Air Permukaan), "s2-indices-nbr" (Indeks Karhutla Kebakaran Hutan NBR), "hazard-flood" (Peta Bahaya Banjir Kawasan Prioritas), "tile-grid" (Batas Grid Open Data Cube).'
         },
         visible: {
           type: 'BOOLEAN',
@@ -390,7 +390,7 @@ DAFTAR AKSI (ACTIONS) YANG TERSEDIA:
    - "s2-geomad-rgb" (Citra Satelit Sentinel-2 True Color 10m)
    - "s2-indices-ndvi" (Indeks Kerapatan Vegetasi NDVI 10m)
    - "s2-indices-ndwi" (Indeks Badan Air Permukaan NDWI 10m)
-   - "s2-indices-ndbi" (Indeks Kawasan Bangunan Perkotaan NDBI 10m)
+   - "s2-indices-nbr" (Indeks Kebakaran Hutan & Bekas Terbakar NBR 10m)
    - "hazard-flood" (Pemodelan Bahaya Banjir Kawasan Prioritas)
    - "tile-grid" (Batas Grid Open Data Cube 1.631 Tile)
 3. "switchBasemap"

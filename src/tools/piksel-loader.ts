@@ -2,7 +2,6 @@ import * as maplibregl from 'maplibre-gl';
 import { PikselProduct, PikselPreset, PIKSEL_PRODUCTS, PIKSEL_PRESETS } from '../config/piksel';
 import { logger } from '../utils/logger';
 import { ErrorHandler } from '../utils/error-handler';
-import { showToast } from '../ui/toast';
 
 export type PikselStatusCode = 'idle' | 'zoom_too_low' | 'requesting' | 'loading' | 'ready' | 'degraded' | 'partial' | 'error';
 
@@ -82,10 +81,8 @@ export class PikselLoader {
     return slot === 0 ? `piksel-raster-src-${productId}` : `piksel-raster-src-${productId}-buf`;
   }
 
-  private basemapCustomizerRef?: any;
-
-  public setBasemapCustomizer(customizer: any) {
-    this.basemapCustomizerRef = customizer;
+  public setBasemapCustomizer(_customizer: any) {
+    // Preserved for modular compatibility
   }
 
   // Diagnostics & Telemetry
@@ -566,9 +563,6 @@ export class PikselLoader {
    * Sets the active Piksel OGC product layer with monotonic request tracking
    */
   public setActiveProduct(productId: string | null) {
-    if (productId === 's2-ndbi') {
-      productId = 's2-indices-ndbi';
-    }
     if (this.isTimeLapsePlaying()) {
       this.pauseTimeLapse();
     }
@@ -601,20 +595,6 @@ export class PikselLoader {
           return;
         }
 
-        if (product.id === 's2-indices-ndbi') {
-          if (this.basemapCustomizerRef) {
-            try {
-              this.basemapCustomizerRef.toggleSublayer('buildings', true);
-              this.basemapCustomizerRef.toggle3DBuildings(true);
-            } catch (_) {}
-          }
-          const currentZoom = this.map ? this.map.getZoom() : 0;
-          if (currentZoom < 12) {
-            showToast('Kawasan Bangunan (NDBI 10m) aktif. Perbesar ke Z≥12 untuk mengaktifkan ekstrusi gedung 3D.', 'info', 4000);
-          } else {
-            showToast('Kawasan Bangunan (NDBI 10m) & Ekstrusi Bangunan 3D aktif di peta.', 'success', 3500);
-          }
-        }
 
         this.renderRasterLayer(product, currentReqId);
       }
@@ -661,10 +641,6 @@ export class PikselLoader {
    * Constructs the authentic OGC WMS URL for MapLibre Web Mercator tiling
    */
   private buildWmsTileUrl(product: PikselProduct, targetYear?: string): string {
-    if (product.id === 's2-indices-ndbi') {
-      return `${product.serviceUrl}?bbox={bbox-epsg-3857}&bboxSR=3857&imageSR=3857&size=256,256&format=png&transparent=true&f=image`;
-    }
-
     const yearToUse = targetYear || (
       (product.availableYears && product.availableYears.includes(this.selectedYear))
         ? this.selectedYear

@@ -110,24 +110,15 @@ describe('Satellite Image Filter Adjustments (Brightness, Contrast, Saturation)'
     expect(loader.getFilters().brightness).toBe(0);
   });
 
-  it('should activate s2-indices-ndbi and trigger 3D buildings on basemapCustomizer', () => {
+  it('should verify all products in PIKSEL_PRODUCTS use authentic BIG Piksel WMS base URL', () => {
     const mockMap: any = createMockMap();
     const loader = new PikselLoader(mockMap);
-    const mockCustomizer = {
-      toggleSublayer: vi.fn(),
-      toggle3DBuildings: vi.fn()
-    };
-    loader.setBasemapCustomizer(mockCustomizer);
-
-    loader.setActiveProduct('s2-indices-ndbi');
-
-    expect(loader.getActiveProduct()?.id).toBe('s2-indices-ndbi');
-    expect(mockCustomizer.toggleSublayer).toHaveBeenCalledWith('buildings', true);
-    expect(mockCustomizer.toggle3DBuildings).toHaveBeenCalledWith(true);
-    expect(mockMap.addLayer).toHaveBeenCalledWith(expect.objectContaining({
-      id: 'piksel-raster-s2-indices-ndbi',
-      type: 'raster'
-    }));
+    const products = loader.getProducts();
+    expect(products.length).toBeGreaterThan(0);
+    products.forEach((p) => {
+      expect(p.serviceUrl).toContain('piksel');
+      expect(p.attribution).toContain('Badan Informasi Geospasial');
+    });
   });
 
   it('should manage Time-Lapse multitemporal playback and stepping', () => {
