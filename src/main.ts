@@ -844,6 +844,21 @@ class WebGISApp {
 
     dockSwipeBtn?.addEventListener('click', handleToggleSwipe);
     sidebarSwipeBtn?.addEventListener('click', handleToggleSwipe);
+
+    window.addEventListener('webgis:open-swipe-compare', ((e: CustomEvent) => {
+      if (!this.swipeCompareManager) return;
+      const { productId, year } = e.detail || {};
+      if (productId) {
+        const rightProdId = productId === 's2-geomad-rgb' ? 's2-geomad-nir' : 's2-geomad-rgb';
+        const targetYear = year || '2025';
+        this.swipeCompareManager.setLeftConfig({ productId, year: targetYear });
+        this.swipeCompareManager.setRightConfig({ productId: rightProdId, year: targetYear });
+      }
+      if (!this.swipeCompareManager.isActive()) {
+        this.swipeCompareManager.activate();
+      }
+      showToast('Mode komparasi split-screen aktif. Geser pembatas tengah untuk membandingkan.', 'info');
+    }) as EventListener);
   }
 
   private bindCommandPaletteEvents() {

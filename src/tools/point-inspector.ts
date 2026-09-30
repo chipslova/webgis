@@ -268,7 +268,11 @@ export class PointInspector {
       const bboxStr = `${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()}`;
       const year = this.pikselLoader?.getSelectedYear() || '2025';
 
-      const url = new URL(pikselProduct.serviceUrl || 'https://ows.staging.piksel.big.go.id/wms');
+      const rawServiceUrl = pikselProduct.serviceUrl || 'https://ows.staging.piksel.big.go.id/wms';
+      const fullUrlStr = rawServiceUrl.startsWith('http')
+        ? rawServiceUrl
+        : (typeof window !== 'undefined' ? `${window.location.origin}${rawServiceUrl}` : `https://ows.staging.piksel.big.go.id${rawServiceUrl}`);
+      const url = new URL(fullUrlStr);
       url.searchParams.set('SERVICE', 'WMS');
       url.searchParams.set('VERSION', '1.3.0');
       url.searchParams.set('REQUEST', 'GetFeatureInfo');

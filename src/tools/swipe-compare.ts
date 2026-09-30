@@ -71,6 +71,28 @@ export const SWIPE_PRESETS: SwipePreset[] = [
     description: 'Bandingkan Indeks Air (NDWI) 2025 (Kiri) vs Komposit Warna Alami 2025 (Kanan).',
     left: { productId: 's2-ndwi', year: '2025' },
     right: { productId: 's2-geomad-rgb', year: '2025' }
+  },
+  {
+    id: 'jakarta-ndbi',
+    name: 'Tapak Bangunan Jakarta (NDBI vs True Color)',
+    locationName: 'DKI Jakarta',
+    center: [106.8272, -6.1754],
+    zoom: 12.0,
+    pitch: 0,
+    description: 'Bandingkan Warna Alami RGB (Kiri) vs Indeks Area Terbangun NDBI 2025 (Kanan).',
+    left: { productId: 's2-geomad-rgb', year: '2025' },
+    right: { productId: 's2-ndbi', year: '2025' }
+  },
+  {
+    id: 'sebangau-moisture',
+    name: 'Kelembapan Rawa Gambut Sebangau (NDMI vs RGB)',
+    locationName: 'Kalimantan Tengah',
+    center: [113.8500, -2.3200],
+    zoom: 11.5,
+    pitch: 0,
+    description: 'Bandingkan Warna Alami (Kiri) vs Indeks Kelembapan Kanopi NDMI 2025 (Kanan) di hutan rawa gambut Sebangau.',
+    left: { productId: 's2-geomad-rgb', year: '2025' },
+    right: { productId: 's2-ndmi', year: '2025' }
   }
 ];
 

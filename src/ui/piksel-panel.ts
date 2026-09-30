@@ -85,7 +85,10 @@ export class PikselPanelUI {
         if (activeProduct.legend.type === 'continuous' || activeProduct.legend.type === 'natural') {
           legendHtml = `
             <div class="active-legend-block">
-              <div class="legend-section-title">Legenda Warna</div>
+              <div class="legend-section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Legenda Spektral Resmi</span>
+                ${'rangeText' in activeProduct.legend && activeProduct.legend.rangeText ? `<span style="font-size: 10px; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace; font-weight: 500;">${activeProduct.legend.rangeText}</span>` : ''}
+              </div>
               <div class="active-legend-bar legend-gradient ${activeProduct.legend.gradientClass}"></div>
               <div class="active-legend-labels">
                 <span>${activeProduct.legend.leftLabel}</span>
@@ -211,12 +214,17 @@ export class PikselPanelUI {
             </div>
           </div>
 
-          <!-- Dedicated Direct Zoom to Level 6 Button -->
-          <button class="btn-zoom-product-action full-width" id="btn-zoom-to-product" aria-label="Zoom peta ke Level ${activeProduct.minZoom ?? 8} untuk citra satelit" title="Zoom peta ke Level ${activeProduct.minZoom ?? 8}">
-            <span style="font-size: 14px;" aria-hidden="true">🔍</span>
-            <span>Zoom ke Level ${activeProduct.minZoom ?? 8} (Skala Regional)</span>
-            <span style="font-size: 13px; font-weight: 800;" aria-hidden="true">→</span>
-          </button>
+          <!-- Dedicated Direct Zoom and Split Compare Buttons -->
+          <div class="active-layer-btn-row">
+            <button class="btn-zoom-product-action" id="btn-zoom-to-product" aria-label="Zoom peta ke Level ${activeProduct.minZoom ?? 8} untuk citra satelit" title="Zoom peta ke Level ${activeProduct.minZoom ?? 8}">
+              <span style="font-size: 13px;" aria-hidden="true">🔍</span>
+              <span>Zoom Z${activeProduct.minZoom ?? 8}+</span>
+            </button>
+            <button class="btn-compare-product-action" id="btn-compare-with-rgb" aria-label="Bandingkan ${activeProduct.name} dalam mode Split-Screen" title="Bandingkan lapisan ini dengan produk lain dalam mode Split-Screen">
+              <span style="font-size: 13px;" aria-hidden="true">⚖️</span>
+              <span>Bandingkan Citra</span>
+            </button>
+          </div>
 
           <!-- Opacity Slider -->
           <div class="active-slider-field">
@@ -750,6 +758,18 @@ export class PikselPanelUI {
       // 4. Zoom to product / Auto Zoom to minZoom
       if (target.closest('#btn-zoom-to-product') || target.closest('#btn-auto-zoom-min')) {
         this.pikselLoader.zoomToMinZoom();
+        return;
+      }
+
+      // 4b. Quick Split Compare from active layer
+      if (target.closest('#btn-compare-with-rgb')) {
+        const prod = this.pikselLoader.getActiveProduct();
+        const year = this.pikselLoader.getSelectedYear();
+        if (prod) {
+          window.dispatchEvent(new CustomEvent('webgis:open-swipe-compare', {
+            detail: { productId: prod.id, year }
+          }));
+        }
         return;
       }
 
