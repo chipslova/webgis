@@ -10,7 +10,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.10.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-225%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-237%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
   <img src="docs/preview.jpg" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
@@ -23,6 +23,13 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 **Digital Earth Indonesia WebGIS** adalah platform pemetaan berbasis web modern yang dirancang untuk eksplorasi data Penginderaan Jauh (*Earth Observation*), pemodelan iklim/termal, dan analisis geospasial di wilayah Indonesia.
 
 Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit termal NASA GIBS / MODIS LST, sampling piksel *client-side* Sentinel-2 10m, mesh elevasi 3D Terrarium, serta ekstrusi bangunan 3D dengan antarmuka bilingual yang rapi dan konsisten (Bahasa Indonesia standar untuk UI & terminologi standar internasional untuk format geospasial).
+
+### 💎 5 Pilar Kemampuan Utama
+1. **Integrasi Earth Engine & Multi-Sensor Satelit**: Akses langsung ke arsip data satelit global (Sentinel-2 GeoMAD, NASA MODIS, Landsat 9) dan pemodelan iklim secara *real-time* untuk analisis lingkungan, vegetasi (NDVI), badan air (NDWI), kawasan terbangun (NDBI), hingga suhu permukaan (LST).
+2. **Visualisasi 3D Terrain & Gedung Imersif**: Didukung oleh elevasi 3D beresolusi tinggi (AWS Terrarium DEM 30m) dan ekstrusi volume bangunan (OpenFreeMap 3D), memberikan pengalaman navigasi lanskap Indonesia yang nyata dan dramatis.
+3. **Katalog Basemap & Tematik Melimpah**: Menyediakan 16 pilihan peta dasar beresolusi tinggi (Esri, BIG, OpenFreeMap, OpenTopo) serta beragam layer tematik siap pakai seperti tutupan lahan ESA WorldCover 10m dan curah hujan harian NASA GPM / CHIRPS.
+4. **Alat Analisis Spasial Komprehensif**: Fitur pengukuran lanjutan (jarak geodesik, luas poligon, profil elevasi permukaan tanah mdpl), pembanding tirai interaktif (*swipe compare*), hingga *Point Inspector* untuk investigasi cepat kondisi spasial di titik mana pun.
+5. **Performa Tinggi Berbasis Cloud**: Dioptimalkan dengan akselerasi grafis WebGL2 untuk memproses data geospasial skala besar secara mulus langsung di dalam peramban web tanpa memerlukan instalasi perangkat lunak GIS desktop yang berat.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -56,11 +63,12 @@ Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit 
 
 ### 🛰️ 2. Citra Satelit BIG Piksel & Filter Spektral
 * **Sentinel-2 GeoMAD 10m**: Komposit tahunan bebas awan Median Absolute Deviation (2017–2025) di seluruh kepulauan Indonesia.
-* **Indeks Spektral Satelit (OGC WMS)**:
-  * **NDVI** (Normalized Difference Vegetation Index)
-  * **NDWI** (Normalized Difference Water Index)
-  * **NIR Surface Reflectance** (Pantulan Inframerah Dekat)
-  * **Kerapatan Pengamatan** (*Observation Density*)
+* **Indeks Spektral Satelit**:
+  * **NDVI** (Normalized Difference Vegetation Index): Mengukur biomassa & kanopi hutan tropis.
+  * **NDWI** (Normalized Difference Water Index): Delineasi badan air, danau, dan kelembapan.
+  * **NDBI** (Normalized Difference Built-up Index): Pemetaan kawasan terbangun Sentinel-2 10m terintegrasi dengan ekstrusi gedung 3D otomatis.
+  * **NIR Surface Reflectance**: Pantulan inframerah dekat untuk klorofil vegetasi.
+  * **Kerapatan Pengamatan** (*Observation Density*): Statistik jumlah scene bebas awan per piksel.
 * **Penyesuaian Filter Visual Real-Time**: Kontrol non-destruktif *Brightness* (kecerahan), *Contrast* (kontras), dan *Saturation* (kejenuhan warna) langsung pada kanvas WebGL.
 * **Landsat 9 Surface Reflectance (30m)**: Komposit multispektral USGS/NASA (2022–2025).
 * **Pemodelan Bahaya Banjir (Flood Hazard)**: Klasifikasi periode ulang banjir (`flood_hazard_rp02` & `rp10`) untuk wilayah studi prioritas.
@@ -152,7 +160,7 @@ graph TD
 | Dataset | Penyedia / Sumber | Resolusi Spasial | Cakupan Waktu | Protokol Akses |
 | :--- | :--- | :--- | :--- | :--- |
 | **Sentinel-2 GeoMAD** | BIG Piksel / ESA | 10 meter | 2017 – 2025 | OGC WMS 1.3.0 (PNG / Edge Proxy) |
-| **Indeks Spektral (NDVI/NDWI)** | Open Data Cube | 10 meter | Komposit Tahunan | OGC WMS 1.3.0 |
+| **Indeks Spektral (NDVI/NDWI/NDBI)** | Open Data Cube / ESA WorldCover | 10 meter | Komposit Tahunan & Live | OGC WMS 1.3.0 / ImageServer |
 | **Landsat 9 Multispektral** | USGS / NASA | 30 meter | 2022 – 2025 | OGC WMS 1.3.0 |
 | **Model Bahaya Banjir** | BIG Hidrologi | 10 meter | Wilayah Studi Prioritas | OGC WMS 1.3.0 |
 | **MODIS Land Surface Temp** | NASA LP DAAC (MOD11A2 / MYD11A2) | 1.000 meter (1 km) | 2000 – Sekarang (8-Day) | NASA GIBS WMS & GEE Serverless Compute |
@@ -172,7 +180,7 @@ graph TD
 * **Mesin Pemetaan**: [MapLibre GL JS](https://maplibre.org/) (v6.10.0)
 * **Kalkulasi Spasial**: [@turf/turf](https://turfjs.org/) (Modular: `@turf/helpers`, `@turf/length`, `@turf/area`, `@turf/buffer`, `@turf/distance`, `@turf/intersect`, `@turf/difference`, `@turf/union`, `@turf/bbox`, `@turf/boolean-point-in-polygon`)
 * **Protokol Raster / Vektor**: OGC WMS 1.3.0, NASA GIBS WMS, PMTiles, GeoJSON, TileJSON
-* **Framework Pengujian**: [Vitest](https://vitest.dev/) (**225 Unit & Integration Tests** di 33 test suites — 100% Lulus)
+* **Framework Pengujian**: [Vitest](https://vitest.dev/) (**237 Unit & Integration Tests** di 34 test suites — 100% Lulus)
 * **Alat Bangun (Build Tool)**: [Vite 6](https://vitejs.dev/)
 * **Package Manager / Runtime**: [Bun](https://bun.sh/)
 
