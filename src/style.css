@@ -4011,11 +4011,11 @@ html, body, #app {
 }
 
 .active-legend-bar.ndbi-gradient {
-  background: linear-gradient(90deg, #0284c7 0%, #10b981 30%, #fde047 60%, #ea580c 85%, #dc2626 100%);
+  background: linear-gradient(90deg, #fdf2f8 0%, #fbcfe8 25%, #f472b6 50%, #db2777 75%, #701a75 100%);
 }
 
 .active-legend-bar.ndmi-gradient {
-  background: linear-gradient(90deg, #b45309 0%, #fde047 30%, #38bdf8 65%, #0284c7 85%, #1e3a8a 100%);
+  background: linear-gradient(90deg, #f8fafc 0%, #cbd5e1 15%, #93c5fd 35%, #3b82f6 65%, #1e40af 85%, #08306b 100%);
 }
 
 .active-legend-bar.bsi-gradient {

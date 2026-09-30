@@ -253,23 +253,23 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
     description: 'Normalized Difference Built-Up Index resmi dari BIG Piksel (SWIR - NIR) untuk mendeteksi sebaran wilayah perkotaan, infrastruktur, dan tapak bangunan.',
-    whatItShows: 'Kawasan perkotaan & bangunan: Nilai positif (warna merah/oranye) menunjukkan pemukiman padat dan struktur fisik; nilai negatif menunjukkan air dan tutupan vegetasi.',
+    whatItShows: 'Kawasan perkotaan & bangunan: Sesuai skema warna BIG, area pemukiman dan bangunan fisik tampak ungu/magenta pekat; vegetasi dan badan air tampak putih/pink pucat.',
     badge: 'Indeks Bangunan (BIG)',
-    color: '#f97316',
+    color: '#a21caf',
     resolution: '10 meters',
     sensor: 'Sentinel-2 GeoMAD Indices',
     isComputeHeavy: true,
     legend: {
       type: 'continuous',
-      leftLabel: 'Air / Vegetasi (-1,0 s/d 0,0)',
-      middleLabel: 'Campuran / Terbuka (0,0 s/d 0,2)',
-      rightLabel: 'Area Terbangun (+0,3 s/d +1,0)',
+      leftLabel: 'Vegetasi / Air (0,0)',
+      middleLabel: 'Campuran (0,5)',
+      rightLabel: 'Area Terbangun Padat (1,0)',
       gradientClass: 'ndbi-gradient',
-      rangeText: 'Skala Indeks NDBI: -1,0 s/d +1,0',
+      rangeText: 'Skala Indeks NDBI: 0,0 s/d 1,0',
       swatches: [
-        { label: 'Vegetasi / Air (Biru)', color: '#0284c7' },
-        { label: 'Lahan Terbuka (Kuning)', color: '#fde047' },
-        { label: 'Area Terbangun / Kota (Merah)', color: '#dc2626' }
+        { label: 'Non-Bangunan / Vegetasi (Putih/Pink Pucat)', color: '#fdf2f8' },
+        { label: 'Kerapatan Sedang (Pink)', color: '#f472b6' },
+        { label: 'Area Terbangun Padat (Ungu/Magenta)', color: '#701a75' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
@@ -285,24 +285,24 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     availableYears: S2_YEARS,
     minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'Normalized Difference Moisture Index resmi dari BIG Piksel (NIR - SWIR) untuk mendeteksi kadar air kanopi dan tingkat kelembapan kubah lahan gambut.',
-    whatItShows: 'Kelembapan & Stres Air: Nilai tinggi (warna biru tua) menunjukkan kanopi basah dan kubah gambut jenuh air; nilai rendah (kuning/cokelat) menunjukkan vegetasi mengalami defisit kelembapan/kering rentan karhutla.',
+    description: 'Normalized Difference Moisture Index resmi dari BIG Piksel (NIR - SWIR) untuk mendeteksi kandungan air pada kanopi vegetasi dan kubah gambut.',
+    whatItShows: 'Kandungan Air Vegetasi: Semakin biru tua, semakin basah dan tinggi kelembapan kanopinya (0,3 s/d 0,5). Area yang mengalami defisit air, tanah terbuka, atau perkotaan tampak putih atau biru sangat pucat (0,0).',
     badge: 'Indeks Kelembapan (BIG)',
-    color: '#06b6d4',
+    color: '#0284c7',
     resolution: '10 meters',
     sensor: 'Sentinel-2 GeoMAD Indices',
     isComputeHeavy: true,
     legend: {
       type: 'continuous',
-      leftLabel: 'Kering / Rentan (-1,0 s/d -0,2)',
-      middleLabel: 'Kelembapan Sedang (0,0)',
-      rightLabel: 'Kanopi Lembap / Basah (+0,3 s/d +1,0)',
+      leftLabel: 'Kadar Air Rendah / Terbuka (0,0)',
+      middleLabel: 'Kelembapan Sedang (0,25)',
+      rightLabel: 'Kanopi Basah / Lembap (0,5)',
       gradientClass: 'ndmi-gradient',
-      rangeText: 'Skala Indeks NDMI: -1,0 s/d +1,0',
+      rangeText: 'Skala Indeks NDMI: 0,0 s/d 0,5 (BIG ODC)',
       swatches: [
-        { label: 'Kering / Defisit Air (Cokelat/Kuning)', color: '#d97706' },
-        { label: 'Kelembapan Sedang (Sian)', color: '#38bdf8' },
-        { label: 'Kubah Basah / Jenuh Air (Biru Tua)', color: '#1e3a8a' }
+        { label: 'Kadar Air Rendah / Kota (Putih)', color: '#f8fafc' },
+        { label: 'Kelembapan Sedang (Biru Muda)', color: '#60a5fa' },
+        { label: 'Kanopi Basah / Sangat Lembap (Biru Tua)', color: '#08306b' }
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
@@ -537,21 +537,21 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
   {
     id: 'palangka-raya-karhutla',
     name: 'Lahan Gambut Sebangau & Palangka Raya',
-    locationName: 'Kawasan Rentan Karhutla & Gambut Tropis',
+    locationName: 'Kelembapan Kubah Gambut vs Kota',
     center: [113.8500, -2.3200],
     zoom: 11,
     pitch: 20,
-    description: 'Analisis status hidrologis kubah gambut tropis dan pemantauan kekeringan kanopi menggunakan NDMI.',
+    description: 'Analisis kadar air vegetasi NDMI: Kubah gambut Sebangau tampak biru tua karena kanopi basah lebat, sedangkan pusat kota Palangka Raya tampak putih/pucat karena rendah kadar air.',
     recommendedProduct: 's2-ndmi'
   },
   {
     id: 'riau-peatland',
     name: 'Gambut Riau & Semenanjung Kampar',
-    locationName: 'Kawasan Hotspot Karhutla Pesisir Sumatra',
+    locationName: 'Kadar Air Kanopi Gambut Pesisir',
     center: [102.4000, 0.4500],
     zoom: 10.5,
     pitch: 15,
-    description: 'Delineasi kawasan rawan karhutla dan pemantauan kadar air kanopi lahan gambut pesisir dengan NDMI & NDVI.',
+    description: 'Pemantauan status hidrologis gambut Semenanjung Kampar: Warna biru tua menandakan tutupan kanopi berair, sedangkan area memutih menandakan defisit kelembapan kanopi.',
     recommendedProduct: 's2-ndmi'
   }
 ];
