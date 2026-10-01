@@ -15,7 +15,6 @@ export class SwipeCompareUI {
 
   public init() {
     this.manager.onStateChange(() => {
-      // Avoid destroying and rebuilding DOM while actively dragging
       if (!this.isDragging) {
         this.render();
       }
@@ -41,9 +40,7 @@ export class SwipeCompareUI {
     let uiRoot = document.getElementById('swipe-ui-root');
 
     if (!isActive) {
-      if (uiRoot) {
-        uiRoot.remove();
-      }
+      if (uiRoot) uiRoot.remove();
       return;
     }
 
@@ -81,129 +78,161 @@ export class SwipeCompareUI {
     const showRightYear = (rightProd?.timeEnabled !== false) && rightYears.length > 0;
 
     const leftYearHtml = showLeftYear
-      ? `<select id="swipe-left-year" class="swipe-select year" aria-label="Pilih tahun lapisan sisi kiri">
+      ? `<select id="swipe-left-year" class="sc-year-select" aria-label="Pilih tahun lapisan sisi kiri">
           ${leftYears.map((y) => `<option value="${y}" ${y === leftConfig.year ? 'selected' : ''}>${y}</option>`).join('')}
         </select>`
       : '';
 
     const rightYearHtml = showRightYear
-      ? `<select id="swipe-right-year" class="swipe-select year" aria-label="Pilih tahun lapisan sisi kanan">
+      ? `<select id="swipe-right-year" class="sc-year-select" aria-label="Pilih tahun lapisan sisi kanan">
           ${rightYears.map((y) => `<option value="${y}" ${y === rightConfig.year ? 'selected' : ''}>${y}</option>`).join('')}
         </select>`
       : '';
 
-    const presetsHtml = SWIPE_PRESETS.map(
-      (preset) => `
-      <button class="swipe-preset-chip" data-id="${preset.id}" title="${preset.description}" type="button">
-        ${preset.name}
-      </button>
-    `
-    ).join('');
+    const leftName = leftProd?.name || 'Lapisan Kiri';
+    const rightName = rightProd?.name || 'Lapisan Kanan';
+    const leftYear = showLeftYear ? leftConfig.year : '';
+    const rightYear = showRightYear ? rightConfig.year : '';
 
-    const leftLabelText = `${leftProd?.name || 'Kiri'}${showLeftYear && leftConfig.year ? ` (${leftConfig.year})` : ''}`;
-    const rightLabelText = `${rightProd?.name || 'Kanan'}${showRightYear && rightConfig.year ? ` (${rightConfig.year})` : ''}`;
+    const presetEmojis: Record<string, string> = {
+      'ikn-dev': '🏙️', 'bromo-spectral': '🌋', 'jakarta-urban': '🌆',
+      'danau-toba': '💧', 'jakarta-ndbi': '🏗️', 'sebangau-moisture': '🌿',
+    };
+
+    const presetsHtml = SWIPE_PRESETS.map((preset) => `
+      <button class="sc-preset-chip" data-id="${preset.id}" title="${preset.description}" type="button">
+        <span class="sc-preset-emoji">${presetEmojis[preset.id] || '📍'}</span>
+        <span>${preset.name}</span>
+      </button>
+    `).join('');
 
     const cardContentHtml = this.isCardCollapsed
       ? `
-        <!-- Collapsed Mini Pill Toolbar (Maximum Map Visibility) -->
-        <div class="swipe-mini-pill glass-panel" role="toolbar" aria-label="Status Komparasi Citra">
-          <div class="mini-pill-info">
-            <span class="mini-pill-dot"></span>
-            <span>Komparasi: <strong>${leftLabelText}</strong> vs <strong>${rightLabelText}</strong></span>
-          </div>
-          <div class="mini-pill-actions">
-            <button id="btn-toggle-swipe-card" class="btn-micro" title="Buka Pengaturan Lapisan Komparasi" aria-label="Buka Pengaturan">
-              ⚙️ Pengaturan
+        <div class="sc-mini-pill" role="toolbar" aria-label="Status Komparasi Citra">
+          <span class="sc-mini-dot"></span>
+          <span class="sc-mini-text"><strong>${leftName}</strong> <span class="sc-vs-tiny">vs</span> <strong>${rightName}</strong></span>
+          <div class="sc-mini-actions">
+            <button id="btn-toggle-swipe-card" class="sc-btn-expand" title="Buka Pengaturan" aria-label="Buka Pengaturan" type="button">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Pengaturan
             </button>
-            <button id="btn-close-swipe" class="btn-micro btn-micro-danger" title="Keluar Mode Komparasi" aria-label="Keluar Mode Komparasi">
-              ✕ Selesai
+            <button id="btn-close-swipe" class="sc-btn-exit" title="Keluar Mode Komparasi" aria-label="Keluar" type="button">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Selesai
             </button>
           </div>
         </div>
       `
       : `
-        <!-- Expanded Full Control Card -->
-        <div class="swipe-unified-card glass-panel" role="toolbar" aria-label="Kontrol Komparasi Citra Satelit">
-          <div class="swipe-header-row">
-            <!-- Left Layer Selector -->
-            <div class="swipe-side-box left">
-              <div class="swipe-side-tag left">
-                <span class="swipe-tag-dot left"></span>
-                <span>SISI KIRI</span>
+        <!-- Expanded Control Card — anchored at bottom-center -->
+        <div class="sc-control-card" role="toolbar" aria-label="Kontrol Komparasi Citra Satelit">
+
+          <!-- Title Bar -->
+          <div class="sc-title-bar">
+            <div class="sc-brand">
+              <div class="sc-brand-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" stroke-width="2.5"><rect x="3" y="3" width="8" height="18" rx="1"/><rect x="13" y="3" width="8" height="18" rx="1"/></svg>
               </div>
-              <div class="swipe-select-group">
-                <select id="swipe-left-prod" class="swipe-select" aria-label="Pilih lapisan citra sisi kiri">
+              <span class="sc-brand-label">BANDINGKAN CITRA</span>
+              <span class="sc-brand-hint">Geser garis tengah ◀▶</span>
+            </div>
+            <div class="sc-title-actions">
+              <button id="btn-toggle-swipe-card" class="sc-btn-minimize" title="Perkecil panel" aria-label="Perkecil" type="button">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+              </button>
+              <button id="btn-close-swipe" class="sc-btn-close" title="Keluar mode komparasi" aria-label="Tutup" type="button">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Selesai
+              </button>
+            </div>
+          </div>
+
+          <!-- Layer Selector Row -->
+          <div class="sc-layers-row">
+            <!-- LEFT -->
+            <div class="sc-side left">
+              <div class="sc-side-header left">
+                <span class="sc-side-dot left"></span>
+                <span class="sc-side-tag">KIRI</span>
+              </div>
+              <div class="sc-selects">
+                <select id="swipe-left-prod" class="sc-prod-select" aria-label="Lapisan kiri">
                   ${leftOptionsHtml}
                 </select>
                 ${leftYearHtml}
               </div>
             </div>
 
-            <!-- VS Badge -->
-            <div class="swipe-vs-badge" aria-hidden="true">VS</div>
+            <!-- VS -->
+            <div class="sc-vs-col" aria-hidden="true">
+              <div class="sc-vs-glyph">VS</div>
+            </div>
 
-            <!-- Right Layer Selector -->
-            <div class="swipe-side-box right">
-              <div class="swipe-select-group">
-                <select id="swipe-right-prod" class="swipe-select" aria-label="Pilih lapisan citra sisi kanan">
+            <!-- RIGHT -->
+            <div class="sc-side right">
+              <div class="sc-side-header right">
+                <span class="sc-side-tag">KANAN</span>
+                <span class="sc-side-dot right"></span>
+              </div>
+              <div class="sc-selects">
+                <select id="swipe-right-prod" class="sc-prod-select" aria-label="Lapisan kanan">
                   ${rightOptionsHtml}
                 </select>
                 ${rightYearHtml}
               </div>
-              <div class="swipe-side-tag right">
-                <span>SISI KANAN</span>
-                <span class="swipe-tag-dot right"></span>
-              </div>
-            </div>
-
-            <!-- Action Buttons: Minimize & Close -->
-            <div class="swipe-card-actions">
-              <button id="btn-toggle-swipe-card" class="btn-icon-swipe" title="Sembunyikan Menu (Tampilan Peta Penuh)" aria-label="Sembunyikan menu komparasi" type="button">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
-              </button>
-              <button id="btn-close-swipe" class="btn-close-swipe" title="Keluar dari mode komparasi" aria-label="Tutup mode komparasi" type="button">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                <span>Selesai</span>
-              </button>
             </div>
           </div>
 
-          <!-- Integrated Preset Chips Row -->
-          <div class="swipe-presets-row">
-            <span class="presets-row-label">⚡ Studi Kasus:</span>
-            <div class="presets-chips-scroll">
+          <!-- Preset Chips -->
+          <div class="sc-presets-bar">
+            <span class="sc-presets-label">⚡ Studi Kasus:</span>
+            <div class="sc-presets-scroll">
               ${presetsHtml}
             </div>
           </div>
 
           ${this.manager.getPrimaryMapZoom() < 8 ? `
-            <div class="swipe-zoom-alert" id="swipe-zoom-alert">
-              <div class="swipe-zoom-alert-text">
-                <span class="alert-icon" aria-hidden="true">💡</span>
-                <span>Zoom saat ini (${this.manager.getPrimaryMapZoom().toFixed(1)}). Citra satelit membutuhkan Zoom ≥ 8 agar terlihat jelas.</span>
-              </div>
-              <button id="btn-swipe-autozoom" class="btn-swipe-autozoom" type="button" aria-label="Zoom otomatis ke level 9.5">
-                Zoom Otomatis (9.5) →
-              </button>
+            <div class="sc-zoom-alert">
+              <span>💡 Zoom terlalu rendah (${this.manager.getPrimaryMapZoom().toFixed(1)}). Citra satelit butuh Zoom ≥ 8.</span>
+              <button id="btn-swipe-autozoom" class="sc-btn-autozoom" type="button">Zoom → 9.5</button>
             </div>
           ` : ''}
         </div>
       `;
 
+    // Floating edge labels at bottom corners of the map
+    const edgeLabelsHtml = this.isCardCollapsed ? '' : `
+      <div class="sc-map-badge sc-map-badge-left" aria-hidden="true">
+        <span class="sc-badge-dot left"></span>
+        <div>
+          <div class="sc-badge-name">${leftName}</div>
+          ${leftYear ? `<div class="sc-badge-year">${leftYear}</div>` : ''}
+        </div>
+      </div>
+      <div class="sc-map-badge sc-map-badge-right" aria-hidden="true">
+        <div style="text-align:right">
+          <div class="sc-badge-name">${rightName}</div>
+          ${rightYear ? `<div class="sc-badge-year">${rightYear}</div>` : ''}
+        </div>
+        <span class="sc-badge-dot right"></span>
+      </div>
+    `;
+
     uiRoot.innerHTML = `
+      ${edgeLabelsHtml}
       ${cardContentHtml}
 
-      <!-- Draggable Split Divider Line & Handle Knob -->
-      <div id="swipe-divider-handle" class="swipe-divider-line" style="left: ${sliderPos}%;" role="separator" aria-valuenow="${sliderPos}" aria-valuemin="0" aria-valuemax="100" tabindex="0" aria-label="Geser pemisah untuk membandingkan citra sisi kiri dan kanan">
-        <div class="swipe-handle-knob">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
-          <span class="swipe-handle-bar"></span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
+      <!-- Draggable Split Divider -->
+      <div id="swipe-divider-handle" class="sc-divider" style="left:${sliderPos}%;"
+           role="separator" aria-valuenow="${sliderPos}" aria-valuemin="0" aria-valuemax="100"
+           tabindex="0" aria-label="Geser pemisah untuk membandingkan citra">
+        <div class="sc-div-line"></div>
+        <div class="sc-div-knob">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          <div class="sc-div-grips"><span></span><span></span><span></span></div>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
+        <div class="sc-div-ripple"></div>
       </div>
     `;
 
@@ -211,13 +240,11 @@ export class SwipeCompareUI {
   }
 
   private bindEvents(root: HTMLElement) {
-    // 0. Toggle Collapse/Expand Toolbar
     root.querySelector('#btn-toggle-swipe-card')?.addEventListener('click', () => {
       this.isCardCollapsed = !this.isCardCollapsed;
       this.render();
     });
 
-    // 1. Select changes
     const leftProd = root.querySelector('#swipe-left-prod') as HTMLSelectElement;
     leftProd?.addEventListener('change', () => {
       const prod = PIKSEL_PRODUCTS.find((p) => p.id === leftProd.value);
@@ -246,19 +273,17 @@ export class SwipeCompareUI {
       this.manager.setRightConfig({ year: rightYear.value });
     });
 
-    // 2. Preset buttons
-    root.querySelectorAll('.swipe-preset-chip').forEach((btn) => {
+    root.querySelectorAll('.sc-preset-chip').forEach((btn) => {
       btn.addEventListener('click', () => {
         const id = (btn as HTMLElement).dataset.id;
         const preset = SWIPE_PRESETS.find((p) => p.id === id);
         if (preset) {
           this.manager.applyPreset(preset);
-          showToast(`Komparasi: ${preset.name}`, 'info');
+          showToast(`📍 Komparasi: ${preset.name}`, 'info');
         }
       });
     });
 
-    // 3. Close button
     root.querySelectorAll('#btn-close-swipe').forEach((btn) => {
       btn.addEventListener('click', () => {
         this.manager.deactivate();
@@ -266,13 +291,11 @@ export class SwipeCompareUI {
       });
     });
 
-    // 4. Auto-zoom button if zoom < 8
     root.querySelector('#btn-swipe-autozoom')?.addEventListener('click', () => {
       this.manager.autoZoomIfLow(9.5);
       showToast('Mengarahkan peta ke Zoom Level 9.5...', 'info');
     });
 
-    // 5. Draggable Divider Handle Events (Mouse & Touch)
     const handle = root.querySelector('#swipe-divider-handle') as HTMLElement;
     if (!handle) return;
 
@@ -280,27 +303,24 @@ export class SwipeCompareUI {
       const mapEl = document.getElementById('map');
       if (!mapEl) return;
       const rect = mapEl.getBoundingClientRect();
-      const relativeX = clientX - rect.left;
-      const pct = Math.max(0, Math.min(100, (relativeX / rect.width) * 100));
+      const pct = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
       this.manager.setSliderPosition(pct);
     };
 
     const onPointerDown = (e: MouseEvent | TouchEvent) => {
-      if (e.cancelable && 'touches' in e) {
-        e.preventDefault();
-      }
+      if (e.cancelable && 'touches' in e) e.preventDefault();
       this.isDragging = true;
+      handle.classList.add('sc-dragging');
       document.body.style.userSelect = 'none';
       document.body.style.cursor = 'ew-resize';
 
-      const moveHandler = (moveEvent: MouseEvent | TouchEvent) => {
+      const moveHandler = (ev: MouseEvent | TouchEvent) => {
         if (!this.isDragging) return;
-        const clientX = 'touches' in moveEvent ? moveEvent.touches[0].clientX : moveEvent.clientX;
-        onPointerMove(clientX);
+        onPointerMove('touches' in ev ? ev.touches[0].clientX : ev.clientX);
       };
-
       const upHandler = () => {
         this.isDragging = false;
+        handle.classList.remove('sc-dragging');
         document.body.style.userSelect = '';
         document.body.style.cursor = '';
         window.removeEventListener('mousemove', moveHandler);
@@ -308,7 +328,6 @@ export class SwipeCompareUI {
         window.removeEventListener('touchmove', moveHandler);
         window.removeEventListener('touchend', upHandler);
       };
-
       window.addEventListener('mousemove', moveHandler);
       window.addEventListener('mouseup', upHandler);
       window.addEventListener('touchmove', moveHandler, { passive: false });
@@ -318,14 +337,10 @@ export class SwipeCompareUI {
     handle.addEventListener('mousedown', onPointerDown);
     handle.addEventListener('touchstart', onPointerDown, { passive: false });
 
-    // Keyboard navigation for accessibility
     handle.addEventListener('keydown', (e) => {
       const cur = this.manager.getSliderPosition();
-      if (e.key === 'ArrowLeft') {
-        this.manager.setSliderPosition(cur - 5);
-      } else if (e.key === 'ArrowRight') {
-        this.manager.setSliderPosition(cur + 5);
-      }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); this.manager.setSliderPosition(cur - 5); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); this.manager.setSliderPosition(cur + 5); }
     });
   }
 }
