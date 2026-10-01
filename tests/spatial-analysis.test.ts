@@ -202,4 +202,22 @@ describe('Spatial Analysis & AOI Zonal Statistics Engine', () => {
     expect(reportHtml).toContain('Profil Termal &amp; Urban Heat Island (NASA MODIS LST)');
     expect(reportHtml).toContain('window.print()');
   });
+
+  it('should recognize ocean and marine waters (transparent in Sentinel-2 LULC) as Badan Air & Laut', () => {
+    // Water class specification
+    const waterClass = LULC_CLASSES.find((c) => c.code === 1);
+    expect(waterClass).toBeDefined();
+    expect(waterClass!.nameId).toBe('Badan Air & Laut');
+
+    // Test marine area fallback weighting
+    const oceanResult = SpatialAnalysisEngine.computeZonalStats(
+      polygon([[[106.0, -5.0], [107.0, -5.0], [107.0, -5.5], [106.0, -5.5], [106.0, -5.0]]]),
+      'Wilayah Laut Jawa'
+    );
+    expect(oceanResult.regionName).toBe('Wilayah Laut Jawa');
+    const waterStat = oceanResult.landCoverBreakdown.find((c) => c.code === 1);
+    expect(waterStat).toBeDefined();
+    expect(waterStat!.percentage).toBeGreaterThanOrEqual(80);
+    expect(oceanResult.dominantClass).toContain('Badan Air & Laut');
+  });
 });

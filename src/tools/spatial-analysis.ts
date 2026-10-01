@@ -218,7 +218,7 @@ export const PRESET_REGIONS: PresetRegion[] = [
 
 // Official Sentinel-2 10m Land Use & Land Cover Classification Specs
 export const LULC_CLASSES: Array<{ code: number; name: string; nameId: string; color: string }> = [
-  { code: 1, name: 'Water', nameId: 'Badan Air', color: '#1A5BAB' },
+  { code: 1, name: 'Water', nameId: 'Badan Air & Laut', color: '#1A5BAB' },
   { code: 2, name: 'Trees (Forest)', nameId: 'Tutupan Pohon / Hutan', color: '#358221' },
   { code: 4, name: 'Flooded Vegetation', nameId: 'Lahan Basah / Mangrove', color: '#87D19E' },
   { code: 5, name: 'Crops', nameId: 'Pertanian / Sawah', color: '#FFDB5C' },
@@ -441,7 +441,16 @@ export class SpatialAnalysisEngine {
           const blue = rawData[idx + 2];
           const alpha = rawData[idx + 3];
 
-          if (alpha < 30) continue;
+          // In Sentinel-2 10m LandCover (Esri), terrestrial landmasses are classified
+          // into land cover categories, while open sea / ocean waters outside the coastline
+          // are rendered transparent (NoData, alpha < 30).
+          // Therefore, if a point is within the user's AOI polygon and transparent,
+          // it represents Ocean / Open Sea / Marine Waters (Class 1: Water)!
+          if (alpha < 30) {
+            counts[1] = (counts[1] || 0) + 1;
+            totalSampled++;
+            continue;
+          }
 
           let bestDist = Infinity;
           let bestCode = 2;
@@ -651,7 +660,9 @@ export class SpatialAnalysisEngine {
     let weights: Record<number, number> = {};
 
     const lowerLabel = label.toLowerCase();
-    if (lowerLabel.includes('jakarta') || lowerLabel.includes('surabaya')) {
+    if (lowerLabel.includes('laut') || lowerLabel.includes('selat') || lowerLabel.includes('teluk') || lowerLabel.includes('samudera') || lowerLabel.includes('maritim')) {
+      weights = { 1: 85, 4: 8, 8: 4, 7: 3 };
+    } else if (lowerLabel.includes('jakarta') || lowerLabel.includes('surabaya')) {
       weights = { 7: 62, 5: 14, 1: 8, 2: 7, 4: 5, 8: 3, 11: 1 };
     } else if (lowerLabel.includes('ikn') || lowerLabel.includes('kalimantan')) {
       weights = { 2: 64, 11: 16, 5: 8, 7: 6, 4: 4, 1: 2 };
