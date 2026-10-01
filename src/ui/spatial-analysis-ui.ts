@@ -696,25 +696,29 @@ export class SpatialAnalysisUI {
 
     container.innerHTML = `
       <div class="aoi-result-card">
-        <!-- Region Title Header -->
+        <!-- Region Title Header Box (Framed cleanly inside card) -->
         <div class="aoi-result-header">
           <div class="aoi-result-title-wrap">
-            <div class="aoi-result-title" title="${escapeHtml(res.regionName)}">
-              ${escapeHtml(res.regionName)}
+            <div class="aoi-result-title">
+              <span class="aoi-result-dot" aria-hidden="true"></span>
+              <span class="aoi-result-name" title="${escapeHtml(res.regionName)}">${escapeHtml(res.regionName)}</span>
             </div>
             <div class="aoi-result-timestamp">
               Dianalisis: ${escapeHtml(res.timestamp)}
             </div>
           </div>
-          <div class="aoi-export-action-group">
-            <button type="button" id="btn-export-aoi-csv" class="btn btn-secondary aoi-export-btn" title="Unduh data statistik spasial sebagai CSV (Kompatibel Excel)">
-              <span>📥</span> <span>CSV</span>
+          <div class="aoi-export-action-group" role="group" aria-label="Ekspor Hasil Analisis">
+            <button type="button" id="btn-export-aoi-csv" class="aoi-export-btn" title="Unduh data spasial sebagai CSV (Excel)">
+              <span class="export-icon" aria-hidden="true">📥</span>
+              <span class="export-label">CSV</span>
             </button>
-            <button type="button" id="btn-export-aoi-report" class="btn btn-secondary aoi-export-btn aoi-export-pdf" title="Buka dan cetak / simpan Laporan Ringkasan PDF">
-              <span>🖨️</span> <span>PDF</span>
+            <button type="button" id="btn-export-aoi-report" class="aoi-export-btn aoi-export-pdf" title="Buka dan cetak / simpan Ringkasan PDF">
+              <span class="export-icon" aria-hidden="true">🖨️</span>
+              <span class="export-label">PDF</span>
             </button>
-            <button type="button" id="btn-export-aoi-geojson" class="btn btn-secondary aoi-export-btn aoi-export-geojson" title="Unduh poligon AOI & statistik sebagai GeoJSON">
-              <span>🌐</span> <span>GeoJSON</span>
+            <button type="button" id="btn-export-aoi-geojson" class="aoi-export-btn aoi-export-geojson" title="Unduh poligon AOI sebagai GeoJSON">
+              <span class="export-icon" aria-hidden="true">🌐</span>
+              <span class="export-label">GeoJSON</span>
             </button>
           </div>
         </div>
