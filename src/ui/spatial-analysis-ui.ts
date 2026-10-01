@@ -554,7 +554,7 @@ export class SpatialAnalysisUI {
               <div class="aoi-divider-line"></div>
             </div>
             <select id="select-preset-aoi" class="form-select aoi-preset-select">
-              <option value="" disabled selected>📍 Pilih Wilayah Prioritas (IKN, Jakarta, Bandung, dll)</option>
+              <option value="" disabled selected>📍 Pilih Wilayah Prioritas...</option>
               ${PRESET_REGIONS.map((p) => `<option value="${p.id}">${p.name}</option>`).join('')}
             </select>
           </div>
@@ -706,15 +706,15 @@ export class SpatialAnalysisUI {
               Dianalisis: ${escapeHtml(res.timestamp)}
             </div>
           </div>
-          <div class="aoi-export-action-group" style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
-            <button id="btn-export-aoi-csv" class="btn btn-secondary btn-export-csv" title="Unduh data statistik spasial sebagai CSV (Kompatibel Excel)">
-              📥 CSV
+          <div class="aoi-export-action-group">
+            <button type="button" id="btn-export-aoi-csv" class="btn btn-secondary aoi-export-btn" title="Unduh data statistik spasial sebagai CSV (Kompatibel Excel)">
+              <span>📥</span> <span>CSV</span>
             </button>
-            <button id="btn-export-aoi-report" class="btn btn-secondary btn-export-report" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);" title="Buka dan cetak / simpan Laporan Ringkasan PDF">
-              🖨️ PDF
+            <button type="button" id="btn-export-aoi-report" class="btn btn-secondary aoi-export-btn aoi-export-pdf" title="Buka dan cetak / simpan Laporan Ringkasan PDF">
+              <span>🖨️</span> <span>PDF</span>
             </button>
-            <button id="btn-export-aoi-geojson" class="btn btn-secondary btn-export-geojson" title="Unduh poligon AOI & statistik sebagai GeoJSON">
-              🌐 GeoJSON
+            <button type="button" id="btn-export-aoi-geojson" class="btn btn-secondary aoi-export-btn aoi-export-geojson" title="Unduh poligon AOI & statistik sebagai GeoJSON">
+              <span>🌐</span> <span>GeoJSON</span>
             </button>
           </div>
         </div>

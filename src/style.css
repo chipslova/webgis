@@ -11191,9 +11191,9 @@ html, body, #app {
 .aoi-banner-title {
   font-size: 11px;
   font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.3;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .aoi-banner.gee-cloud .aoi-banner-title { color: #34d399; }
@@ -12376,41 +12376,86 @@ html, body, #app {
 
 .aoi-result-header {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  gap: 8px;
   margin-bottom: 10px;
   padding-bottom: 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .aoi-result-title-wrap {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
 }
 
 .aoi-result-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: #f8fafc;
   line-height: 1.35;
   letter-spacing: -0.01em;
-  word-break: break-word;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .aoi-result-timestamp {
   font-size: 11px;
   font-weight: 500;
   color: #94a3b8;
-  margin-top: 3px;
+  margin-top: 2px;
   letter-spacing: 0.01em;
 }
 
-.btn-export-csv {
-  flex-shrink: 0;
+.aoi-export-action-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+}
+
+.aoi-export-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 6px;
   font-size: 11px;
-  padding: 5px 9px;
-  gap: 4px;
+  font-weight: 600;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.aoi-export-btn:hover {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: rgba(0, 240, 255, 0.4);
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+}
+
+.aoi-export-btn.aoi-export-pdf {
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.aoi-export-btn.aoi-export-pdf:hover {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+.aoi-export-btn.aoi-export-geojson {
+  color: #a78bfa;
+  border-color: rgba(167, 139, 250, 0.35);
+}
+
+.aoi-export-btn.aoi-export-geojson:hover {
+  background: rgba(167, 139, 250, 0.2);
+  border-color: #a78bfa;
+  color: #ffffff;
 }
 
 .aoi-banner {
