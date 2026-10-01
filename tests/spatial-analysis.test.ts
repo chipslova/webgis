@@ -222,4 +222,19 @@ describe('Spatial Analysis & AOI Zonal Statistics Engine', () => {
     expect(waterStat!.percentage).toBeGreaterThanOrEqual(80);
     expect(oceanResult.dominantClass).toContain('Badan Air & Laut');
   });
+
+  it('should classify custom polygon in open sea (Selat Karimata / Laut Jawa) as Badan Air & Laut even with generic label', () => {
+    // Coordinate in Selat Karimata / Java Sea between Sumatra, Belitung, and Kalimantan
+    const marinePolygon = polygon([[[106.5, -2.5], [108.5, -2.5], [107.5, -3.8], [106.5, -2.5]]]);
+    const result = SpatialAnalysisEngine.computeZonalStats(marinePolygon, 'Area Kustom (3 Simpul)');
+
+    expect(result.dominantClass).toContain('Badan Air & Laut');
+    const waterStat = result.landCoverBreakdown.find((c) => c.code === 1);
+    expect(waterStat).toBeDefined();
+    expect(waterStat!.percentage).toBeGreaterThanOrEqual(85);
+
+    // Forest should NOT be dominant in open ocean
+    const forestStat = result.landCoverBreakdown.find((c) => c.code === 2);
+    expect(forestStat?.percentage ?? 0).toBeLessThan(10);
+  });
 });

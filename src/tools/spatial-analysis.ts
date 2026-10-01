@@ -364,7 +364,7 @@ export class SpatialAnalysisEngine {
       width = Math.max(64, Math.min(180, Math.round(180 * aspect)));
     }
 
-    const imgUrl = `https://ic.imagery1.arcgis.com/arcgis/rest/services/Sentinel2_10m_LandCover/ImageServer/exportImage?bbox=${minLng},${minLat},${maxLng},${maxLat}&bboxSR=4326&imageSR=4326&size=${width},${height}&format=png&transparent=true&f=image`;
+    const imgUrl = `https://ic.imagery1.arcgis.com/arcgis/rest/services/Sentinel2_10m_LandCover/ImageServer/exportImage?bbox=${minLng},${minLat},${maxLng},${maxLat}&bboxSR=4326&imageSR=4326&size=${width},${height}&format=png32&transparent=true&f=image`;
     const meteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${centerLat.toFixed(4)}&longitude=${centerLng.toFixed(4)}&current=temperature_2m,surface_temperature,relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min&timezone=auto`;
 
     const [imgRes, meteoRes] = await Promise.all([
@@ -450,17 +450,21 @@ export class SpatialAnalysisEngine {
 
           // In Sentinel-2 10m LandCover (Esri), terrestrial landmasses are classified
           // into land cover categories, while open sea / ocean waters outside the coastline
-          // are rendered transparent (NoData, alpha < 30).
-          // Therefore, if a point is within the user's AOI polygon and transparent,
-          // it represents Ocean / Open Sea / Marine Waters (Class 1: Water)!
-          if (alpha < 30) {
+          // are rendered transparent (NoData, alpha < 30) or pure black (R=0, G=0, B=0 NoData).
+          // Notice: in the S2 palette, valid land categories all have significant RGB intensity
+          // (e.g., Trees is (53, 130, 33), Water is (26, 91, 171)).
+          // Pure black or near-black pixels (R<=15, G<=15, B<=15) are unclassified ocean / marine NoData.
+          // Therefore, if a point is within the user's AOI polygon and is transparent OR black NoData,
+          // it represents Ocean / Open Sea / Marine Waters (Class 1: Water / Badan Air & Laut)!
+          const isOceanOrNoData = alpha < 30 || (red <= 15 && green <= 15 && blue <= 15);
+          if (isOceanOrNoData) {
             counts[1] = (counts[1] || 0) + 1;
             totalSampled++;
             continue;
           }
 
           let bestDist = Infinity;
-          let bestCode = 2;
+          let bestCode = 1;
           for (let p = 0; p < S2_PALETTE.length; p++) {
             const pal = S2_PALETTE[p];
             const dist = (red - pal.r) * (red - pal.r) +
@@ -699,8 +703,18 @@ export class SpatialAnalysisEngine {
     } else if (lowerLabel.includes('bali')) {
       weights = { 5: 36, 7: 29, 2: 22, 1: 8, 11: 5 };
     } else {
+      // Geographic check for prominent open marine basins / straits in Indonesia
+      // e.g. Selat Karimata / Laut Jawa (lat: -5.5 to 0.8, lng: 106.0 to 109.5),
+      // Selat Makassar, or Southern Indian Ocean
+      const isJavaSeaKarimata = lat >= -5.5 && lat <= 0.8 && lng >= 106.0 && lng <= 109.5;
+      const isSouthOcean = lat < -8.8 && lng >= 95.0 && lng <= 141.0;
+      const isMakassarStrait = lat >= -4.5 && lat <= 1.5 && lng >= 117.5 && lng <= 119.3;
+      const isOpenSea = isJavaSeaKarimata || isSouthOcean || isMakassarStrait;
+
       const isJava = lat < -5.5 && lat > -8.8 && lng > 105.0 && lng < 115.0;
-      if (isJava) {
+      if (isOpenSea) {
+        weights = { 1: 92, 4: 4, 8: 2, 7: 2 };
+      } else if (isJava) {
         weights = { 5: 42, 2: 24, 7: 22, 1: 6, 11: 4, 4: 2 };
       } else {
         weights = { 2: 58, 5: 18, 11: 12, 7: 5, 1: 4, 4: 3 };
