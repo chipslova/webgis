@@ -672,9 +672,26 @@ export class GeoJsonLoader {
         return { success: false, error: 'Gagal menambahkan layer buffer ke peta.' };
       }
 
+      // Soften source layer fill opacity so buffer polygon contrast is prominent
+      if (typeof sourceItem.opacity === 'number' && sourceItem.opacity > 0.45) {
+        this.setLayerOpacity(sourceLayerId, 0.4);
+      } else if (sourceItem.opacity === undefined) {
+        this.setLayerOpacity(sourceLayerId, 0.45);
+      }
+
       // Set user selected fill opacity for buffer zones
       const opacity = typeof customOpacity === 'number' && !isNaN(customOpacity) ? customOpacity : 0.45;
       this.setLayerOpacity(bufferLayerId, opacity);
+
+      // Enhance buffer outline with distinct dashed stroke for high visual feedback
+      const bufferLineId = `layer-line-${bufferLayerId}`;
+      if (this.map && this.map.getLayer(bufferLineId)) {
+        try {
+          this.map.setPaintProperty(bufferLineId, 'line-dasharray', [3, 1.5]);
+          this.map.setPaintProperty(bufferLineId, 'line-width', 2.5);
+        } catch {}
+      }
+
       this.notifyLayersChange();
 
       return {

@@ -747,6 +747,21 @@ export class PikselPanelUI {
                 } : undefined
               }
             );
+          } else {
+            const minZ = prodObj?.minZoom ?? 8;
+            if (prevZoom !== null && prevZoom < minZ) {
+              showToast(
+                `💡 Zoom masuk (Zoom ≥ ${minZ}) untuk resolusi detail optimal citra ${prodObj?.name || 'Sentinel-2 BIG Piksel'}.`,
+                {
+                  type: 'info',
+                  durationMs: 6000,
+                  action: {
+                    label: `🔍 Fokus Otomatis (Z${minZ})`,
+                    onClick: () => this.pikselLoader.zoomToMinZoom()
+                  }
+                }
+              );
+            }
           }
         }
         this.render();

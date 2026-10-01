@@ -9,6 +9,7 @@ import { SwipeCompareManager } from '../tools/swipe-compare';
 import { GuidedTourUI } from './guided-tour';
 import { SpatialAnalysisUI } from './spatial-analysis-ui';
 import { PRESET_REGIONS } from '../tools/spatial-analysis';
+import { PointInspector } from '../tools/point-inspector';
 import { showToast } from './toast';
 
 export interface CommandItem {
@@ -147,6 +148,33 @@ export class CommandPaletteUI {
 
   private getAllCommands(): CommandItem[] {
     const commands: CommandItem[] = [];
+
+    // 0. Bookmark Favorit Pengguna
+    try {
+      const bookmarks = PointInspector.getBookmarks();
+      bookmarks.forEach((bm) => {
+        commands.push({
+          id: `bm-${bm.id}`,
+          category: 'presets',
+          categoryLabel: '⭐ Bookmark Favorit',
+          title: bm.name,
+          subtitle: `Koordinat: ${bm.lat.toFixed(4)}, ${bm.lng.toFixed(4)}${bm.elevation ? ` · ${bm.elevation}` : ''} · Tersimpan ${bm.date}`,
+          icon: '⭐',
+          keywords: [bm.name, 'bookmark', 'favorit', 'saved', 'titik', 'lokasi', 'pin'],
+          action: () => {
+            const map = typeof (this.mapManager as any)?.getMap === 'function'
+              ? (this.mapManager as any).getMap()
+              : typeof (this.mapManager as any)?.flyTo === 'function'
+                ? (this.mapManager as any)
+                : null;
+            if (map && typeof map.flyTo === 'function') {
+              map.flyTo({ center: [bm.lng, bm.lat], zoom: 14, essential: true });
+            }
+            showToast(`Mengarahkan ke bookmark: ${bm.name}`, 'info');
+          }
+        });
+      });
+    } catch {}
 
     // 1. Kawasan Pantauan Presets
     PIKSEL_PRESETS.forEach((preset) => {

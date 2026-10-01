@@ -8481,6 +8481,12 @@ html, body, #app {
   }
 }
 
+@media (max-width: 1180px) {
+  #btn-start-tour {
+    display: none !important;
+  }
+}
+
 @media (max-width: 1024px) {
   .header-actions .header-action-btn:not(#btn-toggle-globe) {
     display: none !important;
@@ -8804,9 +8810,24 @@ html, body, #app {
   display: none !important;
 }
 
+.attribute-table-container.height-compact {
+  height: 28vh;
+  max-height: 28vh;
+}
+
+.attribute-table-container.height-normal {
+  height: 48vh;
+  max-height: 48vh;
+}
+
+.attribute-table-container.height-full {
+  height: 80vh;
+  max-height: 80vh;
+}
+
 .attribute-table-container.minimized {
-  height: 48px;
-  max-height: 48px;
+  height: 48px !important;
+  max-height: 48px !important;
 }
 
 .attribute-table-container.minimized .attr-table-body-wrap {
@@ -8938,6 +8959,40 @@ html, body, #app {
   border-color: var(--accent-cyan, #00f0ff);
   color: #ffffff;
   box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+}
+
+.attr-height-toggle-group {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.btn-attr-size-chip {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-attr-size-chip:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-attr-size-chip.active {
+  background: rgba(0, 240, 255, 0.22);
+  color: var(--accent-cyan, #00f0ff);
+  font-weight: 600;
+  box-shadow: 0 0 6px rgba(0, 240, 255, 0.2);
 }
 
 /* Active Filter Pill Badge */

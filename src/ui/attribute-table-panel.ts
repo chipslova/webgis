@@ -148,6 +148,7 @@ export class AttributeTableUI {
   private sortAsc: boolean = true;
   private isOpen: boolean = false;
   private isMinimized: boolean = false;
+  private heightMode: 'compact' | 'normal' | 'full' = 'normal';
   private highlightMarker: maplibregl.Marker | null = null;
   private bulkMarkers: maplibregl.Marker[] = [];
 
@@ -181,6 +182,13 @@ export class AttributeTableUI {
       document.body.appendChild(container);
     }
     this.containerEl = container;
+    this.applyHeightClasses();
+  }
+
+  private applyHeightClasses() {
+    if (!this.containerEl) return;
+    this.containerEl.classList.remove('height-compact', 'height-normal', 'height-full');
+    this.containerEl.classList.add(`height-${this.heightMode}`);
   }
 
   public open(layerId?: string) {
@@ -203,6 +211,7 @@ export class AttributeTableUI {
 
     if (this.containerEl) {
       this.containerEl.classList.remove('hidden', 'minimized');
+      this.applyHeightClasses();
     }
 
     this.render();
@@ -638,6 +647,12 @@ export class AttributeTableUI {
             <span>Ekspor CSV</span>
           </button>
 
+          <div class="attr-height-toggle-group" role="group" aria-label="Pengaturan Tinggi Panel">
+            <button type="button" id="btn-attr-height-compact" class="btn-attr-size-chip ${this.heightMode === 'compact' ? 'active' : ''}" title="Tinggi Ringkas (28% layar)" aria-label="Tinggi Ringkas 28%">28%</button>
+            <button type="button" id="btn-attr-height-normal" class="btn-attr-size-chip ${this.heightMode === 'normal' ? 'active' : ''}" title="Tinggi Standar (48% layar)" aria-label="Tinggi Standar 48%">48%</button>
+            <button type="button" id="btn-attr-height-full" class="btn-attr-size-chip ${this.heightMode === 'full' ? 'active' : ''}" title="Tinggi Maksimal (80% layar)" aria-label="Tinggi Maksimal 80%">80%</button>
+          </div>
+
           <button id="btn-minimize-attr-table" class="btn-attr-icon" title="${this.isMinimized ? 'Perbesar' : 'Kecilkan'}" aria-label="Kecilkan Tabel">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               ${this.isMinimized ? '<polyline points="18 15 12 9 6 15"></polyline>' : '<polyline points="6 9 12 15 18 9"></polyline>'}
@@ -773,6 +788,17 @@ export class AttributeTableUI {
       this.containerEl?.classList.toggle('minimized', this.isMinimized);
       this.render();
     });
+
+    const setHeightMode = (mode: 'compact' | 'normal' | 'full') => {
+      this.heightMode = mode;
+      this.isMinimized = false;
+      this.applyHeightClasses();
+      this.render();
+    };
+
+    this.containerEl.querySelector('#btn-attr-height-compact')?.addEventListener('click', () => setHeightMode('compact'));
+    this.containerEl.querySelector('#btn-attr-height-normal')?.addEventListener('click', () => setHeightMode('normal'));
+    this.containerEl.querySelector('#btn-attr-height-full')?.addEventListener('click', () => setHeightMode('full'));
 
     const closeBtn = this.containerEl.querySelector<HTMLButtonElement>('#btn-close-attr-table');
     closeBtn?.addEventListener('click', () => {

@@ -223,4 +223,89 @@ describe('Basemap Popover Keyboard Navigation & a11y', () => {
     items[items.length - 1].dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
     expect(document.activeElement).toBe(items[0]);
   });
+
+  it('should support location bookmarking in PointInspector and reflect in Command Palette', async () => {
+    localStorage.clear();
+    const { PointInspector } = await import('../src/tools/point-inspector');
+    const { CommandPaletteUI } = await import('../src/ui/command-palette');
+
+    expect(PointInspector.getBookmarks().length).toBe(0);
+
+    const testLoc = {
+      lng: 106.8456,
+      lat: -6.2088,
+      name: 'Monas Jakarta',
+      note: 'Ibukota Negara'
+    };
+
+    // Toggle bookmark on
+    const isNowBookmarked = PointInspector.toggleBookmark(testLoc);
+    expect(isNowBookmarked).toBe(true);
+    expect(PointInspector.isBookmarked(testLoc)).toBe(true);
+    expect(PointInspector.isBookmarked(testLoc.lat, testLoc.lng)).toBe(true);
+    expect(PointInspector.getBookmarks().length).toBe(1);
+
+    // Command palette includes the bookmark
+    const mockMap: any = {
+      flyTo: vi.fn(),
+      getCenter: vi.fn().mockReturnValue({ lng: 106.8456, lat: -6.2088 }),
+      getZoom: vi.fn().mockReturnValue(10)
+    };
+    const palette = new CommandPaletteUI(mockMap);
+    const commands = (palette as any).getAllCommands();
+    const bookmarkCmd = commands.find((c: any) => c.title.includes('Monas Jakarta'));
+    expect(bookmarkCmd).toBeDefined();
+    expect(bookmarkCmd.categoryLabel).toBe('⭐ Bookmark Favorit');
+
+    // Trigger bookmark navigation
+    bookmarkCmd.action();
+    expect(mockMap.flyTo).toHaveBeenCalled();
+
+    // Toggle bookmark off
+    const isUnbookmarked = PointInspector.toggleBookmark(testLoc);
+    expect(isUnbookmarked).toBe(false);
+    expect(PointInspector.getBookmarks().length).toBe(0);
+  });
+
+  it('should allow toggling attribute table height between compact, normal, and full', async () => {
+    const { AttributeTableUI } = await import('../src/ui/attribute-table-panel');
+    const { GeoJsonLoader } = await import('../src/tools/geojson-loader');
+
+    const mockMap: any = {
+      getStyle: vi.fn().mockReturnValue({ layers: [] }),
+      addSource: vi.fn(),
+      getSource: vi.fn(),
+      addLayer: vi.fn(),
+      getLayer: vi.fn(),
+      setLayoutProperty: vi.fn(),
+      setPaintProperty: vi.fn()
+    };
+
+    const loader = new GeoJsonLoader(mockMap);
+    loader.loadSampleData();
+
+    const tableUI = new AttributeTableUI(mockMap, loader);
+    tableUI.open();
+
+    const container = document.getElementById('attribute-table-container');
+    expect(container).not.toBeNull();
+    expect(container?.classList.contains('height-normal')).toBe(true);
+
+    // Click compact height (28%)
+    const compactBtn = document.getElementById('btn-attr-height-compact');
+    expect(compactBtn).not.toBeNull();
+    compactBtn?.click();
+    expect(container?.classList.contains('height-compact')).toBe(true);
+    expect(container?.classList.contains('height-normal')).toBe(false);
+
+    // Click full height (80%)
+    const fullBtn = document.getElementById('btn-attr-height-full');
+    expect(fullBtn).not.toBeNull();
+    fullBtn?.click();
+    expect(container?.classList.contains('height-full')).toBe(true);
+    expect(container?.classList.contains('height-compact')).toBe(false);
+
+    tableUI.close();
+  });
 });
+

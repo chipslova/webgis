@@ -7,6 +7,17 @@ import { showToast } from '../ui/toast';
 import { escapeHtml } from '../utils/sanitize';
 import { logger } from '../utils/logger';
 
+export interface BookmarkedLocation {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  elevation?: string;
+  date: string;
+}
+
+const BOOKMARK_STORAGE_KEY = 'webgis_bookmarked_locations';
+
 export class PointInspector {
   private map: maplibregl.Map;
   private pikselLoader?: PikselLoader;
@@ -16,6 +27,61 @@ export class PointInspector {
   private marker: maplibregl.Marker | null = null;
   private containerEl: HTMLElement | null = null;
   private isEnabled: boolean = true;
+  private currentInspected?: { lat: number; lng: number; name?: string; elevation?: string };
+
+  public static getBookmarks(): BookmarkedLocation[] {
+    try {
+      const raw = localStorage.getItem(BOOKMARK_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  public static isBookmarked(latOrObj: number | { lat: number; lng: number }, lng?: number): boolean {
+    const targetLat = typeof latOrObj === 'object' ? latOrObj.lat : latOrObj;
+    const targetLng = typeof latOrObj === 'object' ? latOrObj.lng : (lng ?? 0);
+    const list = PointInspector.getBookmarks();
+    return list.some(b => Math.abs(b.lat - targetLat) < 0.0001 && Math.abs(b.lng - targetLng) < 0.0001);
+  }
+
+  public static toggleBookmark(
+    latOrObj: number | { lat: number; lng: number; name?: string; elevation?: string; note?: string },
+    lng?: number,
+    name?: string,
+    elevation?: string
+  ): boolean {
+    const targetLat = typeof latOrObj === 'object' ? latOrObj.lat : latOrObj;
+    const targetLng = typeof latOrObj === 'object' ? latOrObj.lng : (lng ?? 0);
+    const targetName = typeof latOrObj === 'object' ? (latOrObj.name || (latOrObj as any).note) : name;
+    const targetElev = typeof latOrObj === 'object' ? latOrObj.elevation : elevation;
+
+    const list = PointInspector.getBookmarks();
+    const existingIdx = list.findIndex(b => Math.abs(b.lat - targetLat) < 0.0001 && Math.abs(b.lng - targetLng) < 0.0001);
+    let added = false;
+    if (existingIdx !== -1) {
+      list.splice(existingIdx, 1);
+      added = false;
+    } else {
+      const item: BookmarkedLocation = {
+        id: `bm-${Date.now()}`,
+        name: targetName || `Titik (${targetLat.toFixed(4)}, ${targetLng.toFixed(4)})`,
+        lat: targetLat,
+        lng: targetLng,
+        elevation: targetElev,
+        date: new Date().toLocaleDateString('id-ID')
+      };
+      list.unshift(item);
+      added = true;
+    }
+    try {
+      localStorage.setItem(BOOKMARK_STORAGE_KEY, JSON.stringify(list));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('webgis:bookmarks-updated', { detail: { list } }));
+      }
+    } catch {}
+    return added;
+  }
 
   constructor(
     map: maplibregl.Map,
@@ -104,6 +170,24 @@ export class PointInspector {
       };
 
       doCopy();
+    });
+
+    const bookmarkBtn = document.getElementById('btn-insp-bookmark');
+    bookmarkBtn?.addEventListener('click', () => {
+      if (!this.currentInspected) {
+        showToast('Pilih titik pada peta terlebih dahulu untuk menyimpan bookmark', 'warning');
+        return;
+      }
+      const isAdded = PointInspector.toggleBookmark(
+        this.currentInspected.lat,
+        this.currentInspected.lng,
+        this.currentInspected.name,
+        this.currentInspected.elevation
+      );
+      if (bookmarkBtn) {
+        bookmarkBtn.innerText = isAdded ? '⭐ Tersimpan' : '⭐ Simpan Bookmark';
+      }
+      showToast(isAdded ? '⭐ Lokasi berhasil disimpan ke Bookmark Favorit!' : 'Bookmark lokasi telah dihapus', 'info');
     });
   }
 
@@ -421,6 +505,19 @@ export class PointInspector {
         vectorWrapEl.style.display = 'none';
         if (vectorPropsSlot) vectorPropsSlot.innerHTML = '';
       }
+    }
+
+    this.currentInspected = {
+      lat,
+      lng,
+      name: vectorName || `Titik Koordinat (${lat.toFixed(4)}, ${lng.toFixed(4)})`,
+      elevation: elevationM !== null && elevationM !== undefined ? `${Math.round(elevationM)} mdpl` : undefined
+    };
+
+    const bookmarkBtn = document.getElementById('btn-insp-bookmark');
+    if (bookmarkBtn) {
+      const isBm = PointInspector.isBookmarked(lat, lng);
+      bookmarkBtn.innerText = isBm ? '⭐ Tersimpan' : '⭐ Simpan Bookmark';
     }
 
     this.containerEl.classList.add('active');
