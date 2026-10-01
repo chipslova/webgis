@@ -52,18 +52,18 @@ export class CommandPaletteUI {
 
   constructor(
     mapManager: MapManager,
-    pikselLoader: PikselLoader | null,
-    geeLoader: GEELoader | null,
-    measureTool: MeasureTool | null,
-    sidebarUI: SidebarUI,
-    swipeCompareManager: SwipeCompareManager | null,
-    guidedTourUI: GuidedTourUI | null
+    pikselLoader: PikselLoader | null = null,
+    geeLoader: GEELoader | null = null,
+    measureTool: MeasureTool | null = null,
+    sidebarUI?: SidebarUI,
+    swipeCompareManager: SwipeCompareManager | null = null,
+    guidedTourUI: GuidedTourUI | null = null
   ) {
     this.mapManager = mapManager;
     this.pikselLoader = pikselLoader;
     this.geeLoader = geeLoader;
     this.measureTool = measureTool;
-    this.sidebarUI = sidebarUI;
+    this.sidebarUI = sidebarUI as SidebarUI;
     this.swipeCompareManager = swipeCompareManager;
     this.guidedTourUI = guidedTourUI;
 

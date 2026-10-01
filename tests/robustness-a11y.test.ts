@@ -251,7 +251,7 @@ describe('Basemap Popover Keyboard Navigation & a11y', () => {
       getCenter: vi.fn().mockReturnValue({ lng: 106.8456, lat: -6.2088 }),
       getZoom: vi.fn().mockReturnValue(10)
     };
-    const palette = new CommandPaletteUI(mockMap);
+    const palette = new CommandPaletteUI(mockMap as any);
     const commands = (palette as any).getAllCommands();
     const bookmarkCmd = commands.find((c: any) => c.title.includes('Monas Jakarta'));
     expect(bookmarkCmd).toBeDefined();
