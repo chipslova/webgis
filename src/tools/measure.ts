@@ -44,6 +44,8 @@ export class MeasureTool {
   private onFinishCallback?: () => void;
   private onCancelCallback?: () => void;
   private onModeChangeCallback?: (mode: MeasureMode) => void;
+  /** BUG-4 fix: debounce timer to suppress the two click events fired before dblclick */
+  private _clickPending: ReturnType<typeof setTimeout> | null = null;
 
   constructor(map: maplibregl.Map) {
     this.map = map;
@@ -143,10 +145,20 @@ export class MeasureTool {
   }
 
   private bindEvents() {
+    // BUG-4 fix: browsers fire 2× 'click' + 1× 'dblclick' for a double-click.
+    // We defer the single-click logic by 250 ms so the dblclick handler can cancel it first.
     this.map.on('click', (e: maplibregl.MapMouseEvent) => {
       if (this.mode === 'none') return;
       this.initLayers();
-      this.addPoint([e.lngLat.lng, e.lngLat.lat]);
+      const coord: [number, number] = [e.lngLat.lng, e.lngLat.lat];
+      if (this._clickPending !== null) {
+        clearTimeout(this._clickPending);
+        this._clickPending = null;
+      }
+      this._clickPending = setTimeout(() => {
+        this._clickPending = null;
+        this.addPoint(coord);
+      }, 250);
     });
 
     this.map.on('mousemove', (e: maplibregl.MapMouseEvent) => {
@@ -160,9 +172,14 @@ export class MeasureTool {
       this.finishMeasurement();
     });
 
-    // Double-click to finalize measurement on desktop/trackpad
+    // Double-click to finalize measurement — cancel any pending single-click debounce first
     this.map.on('dblclick', (e: maplibregl.MapMouseEvent) => {
       if (this.mode === 'none') return;
+      // Cancel the two deferred single-click callbacks so no stray points are added
+      if (this._clickPending !== null) {
+        clearTimeout(this._clickPending);
+        this._clickPending = null;
+      }
       e.preventDefault();
       this.finishMeasurement();
     });

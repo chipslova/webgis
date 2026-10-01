@@ -390,15 +390,22 @@ export class SpatialAnalysisEngine {
           ctx.drawImage(bmp, 0, 0, width, height);
           bmp.close?.();
         } else {
+          // Fallback for browsers without createImageBitmap — use Image() + blob URL
+          // BUG-2 fix: revoke the blob URL immediately after draw so memory is freed
           await new Promise<void>((resolve, reject) => {
             const img = new Image();
             img.crossOrigin = 'anonymous';
+            const blobUrl = URL.createObjectURL(blob);
             img.onload = () => {
               ctx.drawImage(img, 0, 0, width, height);
+              URL.revokeObjectURL(blobUrl); // free immediately after draw
               resolve();
             };
-            img.onerror = reject;
-            img.src = URL.createObjectURL(blob);
+            img.onerror = (err) => {
+              URL.revokeObjectURL(blobUrl); // also revoke on error
+              reject(err);
+            };
+            img.src = blobUrl;
           });
         }
         try {
@@ -479,20 +486,35 @@ export class SpatialAnalysisEngine {
     LULC_CLASSES.forEach((cls) => {
       const cnt = counts[cls.code] || 0;
       if (cnt > 0) {
-        const pct = Number(((cnt / totalSampled) * 100).toFixed(1));
-        const areaVal = Number(((pct / 100) * totalAreaKm2).toFixed(2));
+        // Keep exact float ratio; we'll round in a second pass below
         breakdown.push({
           code: cls.code,
           name: cls.name,
           nameId: cls.nameId,
           color: cls.color,
-          areaKm2: areaVal,
-          percentage: pct
+          areaKm2: 0,
+          percentage: (cnt / totalSampled) * 100
         });
       }
     });
 
     breakdown.sort((a, b) => b.percentage - a.percentage);
+
+    // BUG-3 fix: round each class independently to 1 dp, then correct rounding drift
+    // by adjusting the dominant class so the grand total is always exactly 100.0%.
+    let runningTotal = 0;
+    for (let i = 0; i < breakdown.length; i++) {
+      const rounded = Number(breakdown[i].percentage.toFixed(1));
+      breakdown[i].percentage = rounded;
+      breakdown[i].areaKm2 = Number(((rounded / 100) * totalAreaKm2).toFixed(2));
+      runningTotal += rounded;
+    }
+    const drift = Number((runningTotal - 100).toFixed(1));
+    if (drift !== 0 && breakdown.length > 0) {
+      breakdown[0].percentage = Math.max(0, Number((breakdown[0].percentage - drift).toFixed(1)));
+      breakdown[0].areaKm2 = Number(((breakdown[0].percentage / 100) * totalAreaKm2).toFixed(2));
+    }
+
     const dominantClass = breakdown.length > 0
       ? `${breakdown[0].nameId} (${breakdown[0].percentage}%)`
       : 'Vegetasi';
@@ -545,9 +567,13 @@ export class SpatialAnalysisEngine {
       }
     }
 
+    // BUG-5 fix: water-dominant areas have no built-up cover and therefore no UHI.
+    // Prevent the 10% default from being applied to ocean/lake areas.
+    const waterStat = breakdown.find(c => c.code === 1);
+    const isWaterDominant = Boolean(waterStat && waterStat.percentage >= 60);
     const builtStat = breakdown.find(c => c.code === 7);
-    const builtRatio = builtStat ? (builtStat.percentage / 100) : 0.1;
-    const hotspotPercentage = Math.min(100, Math.round(builtRatio * (meanTempC > 30 ? 90 : 55)));
+    const builtRatio = isWaterDominant ? 0 : (builtStat ? (builtStat.percentage / 100) : 0.1);
+    const hotspotPercentage = isWaterDominant ? 0 : Math.min(100, Math.round(builtRatio * (meanTempC > 30 ? 90 : 55)));
     const hotspotAreaKm2 = Number(((hotspotPercentage / 100) * totalAreaKm2).toFixed(2));
 
     return {
@@ -761,7 +787,13 @@ export class SpatialAnalysisEngine {
    * Can be printed directly or saved as PDF via browser print dialog.
    */
   public static generateReportHTML(result: ZonalAnalysisResult): string {
-    const safeName = result.regionName;
+    // BUG-1 fix: escape regionName before injecting into HTML to prevent XSS / HTML-injection
+    const safeName = result.regionName
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
     const lulcRows = result.landCoverBreakdown.map(stat => `
       <tr>
         <td style="padding: 6px 10px; border-bottom: 1px solid #e2e8f0; font-family: monospace;">${stat.code}</td>

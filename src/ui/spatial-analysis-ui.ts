@@ -627,6 +627,12 @@ export class SpatialAnalysisUI {
     const dominantItem = res.landCoverBreakdown.length > 0 ? res.landCoverBreakdown[0] : null;
     const dominantName = dominantItem ? dominantItem.nameId : (res.dominantClass.split('(')[0].trim() || 'Vegetasi');
     const dominantPct = dominantItem ? dominantItem.percentage : (res.dominantClass.match(/\(([\d.]+)%\)/)?.[1] || '');
+    // BUG-6 fix: map a context-appropriate icon per LULC code instead of always showing 🌳
+    const lulcIconMap: Record<number, string> = {
+      1: '🌊', 2: '🌳', 4: '🌿', 5: '🌾',
+      7: '🏙️', 8: '🏔️', 9: '❄️', 10: '☁️', 11: '🌱'
+    };
+    const dominantIcon = dominantItem ? (lulcIconMap[dominantItem.code] ?? '🌿') : '🌿';
 
     const bannerHtml = res.isRealGEE ? `
       <!-- Real GEE Verified Banner -->
@@ -756,7 +762,7 @@ export class SpatialAnalysisUI {
             <div style="background: rgba(15, 23, 42, 0.7); padding: 5px 7px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06);">
               <div style="font-size: 9.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px;">Kelas Dominan</div>
               <div style="font-size: 11.5px; font-weight: 700; color: #34d399; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${dominantName}">
-                🌳 ${dominantName}
+                ${dominantIcon} ${dominantName}
               </div>
               <div style="font-size: 9.5px; color: #a7f3d0; margin-top: 1px;">Porsi: <strong>${dominantPct}%</strong></div>
             </div>

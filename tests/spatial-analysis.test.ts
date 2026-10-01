@@ -196,7 +196,9 @@ describe('Spatial Analysis & AOI Zonal Statistics Engine', () => {
 
     expect(reportHtml).toContain('<!DOCTYPE html>');
     expect(reportHtml).toContain('LAPORAN ANALISIS STATISTIK ZONAL (AOI)');
-    expect(reportHtml).toContain(iknPreset.name);
+    // BUG-1 fix: regionName is now HTML-escaped in the report; '&' becomes '&amp;'
+    const escapedName = iknPreset.name.replace(/&/g, '&amp;');
+    expect(reportHtml).toContain(escapedName);
     expect(reportHtml).toContain('@media print');
     expect(reportHtml).toContain('Distribusi Tutupan Lahan (Sentinel-2 10m LULC)');
     expect(reportHtml).toContain('Profil Termal &amp; Urban Heat Island (NASA MODIS LST)');
