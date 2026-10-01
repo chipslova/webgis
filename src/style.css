@@ -1005,7 +1005,7 @@ html, body, #app {
 
 .saved-project-date {
   font-size: 10px;
-  color: #64748b;
+  color: #94a3b8;
   font-family: var(--font-mono, monospace);
   margin-top: 1px;
 }
@@ -1152,6 +1152,15 @@ html, body, #app {
 
 .maplibregl-ctrl-group button {
   border-bottom: 1px solid var(--border-color) !important;
+  transition: background 0.15s ease, outline 0.15s ease;
+}
+
+.maplibregl-ctrl-group button:focus,
+.maplibregl-ctrl-group button:focus-visible {
+  outline: 2px solid var(--accent-cyan) !important;
+  outline-offset: -2px !important;
+  background: rgba(0, 240, 255, 0.25) !important;
+  z-index: 2 !important;
 }
 
 .maplibregl-ctrl-group button:last-child {
@@ -2553,7 +2562,7 @@ html, body, #app {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.8px;
-  color: #64748b;
+  color: #94a3b8;
   text-transform: uppercase;
   font-family: 'JetBrains Mono', monospace;
   display: block;
@@ -2628,7 +2637,7 @@ html, body, #app {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.9px;
-  color: #475569;
+  color: #94a3b8;
   text-transform: uppercase;
   font-family: 'JetBrains Mono', monospace;
 }
@@ -2636,9 +2645,9 @@ html, body, #app {
 .al-count {
   font-size: 10px;
   font-weight: 700;
-  color: #64748b;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 8px;
   padding: 1px 7px;
   font-family: 'JetBrains Mono', monospace;
@@ -2663,13 +2672,13 @@ html, body, #app {
 .al-empty-title {
   font-size: 12px;
   font-weight: 600;
-  color: #475569;
+  color: #cbd5e1;
   margin: 8px 0 2px;
 }
 
 .al-empty-sub {
   font-size: 11px;
-  color: #334155;
+  color: #94a3b8;
   margin: 0;
 }
 
@@ -2702,7 +2711,7 @@ html, body, #app {
 .al-onboard-icon {
   font-size: 10px;
   font-weight: 700;
-  color: #334155;
+  color: var(--accent-cyan);
   font-family: 'JetBrains Mono', monospace;
   font-size: 18px;
   line-height: 1;
@@ -2730,7 +2739,7 @@ html, body, #app {
 
 .al-onboard-btn span {
   font-size: 10.5px;
-  color: #475569;
+  color: #94a3b8;
 }
 
 /* Compact Row */
@@ -2766,7 +2775,7 @@ html, body, #app {
   border: none;
   padding: 3px;
   cursor: pointer;
-  color: #64748b;
+  color: #94a3b8;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2812,7 +2821,7 @@ html, body, #app {
 
 .al-meta {
   font-size: 10px;
-  color: #475569;
+  color: #94a3b8;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2822,7 +2831,7 @@ html, body, #app {
 .al-opacity-chip {
   font-size: 10px;
   font-weight: 600;
-  color: #475569;
+  color: #cbd5e1;
   font-family: 'JetBrains Mono', monospace;
   flex-shrink: 0;
   width: 30px;
@@ -2834,7 +2843,7 @@ html, body, #app {
   border: none;
   padding: 4px;
   cursor: pointer;
-  color: #334155;
+  color: #94a3b8;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2863,7 +2872,7 @@ html, body, #app {
 
 .al-detail-label {
   font-size: 10px;
-  color: #475569;
+  color: #94a3b8;
   font-weight: 500;
   padding-top: 1px;
   white-space: nowrap;
@@ -4343,8 +4352,8 @@ html, body, #app {
 
 .card-tag-unavailable {
   background: rgba(100, 116, 139, 0.2);
-  color: #64748b;
-  border: 1px solid rgba(100, 116, 139, 0.3);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
   font-size: 10px;
   padding: 2px 6px;
   border-radius: 4px;
@@ -4526,7 +4535,7 @@ html, body, #app {
 
 .card-about-summary {
   font-size: 10px;
-  color: #475569;
+  color: #94a3b8;
   cursor: pointer;
   list-style: none;
   user-select: none;
@@ -4543,16 +4552,16 @@ html, body, #app {
 }
 
 .card-about-summary:hover {
-  color: #94a3b8;
+  color: #e2e8f0;
 }
 
 .card-about-body {
   font-size: 10.5px;
-  color: #64748b;
+  color: #cbd5e1;
   line-height: 1.5;
   margin-top: 6px;
   padding-top: 6px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -4560,7 +4569,7 @@ html, body, #app {
 
 .card-about-attr {
   font-size: 9.5px;
-  color: #334155;
+  color: #94a3b8;
   font-style: italic;
 }
 
@@ -4579,13 +4588,13 @@ html, body, #app {
   padding: 10px 12px;
   background: #0d1525;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .pillar-number {
   font-size: 10px;
   font-weight: 700;
-  color: #334155;
+  color: var(--accent-cyan);
   font-family: 'JetBrains Mono', monospace;
   letter-spacing: 0.5px;
   flex-shrink: 0;
@@ -4597,7 +4606,7 @@ html, body, #app {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.7px;
-  color: #64748b;
+  color: #e2e8f0;
   text-transform: uppercase;
   display: block;
   margin-bottom: 2px;
@@ -4606,7 +4615,7 @@ html, body, #app {
 
 .pillar p {
   font-size: 11px;
-  color: #475569;
+  color: #94a3b8;
   margin: 0;
   line-height: 1.45;
 }
@@ -4842,8 +4851,8 @@ html, body, #app {
 /* Active Count Badge States */
 .active-count-badge.count-zero {
   background: rgba(100, 116, 139, 0.15);
-  color: #64748b;
-  border-color: rgba(100, 116, 139, 0.3);
+  color: #94a3b8;
+  border-color: rgba(148, 163, 184, 0.3);
 }
 
 /* ==========================================================================
@@ -6000,7 +6009,7 @@ kbd {
 .insp-close-btn {
   background: none;
   border: none;
-  color: #64748b;
+  color: #94a3b8;
   font-size: 13px;
   cursor: pointer;
   padding: 2px 6px;
@@ -6036,7 +6045,7 @@ kbd {
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  color: #64748b;
+  color: #94a3b8;
   letter-spacing: 0.5px;
   font-family: 'JetBrains Mono', monospace;
 }
@@ -6111,7 +6120,7 @@ kbd {
 .insp-metric-label {
   display: block;
   font-size: 9px;
-  color: #64748b;
+  color: #94a3b8;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -6235,7 +6244,7 @@ kbd {
 
 .customizer-item-sub {
   font-size: 10px;
-  color: #64748b;
+  color: #94a3b8;
   line-height: 1.3;
 }
 
@@ -6343,7 +6352,7 @@ kbd {
 
 .sublayer-desc {
   font-size: 8.5px;
-  color: #64748b;
+  color: #94a3b8;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -6496,7 +6505,7 @@ kbd {
   display: block;
   font-size: 9px;
   font-weight: 700;
-  color: #64748b;
+  color: #94a3b8;
   letter-spacing: 0.6px;
   text-transform: uppercase;
   font-family: 'JetBrains Mono', monospace;
@@ -7050,7 +7059,7 @@ kbd {
 .slider-max-label {
   font-size: 10px;
   font-weight: 700;
-  color: #64748b;
+  color: #94a3b8;
   font-family: 'JetBrains Mono', monospace;
   flex-shrink: 0;
   min-width: 26px;
@@ -7236,7 +7245,7 @@ kbd {
 .tour-close-btn {
   background: transparent;
   border: none;
-  color: #64748b;
+  color: #94a3b8;
   font-size: 14px;
   cursor: pointer;
   padding: 2px 6px;
@@ -8101,7 +8110,7 @@ body.swipe-mode-active #dynamic-legend-container {
 }
 
 .cmd-input::placeholder {
-  color: #64748b;
+  color: #94a3b8;
   font-size: 13.5px;
 }
 
@@ -8184,14 +8193,14 @@ body.swipe-mode-active #dynamic-legend-container {
 
 .cmd-item-sub {
   font-size: 11px;
-  color: #64748b;
+  color: #94a3b8;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .cmd-item.active .cmd-item-sub {
-  color: #94a3b8;
+  color: #cbd5e1;
 }
 
 .cmd-item-arrow {
@@ -8214,7 +8223,7 @@ body.swipe-mode-active #dynamic-legend-container {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .cmd-empty-state span {
@@ -8224,7 +8233,7 @@ body.swipe-mode-active #dynamic-legend-container {
 .cmd-empty-state p {
   margin: 0;
   font-size: 13px;
-  color: #94a3b8;
+  color: #cbd5e1;
 }
 
 .cmd-footer-shortcuts {
@@ -8235,7 +8244,7 @@ body.swipe-mode-active #dynamic-legend-container {
   justify-content: space-between;
   align-items: center;
   font-size: 11px;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .cmd-keys-hint {
@@ -9120,7 +9129,7 @@ html, body, #app {
 .col-idx {
   width: 40px;
   text-align: center;
-  color: #64748b !important;
+  color: #94a3b8 !important;
 }
 
 .col-action {
@@ -9486,7 +9495,7 @@ html, body, #app {
 
 .overview-footer-hint {
   font-size: 10px;
-  color: #64748b;
+  color: #94a3b8;
   text-align: center;
   margin-top: 5px;
   letter-spacing: 0.02em;
@@ -10182,7 +10191,7 @@ html, body, #app {
 
 .analysis-info-text {
   font-size: 10px;
-  color: #64748b;
+  color: #94a3b8;
   line-height: 1.4;
   margin: 0;
 }
@@ -12137,7 +12146,7 @@ html, body, #app {
 
 .aoi-divider-label {
   font-size: 10px;
-  color: #64748b;
+  color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   font-weight: 600;
@@ -12191,7 +12200,7 @@ html, body, #app {
 
 .aoi-empty-subtitle {
   font-size: 10.5px;
-  color: #64748b;
+  color: #94a3b8;
   line-height: 1.45;
 }
 
@@ -12958,7 +12967,7 @@ html, body, #app {
 }
 
 .ai-dock-input-wrapper input::placeholder {
-  color: #64748b;
+  color: #94a3b8;
   font-size: 11px;
 }
 
@@ -13085,14 +13094,25 @@ html, body, #app {
 /* Mobile Drawer Drag Handle Indicator */
 .mobile-drawer-handle {
   display: none;
-  width: 36px;
-  height: 4px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.25);
-  margin: 8px auto 4px auto;
+  width: 52px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  margin: 10px auto 6px auto;
   cursor: grab;
-  transition: background 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   touch-action: none;
+  position: relative;
+}
+
+.mobile-drawer-handle::after {
+  content: '';
+  position: absolute;
+  top: -12px;
+  bottom: -12px;
+  left: -20px;
+  right: -20px;
 }
 
 @media (max-width: 768px) {
@@ -13102,7 +13122,9 @@ html, body, #app {
 
   .mobile-drawer-handle:hover,
   .mobile-drawer-handle:active {
-    background: rgba(255, 255, 255, 0.55);
+    background: #00f0ff;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+    transform: scaleX(1.1);
   }
 
   /* Smooth swipe transitions for sidebar drawer */

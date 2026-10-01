@@ -111,6 +111,28 @@ export class BasemapCustomizerUI {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           item.click();
+        } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          const items = Array.from(document.querySelectorAll<HTMLElement>('.basemap-popover-item'));
+          const idx = items.indexOf(item);
+          if (idx !== -1 && idx < items.length - 1) {
+            items[idx + 1].focus();
+          }
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          const items = Array.from(document.querySelectorAll<HTMLElement>('.basemap-popover-item'));
+          const idx = items.indexOf(item);
+          if (idx > 0) {
+            items[idx - 1].focus();
+          }
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          const first = document.querySelector<HTMLElement>('.basemap-popover-item');
+          if (first) first.focus();
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          const items = document.querySelectorAll<HTMLElement>('.basemap-popover-item');
+          if (items.length > 0) items[items.length - 1].focus();
         }
       });
 
@@ -342,6 +364,17 @@ export class BasemapCustomizerUI {
       if (triggerBtn) {
         triggerBtn.classList.add('popover-open');
       }
+      announceToScreenReader(`Panel popover ${popoverId.replace('-popover', '')} dibuka`);
+
+      // Auto-focus active element or first interactive element for keyboard accessibility
+      requestAnimationFrame(() => {
+        const activeItem = target.querySelector<HTMLElement>('.basemap-popover-item.active') ||
+          target.querySelector<HTMLElement>('.basemap-popover-item') ||
+          target.querySelector<HTMLElement>('button, input, [tabindex="0"]');
+        if (activeItem && typeof activeItem.focus === 'function') {
+          activeItem.focus();
+        }
+      });
     }
   }
 

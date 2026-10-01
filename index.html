@@ -312,18 +312,20 @@
                 <p>NASA LP DAAC · MODIS Terra &amp; Aqua (Komposit Suhu Permukaan 1 km 8-Harian Seluruh Indonesia 2000–Tersedia Terkini).</p>
               </div>
 
-              <!-- Live GEE Status & Compute State Banner -->
-              <div class="gee-disclaimer-banner">
-                <div class="gee-disclaimer-header">
+              <!-- Live GEE Status & Compute State Banner (Collapsible) -->
+              <details class="clean-accordion gee-disclaimer-banner" style="margin-bottom: 8px;">
+                <summary class="gee-disclaimer-header" style="cursor: pointer; list-style: none;">
                   <span><strong>Suhu Permukaan Daratan NASA MODIS</strong></span>
                   <span id="gee-live-status-pill" class="gee-disclaimer-tag">⚡ 1 KM LAND-MASKED</span>
+                </summary>
+                <div class="accordion-body" style="padding-top: 6px;">
+                  <p id="gee-status-description" class="gee-status-desc">Peta suhu permukaan radiatif (LST 1 km) seluruh daratan &amp; kepulauan Indonesia via NASA GIBS WMS &amp; GEE Zonal Compute. Wilayah lautan dimasking transparan sesuai standar NASA LP DAAC.</p>
+                  <div class="gee-disclaimer-notice">
+                    <span id="gee-active-dataset-label">Dataset: <code>MODIS/061/MOD11A2 + MYD11A2</code></span>
+                    <a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A2" target="_blank" rel="noopener noreferrer" class="gee-catalog-link">Katalog GEE ↗</a>
+                  </div>
                 </div>
-                <p id="gee-status-description" class="gee-status-desc">Peta suhu permukaan radiatif (LST 1 km) seluruh daratan &amp; kepulauan Indonesia via NASA GIBS WMS &amp; GEE Zonal Compute. Wilayah lautan dimasking transparan sesuai standar NASA LP DAAC.</p>
-                <div class="gee-disclaimer-notice">
-                  <span id="gee-active-dataset-label">Dataset: <code>MODIS/061/MOD11A2 + MYD11A2</code></span>
-                  <a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A2" target="_blank" rel="noopener noreferrer" class="gee-catalog-link">Katalog GEE ↗</a>
-                </div>
-              </div>
+              </details>
 
               <!-- Cara Pakai / Quick Guide Box (Collapsible) -->
               <details class="clean-accordion gee-guide-accordion">
@@ -511,13 +513,17 @@
                   </div>
                 </div>
 
-                <!-- 3. Educational Guidance Callout -->
-                <div class="gee-callout">
-                  <div><strong>💡 Panduan Warna Merah &amp; Curah Hujan:</strong></div>
-                  <div class="mt-xs">• <strong>Peta LST (Suhu):</strong> Merah = Permukaan daratan panas (34°C–40°C+ saat siang/kemarau). Lautan transparan.</div>
-                  <div class="mt-xs">• <strong>Tutupan Lahan (LULC):</strong> Merah = Lahan Terbangun / Perkotaan (Built-Up Area).</div>
-                  <div class="mt-xs">• <strong>Curah Hujan (CHIRPS/GPM):</strong> Biru-Hijau = Hujan ringan/sedang (5–20 mm), Kuning-Merah-Ungu = Hujan lebat/ekstrem (&gt;30 mm/hari).</div>
-                </div>
+                <!-- 3. Educational Guidance Callout (Collapsible) -->
+                <details class="clean-accordion gee-callout-accordion" style="margin-top: 8px;">
+                  <summary style="font-size: 11px; cursor: pointer; color: var(--text-secondary); padding: 4px 6px;">
+                    <span>💡 <strong>Panduan Warna &amp; Simbologi</strong></span>
+                  </summary>
+                  <div class="accordion-body" style="padding: 6px 8px; font-size: 10.5px; line-height: 1.45;">
+                    <div>• <strong>Peta LST (Suhu):</strong> Merah = Permukaan daratan panas (34°C–40°C+ saat siang/kemarau). Lautan transparan.</div>
+                    <div class="mt-xs">• <strong>Tutupan Lahan (LULC):</strong> Merah = Lahan Terbangun / Perkotaan (Built-Up Area).</div>
+                    <div class="mt-xs">• <strong>Curah Hujan (CHIRPS/GPM):</strong> Biru-Hijau = Hujan ringan/sedang (5–20 mm), Kuning-Merah-Ungu = Hujan lebat/ekstrem (&gt;30 mm/hari).</div>
+                  </div>
+                </details>
               </div>
 
               <!-- Quick Focus Area Buttons -->

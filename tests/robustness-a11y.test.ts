@@ -161,3 +161,66 @@ describe('ErrorHandler & Network Resilience', () => {
     expect(res).toBe('fallback_data');
   });
 });
+
+describe('Basemap Popover Keyboard Navigation & a11y', () => {
+  it('should support ArrowDown, ArrowUp, Home, and End keys across items', async () => {
+    document.body.innerHTML = `
+      <div id="basemap-popover" style="display: none;">
+        <div id="popover-basemap-rec-list"></div>
+        <div id="popover-basemap-thematic-list"></div>
+        <div id="popover-basemap-canvas-list"></div>
+      </div>
+      <button id="btn-toggle-basemap" class="dock-btn"></button>
+    `;
+
+    const { BasemapCustomizer } = await import('../src/tools/basemap-customizer');
+    const { BasemapCustomizerUI } = await import('../src/ui/basemap-customizer-panel');
+
+    const mockMap: any = {
+      getStyle: vi.fn().mockReturnValue({ layers: [] }),
+      setLayoutProperty: vi.fn(),
+      setPaintProperty: vi.fn(),
+      setTerrain: vi.fn(),
+      addSource: vi.fn(),
+      getSource: vi.fn(),
+      removeSource: vi.fn(),
+      addLayer: vi.fn(),
+      getLayer: vi.fn(),
+      removeLayer: vi.fn(),
+      on: vi.fn(),
+      easeTo: vi.fn(),
+      getPitch: vi.fn().mockReturnValue(0),
+      getZoom: vi.fn().mockReturnValue(10)
+    };
+
+    const customizer = new BasemapCustomizer(mockMap);
+    const customizerUI = new BasemapCustomizerUI(customizer);
+
+    // Open popover
+    customizerUI.togglePopover('basemap-popover');
+    const popover = document.getElementById('basemap-popover');
+    expect(popover?.style.display).toBe('block');
+
+    const items = Array.from(document.querySelectorAll<HTMLElement>('.basemap-popover-item'));
+    expect(items.length).toBeGreaterThan(2);
+
+    items[0].focus();
+    expect(document.activeElement).toBe(items[0]);
+
+    // Test ArrowDown navigation
+    items[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    expect(document.activeElement).toBe(items[1]);
+
+    // Test ArrowUp navigation
+    items[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+    expect(document.activeElement).toBe(items[0]);
+
+    // Test End key navigation
+    items[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+    expect(document.activeElement).toBe(items[items.length - 1]);
+
+    // Test Home key navigation
+    items[items.length - 1].dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+    expect(document.activeElement).toBe(items[0]);
+  });
+});
