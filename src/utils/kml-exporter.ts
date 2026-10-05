@@ -124,6 +124,13 @@ function geometryToKml(geometry: GeoJSON.Geometry): string {
         .join('');
       return `<MultiGeometry>${polys}</MultiGeometry>`;
     }
+    case 'GeometryCollection': {
+      const parts = (geometry as GeoJSON.GeometryCollection).geometries
+        .map(g => geometryToKml(g))
+        .filter(Boolean)
+        .join('');
+      return `<MultiGeometry>${parts}</MultiGeometry>`;
+    }
     default:
       return '';
   }

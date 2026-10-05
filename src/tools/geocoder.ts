@@ -108,6 +108,62 @@ const LOCAL_INDONESIA_LANDMARKS: SearchResult[] = [
     lon: '140.5000',
     type: 'water',
     boundingbox: ['-2.70', '-2.50', '140.35', '140.65']
+  },
+  {
+    display_name: 'Gunung Merapi, Sleman / Magelang / Boyolali / Klaten, Jawa Tengah & DIY',
+    lat: '-7.5407',
+    lon: '110.4463',
+    type: 'volcano',
+    boundingbox: ['-7.60', '-7.48', '110.38', '110.51']
+  },
+  {
+    display_name: 'Gunung Rinjani, Lombok Timur, Nusa Tenggara Barat',
+    lat: '-8.4190',
+    lon: '116.4580',
+    type: 'volcano',
+    boundingbox: ['-8.50', '-8.34', '116.38', '116.54']
+  },
+  {
+    display_name: 'Palembang, Sumatera Selatan',
+    lat: '-2.9909',
+    lon: '104.7565',
+    type: 'city',
+    boundingbox: ['-3.08', '-2.90', '104.66', '104.85']
+  },
+  {
+    display_name: 'Banda Aceh, Aceh',
+    lat: '5.5483',
+    lon: '95.3238',
+    type: 'city',
+    boundingbox: ['5.50', '5.60', '95.28', '95.37']
+  },
+  {
+    display_name: 'Balikpapan, Kalimantan Timur',
+    lat: '-1.2379',
+    lon: '116.8529',
+    type: 'city',
+    boundingbox: ['-1.32', '-1.15', '116.78', '116.95']
+  },
+  {
+    display_name: 'Pontianak, Kalimantan Barat',
+    lat: '-0.0263',
+    lon: '109.3425',
+    type: 'city',
+    boundingbox: ['-0.10', '0.05', '109.28', '109.41']
+  },
+  {
+    display_name: 'Manado, Sulawesi Utara',
+    lat: '1.4748',
+    lon: '124.8421',
+    type: 'city',
+    boundingbox: ['1.42', '1.53', '124.78', '124.91']
+  },
+  {
+    display_name: 'Ambon, Maluku',
+    lat: '-3.6547',
+    lon: '128.1906',
+    type: 'city',
+    boundingbox: ['-3.75', '-3.56', '128.10', '128.28']
   }
 ];
 
@@ -183,7 +239,7 @@ export class GeocoderTool {
       .setPopup(
         new maplibregl.Popup({ offset: 25 }).setHTML(
           `<div class="gee-popup-card">
-            <h4>📍 Selected Location</h4>
+            <h4>📍 Lokasi Terpilih</h4>
             <p style="font-size: 12px; color: #cbd5e1; line-height: 1.4;">${escapeHtml(result.display_name)}</p>
           </div>`
         )
