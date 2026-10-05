@@ -209,6 +209,43 @@ describe('Google Gemini AI Map Navigator & Copilot', () => {
       expect(body.actions).toHaveLength(1);
       expect(body.actions[0].name).toBe('flyToLocation');
     });
+
+    it('should inject strict domain restriction guardrails for WebGIS-only scope in systemInstruction', async () => {
+      process.env.GEMINI_API_KEY = 'mock-key';
+      let capturedPayload: any = null;
+      vi.spyOn(globalThis, 'fetch').mockImplementationOnce(async (_url, options: any) => {
+        capturedPayload = JSON.parse(options.body);
+        return {
+          ok: true,
+          json: async () => ({
+            candidates: [
+              {
+                content: {
+                  parts: [
+                    { text: '{"reply":"Jawaban terkait WebGIS","actions":[]}' }
+                  ]
+                }
+              }
+            ]
+          })
+        } as any;
+      });
+
+      const req = {
+        method: 'POST',
+        headers: { 'x-forwarded-for': '182.253.10.10' },
+        body: { prompt: 'Apa fungsi peta ini?' }
+      };
+      const res = createMockRes();
+
+      await geminiHandler(req, res);
+      expect(res._getStatus()).toBe(200);
+      expect(capturedPayload).toBeDefined();
+      const systemText = capturedPayload.systemInstruction?.parts?.[0]?.text || '';
+      expect(systemText).toContain('BATASAN DOMAIN KETAT (GUARDRAILS MUTLAK)');
+      expect(systemText).toContain('KEBIJAKAN KETAT PERTANYAAN DI LUAR TOPIK');
+      expect(systemText).toContain('HANYA DAN EKSKLUSIF boleh menjawab pertanyaan dan merespons perintah yang berkaitan langsung dengan platform WebGIS');
+    });
   });
 
   describe('Client AINavigator Tool & Action Execution', () => {

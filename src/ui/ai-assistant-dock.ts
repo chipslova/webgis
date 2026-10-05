@@ -89,7 +89,7 @@ export class AIAssistantDockUI {
                 <span>AI Map Navigator</span>
                 <span class="ai-status-tag" title="AI Copilot siap membantu eksplorasi peta"><span class="ai-status-dot"></span>Online</span>
               </div>
-              <div class="ai-dock-subtitle">Asisten Cerdas & Pengendali Peta • Tanya Apa Saja atau Kendalikan Peta</div>
+              <div class="ai-dock-subtitle">Asisten Geospasial Khusus WebGIS • Tanya Fitur, Data Satelit & Navigasi Peta</div>
             </div>
           </div>
           <div class="ai-dock-actions">
@@ -128,7 +128,7 @@ export class AIAssistantDockUI {
             <input
               type="text"
               id="ai-dock-input"
-              placeholder="Tanyakan apa saja atau perintahkan peta (cth: 'Apa itu NDVI?', 'Terbang ke Bromo 3D')..."
+              placeholder="Tanya seputar WebGIS & datanya (cth: 'Apa itu NDVI?', 'Terbang ke Bromo 3D', 'Data curah hujan')..."
               maxlength="600"
               autocomplete="off"
             />
@@ -141,7 +141,7 @@ export class AIAssistantDockUI {
           </form>
           <div class="ai-dock-guard-badge">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-            <span>AI Copilot Engine • Siap bernavigasi dan menganalisis spasial</span>
+            <span>Khusus Pertanyaan &amp; Navigasi WebGIS Digital Earth Indonesia</span>
           </div>
         </div>
       `;
@@ -190,7 +190,7 @@ export class AIAssistantDockUI {
     this.messages.push({
       id: 'welcome',
       sender: 'ai',
-      text: 'Halo! Saya **AI Copilot & Geospatial Assistant** untuk Digital Earth Indonesia. 🌐\n\nAnda dapat **bertanya hal apa pun**—seperti konsep sains, geografi, citra satelit, atau cara penggunaan fitur WebGIS ini—maupun **memerintahkan saya mengendalikan peta** secara otomatis (terbang ke lokasi 3D, ubah basemap, ukur jarak, hingga filter stasiun cuaca).\n\nApa yang ingin Anda ketahui atau jelajahi hari ini?',
+      text: 'Halo! Saya **AI Geospatial Copilot** resmi untuk platform WebGIS Digital Earth Indonesia. 🌐\n\nSaya **dikhususkan untuk menjawab pertanyaan seputar platform WebGIS ini beserta seluruh isinya**—seperti data citra satelit (Sentinel-2, BIG Piksel, MODIS LST), fitur analisis spasial, pemantauan stasiun cuaca, tutorial penggunaan alat peta, serta membantu mengendalikan peta secara otomatis.\n\nSilakan tanyakan seputar data, wilayah, atau fitur di WebGIS ini!',
       timestamp: new Date()
     });
     this.renderMessages();
