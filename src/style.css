@@ -7703,6 +7703,7 @@ body.swipe-mode-active #dynamic-legend-container {
   text-transform: uppercase;
   background: linear-gradient(90deg, #ffffff 0%, #38bdf8 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
