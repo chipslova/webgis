@@ -369,9 +369,30 @@ export class AINavigator {
           break;
         }
 
-        // 3. BIG Piksel Satellite products: s2-geomad-rgb, s2-indices-ndvi, s2-indices-ndwi, s2-indices-nbr, hazard-flood, etc.
+        // 3. BIG Piksel Satellite products: s2-geomad-rgb, s2-ndvi, s2-ndwi, flood-hazard-rp02, etc.
         if (this.pikselLoaderRef?.setActiveProduct) {
-          this.pikselLoaderRef.setActiveProduct(visible ? layerId : null);
+          const pikselAliases: Record<string, string> = {
+            'hazard-flood': 'flood-hazard-rp02',
+            'flood-hazard': 'flood-hazard-rp02',
+            'flood': 'flood-hazard-rp02',
+            'banjir': 'flood-hazard-rp02',
+            'bahaya-banjir': 'flood-hazard-rp02',
+            'ndvi': 's2-ndvi',
+            's2-indices-ndvi': 's2-ndvi',
+            'ndwi': 's2-ndwi',
+            's2-indices-ndwi': 's2-ndwi',
+            'ndbi': 's2-ndbi',
+            's2-indices-ndbi': 's2-ndbi',
+            'ndmi': 's2-ndmi',
+            's2-indices-ndmi': 's2-ndmi',
+            'rgb': 's2-geomad-rgb',
+            'nir': 's2-geomad-nir',
+            'landsat': 'ls9-sr',
+            'landsat-9': 'ls9-sr'
+          };
+          const resolvedProductId = pikselAliases[layerId] || layerId;
+
+          this.pikselLoaderRef.setActiveProduct(visible ? resolvedProductId : null);
           if (visible && this.sidebarUI) {
             this.sidebarUI.setActiveTab('piksel');
           }
@@ -385,9 +406,11 @@ export class AINavigator {
             's2-ndmi': 'Indeks Kelembapan Kanopi & Gambut NDMI (Sentinel-2 10m)',
             'flood-hazard-rp02': 'Peta Bahaya Banjir PU 2-Tahun',
             'flood-hazard-rp10': 'Peta Bahaya Banjir PU 10-Tahun',
-            'hazard-flood': 'Peta Pemodelan Bahaya Banjir Prioritas'
+            'hazard-flood': 'Peta Pemodelan Bahaya Banjir PU 2-Tahun',
+            'ls9-sr': 'Citra Satelit Landsat 9 Reflektansi 30m',
+            's2-count': 'Kualitas Data (Scene Count)'
           };
-          const label = pikselLabels[layerId] || layerId;
+          const label = pikselLabels[resolvedProductId] || pikselLabels[layerId] || resolvedProductId;
           showToast(`Lapisan Satelit ${label} ${visible ? 'diaktifkan di peta' : 'dinonaktifkan'}.`, 'success', 3000);
         }
         break;

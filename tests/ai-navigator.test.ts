@@ -368,8 +368,15 @@ describe('Google Gemini AI Map Navigator & Copilot', () => {
         name: 'toggleLayer',
         args: { layerId: 's2-indices-ndvi', visible: true }
       });
-      expect(mockPikselLoader.setActiveProduct).toHaveBeenCalledWith('s2-indices-ndvi');
+      expect(mockPikselLoader.setActiveProduct).toHaveBeenCalledWith('s2-ndvi');
       expect(mockSidebar.setActiveTab).toHaveBeenCalledWith('piksel');
+
+      // Test flood hazard alias normalization
+      await nav.executeAction({
+        name: 'toggleLayer',
+        args: { layerId: 'hazard-flood', visible: true }
+      });
+      expect(mockPikselLoader.setActiveProduct).toHaveBeenCalledWith('flood-hazard-rp02');
     });
   });
 });
