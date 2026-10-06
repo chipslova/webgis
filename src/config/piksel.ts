@@ -254,8 +254,8 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     availableYears: S2_YEARS,
     minZoom: 8,
     serviceUrl: PIKSEL_WMS_BASE_URL,
-    description: 'Normalized Difference Built-Up Index resmi dari BIG Piksel (SWIR - NIR) untuk mendeteksi sebaran wilayah perkotaan, infrastruktur, dan tapak bangunan.',
-    whatItShows: 'Kawasan perkotaan & bangunan: Sesuai skema warna BIG, area pemukiman dan bangunan fisik tampak ungu/magenta pekat; vegetasi dan badan air tampak putih/pink pucat.',
+    description: 'Normalized Difference Built-Up Index resmi dari BIG Piksel (SWIR - NIR) dengan filter pemisah badan air otomatis untuk memetakan kawasan perkotaan dan bangunan fisik murni di daratan.',
+    whatItShows: 'Kawasan perkotaan & bangunan: Sesuai skema warna BIG, area pemukiman dan bangunan fisik tampak ungu/magenta pekat. Badan air & laut dipisahkan secara otomatis agar tidak keliru terdeteksi sebagai bangunan.',
     badge: 'Indeks Bangunan (BIG)',
     color: '#a21caf',
     resolution: '10 meters',
@@ -263,13 +263,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     isComputeHeavy: true,
     legend: {
       type: 'continuous',
-      leftLabel: 'Vegetasi / Air (0,0)',
-      middleLabel: 'Campuran (0,5)',
-      rightLabel: 'Area Terbangun Padat (1,0)',
+      leftLabel: 'Vegetasi / Non-Bangunan',
+      middleLabel: 'Kerapatan Sedang',
+      rightLabel: 'Area Terbangun Padat',
       gradientClass: 'ndbi-gradient',
-      rangeText: 'Skala Indeks NDBI: 0,0 s/d 1,0',
+      rangeText: 'Skala Indeks NDBI (Badan air & laut tersaring)',
       swatches: [
-        { label: 'Non-Bangunan / Vegetasi (Putih/Pink Pucat)', color: '#fdf2f8' },
+        { label: 'Badan Air & Laut (Tersaring)', color: '#0369a1' },
+        { label: 'Non-Bangunan / Vegetasi (Pucat)', color: '#fdf2f8' },
         { label: 'Kerapatan Sedang (Pink)', color: '#f472b6' },
         { label: 'Area Terbangun Padat (Ungu/Magenta)', color: '#701a75' }
       ]

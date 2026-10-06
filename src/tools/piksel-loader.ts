@@ -552,6 +552,7 @@ export class PikselLoader {
       ids.push(`piksel-raster-${p.id}`);
       ids.push(`piksel-raster-${p.id}-buf`);
     });
+    ids.push('piksel-ndbi-water-mask', 's2-ndwi-mask-layer');
     ids.push('piksel-grid-fill', 'piksel-grid-line');
     return ids;
   }
@@ -645,10 +646,14 @@ export class PikselLoader {
     });
 
     // Also remove mask layers if present
-    const maskLayerId = 's2-ndwi-mask-layer';
-    const maskSourceId = 's2-ndwi-mask-src';
-    if (this.map.getLayer(maskLayerId)) { try { this.map.removeLayer(maskLayerId); } catch (_) {} }
-    if (this.map.getSource(maskSourceId)) { try { this.map.removeSource(maskSourceId); } catch (_) {} }
+    const maskLayerIds = ['piksel-ndbi-water-mask', 's2-ndwi-mask-layer'];
+    const maskSourceIds = ['piksel-water-mask-src', 's2-ndwi-mask-src'];
+    maskLayerIds.forEach((lId) => {
+      if (this.map.getLayer(lId)) { try { this.map.removeLayer(lId); } catch (_) {} }
+    });
+    maskSourceIds.forEach((sId) => {
+      if (this.map.getSource(sId)) { try { this.map.removeSource(sId); } catch (_) {} }
+    });
 
     this.activeSourceId = null;
     this.activeLayerId = null;
@@ -768,37 +773,36 @@ export class PikselLoader {
         }
       });
 
-      // Masking layer (e.g. NDWI for water/clouds on NDBI)
-      const maskLayerId = 's2-ndwi-mask-layer';
-      const maskSourceId = 's2-ndwi-mask-src';
-      if (this.map.getLayer(maskLayerId)) { try { this.map.removeLayer(maskLayerId); } catch (_) {} }
-      if (this.map.getSource(maskSourceId)) { try { this.map.removeSource(maskSourceId); } catch (_) {} }
+      // Built-in automatic water/ocean masking for NDBI (prevents marine/water areas from being detected as buildings)
+      const waterMaskLayerId = 'piksel-ndbi-water-mask';
+      const waterMaskSourceId = 'piksel-water-mask-src';
+      if (this.map.getLayer(waterMaskLayerId)) { try { this.map.removeLayer(waterMaskLayerId); } catch (_) {} }
+      if (this.map.getSource(waterMaskSourceId)) { try { this.map.removeSource(waterMaskSourceId); } catch (_) {} }
 
-      if (this.maskEnabled && product.id === 's2-ndbi') {
-        const maskProd = PIKSEL_PRODUCTS.find((p) => p.id === 's2-ndwi');
-        if (maskProd) {
-          const maskTileUrl = this.buildWmsTileUrl(maskProd);
-          this.map.addSource(maskSourceId, {
-            type: 'raster',
-            tiles: [maskTileUrl],
-            tileSize: 256,
-            minzoom: minZoom,
-            maxzoom: 18,
-            attribution: maskProd.attribution || '© Badan Informasi Geospasial (BIG) — Piksel'
-          });
+      if (product.id === 's2-ndbi') {
+        try {
+          if (!this.map.getSource(waterMaskSourceId)) {
+            this.map.addSource(waterMaskSourceId, {
+              type: 'vector',
+              url: 'https://tiles.openfreemap.org/planet'
+            });
+          }
 
           this.map.addLayer({
-            id: maskLayerId,
-            type: 'raster',
-            source: maskSourceId,
-            minzoom: minZoom,
-            maxzoom: 18,
+            id: waterMaskLayerId,
+            type: 'fill',
+            source: waterMaskSourceId,
+            'source-layer': 'water',
+            minzoom: 0,
+            maxzoom: 22,
             layout: { visibility: this.rasterVisible ? 'visible' : 'none' },
             paint: {
-              'raster-opacity': this.currentOpacity * 0.7,
-              'raster-fade-duration': 300
+              'fill-color': '#0369a1',
+              'fill-opacity': this.currentOpacity * 0.92
             }
           });
+        } catch (err) {
+          logger.warn('[PikselLoader] NDBI water mask layer notice:', err);
         }
       }
 
@@ -1022,10 +1026,11 @@ export class PikselLoader {
         this.map.setLayoutProperty(layerId, 'visibility', visible ? 'visible' : 'none');
       }
     });
-    const maskLayerId = 's2-ndwi-mask-layer';
-    if (typeof this.map.getLayer === 'function' && this.map.getLayer(maskLayerId)) {
-      this.map.setLayoutProperty(maskLayerId, 'visibility', visible ? 'visible' : 'none');
-    }
+    ['piksel-ndbi-water-mask', 's2-ndwi-mask-layer'].forEach((mId) => {
+      if (typeof this.map.getLayer === 'function' && this.map.getLayer(mId)) {
+        this.map.setLayoutProperty(mId, 'visibility', visible ? 'visible' : 'none');
+      }
+    });
     this.notifyLayersChange();
   }
 
@@ -1040,9 +1045,11 @@ export class PikselLoader {
         this.map.setPaintProperty(layerId, 'raster-opacity', opacity);
       }
     });
-    const maskLayerId = 's2-ndwi-mask-layer';
-    if (typeof this.map.getLayer === 'function' && this.map.getLayer(maskLayerId)) {
-      this.map.setPaintProperty(maskLayerId, 'raster-opacity', opacity * 0.7);
+    if (typeof this.map.getLayer === 'function' && this.map.getLayer('piksel-ndbi-water-mask')) {
+      this.map.setPaintProperty('piksel-ndbi-water-mask', 'fill-opacity', opacity * 0.92);
+    }
+    if (typeof this.map.getLayer === 'function' && this.map.getLayer('s2-ndwi-mask-layer')) {
+      this.map.setPaintProperty('s2-ndwi-mask-layer', 'raster-opacity', opacity * 0.7);
     }
     this.notifyLayersChange();
   }
