@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { MapManager } from '../src/map/map-manager';
 import { SpatialAnalysisUI } from '../src/ui/spatial-analysis-ui';
+import { GeoJsonLoader } from '../src/tools/geojson-loader';
 
 describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
   let mapManager: MapManager;
@@ -145,7 +146,6 @@ describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
   });
 
   it('should group custom GeoJSON layers hierarchically: fills below lines below points', () => {
-    const { GeoJsonLoader } = require('../src/tools/geojson-loader');
     const loader = new GeoJsonLoader(mockMap);
     (loader as any).customLayers.set('layer-1', { id: 'layer-1', type: 'point' });
     (loader as any).customLayers.set('layer-2', { id: 'layer-2', type: 'polygon' });
