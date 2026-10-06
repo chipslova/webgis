@@ -68,6 +68,8 @@ export class PikselLoader {
   private activeSlot: number = 0;
   private prefetchedYear: string | null = null;
   private crossFadeCleanupTimer: ReturnType<typeof setTimeout> | null = null;
+  private maskEnabled: boolean = false;
+
 
   public getActiveLayerId(): string | null {
     return this.activeLayerId;
@@ -619,17 +621,19 @@ export class PikselLoader {
         const sId = this.getSourceIdForSlot(prod.id, slot);
 
         if (this.map.getLayer(lId)) {
-          try {
-            this.map.removeLayer(lId);
-          } catch (_) {}
+          try { this.map.removeLayer(lId); } catch (_) {}
         }
         if (this.map.getSource(sId)) {
-          try {
-            this.map.removeSource(sId);
-          } catch (_) {}
+          try { this.map.removeSource(sId); } catch (_) {}
         }
       });
     });
+
+    // Also remove mask layers if present
+    const maskLayerId = 's2-ndwi-mask-layer';
+    const maskSourceId = 's2-ndwi-mask-src';
+    if (this.map.getLayer(maskLayerId)) { try { this.map.removeLayer(maskLayerId); } catch (_) {} }
+    if (this.map.getSource(maskSourceId)) { try { this.map.removeSource(maskSourceId); } catch (_) {} }
 
     this.activeSourceId = null;
     this.activeLayerId = null;

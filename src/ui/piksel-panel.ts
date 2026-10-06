@@ -296,6 +296,11 @@ export class PikselPanelUI {
                   <input type="checkbox" id="toggle-piksel-grid" ${isGridOn ? 'checked' : ''} aria-label="Tampilkan Batas Kisi Ubin Open Data Cube (1.631 Ubin)" />
                   <span>Tampilkan Batas Kisi Ubin ODC (1.631 Ubin)</span>
                 </label>
+                <label class="toggle-checkbox-label" style="margin-left: 12px;">
+                  <input type="checkbox" id="toggle-piksel-mask" ${this.pikselLoader.isMaskEnabled() ? 'checked' : ''} aria-label="Aktifkan masker MNDWI untuk NDBI (hilangkan awan & laut)" />
+                  <span>Masker NDBI dengan MNDWI</span>
+                </label>
+
               </div>
             </div>
           </details>
@@ -883,6 +888,9 @@ export class PikselPanelUI {
         this.pikselLoader.setSelectedYear(target.value);
       } else if (target.id === 'toggle-piksel-grid') {
         this.pikselLoader.setGridVisible(target.checked);
+      } else if (target.id === 'toggle-piksel-mask') {
+        this.pikselLoader.setMaskEnabled(target.checked);
+
       }
     });
 

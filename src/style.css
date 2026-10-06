@@ -2248,9 +2248,9 @@ html, body, #app {
   background: linear-gradient(90deg, #b45309 0%, #fde047 30%, #67e8f9 60%, #0284c7 85%, #1e3a8a 100%);
 }
 
-/* 4b. NDBI: Water/Forest Blue/Green -> Mixed Tan -> Built-Up Urban Red/Orange */
+/* 4b. NDBI: Water/Forest White/Pale Pink -> Moderate Density Pink -> Built-Up Urban Deep Magenta/Purple */
 .legend-gradient.ndbi-gradient {
-  background: linear-gradient(90deg, #0284c7 0%, #10b981 30%, #fde047 60%, #ea580c 85%, #dc2626 100%);
+  background: linear-gradient(90deg, #fdf2f8 0%, #fbcfe8 25%, #f472b6 50%, #db2777 75%, #701a75 100%);
 }
 
 /* 4c. NDMI: Dry Vegetation Brown/Yellow -> Moderate Cyan -> Saturated Peat/Water Deep Blue */

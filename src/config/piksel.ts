@@ -226,6 +226,7 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     color: '#0284c7',
     resolution: '10 meters',
     sensor: 'Sentinel-2 GeoMAD Indices',
+    canBeMask: true,
     legend: {
       type: 'continuous',
       leftLabel: 'Daratan Kering (-1,0 s/d -0,2)',
