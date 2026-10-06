@@ -138,7 +138,7 @@ export class SwipeCompareUI {
             </div>
             <div class="sc-title-actions">
               <button id="btn-toggle-swipe-card" class="sc-btn-minimize" title="Perkecil panel" aria-label="Perkecil" type="button">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
               </button>
               <button id="btn-close-swipe" class="sc-btn-close" title="Keluar mode komparasi" aria-label="Tutup" type="button">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
