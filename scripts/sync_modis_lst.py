@@ -121,8 +121,8 @@ def fetch_modis_lst():
                 "lst_night_k": lst_night_k,
                 "lst_mean_c": lst_mean_c,
                 "diurnal_delta_c": diurnal_delta_c,
-                "qa_quality_score": "Good Quality (QA Flag 0)",
-                "dataset_source": "MODIS/061/MOD11A1 + MODIS/061/MYD11A1",
+                "qa_quality_score": "Sintetis (Model Ilustratif)",
+                "dataset_source": "Data Sintetis (Bukan Observasi Satelit)",
                 "composite_period": "Daily / Monthly Composite",
                 "last_updated": composite_date_str
             }
@@ -132,9 +132,9 @@ def fetch_modis_lst():
     stations_geojson = {
         "type": "FeatureCollection",
         "metadata": {
-            "dataset": "MODIS/061/MOD11A1 & MODIS/061/MYD11A1 (Terra & Aqua)",
-            "title": "MODIS 1km Land Surface Temperature & Emissivity Daily",
-            "doi": "10.5067/MODIS/MOD11A1.061",
+            "dataset": "Data Sintetis LST (Model Ilustratif)",
+            "title": "Model Sintetis Land Surface Temperature",
+            "doi": "N/A",
             "spatial_resolution": "1000 meters (1 km)",
             "temporal_coverage": "2000-present",
             "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -225,17 +225,17 @@ def fetch_modis_lst():
                     "elevation_m": round(elev, 0),
                     "center_lat": round(c_lat, 4),
                     "center_lon": round(c_lon, 4),
-                    "dataset": "MODIS/061/MOD11A2+MYD11A2 (1km Land-Masked)"
+                    "dataset": "Data Sintetis (Model Ilustratif)"
                 }
             })
     
     grid_geojson = {
         "type": "FeatureCollection",
         "metadata": {
-            "dataset": "MODIS/061/MOD11A2 & MODIS/061/MYD11A2 (Terra + Aqua LST 1km)",
+            "dataset": "Data Sintetis (Model Ilustratif)",
             "variables": ["LST_Day_1km", "LST_Night_1km", "LST_Mean", "Diurnal_Delta"],
-            "resolution": "1 km Land-Masked (No Ocean Artifacts)",
-            "qa_mask": "Mandatory QA bitmask applied (bits 0-1 = 00/Good)",
+            "resolution": "Sintetis",
+            "qa_mask": "Data Sintetis (Bukan Observasi)",
             "cell_count": len(grid_features)
         },
         "features": grid_features
@@ -320,15 +320,15 @@ def fetch_modis_lst():
             "IKN_Nusantara_Day_LST_C": ikn_day,
             "IKN_Nusantara_Night_LST_C": ikn_night,
             "UHI_Thermal_Delta_C": uhi_delta,
-            "QA_Status": "Validated Clear-Sky Pixel"
+            "QA_Status": "Data Sintetis"
         })
 
         curr_dt += timedelta(days=16)
 
     ts_payload = {
         "metadata": {
-            "dataset": "MODIS/061/MOD11A1 & MODIS/061/MYD11A1 (Terra & Aqua LST 1km)",
-            "product_name": "MODIS Land Surface Temperature 16-Day / Monthly Composites",
+            "dataset": "Data Sintetis (Model Ilustratif)",
+            "product_name": "Sintetis LST",
             "bands": [
                 "LST_Day_1km (Daytime Land Surface Temperature, °C)",
                 "LST_Night_1km (Nighttime Land Surface Temperature, °C)"

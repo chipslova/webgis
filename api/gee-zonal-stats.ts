@@ -12,7 +12,7 @@ interface ZonalStatsRequestBody {
   endDate?: string;
 }
 
-// ESA WorldCover 10m Classification Legend mapping (sampled at 20m for snappy serverless zonal reductions)
+// Esri 10m LULC Classification Legend mapping (sampled at 20m for snappy serverless zonal reductions)
 const WORLDCOVER_META: Record<string, { code: number; worldCoverClass: number; name: string; nameId: string; color: string }> = {
   '10': { code: 2, worldCoverClass: 10, name: 'Trees (Forest)', nameId: 'Tutupan Pohon / Hutan', color: '#358221' },
   '20': { code: 11, worldCoverClass: 20, name: 'Shrubland', nameId: 'Semak Belukar', color: '#C6D799' },
@@ -27,7 +27,7 @@ const WORLDCOVER_META: Record<string, { code: number; worldCoverClass: number; n
   '100': { code: 10, worldCoverClass: 100, name: 'Moss & Lichen', nameId: 'Lumut / Lainnya', color: '#C8C8C8' }
 };
 
-import { checkRateLimit, getClientIp } from './_rate-limit';
+import { checkRateLimit, getClientIp } from './_rate-limit.js';
 
 export default async function handler(req: any, res: any) {
   const sendJson = (status: number, data: any) => {
@@ -151,7 +151,7 @@ export default async function handler(req: any, res: any) {
           });
         });
 
-        // 4. Compute Real 10m Land Cover Frequency Histogram (ESA WorldCover 10m)
+        // 4. Compute Real 10m Land Cover Frequency Histogram (Esri 10m LULC)
         const lulcImage = ee.ImageCollection('ESA/WorldCover/v100').first().select('Map');
         const lulcHistogramPromise = new Promise<Record<string, number>>((resolve, reject) => {
           lulcImage.reduceRegion({

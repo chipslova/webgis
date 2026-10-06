@@ -399,7 +399,7 @@ export class ActiveLayersUI {
         itemsHtml += this.buildRow({
           id: 'gee-precipitation',
           name: 'Curah Hujan Harian',
-          meta: 'NASA GPM · CHIRPS · mm/hari',
+          meta: 'NASA GPM IMERG · mm/jam',
           color: '#38bdf8',
           isVisible: isGeePrecipVis,
           opacityPct: precipOpacityPct,
@@ -407,9 +407,9 @@ export class ActiveLayersUI {
           removeBtnClass: 'btn-remove-gee-precip',
           opacitySliderClass: 'gee-precip-opacity-slider',
           details: [
-            { label: 'Sensor/Misi', value: 'NASA GPM IMERG & CHIRPS Daily' },
+            { label: 'Sensor/Misi', value: 'NASA GPM IMERG Daily' },
             { label: 'Parameter', value: 'Intensitas Presipitasi Permukaan' },
-            { label: 'Satuan', value: 'Milimeter per hari (mm/hari)' },
+            { label: 'Satuan', value: 'Milimeter per jam (mm/jam)' },
             { label: 'Cakupan', value: 'Seluruh Wilayah Indonesia' },
           ],
           legendHtml: `

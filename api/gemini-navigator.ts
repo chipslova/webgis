@@ -173,7 +173,7 @@ export const GIS_FUNCTION_DECLARATIONS = [
   },
   {
     name: 'toggleLayer',
-    description: 'Toggle or activate a specific thematic data layer on the map canvas (e.g. curah hujan CHIRPS/GPM, tutupan lahan Sentinel-2 ESA WorldCover, suhu permukaan tanah MODIS LST, indeks vegetasi NDVI, indeks air NDWI, indeks perkotaan NDBI, bahaya banjir, stasiun cuaca).',
+    description: 'Toggle or activate a specific thematic data layer on the map canvas (e.g. curah hujan NASA GPM IMERG, tutupan lahan Sentinel-2 Esri 10m LULC, suhu permukaan tanah MODIS LST, indeks vegetasi NDVI, indeks air NDWI, indeks perkotaan NDBI, bahaya banjir, stasiun cuaca).',
     parameters: {
       type: 'OBJECT',
       properties: {
@@ -194,7 +194,7 @@ export const GIS_FUNCTION_DECLARATIONS = [
             'hazard-flood',
             'tile-grid'
           ],
-          description: 'The layer ID to toggle: "precipitation" (Curah Hujan Harian CHIRPS & GPM), "landcover" (Tutupan Lahan Sentinel-2 10m ESA WorldCover), "lst-day" (Suhu Permukaan Daratan Siang MODIS), "lst-night" (Suhu Permukaan Daratan Malam MODIS), "stations" (18 Stasiun Observasi LST & Iklim), "s2-geomad-rgb" (Citra Satelit Sentinel-2 True Color), "s2-geomad-nir" (Citra False Color NIR), "s2-ndvi" (Indeks Kerapatan Vegetasi), "s2-ndwi" (Indeks Air Permukaan), "s2-ndbi" (Indeks Area Terbangun NDBI), "s2-ndmi" (Indeks Kelembapan Kanopi & Gambut NDMI), "hazard-flood" (Peta Bahaya Banjir Kawasan Prioritas), "tile-grid" (Batas Grid Open Data Cube).'
+          description: 'The layer ID to toggle: "precipitation" (Curah Hujan Harian NASA GPM IMERG), "landcover" (Tutupan Lahan Sentinel-2 10m Esri LULC), "lst-day" (Suhu Permukaan Daratan Siang MODIS), "lst-night" (Suhu Permukaan Daratan Malam MODIS), "stations" (18 Stasiun Observasi LST & Iklim), "s2-geomad-rgb" (Citra Satelit Sentinel-2 True Color), "s2-geomad-nir" (Citra False Color NIR), "s2-ndvi" (Indeks Kerapatan Vegetasi), "s2-ndwi" (Indeks Air Permukaan), "s2-ndbi" (Indeks Area Terbangun NDBI), "s2-ndmi" (Indeks Kelembapan Kanopi & Gambut NDMI), "hazard-flood" (Peta Bahaya Banjir Kawasan Prioritas), "tile-grid" (Batas Grid Open Data Cube).'
         },
         visible: {
           type: 'BOOLEAN',
@@ -345,7 +345,7 @@ export default async function handler(req: any, res?: any): Promise<Response | v
 BATASAN DOMAIN KETAT (GUARDRAILS MUTLAK):
 Anda HANYA DAN EKSKLUSIF boleh menjawab pertanyaan dan merespons perintah yang berkaitan langsung dengan platform WebGIS "Digital Earth Indonesia" dan seluruh isi/datanya:
 1. Fitur, alat, dan navigasi WebGIS: cara ukur jarak/luas (Measure), analisis spasial Zonal/AOI, perbandingan citra (Swipe Compare split-screen), proyeksi Bola Bumi 3D Globe, pengawas titik (Point Inspector), tabel atribut, ekspor peta (PNG/PDF/CSV/GeoJSON), filter stasiun cuaca, ganti peta dasar (basemap), dll.
-2. Lapisan data dan citra satelit di WebGIS: Sentinel-2 GeoMAD BIG Piksel (RGB True Color, False Color NIR), indeks spektral (NDVI vegetasi, NDWI air, NDBI lahan terbangun, NDMI kelembapan kanopi), Landsat 9 SR, MODIS LST (suhu permukaan daratan siang & malam), ESA WorldCover tutupan lahan 10m, curah hujan satelit CHIRPS & NASA GPM, jaringan 18 stasiun iklim strategis BMKG CFSv2 (dengan pengamatan diurnal LST & proyeksi 5 hari), pemodelan bahaya banjir (kala ulang 2 & 10 tahun), dan batas tile grid ODC.
+2. Lapisan data dan citra satelit di WebGIS: Sentinel-2 GeoMAD BIG Piksel (RGB True Color, False Color NIR), indeks spektral (NDVI vegetasi, NDWI air, NDBI lahan terbangun, NDMI kelembapan kanopi), Landsat 9 SR, MODIS LST (suhu permukaan daratan siang & malam), Esri 10m LULC tutupan lahan, curah hujan satelit NASA GPM IMERG, jaringan 18 stasiun iklim strategis BMKG CFSv2 (dengan pengamatan diurnal LST & proyeksi 5 hari), pemodelan bahaya banjir (kala ulang 2 & 10 tahun), dan batas tile grid ODC.
 3. Objek geografis dan fenomena kebumian di Indonesia yang ada di peta: nama tempat, gunung berapi (Bromo, Merapi, dll), danau (Toba, dll), kota/daerah (Jakarta, IKN Nusantara, Bandung, Surabaya, dll), pulau, bentang alam, serta fenomena lingkungan, iklim, atau mitigasi bencana di Indonesia.
 
 KEBIJAKAN KETAT PERTANYAAN DI LUAR TOPIK (OUT-OF-SCOPE INQUIRIES):
@@ -401,8 +401,8 @@ DAFTAR AKSI (ACTIONS) YANG TERSEDIA:
 2. "toggleLayer"
    args: { "layerId": string, "visible"?: boolean }
    Pilihan layerId:
-   - "precipitation" (Curah Hujan Harian Satelit CHIRPS & NASA GPM)
-   - "landcover" (Tutupan Lahan Sentinel-2 10m ESA WorldCover 9 kelas)
+   - "precipitation" (Curah Hujan Harian Satelit NASA GPM IMERG)
+   - "landcover" (Tutupan Lahan Sentinel-2 10m Esri 9 kelas)
    - "lst-day" (Suhu Permukaan Daratan Siang MODIS LST Day 1km)
    - "lst-night" (Suhu Permukaan Daratan Malam MODIS LST Night 1km)
    - "stations" (18 Titik Stasiun & Observasi LST)
@@ -429,7 +429,7 @@ KATALOG FITUR WEBGIS:
 - 16 Peta Dasar aktif (Satelit Esri, Jalan, BIG RBI, Topografi, Vektor OpenFreeMap, Relief, Batimetri laut, dll).
 - 3D Terrain elevation (AWS Terrarium) dan ekstrusi volume gedung 3D planet (OpenFreeMap).
 - Citra Satelit Sentinel-2 & Landsat-9 BIG Piksel: RGB, False Color NIR, NDVI (vegetasi), NDWI (air), NDBI (bangunan), NDMI (kelembapan), Bahaya Banjir.
-- Google Earth Engine: LST thermal harian MODIS & Tutupan Lahan ESA WorldCover 10m.
+- Google Earth Engine: LST thermal harian MODIS & Tutupan Lahan Esri 10m LULC.
 - 18 Stasiun Iklim Strategis BMKG CFSv2 di seluruh Indonesia dengan data diurnal LST & proyeksi 5 hari.
 - Alat Ukur (Measure): Jarak lintasan, luas poligon, dan profil elevasi ketinggian permukaan tanah (mdpl).
 - Tirai Pembanding (Swipe): Split-screen membandingkan 2 basemap atau layer citra secara langsung.

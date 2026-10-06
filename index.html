@@ -352,6 +352,7 @@
                     <div class="gee-comp-label">🏢 Jakarta (Pesisir &amp; Kota)</div>
                     <div class="gee-comp-val" id="metric-jakarta-lst">34.8 °C</div>
                     <div class="gee-comp-sub">UHI Siang Hari</div>
+                    <div class="gee-comp-sub" style="color: #fbbf24; font-size: 9px; margin-top: 4px;">Data Sintetis (Ilustrasi)</div>
                   </div>
                   <div class="gee-comp-divider">
                     <span class="gee-delta-badge" id="metric-suhi-delta">Δ +13.6 °C</span>
@@ -361,6 +362,7 @@
                     <div class="gee-comp-label">🌲 Bandung (Pegunungan)</div>
                     <div class="gee-comp-val" id="metric-bandung-lst">21.2 °C</div>
                     <div class="gee-comp-sub">Elevasi 1.240m (Lapse Rate)</div>
+                    <div class="gee-comp-sub" style="color: #fbbf24; font-size: 9px; margin-top: 4px;">Data Sintetis (Ilustrasi)</div>
                   </div>
                 </div>
               </div>
@@ -381,7 +383,6 @@
                   <div>
                     <label for="gee-satellite-select" class="gee-filter-label">Satelit</label>
                     <select id="gee-satellite-select" class="form-select gee-filter-select">
-                      <option value="combined">Terra + Aqua</option>
                       <option value="terra" selected>Terra (Pagi 10:30)</option>
                       <option value="aqua">Aqua (Siang 13:30)</option>
                     </select>
@@ -395,6 +396,12 @@
                       <option value="2025-08-01|2025-08-31">Kemarau / Aug 2025</option>
                     </select>
                   </div>
+                </div>
+
+                <div style="margin-top: 10px; margin-bottom: 15px;">
+                  <button id="btn-gee-compute" class="piksel-btn" style="width: 100%;">
+                    ⚡ Terapkan Analisis Langsung
+                  </button>
                 </div>
 
                 <!-- 2. Primary Layer Switcher — with per-layer opacity -->
@@ -438,7 +445,7 @@
                     <div class="gee-layer-row gee-layer-item-clean">
                       <label>
                         <input type="checkbox" id="toggle-gee-landcover" aria-label="Toggle Sentinel-2 10m Land Cover layer" />
-                        <span>🌳 <strong>Tutupan Lahan Sentinel-2 10m</strong> <span class="gee-layer-subtext">(ESA WorldCover)</span></span>
+                        <span>🌳 <strong>Tutupan Lahan Sentinel-2 10m</strong> <span class="gee-layer-subtext">(Esri/Impact Observatory)</span></span>
                       </label>
                       <div id="gee-lc-opacity-row" class="gee-layer-opacity-box">
                         <input type="range" id="gee-landcover-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas Tutupan Lahan" />
@@ -450,7 +457,7 @@
                     <div class="gee-layer-row gee-layer-item-clean">
                       <label>
                         <input type="checkbox" id="toggle-gee-precipitation" aria-label="Toggle NASA GPM Daily Precipitation layer" />
-                        <span>🌧️ <strong>Curah Hujan Harian</strong> <span class="gee-layer-subtext">(CHIRPS &amp; NASA GPM · mm/hari)</span></span>
+                        <span>🌧️ <strong>Curah Hujan Harian</strong> <span class="gee-layer-subtext">(NASA GPM · mm/jam)</span></span>
                       </label>
                       <div id="gee-precip-opacity-row" class="gee-layer-opacity-box">
                         <input type="range" id="gee-precip-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas Curah Hujan" />
@@ -499,7 +506,7 @@
 
                 <!-- 2c. Precipitation Legend — visible when precipitation is toggled -->
                 <div id="gee-precip-legend" class="gee-lulc-box" style="display: none; border-color: rgba(56, 189, 248, 0.3); background: rgba(8, 20, 36, 0.7);">
-                  <div class="gee-lulc-title" style="color: #38bdf8;">🌧️ Legenda Intensitas Curah Hujan (mm/hari)</div>
+                  <div class="gee-lulc-title" style="color: #38bdf8;">🌧️ Legenda Intensitas Curah Hujan (mm/jam)</div>
                   <div class="gee-legend-bar" style="height: 8px; border-radius: 4px; margin: 6px 0; background: linear-gradient(90deg, #f8fafc 0%, #7dd3fc 15%, #0284c7 35%, #16a34a 55%, #eab308 75%, #ef4444 90%, #7e22ce 100%);" aria-hidden="true"></div>
                   <div class="gee-legend-labels" style="font-size: 10px; display: flex; justify-content: space-between; color: var(--text-muted);">
                     <span>0 (Kering)</span>
@@ -509,7 +516,7 @@
                     <span>50 mm+ (Ekstrem)</span>
                   </div>
                   <div style="font-size: 10px; color: var(--text-muted); margin-top: 5px;">
-                    Sumber: <code>NASA IMERG Early/Daily &amp; CHIRPS UCSB</code> · Cakupan Global / Seluruh Indonesia
+                    Sumber: <code>NASA IMERG Early/Daily</code> · Cakupan Global / Seluruh Indonesia
                   </div>
                 </div>
 
@@ -521,7 +528,7 @@
                   <div class="accordion-body" style="padding: 6px 8px; font-size: 10.5px; line-height: 1.45;">
                     <div>• <strong>Peta LST (Suhu):</strong> Merah = Permukaan daratan panas (34°C–40°C+ saat siang/kemarau). Lautan transparan.</div>
                     <div class="mt-xs">• <strong>Tutupan Lahan (LULC):</strong> Merah = Lahan Terbangun / Perkotaan (Built-Up Area).</div>
-                    <div class="mt-xs">• <strong>Curah Hujan (CHIRPS/GPM):</strong> Biru-Hijau = Hujan ringan/sedang (5–20 mm), Kuning-Merah-Ungu = Hujan lebat/ekstrem (&gt;30 mm/hari).</div>
+                    <div class="mt-xs">• <strong>Curah Hujan (GPM):</strong> Biru-Hijau = Hujan ringan/sedang (5–20 mm), Kuning-Merah-Ungu = Hujan lebat/ekstrem (&gt;30 mm/jam).</div>
                   </div>
                 </details>
               </div>
@@ -1577,7 +1584,7 @@
             </div>
 
             <p style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">
-              Jika kamu ingin menghubungkan ke <strong>Cluster Superkomputer Google Earth Engine (MODIS &amp; ESA WorldCover)</strong> melalui jalur riset dan edukasi, ikuti panduan berikut:
+              Jika kamu ingin menghubungkan ke <strong>Cluster Superkomputer Google Earth Engine (MODIS &amp; Esri 10m LULC)</strong> melalui jalur riset dan edukasi, ikuti panduan berikut:
             </p>
 
             <div class="gee-step-box">

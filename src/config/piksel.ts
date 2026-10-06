@@ -76,6 +76,17 @@ export interface PikselProduct {
   isDisabled?: boolean;
   minZoom?: number;
   canBeMask?: boolean;
+  optimalFocus?: OptimalFocus;
+}
+
+export interface OptimalFocus {
+  name: string;
+  locationName: string;
+  center: [number, number];
+  zoom: number;
+  pitch?: number;
+  bearing?: number;
+  description: string;
 }
 
 export interface PikselPreset {
@@ -128,6 +139,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     color: '#10b981',
     resolution: '10 meters',
     sensor: 'Sentinel-2 MSI (GeoMAD Tahunan)',
+    optimalFocus: {
+      name: 'Bromo Tengger Semeru',
+      locationName: 'Medan Vulkanik & Tutupan Lahan',
+      center: [112.9485, -7.9514],
+      zoom: 12,
+      pitch: 35,
+      description: 'Kaldera Bromo, lautan pasir, dan morfologi vulkanik dengan GeoMAD True Color 10m bebas awan paling jernih.'
+    },
     legend: {
       type: 'natural',
       leftLabel: 'Air / Laut',
@@ -161,6 +180,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     resolution: '10 meters',
     sensor: 'Sentinel-2 MSI (NIR False Color)',
     isComputeHeavy: true,
+    optimalFocus: {
+      name: 'Gunung Merapi',
+      locationName: 'Kubah Lava & Koridor Lahar',
+      center: [110.4463, -7.5407],
+      zoom: 12,
+      pitch: 30,
+      description: 'Kubah lava aktif, jalur lahar, dan lereng vegetasi dengan kontras klorofil False Color NIR paling tajam.'
+    },
     legend: {
       type: 'continuous',
       leftLabel: 'Air / Rawa',
@@ -195,6 +222,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     resolution: '10 meters',
     sensor: 'Sentinel-2 GeoMAD Indices',
     isComputeHeavy: true,
+    optimalFocus: {
+      name: 'IKN Nusantara',
+      locationName: 'Pembangunan Kawasan & Kanopi Hutan',
+      center: [116.7050, -0.9700],
+      zoom: 11.5,
+      pitch: 25,
+      description: 'Pemantauan tutupan hutan tropis primer dan pembangunan infrastruktur baru dengan indeks vegetasi NDVI paling kontras.'
+    },
     legend: {
       type: 'continuous',
       leftLabel: 'Air / Non-Veg (-1,0 s/d 0,0)',
@@ -228,6 +263,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     resolution: '10 meters',
     sensor: 'Sentinel-2 GeoMAD Indices',
     canBeMask: true,
+    optimalFocus: {
+      name: 'Danau Toba & Samosir',
+      locationName: 'Badan Air & Dataran Tinggi',
+      center: [98.8052, 2.5819],
+      zoom: 10.5,
+      pitch: 20,
+      description: 'Delineasi badan air dan garis pantai kaldera Danau Toba menggunakan indeks air NDWI dengan kontras spektral tertinggi.'
+    },
     legend: {
       type: 'continuous',
       leftLabel: 'Daratan Kering (-1,0 s/d -0,2)',
@@ -261,6 +304,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     resolution: '10 meters',
     sensor: 'Sentinel-2 GeoMAD Indices',
     isComputeHeavy: true,
+    optimalFocus: {
+      name: 'DKI Jakarta & Sekitarnya',
+      locationName: 'Kerapatan Tapak Bangunan & Perkotaan',
+      center: [106.8272, -6.1754],
+      zoom: 11.5,
+      pitch: 20,
+      description: 'Delineasi kawasan perkotaan dan konsentrasi tapak bangunan fisik NDBI paling padat dengan filter laut otomatis.'
+    },
     legend: {
       type: 'continuous',
       leftLabel: 'Vegetasi / Non-Bangunan',
@@ -295,6 +346,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     resolution: '10 meters',
     sensor: 'Sentinel-2 GeoMAD Indices',
     isComputeHeavy: true,
+    optimalFocus: {
+      name: 'Taman Nasional Sebangau',
+      locationName: 'Hutan Rawa Gambut & Kelembapan Kanopi',
+      center: [113.8500, -2.3200],
+      zoom: 11,
+      pitch: 20,
+      description: 'Analisis kadar air vegetasi rawa gambut primer dengan NDMI (tampak biru tua karena tutupan kanopi basah dan tergenang alami).'
+    },
     legend: {
       type: 'continuous',
       leftLabel: 'Kadar Air Rendah / Terbuka (0,0)',
@@ -329,6 +388,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     sensor: 'Sentinel-2 GeoMAD Indices',
     isDisabled: true,
     statusNotice: 'Layanan hulu BIG Open Data Cube sedang mengalami kendala internal fungsi (Error 500 upstream). Dinonaktifkan sementara sampai tim teknis BIG merilis perbaikan.',
+    optimalFocus: {
+      name: 'Gunung Bromo & Lautan Pasir',
+      locationName: 'Paparan Tanah Terbuka',
+      center: [112.9485, -7.9514],
+      zoom: 12,
+      pitch: 30,
+      description: 'Paparan tanah terbuka dan lautan pasir vulkanik.'
+    },
     legend: {
       type: 'continuous',
       leftLabel: 'Vegetasi / Air',
@@ -361,6 +428,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     color: '#3b82f6',
     resolution: '10-30 meters',
     sensor: 'Model Hidrologi Spasial BIG',
+    optimalFocus: {
+      name: 'Karawang & Dataran Banjir Citarum',
+      locationName: 'Dataran Banjir & Hidrologi',
+      center: [107.2500, -6.2200],
+      zoom: 10.5,
+      pitch: 0,
+      description: 'Zonasi bahaya banjir hidrologis periode ulang 2 tahun di sepanjang hilir DAS Citarum tervalidasi BIG.'
+    },
     legend: {
       type: 'categorical',
       items: [
@@ -392,6 +467,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     color: '#8b5cf6',
     resolution: '10-30 meters',
     sensor: 'Model Hidrologi Spasial BIG',
+    optimalFocus: {
+      name: 'Karawang & Dataran Banjir Citarum',
+      locationName: 'Dataran Banjir & Hidrologi',
+      center: [107.2500, -6.2200],
+      zoom: 10.5,
+      pitch: 0,
+      description: 'Zonasi bahaya banjir hidrologis periode ulang 10 tahun di sepanjang hilir DAS Citarum tervalidasi BIG.'
+    },
     legend: {
       type: 'categorical',
       items: [
@@ -426,6 +509,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     color: '#6366f1',
     resolution: '10 meters',
     sensor: 'Open Data Cube Quality Mask',
+    optimalFocus: {
+      name: 'Jawa Timur & Selat Madura',
+      locationName: 'Konsentrasi Pengamatan Bebas Awan Tertinggi',
+      center: [112.7500, -7.6000],
+      zoom: 10.5,
+      pitch: 15,
+      description: 'Wilayah dengan frekuensi akuisisi bebas awan tertinggi di Indonesia (>30 scene/tahun) berkat iklim monsun kering.'
+    },
     legend: {
       type: 'continuous',
       leftLabel: 'Rendah (< 5 Scene)',
@@ -462,6 +553,14 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
     sensor: 'Landsat 9 OLI-2 (Collection 2 Level-2)',
     isComputeHeavy: true,
     statusNotice: 'Catatan: Landsat 9 terdiri dari rekaman scene USGS/NASA individual (area di luar lintasan swath tampak transparan).',
+    optimalFocus: {
+      name: 'Pulau Bali & Batur',
+      locationName: 'Reflektansi Permukaan Landsat 9 30m',
+      center: [115.2000, -8.3500],
+      zoom: 10,
+      pitch: 20,
+      description: 'Lintasan orbit Landsat 9 OLI-2 dengan data reflektansi permukaan 30m paling lengkap dan tajam di Indonesia.'
+    },
     legend: {
       type: 'natural',
       leftLabel: 'Air (Biru Gelap)',
@@ -519,6 +618,16 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     recommendedProduct: 'flood-hazard-rp02'
   },
   {
+    id: 'citarum-floodplain-rp10',
+    name: 'Karawang & Hilir Citarum (PU 10 Thn)',
+    locationName: 'Bahaya Genangan Banjir 10-Tahunan',
+    center: [107.2500, -6.2200],
+    zoom: 10.5,
+    pitch: 0,
+    description: 'Zonasi bahaya banjir probabilitas 10% di sepanjang dataran banjir aluvial Karawang dan Bekasi.',
+    recommendedProduct: 'flood-hazard-rp10'
+  },
+  {
     id: 'gag-island',
     name: 'Pulau Gag (Raja Ampat)',
     locationName: 'Pulau Tropis & Pesisir',
@@ -542,7 +651,7 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     name: 'DKI Jakarta & Sekitarnya',
     locationName: 'Kerapatan Tapak Bangunan & Perkotaan',
     center: [106.8272, -6.1754],
-    zoom: 11,
+    zoom: 11.5,
     pitch: 20,
     description: 'Delineasi kawasan perkotaan dan konsentrasi tapak bangunan fisik menggunakan NDBI (tampak magenta/ungu pekat pada area pemukiman padat).',
     recommendedProduct: 's2-ndbi'
@@ -566,5 +675,25 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     pitch: 15,
     description: 'Pemantauan kadar air kanopi vegetasi gambut pesisir Sumatra dengan NDMI (tampak gradien biru sesuai kelembapan kanopi).',
     recommendedProduct: 's2-ndmi'
+  },
+  {
+    id: 'jatim-count',
+    name: 'Jawa Timur & Selat Madura',
+    locationName: 'Densitas Pengamatan Bebas Awan Tertinggi',
+    center: [112.7500, -7.6000],
+    zoom: 10.5,
+    pitch: 15,
+    description: 'Wilayah dengan konsentrasi data bebas awan tertinggi di Indonesia (>30 scene/tahun) akibat iklim monsun kering.',
+    recommendedProduct: 's2-count'
+  },
+  {
+    id: 'bali-landsat9',
+    name: 'Pulau Bali & Batur',
+    locationName: 'Reflektansi Permukaan Landsat 9 30m',
+    center: [115.2000, -8.3500],
+    zoom: 10,
+    pitch: 20,
+    description: 'Lintasan orbit Landsat 9 OLI-2 dengan data reflektansi permukaan 30m paling lengkap dan tajam di Indonesia.',
+    recommendedProduct: 'ls9-sr'
   }
 ];

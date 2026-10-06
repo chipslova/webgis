@@ -1,4 +1,4 @@
-import { checkRateLimit, getClientIp } from './_rate-limit';
+import { checkRateLimit, getClientIp } from './_rate-limit.js';
 
 interface GEEPrecipRequest {
   date?: string;
@@ -157,12 +157,12 @@ export default async function handler(req: any, res: any) {
     status: 'fallback',
     isFallback: true,
     message: 'Kunci GEE belum dikonfigurasi. Menggunakan citra raster presipitasi resmi beresolusi tinggi.',
-    dataset: 'UCSB-CHG/CHIRPS/DAILY (GEE Catalog) / NASA IMERG Precipitation',
+    dataset: 'NASA IMERG Precipitation (Fallback)',
     period: `${startDate} s.d. ${endDate}`,
     min: minPrecip,
     max: maxPrecip,
     palette,
-    resolution: '0.05° (~5.5 km CHIRPS) / 0.1° (IMERG)',
-    provenance: 'Google Earth Engine CHIRPS & NASA GPM Calibrated Precipitation'
+    resolution: '0.1° (IMERG)',
+    provenance: 'NASA GPM Calibrated Precipitation'
   });
 }

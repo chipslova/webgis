@@ -229,43 +229,79 @@ export class PikselLoader {
   }
 
   /**
-   * Intelligently flies or zooms the map to ensure satellite imagery is immediately visible
+   * Intelligently flies or zooms the map to ensure satellite imagery is immediately visible and sharpest.
+   * Directs the camera directly to where data is most abundant and clearest (above minZoom, at optimal focal view).
    */
-  public autoFlyToOptimalView(productId?: string): string | null {
+  public autoFlyToOptimalView(productId?: string, forceFly: boolean = false): string | null {
     if (!this.map) return null;
     const targetId = productId || this.activeProductId;
     if (!targetId) return null;
 
-    const currentZoom = this.map.getZoom();
     const prod = PIKSEL_PRODUCTS.find((p) => p.id === targetId);
-    const minZoom = prod?.minZoom ?? 8;
+    if (!prod) return null;
 
-    if (currentZoom >= minZoom) {
-      return null;
-    }
+    const minZoom = prod.minZoom ?? 8;
+    const currentZoom = typeof this.map.getZoom === 'function' ? this.map.getZoom() : 0;
+    const currentCenter = typeof this.map.getCenter === 'function' ? this.map.getCenter() : null;
 
     const matchingPreset = PIKSEL_PRESETS.find((p) => p.recommendedProduct === targetId)
       || PIKSEL_PRESETS.find((p) => p.id === 'bromo')
       || PIKSEL_PRESETS[0];
 
-    if (currentZoom <= 6.8 && matchingPreset) {
-      this.map.flyTo({
-        center: matchingPreset.center,
-        zoom: matchingPreset.zoom,
-        pitch: matchingPreset.pitch || 0,
-        bearing: 0,
-        duration: 1800,
-        essential: true
-      });
-      return matchingPreset.name;
-    } else {
-      this.map.easeTo({
-        zoom: Math.max(minZoom, 8.5),
-        duration: 1200,
-        essential: true
-      });
-      return `Level ${Math.max(minZoom, 8.5)}`;
+    const targetCenter: [number, number] = prod.optimalFocus?.center
+      || matchingPreset?.center
+      || [112.9485, -7.9514];
+
+    const targetZoom: number = Math.max(
+      minZoom,
+      prod.optimalFocus?.zoom ?? matchingPreset?.zoom ?? 11.0
+    );
+
+    const targetPitch: number = prod.optimalFocus?.pitch ?? matchingPreset?.pitch ?? 0;
+    const targetBearing: number = prod.optimalFocus?.bearing ?? 0;
+    const locationName: string = prod.optimalFocus?.name ?? matchingPreset?.name ?? 'Area Rekomendasi';
+
+    // Calculate distance from current camera center to target optimal hotspot
+    let isClose = false;
+    if (currentCenter) {
+      const dLng = Math.abs(currentCenter.lng - targetCenter[0]);
+      const dLat = Math.abs(currentCenter.lat - targetCenter[1]);
+      if (dLng < 0.25 && dLat < 0.25) {
+        isClose = true;
+      }
     }
+
+    // Always navigate if:
+    // 1. forceFly is true (e.g. user selected product in UI)
+    // 2. OR currentZoom < minZoom (needs zooming in)
+    // 3. OR not close to the richest data hotspot
+    if (forceFly || currentZoom < minZoom || !isClose) {
+      if (typeof this.map.flyTo === 'function') {
+        this.map.flyTo({
+          center: targetCenter,
+          zoom: targetZoom,
+          pitch: targetPitch,
+          bearing: targetBearing,
+          duration: 1800,
+          essential: true
+        });
+      }
+      return locationName;
+    }
+
+    // If already in the target area, but zoom is slightly below the optimal clear zoom
+    if (currentZoom < targetZoom) {
+      if (typeof this.map.easeTo === 'function') {
+        this.map.easeTo({
+          zoom: targetZoom,
+          duration: 1200,
+          essential: true
+        });
+      }
+      return locationName;
+    }
+
+    return null;
   }
 
   /**

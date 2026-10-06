@@ -206,9 +206,10 @@ export class CommandPaletteUI {
         keywords: [prod.name, prod.category, prod.sensor, 'imagery', 'satellite', 'wms', 'index', 'satelit', 'citra'],
         action: () => {
           this.pikselLoader?.setActiveProduct(prod.id);
-          this.pikselLoader?.autoFlyToOptimalView(prod.id);
+          const navTarget = this.pikselLoader?.autoFlyToOptimalView(prod.id, true);
           this.sidebarUI.setActiveTab('piksel');
-          showToast(`Lapisan ${prod.name} diaktifkan`, 'info');
+          const focusMsg = navTarget ? ` — Peta diarahkan ke ${navTarget}` : '';
+          showToast(`Lapisan ${prod.name} diaktifkan${focusMsg}`, 'info');
         }
       });
     });
@@ -400,7 +401,7 @@ export class CommandPaletteUI {
         id: 'tool-gee-precip',
         category: 'tools',
         categoryLabel: '⚡ Alat & Analisis',
-        title: 'Curah Hujan Harian (CHIRPS & NASA GPM)',
+        title: 'Curah Hujan Harian (NASA GPM IMERG)',
         subtitle: 'Pantau intensitas presipitasi harian (mm/hari) di seluruh kepulauan Indonesia',
         icon: '🌧️',
         keywords: ['hujan', 'curah hujan', 'precipitation', 'rainfall', 'chirps', 'gpm', 'imerg', 'cuaca', 'presipitasi', 'gee', 'iklim'],
@@ -414,7 +415,7 @@ export class CommandPaletteUI {
         id: 'tool-gee-landcover',
         category: 'tools',
         categoryLabel: '⚡ Alat & Analisis',
-        title: 'Tutupan Lahan Sentinel-2 10m (ESA WorldCover)',
+        title: 'Tutupan Lahan Sentinel-2 10m (Esri/Impact Observatory)',
         subtitle: 'Peta klasifikasi tutupan lahan 9 kelas resolusi tinggi 10 meter',
         icon: '🌳',
         keywords: ['tutupan lahan', 'land cover', 'lulc', 'esa', 'worldcover', 'sentinel', 'hutan', 'sawah', 'terbangun'],

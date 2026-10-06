@@ -229,8 +229,8 @@ export class PointInspector {
       activeLayerCategory = `Piksel OGC WMS (${pikselProduct.resolution || '10m'})`;
     } else if (this.geeLoader) {
       if (this.geeLoader.isLayerVisible('precipitation')) {
-        activeLayerName = 'Curah Hujan Harian Satelit (NASA GPM / CHIRPS)';
-        activeLayerCategory = 'Presipitasi Satelit · mm/hari';
+        activeLayerName = 'Curah Hujan Harian Satelit (NASA GPM IMERG)';
+        activeLayerCategory = 'Presipitasi Satelit · mm/jam';
       } else if (this.geeLoader.isLayerVisible('lst-day')) {
         activeLayerName = 'NASA MODIS LST Siang (1 km)';
         activeLayerCategory = 'NASA LP DAAC · MOD11A2 / MYD11A2';
@@ -238,7 +238,7 @@ export class PointInspector {
         activeLayerName = 'NASA MODIS LST Malam (1 km)';
         activeLayerCategory = 'NASA LP DAAC · MOD11A2 / MYD11A2';
       } else if (this.geeLoader.isLayerVisible('landcover')) {
-        activeLayerName = 'ESA WorldCover 10m (Tutupan Lahan)';
+        activeLayerName = 'Esri 10m (Tutupan Lahan)';
         activeLayerCategory = 'ESA / Impact Observatory (10m)';
       }
     }
@@ -307,7 +307,7 @@ export class PointInspector {
     if (!pikselProduct) {
       if (rasterStatusEl) {
         if (this.geeLoader?.isLayerVisible('precipitation')) {
-          rasterStatusEl.innerText = 'Presipitasi Satelit Aktif (NASA GPM / CHIRPS · mm/hari)';
+          rasterStatusEl.innerText = 'Presipitasi Satelit Aktif (NASA GPM IMERG · mm/jam)';
           rasterStatusEl.style.color = '#38bdf8';
         } else if (this.geeLoader?.isLayerVisible('lst-day') || this.geeLoader?.isLayerVisible('lst-night')) {
           rasterStatusEl.innerText = 'Radiansi Termal MODIS LST 1km Aktif (Klik titik stasiun untuk observasi detail)';

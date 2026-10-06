@@ -212,7 +212,7 @@ export class DynamicLegendUI {
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">🌧️</span>
               <div>
-                <div class="dynamic-legend-title">Curah Hujan Harian (CHIRPS &amp; NASA GPM)</div>
+                <div class="dynamic-legend-title">Curah Hujan Harian (NASA GPM IMERG)</div>
                 <div class="dynamic-legend-sub">NASA IMERG Precipitation Rate · Resolusi Harian Bebas Awan</div>
               </div>
             </div>

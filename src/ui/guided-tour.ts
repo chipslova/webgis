@@ -82,9 +82,9 @@ export class GuidedTourUI {
         id: 2,
         badge: '2. IKLIM & SUHU GEE',
         title: 'Suhu Permukaan MODIS LST, Curah Hujan & Urban Heat Island',
-        subtitle: 'Analisis Termal MODIS Terra/Aqua, Presipitasi CHIRPS/GPM, & Tutupan Lahan',
+        subtitle: 'Analisis Termal MODIS Terra/Aqua, Presipitasi NASA GPM, & Tutupan Lahan',
         description: 'Observasi iklim dan termal: pantau Suhu Permukaan Daratan (LST Siang/Malam), dinamika curah hujan satelit harian, dan klasifikasi tutupan lahan Sentinel-2 10m.',
-        tags: ['MODIS LST 1 km', 'Curah Hujan GPM/CHIRPS', '18 Stasiun Iklim', 'Sentinel-2 10m LULC'],
+        tags: ['MODIS LST 1 km', 'Curah Hujan NASA GPM', '18 Stasiun Iklim', 'Sentinel-2 10m LULC'],
         action: async () => {
           const map = this.mapManager.getMap();
           if (!map) return;

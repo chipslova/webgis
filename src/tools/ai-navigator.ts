@@ -340,7 +340,7 @@ export class AINavigator {
         if (!layerId) break;
 
         // 1. Google Earth Engine layers: precipitation, landcover, lst-day, lst-night, stations
-        if (['precipitation', 'rainfall', 'curah-hujan', 'chirps', 'gpm', 'landcover', 'lc', 'lst-day', 'lst-night', 'stations', 'poi', 'surface-temp'].includes(layerId)) {
+        if (['precipitation', 'rainfall', 'curah-hujan', 'gpm', 'landcover', 'lc', 'lst-day', 'lst-night', 'stations', 'poi', 'surface-temp'].includes(layerId)) {
           if (this.geeLoaderRef?.toggleLayer) {
             await this.geeLoaderRef.toggleLayer(layerId, visible);
           }
@@ -349,8 +349,8 @@ export class AINavigator {
           }
 
           const labels: Record<string, string> = {
-            precipitation: 'Curah Hujan Harian Satelit (CHIRPS & GPM)',
-            landcover: 'Tutupan Lahan Sentinel-2 10m (ESA WorldCover)',
+            precipitation: 'Curah Hujan Harian Satelit (NASA GPM IMERG)',
+            landcover: 'Tutupan Lahan Sentinel-2 10m (Esri/Impact Observatory)',
             'lst-day': 'Suhu Permukaan Daratan Siang (MODIS LST Day 1km)',
             'lst-night': 'Suhu Permukaan Daratan Malam (MODIS LST Night 1km)',
             stations: '18 Stasiun & Titik Observasi Iklim'
@@ -393,6 +393,9 @@ export class AINavigator {
           const resolvedProductId = pikselAliases[layerId] || layerId;
 
           this.pikselLoaderRef.setActiveProduct(visible ? resolvedProductId : null);
+          if (visible) {
+            this.pikselLoaderRef.autoFlyToOptimalView?.(resolvedProductId, true);
+          }
           if (visible && this.sidebarUI) {
             this.sidebarUI.setActiveTab('piksel');
           }

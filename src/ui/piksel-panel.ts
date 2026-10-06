@@ -357,6 +357,7 @@ export class PikselPanelUI {
             <div class="card-tags-line">
               <span class="card-tag">${prod.resolution}</span>
               <span class="card-tag" title="Level Zoom Minimum Z${prod.minZoom ?? 8}+">Z${prod.minZoom ?? 8}+</span>
+              ${prod.optimalFocus ? `<span class="card-tag card-tag-focus" style="background: rgba(16, 185, 129, 0.12); color: #34d399; border-color: rgba(16, 185, 129, 0.25);" title="Area Data Paling Jelas: ${prod.optimalFocus.name} (Z${prod.optimalFocus.zoom})">📍 ${prod.optimalFocus.name}</span>` : ''}
               ${prod.timeEnabled && yearRange ? `<span class="card-tag multi-year">${yearRange}</span>` : ''}
               <span class="card-badge" style="color:${prod.color};">${prod.badge}</span>
             </div>
@@ -724,10 +725,11 @@ export class PikselPanelUI {
           if (typeof window !== 'undefined' && window.innerWidth <= 768) {
             window.dispatchEvent(new CustomEvent('webgis:collapse-sidebar-if-mobile'));
           }
-          const targetNav = this.pikselLoader.autoFlyToOptimalView(clickedId);
+          const targetNav = this.pikselLoader.autoFlyToOptimalView(clickedId, true);
           if (targetNav) {
+            const targetZ = prodObj?.optimalFocus?.zoom ?? (prodObj?.minZoom ?? 8);
             showToast(
-              `🔍 Citra resolusi tinggi memerlukan zoom lebih dekat — peta diarahkan ke area rekomendasi (${targetNav}).`,
+              `🛰️ ${prodObj?.name || 'Citra Satelit'} diaktifkan — Peta langsung diarahkan ke data paling jelas: ${targetNav} (Z${targetZ}).`,
               {
                 type: 'info',
                 durationMs: 7000,
