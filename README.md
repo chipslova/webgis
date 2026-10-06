@@ -13,7 +13,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![Vitest](https://img.shields.io/badge/Vitest-261%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
-  <img src="docs/preview.jpg" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
+  <img src="docs/preview.png" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
 </p>
 
 ---
