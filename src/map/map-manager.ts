@@ -446,7 +446,10 @@ export class MapManager {
     );
 
     // 5. Custom Vector GeoJSON Layers (Major Cities, Uploaded GeoJSON, Proximity Buffer)
-    const geojsonLayerIds = this.geojsonLoaderRef?.getAllMapLayerIds?.() || [];
+    const allGeojsonLayerIds = this.geojsonLoaderRef?.getAllMapLayerIds?.() || [];
+    // Separate polygon fills & line geometries from point markers
+    const geojsonBaseLayerIds = allGeojsonLayerIds.filter((id: string) => !id.includes('layer-point-'));
+    const geojsonPointLayerIds = allGeojsonLayerIds.filter((id: string) => id.includes('layer-point-'));
 
     // 5b. Spatial Intersect Analysis Result Layers
     const intersectLayerIds = [
@@ -455,7 +458,7 @@ export class MapManager {
       'intersect-result-points'
     ];
 
-    // 6. Spatial Analysis AOI & Zonal Statistics (Always above rasters & custom GeoJSON)
+    // 6. Spatial Analysis AOI & Zonal Statistics
     const spatialAnalysisLayerIds = this.spatialAnalysisUIRef?.getAllMapLayerIds?.() || [
       'aoi-analysis-fill',
       'aoi-analysis-line',
@@ -474,6 +477,8 @@ export class MapManager {
     // 3b. 3D Extruded Buildings (above rasters, below custom vectors/drawing)
     const building3DLayerIds = ['3d-extruded-buildings-layer'];
 
+    // Hierarchy:
+    // Rasters -> Grids -> 3D Buildings -> POI vectors -> GeoJSON Fills & Lines -> Intersect -> Analysis AOI -> Data Hub Points/Cities -> Measurement
     const orderedLayerStack = [
       ...pikselRasterLayerIds,
       ...geeRasterLayerIds,
@@ -483,9 +488,10 @@ export class MapManager {
       ...pikselGridLayerIds,
       ...building3DLayerIds,
       ...geeVectorLayerIds,
-      ...geojsonLayerIds,
+      ...geojsonBaseLayerIds,
       ...intersectLayerIds,
       ...spatialAnalysisLayerIds,
+      ...geojsonPointLayerIds,
       ...measureLayerIds
     ];
 

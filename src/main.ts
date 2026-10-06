@@ -243,9 +243,18 @@ class WebGISApp {
         map,
         this.mapManager,
         this.sidebarUI,
-        this.pikselLoader
+        this.pikselLoader,
+        undefined,
+        this.geojsonLoader
       );
       this.swipeCompareUI = new SwipeCompareUI(this.swipeCompareManager);
+
+      // Auto-synchronize custom GeoJSON/cities to compareMap if compare mode is active
+      this.geojsonLoader.onLayersChange(() => {
+        if (this.swipeCompareManager?.isActive()) {
+          this.swipeCompareManager.syncCustomLayersToCompareMap();
+        }
+      });
 
       // Initialize Spotlight Command Palette
       this.commandPaletteUI = new CommandPaletteUI(

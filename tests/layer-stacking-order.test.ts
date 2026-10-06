@@ -71,7 +71,7 @@ describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
     };
 
     const mockGeoJson = {
-      getAllMapLayerIds: () => ['custom-layer-buffer-fill', 'custom-layer-buffer-line']
+      getAllMapLayerIds: () => ['custom-layer-buffer-fill', 'custom-layer-buffer-line', 'layer-point-cities']
     };
 
     const mockAnalysis = {
@@ -94,6 +94,7 @@ describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
       'aoi-analysis-fill',
       'aoi-analysis-line',
       'aoi-vertices-layer',
+      'layer-point-cities',
       'custom-layer-buffer-fill',
       'gee-modis-day-wms-layer',
       'gee-modis-stations-circles',
@@ -105,7 +106,7 @@ describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
     // Execute layer re-ordering
     mapManager.executeEnforceLayerOrder();
 
-    // Verification: Analysis layer MUST be placed after (above) GEE rasters and GEE vector stations
+    // Verification: Data Hub points MUST be placed above Spatial Analysis AOI, and below measurement
     const pikselIdx = layerStack.indexOf('piksel-wms-layer');
     const geeRasterIdx = layerStack.indexOf('gee-modis-day-wms-layer');
     const waterMaskIdx = layerStack.indexOf('piksel-ndbi-water-mask');
@@ -114,6 +115,7 @@ describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
     const bufferIdx = layerStack.indexOf('custom-layer-buffer-fill');
     const aoiFillIdx = layerStack.indexOf('aoi-analysis-fill');
     const aoiLineIdx = layerStack.indexOf('aoi-analysis-line');
+    const pointCitiesIdx = layerStack.indexOf('layer-point-cities');
     const measureIdx = layerStack.indexOf('measure-points');
 
     expect(pikselIdx).toBeLessThan(geeRasterIdx);
@@ -123,7 +125,8 @@ describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
     expect(geeStationsIdx).toBeLessThan(bufferIdx);
     expect(bufferIdx).toBeLessThan(aoiFillIdx);
     expect(aoiFillIdx).toBeLessThan(aoiLineIdx);
-    expect(aoiLineIdx).toBeLessThan(measureIdx);
+    expect(aoiLineIdx).toBeLessThan(pointCitiesIdx);
+    expect(pointCitiesIdx).toBeLessThan(measureIdx);
   });
 
   it('should register spatialAnalysisUI lifecycle and restore layers after style change', () => {

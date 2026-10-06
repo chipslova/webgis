@@ -4,6 +4,7 @@ import { BASEMAPS, DEFAULT_BASEMAP_ID } from '../config/basemaps';
 import { MapManager } from '../map/map-manager';
 import { SidebarUI } from '../ui/sidebar';
 import { PikselLoader } from './piksel-loader';
+import { GeoJsonLoader } from './geojson-loader';
 import { logger } from '../utils/logger';
 import { ErrorHandler } from '../utils/error-handler';
 
@@ -121,6 +122,7 @@ export class SwipeCompareManager {
 
   private onStateChangeCallbacks: Array<() => void> = [];
   private syncListener: (() => void) | null = null;
+  private geojsonLoader: GeoJsonLoader | null = null;
   private resizeListener: (() => void) | null = null;
 
   constructor(
@@ -128,13 +130,19 @@ export class SwipeCompareManager {
     mapManager?: MapManager | null,
     sidebarUI?: SidebarUI | null,
     pikselLoader?: PikselLoader | null,
-    mapFactory?: MapFactory
+    mapFactory?: MapFactory,
+    geojsonLoader?: GeoJsonLoader | null
   ) {
     this.primaryMap = primaryMap;
     this.mapManager = mapManager || null;
     this.sidebarUI = sidebarUI || null;
     this.pikselLoader = pikselLoader || null;
     this.mapFactory = mapFactory || ((opts) => new maplibregl.Map(opts));
+    this.geojsonLoader = geojsonLoader || null;
+  }
+
+  public setGeoJsonLoader(loader: GeoJsonLoader | null) {
+    this.geojsonLoader = loader;
   }
 
   public isActive(): boolean {
@@ -610,6 +618,82 @@ export class SwipeCompareManager {
       }
     } catch (e) {
       logger.warn('[SwipeCompare] Error rendering left layer:', e);
+    }
+
+    this.syncCustomLayersToCompareMap();
+  }
+
+  /**
+   * Synchronizes active vector layers from Data Hub (cities, uploaded GeoJSON, buffers)
+   * into compareMap so they are never hidden or covered by the left slider raster.
+   */
+  public syncCustomLayersToCompareMap() {
+    if (!this.compareMap || !this.compareMap.getStyle() || !this.geojsonLoader) return;
+
+    try {
+      const customLayers = this.geojsonLoader.getLayers();
+      customLayers.forEach((item) => {
+        if (!item.visible) return;
+
+        const sourceId = `compare-source-${item.id}`;
+        const fillId = `compare-layer-fill-${item.id}`;
+        const lineId = `compare-layer-line-${item.id}`;
+        const pointId = `compare-layer-point-${item.id}`;
+
+        if (!this.compareMap?.getSource(sourceId)) {
+          this.compareMap?.addSource(sourceId, {
+            type: 'geojson',
+            data: item.data
+          });
+        }
+
+        if (item.type === 'polygon') {
+          if (!this.compareMap?.getLayer(fillId)) {
+            this.compareMap?.addLayer({
+              id: fillId,
+              type: 'fill',
+              source: sourceId,
+              paint: { 'fill-color': item.color, 'fill-opacity': 0.5 }
+            });
+          }
+          if (!this.compareMap?.getLayer(lineId)) {
+            this.compareMap?.addLayer({
+              id: lineId,
+              type: 'line',
+              source: sourceId,
+              paint: { 'line-color': item.color, 'line-width': 2 }
+            });
+          }
+        } else if (item.type === 'line') {
+          if (!this.compareMap?.getLayer(lineId)) {
+            this.compareMap?.addLayer({
+              id: lineId,
+              type: 'line',
+              source: sourceId,
+              paint: { 'line-color': item.color, 'line-width': 3 }
+            });
+          }
+        } else {
+          // Points / Major Cities / Pins
+          if (!this.compareMap?.getLayer(pointId)) {
+            this.compareMap?.addLayer({
+              id: pointId,
+              type: 'circle',
+              source: sourceId,
+              paint: {
+                'circle-radius': 9,
+                'circle-color': item.color,
+                'circle-stroke-width': 2.5,
+                'circle-stroke-color': '#ffffff',
+                'circle-opacity': 1,
+                'circle-stroke-opacity': 1
+              }
+            });
+          }
+        }
+      });
+    } catch (e) {
+      logger.warn('[SwipeCompare] Error synchronizing vector layers to compare map:', e);
     }
   }
 
