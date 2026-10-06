@@ -401,12 +401,13 @@ export class MapManager {
   public executeEnforceLayerOrder() {
     if (!this.map || !this.map.getStyle()) return;
 
-    // 1. Piksel WMS Raster Layers (bottom of analytical stack)
-    const pikselRasterLayerIds = (this.pikselLoaderRef?.getAllMapLayerIds?.() || []).filter(
-      (id: string) => !id.includes('grid')
+    // 1. Piksel WMS Raster Layers (bottom of analytical imagery stack)
+    const allPikselIds = this.pikselLoaderRef?.getAllMapLayerIds?.() || [];
+    const pikselRasterLayerIds = allPikselIds.filter(
+      (id: string) => !id.includes('grid') && !id.includes('mask')
     );
 
-    // 2. GEE Analytical Rasters (above Piksel imagery)
+    // 2. GEE Analytical Rasters (above base Piksel imagery)
     const geeAllLayerIds = this.geeLoaderRef?.getAllMapLayerIds?.() || [
       'gee-modis-landcover-layer',
       'gee-modis-day-wms-layer',
@@ -425,6 +426,11 @@ export class MapManager {
     ];
     const geeRasterLayerIds = geeAllLayerIds.filter(
       (id: string) => !id.includes('circle') && !id.includes('stations') && !id.includes('labels') && !id.includes('poi')
+    );
+
+    // 2b. Piksel Analytical Water/Ocean Masks (Guaranteed above all rasters so water/sea is never buried or misclassified)
+    const pikselWaterMaskLayerIds = allPikselIds.filter(
+      (id: string) => id.includes('mask')
     );
 
     // 3. Piksel Grid Boundaries (above GEE/Piksel rasters)
@@ -461,10 +467,15 @@ export class MapManager {
       'measure-points'
     ];
 
+    // 3b. 3D Extruded Buildings (above rasters, below custom vectors/drawing)
+    const building3DLayerIds = ['3d-extruded-buildings-layer'];
+
     const orderedLayerStack = [
       ...pikselRasterLayerIds,
       ...geeRasterLayerIds,
+      ...pikselWaterMaskLayerIds,
       ...pikselGridLayerIds,
+      ...building3DLayerIds,
       ...geeVectorLayerIds,
       ...geojsonLayerIds,
       ...intersectLayerIds,

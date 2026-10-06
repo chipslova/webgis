@@ -55,7 +55,7 @@ describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
 
   it('should maintain Spatial Analysis AOI layers above GEE raster and vector layers in enforceLayerOrder', () => {
     const mockPiksel = {
-      getAllMapLayerIds: () => ['piksel-wms-layer', 'piksel-grid-fill', 'piksel-grid-line']
+      getAllMapLayerIds: () => ['piksel-wms-layer', 'piksel-ndbi-water-mask', 'piksel-grid-fill', 'piksel-grid-line']
     };
 
     const mockGee = {
@@ -96,6 +96,8 @@ describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
       'custom-layer-buffer-fill',
       'gee-modis-day-wms-layer',
       'gee-modis-stations-circles',
+      'piksel-ndbi-water-mask',
+      '3d-extruded-buildings-layer',
       'piksel-wms-layer'
     ];
 
@@ -105,6 +107,8 @@ describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
     // Verification: Analysis layer MUST be placed after (above) GEE rasters and GEE vector stations
     const pikselIdx = layerStack.indexOf('piksel-wms-layer');
     const geeRasterIdx = layerStack.indexOf('gee-modis-day-wms-layer');
+    const waterMaskIdx = layerStack.indexOf('piksel-ndbi-water-mask');
+    const building3DIdx = layerStack.indexOf('3d-extruded-buildings-layer');
     const geeStationsIdx = layerStack.indexOf('gee-modis-stations-circles');
     const bufferIdx = layerStack.indexOf('custom-layer-buffer-fill');
     const aoiFillIdx = layerStack.indexOf('aoi-analysis-fill');
@@ -112,7 +116,9 @@ describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
     const measureIdx = layerStack.indexOf('measure-points');
 
     expect(pikselIdx).toBeLessThan(geeRasterIdx);
-    expect(geeRasterIdx).toBeLessThan(geeStationsIdx);
+    expect(geeRasterIdx).toBeLessThan(waterMaskIdx);
+    expect(waterMaskIdx).toBeLessThan(building3DIdx);
+    expect(building3DIdx).toBeLessThan(geeStationsIdx);
     expect(geeStationsIdx).toBeLessThan(bufferIdx);
     expect(bufferIdx).toBeLessThan(aoiFillIdx);
     expect(aoiFillIdx).toBeLessThan(aoiLineIdx);
@@ -136,5 +142,23 @@ describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
 
     analysisUI.restoreAfterStyleChange();
     expect(layersChangeFired).toBe(true);
+  });
+
+  it('should group custom GeoJSON layers hierarchically: fills below lines below points', () => {
+    const { GeoJsonLoader } = require('../src/tools/geojson-loader');
+    const loader = new GeoJsonLoader(mockMap);
+    (loader as any).customLayers.set('layer-1', { id: 'layer-1', type: 'point' });
+    (loader as any).customLayers.set('layer-2', { id: 'layer-2', type: 'polygon' });
+
+    const allIds = loader.getAllMapLayerIds();
+    // Fills must appear before lines, which appear before points
+    const fill1Idx = allIds.indexOf('layer-fill-layer-1');
+    const fill2Idx = allIds.indexOf('layer-fill-layer-2');
+    const line1Idx = allIds.indexOf('layer-line-layer-1');
+    const point1Idx = allIds.indexOf('layer-point-layer-1');
+
+    expect(fill1Idx).toBeLessThan(line1Idx);
+    expect(fill2Idx).toBeLessThan(point1Idx);
+    expect(line1Idx).toBeLessThan(point1Idx);
   });
 });

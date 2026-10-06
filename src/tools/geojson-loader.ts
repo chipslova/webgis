@@ -346,13 +346,22 @@ export class GeoJsonLoader {
     });
   }
 
-  /** Returns all MapLibre layer IDs owned by this loader (for MapManager's ordering sweep). */
+  /** Returns all MapLibre layer IDs owned by this loader (for MapManager's ordering sweep).
+   * Grouped hierarchically: Polygons/Buffers (bottom) -> Lines/Roads (middle) -> Points/Markers (top).
+   * This guarantees point symbols are never hidden under buffer or polygon fills.
+   */
   public getAllMapLayerIds(): string[] {
-    const ids: string[] = [];
+    const fillIds: string[] = [];
+    const lineIds: string[] = [];
+    const pointIds: string[] = [];
+
     this.customLayers.forEach((item) => {
-      ids.push(`layer-fill-${item.id}`, `layer-line-${item.id}`, `layer-point-${item.id}`);
+      fillIds.push(`layer-fill-${item.id}`);
+      lineIds.push(`layer-line-${item.id}`);
+      pointIds.push(`layer-point-${item.id}`);
     });
-    return ids;
+
+    return [...fillIds, ...lineIds, ...pointIds];
   }
 
   public reattachLayersIfNeeded() {
