@@ -71,6 +71,21 @@ export class PikselLoader {
   private maskEnabled: boolean = false;
 
 
+  public isMaskEnabled(): boolean {
+    return this.maskEnabled;
+  }
+
+  public setMaskEnabled(enabled: boolean) {
+    this.maskEnabled = enabled;
+    if (this.activeProductId === 's2-ndbi') {
+      const prod = this.getActiveProduct();
+      if (prod) {
+        this.renderRasterLayer(prod, this.activeRequestId);
+      }
+    }
+    this.notifyLayersChange();
+  }
+
   public getActiveLayerId(): string | null {
     return this.activeLayerId;
   }
@@ -753,6 +768,40 @@ export class PikselLoader {
         }
       });
 
+      // Masking layer (e.g. NDWI for water/clouds on NDBI)
+      const maskLayerId = 's2-ndwi-mask-layer';
+      const maskSourceId = 's2-ndwi-mask-src';
+      if (this.map.getLayer(maskLayerId)) { try { this.map.removeLayer(maskLayerId); } catch (_) {} }
+      if (this.map.getSource(maskSourceId)) { try { this.map.removeSource(maskSourceId); } catch (_) {} }
+
+      if (this.maskEnabled && product.id === 's2-ndbi') {
+        const maskProd = PIKSEL_PRODUCTS.find((p) => p.id === 's2-ndwi');
+        if (maskProd) {
+          const maskTileUrl = this.buildWmsTileUrl(maskProd);
+          this.map.addSource(maskSourceId, {
+            type: 'raster',
+            tiles: [maskTileUrl],
+            tileSize: 256,
+            minzoom: minZoom,
+            maxzoom: 18,
+            attribution: maskProd.attribution || '© Badan Informasi Geospasial (BIG) — Piksel'
+          });
+
+          this.map.addLayer({
+            id: maskLayerId,
+            type: 'raster',
+            source: maskSourceId,
+            minzoom: minZoom,
+            maxzoom: 18,
+            layout: { visibility: this.rasterVisible ? 'visible' : 'none' },
+            paint: {
+              'raster-opacity': this.currentOpacity * 0.7,
+              'raster-fade-duration': 300
+            }
+          });
+        }
+      }
+
       // If time-enabled, prime the upcoming frame in background cache
       if (product.timeEnabled && product.availableYears && product.availableYears.length > 1) {
         setTimeout(() => this.prefetchNextYear(), 500);
@@ -973,6 +1022,10 @@ export class PikselLoader {
         this.map.setLayoutProperty(layerId, 'visibility', visible ? 'visible' : 'none');
       }
     });
+    const maskLayerId = 's2-ndwi-mask-layer';
+    if (typeof this.map.getLayer === 'function' && this.map.getLayer(maskLayerId)) {
+      this.map.setLayoutProperty(maskLayerId, 'visibility', visible ? 'visible' : 'none');
+    }
     this.notifyLayersChange();
   }
 
@@ -987,6 +1040,10 @@ export class PikselLoader {
         this.map.setPaintProperty(layerId, 'raster-opacity', opacity);
       }
     });
+    const maskLayerId = 's2-ndwi-mask-layer';
+    if (typeof this.map.getLayer === 'function' && this.map.getLayer(maskLayerId)) {
+      this.map.setPaintProperty(maskLayerId, 'raster-opacity', opacity * 0.7);
+    }
     this.notifyLayersChange();
   }
 

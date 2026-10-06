@@ -75,6 +75,7 @@ export interface PikselProduct {
   isComputeHeavy?: boolean;
   isDisabled?: boolean;
   minZoom?: number;
+  canBeMask?: boolean;
 }
 
 export interface PikselPreset {
