@@ -314,18 +314,33 @@ export class SwipeCompareManager {
     // Remove primary map swipe layers
     const rightSrcId = 'swipe-right-raster-src';
     const rightLayerId = 'swipe-right-raster-layer';
+    const rightMaskSrcId = 'swipe-right-water-mask-src';
+    const rightMaskLayerId = 'swipe-right-water-mask';
 
     if (this.primaryMap && this.primaryMap.getStyle()) {
-      if (this.primaryMap.getLayer(rightLayerId)) {
-        try {
-          this.primaryMap.removeLayer(rightLayerId);
-        } catch (_) {}
-      }
-      if (this.primaryMap.getSource(rightSrcId)) {
-        try {
-          this.primaryMap.removeSource(rightSrcId);
-        } catch (_) {}
-      }
+      [rightLayerId, rightMaskLayerId].forEach((lId) => {
+        if (this.primaryMap.getLayer(lId)) {
+          try { this.primaryMap.removeLayer(lId); } catch (_) {}
+        }
+      });
+      [rightSrcId, rightMaskSrcId].forEach((sId) => {
+        if (this.primaryMap.getSource(sId)) {
+          try { this.primaryMap.removeSource(sId); } catch (_) {}
+        }
+      });
+    }
+
+    if (this.compareMap && this.compareMap.getStyle()) {
+      ['swipe-left-raster-layer', 'swipe-left-water-mask'].forEach((lId) => {
+        if (this.compareMap?.getLayer(lId)) {
+          try { this.compareMap.removeLayer(lId); } catch (_) {}
+        }
+      });
+      ['swipe-left-raster-src', 'swipe-left-water-mask-src'].forEach((sId) => {
+        if (this.compareMap?.getSource(sId)) {
+          try { this.compareMap.removeSource(sId); } catch (_) {}
+        }
+      });
     }
 
     // Remove event listeners
@@ -520,16 +535,20 @@ export class SwipeCompareManager {
 
     const srcId = 'swipe-left-raster-src';
     const layerId = 'swipe-left-raster-layer';
+    const maskSrcId = 'swipe-left-water-mask-src';
+    const maskLayerId = 'swipe-left-water-mask';
 
     if (this.compareMap.getLayer(layerId)) {
-      try {
-        this.compareMap.removeLayer(layerId);
-      } catch (_) {}
+      try { this.compareMap.removeLayer(layerId); } catch (_) {}
     }
     if (this.compareMap.getSource(srcId)) {
-      try {
-        this.compareMap.removeSource(srcId);
-      } catch (_) {}
+      try { this.compareMap.removeSource(srcId); } catch (_) {}
+    }
+    if (this.compareMap.getLayer(maskLayerId)) {
+      try { this.compareMap.removeLayer(maskLayerId); } catch (_) {}
+    }
+    if (this.compareMap.getSource(maskSrcId)) {
+      try { this.compareMap.removeSource(maskSrcId); } catch (_) {}
     }
 
     if (!this.leftConfig.productId) return;
@@ -556,9 +575,39 @@ export class SwipeCompareManager {
         minzoom: minZoom,
         maxzoom: 18,
         paint: {
-          'raster-opacity': 0.95
+          'raster-opacity': 0.95,
+          'raster-fade-duration': 0,
+          'raster-resampling': 'nearest',
+          'raster-contrast': prod.id === 's2-ndbi' ? 0.2 : 0
         }
       });
+
+      // Built-in automatic water/ocean masking for NDBI in swipe comparison
+      if (prod.id === 's2-ndbi') {
+        try {
+          if (!this.compareMap.getSource(maskSrcId)) {
+            this.compareMap.addSource(maskSrcId, {
+              type: 'vector',
+              url: 'https://tiles.openfreemap.org/planet'
+            });
+          }
+
+          this.compareMap.addLayer({
+            id: maskLayerId,
+            type: 'fill',
+            source: maskSrcId,
+            'source-layer': 'water',
+            minzoom: 0,
+            maxzoom: 22,
+            paint: {
+              'fill-color': '#0369a1',
+              'fill-opacity': 0.92
+            }
+          });
+        } catch (err) {
+          logger.warn('[SwipeCompare] Left water mask notice:', err);
+        }
+      }
     } catch (e) {
       logger.warn('[SwipeCompare] Error rendering left layer:', e);
     }
@@ -569,16 +618,20 @@ export class SwipeCompareManager {
 
     const srcId = 'swipe-right-raster-src';
     const layerId = 'swipe-right-raster-layer';
+    const maskSrcId = 'swipe-right-water-mask-src';
+    const maskLayerId = 'swipe-right-water-mask';
 
     if (this.primaryMap.getLayer(layerId)) {
-      try {
-        this.primaryMap.removeLayer(layerId);
-      } catch (_) {}
+      try { this.primaryMap.removeLayer(layerId); } catch (_) {}
     }
     if (this.primaryMap.getSource(srcId)) {
-      try {
-        this.primaryMap.removeSource(srcId);
-      } catch (_) {}
+      try { this.primaryMap.removeSource(srcId); } catch (_) {}
+    }
+    if (this.primaryMap.getLayer(maskLayerId)) {
+      try { this.primaryMap.removeLayer(maskLayerId); } catch (_) {}
+    }
+    if (this.primaryMap.getSource(maskSrcId)) {
+      try { this.primaryMap.removeSource(maskSrcId); } catch (_) {}
     }
 
     if (!this.rightConfig.productId) return;
@@ -605,9 +658,39 @@ export class SwipeCompareManager {
         minzoom: minZoom,
         maxzoom: 18,
         paint: {
-          'raster-opacity': 0.95
+          'raster-opacity': 0.95,
+          'raster-fade-duration': 0,
+          'raster-resampling': 'nearest',
+          'raster-contrast': prod.id === 's2-ndbi' ? 0.2 : 0
         }
       });
+
+      // Built-in automatic water/ocean masking for NDBI in swipe comparison
+      if (prod.id === 's2-ndbi') {
+        try {
+          if (!this.primaryMap.getSource(maskSrcId)) {
+            this.primaryMap.addSource(maskSrcId, {
+              type: 'vector',
+              url: 'https://tiles.openfreemap.org/planet'
+            });
+          }
+
+          this.primaryMap.addLayer({
+            id: maskLayerId,
+            type: 'fill',
+            source: maskSrcId,
+            'source-layer': 'water',
+            minzoom: 0,
+            maxzoom: 22,
+            paint: {
+              'fill-color': '#0369a1',
+              'fill-opacity': 0.92
+            }
+          });
+        } catch (err) {
+          logger.warn('[SwipeCompare] Right water mask notice:', err);
+        }
+      }
     } catch (e) {
       logger.warn('[SwipeCompare] Error rendering right layer:', e);
     }
