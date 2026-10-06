@@ -428,10 +428,14 @@ export class MapManager {
       (id: string) => !id.includes('circle') && !id.includes('stations') && !id.includes('labels') && !id.includes('poi')
     );
 
+    // 2a. Swipe Compare Right Layer (on primaryMap when comparison is active)
+    const swipeRightRasterLayerIds = ['swipe-right-raster-layer'];
+
     // 2b. Piksel Analytical Water/Ocean Masks (Guaranteed above all rasters so water/sea is never buried or misclassified)
     const pikselWaterMaskLayerIds = allPikselIds.filter(
       (id: string) => id.includes('mask')
     );
+    const swipeRightWaterMaskLayerIds = ['swipe-right-water-mask'];
 
     // 3. Piksel Grid Boundaries (above GEE/Piksel rasters)
     const pikselGridLayerIds = ['piksel-grid-fill', 'piksel-grid-line'];
@@ -473,7 +477,9 @@ export class MapManager {
     const orderedLayerStack = [
       ...pikselRasterLayerIds,
       ...geeRasterLayerIds,
+      ...swipeRightRasterLayerIds,
       ...pikselWaterMaskLayerIds,
+      ...swipeRightWaterMaskLayerIds,
       ...pikselGridLayerIds,
       ...building3DLayerIds,
       ...geeVectorLayerIds,
