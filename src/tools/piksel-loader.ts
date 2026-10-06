@@ -765,10 +765,11 @@ export class PikselLoader {
         layout: { visibility: this.rasterVisible ? 'visible' : 'none' },
         paint: {
           'raster-opacity': this.currentOpacity,
-          'raster-fade-duration': 300,
+          'raster-fade-duration': 0,
+          'raster-resampling': 'nearest',
           'raster-brightness-min': this.currentBrightness > 0 ? this.currentBrightness * 0.5 : 0,
           'raster-brightness-max': this.currentBrightness < 0 ? Math.max(0.2, 1 + this.currentBrightness * 0.5) : 1,
-          'raster-contrast': this.currentContrast,
+          'raster-contrast': product.id === 's2-ndbi' ? Math.max(0.2, this.currentContrast) : this.currentContrast,
           'raster-saturation': this.currentSaturation
         }
       });
@@ -865,10 +866,11 @@ export class PikselLoader {
         layout: { visibility: 'visible' },
         paint: {
           'raster-opacity': 0.0001, // Dormant in GPU memory, invisible to user
-          'raster-fade-duration': 300,
+          'raster-fade-duration': 0,
+          'raster-resampling': 'nearest',
           'raster-brightness-min': this.currentBrightness > 0 ? this.currentBrightness * 0.5 : 0,
           'raster-brightness-max': this.currentBrightness < 0 ? Math.max(0.2, 1 + this.currentBrightness * 0.5) : 1,
-          'raster-contrast': this.currentContrast,
+          'raster-contrast': prod.id === 's2-ndbi' ? Math.max(0.2, this.currentContrast) : this.currentContrast,
           'raster-saturation': this.currentSaturation
         }
       });
@@ -977,10 +979,11 @@ export class PikselLoader {
         layout: { visibility: this.rasterVisible ? 'visible' : 'none' },
         paint: {
           'raster-opacity': this.currentOpacity,
-          'raster-fade-duration': 300,
+          'raster-fade-duration': 0,
+          'raster-resampling': 'nearest',
           'raster-brightness-min': this.currentBrightness > 0 ? this.currentBrightness * 0.5 : 0,
           'raster-brightness-max': this.currentBrightness < 0 ? Math.max(0.2, 1 + this.currentBrightness * 0.5) : 1,
-          'raster-contrast': this.currentContrast,
+          'raster-contrast': product.id === 's2-ndbi' ? Math.max(0.2, this.currentContrast) : this.currentContrast,
           'raster-saturation': this.currentSaturation
         }
       });
@@ -1095,7 +1098,10 @@ export class PikselLoader {
         try {
           this.map.setPaintProperty(layerId, 'raster-brightness-min', bMin);
           this.map.setPaintProperty(layerId, 'raster-brightness-max', bMax);
-          this.map.setPaintProperty(layerId, 'raster-contrast', this.currentContrast);
+          const contrastVal = this.activeProductId === 's2-ndbi' 
+            ? (this.currentContrast === 0 ? 0.2 : this.currentContrast)
+            : this.currentContrast;
+          this.map.setPaintProperty(layerId, 'raster-contrast', contrastVal);
           this.map.setPaintProperty(layerId, 'raster-saturation', this.currentSaturation);
         } catch (_) {}
       }
