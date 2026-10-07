@@ -618,16 +618,6 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     recommendedProduct: 'flood-hazard-rp02'
   },
   {
-    id: 'citarum-floodplain-rp10',
-    name: 'Karawang & Hilir Citarum (PU 10 Thn)',
-    locationName: 'Bahaya Genangan Banjir 10-Tahunan',
-    center: [107.2500, -6.2200],
-    zoom: 10.5,
-    pitch: 0,
-    description: 'Zonasi bahaya banjir probabilitas 10% di sepanjang dataran banjir aluvial Karawang dan Bekasi.',
-    recommendedProduct: 'flood-hazard-rp10'
-  },
-  {
     id: 'gag-island',
     name: 'Pulau Gag (Raja Ampat)',
     locationName: 'Pulau Tropis & Pesisir',
