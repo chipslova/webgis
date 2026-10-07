@@ -128,6 +128,11 @@ export class ActiveLayersUI {
             <span class="al-meta">${safeMeta}</span>
           </div>
           ${showOpacity ? `<span class="al-opacity-chip" aria-label="Opasitas ${params.opacityPct} persen">${params.opacityPct}%</span>` : ''}
+          ${!params.noEye ? `
+            <button class="al-solo-btn btn-solo-layer" data-id="${params.id}" aria-label="Isolasi Lapisan ${safeName}" title="Solo Mode (Isolasi visual)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+            </button>
+          ` : ''}
           <button class="al-remove-btn ${params.removeBtnClass}" data-id="${params.id}" aria-label="Hapus lapisan ${safeName}" title="Hapus dari lapisan aktif">
             ${this.removeSvg()}
           </button>
@@ -638,6 +643,47 @@ export class ActiveLayersUI {
           this.geojsonLoader.toggleLayerVisibility(layer.id, layer.visible === false);
           this.render();
         }
+        return;
+      }
+
+      // ── Solo Mode button ────────────────────────────────────────────────────
+      const soloBtn = target.closest('.btn-solo-layer') as HTMLElement;
+      if (soloBtn?.dataset.id) {
+        const targetId = soloBtn.dataset.id;
+        
+        // Turn off Piksel if it's not the target
+        if (targetId !== 'piksel') {
+          if (this.pikselLoader.isLayerVisible()) this.pikselLoader.setLayerVisible(false);
+        } else {
+          this.pikselLoader.setLayerVisible(true);
+        }
+
+        // Turn off/on GEE Layers
+        const geeMap: Record<string, string> = {
+          'gee-poi': 'poi',
+          'gee-lst': 'lst',
+          'gee-elevation': 'elevation',
+          'gee-landcover': 'landcover',
+          'gee-precipitation': 'precipitation'
+        };
+        Object.entries(geeMap).forEach(([id, layerKey]) => {
+          if (targetId === id) {
+            this.geeLoader.setLayerVisible(layerKey as any, true);
+          } else if (this.geeLoader.isLayerVisible(layerKey as any)) {
+            this.geeLoader.setLayerVisible(layerKey as any, false);
+          }
+        });
+
+        // Turn off/on GeoJSON layers
+        this.geojsonLoader.getLayers().forEach(layer => {
+          if (layer.id === targetId) {
+            this.geojsonLoader.toggleLayerVisibility(layer.id, true);
+          } else if (layer.visible !== false) {
+            this.geojsonLoader.toggleLayerVisibility(layer.id, false);
+          }
+        });
+
+        this.render();
         return;
       }
 

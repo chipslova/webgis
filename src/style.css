@@ -2837,6 +2837,23 @@ html, body, #app {
   width: 30px;
   text-align: right;
 }
+.al-solo-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.al-solo-btn:hover {
+  color: #eab308;
+}
+
 
 .al-remove-btn {
   background: none;
