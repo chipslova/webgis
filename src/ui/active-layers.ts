@@ -369,8 +369,8 @@ export class ActiveLayersUI {
         const lcOpacityPct = Math.round(this.geeLoader.getLayerOpacity('landcover') * 100);
         itemsHtml += this.buildRow({
           id: 'gee-landcover',
-          name: 'Tutupan Lahan MODIS',
-          meta: 'GEE · 500m · MCD12Q1',
+          name: 'Tutupan Lahan ESA WorldCover',
+          meta: 'GEE · 10m · WorldCover v200',
           color: '#22c55e',
           isVisible: isGeeLcVis,
           opacityPct: lcOpacityPct,
@@ -378,9 +378,9 @@ export class ActiveLayersUI {
           removeBtnClass: 'btn-remove-gee-lc',
           opacitySliderClass: 'gee-lc-opacity-slider',
           details: [
-            { label: 'Sumber', value: 'NASA LP DAAC / GEE' },
-            { label: 'Produk', value: 'Klasifikasi Tahunan MCD12Q1' },
-            { label: 'Resolusi', value: '500 meter' },
+            { label: 'Sumber', value: 'ESA / GEE' },
+            { label: 'Produk', value: 'Global Land Cover (ESA WorldCover v200)' },
+            { label: 'Resolusi', value: '10 meter' },
           ],
           legendHtml: `
             <div class="lc-tags" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;">
@@ -399,7 +399,7 @@ export class ActiveLayersUI {
         itemsHtml += this.buildRow({
           id: 'gee-precipitation',
           name: 'Curah Hujan Harian',
-          meta: 'CHIRPS (GEE) · mm/jam',
+          meta: 'CHIRPS (GEE) · mm/hari',
           color: '#38bdf8',
           isVisible: isGeePrecipVis,
           opacityPct: precipOpacityPct,
@@ -409,7 +409,7 @@ export class ActiveLayersUI {
           details: [
             { label: 'Sensor/Misi', value: 'CHIRPS (GEE) Daily' },
             { label: 'Parameter', value: 'Intensitas Presipitasi Permukaan' },
-            { label: 'Satuan', value: 'Milimeter per jam (mm/jam)' },
+            { label: 'Satuan', value: 'Milimeter per hari (mm/hari)' },
             { label: 'Cakupan', value: 'Seluruh Wilayah Indonesia' },
           ],
           legendHtml: `
