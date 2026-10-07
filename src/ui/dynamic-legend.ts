@@ -135,7 +135,7 @@ export class DynamicLegendUI {
               <span class="legend-card-icon">🗺️</span>
               <div>
                 <div class="dynamic-legend-title">Tutupan Lahan Sentinel-2 10m (LULC)</div>
-                <div class="dynamic-legend-sub">Komposit Sentinel-2 10m Global · Impact Observatory / Esri</div>
+                <div class="dynamic-legend-sub">ESA WorldCover v200 · GEE</div>
               </div>
             </div>
             <div class="dynamic-legend-swatches" style="margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
@@ -212,7 +212,7 @@ export class DynamicLegendUI {
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">🌧️</span>
               <div>
-                <div class="dynamic-legend-title">Curah Hujan Harian (NASA GPM IMERG)</div>
+                <div class="dynamic-legend-title">Curah Hujan Harian (CHIRPS (GEE))</div>
                 <div class="dynamic-legend-sub">NASA IMERG Precipitation Rate · Resolusi Harian Bebas Awan</div>
               </div>
             </div>

@@ -27,7 +27,7 @@ Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit 
 ### 💎 5 Pilar Kemampuan Utama
 1. **Integrasi Earth Engine & Multi-Sensor Satelit**: Akses langsung ke arsip data satelit global (Sentinel-2 GeoMAD, NASA MODIS, Landsat 9) dan pemodelan iklim secara *real-time* untuk analisis lingkungan, vegetasi (NDVI), badan air (NDWI), kebakaran hutan (NBR), hingga suhu permukaan (LST).
 2. **Visualisasi 3D Terrain & Gedung Imersif**: Didukung oleh elevasi 3D beresolusi tinggi (AWS Terrarium DEM 30m) dan ekstrusi volume bangunan (OpenFreeMap 3D), memberikan pengalaman navigasi lanskap Indonesia yang nyata dan dramatis.
-3. **Katalog Basemap & Tematik Melimpah**: Menyediakan 16 pilihan peta dasar beresolusi tinggi (Esri, BIG, OpenFreeMap, OpenTopo) serta beragam layer tematik siap pakai seperti tutupan lahan Esri/Impact Observatory 10m LULC dan curah hujan harian NASA GPM IMERG.
+3. **Katalog Basemap & Tematik Melimpah**: Menyediakan 16 pilihan peta dasar beresolusi tinggi (Esri, BIG, OpenFreeMap, OpenTopo) serta beragam layer tematik siap pakai seperti tutupan lahan ESA WorldCover v200 dan curah hujan harian CHIRPS (GEE).
 4. **Alat Analisis Spasial Komprehensif**: Fitur pengukuran lanjutan (jarak geodesik, luas poligon, profil elevasi permukaan tanah mdpl), pembanding tirai interaktif (*swipe compare*), hingga *Point Inspector* untuk investigasi cepat kondisi spasial di titik mana pun.
 5. **Performa Tinggi Berbasis Cloud**: Dioptimalkan dengan akselerasi grafis WebGL2 untuk memproses data geospasial skala besar secara mulus langsung di dalam peramban web tanpa memerlukan instalasi perangkat lunak GIS desktop yang berat.
 
@@ -82,7 +82,7 @@ Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit 
 * **Sampling Piksel Client-Side (Tanpa Setup Akun)**: Langsung mengekstraksi nilai piksel dari ubin citra Sentinel-2 10m & cuaca real-time Open-Meteo tanpa memerlukan akun berbayar atau konfigurasi server.
 * **Integrasi Google Earth Engine Asli (Opsional)**: Panduan 3-langkah transparan untuk menghubungkan Service Account Google Cloud / GEE resmi via env var Vercel (`GEE_CLIENT_EMAIL` & `GEE_PRIVATE_KEY` / `GEE_SERVICE_ACCOUNT_KEY`).
 * **NASA MODIS Land Surface Temp (LST 1 km)**: Ubin gradien termal suhu permukaan bumi kontinu ($10^\circ\text{C} \to 42^\circ\text{C}+$) via NASA GIBS WMS dengan *ocean masking* transparan.
-* **Curah Hujan Harian (NASA GPM IMERG)**: Lapisan presipitasi satelit harian global dengan palet warna kontras tinggi (mm/jam) dari resolusi 0.1°.
+* **Curah Hujan Harian (CHIRPS (GEE))**: Lapisan presipitasi satelit harian global dengan palet warna kontras tinggi (mm/jam) dari resolusi 0.1°.
 * **18 Titik Pengamatan Referensi LST**: Titik tervalidasi MODIS *clear-sky QA bitmask* dengan kalkulasi anomali suhu siang/malam (*diurnal delta*).
 * **Tutupan Lahan & Elevasi SRTM**: Sentinel-2 10m LULC (9 kelas) dan kontur elevasi USGS SRTM 30m.
 

@@ -403,8 +403,8 @@ export class AIAssistantDockUI {
               icon = '🛠️';
             } else if (a.name === 'toggleLayer') {
               const layerNames: Record<string, { label: string; icon: string }> = {
-                precipitation: { label: 'Curah Hujan Harian (NASA GPM IMERG)', icon: '🌧️' },
-                landcover: { label: 'Tutupan Lahan 10m (Esri/Impact Observatory)', icon: '🌳' },
+                precipitation: { label: 'Curah Hujan Harian (CHIRPS (GEE))', icon: '🌧️' },
+                landcover: { label: 'Tutupan Lahan ESA WorldCover v200 (GEE)', icon: '🌳' },
                 'lst-day': { label: 'Suhu LST Siang (MODIS 1km)', icon: '☀️' },
                 'lst-night': { label: 'Suhu LST Malam (MODIS 1km)', icon: '🌙' },
                 stations: { label: '18 Stasiun Iklim LST', icon: '📍' },

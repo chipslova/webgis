@@ -349,8 +349,8 @@ export class AINavigator {
           }
 
           const labels: Record<string, string> = {
-            precipitation: 'Curah Hujan Harian Satelit (NASA GPM IMERG)',
-            landcover: 'Tutupan Lahan Sentinel-2 10m (Esri/Impact Observatory)',
+            precipitation: 'Curah Hujan Harian Satelit (CHIRPS (GEE))',
+            landcover: 'Tutupan Lahan ESA WorldCover v200 (GEE)',
             'lst-day': 'Suhu Permukaan Daratan Siang (MODIS LST Day 1km)',
             'lst-night': 'Suhu Permukaan Daratan Malam (MODIS LST Night 1km)',
             stations: '18 Stasiun & Titik Observasi Iklim'

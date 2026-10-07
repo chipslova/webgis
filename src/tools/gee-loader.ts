@@ -25,6 +25,7 @@ export class GEELoader {
   // Live GEE Serverless state
   private liveTileUrlTemplate: string | null = null;
   private livePrecipTileUrlTemplate: string | null = null;
+  private liveLandcoverTileUrlTemplate: string | null = null;
   private currentStatus: GEEStatus = 'fallback';
   private currentParams: GEEQueryParams = {
     satellite: 'terra',
@@ -243,6 +244,24 @@ export class GEELoader {
     return null;
   }
 
+  public async computeLiveLandcover(year: string = '2021'): Promise<any> {
+    try {
+      const res = await fetch(`/api/gee-landcover-tiles?year=${year}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status === 'live' && data.tileUrlTemplate) {
+          this.liveLandcoverTileUrlTemplate = data.tileUrlTemplate;
+          this.renderAllLayers();
+          return data;
+        }
+      }
+    } catch (e) {
+      logger.warn('[GEELoader] GEE landcover serverless check note:', e);
+    }
+    this.liveLandcoverTileUrlTemplate = null;
+    return null;
+  }
+
   private applyLiveRasterLayer(tileUrlTemplate: string) {
     if (!this.map || !this.map.getStyle()) return;
 
@@ -316,6 +335,8 @@ export class GEELoader {
         this.computeLivePrecipitation().catch(() => {});
       } else if (key === 'lst-day' || key === 'lst-night') {
         this.computeLiveGEE().catch(() => {});
+      } else if (key === 'landcover') {
+        this.computeLiveLandcover().catch(() => {});
       }
     } else {
       this.activeLayers.delete(key);
@@ -470,37 +491,55 @@ export class GEELoader {
       gridSrc.setData(this.gridData);
     }
 
-    const selectedDate = this.currentParams.start || '2024-08-01';
-    const sat = this.currentParams.satellite === 'aqua' ? 'Aqua' : 'Terra';
-
     // --- 1. OFFICIAL NASA GIBS OGC WMS: DAYTIME LST RASTER LAYER ---
     // (Removed to force GEE Live exclusively)
 
     // --- 2. OFFICIAL NASA GIBS OGC WMS: NIGHTTIME LST RASTER LAYER ---
     // (Removed to force GEE Live exclusively)
 
-    // --- 3. SENTINEL-2 10M GLOBAL LAND USE & LAND COVER (LULC) ---
+    // --- 3. GEE ESA WORLDCOVER (LIVE RASTER) ---
     try {
-      const lcWmsUrl = `https://ic.imagery1.arcgis.com/arcgis/rest/services/Sentinel2_10m_LandCover/ImageServer/exportImage?bbox={bbox-epsg-3857}&bboxSR=3857&imageSR=3857&size=256,256&format=png&transparent=true&f=image`;
-      const lcSourceId = 'gee-modis-landcover-source';
-      const lcLayerId = 'gee-modis-landcover-layer';
+      if (this.liveLandcoverTileUrlTemplate) {
+        const lcWmsUrl = this.liveLandcoverTileUrlTemplate;
+        const lcSourceId = 'gee-modis-landcover-source';
+        const lcLayerId = 'gee-modis-landcover-layer';
 
-      // Insert Land Cover below Day/Night LST if they exist, otherwise below stations circles
-      const beforeLayerId = this.map.getLayer('gee-modis-day-wms-layer')
-        ? 'gee-modis-day-wms-layer'
-        : (this.map.getLayer('gee-modis-night-wms-layer')
-          ? 'gee-modis-night-wms-layer'
-          : (this.map.getLayer('gee-modis-stations-circles') ? 'gee-modis-stations-circles' : undefined));
+        // Insert Land Cover below Day/Night LST if they exist, otherwise below stations circles
+        const beforeLayerId = this.map.getLayer('gee-modis-day-wms-layer')
+          ? 'gee-modis-day-wms-layer'
+          : (this.map.getLayer('gee-modis-night-wms-layer')
+            ? 'gee-modis-night-wms-layer'
+            : (this.map.getLayer('gee-modis-stations-circles') ? 'gee-modis-stations-circles' : undefined));
 
-      const existingLcSource = this.map.getSource(lcSourceId) as any;
-      if (existingLcSource) {
-        if (typeof existingLcSource.setTiles === 'function') {
-          existingLcSource.setTiles([lcWmsUrl]);
-        }
-        if (this.map.getLayer(lcLayerId)) {
-          this.map.setLayoutProperty(lcLayerId, 'visibility', isLcVis ? 'visible' : 'none');
-          this.map.setPaintProperty(lcLayerId, 'raster-opacity', this.getLayerOpacity('landcover'));
+        const existingLcSource = this.map.getSource(lcSourceId) as any;
+        if (existingLcSource) {
+          if (typeof existingLcSource.setTiles === 'function') {
+            existingLcSource.setTiles([lcWmsUrl]);
+          }
+          if (this.map.getLayer(lcLayerId)) {
+            this.map.setLayoutProperty(lcLayerId, 'visibility', isLcVis ? 'visible' : 'none');
+            this.map.setPaintProperty(lcLayerId, 'raster-opacity', this.getLayerOpacity('landcover'));
+          } else {
+            this.map.addLayer({
+              id: lcLayerId,
+              type: 'raster',
+              source: lcSourceId,
+              layout: { visibility: isLcVis ? 'visible' : 'none' },
+              paint: {
+                'raster-opacity': this.getLayerOpacity('landcover'),
+                'raster-resampling': 'nearest',
+                'raster-fade-duration': 200
+              }
+            }, beforeLayerId);
+          }
         } else {
+          this.map.addSource(lcSourceId, {
+            type: 'raster',
+            tiles: [lcWmsUrl],
+            tileSize: 256,
+            maxzoom: 18
+          });
+
           this.map.addLayer({
             id: lcLayerId,
             type: 'raster',
@@ -513,25 +552,6 @@ export class GEELoader {
             }
           }, beforeLayerId);
         }
-      } else {
-        this.map.addSource(lcSourceId, {
-          type: 'raster',
-          tiles: [lcWmsUrl],
-          tileSize: 256,
-          maxzoom: 18
-        });
-
-        this.map.addLayer({
-          id: lcLayerId,
-          type: 'raster',
-          source: lcSourceId,
-          layout: { visibility: isLcVis ? 'visible' : 'none' },
-          paint: {
-            'raster-opacity': this.getLayerOpacity('landcover'),
-            'raster-resampling': 'nearest',
-            'raster-fade-duration': 200
-          }
-        }, beforeLayerId);
       }
     } catch (e) {
       logger.warn('[GEELoader] Notice adding Sentinel-2 10m Land Cover raster layer:', e);
