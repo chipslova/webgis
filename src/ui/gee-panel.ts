@@ -41,6 +41,7 @@ export class GEEPanelUI {
   private isInitialized: boolean = false;
   private isToggleEventsBound: boolean = false;
   private chartPoints: ChartPoint[] = [];
+  private timelapseTimer: ReturnType<typeof setInterval> | null = null;
   private chartResizeObserver: ResizeObserver | null = null;
   private lastChartWidth: number = 0;
 
@@ -149,6 +150,40 @@ export class GEEPanelUI {
     if (satSelect) satSelect.addEventListener('change', handleParamChange);
     if (periodSelect) periodSelect.addEventListener('change', handleParamChange);
     if (modeSelect) modeSelect.addEventListener('change', handleParamChange);
+
+    const timelapseBtn = document.getElementById('btn-gee-timelapse');
+    if (timelapseBtn && periodSelect && btn) {
+      timelapseBtn.addEventListener('click', () => {
+        if (this.timelapseTimer) {
+          clearInterval(this.timelapseTimer);
+          this.timelapseTimer = null;
+          timelapseBtn.innerHTML = '▶️ Animasi';
+          timelapseBtn.classList.remove('active', 'btn-primary');
+          timelapseBtn.classList.add('btn-secondary');
+        } else {
+          timelapseBtn.innerHTML = '⏹️ Hentikan';
+          timelapseBtn.classList.remove('btn-secondary');
+          timelapseBtn.classList.add('active', 'btn-primary');
+          
+          this.timelapseTimer = setInterval(async () => {
+            // Auto increment period selection
+            const currentIdx = periodSelect.selectedIndex;
+            let nextIdx = currentIdx + 1;
+            if (nextIdx >= periodSelect.options.length) {
+              nextIdx = 0; // wrap around
+            }
+            periodSelect.selectedIndex = nextIdx;
+            
+            // Only trigger compute if layers are visible, otherwise just change the select visually
+            if (this.geeLoader.isLayerVisible('lst-day') || this.geeLoader.isLayerVisible('lst-night') || this.geeLoader.isLayerVisible('precipitation')) {
+              await btn.click();
+            } else {
+              handleParamChange();
+            }
+          }, 8000); // 8 seconds per frame to allow tile loading
+        }
+      });
+    }
 
     if (btn) {
       btn.addEventListener('click', async () => {
