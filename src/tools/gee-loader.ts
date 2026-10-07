@@ -823,16 +823,16 @@ export class GEELoader {
 
       const html = `
         <div class="gee-popup-card">
-          <div class="gee-popup-badge live-badge">📍 TITIK REFERENSI OBSERVASI MODIS LST</div>
+          <div class="gee-popup-badge live-badge">📍 TITIK REFERENSI STASIUN IKLIM (DEMO)</div>
           <h4>${props.name}</h4>
-          <div class="gee-popup-sub">${props.province || 'Indonesia'} • Titik Referensi Observasi Wilayah</div>
+          <div class="gee-popup-sub">${props.province || 'Indonesia'} • Data Ilustrasi (Bukan Observasi Aktual)</div>
           <table class="gee-popup-table">
             <tr><td><strong>☀️ Suhu Siang (LST):</strong></td><td><span class="highlight-temp">${props.lst_day_c ?? props.temp_air_c} °C</span> (${props.lst_day_k ?? '-'} K)</td></tr>
             <tr><td><strong>🌙 Suhu Malam (LST):</strong></td><td><strong>${props.lst_night_c ?? props.temp_surface_c} °C</strong> (${props.lst_night_k ?? '-'} K)</td></tr>
             <tr><td><strong>🌡️ Rata-rata 24 Jam:</strong></td><td>${props.lst_mean_c ?? '-'} °C</td></tr>
             <tr><td><strong>Perbedaan Siang–Malam (Diurnal ΔT):</strong></td><td><span style="color: #f97316; font-weight: 600;">+${props.diurnal_delta_c ?? props.delta_uhi_c ?? '-'} °C</span></td></tr>
             <tr><td><strong>⛰️ Elevasi Titik:</strong></td><td>${props.elevation_m ?? 0} meter dpl</td></tr>
-            <tr><td><strong>📊 Validasi Mutu QA:</strong></td><td><span style="color: #10b981;">✓ Clear-Sky Pixel (QA Bitmask 00)</span></td></tr>
+            <tr><td><strong>📊 Validasi Mutu:</strong></td><td><span style="color: #f59e0b;">Model Ilustratif (Tanpa Validasi)</span></td></tr>
             <tr><td><strong>🛰️ Sensor Data:</strong></td><td><code>MODIS Terra/Aqua 1 km (8-Day Composite)</code></td></tr>
           </table>
         </div>

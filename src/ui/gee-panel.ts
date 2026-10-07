@@ -370,21 +370,6 @@ export class GEEPanelUI {
   // ── Download dataset events ───────────────────────────────────────────────────
 
   private bindDownloadEvents() {
-    document.getElementById('btn-download-geojson')?.addEventListener('click', () => {
-      const a = document.createElement('a');
-      a.href = '/data/gee_cfsv2_stations.geojson';
-      a.download = 'modis_lst_stations_indonesia.geojson';
-      a.click();
-      showToast('Mengunduh Stasiun MODIS LST (GeoJSON)...', 'info');
-    });
-
-    document.getElementById('btn-download-csv')?.addEventListener('click', () => {
-      const a = document.createElement('a');
-      a.href = '/downloads/gee_cfsv2_temperature_indonesia.csv';
-      a.download = 'modis_lst_seasonal_timeseries_indonesia.csv';
-      a.click();
-      showToast('Mengunduh Deret Waktu Multi-Tahun MODIS LST (CSV)...', 'info');
-    });
 
     document.getElementById('btn-download-geotiff')?.addEventListener('click', async (e) => {
       const btn = e.currentTarget as HTMLButtonElement;
