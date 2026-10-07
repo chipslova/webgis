@@ -42,6 +42,8 @@ export class GEEPanelUI {
   private isToggleEventsBound: boolean = false;
   private chartPoints: ChartPoint[] = [];
   private timelapseTimer: ReturnType<typeof setInterval> | null = null;
+  private isRecording: boolean = false;
+  private mediaRecorder: MediaRecorder | null = null;
   private chartResizeObserver: ResizeObserver | null = null;
   private lastChartWidth: number = 0;
 
@@ -184,6 +186,66 @@ export class GEEPanelUI {
         }
       });
     }
+
+    const recordBtn = document.getElementById('btn-gee-timelapse-record');
+    if (recordBtn && timelapseBtn) {
+      recordBtn.addEventListener('click', () => {
+        if (this.isRecording) {
+          // Stop recording
+          if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+            this.mediaRecorder.stop();
+          }
+          this.isRecording = false;
+          recordBtn.innerHTML = '🎥 Rekam';
+          recordBtn.classList.remove('active');
+          showToast('Rekaman selesai! Menyimpan video WebM...', 'success');
+        } else {
+          // Start recording
+          const canvas = document.querySelector('.maplibregl-canvas') as HTMLCanvasElement;
+          if (!canvas) {
+            showToast('Kanvas peta tidak ditemukan!', 'error');
+            return;
+          }
+          
+          try {
+            const stream = canvas.captureStream(30);
+            this.mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            const chunks: Blob[] = [];
+            
+            this.mediaRecorder.ondataavailable = (e) => {
+              if (e.data.size > 0) chunks.push(e.data);
+            };
+            
+            this.mediaRecorder.onstop = () => {
+              const blob = new Blob(chunks, { type: 'video/webm' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `webgis_timelapse_${Date.now()}.webm`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            };
+            
+            this.mediaRecorder.start();
+            this.isRecording = true;
+            recordBtn.innerHTML = '🛑 Stop Rekam';
+            recordBtn.classList.add('active');
+            
+            // Automatically start the animation if it's not playing
+            if (!this.timelapseTimer) {
+              timelapseBtn.click();
+            }
+            
+            showToast('Memulai perekaman kanvas peta...', 'info');
+          } catch (err: any) {
+            showToast('Gagal memulai perekaman: ' + err.message, 'error');
+          }
+        }
+      });
+    }
+
 
     if (btn) {
       btn.addEventListener('click', async () => {
