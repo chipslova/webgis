@@ -1,4 +1,4 @@
-import { checkRateLimit, getClientIp } from './_rate-limit.js';
+import { checkRateLimit, getClientIp } from './_rate-limit';
 
 interface GEELandcoverRequest {
   year?: string;

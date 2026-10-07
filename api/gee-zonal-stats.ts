@@ -27,7 +27,7 @@ const WORLDCOVER_META: Record<string, { code: number; worldCoverClass: number; n
   '100': { code: 10, worldCoverClass: 100, name: 'Moss & Lichen', nameId: 'Lumut / Lainnya', color: '#C8C8C8' }
 };
 
-import { checkRateLimit, getClientIp } from './_rate-limit.js';
+import { checkRateLimit, getClientIp } from './_rate-limit';
 
 export default async function handler(req: any, res: any) {
   const sendJson = (status: number, data: any) => {

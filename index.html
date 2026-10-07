@@ -179,9 +179,9 @@
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
               <span>Satelit</span>
             </button>
-            <button class="sidebar-tab-btn" data-tab="gee" id="tab-gee" role="tab" aria-selected="false" aria-controls="panel-gee" aria-label="Data Iklim Real Google Earth Engine" title="GEE Live — Lapisan Termal MODIS">
+            <button class="sidebar-tab-btn" data-tab="gee" id="tab-gee" role="tab" aria-selected="false" aria-controls="panel-gee" aria-label="Data Iklim NASA GIBS" title="NASA GIBS — Lapisan Termal MODIS">
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
-              <span>GEE Live</span>
+              <span>NASA GIBS</span>
             </button>
             <button class="sidebar-tab-btn" data-tab="analysis" id="tab-analysis" role="tab" aria-selected="false" aria-controls="panel-analysis" aria-label="Analisis Spasial — Zonal Stats &amp; Buffer" title="Analisis Spasial — Zonal Stats &amp; Buffer">
               <svg class="sidebar-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
@@ -465,7 +465,7 @@
                     <div class="gee-layer-row gee-layer-item-clean">
                       <label>
                         <input type="checkbox" id="toggle-gee-precipitation" aria-label="Toggle CHIRPS (GEE) Daily Precipitation layer" />
-                        <span>🌧️ <strong>Curah Hujan Harian</strong> <span class="gee-layer-subtext">(CHIRPS (GEE) · mm/hari)</span></span>
+                        <span>🌧️ <strong>Curah Hujan NASA IMERG</strong> <span class="gee-layer-subtext">(mm/jam)</span></span>
                       </label>
                       <div id="gee-precip-opacity-row" class="gee-layer-opacity-box">
                         <input type="range" id="gee-precip-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas Curah Hujan" />
@@ -514,7 +514,7 @@
 
                 <!-- 2c. Precipitation Legend — visible when precipitation is toggled -->
                 <div id="gee-precip-legend" class="gee-lulc-box" style="display: none; border-color: rgba(56, 189, 248, 0.3); background: rgba(8, 20, 36, 0.7);">
-                  <div class="gee-lulc-title" style="color: #38bdf8;">🌧️ Legenda Intensitas Curah Hujan (mm/hari)</div>
+                  <div class="gee-lulc-title" style="color: #38bdf8;">🌧️ Legenda Intensitas Curah Hujan (mm/jam)</div>
                   <div class="gee-legend-bar" style="height: 8px; border-radius: 4px; margin: 6px 0; background: linear-gradient(90deg, #f8fafc 0%, #7dd3fc 15%, #0284c7 35%, #16a34a 55%, #eab308 75%, #ef4444 90%, #7e22ce 100%);" aria-hidden="true"></div>
                   <div class="gee-legend-labels" style="font-size: 10px; display: flex; justify-content: space-between; color: var(--text-muted);">
                     <span>0 (Kering)</span>
@@ -536,7 +536,7 @@
                   <div class="accordion-body" style="padding: 6px 8px; font-size: 10.5px; line-height: 1.45;">
                     <div>• <strong>Peta LST (Suhu):</strong> Merah = Permukaan daratan panas (34°C–40°C+ saat siang/kemarau). Lautan transparan.</div>
                     <div class="mt-xs">• <strong>Tutupan Lahan (LULC):</strong> Merah = Lahan Terbangun / Perkotaan (Built-Up Area).</div>
-                    <div class="mt-xs">• <strong>Curah Hujan (CHIRPS):</strong> Biru-Hijau = Hujan ringan/sedang (5–20 mm), Kuning-Merah-Ungu = Hujan lebat/ekstrem (&gt;30 mm/hari).</div>
+                    <div class="mt-xs">• <strong>Curah Hujan (NASA IMERG):</strong> Biru-Hijau = Hujan ringan/sedang (5–20 mm), Kuning-Merah-Ungu = Hujan lebat/ekstrem (&gt;30 mm/jam).</div>
                   </div>
                 </details>
               </div>
