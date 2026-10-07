@@ -97,6 +97,7 @@ class WebGISApp {
     this.bindTourEvents();
     this.bindSwipeEvents();
     this.bindSavedProjectsEvents();
+    this.bindPointBookmarksEvents();
     this.bindCommandPaletteEvents();
     this.bindHeaderMoreEvents();
     this.bindGlobalKeyboardShortcuts();
@@ -704,6 +705,68 @@ class WebGISApp {
     });
 
     renderProjects();
+  }
+
+  private bindPointBookmarksEvents() {
+    const container = document.getElementById('point-bookmarks-list');
+    const countEl = document.getElementById('point-bookmarks-count');
+
+    const renderBookmarks = () => {
+      if (!container) return;
+      const bookmarks = PointInspector.getBookmarks();
+      if (countEl) countEl.innerText = `${bookmarks.length} Titik`;
+
+      if (bookmarks.length === 0) {
+        container.innerHTML = `<div style="color: var(--text-muted); font-size: 11px; padding: 6px 0; text-align: center;">Belum ada titik yang disimpan dari pop-up Inspector.</div>`;
+        return;
+      }
+
+      container.innerHTML = bookmarks.map(b => `
+        <div class="saved-project-item">
+          <div class="saved-project-item-info">
+            <strong class="saved-project-name">${escapeHtml(b.name)}</strong>
+            <span class="saved-project-date">${escapeHtml(b.elevation || `${b.lat.toFixed(4)}, ${b.lng.toFixed(4)}`)} · ${escapeHtml(b.date || '')}</span>
+          </div>
+          <div class="saved-project-actions">
+            <button class="btn btn-secondary btn-sm btn-load-bm" data-lat="${b.lat}" data-lng="${b.lng}" title="Pusatkan dan buka pop-up">Buka</button>
+            <button class="icon-btn-sm btn-del-bm" data-lat="${b.lat}" data-lng="${b.lng}" title="Hapus bookmark ini" aria-label="Hapus bookmark">✕</button>
+          </div>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.btn-load-bm').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const lat = parseFloat((btn as HTMLElement).dataset.lat!);
+          const lng = parseFloat((btn as HTMLElement).dataset.lng!);
+          if (!isNaN(lat) && !isNaN(lng)) {
+            this.mapManager.getMap()?.flyTo({ center: [lng, lat], zoom: 12, essential: true });
+            setTimeout(() => {
+              if (this.pointInspector) {
+                this.pointInspector.inspectCoordinate(lng, lat);
+              }
+            }, 800);
+            this.sidebarUI.setActiveTab('map');
+          }
+        });
+      });
+
+      container.querySelectorAll('.btn-del-bm').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const lat = parseFloat((btn as HTMLElement).dataset.lat!);
+          const lng = parseFloat((btn as HTMLElement).dataset.lng!);
+          if (!isNaN(lat) && !isNaN(lng)) {
+            PointInspector.toggleBookmark(lat, lng);
+            renderBookmarks();
+          }
+        });
+      });
+    };
+
+    renderBookmarks();
+
+    window.addEventListener('webgis:bookmarks-updated', () => {
+      renderBookmarks();
+    });
   }
 
   private bindExportEvents() {
