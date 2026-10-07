@@ -123,22 +123,20 @@ export default async function handler(req: any, res: any) {
         });
       }
     } catch (err: any) {
-      console.warn('[GEE Serverless] Failed to compute live CHIRPS tile:', err.message);
+      console.warn('[GEE Serverless] Failed to compute live ESA WorldCover tile:', err.message);
     }
   }
 
-  // Fallback response with calibrated high-resolution NASA GIBS WMS
+  // Fallback response
   res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
   return sendJson(200, {
     status: 'fallback',
     isFallback: true,
-    message: 'Kunci GEE belum dikonfigurasi. Menggunakan citra raster presipitasi resmi beresolusi tinggi.',
-    dataset: 'NASA IMERG Precipitation (Fallback)',
-    period: `${startDate} s.d. ${endDate}`,
-    min: minPrecip,
-    max: maxPrecip,
+    message: 'Kunci GEE belum dikonfigurasi. Menggunakan citra raster tutupan lahan cadangan.',
+    dataset: 'ESA WorldCover (Fallback)',
+    period: year,
     palette,
-    resolution: '0.1° (IMERG)',
-    provenance: 'NASA GPM Calibrated Precipitation'
+    resolution: '10m',
+    provenance: 'ESA'
   });
 }
