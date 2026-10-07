@@ -141,6 +141,9 @@ export class GEEPanelUI {
       const mode = (modeSelect?.value || 'day') as 'day' | 'night';
       const [start, end] = (periodSelect?.value || '2024-08-01|2024-08-31').split('|');
       this.geeLoader.setParams({ satellite, mode, start, end });
+      if (this.geeLoader.isLayerVisible('lst-day') || this.geeLoader.isLayerVisible('lst-night') || this.geeLoader.isLayerVisible('precipitation')) {
+        btn?.click();
+      }
     };
 
     if (satSelect) satSelect.addEventListener('change', handleParamChange);
@@ -169,7 +172,7 @@ export class GEEPanelUI {
           showToast(`Gagal memanggil GEE: ${e.message}`, 'error');
         } finally {
           btn.removeAttribute('disabled');
-          btn.innerHTML = '<span>⚡</span><span>Perbarui Layer WMS NASA</span>';
+          btn.innerHTML = '⚡ Terapkan Analisis Langsung';
         }
       });
     }

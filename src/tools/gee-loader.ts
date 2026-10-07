@@ -314,6 +314,8 @@ export class GEELoader {
       this.layerVisibilities.set(key, true);
       if (key === 'precipitation') {
         this.computeLivePrecipitation().catch(() => {});
+      } else if (key === 'lst-day' || key === 'lst-night') {
+        this.computeLiveGEE().catch(() => {});
       }
     } else {
       this.activeLayers.delete(key);
