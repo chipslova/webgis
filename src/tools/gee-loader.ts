@@ -474,86 +474,10 @@ export class GEELoader {
     const sat = this.currentParams.satellite === 'aqua' ? 'Aqua' : 'Terra';
 
     // --- 1. OFFICIAL NASA GIBS OGC WMS: DAYTIME LST RASTER LAYER ---
-    try {
-      const dayWmsLayerName = `MODIS_${sat}_L3_Land_Surface_Temp_8Day_Day`;
-      const dayWmsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=${dayWmsLayerName}&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${selectedDate}&BBOX={bbox-epsg-3857}`;
-      const daySourceId = 'gee-modis-day-wms-source';
-      const dayLayerId = 'gee-modis-day-wms-layer';
-
-      const existingDaySource = this.map.getSource(daySourceId) as any;
-      if (existingDaySource) {
-        if (typeof existingDaySource.setTiles === 'function') {
-          existingDaySource.setTiles([dayWmsUrl]);
-        }
-        if (this.map.getLayer(dayLayerId)) {
-          this.map.setLayoutProperty(dayLayerId, 'visibility', isDayVis ? 'visible' : 'none');
-          this.map.setPaintProperty(dayLayerId, 'raster-opacity', this.getLayerOpacity('lst-day'));
-        }
-      } else {
-        this.map.addSource(daySourceId, {
-          type: 'raster',
-          tiles: [dayWmsUrl],
-          tileSize: 256,
-          maxzoom: 12
-        });
-
-        const beforeLayerId = this.map.getLayer('gee-modis-stations-circles') ? 'gee-modis-stations-circles' : undefined;
-        this.map.addLayer({
-          id: dayLayerId,
-          type: 'raster',
-          source: daySourceId,
-          layout: { visibility: isDayVis ? 'visible' : 'none' },
-          paint: {
-            'raster-opacity': this.getLayerOpacity('lst-day'),
-            'raster-resampling': 'linear',
-            'raster-fade-duration': 200
-          }
-        }, beforeLayerId);
-      }
-    } catch (e) {
-      logger.warn('[GEELoader] Notice adding NASA MODIS Day WMS raster layer:', e);
-    }
+    // (Removed to force GEE Live exclusively)
 
     // --- 2. OFFICIAL NASA GIBS OGC WMS: NIGHTTIME LST RASTER LAYER ---
-    try {
-      const nightWmsLayerName = `MODIS_${sat}_L3_Land_Surface_Temp_8Day_Night`;
-      const nightWmsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=${nightWmsLayerName}&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${selectedDate}&BBOX={bbox-epsg-3857}`;
-      const nightSourceId = 'gee-modis-night-wms-source';
-      const nightLayerId = 'gee-modis-night-wms-layer';
-
-      const existingNightSource = this.map.getSource(nightSourceId) as any;
-      if (existingNightSource) {
-        if (typeof existingNightSource.setTiles === 'function') {
-          existingNightSource.setTiles([nightWmsUrl]);
-        }
-        if (this.map.getLayer(nightLayerId)) {
-          this.map.setLayoutProperty(nightLayerId, 'visibility', isNightVis ? 'visible' : 'none');
-          this.map.setPaintProperty(nightLayerId, 'raster-opacity', this.getLayerOpacity('lst-night'));
-        }
-      } else {
-        this.map.addSource(nightSourceId, {
-          type: 'raster',
-          tiles: [nightWmsUrl],
-          tileSize: 256,
-          maxzoom: 12
-        });
-
-        const beforeLayerId = this.map.getLayer('gee-modis-stations-circles') ? 'gee-modis-stations-circles' : undefined;
-        this.map.addLayer({
-          id: nightLayerId,
-          type: 'raster',
-          source: nightSourceId,
-          layout: { visibility: isNightVis ? 'visible' : 'none' },
-          paint: {
-            'raster-opacity': this.getLayerOpacity('lst-night'),
-            'raster-resampling': 'linear',
-            'raster-fade-duration': 200
-          }
-        }, beforeLayerId);
-      }
-    } catch (e) {
-      logger.warn('[GEELoader] Notice adding NASA MODIS Night WMS raster layer:', e);
-    }
+    // (Removed to force GEE Live exclusively)
 
     // --- 3. SENTINEL-2 10M GLOBAL LAND USE & LAND COVER (LULC) ---
     try {
@@ -613,29 +537,51 @@ export class GEELoader {
       logger.warn('[GEELoader] Notice adding Sentinel-2 10m Land Cover raster layer:', e);
     }
 
-    // --- 3b. NASA GPM & CHIRPS DAILY PRECIPITATION RATE (WMS RASTER) ---
+    // --- 3b. GEE CHIRPS DAILY PRECIPITATION RATE (LIVE RASTER) ---
     try {
-      const defaultPrecipUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${selectedDate}&BBOX={bbox-epsg-3857}`;
-      const precipWmsUrl = this.livePrecipTileUrlTemplate || defaultPrecipUrl;
-      const precipSourceId = 'gee-precipitation-wms-source';
-      const precipLayerId = 'gee-precipitation-wms-layer';
+      if (this.livePrecipTileUrlTemplate) {
+        const precipWmsUrl = this.livePrecipTileUrlTemplate;
+        const precipSourceId = 'gee-precipitation-wms-source';
+        const precipLayerId = 'gee-precipitation-wms-layer';
 
-      const beforeLayerId = this.map.getLayer('gee-modis-stations-circles')
-        ? 'gee-modis-stations-circles'
-        : undefined;
+        const beforeLayerId = this.map.getLayer('gee-modis-stations-circles')
+          ? 'gee-modis-stations-circles'
+          : undefined;
 
-      const existingPrecipSource = this.map.getSource(precipSourceId) as any;
-      if (existingPrecipSource) {
-        if (typeof existingPrecipSource.setTiles === 'function') {
-          existingPrecipSource.setTiles([precipWmsUrl]);
-        }
-        if (this.map.getLayer(precipLayerId)) {
-          this.map.setLayoutProperty(precipLayerId, 'visibility', isPrecipVis ? 'visible' : 'none');
-          this.map.setPaintProperty(precipLayerId, 'raster-opacity', this.getLayerOpacity('precipitation'));
-          this.map.setPaintProperty(precipLayerId, 'raster-resampling', 'nearest');
-          this.map.setPaintProperty(precipLayerId, 'raster-contrast', 0.25);
-          this.map.setPaintProperty(precipLayerId, 'raster-saturation', 0.35);
+        const existingPrecipSource = this.map.getSource(precipSourceId) as any;
+        if (existingPrecipSource) {
+          if (typeof existingPrecipSource.setTiles === 'function') {
+            existingPrecipSource.setTiles([precipWmsUrl]);
+          }
+          if (this.map.getLayer(precipLayerId)) {
+            this.map.setLayoutProperty(precipLayerId, 'visibility', isPrecipVis ? 'visible' : 'none');
+            this.map.setPaintProperty(precipLayerId, 'raster-opacity', this.getLayerOpacity('precipitation'));
+            this.map.setPaintProperty(precipLayerId, 'raster-resampling', 'nearest');
+            this.map.setPaintProperty(precipLayerId, 'raster-contrast', 0.25);
+            this.map.setPaintProperty(precipLayerId, 'raster-saturation', 0.35);
+          } else {
+            this.map.addLayer({
+              id: precipLayerId,
+              type: 'raster',
+              source: precipSourceId,
+              layout: { visibility: isPrecipVis ? 'visible' : 'none' },
+              paint: {
+                'raster-opacity': this.getLayerOpacity('precipitation'),
+                'raster-resampling': 'nearest',
+                'raster-contrast': 0.25,
+                'raster-saturation': 0.35,
+                'raster-fade-duration': 150
+              }
+            }, beforeLayerId);
+          }
         } else {
+          this.map.addSource(precipSourceId, {
+            type: 'raster',
+            tiles: [precipWmsUrl],
+            tileSize: 256,
+            maxzoom: 12
+          });
+
           this.map.addLayer({
             id: precipLayerId,
             type: 'raster',
@@ -650,30 +596,9 @@ export class GEELoader {
             }
           }, beforeLayerId);
         }
-      } else {
-        this.map.addSource(precipSourceId, {
-          type: 'raster',
-          tiles: [precipWmsUrl],
-          tileSize: 256,
-          maxzoom: 12
-        });
-
-        this.map.addLayer({
-          id: precipLayerId,
-          type: 'raster',
-          source: precipSourceId,
-          layout: { visibility: isPrecipVis ? 'visible' : 'none' },
-          paint: {
-            'raster-opacity': this.getLayerOpacity('precipitation'),
-            'raster-resampling': 'nearest',
-            'raster-contrast': 0.25,
-            'raster-saturation': 0.35,
-            'raster-fade-duration': 150
-          }
-        }, beforeLayerId);
       }
     } catch (e) {
-      logger.warn('[GEELoader] Notice adding NASA Precipitation WMS layer:', e);
+      logger.warn('[GEELoader] Notice adding GEE Precipitation layer:', e);
     }
 
     // --- 4. Transparent Polygon Layers for Click & Hover Temperature Interception ---
