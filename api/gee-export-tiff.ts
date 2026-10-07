@@ -69,7 +69,7 @@ export default async function handler(req: any, res: any) {
       );
     });
 
-    let regionBbox;
+    let regionBbox: any;
     if (bbox && typeof bbox === 'string') {
       const parts = bbox.split(',').map(Number);
       if (parts.length === 4 && parts.every((n: number) => !isNaN(n))) {
