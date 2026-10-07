@@ -5,6 +5,7 @@ import { GeoJsonLoader } from '../tools/geojson-loader';
 import { MeasureTool } from '../tools/measure';
 import { TabId } from './sidebar';
 import { escapeHtml } from '../utils/sanitize';
+import { showToast } from './toast';
 
 export class ActiveLayersUI {
   private mapManager: MapManager;
@@ -15,6 +16,7 @@ export class ActiveLayersUI {
   private containerId: string;
   private onNavigateTab?: (tabId: TabId) => void;
   private expandedLayerId: string | null = null;
+  private customLayerOrder: string[] | null = null;
 
   constructor(
     containerId: string,
@@ -485,17 +487,58 @@ export class ActiveLayersUI {
           </button>
         ` : ''}
       </div>
-      <div class="al-list">
+      <div class="al-list" id="al-sortable-list">
         ${itemsHtml}
       </div>
     `;
+
+    // Initialize SortableJS if loaded and items exist
+    const sortableContainer = document.getElementById('al-sortable-list');
+    if (sortableContainer && typeof (window as any).Sortable !== 'undefined' && layerCount > 0) {
+      new (window as any).Sortable(sortableContainer, {
+        animation: 150,
+        handle: '.al-row-compact',
+        ghostClass: 'al-sortable-ghost',
+        onEnd: () => {
+          // Extract the new order of layer IDs from the DOM
+          const rowElements = Array.from(sortableContainer.querySelectorAll('.al-row'));
+          const newOrderIds = rowElements.map(el => (el as HTMLElement).dataset.layerId || '');
+          this.customLayerOrder = newOrderIds.filter(id => id !== '');
+          
+          // Apply physically to Mapbox map
+          (this.mapManager as any).reorderDynamicLayers(this.customLayerOrder);
+          
+          showToast('Susunan lapisan peta (Z-Index) telah diperbarui!', 'success');
+        }
+      });
+    }
 
     const statusPill = document.getElementById('map-status-pill');
     if (statusPill) {
       statusPill.style.display = layerCount === 0 ? 'flex' : 'none';
     }
 
-    this.mapManager.enforceLayerOrder();
+    // Determine the actual order to use
+    if (this.customLayerOrder) {
+      // Reorder HTML DOM elements manually based on the saved state because innerHTML just resat it
+      if (sortableContainer) {
+         const rowElements = Array.from(sortableContainer.querySelectorAll('.al-row'));
+         const fragment = document.createDocumentFragment();
+         this.customLayerOrder.forEach(id => {
+            const el = rowElements.find(r => (r as HTMLElement).dataset.layerId === id);
+            if (el) {
+               fragment.appendChild(el);
+               rowElements.splice(rowElements.indexOf(el), 1);
+            }
+         });
+         rowElements.forEach(el => fragment.appendChild(el));
+         sortableContainer.innerHTML = '';
+         sortableContainer.appendChild(fragment);
+      }
+      (this.mapManager as any).reorderDynamicLayers(this.customLayerOrder);
+    } else {
+      this.mapManager.enforceLayerOrder();
+    }
   }
 
   // ─── Events ───────────────────────────────────────────────────────────────────

@@ -504,6 +504,61 @@ export class MapManager {
     });
   }
 
+  public reorderDynamicLayers(visualOrderIds: string[]) {
+    if (!this.map || !this.map.getStyle()) return;
+    
+    // Convert UI IDs to Mapbox Layer IDs in the requested order (bottom to top)
+    // visualOrderIds is from top to bottom (UI list), so we reverse it to map bottom-to-top z-index.
+    const reversedOrder = [...visualOrderIds].reverse();
+    
+    let combinedMapboxIds: string[] = [];
+    
+    // Base static layers that always stay at the absolute bottom
+    const allPikselIds = this.pikselLoaderRef?.getAllMapLayerIds?.() || [];
+    combinedMapboxIds.push(...allPikselIds.filter((id: string) => !id.includes('grid') && !id.includes('mask')));
+    combinedMapboxIds.push(...['swipe-right-raster-layer']);
+    combinedMapboxIds.push(...allPikselIds.filter((id: string) => id.includes('mask')));
+    combinedMapboxIds.push(...['swipe-right-water-mask']);
+    combinedMapboxIds.push(...['piksel-grid-fill', 'piksel-grid-line']);
+    combinedMapboxIds.push(...['3d-extruded-buildings-layer']);
+
+    // Map UI IDs to their specific Mapbox IDs
+    reversedOrder.forEach(uiId => {
+      if (uiId === 'piksel') {
+        // Handled in base static layer above to prevent breaking basemap
+      } else if (uiId === 'gee-lst') {
+        combinedMapboxIds.push('gee-modis-live-raster-layer', 'gee-modis-day-wms-layer', 'gee-modis-night-wms-layer', 'gee-modis-lst-day-fill', 'gee-modis-lst-night-fill', 'gee-lst-fill', 'gee-lst-outline');
+      } else if (uiId === 'gee-elevation') {
+        combinedMapboxIds.push('gee-elevation-fill', 'gee-elevation-outline');
+      } else if (uiId === 'gee-landcover') {
+        combinedMapboxIds.push('gee-modis-landcover-layer', 'gee-landcover-fill', 'gee-landcover-outline');
+      } else if (uiId === 'gee-precipitation') {
+        // If precip has specific layers, add them here
+      } else if (uiId === 'gee-poi') {
+        combinedMapboxIds.push('gee-modis-stations-circles', 'gee-modis-stations-labels');
+      } else if (uiId === 'measure') {
+        combinedMapboxIds.push('measure-fill', 'measure-line-casing', 'measure-line', 'measure-points');
+      } else {
+        // Assume GeoJSON custom layer
+        combinedMapboxIds.push(`${uiId}-fill`, `${uiId}-line`, `${uiId}-casing`, `${uiId}-point`, `layer-point-${uiId}`);
+      }
+    });
+
+    // Add spatial analysis and intersect on top
+    const spatialAnalysisLayerIds = this.spatialAnalysisUIRef?.getAllMapLayerIds?.() || ['aoi-analysis-fill', 'aoi-analysis-line', 'aoi-rubberband-layer', 'aoi-vertices-layer'];
+    combinedMapboxIds.push(...spatialAnalysisLayerIds);
+    combinedMapboxIds.push('intersect-result-fill', 'intersect-result-line', 'intersect-result-points');
+
+    // Execute MoveLayer in sequence
+    combinedMapboxIds.forEach((id) => {
+      if (this.map?.getLayer(id)) {
+        try {
+          this.map.moveLayer(id);
+        } catch (_) {}
+      }
+    });
+  }
+
   public bringCustomLayersToTop() {
     this.enforceLayerOrder();
   }
