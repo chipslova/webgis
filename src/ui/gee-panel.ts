@@ -323,6 +323,82 @@ export class GEEPanelUI {
       a.click();
       showToast('Mengunduh Deret Waktu Multi-Tahun MODIS LST (CSV)...', 'info');
     });
+
+    document.getElementById('btn-download-geotiff')?.addEventListener('click', async (e) => {
+      const btn = e.currentTarget as HTMLButtonElement;
+      
+      // Determine active dataset
+      let dataset = '';
+      if (this.geeLoader.isLayerVisible('lst-day')) {
+        dataset = 'modis-lst-day';
+      } else if (this.geeLoader.isLayerVisible('lst-night')) {
+        dataset = 'modis-lst-night';
+      } else if (this.geeLoader.isLayerVisible('precipitation')) {
+        dataset = 'chirps-precip';
+      } else if (this.geeLoader.isLayerVisible('landcover')) {
+        dataset = 'esa-landcover';
+      }
+
+      if (!dataset) {
+        showToast('Nyalakan salah satu lapisan Satelit terlebih dahulu (LST Siang, LST Malam, Tutupan Lahan, atau Curah Hujan)', 'warning');
+        return;
+      }
+
+      const map = this.geeLoader.getMap();
+      const bounds = map.getBounds();
+      const bboxStr = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
+      
+      // Get period
+      const periodSelect = document.getElementById('gee-period-select') as HTMLSelectElement | null;
+      let startDate = '2024-08-01';
+      let endDate = '2024-08-31';
+      if (periodSelect && periodSelect.value) {
+        const parts = periodSelect.value.split('|');
+        if (parts.length === 2) {
+          startDate = parts[0];
+          endDate = parts[1];
+        }
+      }
+
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '⏳ Menghubungi Google Earth Engine...';
+      btn.disabled = true;
+
+      try {
+        const qs = new URLSearchParams({
+          dataset,
+          bbox: bboxStr,
+          startDate,
+          endDate,
+          scale: '1000'
+        });
+
+        const res = await fetch(`/api/gee-export-tiff?${qs.toString()}`);
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `HTTP Error ${res.status}`);
+        }
+
+        const data = await res.json();
+        if (data.downloadUrl) {
+          showToast('Permintaan berhasil! Mengunduh GeoTIFF...', 'success');
+          const a = document.createElement('a');
+          a.href = data.downloadUrl;
+          a.download = `export_${dataset}.tif`;
+          a.target = '_blank';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } else {
+          throw new Error('URL Unduhan tidak diterima.');
+        }
+      } catch (err: any) {
+        showToast(`Gagal mengunduh GeoTIFF: ${err.message}`, 'error');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    });
   }
 
   // ── Chart rendering ──────────────────────────────────────────────────────────
