@@ -2836,6 +2836,7 @@ html, body, #app {
   flex-shrink: 0;
   width: 30px;
   text-align: right;
+}
 
 .al-remove-btn {
   background: none;
