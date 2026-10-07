@@ -356,7 +356,9 @@ export class PointInspector {
       const fullUrlStr = rawServiceUrl.startsWith('http')
         ? rawServiceUrl
         : (typeof window !== 'undefined' ? `${window.location.origin}${rawServiceUrl}` : `https://ows.staging.piksel.big.go.id${rawServiceUrl}`);
-      const url = new URL(fullUrlStr);
+      // Use WMS proxy to avoid CORS errors for GetFeatureInfo
+      const url = new URL('/api/wms-proxy', window.location.origin);
+      url.searchParams.set('wmsUrl', fullUrlStr);
       url.searchParams.set('SERVICE', 'WMS');
       url.searchParams.set('VERSION', '1.3.0');
       url.searchParams.set('REQUEST', 'GetFeatureInfo');
