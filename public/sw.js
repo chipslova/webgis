@@ -12,8 +12,6 @@ const STATIC_ASSETS = [
   '/basemap/styles/esri-style-topographic.json',
   '/basemap/styles/esri-style-imagery-clarity.json',
   '/basemap/styles/osm-style-humanitarian.json',
-  '/basemap/styles/carto-style-dark-matter.json',
-  '/basemap/styles/carto-style-voyager.json',
   '/basemap/styles/big-style-rbi.json'
 ];
 

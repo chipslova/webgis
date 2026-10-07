@@ -140,13 +140,11 @@ export class BasemapCustomizer {
 
       // 2. OpenFreeMap Positron (Midnight Emerald Slate)
       case 'openfreemap-positron':
-      case 'carto-dark':
         colors = ['#0d9488', '#14b8a6', '#2dd4bf', '#5eead4', '#99f6e4'];
         break;
 
       // 3. OpenFreeMap Liberty (Navigation Electric Sky Blue)
       case 'openfreemap-liberty':
-      case 'carto-voyager':
         colors = ['#38bdf8', '#0284c7', '#0369a1', '#1d4ed8', '#1e40af'];
         break;
 

@@ -1,4 +1,5 @@
 import { MapManager } from '../map/map-manager';
+import Sortable from 'sortablejs';
 import { PikselLoader } from '../tools/piksel-loader';
 import { GEELoader } from '../tools/gee-loader';
 import { GeoJsonLoader } from '../tools/geojson-loader';
@@ -494,8 +495,8 @@ export class ActiveLayersUI {
 
     // Initialize SortableJS if loaded and items exist
     const sortableContainer = document.getElementById('al-sortable-list');
-    if (sortableContainer && typeof (window as any).Sortable !== 'undefined' && layerCount > 0) {
-      new (window as any).Sortable(sortableContainer, {
+    if (sortableContainer && typeof Sortable !== 'undefined' && layerCount > 0) {
+      new Sortable(sortableContainer, {
         animation: 150,
         handle: '.al-row-compact',
         ghostClass: 'al-sortable-ghost',

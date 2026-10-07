@@ -134,7 +134,7 @@ export const GIS_FUNCTION_DECLARATIONS = [
       properties: {
         query: {
           type: 'STRING',
-          description: 'Text query to filter stations by name, island, or province (e.g. "Jawa", "Sumatera", "BMKG", "Klimatologi", "Monas")'
+          description: 'Text query to filter stations by name, island, or province (e.g. "Jawa", "Sumatera", "Stasiun", "Klimatologi", "Monas")'
         },
         minElevation: {
           type: 'NUMBER',
@@ -312,7 +312,7 @@ export default async function handler(req: any, res?: any): Promise<Response | v
       headerKey = req.headers['x-gemini-key'] || '';
     }
 
-    const apiKey = (process.env.GEMINI_API_KEY || headerKey || '').trim();
+    const apiKey = (headerKey || process.env.GEMINI_API_KEY || '').trim();
 
     if (!apiKey) {
       return send(500, {
@@ -345,14 +345,14 @@ export default async function handler(req: any, res?: any): Promise<Response | v
 BATASAN DOMAIN KETAT (GUARDRAILS MUTLAK):
 Anda HANYA DAN EKSKLUSIF boleh menjawab pertanyaan dan merespons perintah yang berkaitan langsung dengan platform WebGIS "Digital Earth Indonesia" dan seluruh isi/datanya:
 1. Fitur, alat, dan navigasi WebGIS: cara ukur jarak/luas (Measure), analisis spasial Zonal/AOI, perbandingan citra (Swipe Compare split-screen), proyeksi Bola Bumi 3D Globe, pengawas titik (Point Inspector), tabel atribut, ekspor peta (PNG/PDF/CSV/GeoJSON), filter stasiun cuaca, ganti peta dasar (basemap), dll.
-2. Lapisan data dan citra satelit di WebGIS: Sentinel-2 GeoMAD BIG Piksel (RGB True Color, False Color NIR), indeks spektral (NDVI vegetasi, NDWI air, NDBI lahan terbangun, NDMI kelembapan kanopi), Landsat 9 SR, MODIS LST (suhu permukaan daratan siang & malam), Esri 10m LULC tutupan lahan, curah hujan satelit NASA GPM IMERG, jaringan 18 stasiun iklim strategis BMKG CFSv2 (dengan pengamatan diurnal LST & proyeksi 5 hari), pemodelan bahaya banjir (kala ulang 2 & 10 tahun), dan batas tile grid ODC.
+2. Lapisan data dan citra satelit di WebGIS: Sentinel-2 GeoMAD BIG Piksel (RGB True Color, False Color NIR), indeks spektral (NDVI vegetasi, NDWI air, NDBI lahan terbangun, NDMI kelembapan kanopi), Landsat 9 SR, MODIS LST (suhu permukaan daratan siang & malam), Esri 10m LULC tutupan lahan, curah hujan satelit CHIRPS, jaringan pengamatan stasiun iklim (DEMO dengan data model ilustratif), pemodelan bahaya banjir (kala ulang 2 & 10 tahun), dan batas tile grid ODC.
 3. Objek geografis dan fenomena kebumian di Indonesia yang ada di peta: nama tempat, gunung berapi (Bromo, Merapi, dll), danau (Toba, dll), kota/daerah (Jakarta, IKN Nusantara, Bandung, Surabaya, dll), pulau, bentang alam, serta fenomena lingkungan, iklim, atau mitigasi bencana di Indonesia.
 
 KEBIJAKAN KETAT PERTANYAAN DI LUAR TOPIK (OUT-OF-SCOPE INQUIRIES):
 Jika pengguna menanyakan hal-hal DI LUAR lingkup WebGIS dan data peta geospasial (misalnya: coding umum di luar webgis, resep makanan, gosip selebriti/hiburan, politik umum/pemilu, matematika umum/tugas sekolah non-geografi, lelucon acak, nasihat medis/keuangan, dongeng, atau obrolan umum lainnya):
 - Anda WAJIB MENOLAK SECARA RAMAH, SOPAN, DAN TEGAS.
 - Berikan respons penolakan yang bersahabat: jelaskan bahwa Anda adalah asisten yang dirancang khusus dan eksklusif untuk platform WebGIS Digital Earth Indonesia, sehingga hanya dapat menjawab hal-hal seputar platform WebGIS ini, data citra satelit, stasiun cuaca, analisis spasial, dan informasi geografis terkait.
-- Sertakan panduan 2-3 contoh pertanyaan yang bisa ditanyakan di WebGIS ini (misal: "Anda dapat bertanya: 'Apa itu indeks vegetasi NDVI?', 'Terbangkan kamera ke Gunung Bromo', atau 'Tampilkan stasiun cuaca BMKG di Jawa'.").
+- Sertakan panduan 2-3 contoh pertanyaan yang bisa ditanyakan di WebGIS ini (misal: "Anda dapat bertanya: 'Apa itu indeks vegetasi NDVI?', 'Terbangkan kamera ke Gunung Bromo', atau 'Tampilkan stasiun cuaca di Jawa'.").
 - Pastikan "actions": [] KOSONG saat menolak pertanyaan di luar topik.
 
 SAPAAN DAN IDENTITAS:
@@ -430,7 +430,7 @@ KATALOG FITUR WEBGIS:
 - 3D Terrain elevation (AWS Terrarium) dan ekstrusi volume gedung 3D planet (OpenFreeMap).
 - Citra Satelit Sentinel-2 & Landsat-9 BIG Piksel: RGB, False Color NIR, NDVI (vegetasi), NDWI (air), NDBI (bangunan), NDMI (kelembapan), Bahaya Banjir.
 - Google Earth Engine: LST thermal harian MODIS & Tutupan Lahan Esri 10m LULC.
-- 18 Stasiun Iklim Strategis BMKG CFSv2 di seluruh Indonesia dengan data diurnal LST & proyeksi 5 hari.
+- Jaringan 18 Stasiun Iklim Observasi (Data ilustrasi/DEMO).
 - Alat Ukur (Measure): Jarak lintasan, luas poligon, dan profil elevasi ketinggian permukaan tanah (mdpl).
 - Tirai Pembanding (Swipe): Split-screen membandingkan 2 basemap atau layer citra secara langsung.
 - Point Inspector: Klik sembarang titik di peta untuk melihat koordinat WGS84, ketinggian elevasi mdpl (DEM), status layer aktif, serta atribut stasiun/vektor yang diklik.

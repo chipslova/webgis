@@ -233,95 +233,7 @@ export class SpatialAnalysisEngine {
   /**
    * Calculates comprehensive Zonal Statistics for any Polygon Area of Interest (AOI)
    */
-  public static computeZonalStats(
-    aoiFeature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>,
-    regionLabel: string = 'Kawasan Kustom'
-  ): ZonalAnalysisResult {
-    let totalAreaSqMeters = 0;
-    try {
-      totalAreaSqMeters = area(aoiFeature);
-    } catch (e) {
-      logger.warn('[SpatialAnalysis] Error computing Turf area:', e);
-    }
 
-    const totalAreaKm2 = Number(Math.max(0.01, totalAreaSqMeters / 1_000_000).toFixed(2));
-    const totalAreaHa = Number((totalAreaKm2 * 100).toFixed(2));
-
-    const bounds = this.getFeatureBounds(aoiFeature);
-    const centerLng = (bounds.minLng + bounds.maxLng) / 2;
-    const centerLat = (bounds.minLat + bounds.maxLat) / 2;
-
-    const breakdown = this.estimateLandCoverComposition(totalAreaKm2, centerLng, centerLat, regionLabel);
-    const dominantClass = breakdown.length > 0 ? `${breakdown[0].nameId} (${breakdown[0].percentage}%)` : 'Vegetasi';
-
-    let meanTempC = 28.5;
-    let minTempC = 23.0;
-    let maxTempC = 34.0;
-    let hotspotPercentage = 15;
-
-    const lowerLabel = regionLabel.toLowerCase();
-    if (lowerLabel.includes('jakarta') || lowerLabel.includes('surabaya')) {
-      meanTempC = 32.8;
-      minTempC = 26.5;
-      maxTempC = 38.2;
-      hotspotPercentage = 68;
-    } else if (lowerLabel.includes('bandung') || lowerLabel.includes('toba')) {
-      meanTempC = 21.4;
-      minTempC = 16.2;
-      maxTempC = 26.8;
-      hotspotPercentage = 3;
-    } else if (lowerLabel.includes('ikn') || lowerLabel.includes('kalimantan')) {
-      meanTempC = 27.2;
-      minTempC = 22.0;
-      maxTempC = 32.5;
-      hotspotPercentage = 11;
-    } else if (lowerLabel.includes('bali')) {
-      meanTempC = 29.1;
-      minTempC = 23.8;
-      maxTempC = 34.2;
-      hotspotPercentage = 24;
-    }
-
-    const hotspotAreaKm2 = Number(((hotspotPercentage / 100) * totalAreaKm2).toFixed(2));
-
-    const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-    const now = new Date();
-    const mockDays: ForecastDayItem[] = [];
-    for (let i = 0; i < 5; i++) {
-      const targetDate = new Date(now.getTime() + (i + 1) * 86400000);
-      mockDays.push({
-        date: targetDate.toISOString().slice(0, 10),
-        dayLabel: dayNames[targetDate.getDay()],
-        maxTempC: Number((meanTempC + 1.2 + Math.sin(i) * 1.5).toFixed(1)),
-        minTempC: Number((meanTempC - 4.2 + Math.cos(i) * 1.0).toFixed(1))
-      });
-    }
-
-    return {
-      regionName: regionLabel,
-      totalAreaKm2,
-      totalAreaHa,
-      landCoverBreakdown: breakdown,
-      thermalStats: {
-        minTempC,
-        meanTempC,
-        maxTempC,
-        hotspotAreaKm2,
-        hotspotPercentage
-      },
-      thermalForecast: {
-        modelName: 'Model Siklus Termal Mikro Spasial',
-        isForecast: true,
-        forecastDays: mockDays,
-        notice: 'Data di atas merupakan proyeksi model numerik cuaca 5 hari ke depan, bukan observasi masa depan.'
-      },
-      dominantClass,
-      timestamp: formatAnalysisTimestamp(),
-      geojson: aoiFeature,
-      isEstimated: true,
-      estimationMethod: 'Model empiris berbasis koordinat & tipologi wilayah — Estimator Cepat (Bukan sampling piksel mentah GEE)'
-    };
-  }
 
   /**
    * 100% Free Client-Side Raster Pixel Sampling Engine:
@@ -571,14 +483,10 @@ export class SpatialAnalysisEngine {
       }
     }
 
-    // BUG-5 fix: water-dominant areas have no built-up cover and therefore no UHI.
-    // Prevent the 10% default from being applied to ocean/lake areas.
-    const waterStat = breakdown.find(c => c.code === 1);
-    const isWaterDominant = Boolean(waterStat && waterStat.percentage >= 60);
-    const builtStat = breakdown.find(c => c.code === 7);
-    const builtRatio = isWaterDominant ? 0 : (builtStat ? (builtStat.percentage / 100) : 0.1);
-    const hotspotPercentage = isWaterDominant ? 0 : Math.min(100, Math.round(builtRatio * (meanTempC > 30 ? 90 : 55)));
+    // Hotspot area calculation (honest fallback based purely on mean temp threshold)
+    const hotspotPercentage = meanTempC >= 34 ? Math.min(100, Math.round(((meanTempC - 33) / 10) * 100)) : 0;
     const hotspotAreaKm2 = Number(((hotspotPercentage / 100) * totalAreaKm2).toFixed(2));
+
 
     return {
       regionName: regionLabel,
@@ -654,11 +562,9 @@ export class SpatialAnalysisEngine {
     try {
       return await this.computeZonalStatsClientSampled(aoiFeature, regionLabel);
     } catch (clientErr) {
-      logger.warn('[SpatialAnalysis] Client-side pixel sampling failed, falling back to offline heuristic:', clientErr);
+      logger.warn('[SpatialAnalysis] Client-side pixel sampling failed:', clientErr);
+      throw new Error("Analisis spasial gagal: Data satelit LULC atau Open-Meteo LST tidak dapat dijangkau.");
     }
-
-    // 3. Fallback to empirical heuristic model if offline or all fail
-    return this.computeZonalStats(aoiFeature, regionLabel);
   }
 
   private static getFeatureBounds(feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>) {
@@ -681,69 +587,7 @@ export class SpatialAnalysisEngine {
     return { minLng, maxLng, minLat, maxLat };
   }
 
-  private static estimateLandCoverComposition(
-    totalAreaKm2: number,
-    lng: number,
-    lat: number,
-    label: string
-  ): LandCoverClassStat[] {
-    let weights: Record<number, number> = {};
 
-    const lowerLabel = label.toLowerCase();
-    if (lowerLabel.includes('laut') || lowerLabel.includes('selat') || lowerLabel.includes('teluk') || lowerLabel.includes('samudera') || lowerLabel.includes('maritim')) {
-      weights = { 1: 85, 4: 8, 8: 4, 7: 3 };
-    } else if (lowerLabel.includes('jakarta') || lowerLabel.includes('surabaya')) {
-      weights = { 7: 62, 5: 14, 1: 8, 2: 7, 4: 5, 8: 3, 11: 1 };
-    } else if (lowerLabel.includes('ikn') || lowerLabel.includes('kalimantan')) {
-      weights = { 2: 64, 11: 16, 5: 8, 7: 6, 4: 4, 1: 2 };
-    } else if (lowerLabel.includes('bandung')) {
-      weights = { 5: 38, 2: 32, 7: 21, 11: 5, 1: 4 };
-    } else if (lowerLabel.includes('toba') || lowerLabel.includes('danau')) {
-      weights = { 1: 45, 2: 38, 5: 11, 7: 4, 11: 2 };
-    } else if (lowerLabel.includes('bali')) {
-      weights = { 5: 36, 7: 29, 2: 22, 1: 8, 11: 5 };
-    } else {
-      // Geographic check for prominent open marine basins / straits in Indonesia
-      // e.g. Selat Karimata / Laut Jawa (lat: -5.5 to 0.8, lng: 106.0 to 109.5),
-      // Selat Makassar, or Southern Indian Ocean
-      const isJavaSeaKarimata = lat >= -5.5 && lat <= 0.8 && lng >= 106.0 && lng <= 109.5;
-      const isSouthOcean = lat < -8.8 && lng >= 95.0 && lng <= 141.0;
-      const isMakassarStrait = lat >= -4.5 && lat <= 1.5 && lng >= 117.5 && lng <= 119.3;
-      const isOpenSea = isJavaSeaKarimata || isSouthOcean || isMakassarStrait;
-
-      const isJava = lat < -5.5 && lat > -8.8 && lng > 105.0 && lng < 115.0;
-      if (isOpenSea) {
-        weights = { 1: 92, 4: 4, 8: 2, 7: 2 };
-      } else if (isJava) {
-        weights = { 5: 42, 2: 24, 7: 22, 1: 6, 11: 4, 4: 2 };
-      } else {
-        weights = { 2: 58, 5: 18, 11: 12, 7: 5, 1: 4, 4: 3 };
-      }
-    }
-
-    const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0) || 100;
-    const stats: LandCoverClassStat[] = [];
-
-    LULC_CLASSES.forEach((cls) => {
-      const w = weights[cls.code] || 0;
-      if (w > 0) {
-        const pct = Number(((w / totalWeight) * 100).toFixed(1));
-        const areaVal = Number(((pct / 100) * totalAreaKm2).toFixed(2));
-        stats.push({
-          code: cls.code,
-          name: cls.name,
-          nameId: cls.nameId,
-          color: cls.color,
-          areaKm2: areaVal,
-          percentage: pct
-        });
-      }
-    });
-
-    // Ensure sorted by percentage descending
-    stats.sort((a, b) => b.percentage - a.percentage);
-    return stats;
-  }
 
   /**
    * Generates a clean, downloadable CSV string of the Zonal Analysis
@@ -762,18 +606,18 @@ export class SpatialAnalysisEngine {
       lines.push(`Sumber Data,${result.computationSource || 'Sentinel-2 10m (Esri) + Open-Meteo Realtime'}`);
       lines.push(`Total Piksel Dianalisis,${result.totalPixelCount?.toLocaleString('id-ID') || '-'}`);
     } else {
-      lines.push(`Status Metodologi,${result.isEstimated ? 'MODEL PROXY HEURISTIK — Aproksimasi empiris profil wilayah (Bukan sampling piksel mentah GEE)' : 'Data aktual'}`);
+      lines.push(`Status Metodologi,Data aktual`);
       lines.push(`Metode,${result.estimationMethod || '-'}`);
     }
     lines.push(`Luas Total (km²),${result.totalAreaKm2}`);
     lines.push(`Luas Total (Hektar),${result.totalAreaHa}`);
     lines.push(`Kelas Dominan,${result.dominantClass}`);
     lines.push(``);
-    lines.push(`STATISTIK SUHU PERMUKAAN TANAH (MODIS LST)`);
+    lines.push(`STATISTIK SUHU PERMUKAAN`);
     lines.push(`Suhu Minimum (°C),${result.thermalStats.minTempC}`);
     lines.push(`Suhu Rata-rata (°C),${result.thermalStats.meanTempC}`);
     lines.push(`Suhu Maksimum (°C),${result.thermalStats.maxTempC}`);
-    lines.push(`Area Hotspot UHI (>34°C km²),${result.thermalStats.hotspotAreaKm2} (${result.thermalStats.hotspotPercentage}%)`);
+    lines.push(`Area Suhu Tinggi (>34°C km²),${result.thermalStats.hotspotAreaKm2} (${result.thermalStats.hotspotPercentage}%)`);
     lines.push(``);
     lines.push(`KOMPOSISI TUTUPAN LAHAN (SENTINEL-2 10M LULC)`);
     lines.push(`Kode,Nama Kelas,Nama Indonesia,Luas (km²),Proporsi (%)`);

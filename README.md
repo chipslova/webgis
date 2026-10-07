@@ -25,7 +25,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit termal NASA GIBS / MODIS LST, sampling piksel *client-side* Sentinel-2 10m, mesh elevasi 3D Terrarium, serta ekstrusi bangunan 3D dengan antarmuka bilingual yang rapi dan konsisten (Bahasa Indonesia standar untuk UI & terminologi standar internasional untuk format geospasial).
 
 ### 💎 5 Pilar Kemampuan Utama
-1. **Integrasi Earth Engine & Multi-Sensor Satelit**: Akses langsung ke arsip data satelit global (Sentinel-2 GeoMAD, NASA MODIS, Landsat 9) dan pemodelan iklim secara *real-time* untuk analisis lingkungan, vegetasi (NDVI), badan air (NDWI), kebakaran hutan (NBR), hingga suhu permukaan (LST).
+1. **Integrasi Earth Engine & Multi-Sensor Satelit**: Akses langsung ke arsip data satelit global (Sentinel-2 GeoMAD, NASA MODIS, Landsat 9) dan pemodelan iklim untuk analisis lingkungan, vegetasi (NDVI), badan air (NDWI), dan indeks bangunan (NDBI).
 2. **Visualisasi 3D Terrain & Gedung Imersif**: Didukung oleh elevasi 3D beresolusi tinggi (AWS Terrarium DEM 30m) dan ekstrusi volume bangunan (OpenFreeMap 3D), memberikan pengalaman navigasi lanskap Indonesia yang nyata dan dramatis.
 3. **Katalog Basemap & Tematik Melimpah**: Menyediakan 16 pilihan peta dasar beresolusi tinggi (Esri, BIG, OpenFreeMap, OpenTopo) serta beragam layer tematik siap pakai seperti tutupan lahan ESA WorldCover v200 dan curah hujan harian CHIRPS (GEE).
 4. **Alat Analisis Spasial Komprehensif**: Fitur pengukuran lanjutan (jarak geodesik, luas poligon, profil elevasi permukaan tanah mdpl), pembanding tirai interaktif (*swipe compare*), hingga *Point Inspector* untuk investigasi cepat kondisi spasial di titik mana pun.
@@ -67,10 +67,8 @@ Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit 
 * **Indeks Spektral Satelit**:
   * **NDVI** (Normalized Difference Vegetation Index): Mengukur biomassa & kanopi hutan tropis.
   * **NDWI** (Normalized Difference Water Index): Delineasi badan air, danau, dan kelembapan.
-  * **NBR** (Normalized Burn Ratio): Deteksi luka kebakaran hutan (Karhutla), degradasi kubah gambut, dan keparahan luka bakar berbasis rasio spektral NIR (B8) vs SWIR (B12) 10m dengan palet gradien keparahan 4-kelas.
+
   * **NDBI** (Normalized Difference Built-up Index): Pemetaan kawasan terbangun Sentinel-2 10m terintegrasi dengan ekstrusi gedung 3D otomatis.
-  * **BSI Fallback Cerdas** (Bare Soil Index): Pemetaan tanah terbuka yang didukung fallback otomatis ke komposit spektral resolusi tinggi saat server OGC mengalami kendala.
-  * **NIR Surface Reflectance**: Pantulan inframerah dekat untuk klorofil vegetasi.
   * **Kerapatan Pengamatan** (*Observation Density*): Statistik jumlah scene bebas awan per piksel.
 * **Preset Pantauan Prioritas & Karhutla**: Navigasi 1-klik ke kawasan vulkanik Bromo & Merapi, IKN Nusantara, Danau Toba, Dataran Banjir Citarum, serta hotspot Karhutla di **Lahan Gambut Sebangau (Palangka Raya)** dan **Pesisir Riau (Semenanjung Kampar)**.
 * **Penyesuaian Filter Visual Real-Time**: Kontrol non-destruktif *Brightness* (kecerahan), *Contrast* (kontras), dan *Saturation* (kejenuhan warna) langsung pada kanvas WebGL.
@@ -83,7 +81,7 @@ Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit 
 * **Integrasi Google Earth Engine Asli (Opsional)**: Panduan 3-langkah transparan untuk menghubungkan Service Account Google Cloud / GEE resmi via env var Vercel (`GEE_CLIENT_EMAIL` & `GEE_PRIVATE_KEY` / `GEE_SERVICE_ACCOUNT_KEY`).
 * **NASA MODIS Land Surface Temp (LST 1 km)**: Ubin gradien termal suhu permukaan bumi kontinu ($10^\circ\text{C} \to 42^\circ\text{C}+$) via NASA GIBS WMS dengan *ocean masking* transparan.
 * **Curah Hujan Harian (CHIRPS (GEE))**: Lapisan presipitasi satelit harian global dengan palet warna kontras tinggi (mm/jam) dari resolusi 0.1°.
-* **18 Titik Pengamatan Referensi LST**: Titik tervalidasi MODIS *clear-sky QA bitmask* dengan kalkulasi anomali suhu siang/malam (*diurnal delta*).
+* **Titik Pengamatan Referensi LST**: Titik pantau (DEMO) dengan simulasi anomali suhu siang/malam (*diurnal delta*).
 * **Tutupan Lahan & Elevasi SRTM**: Sentinel-2 10m LULC (9 kelas) dan kontur elevasi USGS SRTM 30m.
 
 ### 📈 4. Analisis Geospasial & Grafik Waktu-Nyata

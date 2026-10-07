@@ -453,7 +453,7 @@
                     <div class="gee-layer-row gee-layer-item-clean">
                       <label>
                         <input type="checkbox" id="toggle-gee-landcover" aria-label="Toggle Sentinel-2 10m Land Cover layer" />
-                        <span>🌳 <strong>Tutupan Lahan ESA WorldCover v200</strong> <span class="gee-layer-subtext">(10m · GEE)</span></span>
+                        <span>🌳 <strong>Tutupan Lahan Esri 10m LULC</strong> <span class="gee-layer-subtext">(9 Kelas)</span></span>
                       </label>
                       <div id="gee-lc-opacity-row" class="gee-layer-opacity-box">
                         <input type="range" id="gee-landcover-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas Tutupan Lahan" />
@@ -1072,7 +1072,7 @@
                           <td>Model Elevasi Digital (DEM)</td>
                         </tr>
                         <tr>
-                          <td>Tutupan Lahan ESA WorldCover v200</td>
+                          <td>Tutupan Lahan Esri 10m LULC</td>
                           <td>ESA</td>
                           <td>10 meter</td>
                           <td>Klasifikasi Tutupan Lahan</td>
@@ -1102,7 +1102,7 @@
                         <span>Salin APA</span>
                       </button>
                     </div>
-                    <pre id="citation-apa-text" class="citation-text">chipslova. (2026). WebGIS Indonesia: Interactive Earth Observation & Geospatial Analytics Platform (v1.0) [Web application]. https://webgis-three-iota.vercel.app/ (Data sources: BIG Piksel, USGS/NASA, Copernicus, OpenStreetMap).</pre>
+                    <pre id="citation-apa-text" class="citation-text">chipslova. (2026). WebGIS Indonesia: Interactive Earth Observation & Geospatial Analytics Platform (v1.5.0) [Web application]. https://webgis-three-iota.vercel.app/ (Data sources: BIG Piksel, USGS/NASA, Copernicus, OpenStreetMap).</pre>
                   </div>
 
                   <!-- BibTeX Format -->
@@ -1118,7 +1118,7 @@
   author = {chipslova},
   title = {WebGIS Indonesia: Interactive Earth Observation & Geospatial Analytics Platform},
   year = {2026},
-  version = {1.0.0},
+  version = {1.5.0},
   url = {https://webgis-three-iota.vercel.app/},
   note = {Independent application consuming Badan Informasi Geospasial, USGS/NASA, Copernicus, and OpenStreetMap public data}
 }</pre>
@@ -1583,7 +1583,7 @@
           <span class="status-divider" aria-hidden="true">|</span>
           <button id="btn-copy-coords" class="btn-text-sm" aria-label="Salin koordinat peta saat ini ke papan klip">Salin Koordinat</button>
           <span class="status-divider" aria-hidden="true">|</span>
-          <span class="status-tag" title="Versi Rilis Produksi WebGIS">v2.5.0</span>
+          <span class="status-tag" title="Versi Rilis Produksi WebGIS">v1.5.0</span>
           <span class="status-divider" aria-hidden="true">|</span>
         </div>
       </footer>
@@ -1730,7 +1730,7 @@
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
