@@ -289,7 +289,7 @@ export class BasemapCustomizer {
   }
 
   public setTerrainExaggeration(factor: number) {
-    this.state.terrainExaggeration = Math.max(0.1, Math.min(3.0, factor));
+    this.state.terrainExaggeration = Math.max(0.1, Math.min(3.5, factor));
     if (this.state.terrain3D) {
       this.apply3DTerrain();
     }
