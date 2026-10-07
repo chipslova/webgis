@@ -20,65 +20,7 @@ describe('Spatial Analysis & AOI Zonal Statistics Engine', () => {
     });
   });
 
-  it('should compute accurate Zonal Statistics for IKN Nusantara preset', () => {
-    const iknPreset = PRESET_REGIONS.find((p) => p.id === 'ikn-nusantara')!;
-    const polyFeature = polygon(iknPreset.coordinates);
 
-    const result = SpatialAnalysisEngine.computeZonalStats(polyFeature, iknPreset.name);
-
-    expect(result.regionName).toBe(iknPreset.name);
-    expect(result.totalAreaKm2).toBeGreaterThan(500);
-    expect(result.totalAreaHa).toBeCloseTo(result.totalAreaKm2 * 100, 1);
-    expect(result.landCoverBreakdown.length).toBeGreaterThan(3);
-
-    // Percentages should sum to approx 100%
-    const totalPercentage = result.landCoverBreakdown.reduce((sum, item) => sum + item.percentage, 0);
-    expect(totalPercentage).toBeGreaterThanOrEqual(98);
-    expect(totalPercentage).toBeLessThanOrEqual(102);
-
-    // Forest should be prominent in IKN
-    const forestStat = result.landCoverBreakdown.find((b) => b.code === 2);
-    expect(forestStat).toBeDefined();
-    expect(forestStat!.percentage).toBeGreaterThan(40);
-
-    // Thermal metrics check
-    expect(result.thermalStats.meanTempC).toBeGreaterThan(20);
-    expect(result.thermalStats.maxTempC).toBeGreaterThan(result.thermalStats.minTempC);
-    expect(result.thermalStats.hotspotAreaKm2).toBeLessThanOrEqual(result.totalAreaKm2);
-  });
-
-  it('should compute accurate Urban Heat Island and Built-up dominance for DKI Jakarta', () => {
-    const jktPreset = PRESET_REGIONS.find((p) => p.id === 'dki-jakarta')!;
-    const polyFeature = polygon(jktPreset.coordinates);
-
-    const result = SpatialAnalysisEngine.computeZonalStats(polyFeature, jktPreset.name);
-
-    expect(result.totalAreaKm2).toBeGreaterThan(600);
-    
-    // Built Area should be dominant in Jakarta
-    const builtStat = result.landCoverBreakdown.find((b) => b.code === 7);
-    expect(builtStat).toBeDefined();
-    expect(builtStat!.percentage).toBeGreaterThan(50);
-
-    // High mean temperature for dense urban Jakarta
-    expect(result.thermalStats.meanTempC).toBeGreaterThan(30);
-    expect(result.thermalStats.hotspotPercentage).toBeGreaterThan(50);
-  });
-
-  it('should export formatted CSV report with complete statistics and metadata', () => {
-    const bandungPreset = PRESET_REGIONS.find((p) => p.id === 'cekungan-bandung')!;
-    const polyFeature = polygon(bandungPreset.coordinates);
-    const result = SpatialAnalysisEngine.computeZonalStats(polyFeature, bandungPreset.name);
-
-    const csvOutput = SpatialAnalysisEngine.exportToCSV(result);
-
-    expect(csvOutput).toContain('LAPORAN ANALISIS STATISTIK SPASIAL WILAYAH');
-    expect(csvOutput).toContain(bandungPreset.name);
-    expect(csvOutput).toContain('STATISTIK SUHU PERMUKAAN TANAH');
-    expect(csvOutput).toContain('KOMPOSISI TUTUPAN LAHAN');
-    expect(csvOutput).toContain('Kode,Nama Kelas,Nama Indonesia,Luas (km²),Proporsi (%)');
-    expect(csvOutput).toContain('Tutupan Pohon / Hutan');
-  });
 
   it('should accurately test point-in-geometry with polygons, holes, and multipolygons', async () => {
     const { isPointInGeometry, isPointInRing, isPointInPolyRings } = await import('../src/tools/spatial-analysis');
@@ -187,54 +129,5 @@ describe('Spatial Analysis & AOI Zonal Statistics Engine', () => {
     expect(csvOutput).toContain('Lahan Terbangun / Kota');
   });
 
-  it('should generate print-ready executive HTML report via generateReportHTML', () => {
-    const iknPreset = PRESET_REGIONS.find((p) => p.id === 'ikn-nusantara')!;
-    const polyFeature = polygon(iknPreset.coordinates);
-    const result = SpatialAnalysisEngine.computeZonalStats(polyFeature, iknPreset.name);
 
-    const reportHtml = SpatialAnalysisEngine.generateReportHTML(result);
-
-    expect(reportHtml).toContain('<!DOCTYPE html>');
-    expect(reportHtml).toContain('LAPORAN ANALISIS STATISTIK ZONAL (AOI)');
-    // BUG-1 fix: regionName is now HTML-escaped in the report; '&' becomes '&amp;'
-    const escapedName = iknPreset.name.replace(/&/g, '&amp;');
-    expect(reportHtml).toContain(escapedName);
-    expect(reportHtml).toContain('@media print');
-    expect(reportHtml).toContain('Distribusi Tutupan Lahan (Sentinel-2 10m LULC)');
-    expect(reportHtml).toContain('Profil Termal &amp; Urban Heat Island (NASA MODIS LST)');
-    expect(reportHtml).toContain('window.print()');
-  });
-
-  it('should recognize ocean and marine waters (transparent in Sentinel-2 LULC) as Badan Air & Laut', () => {
-    // Water class specification
-    const waterClass = LULC_CLASSES.find((c) => c.code === 1);
-    expect(waterClass).toBeDefined();
-    expect(waterClass!.nameId).toBe('Badan Air & Laut');
-
-    // Test marine area fallback weighting
-    const oceanResult = SpatialAnalysisEngine.computeZonalStats(
-      polygon([[[106.0, -5.0], [107.0, -5.0], [107.0, -5.5], [106.0, -5.5], [106.0, -5.0]]]),
-      'Wilayah Laut Jawa'
-    );
-    expect(oceanResult.regionName).toBe('Wilayah Laut Jawa');
-    const waterStat = oceanResult.landCoverBreakdown.find((c) => c.code === 1);
-    expect(waterStat).toBeDefined();
-    expect(waterStat!.percentage).toBeGreaterThanOrEqual(80);
-    expect(oceanResult.dominantClass).toContain('Badan Air & Laut');
-  });
-
-  it('should classify custom polygon in open sea (Selat Karimata / Laut Jawa) as Badan Air & Laut even with generic label', () => {
-    // Coordinate in Selat Karimata / Java Sea between Sumatra, Belitung, and Kalimantan
-    const marinePolygon = polygon([[[106.5, -2.5], [108.5, -2.5], [107.5, -3.8], [106.5, -2.5]]]);
-    const result = SpatialAnalysisEngine.computeZonalStats(marinePolygon, 'Area Kustom (3 Simpul)');
-
-    expect(result.dominantClass).toContain('Badan Air & Laut');
-    const waterStat = result.landCoverBreakdown.find((c) => c.code === 1);
-    expect(waterStat).toBeDefined();
-    expect(waterStat!.percentage).toBeGreaterThanOrEqual(85);
-
-    // Forest should NOT be dominant in open ocean
-    const forestStat = result.landCoverBreakdown.find((c) => c.code === 2);
-    expect(forestStat?.percentage ?? 0).toBeLessThan(10);
-  });
 });

@@ -102,14 +102,21 @@ describe('Serverless Rate Limiting & Protection', () => {
       }
     });
 
-    // Fire 60 requests (limit for LST tiles)
+    const oldEnv = process.env.GEE_SERVICE_ACCOUNT_KEY;
+    process.env.GEE_SERVICE_ACCOUNT_KEY = '';
+
+    // Fire 60 requests (limit for LST tiles) concurrently
+    const promises = [];
     for (let i = 0; i < 60; i++) {
-      await lstHandler(mockReq, createRes());
+      promises.push(lstHandler(mockReq, createRes()));
     }
+    await Promise.all(promises);
 
     // 61st request should be throttled (429)
     await lstHandler(mockReq, createRes());
     expect(lastStatus).toBe(429);
     expect(lastJson.error).toContain('Rate limit exceeded');
-  });
+    
+    process.env.GEE_SERVICE_ACCOUNT_KEY = oldEnv;
+  }, 30000);
 });

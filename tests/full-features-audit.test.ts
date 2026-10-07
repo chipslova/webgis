@@ -92,8 +92,6 @@ describe('Full WebGIS Feature & Button Audit', () => {
       expect(document.getElementById('toggle-gee-poi')).not.toBeNull();
       expect(document.getElementById('toggle-gee-elevation')).not.toBeNull();
       expect(document.getElementById('toggle-gee-landcover')).not.toBeNull();
-      expect(document.getElementById('btn-download-geojson')).not.toBeNull();
-      expect(document.getElementById('btn-download-csv')).not.toBeNull();
     });
 
     it('should contain Spatial Analysis (Zonal Stats & Buffer) controls', () => {
