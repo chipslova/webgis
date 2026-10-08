@@ -495,23 +495,34 @@ export class ActiveLayersUI {
 
     // Initialize SortableJS if loaded and items exist
     const sortableContainer = document.getElementById('al-sortable-list');
-    if (sortableContainer && typeof Sortable !== 'undefined' && layerCount > 0) {
-      new Sortable(sortableContainer, {
-        animation: 150,
-        handle: '.al-row-compact',
-        ghostClass: 'al-sortable-ghost',
-        onEnd: () => {
-          // Extract the new order of layer IDs from the DOM
-          const rowElements = Array.from(sortableContainer.querySelectorAll('.al-row'));
-          const newOrderIds = rowElements.map(el => (el as HTMLElement).dataset.layerId || '');
-          this.customLayerOrder = newOrderIds.filter(id => id !== '');
-          
-          // Apply physically to Mapbox map
-          (this.mapManager as any).reorderDynamicLayers(this.customLayerOrder);
-          
-          showToast('Susunan lapisan peta (Z-Index) telah diperbarui!', 'success');
+    if (sortableContainer && layerCount > 0) {
+      try {
+        const SortableConstructor = (Sortable as any).default || Sortable;
+        const initOptions = {
+          animation: 150,
+          handle: '.al-row-compact',
+          ghostClass: 'al-sortable-ghost',
+          onEnd: () => {
+            const rowElements = Array.from(sortableContainer.querySelectorAll('.al-row'));
+            const newOrderIds = rowElements.map(el => (el as HTMLElement).dataset.layerId || '');
+            this.customLayerOrder = newOrderIds.filter(id => id !== '');
+            
+            (this.mapManager as any).reorderDynamicLayers(this.customLayerOrder);
+            
+            showToast('Susunan lapisan peta (Z-Index) telah diperbarui!', 'success');
+          }
+        };
+
+        if (typeof SortableConstructor.create === 'function') {
+          SortableConstructor.create(sortableContainer, initOptions);
+        } else if (typeof SortableConstructor === 'function') {
+          new SortableConstructor(sortableContainer, initOptions);
+        } else {
+          console.warn('SortableJS could not be initialized: Export format unknown', Sortable);
         }
-      });
+      } catch (err) {
+        console.error('Failed to initialize SortableJS for layers:', err);
+      }
     }
 
     const statusPill = document.getElementById('map-status-pill');
