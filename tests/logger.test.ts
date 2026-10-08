@@ -1,6 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, } from 'vitest';
 import { logger } from '../src/utils/logger';
-
 describe('Logger Utility', () => {
   it('should have log, warn, error, and info methods defined', () => {
     expect(typeof logger.log).toBe('function');
@@ -8,7 +7,6 @@ describe('Logger Utility', () => {
     expect(typeof logger.error).toBe('function');
     expect(typeof logger.info).toBe('function');
   });
-
   it('should safely execute logging without throwing exceptions', () => {
     expect(() => {
       logger.log('Test message', { key: 'value' });

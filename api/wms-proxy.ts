@@ -58,7 +58,6 @@ export default async function handler(req: Request): Promise<Response> {
   }
 
   const targetUrl = `${UPSTREAM_WMS_URL}?${searchParams}`;
-  const isImageRequest = (url.searchParams.get('FORMAT') || url.searchParams.get('format') || '').toLowerCase().includes('png');
 
   // Attempt fetch with single retry on 5xx / timeout
   let response: Response | null = null;

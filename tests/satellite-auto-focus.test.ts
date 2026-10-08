@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { PikselLoader } from '../src/tools/piksel-loader';
-import { PIKSEL_PRODUCTS, PIKSEL_PRESETS } from '../src/config/piksel';
+import { PIKSEL_PRODUCTS, } from '../src/config/piksel';
 
 describe('Satellite Auto-Focus & Optimal View Navigation', () => {
   it('should have optimalFocus defined for all active satellite products', () => {
@@ -142,4 +142,4 @@ describe('Satellite Auto-Focus & Optimal View Navigation', () => {
     expect(flyToMock).not.toHaveBeenCalled();
     expect(easeToMock).not.toHaveBeenCalled();
   });
-});
+});

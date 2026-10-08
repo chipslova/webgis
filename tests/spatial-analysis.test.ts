@@ -5,8 +5,6 @@ import {
   LULC_CLASSES,
   ZonalAnalysisResult
 } from '../src/tools/spatial-analysis';
-import { polygon } from '@turf/helpers';
-
 describe('Spatial Analysis & AOI Zonal Statistics Engine', () => {
   it('should have complete and valid PRESET_REGIONS definitions', () => {
     expect(PRESET_REGIONS.length).toBeGreaterThanOrEqual(6);
@@ -19,12 +17,8 @@ describe('Spatial Analysis & AOI Zonal Statistics Engine', () => {
       expect(preset.zoom).toBeGreaterThan(5);
     });
   });
-
-
-
   it('should accurately test point-in-geometry with polygons, holes, and multipolygons', async () => {
     const { isPointInGeometry, isPointInRing, isPointInPolyRings } = await import('../src/tools/spatial-analysis');
-
     const ring = [
       [10, 10],
       [20, 10],
@@ -34,7 +28,6 @@ describe('Spatial Analysis & AOI Zonal Statistics Engine', () => {
     ];
     expect(isPointInRing(15, 15, ring)).toBe(true);
     expect(isPointInRing(5, 5, ring)).toBe(false);
-
     // Poly with hole
     const outer = [
       [0, 0],
@@ -53,7 +46,6 @@ describe('Spatial Analysis & AOI Zonal Statistics Engine', () => {
     expect(isPointInPolyRings(5, 5, [outer, hole])).toBe(false); // Inside hole
     expect(isPointInPolyRings(1, 1, [outer, hole])).toBe(true);  // Inside outer, outside hole
     expect(isPointInPolyRings(15, 15, [outer, hole])).toBe(false);
-
     // GeoJSON MultiPolygon
     const multiGeom: GeoJSON.MultiPolygon = {
       type: 'MultiPolygon',
@@ -72,7 +64,6 @@ describe('Spatial Analysis & AOI Zonal Statistics Engine', () => {
     expect(isPointInGeometry(55, 55, multiGeom)).toBe(true);
     expect(isPointInGeometry(30, 30, multiGeom)).toBe(false);
   });
-
   it('should verify all 9 Sentinel-2 LULC official class codes and colors exist', () => {
     expect(LULC_CLASSES.length).toBe(9);
     const codes = LULC_CLASSES.map((c) => c.code);
@@ -86,7 +77,6 @@ describe('Spatial Analysis & AOI Zonal Statistics Engine', () => {
     expect(codes).toContain(10); // Clouds
     expect(codes).toContain(11); // Rangeland
   });
-
   it('should format CSV export correctly when result is client-side sampled (100% free)', () => {
     const mockSampledResult: ZonalAnalysisResult = {
       regionName: 'Wilayah Uji Client Sampling',
@@ -120,7 +110,6 @@ describe('Spatial Analysis & AOI Zonal Statistics Engine', () => {
         properties: {}
       }
     };
-
     const csvOutput = SpatialAnalysisEngine.exportToCSV(mockSampledResult);
     expect(csvOutput.startsWith('\uFEFF')).toBe(true);
     expect(csvOutput).toContain('SAMPLING PIKSEL CITRA SATELIT ASLI (Sentinel-2 10m LULC & Open-Meteo LST - 100% Free)');
@@ -128,6 +117,4 @@ describe('Spatial Analysis & AOI Zonal Statistics Engine', () => {
     expect(csvOutput).toContain('12.500');
     expect(csvOutput).toContain('Lahan Terbangun / Kota');
   });
-
-
 });

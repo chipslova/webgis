@@ -23,7 +23,7 @@ describe('Priority 4 & 5: Cartographic Export Modal & Buffer Customization', () 
         getBearing: () => 15,
         getCenter: () => ({ lat: -6.2, lng: 106.8 }),
         getZoom: () => 11.5,
-        once: vi.fn((event: string, cb: () => void) => cb()),
+        once: vi.fn((_event: string, cb: () => void) => cb()),
         triggerRepaint: vi.fn()
       };
 

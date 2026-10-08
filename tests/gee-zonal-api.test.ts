@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import handler from '../api/gee-zonal-stats';
 import { SpatialAnalysisEngine, ZonalAnalysisResult } from '../src/tools/spatial-analysis';
-
 describe('Google Earth Engine Real Zonal Stats API & Integration', () => {
   const validPolygon: GeoJSON.Polygon = {
     type: 'Polygon',
@@ -13,16 +12,13 @@ describe('Google Earth Engine Real Zonal Stats API & Integration', () => {
       [106.8, -6.2]
     ]]
   };
-
   it('should reject GET requests with Method Not Allowed (405)', async () => {
     let statusCode = 0;
     let jsonBody: any = null;
-
     const mockReq = {
       method: 'GET',
       headers: {}
     };
-
     const mockRes = {
       setHeader: vi.fn(),
       status: (code: number) => {
@@ -32,41 +28,33 @@ describe('Google Earth Engine Real Zonal Stats API & Integration', () => {
         };
       }
     };
-
     await handler(mockReq, mockRes);
     expect(statusCode).toBe(405);
     expect(jsonBody?.error).toContain('Method Not Allowed');
   });
-
   it('should reject invalid geometry payloads with Bad Request (400)', async () => {
     let statusCode = 0;
-    let jsonBody: any = null;
 
     const mockReq = {
       method: 'POST',
       body: { geometry: null }
     };
-
     const mockRes = {
       setHeader: vi.fn(),
       status: (code: number) => {
         statusCode = code;
         return {
-          json: (data: any) => { jsonBody = data; }
+          json: () => {}
         };
       }
     };
-
     await handler(mockReq, mockRes);
     expect(statusCode).toBe(400);
   });
-
   it('should return unconfigured status when GEE_SERVICE_ACCOUNT_KEY is not set', async () => {
     delete process.env.GEE_SERVICE_ACCOUNT_KEY;
-
     let statusCode = 0;
     let jsonBody: any = null;
-
     const mockReq = {
       method: 'POST',
       body: {
@@ -74,7 +62,6 @@ describe('Google Earth Engine Real Zonal Stats API & Integration', () => {
         regionName: 'Test Area'
       }
     };
-
     const mockRes = {
       setHeader: vi.fn(),
       status: (code: number) => {
@@ -84,14 +71,12 @@ describe('Google Earth Engine Real Zonal Stats API & Integration', () => {
         };
       }
     };
-
     await handler(mockReq, mockRes);
     expect(statusCode).toBe(200);
     expect(jsonBody.status).toBe('unconfigured');
     expect(jsonBody.isRealGEE).toBe(false);
     expect(jsonBody.message).toContain('Kunci Service Account Google Earth Engine belum dipasang');
   });
-
   it('should format CSV with Real GEE metadata when isRealGEE is true', () => {
     const mockRealResult: ZonalAnalysisResult = {
       regionName: 'IKN Verified Cluster',
@@ -120,7 +105,6 @@ describe('Google Earth Engine Real Zonal Stats API & Integration', () => {
         properties: {}
       }
     };
-
     const csv = SpatialAnalysisEngine.exportToCSV(mockRealResult);
     expect(csv).toContain('DATA PIKSEL ASLI GOOGLE EARTH ENGINE');
     expect(csv).toContain('Google Earth Engine Cloud Cluster');

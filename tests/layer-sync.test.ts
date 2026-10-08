@@ -7,7 +7,6 @@ import { GeoJsonLoader } from '../src/tools/geojson-loader';
 import { PikselLoader } from '../src/tools/piksel-loader';
 import { MeasureTool } from '../src/tools/measure';
 import { DataPanelUI } from '../src/ui/data-panel';
-
 describe('Layer & Checkbox UI State Synchronization', () => {
   let mockMap: any;
   let geeLoader: GEELoader;
@@ -16,7 +15,6 @@ describe('Layer & Checkbox UI State Synchronization', () => {
   let pikselLoader: PikselLoader;
   let measureTool: MeasureTool;
   let activeLayersUI: ActiveLayersUI;
-  let dataPanelUI: DataPanelUI;
 
   beforeEach(() => {
     // Setup DOM
@@ -33,11 +31,9 @@ describe('Layer & Checkbox UI State Synchronization', () => {
         <button id="btn-focus-gee-area"></button>
         <button id="btn-download-geojson"></button>
         <button id="btn-download-csv"></button>
-
       </div>
       <div id="panel-piksel"></div>
     `;
-
     // Mock global fetch for GEE data
     global.fetch = vi.fn().mockImplementation(() =>
       Promise.resolve({
@@ -45,7 +41,6 @@ describe('Layer & Checkbox UI State Synchronization', () => {
         json: () => Promise.resolve({ type: 'FeatureCollection', features: [] })
       } as any)
     );
-
     mockMap = {
       getZoom: () => 10,
       flyTo: vi.fn(),
@@ -60,21 +55,17 @@ describe('Layer & Checkbox UI State Synchronization', () => {
       setPaintProperty: vi.fn(),
       getCanvas: () => ({ style: {} })
     };
-
     geeLoader = new GEELoader(mockMap);
     geePanelUI = new GEEPanelUI(geeLoader);
     geePanelUI.init();
-
     geojsonLoader = new GeoJsonLoader(mockMap);
     pikselLoader = new PikselLoader(mockMap);
     measureTool = new MeasureTool(mockMap);
-
     const mockMapManager: any = {
       getMap: () => mockMap,
       getCurrentBasemapId: () => 'google-hybrid',
       enforceLayerOrder: vi.fn()
     };
-
     activeLayersUI = new ActiveLayersUI(
       'active-layers-container',
       mockMapManager,
@@ -83,79 +74,63 @@ describe('Layer & Checkbox UI State Synchronization', () => {
       geojsonLoader,
       measureTool
     );
-
     const mockSidebar: any = {
       setActiveTab: vi.fn()
     };
-
-    dataPanelUI = new DataPanelUI(
+    new DataPanelUI(
       geojsonLoader,
       mockSidebar,
       () => {}
     );
   });
-
   it('should have toggle-gee-landcover unchecked initially because landcover is not active by default', () => {
     const lcCheckbox = document.getElementById('toggle-gee-landcover') as HTMLInputElement;
     expect(lcCheckbox.checked).toBe(false);
   });
-
   it('should automatically sync toggle-gee-landcover when landcover layer is toggled and removed', async () => {
     const lcCheckbox = document.getElementById('toggle-gee-landcover') as HTMLInputElement;
     expect(lcCheckbox.checked).toBe(false);
-
     // Activate landcover layer explicitly
     await geeLoader.toggleLayer('landcover', true);
     activeLayersUI.render();
     expect(lcCheckbox.checked).toBe(true);
     expect(geeLoader.isLayerActive('landcover')).toBe(true);
-
     // Just toggle off manually via API instead of clicking the UI button
     await geeLoader.toggleLayer('landcover', false);
-
     // The landcover layer is now removed from geeLoader
     expect(geeLoader.isLayerActive('landcover')).toBe(false);
     // The checkbox in GEE Panel MUST be unchecked
     expect(lcCheckbox.checked).toBe(false);
   });
-
   it('should automatically uncheck all GEE checkboxes when "Hapus Semua Layer" (Clear All) is clicked', async () => {
     const lcCheckbox = document.getElementById('toggle-gee-landcover') as HTMLInputElement;
     const lstCheckbox = document.getElementById('toggle-gee-lst') as HTMLInputElement;
-
     // Activate landcover and LST
     await geeLoader.toggleLayer('landcover', true);
     await geeLoader.toggleLayer('lst', true);
     activeLayersUI.render();
     expect(lstCheckbox.checked).toBe(true);
     expect(lcCheckbox.checked).toBe(true);
-
     // Click "Clear All Overlays" button
     const clearAllBtn = document.getElementById('btn-al-clear-all') as HTMLButtonElement;
     expect(clearAllBtn).not.toBeNull();
     clearAllBtn.click();
-
     // Verify all GEE checkboxes are unchecked
     expect(lcCheckbox.checked).toBe(false);
     expect(lstCheckbox.checked).toBe(false);
     expect((document.getElementById('toggle-gee-elevation') as HTMLInputElement).checked).toBe(false);
-
     // Verify loaders are cleared
     expect(geeLoader.isLayerActive('landcover')).toBe(false);
     expect(geeLoader.isLayerActive('lst')).toBe(false);
   });
-
   it('should sync checkbox when geeLoader.clearAllLayers is invoked directly', async () => {
     const lcCheckbox = document.getElementById('toggle-gee-landcover') as HTMLInputElement;
     await geeLoader.toggleLayer('landcover', true);
     expect(lcCheckbox.checked).toBe(true);
-
     geeLoader.clearAllLayers();
-
     expect(lcCheckbox.checked).toBe(false);
     expect(geeLoader.isLayerActive('landcover')).toBe(false);
   });
-
   it('should sync DataPanelUI list when GeoJSON layers are cleared or removed', () => {
     // Add custom mock layer to customLayers Map
     (geojsonLoader as any).customLayers.set('test-layer-1', {
@@ -168,15 +143,10 @@ describe('Layer & Checkbox UI State Synchronization', () => {
       data: { type: 'FeatureCollection', features: [] }
     });
     (geojsonLoader as any).notifyLayersChange();
-
     let list = document.getElementById('layers-list');
     expect(list?.innerHTML).toContain('Test GeoJSON');
-
     // Remove layer
     geojsonLoader.clearAllLayers();
     expect(list?.innerHTML).toContain('Belum ada lapisan vektor kustom');
   });
-
-
 });
-

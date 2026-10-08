@@ -2,8 +2,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
-import { BASEMAPS } from '../src/config/basemaps';
-import { PIKSEL_PRODUCTS, PIKSEL_PRESETS } from '../src/config/piksel';
+import { PIKSEL_PRODUCTS, } from '../src/config/piksel';
 import { BasemapCustomizer } from '../src/tools/basemap-customizer';
 import { BasemapCustomizerUI } from '../src/ui/basemap-customizer-panel';
 import { SidebarUI, TabId } from '../src/ui/sidebar';
@@ -515,4 +514,4 @@ describe('Full WebGIS Feature & Button Audit', () => {
     });
   });
 });
-
+

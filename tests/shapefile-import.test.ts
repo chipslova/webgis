@@ -1,8 +1,7 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { GeoJsonLoader } from '../src/tools/geojson-loader';
 import { parseShapefileZip } from '../src/utils/shapefile-parser';
-
 // Mock shpjs
 vi.mock('shpjs', () => {
   return {
@@ -12,7 +11,6 @@ vi.mock('shpjs', () => {
       if (view.length === 0) {
         throw new Error('Invalid zip data');
       }
-
       // If view[0] === 1, simulate single shapefile
       if (view[0] === 1) {
         return Promise.resolve({
@@ -42,7 +40,6 @@ vi.mock('shpjs', () => {
           ]
         });
       }
-
       // If view[0] === 2, simulate multiple shapefiles in one zip
       if (view[0] === 2) {
         return Promise.resolve([
@@ -79,7 +76,6 @@ vi.mock('shpjs', () => {
           }
         ]);
       }
-
       // Default mock fallback
       return Promise.resolve({
         type: 'FeatureCollection',
@@ -95,7 +91,6 @@ vi.mock('shpjs', () => {
     })
   };
 });
-
 describe('Shapefile (.zip) Client-Side Importer', () => {
   const createMockMap = () => ({
     on: vi.fn(),
@@ -117,11 +112,9 @@ describe('Shapefile (.zip) Client-Side Importer', () => {
     fitBounds: vi.fn(),
     getCanvas: vi.fn().mockReturnValue({ style: {} })
   });
-
   it('should parse single Shapefile from zip buffer correctly via parseShapefileZip', async () => {
     const buffer = new Uint8Array([1, 0, 0, 0]).buffer;
     const res = await parseShapefileZip(buffer, 'dki_jakarta.zip');
-
     expect(res.success).toBe(true);
     expect(res.layers).toBeDefined();
     expect(res.layers?.length).toBe(1);
@@ -129,11 +122,9 @@ describe('Shapefile (.zip) Client-Side Importer', () => {
     expect(res.layers?.[0].featureCount).toBe(1);
     expect(res.layers?.[0].geojson.features[0].properties?.PROVINSI).toBe('DKI JAKARTA');
   });
-
   it('should parse multi-layer Shapefile archives containing multiple layers', async () => {
     const buffer = new Uint8Array([2, 0, 0, 0]).buffer;
     const res = await parseShapefileZip(buffer, 'infrastruktur_jakarta.zip');
-
     expect(res.success).toBe(true);
     expect(res.layers?.length).toBe(2);
     expect(res.layers?.[0].fileName).toBe('jalan_arteri');
@@ -141,33 +132,26 @@ describe('Shapefile (.zip) Client-Side Importer', () => {
     expect(res.layers?.[0].geojson.features[0].geometry.type).toBe('LineString');
     expect(res.layers?.[1].geojson.features[0].geometry.type).toBe('Point');
   });
-
   it('should handle corrupt or invalid zip files gracefully without throwing unhandled exceptions', async () => {
     const emptyBuffer = new Uint8Array([]).buffer;
     const res = await parseShapefileZip(emptyBuffer, 'corrupt.zip');
-
     expect(res.success).toBe(false);
     expect(res.error).toContain('Gagal membaca Shapefile .zip');
   });
-
   it('should add Shapefile layers to GeoJsonLoader and register in customLayers with proper geometry types', async () => {
     const mockMap: any = createMockMap();
     const loader = new GeoJsonLoader(mockMap);
-
     const buffer = new Uint8Array([1, 0, 0, 0]).buffer;
     const result = await loader.loadFromZipBuffer('tata_ruang.zip', buffer, '#10b981');
-
     expect(result.success).toBe(true);
     expect(result.layersCreated?.length).toBe(1);
     expect(result.totalFeatures).toBe(1);
-
     const customLayers = loader.getCustomLayers();
     expect(customLayers.length).toBe(1);
     expect(customLayers[0].name).toBe('batas_provinsi');
     expect(customLayers[0].type).toBe('polygon');
     expect(customLayers[0].color).toBe('#10b981');
     expect(customLayers[0].featureCount).toBe(1);
-
     // Verify map layers were attached
     expect(mockMap.addSource).toHaveBeenCalledWith(
       expect.stringContaining('source-layer-shp-'),
@@ -177,18 +161,14 @@ describe('Shapefile (.zip) Client-Side Importer', () => {
       expect.objectContaining({ type: 'fill' })
     );
   });
-
   it('should import multi-layer Shapefile zip and create multiple distinct layers in GeoJsonLoader', async () => {
     const mockMap: any = createMockMap();
     const loader = new GeoJsonLoader(mockMap);
-
     const buffer = new Uint8Array([2, 0, 0, 0]).buffer;
     const result = await loader.loadFromZipBuffer('jakarta_multi.zip', buffer);
-
     expect(result.success).toBe(true);
     expect(result.layersCreated?.length).toBe(2);
     expect(result.totalFeatures).toBe(2);
-
     const customLayers = loader.getCustomLayers();
     expect(customLayers.length).toBe(2);
     expect(customLayers.some(l => l.name === 'jalan_arteri' && l.type === 'line')).toBe(true);
