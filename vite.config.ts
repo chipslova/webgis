@@ -6,6 +6,9 @@ export default defineConfig(({ mode }) => {
   if (env.GEMINI_API_KEY && !process.env.GEMINI_API_KEY) {
     process.env.GEMINI_API_KEY = env.GEMINI_API_KEY;
   }
+  if (env.GEE_SERVICE_ACCOUNT_KEY && !process.env.GEE_SERVICE_ACCOUNT_KEY) {
+    process.env.GEE_SERVICE_ACCOUNT_KEY = env.GEE_SERVICE_ACCOUNT_KEY;
+  }
 
   return {
     publicDir: 'public',
