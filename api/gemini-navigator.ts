@@ -5,7 +5,7 @@ export const config = {
   runtime: 'edge'
 };
 
-import { checkRateLimit, getClientIp } from './_rate-limit';
+import { checkRateLimit, getClientIp } from './_rate-limit.js';
 
 // --- Layer 2: Global Daily Kill-Switch (Zero-Bill Guarantee) ---
 const GLOBAL_DAILY_CEILING = 1000;

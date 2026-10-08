@@ -1,4 +1,8 @@
-import { checkRateLimit, getClientIp } from './_rate-limit';
+export const config = {
+  maxDuration: 60
+};
+
+import { checkRateLimit, getClientIp } from './_rate-limit.js';
 
 
 
@@ -91,7 +95,7 @@ export default async function handler(req: any, res: any) {
         const collection = eeCore.ImageCollection('ESA/WorldCover/v200')
           .filterBounds(regionBbox);
 
-        const lcImage = collection.first().clip(regionBbox);
+        const lcImage = collection.mosaic().clip(regionBbox);
 
         const visParams = {
           bands: ['Map']

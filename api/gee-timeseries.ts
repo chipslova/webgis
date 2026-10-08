@@ -5,7 +5,7 @@ export const config = {
   maxDuration: 60 // Time-series reductions can take longer
 };
 
-import { checkRateLimit, getClientIp } from './_rate-limit';
+import { checkRateLimit, getClientIp } from './_rate-limit.js';
 
 interface TimeSeriesRequestBody {
   lat: number;

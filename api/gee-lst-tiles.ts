@@ -1,4 +1,8 @@
-import { checkRateLimit, getClientIp } from './_rate-limit';
+export const config = {
+  maxDuration: 60
+};
+
+import { checkRateLimit, getClientIp } from './_rate-limit.js';
 
 interface GEETileRequest {
   satellite?: 'terra' | 'aqua' | 'combined';
@@ -119,6 +123,13 @@ export default async function handler(req: any, res: any) {
 
         const bandName = isDay ? 'LST_Day_1km' : 'LST_Night_1km';
 
+        let filterEnd = end;
+        if (start && end && start === end) {
+          const dObj = new Date(start);
+          dObj.setUTCDate(dObj.getUTCDate() + 8);
+          filterEnd = dObj.toISOString().split('T')[0];
+        }
+
         let collection: any;
         if (sat === 'terra') {
           collection = eeCore.ImageCollection('MODIS/061/MOD11A2');
@@ -126,13 +137,13 @@ export default async function handler(req: any, res: any) {
           collection = eeCore.ImageCollection('MODIS/061/MYD11A2');
         } else {
           // Combined Terra (MOD11A2) + Aqua (MYD11A2) 8-Day Composites
-          const terra = eeCore.ImageCollection('MODIS/061/MOD11A2').filterDate(start, end).filterBounds(regionBbox);
-          const aqua = eeCore.ImageCollection('MODIS/061/MYD11A2').filterDate(start, end).filterBounds(regionBbox);
+          const terra = eeCore.ImageCollection('MODIS/061/MOD11A2').filterDate(start, filterEnd).filterBounds(regionBbox);
+          const aqua = eeCore.ImageCollection('MODIS/061/MYD11A2').filterDate(start, filterEnd).filterBounds(regionBbox);
           collection = terra.merge(aqua);
         }
 
         const filtered = collection
-          .filterDate(start, end)
+          .filterDate(start, filterEnd)
           .filterBounds(regionBbox)
           .select(bandName);
 

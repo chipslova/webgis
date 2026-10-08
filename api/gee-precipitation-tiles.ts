@@ -1,4 +1,8 @@
-import { checkRateLimit, getClientIp } from './_rate-limit';
+export const config = {
+  maxDuration: 60
+};
+
+import { checkRateLimit, getClientIp } from './_rate-limit.js';
 
 interface GEEPrecipRequest {
   date?: string;
@@ -109,8 +113,15 @@ export default async function handler(req: any, res: any) {
           }
         }
 
+        let filterEndDate = endDate;
+        if (startDate === endDate) {
+          const dObj = new Date(startDate);
+          dObj.setUTCDate(dObj.getUTCDate() + 1);
+          filterEndDate = dObj.toISOString().split('T')[0];
+        }
+
         const collection = eeCore.ImageCollection('UCSB-CHG/CHIRPS/DAILY')
-          .filterDate(startDate, endDate)
+          .filterDate(startDate, filterEndDate)
           .filterBounds(regionBbox)
           .select('precipitation');
 

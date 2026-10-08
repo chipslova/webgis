@@ -2,7 +2,7 @@
 // Endpoint: /api/gee-zonal-stats
 
 export const config = {
-  maxDuration: 30 // Allow up to 30s for complex planetary cloud reductions
+  maxDuration: 60 // Allow up to 60s for complex planetary cloud reductions
 };
 
 interface ZonalStatsRequestBody {
@@ -27,7 +27,7 @@ const WORLDCOVER_META: Record<string, { code: number; worldCoverClass: number; n
   '100': { code: 10, worldCoverClass: 100, name: 'Moss & Lichen', nameId: 'Lumut / Lainnya', color: '#C8C8C8' }
 };
 
-import { checkRateLimit, getClientIp } from './_rate-limit';
+import { checkRateLimit, getClientIp } from './_rate-limit.js';
 
 export default async function handler(req: any, res: any) {
   const sendJson = (status: number, data: any) => {

@@ -1,3 +1,7 @@
+export const config = {
+  maxDuration: 60
+};
+
 import { checkRateLimit, getClientIp } from './_rate-limit.js';
 
 export default async function handler(req: any, res: any) {
@@ -118,8 +122,8 @@ export default async function handler(req: any, res: any) {
     } else if (dataset === 'esa-landcover') {
       finalImage = eeCore.ImageCollection('ESA/WorldCover/v200')
         .filterBounds(regionBbox)
-        .first()
         .select('Map')
+        .mosaic()
         .clip(regionBbox);
     } else {
       return sendJson(400, { error: 'Dataset tidak didukung.' });

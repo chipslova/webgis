@@ -10,7 +10,7 @@ const UPSTREAM_WMS_URL = `https://${UPSTREAM_WMS_HOST}/wms`;
 
 
 
-import { checkRateLimit, getClientIp } from './_rate-limit';
+import { checkRateLimit, getClientIp } from './_rate-limit.js';
 
 export default async function handler(req: Request): Promise<Response> {
   // Handle CORS preflight
