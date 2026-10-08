@@ -425,12 +425,12 @@ export class GEEPanelUI {
         });
         if (!res.ok) throw new Error('API Error');
         const data = await res.json();
-        const features = data.features || [];
+        const tsData = data.data || [];
         // Find the most recent valid LST reading
-        for (let i = features.length - 1; i >= 0; i--) {
-          const val = features[i].properties.LST_Day_1km;
+        for (let i = tsData.length - 1; i >= 0; i--) {
+          const val = tsData[i].day_c;
           if (val !== null && val !== undefined) {
-            return (val * 0.02) - 273.15; // convert Kelvin to Celsius
+            return val; // already in Celsius
           }
         }
         return null;
@@ -462,9 +462,9 @@ export class GEEPanelUI {
       } else {
         if (jktEl) jktEl.innerText = 'Data N/A';
         if (bdgEl) bdgEl.innerText = 'Data N/A';
-        if (deltaEl) deltaEl.innerText = 'Δ N/A';
-        if (jktSrc) jktSrc.innerText = 'Gagal memuat';
-        if (bdgSrc) bdgSrc.innerText = 'Gagal memuat';
+        if (deltaEl) { deltaEl.innerText = 'Δ N/A'; deltaEl.style.background = '#64748b'; }
+        if (jktSrc) { jktSrc.innerText = 'Gagal memuat (Kunci GEE Belum Dikonfigurasi)'; jktSrc.style.color = '#ef4444'; }
+        if (bdgSrc) { bdgSrc.innerText = 'Gagal memuat (Kunci GEE Belum Dikonfigurasi)'; bdgSrc.style.color = '#ef4444'; }
       }
 
     } catch (err) {

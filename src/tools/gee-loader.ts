@@ -416,6 +416,8 @@ export class GEELoader {
       return;
     }
 
+    const isDayVis = this.isLayerVisible('lst-day');
+    const isNightVis = this.isLayerVisible('lst-night');
     const isLcVis = this.isLayerVisible('landcover');
     const isPrecipVis = this.isLayerVisible('precipitation');
 
@@ -455,11 +457,51 @@ export class GEELoader {
       gridSrc.setData(this.gridData);
     }
 
-    // --- 1. OFFICIAL NASA GIBS OGC WMS: DAYTIME LST RASTER LAYER ---
-    // (Removed to force GEE Live exclusively)
+    // --- 1. OFFICIAL NASA GIBS OGC WMS: DAYTIME LST RASTER LAYER (FALLBACK) ---
+    const dayWmsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=MODIS_Terra_L3_Land_Surface_Temp_Day_8Day&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=true&HEIGHT=256&WIDTH=256&TIME=2024-05-01&BBOX={bbox-epsg-3857}`;
+    const daySourceId = 'gee-modis-day-wms-source';
+    const dayLayerId = 'gee-modis-day-wms-layer';
+    
+    if (!this.map.getSource(daySourceId)) {
+      this.map.addSource(daySourceId, {
+        type: 'raster',
+        tiles: [dayWmsUrl],
+        tileSize: 256
+      });
+      this.map.addLayer({
+        id: dayLayerId,
+        type: 'raster',
+        source: daySourceId,
+        layout: { visibility: isDayVis && !this.liveTileUrlTemplate ? 'visible' : 'none' },
+        paint: {
+          'raster-opacity': this.getLayerOpacity('lst-day'),
+          'raster-resampling': 'nearest'
+        }
+      }, 'gee-modis-stations-circles');
+    }
 
-    // --- 2. OFFICIAL NASA GIBS OGC WMS: NIGHTTIME LST RASTER LAYER ---
-    // (Removed to force GEE Live exclusively)
+    // --- 2. OFFICIAL NASA GIBS OGC WMS: NIGHTTIME LST RASTER LAYER (FALLBACK) ---
+    const nightWmsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=MODIS_Terra_L3_Land_Surface_Temp_Night_8Day&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=true&HEIGHT=256&WIDTH=256&TIME=2024-05-01&BBOX={bbox-epsg-3857}`;
+    const nightSourceId = 'gee-modis-night-wms-source';
+    const nightLayerId = 'gee-modis-night-wms-layer';
+    
+    if (!this.map.getSource(nightSourceId)) {
+      this.map.addSource(nightSourceId, {
+        type: 'raster',
+        tiles: [nightWmsUrl],
+        tileSize: 256
+      });
+      this.map.addLayer({
+        id: nightLayerId,
+        type: 'raster',
+        source: nightSourceId,
+        layout: { visibility: isNightVis && !this.liveTileUrlTemplate ? 'visible' : 'none' },
+        paint: {
+          'raster-opacity': this.getLayerOpacity('lst-night'),
+          'raster-resampling': 'nearest'
+        }
+      }, 'gee-modis-stations-circles');
+    }
 
     // --- 3. GEE ESA WORLDCOVER (LIVE RASTER) ---
     try {
@@ -607,10 +649,10 @@ export class GEELoader {
     const isLcVis = this.isLayerVisible('landcover');
     const isPrecipVis = this.isLayerVisible('precipitation');
     if (this.map.getLayer('gee-modis-day-wms-layer')) {
-      this.map.setLayoutProperty('gee-modis-day-wms-layer', 'visibility', isDayVis ? 'visible' : 'none');
+      this.map.setLayoutProperty('gee-modis-day-wms-layer', 'visibility', (isDayVis && !this.liveTileUrlTemplate) ? 'visible' : 'none');
     }
     if (this.map.getLayer('gee-modis-night-wms-layer')) {
-      this.map.setLayoutProperty('gee-modis-night-wms-layer', 'visibility', isNightVis ? 'visible' : 'none');
+      this.map.setLayoutProperty('gee-modis-night-wms-layer', 'visibility', (isNightVis && !this.liveTileUrlTemplate) ? 'visible' : 'none');
     }
     // GEE Live Layer (Replaces NASA GIBS)
     if (this.map.getLayer('gee-modis-live-raster-layer')) {
