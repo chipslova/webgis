@@ -189,6 +189,139 @@ export class PointInspector {
       }
       showToast(isAdded ? '⭐ Lokasi berhasil disimpan ke Bookmark Favorit!' : 'Bookmark lokasi telah dihapus', 'info');
     });
+
+    const extractTsBtn = document.getElementById('btn-insp-extract-ts');
+    extractTsBtn?.addEventListener('click', async () => {
+      if (!this.currentInspected) return;
+
+      const container = document.getElementById('insp-ts-result-container');
+      const loading = document.getElementById('insp-ts-loading');
+      const chartWrap = document.getElementById('insp-ts-chart-wrap');
+      const errBox = document.getElementById('insp-ts-error');
+      const canvas = document.getElementById('insp-ts-canvas') as HTMLCanvasElement;
+
+      if (!container || !loading || !chartWrap || !errBox || !canvas) return;
+
+      container.style.display = 'block';
+      loading.style.display = 'block';
+      chartWrap.style.display = 'none';
+      errBox.style.display = 'none';
+      extractTsBtn.setAttribute('disabled', 'true');
+      extractTsBtn.innerText = 'Memproses...';
+
+      try {
+        const res = await fetch('/api/gee-timeseries', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lat: this.currentInspected.lat,
+            lon: this.currentInspected.lng,
+            startDate: '2025-01-01',
+            endDate: '2026-01-01'
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          throw new Error(data.error || 'Terjadi kesalahan pada server');
+        }
+
+        if (data.status === 'unconfigured') {
+          throw new Error(data.message);
+        }
+
+        if (!data.data || data.data.length === 0) {
+          throw new Error('Data time-series kosong untuk titik ini.');
+        }
+
+        this.drawMiniChart(canvas, data.data);
+        loading.style.display = 'none';
+        chartWrap.style.display = 'block';
+
+      } catch (err: any) {
+        loading.style.display = 'none';
+        errBox.style.display = 'block';
+        errBox.innerText = err.message;
+      } finally {
+        extractTsBtn.removeAttribute('disabled');
+        extractTsBtn.innerHTML = '<span class="btn-icon">📈</span> Muat Ulang Deret Waktu';
+      }
+    });
+  }
+
+  private drawMiniChart(canvas: HTMLCanvasElement, data: any[]) {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Fixed width for popup
+    const width = 250;
+    const height = 120;
+    canvas.width = width;
+    canvas.height = height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    const P = { top: 10, right: 10, bottom: 20, left: 25 };
+    const cH = height - P.top - P.bottom;
+    const cW = width - P.left - P.right;
+    
+    // Find min and max
+    let minT = 100;
+    let maxT = -100;
+    data.forEach(d => {
+      if (d.day_c !== null) { minT = Math.min(minT, d.day_c); maxT = Math.max(maxT, d.day_c); }
+      if (d.night_c !== null) { minT = Math.min(minT, d.night_c); maxT = Math.max(maxT, d.night_c); }
+    });
+    
+    // Fallback if no data or flat
+    if (minT === maxT) { minT -= 5; maxT += 5; }
+    if (minT === 100) { minT = 20; maxT = 40; }
+
+    const yRange = maxT - minT;
+    // Add 10% padding
+    const yMin = minT - (yRange * 0.1);
+    const yMax = maxT + (yRange * 0.1);
+    const realRange = yMax - yMin;
+
+    const toY = (v: number) => height - P.bottom - ((v - yMin) / realRange) * cH;
+    const toX = (i: number) => P.left + (i / (data.length - 1 || 1)) * cW;
+
+    // Grid
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.fillStyle = '#94a3b8'; 
+    ctx.font = '9px Inter, sans-serif';
+    
+    // 3 horizontal lines
+    [yMin, (yMin + yMax)/2, yMax].forEach(yV => {
+      const y = toY(yV);
+      ctx.beginPath(); ctx.moveTo(P.left, y); ctx.lineTo(width - P.right, y); ctx.stroke();
+      ctx.fillText(`${yV.toFixed(1)}`, 2, y + 3);
+    });
+
+    // Draw lines
+    const drawLine = (key: 'day_c' | 'night_c', color: string) => {
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      let first = true;
+      data.forEach((d, i) => {
+        if (d[key] !== null) {
+          const x = toX(i);
+          const y = toY(d[key]);
+          if (first) { ctx.moveTo(x, y); first = false; }
+          else { ctx.lineTo(x, y); }
+        }
+      });
+      ctx.stroke();
+    };
+
+    drawLine('night_c', '#06b6d4'); // Cyan for night
+    drawLine('day_c', '#ef4444');   // Red for day
+
+    // Labels
+    ctx.fillStyle = '#ef4444'; ctx.fillText('Siang', width - P.right - 25, 10);
+    ctx.fillStyle = '#06b6d4'; ctx.fillText('Malam', width - P.right - 25, 20);
   }
 
   public close() {
@@ -520,6 +653,15 @@ export class PointInspector {
     if (bookmarkBtn) {
       const isBm = PointInspector.isBookmarked(lat, lng);
       bookmarkBtn.innerText = isBm ? '⭐ Tersimpan' : '⭐ Simpan Bookmark';
+    }
+
+    // Reset Time-series UI
+    const tsContainer = document.getElementById('insp-ts-result-container');
+    const extractTsBtn = document.getElementById('btn-insp-extract-ts');
+    if (tsContainer) tsContainer.style.display = 'none';
+    if (extractTsBtn) {
+      extractTsBtn.removeAttribute('disabled');
+      extractTsBtn.innerHTML = '<span class="btn-icon">📈</span> Ekstrak Deret Waktu Suhu LST (1 Tahun Terakhir)';
     }
 
     this.containerEl.classList.add('active');

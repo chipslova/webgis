@@ -1183,6 +1183,24 @@
               <span id="insp-lst">Tidak tersedia untuk kueri titik WMS</span>
             </div>
 
+            <!-- Live GEE Time-Series Extractor -->
+            <div class="insp-section" id="insp-timeseries-row" style="margin-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px;">
+              <div class="insp-section-title">ANALISIS DERET WAKTU GEE (LIVE)</div>
+              <button id="btn-insp-extract-ts" class="btn btn-primary full-width" style="margin-top: 6px; font-size: 11px; padding: 6px 10px;">
+                <span class="btn-icon">📈</span> Ekstrak Deret Waktu Suhu LST (1 Tahun Terakhir)
+              </button>
+              
+              <div id="insp-ts-result-container" style="display: none; margin-top: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 4px; padding: 8px;">
+                <div id="insp-ts-loading" style="display: none; text-align: center; color: var(--text-muted); font-size: 11px;">
+                  Sedang mengekstrak data dari GEE... (±10 detik)
+                </div>
+                <div id="insp-ts-chart-wrap" style="position: relative; width: 100%; height: 120px; display: none;">
+                  <canvas id="insp-ts-canvas" width="250" height="120"></canvas>
+                </div>
+                <div id="insp-ts-error" style="display: none; color: #ef4444; font-size: 11px; margin-top: 4px;"></div>
+              </div>
+            </div>
+
             <!-- Data Provenance & Transparency Note -->
             <div class="insp-disclaimer-note">
               <span class="insp-disclaimer-icon" aria-hidden="true">ℹ️</span>
