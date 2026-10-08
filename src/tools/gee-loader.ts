@@ -252,6 +252,9 @@ export class GEELoader {
       id: layerId,
       type: 'raster',
       source: sourceId,
+      layout: {
+        'visibility': (this.isLayerVisible('lst-day') || this.isLayerVisible('lst-night')) ? 'visible' : 'none'
+      },
       paint: {
         'raster-opacity': this.getOpacity(),
         'raster-fade-duration': 300
@@ -609,6 +612,11 @@ export class GEELoader {
     if (this.map.getLayer('gee-modis-night-wms-layer')) {
       this.map.setLayoutProperty('gee-modis-night-wms-layer', 'visibility', isNightVis ? 'visible' : 'none');
     }
+    // GEE Live Layer (Replaces NASA GIBS)
+    if (this.map.getLayer('gee-modis-live-raster-layer')) {
+      this.map.setLayoutProperty('gee-modis-live-raster-layer', 'visibility', (isDayVis || isNightVis) ? 'visible' : 'none');
+    }
+    
     if (this.map.getLayer('gee-modis-landcover-layer')) {
       this.map.setLayoutProperty('gee-modis-landcover-layer', 'visibility', isLcVis ? 'visible' : 'none');
     }
