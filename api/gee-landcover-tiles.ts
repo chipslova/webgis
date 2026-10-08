@@ -1,9 +1,6 @@
 import { checkRateLimit, getClientIp } from './_rate-limit';
 
-interface GEELandcoverRequest {
-  year?: string;
-  bbox?: string;
-}
+
 
 export default async function handler(req: any, res: any) {
   const sendJson = (status: number, data: any) => {
