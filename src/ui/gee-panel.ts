@@ -42,6 +42,8 @@ export class GEEPanelUI {
         showToast('Gagal memuat data MODIS LST. Periksa koneksi jaringan Anda.', 'error');
       }, { once: false });
 
+      this.updateThermalContrast();
+
       this.isInitialized = true;
     }
   }
@@ -225,6 +227,9 @@ export class GEEPanelUI {
         } finally {
           btn.removeAttribute('disabled');
           btn.innerHTML = '⚡ Terapkan Analisis Langsung';
+          
+          // Also update the UI contrast box when new parameters are applied
+          this.updateThermalContrast();
         }
       });
     }
@@ -392,6 +397,79 @@ export class GEEPanelUI {
         btn.disabled = false;
       }
     });
+  }
+
+  // ── Dynamic Thermal Contrast ─────────────────────────────────────────────────
+
+  private async updateThermalContrast() {
+    try {
+      const jakarta = { lat: -6.175, lon: 106.827 };
+      const bandung = { lat: -6.914, lon: 107.609 };
+      
+      const periodSelect = document.getElementById('gee-period-select') as HTMLSelectElement | null;
+      let startDate = '2024-01-01';
+      let endDate = '2024-12-31';
+      if (periodSelect && periodSelect.value) {
+        const parts = periodSelect.value.split('|');
+        if (parts.length === 2) {
+          startDate = parts[0];
+          endDate = parts[1];
+        }
+      }
+
+      const fetchTemp = async (coords: {lat: number, lon: number}) => {
+        const res = await fetch('/api/gee-timeseries', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lat: coords.lat, lon: coords.lon, startDate, endDate })
+        });
+        if (!res.ok) throw new Error('API Error');
+        const data = await res.json();
+        const features = data.features || [];
+        // Find the most recent valid LST reading
+        for (let i = features.length - 1; i >= 0; i--) {
+          const val = features[i].properties.LST_Day_1km;
+          if (val !== null && val !== undefined) {
+            return (val * 0.02) - 273.15; // convert Kelvin to Celsius
+          }
+        }
+        return null;
+      };
+
+      const [jktTemp, bdgTemp] = await Promise.all([
+        fetchTemp(jakarta).catch(() => null),
+        fetchTemp(bandung).catch(() => null)
+      ]);
+
+      const jktEl = document.getElementById('metric-jakarta-lst');
+      const bdgEl = document.getElementById('metric-bandung-lst');
+      const deltaEl = document.getElementById('metric-suhi-delta');
+      const jktSrc = document.getElementById('metric-jkt-src');
+      const bdgSrc = document.getElementById('metric-bdg-src');
+
+      if (jktTemp !== null && bdgTemp !== null) {
+        if (jktEl) jktEl.innerText = `${jktTemp.toFixed(1)} °C`;
+        if (bdgEl) bdgEl.innerText = `${bdgTemp.toFixed(1)} °C`;
+        
+        const delta = jktTemp - bdgTemp;
+        if (deltaEl) {
+          deltaEl.innerText = `Δ ${delta > 0 ? '+' : ''}${delta.toFixed(1)} °C`;
+          deltaEl.style.background = delta > 10 ? '#ef4444' : '#f59e0b';
+        }
+        
+        if (jktSrc) { jktSrc.innerText = 'MODIS Serverless API'; jktSrc.style.color = '#10b981'; }
+        if (bdgSrc) { bdgSrc.innerText = 'MODIS Serverless API'; bdgSrc.style.color = '#10b981'; }
+      } else {
+        if (jktEl) jktEl.innerText = 'Data N/A';
+        if (bdgEl) bdgEl.innerText = 'Data N/A';
+        if (deltaEl) deltaEl.innerText = 'Δ N/A';
+        if (jktSrc) jktSrc.innerText = 'Gagal memuat';
+        if (bdgSrc) bdgSrc.innerText = 'Gagal memuat';
+      }
+
+    } catch (err) {
+      console.warn('Failed to update thermal contrast:', err);
+    }
   }
 }
 
