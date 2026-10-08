@@ -33,7 +33,7 @@ describe('Layer & Checkbox UI State Synchronization', () => {
         <button id="btn-focus-gee-area"></button>
         <button id="btn-download-geojson"></button>
         <button id="btn-download-csv"></button>
-        <canvas id="gee-chart-canvas"></canvas>
+
       </div>
       <div id="panel-piksel"></div>
     `;

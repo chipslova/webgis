@@ -1,51 +1,13 @@
 import { GEELoader } from '../tools/gee-loader';
 import { showToast } from './toast';
 
-interface MODISTimeSeriesRecord {
-  date: string;
-  timestamp_ms: number;
-  year?: number;
-  month?: number;
-  is_forecast?: boolean;
-  jkt_day_lst_c?: number;
-  jkt_night_lst_c?: number;
-  bdg_day_lst_c?: number;
-  bdg_night_lst_c?: number;
-  ikn_day_lst_c?: number;
-  ikn_night_lst_c?: number;
-  uhi_delta_c?: number;
-  jkt_air_temp_c?: number;
-  jkt_surface_temp_c?: number;
-  bdg_air_temp_c?: number;
-  bdg_surface_temp_c?: number;
-  urban_obs_c?: number;
-  urban_fitted_c?: number;
-  rural_obs_c?: number;
-  rural_fitted_c?: number;
-}
-
-interface ChartPoint {
-  x: number;
-  date: string;
-  isForecast: boolean;
-  jktDay: number;
-  bdgDay: number;
-  jktNight: number;
-  bdgNight: number;
-}
-
 export class GEEPanelUI {
   private geeLoader: GEELoader;
-  private timeSeriesData: MODISTimeSeriesRecord[] = [];
-  private canvas: HTMLCanvasElement | null = null;
   private isInitialized: boolean = false;
   private isToggleEventsBound: boolean = false;
-  private chartPoints: ChartPoint[] = [];
   private timelapseTimer: ReturnType<typeof setInterval> | null = null;
   private isRecording: boolean = false;
   private mediaRecorder: MediaRecorder | null = null;
-  private chartResizeObserver: ResizeObserver | null = null;
-  private lastChartWidth: number = 0;
 
   constructor(geeLoader: GEELoader) {
     this.geeLoader = geeLoader;
@@ -60,7 +22,6 @@ export class GEEPanelUI {
       this.bindDownloadEvents();
       this.bindGEEComputeEvents();
       this.bindTileLoadingIndicator();
-      this.bindAccessibleDataTableEvents();
 
       this.geeLoader.onLayersChange(() => {
         this.syncCheckboxStates();
@@ -77,18 +38,12 @@ export class GEEPanelUI {
         });
       }
 
-      window.addEventListener('resize', () => {
-        this.renderTimeSeriesChart();
-      });
-
-      window.addEventListener('gee-load-error', () => {
+        window.addEventListener('gee-load-error', () => {
         showToast('Gagal memuat data MODIS LST. Periksa koneksi jaringan Anda.', 'error');
       }, { once: false });
 
       this.isInitialized = true;
     }
-
-    this.renderTimeSeriesChart();
   }
 
   // ── Tile loading indicator ───────────────────────────────────────────────────
@@ -323,16 +278,7 @@ export class GEEPanelUI {
     bind('gee-landcover-opacity', 'gee-landcover-opacity-val', 'landcover');
     bind('gee-precip-opacity', 'gee-precip-opacity-val', 'precipitation');
 
-    // Chart PNG download
-    document.getElementById('btn-download-chart-png')?.addEventListener('click', () => {
-      const c = document.getElementById('gee-chart-canvas') as HTMLCanvasElement | null;
-      if (!c) return;
-      const a = document.createElement('a');
-      a.download = `lst_timeseries_${Date.now()}.png`;
-      a.href = c.toDataURL('image/png');
-      a.click();
-      showToast('Chart berhasil diunduh sebagai PNG!', 'success');
-    });
+
   }
 
   // ── Layer toggle events ──────────────────────────────────────────────────────
