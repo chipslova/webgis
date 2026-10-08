@@ -219,7 +219,6 @@ class WebGISApp {
 
         if (tabId === 'gee') {
           this.geeLoader?.loadGEEDatasets();
-          this.geePanelUI?.renderTimeSeriesChart();
         }
       });
 

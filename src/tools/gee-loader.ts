@@ -1,7 +1,5 @@
 import * as maplibregl from 'maplibre-gl';
 import { logger } from '../utils/logger';
-import { ErrorHandler } from '../utils/error-handler';
-
 export type GEEStatus = 'live' | 'computing' | 'fallback' | 'error';
 
 export interface GEEQueryParams {
@@ -17,10 +15,8 @@ export class GEELoader {
   private htmlMarkers: maplibregl.Marker[] = [];
 
   // In-memory GeoJSON Datasets
-  private stationsData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
   private gridData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
   private isDataLoaded: boolean = false;
-  private dataLoadPromise: Promise<void> | null = null;
 
   // Live GEE Serverless state
   private liveTileUrlTemplate: string | null = null;
@@ -417,11 +413,8 @@ export class GEELoader {
       return;
     }
 
-    const isDayVis = this.isLayerVisible('lst-day');
-    const isNightVis = this.isLayerVisible('lst-night');
     const isLcVis = this.isLayerVisible('landcover');
     const isPrecipVis = this.isLayerVisible('precipitation');
-    const isStationsVis = this.isLayerVisible('stations');
 
     // Prepare point collection for Gaussian heatmap interpolation (continuous, zero-box surface)
     const pointsCollection: GeoJSON.FeatureCollection = {
@@ -610,8 +603,6 @@ export class GEELoader {
     const isNightVis = this.isLayerVisible('lst-night');
     const isLcVis = this.isLayerVisible('landcover');
     const isPrecipVis = this.isLayerVisible('precipitation');
-    const isStationsVis = this.isLayerVisible('stations');
-
     if (this.map.getLayer('gee-modis-day-wms-layer')) {
       this.map.setLayoutProperty('gee-modis-day-wms-layer', 'visibility', isDayVis ? 'visible' : 'none');
     }
