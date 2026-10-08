@@ -89,7 +89,6 @@ describe('Full WebGIS Feature & Button Audit', () => {
       expect(document.getElementById('gee-lst-day-opacity')).not.toBeNull();
       expect(document.getElementById('gee-landcover-opacity')).not.toBeNull();
       expect(document.getElementById('toggle-gee-lst')).not.toBeNull();
-      expect(document.getElementById('toggle-gee-poi')).not.toBeNull();
       expect(document.getElementById('toggle-gee-elevation')).not.toBeNull();
       expect(document.getElementById('toggle-gee-landcover')).not.toBeNull();
     });

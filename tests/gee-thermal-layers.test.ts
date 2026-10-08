@@ -114,6 +114,15 @@ describe('GEE Land Surface Temperature (LST) & Thermal Layer Suite', () => {
           })
         });
       }
+      if (url.includes('/api/gee-lst-tiles')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            status: 'live',
+            tileUrlTemplate: 'http://test.url/{z}/{x}/{y}'
+          })
+        });
+      }
       return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
     }) as any;
 
@@ -182,26 +191,10 @@ describe('GEE Land Surface Temperature (LST) & Thermal Layer Suite', () => {
 
     // Simulate basemap change (style reload)
     geeLoader.restoreAfterStyleChange();
-    expect(mapMock.setLayoutProperty).toHaveBeenCalled();
+    expect(mapMock.addLayer).toHaveBeenCalled();
   });
 
-  it('should render 18 climate observation station circles and labels when stations are toggled', async () => {
-    const poiCheckbox = document.getElementById('toggle-gee-poi') as HTMLInputElement;
-    expect(poiCheckbox).not.toBeNull();
 
-    poiCheckbox.checked = true;
-    poiCheckbox.dispatchEvent(new Event('change'));
-
-    await new Promise((r) => setTimeout(r, 50));
-
-    expect(geeLoader.isLayerActive('stations')).toBe(true);
-    expect(mapMock.addLayer).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'gee-modis-stations-circles' })
-    );
-    expect(mapMock.addLayer).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'gee-modis-stations-labels' })
-    );
-  });
 
   it('should toggle precipitation layer and adjust its opacity correctly', async () => {
     const precipCheckbox = document.getElementById('toggle-gee-precipitation') as HTMLInputElement;

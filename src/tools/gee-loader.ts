@@ -121,31 +121,8 @@ export class GEELoader {
   }
 
   public async ensureDataLoaded(): Promise<void> {
-    if (this.isDataLoaded) return;
-    if (this.dataLoadPromise) return this.dataLoadPromise;
-
-    this.dataLoadPromise = (async () => {
-      try {
-        const [stationsRes, gridRes] = await Promise.all([
-          fetch('/data/gee_cfsv2_stations.geojson'),
-          fetch('/data/gee_cfsv2_grid.geojson')
-        ]);
-
-        if (stationsRes.ok) this.stationsData = await stationsRes.json();
-        if (gridRes.ok) this.gridData = await gridRes.json();
-        this.isDataLoaded = true;
-      } catch (e) {
-        this.dataLoadPromise = null;
-        this.isDataLoaded = false;
-        ErrorHandler.getInstance().showThrottledError('Failed to load MODIS LST GEE dataset. Please check your internet connection.');
-        logger.warn('[GEELoader] Failed to load MODIS LST dataset:', e);
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('gee-load-error'));
-        }
-      }
-    })();
-
-    return this.dataLoadPromise;
+    this.isDataLoaded = true;
+    return Promise.resolve();
   }
 
   public onLayersChange(callback: () => void) {
@@ -172,16 +149,7 @@ export class GEELoader {
       'gee-modis-night-wms-layer',
       'gee-modis-landcover-layer',
       'gee-precipitation-wms-layer',
-      'gee-modis-live-raster-layer',
-      'gee-modis-lst-day-fill',
-      'gee-modis-lst-night-fill',
-      'gee-modis-stations-circles',
-      'gee-modis-stations-labels',
-      'gee-heatmap-layer',
-      'gee-air-temp-layer',
-      'gee-surface-temp-layer',
-      'gee-elevation-layer',
-      'gee-poi-circles'
+      'gee-modis-live-raster-layer'
     ];
   }
 
@@ -621,121 +589,7 @@ export class GEELoader {
       logger.warn('[GEELoader] Notice adding GEE Precipitation layer:', e);
     }
 
-    // --- 4. Transparent Polygon Layers for Click & Hover Temperature Interception ---
-    try {
-      if (!this.map.getLayer('gee-modis-lst-day-fill')) {
-        this.map.addLayer({
-          id: 'gee-modis-lst-day-fill',
-          type: 'fill',
-          source: 'gee-modis-grid-source',
-          layout: { visibility: isDayVis ? 'visible' : 'none' },
-          paint: {
-            'fill-color': '#000000',
-            'fill-opacity': isDayVis ? 0.0001 : 0
-          }
-        });
-      } else {
-        this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', isDayVis ? 'visible' : 'none');
-        this.map.setPaintProperty('gee-modis-lst-day-fill', 'fill-opacity', isDayVis ? 0.0001 : 0);
-      }
-
-      if (!this.map.getLayer('gee-modis-lst-night-fill')) {
-        this.map.addLayer({
-          id: 'gee-modis-lst-night-fill',
-          type: 'fill',
-          source: 'gee-modis-grid-source',
-          layout: { visibility: isNightVis ? 'visible' : 'none' },
-          paint: {
-            'fill-color': '#000000',
-            'fill-opacity': isNightVis ? 0.0001 : 0
-          }
-        });
-      } else {
-        this.map.setLayoutProperty('gee-modis-lst-night-fill', 'visibility', isNightVis ? 'visible' : 'none');
-        this.map.setPaintProperty('gee-modis-lst-night-fill', 'fill-opacity', isNightVis ? 0.0001 : 0);
-      }
-    } catch (e) {
-      logger.warn('[GEELoader] Notice adding fill click interceptor layers:', e);
-    }
-
-    // --- 5. MODIS LST MONITORING STATIONS (18 NODES) ---
-    try {
-      if (isStationsVis) {
-        const stationsSrc = this.map.getSource('gee-modis-stations-source') as maplibregl.GeoJSONSource;
-        if (!stationsSrc) {
-          this.map.addSource('gee-modis-stations-source', {
-            type: 'geojson',
-            data: this.stationsData
-          });
-        } else if (typeof stationsSrc.setData === 'function') {
-          stationsSrc.setData(this.stationsData);
-        }
-
-        // Station Point Circles
-        if (!this.map.getLayer('gee-modis-stations-circles')) {
-          this.map.addLayer({
-            id: 'gee-modis-stations-circles',
-            type: 'circle',
-            source: 'gee-modis-stations-source',
-            layout: { visibility: isStationsVis ? 'visible' : 'none' },
-            paint: {
-              'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 7, 7, 10, 10, 14],
-              'circle-color': [
-                'interpolate',
-                ['linear'],
-                ['coalesce', ['to-number', ['get', 'lst_day_c']], 30],
-                10, '#0080ff',
-                20, '#00ffff',
-                26, '#00ff80',
-                32, '#ffff00',
-                36, '#ff8000',
-                40, '#fe0100'
-              ],
-              'circle-stroke-width': 2.5,
-              'circle-stroke-color': '#ffffff',
-              'circle-opacity': 0.95
-            }
-          });
-        } else {
-          this.map.setLayoutProperty('gee-modis-stations-circles', 'visibility', isStationsVis ? 'visible' : 'none');
-        }
-
-        // Station Text & Temperature Labels
-        if (!this.map.getLayer('gee-modis-stations-labels')) {
-          this.map.addLayer({
-            id: 'gee-modis-stations-labels',
-            type: 'symbol',
-            source: 'gee-modis-stations-source',
-            layout: {
-              visibility: isStationsVis ? 'visible' : 'none',
-              'text-field': ['concat', ['get', 'name'], '\n🌡️ ', ['to-string', ['coalesce', ['get', 'lst_day_c'], ['get', 'temp_air_c']]], '°C'],
-              'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-              'text-size': 11,
-              'text-offset': [0, 1.8],
-              'text-anchor': 'top',
-              'text-allow-overlap': false
-            },
-            paint: {
-              'text-color': '#ffffff',
-              'text-halo-color': '#0a0f1d',
-              'text-halo-width': 2.5,
-              'text-halo-blur': 1
-            }
-          });
-        } else {
-          this.map.setLayoutProperty('gee-modis-stations-labels', 'visibility', isStationsVis ? 'visible' : 'none');
-        }
-      } else {
-        if (this.map.getLayer('gee-modis-stations-circles')) {
-          this.map.setLayoutProperty('gee-modis-stations-circles', 'visibility', 'none');
-        }
-        if (this.map.getLayer('gee-modis-stations-labels')) {
-          this.map.setLayoutProperty('gee-modis-stations-labels', 'visibility', 'none');
-        }
-      }
-    } catch (e) {
-      logger.warn('Notice adding MODIS LST monitoring stations layer:', e);
-    }
+    // Removed synthetic stations and interceptors
 
     this.notifyLayersChange();
   }
@@ -770,89 +624,12 @@ export class GEELoader {
     if (this.map.getLayer('gee-precipitation-wms-layer')) {
       this.map.setLayoutProperty('gee-precipitation-wms-layer', 'visibility', isPrecipVis ? 'visible' : 'none');
     }
-    if (this.map.getLayer('gee-modis-lst-day-fill')) {
-      this.map.setLayoutProperty('gee-modis-lst-day-fill', 'visibility', isDayVis ? 'visible' : 'none');
-    }
-    if (this.map.getLayer('gee-modis-lst-night-fill')) {
-      this.map.setLayoutProperty('gee-modis-lst-night-fill', 'visibility', isNightVis ? 'visible' : 'none');
-    }
-    if (this.map.getLayer('gee-modis-stations-circles')) {
-      this.map.setLayoutProperty('gee-modis-stations-circles', 'visibility', isStationsVis ? 'visible' : 'none');
-    }
-    if (this.map.getLayer('gee-modis-stations-labels')) {
-      this.map.setLayoutProperty('gee-modis-stations-labels', 'visibility', isStationsVis ? 'visible' : 'none');
-    }
 
     this.notifyLayersChange();
   }
 
   private bindLayerEvents() {
-    const handleLSTClick = (e: any) => {
-      if (!e.features || e.features.length === 0) return;
-      const props = e.features[0].properties;
-      const lngLat = e.lngLat;
-      const isNight = this.isLayerVisible('lst-night') && !this.isLayerVisible('lst-day');
-
-      const html = `
-        <div class="gee-popup-card">
-          <div class="gee-popup-badge live-badge">● NASA MODIS LST (1 KM)</div>
-          <h4>🌡️ Suhu Permukaan Daratan (LST)</h4>
-          <div class="gee-popup-sub">Koordinat: ${lngLat.lat.toFixed(4)}°, ${lngLat.lng.toFixed(4)}° • Resolusi 1 km</div>
-          <table class="gee-popup-table">
-            <tr><td><strong>${isNight ? '🌙 Suhu Malam (LST):' : '☀️ Suhu Siang (LST):'}</strong></td><td><span class="highlight-temp">${isNight ? props.lst_night_c : props.lst_day_c} °C</span></td></tr>
-            <tr><td><strong>${isNight ? '☀️ Suhu Siang (LST):' : '🌙 Suhu Malam (LST):'}</strong></td><td><strong>${isNight ? props.lst_day_c : props.lst_night_c} °C</strong></td></tr>
-            <tr><td><strong>Rata-rata 24 Jam:</strong></td><td>${props.lst_mean_c ?? '28.0'} °C</td></tr>
-            <tr><td><strong>Perbedaan Siang–Malam (Diurnal ΔT):</strong></td><td><span style="color: #f97316; font-weight: 600;">+${props.delta_uhi_c ?? '9.5'} °C</span></td></tr>
-            <tr><td><strong>Elevasi Topografi:</strong></td><td>${props.elevation_m} meter dpl</td></tr>
-            <tr><td><strong>Katalog Satelit:</strong></td><td><code>MODIS/061/MOD11A2+MYD11A2 (8-Harian)</code></td></tr>
-            <tr><td><strong>Pengiriman Data:</strong></td><td><span>NASA GIBS WMS &amp; GEE Cloud</span></td></tr>
-          </table>
-        </div>
-      `;
-
-      this.popup
-        .setLngLat(lngLat)
-        .setHTML(html)
-        .addTo(this.map);
-    };
-
-    const handleStationClick = (e: any) => {
-      if (!e.features || e.features.length === 0) return;
-      const props = e.features[0].properties;
-      const coords = (e.features[0].geometry as any)?.coordinates as [number, number] || [e.lngLat.lng, e.lngLat.lat];
-
-      const html = `
-        <div class="gee-popup-card">
-          <div class="gee-popup-badge live-badge">📍 TITIK REFERENSI STASIUN IKLIM (DEMO)</div>
-          <h4>${props.name}</h4>
-          <div class="gee-popup-sub">${props.province || 'Indonesia'} • Data Ilustrasi (Bukan Observasi Aktual)</div>
-          <table class="gee-popup-table">
-            <tr><td><strong>☀️ Suhu Siang (LST):</strong></td><td><span class="highlight-temp">${props.lst_day_c ?? props.temp_air_c} °C</span> (${props.lst_day_k ?? '-'} K)</td></tr>
-            <tr><td><strong>🌙 Suhu Malam (LST):</strong></td><td><strong>${props.lst_night_c ?? props.temp_surface_c} °C</strong> (${props.lst_night_k ?? '-'} K)</td></tr>
-            <tr><td><strong>🌡️ Rata-rata 24 Jam:</strong></td><td>${props.lst_mean_c ?? '-'} °C</td></tr>
-            <tr><td><strong>Perbedaan Siang–Malam (Diurnal ΔT):</strong></td><td><span style="color: #f97316; font-weight: 600;">+${props.diurnal_delta_c ?? props.delta_uhi_c ?? '-'} °C</span></td></tr>
-            <tr><td><strong>⛰️ Elevasi Titik:</strong></td><td>${props.elevation_m ?? 0} meter dpl</td></tr>
-            <tr><td><strong>📊 Validasi Mutu:</strong></td><td><span style="color: #f59e0b;">Model Ilustratif (Tanpa Validasi)</span></td></tr>
-            <tr><td><strong>🛰️ Sensor Data:</strong></td><td><code>MODIS Terra/Aqua 1 km (8-Day Composite)</code></td></tr>
-          </table>
-        </div>
-      `;
-
-      this.popup
-        .setLngLat(coords)
-        .setHTML(html)
-        .addTo(this.map);
-    };
-
-    this.map.on('click', 'gee-modis-lst-day-fill', handleLSTClick);
-    this.map.on('click', 'gee-modis-lst-night-fill', handleLSTClick);
-    this.map.on('click', 'gee-modis-stations-circles', handleStationClick);
-    this.map.on('click', 'gee-modis-stations-labels', handleStationClick);
-
-    ['gee-modis-lst-day-fill', 'gee-modis-lst-night-fill', 'gee-modis-stations-circles', 'gee-modis-stations-labels'].forEach((layerId) => {
-      this.map.on('mouseenter', layerId, () => (this.map.getCanvas().style.cursor = 'pointer'));
-      this.map.on('mouseleave', layerId, () => (this.map.getCanvas().style.cursor = ''));
-    });
+    // Removed synthetic click handlers that relied on fake data
   }
 
   public flyToStudyArea() {

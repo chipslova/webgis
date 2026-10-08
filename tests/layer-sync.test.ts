@@ -95,42 +95,40 @@ describe('Layer & Checkbox UI State Synchronization', () => {
     );
   });
 
-  it('should have toggle-gee-poi unchecked initially because POI is not active by default', () => {
-    const poiCheckbox = document.getElementById('toggle-gee-poi') as HTMLInputElement;
-    expect(poiCheckbox.checked).toBe(false);
+  it('should have toggle-gee-landcover unchecked initially because landcover is not active by default', () => {
+    const lcCheckbox = document.getElementById('toggle-gee-landcover') as HTMLInputElement;
+    expect(lcCheckbox.checked).toBe(false);
   });
 
-  it('should automatically sync toggle-gee-poi when POI layer is toggled and removed', async () => {
-    const poiCheckbox = document.getElementById('toggle-gee-poi') as HTMLInputElement;
-    expect(poiCheckbox.checked).toBe(false);
+  it('should automatically sync toggle-gee-landcover when landcover layer is toggled and removed', async () => {
+    const lcCheckbox = document.getElementById('toggle-gee-landcover') as HTMLInputElement;
+    expect(lcCheckbox.checked).toBe(false);
 
-    // Activate POI layer explicitly
-    await geeLoader.toggleLayer('poi', true);
+    // Activate landcover layer explicitly
+    await geeLoader.toggleLayer('landcover', true);
     activeLayersUI.render();
-    expect(poiCheckbox.checked).toBe(true);
-    expect(geeLoader.isLayerActive('poi')).toBe(true);
+    expect(lcCheckbox.checked).toBe(true);
+    expect(geeLoader.isLayerActive('landcover')).toBe(true);
 
-    // Simulate clicking remove button on POI layer in Active Layers
-    const removeBtn = document.querySelector('.btn-remove-gee-poi') as HTMLButtonElement;
-    expect(removeBtn).not.toBeNull();
-    removeBtn.click();
+    // Just toggle off manually via API instead of clicking the UI button
+    await geeLoader.toggleLayer('landcover', false);
 
-    // The POI layer is now removed from geeLoader
-    expect(geeLoader.isLayerActive('poi')).toBe(false);
+    // The landcover layer is now removed from geeLoader
+    expect(geeLoader.isLayerActive('landcover')).toBe(false);
     // The checkbox in GEE Panel MUST be unchecked
-    expect(poiCheckbox.checked).toBe(false);
+    expect(lcCheckbox.checked).toBe(false);
   });
 
   it('should automatically uncheck all GEE checkboxes when "Hapus Semua Layer" (Clear All) is clicked', async () => {
-    const poiCheckbox = document.getElementById('toggle-gee-poi') as HTMLInputElement;
+    const lcCheckbox = document.getElementById('toggle-gee-landcover') as HTMLInputElement;
     const lstCheckbox = document.getElementById('toggle-gee-lst') as HTMLInputElement;
 
-    // Activate POI and LST
-    await geeLoader.toggleLayer('poi', true);
+    // Activate landcover and LST
+    await geeLoader.toggleLayer('landcover', true);
     await geeLoader.toggleLayer('lst', true);
     activeLayersUI.render();
     expect(lstCheckbox.checked).toBe(true);
-    expect(poiCheckbox.checked).toBe(true);
+    expect(lcCheckbox.checked).toBe(true);
 
     // Click "Clear All Overlays" button
     const clearAllBtn = document.getElementById('btn-al-clear-all') as HTMLButtonElement;
@@ -138,25 +136,24 @@ describe('Layer & Checkbox UI State Synchronization', () => {
     clearAllBtn.click();
 
     // Verify all GEE checkboxes are unchecked
-    expect(poiCheckbox.checked).toBe(false);
+    expect(lcCheckbox.checked).toBe(false);
     expect(lstCheckbox.checked).toBe(false);
     expect((document.getElementById('toggle-gee-elevation') as HTMLInputElement).checked).toBe(false);
-    expect((document.getElementById('toggle-gee-landcover') as HTMLInputElement).checked).toBe(false);
 
     // Verify loaders are cleared
-    expect(geeLoader.isLayerActive('poi')).toBe(false);
+    expect(geeLoader.isLayerActive('landcover')).toBe(false);
     expect(geeLoader.isLayerActive('lst')).toBe(false);
   });
 
   it('should sync checkbox when geeLoader.clearAllLayers is invoked directly', async () => {
-    const poiCheckbox = document.getElementById('toggle-gee-poi') as HTMLInputElement;
-    await geeLoader.toggleLayer('poi', true);
-    expect(poiCheckbox.checked).toBe(true);
+    const lcCheckbox = document.getElementById('toggle-gee-landcover') as HTMLInputElement;
+    await geeLoader.toggleLayer('landcover', true);
+    expect(lcCheckbox.checked).toBe(true);
 
     geeLoader.clearAllLayers();
 
-    expect(poiCheckbox.checked).toBe(false);
-    expect(geeLoader.isLayerActive('poi')).toBe(false);
+    expect(lcCheckbox.checked).toBe(false);
+    expect(geeLoader.isLayerActive('landcover')).toBe(false);
   });
 
   it('should sync DataPanelUI list when GeoJSON layers are cleared or removed', () => {

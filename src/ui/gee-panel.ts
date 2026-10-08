@@ -294,7 +294,7 @@ export class GEEPanelUI {
     applyToggle('toggle-gee-landcover', 'landcover', 'gee-lc-opacity-row', 'gee-lulc-legend');
     applyToggle('toggle-gee-precipitation', 'precipitation', 'gee-precip-opacity-row', 'gee-precip-legend');
     applyToggle('toggle-gee-rainfall', 'precipitation', 'gee-precip-opacity-row', 'gee-precip-legend');
-    applyToggle('toggle-gee-poi', 'stations');
+
     applyToggle('toggle-gee-stations', 'stations');
 
     const isThermalActive = this.geeLoader.isLayerVisible('lst-day') || this.geeLoader.isLayerVisible('lst-night');
@@ -358,7 +358,7 @@ export class GEEPanelUI {
     attachToggle('toggle-gee-lc', 'landcover');
     attachToggle('toggle-gee-precipitation', 'precipitation');
     attachToggle('toggle-gee-rainfall', 'precipitation');
-    attachToggle('toggle-gee-poi', 'stations');
+
     attachToggle('toggle-gee-stations', 'stations');
 
     document.getElementById('btn-focus-gee-area')?.addEventListener('click', () => this.geeLoader.flyToStudyArea());
