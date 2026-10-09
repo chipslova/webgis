@@ -94,6 +94,9 @@ export class GEELoader {
   public setParams(params: Partial<GEEQueryParams>) {
     this.currentParams = { ...this.currentParams, ...params };
     this.renderAllLayers();
+    if (this.isLayerVisible('precipitation')) {
+      this.computeLivePrecipitation().catch(() => {});
+    }
   }
 
   public onStatusChange(callback: (status: GEEStatus, metadata?: any) => void) {
@@ -462,6 +465,10 @@ export class GEELoader {
     const daySourceId = 'gee-modis-day-wms-source';
     const dayLayerId = 'gee-modis-day-wms-layer';
     
+    const beforeStationLayerId = this.map.getLayer('gee-modis-stations-circles')
+      ? 'gee-modis-stations-circles'
+      : undefined;
+
     if (!this.map.getSource(daySourceId)) {
       this.map.addSource(daySourceId, {
         type: 'raster',
@@ -477,7 +484,7 @@ export class GEELoader {
           'raster-opacity': this.getLayerOpacity('lst-day'),
           'raster-resampling': 'nearest'
         }
-      }, 'gee-modis-stations-circles');
+      }, beforeStationLayerId);
     }
 
     // --- 2. OFFICIAL NASA GIBS OGC WMS: NIGHTTIME LST RASTER LAYER (FALLBACK) ---
@@ -500,7 +507,7 @@ export class GEELoader {
           'raster-opacity': this.getLayerOpacity('lst-night'),
           'raster-resampling': 'nearest'
         }
-      }, 'gee-modis-stations-circles');
+      }, beforeStationLayerId);
     }
 
     // --- 3. GEE ESA WORLDCOVER (LIVE RASTER) ---
@@ -515,7 +522,7 @@ export class GEELoader {
           ? 'gee-modis-day-wms-layer'
           : (this.map.getLayer('gee-modis-night-wms-layer')
             ? 'gee-modis-night-wms-layer'
-            : (this.map.getLayer('gee-modis-stations-circles') ? 'gee-modis-stations-circles' : undefined));
+            : beforeStationLayerId);
 
         const existingLcSource = this.map.getSource(lcSourceId) as any;
         if (existingLcSource) {
@@ -563,47 +570,25 @@ export class GEELoader {
       logger.warn('[GEELoader] Notice adding Sentinel-2 10m Land Cover raster layer:', e);
     }
 
-    // --- 3b. GEE CHIRPS DAILY PRECIPITATION RATE (LIVE RASTER) ---
+    // --- 3b. GEE CHIRPS & NASA GPM DAILY PRECIPITATION RATE (LIVE RADAR RASTER) ---
     try {
-      if (this.livePrecipTileUrlTemplate) {
-        const precipWmsUrl = this.livePrecipTileUrlTemplate;
-        const precipSourceId = 'gee-precipitation-wms-source';
-        const precipLayerId = 'gee-precipitation-wms-layer';
+      const selectedDate = this.currentParams.start || '2024-08-01';
+      // Official weather radar overlay: 100% transparent non-rain pixels, basemap completely clear
+      const fallbackGibsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${selectedDate}&BBOX={bbox-epsg-3857}`;
+      const precipWmsUrl = this.livePrecipTileUrlTemplate || fallbackGibsUrl;
+      const precipSourceId = 'gee-precipitation-wms-source';
+      const precipLayerId = 'gee-precipitation-wms-layer';
 
-        const beforeLayerId = this.map.getLayer('gee-modis-stations-circles')
-          ? 'gee-modis-stations-circles'
-          : undefined;
-
-        const existingPrecipSource = this.map.getSource(precipSourceId) as any;
-        if (existingPrecipSource) {
-          if (typeof existingPrecipSource.setTiles === 'function') {
-            existingPrecipSource.setTiles([precipWmsUrl]);
-          }
-          if (this.map.getLayer(precipLayerId)) {
-            this.map.setLayoutProperty(precipLayerId, 'visibility', isPrecipVis ? 'visible' : 'none');
-            this.map.setPaintProperty(precipLayerId, 'raster-opacity', this.getLayerOpacity('precipitation'));
-            this.map.setPaintProperty(precipLayerId, 'raster-resampling', 'linear');
-          } else {
-            this.map.addLayer({
-              id: precipLayerId,
-              type: 'raster',
-              source: precipSourceId,
-              layout: { visibility: isPrecipVis ? 'visible' : 'none' },
-              paint: {
-                'raster-opacity': this.getLayerOpacity('precipitation'),
-                'raster-resampling': 'linear',
-                'raster-fade-duration': 150
-              }
-            }, beforeLayerId);
-          }
+      const existingPrecipSource = this.map.getSource(precipSourceId) as any;
+      if (existingPrecipSource) {
+        if (typeof existingPrecipSource.setTiles === 'function') {
+          existingPrecipSource.setTiles([precipWmsUrl]);
+        }
+        if (this.map.getLayer(precipLayerId)) {
+          this.map.setLayoutProperty(precipLayerId, 'visibility', isPrecipVis ? 'visible' : 'none');
+          this.map.setPaintProperty(precipLayerId, 'raster-opacity', this.getLayerOpacity('precipitation'));
+          this.map.setPaintProperty(precipLayerId, 'raster-resampling', 'linear');
         } else {
-          this.map.addSource(precipSourceId, {
-            type: 'raster',
-            tiles: [precipWmsUrl],
-            tileSize: 256,
-            maxzoom: 12
-          });
-
           this.map.addLayer({
             id: precipLayerId,
             type: 'raster',
@@ -614,11 +599,30 @@ export class GEELoader {
               'raster-resampling': 'linear',
               'raster-fade-duration': 150
             }
-          }, beforeLayerId);
+          }, beforeStationLayerId);
         }
+      } else {
+        this.map.addSource(precipSourceId, {
+          type: 'raster',
+          tiles: [precipWmsUrl],
+          tileSize: 256,
+          maxzoom: 12
+        });
+
+        this.map.addLayer({
+          id: precipLayerId,
+          type: 'raster',
+          source: precipSourceId,
+          layout: { visibility: isPrecipVis ? 'visible' : 'none' },
+          paint: {
+            'raster-opacity': this.getLayerOpacity('precipitation'),
+            'raster-resampling': 'linear',
+            'raster-fade-duration': 150
+          }
+        }, beforeStationLayerId);
       }
     } catch (e) {
-      logger.warn('[GEELoader] Notice adding GEE Precipitation layer:', e);
+      logger.warn('[GEELoader] Notice adding Precipitation layer:', e);
     }
 
     // Removed synthetic stations and interceptors

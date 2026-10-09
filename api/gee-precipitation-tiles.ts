@@ -61,26 +61,23 @@ export default async function handler(req: any, res: any) {
     start,
     end,
     min: customMin,
-    max: customMax,
-    bbox
+    max: customMax
   } = (query || {}) as GEEPrecipRequest;
 
   const startDate = start || date;
   const endDate = end || startDate;
 
-  // Weather Radar & CHIRPS Precipitation Color Palette (Transparent background, vivid rain gradient)
+  // Meteorological Weather Radar Color Palette (100% transparent dry areas, vibrant rain cells)
   const palette = [
-    '38bdf8', // Light sky blue (Hujan ringan 1–5 mm)
-    '0284c7', // Royal blue (5–12 mm)
-    '22c55e', // Green (12–25 mm)
-    'eab308', // Yellow (25–38 mm)
-    'f97316', // Orange (38–50 mm)
-    'ef4444', // Red (50–70 mm)
-    'a855f7'  // Purple/Magenta (Ekstrem >70 mm)
+    '00e400', // Green (Hujan ringan 2.5–10 mm)
+    'ffff00', // Yellow (Hujan sedang 10–25 mm)
+    'ff7e00', // Orange (Hujan lebat 25–45 mm)
+    'ff0000', // Red (Hujan sangat lebat 45–70 mm)
+    '99004c'  // Purple/Magenta (Ekstrem >70 mm)
   ];
 
-  const minPrecip = customMin ? Number(customMin) : 1;
-  const maxPrecip = customMax ? Number(customMax) : 50;
+  const minPrecip = customMin ? Number(customMin) : 2.5;
+  const maxPrecip = customMax ? Number(customMax) : 60;
 
   const serviceAccountKeyStr = process.env.GEE_SERVICE_ACCOUNT_KEY;
 
@@ -99,19 +96,6 @@ export default async function handler(req: any, res: any) {
           );
         });
 
-        let regionBbox = eeCore.Geometry.Rectangle([95.0, -11.0, 141.0, 6.0]);
-        if (bbox && typeof bbox === 'string') {
-          const parts = bbox.split(',').map(Number);
-          if (parts.length === 4 && parts.every((n: number) => !isNaN(n))) {
-            regionBbox = eeCore.Geometry.Rectangle([
-              Math.max(-180, parts[0]),
-              Math.max(-90, parts[1]),
-              Math.min(180, parts[2]),
-              Math.min(90, parts[3])
-            ]);
-          }
-        }
-
         let filterEndDate = endDate;
         if (startDate === endDate) {
           const dObj = new Date(startDate);
@@ -121,13 +105,12 @@ export default async function handler(req: any, res: any) {
 
         const collection = eeCore.ImageCollection('UCSB-CHG/CHIRPS/DAILY')
           .filterDate(startDate, filterEndDate)
-          .filterBounds(regionBbox)
           .select('precipitation');
 
         const rawMean = collection.mean();
-        // Mask out non-rain pixels (< minPrecip or <= 0.5 mm) so dry/no-rain areas are 100% transparent and the base map remains visible
-        const precipThreshold = Math.max(0.5, minPrecip);
-        const precipImage = rawMean.updateMask(rawMean.gte(precipThreshold)).clip(regionBbox);
+        // Mask out non-rain / trace background pixels (< 2.5 mm) so dry/no-rain areas are 100% transparent and the base map remains completely visible
+        const precipThreshold = Math.max(2.5, minPrecip);
+        const precipImage = rawMean.updateMask(rawMean.gte(precipThreshold));
 
         const visParams = {
           min: minPrecip,
@@ -169,7 +152,8 @@ export default async function handler(req: any, res: any) {
   return sendJson(200, {
     status: 'fallback',
     isFallback: true,
-    message: 'Kunci GEE belum dikonfigurasi. Menggunakan citra raster presipitasi resmi beresolusi tinggi.',
+    tileUrlTemplate: `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${startDate}&BBOX={bbox-epsg-3857}`,
+    message: 'Kunci GEE belum dikonfigurasi. Menggunakan citra radar presipitasi resmi beresolusi tinggi.',
     dataset: 'NASA IMERG Precipitation (Fallback)',
     period: `${startDate} s.d. ${endDate}`,
     min: minPrecip,

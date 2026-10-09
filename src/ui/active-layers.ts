@@ -401,24 +401,24 @@ export class ActiveLayersUI {
         const precipOpacityPct = Math.round(this.geeLoader.getLayerOpacity('precipitation') * 100);
         itemsHtml += this.buildRow({
           id: 'gee-precipitation',
-          name: 'Curah Hujan Harian',
-          meta: 'CHIRPS (GEE) · mm/hari',
-          color: '#38bdf8',
+          name: 'Curah Hujan Radar',
+          meta: 'GEE CHIRPS & NASA GPM · mm/hari',
+          color: '#22c55e',
           isVisible: isGeePrecipVis,
           opacityPct: precipOpacityPct,
           eyeBtnClass: 'btn-toggle-gee-precip',
           removeBtnClass: 'btn-remove-gee-precip',
           opacitySliderClass: 'gee-precip-opacity-slider',
           details: [
-            { label: 'Sensor/Misi', value: 'CHIRPS (GEE) Daily' },
-            { label: 'Parameter', value: 'Intensitas Presipitasi Permukaan' },
+            { label: 'Sensor/Misi', value: 'UCSB CHIRPS Daily & NASA IMERG (GEE)' },
+            { label: 'Parameter', value: 'Intensitas Presipitasi Radar' },
             { label: 'Satuan', value: 'Milimeter per hari (mm/hari)' },
-            { label: 'Cakupan', value: 'Seluruh Wilayah Indonesia' },
+            { label: 'Transparansi', value: 'Area tanpa hujan 100% transparan (peta dasar utuh)' },
           ],
           legendHtml: `
-            <div class="gee-legend-bar" style="height: 6px; border-radius: 3px; margin: 4px 0; background: linear-gradient(90deg, #f8fafc 0%, #7dd3fc 15%, #0284c7 35%, #16a34a 55%, #eab308 75%, #ef4444 90%, #7e22ce 100%);"></div>
+            <div class="gee-legend-bar" style="height: 6px; border-radius: 3px; margin: 4px 0; background: linear-gradient(90deg, #00e400 0%, #ffff00 30%, #ff7e00 60%, #ff0000 85%, #99004c 100%);"></div>
             <div class="gee-legend-labels" style="font-size: 9.5px; color: var(--text-muted); display:flex; justify-content:space-between;">
-              <span>0 mm</span><span>15 mm</span><span>50 mm+</span>
+              <span>2.5 mm</span><span>25 mm</span><span>>70 mm</span>
             </div>
           `
         });

@@ -461,15 +461,15 @@
                       </div>
                     </div>
 
-                    <!-- 4. CHIRPS (GEE) & CHIRPS Daily Precipitation -->
+                    <!-- 4. CHIRPS (GEE) & NASA GPM Precipitation -->
                     <div class="gee-layer-row gee-layer-item-clean">
                       <label>
-                        <input type="checkbox" id="toggle-gee-precipitation" aria-label="Toggle CHIRPS (GEE) Daily Precipitation layer" />
-                        <span>🌧️ <strong>Curah Hujan CHIRPS (GEE)</strong> <span class="gee-layer-subtext">(mm/hari)</span></span>
+                        <input type="checkbox" id="toggle-gee-precipitation" aria-label="Toggle Curah Hujan Radar (GEE) layer" />
+                        <span>🌧️ <strong>Curah Hujan Radar (GEE)</strong> <span class="gee-layer-subtext">(mm/hari)</span></span>
                       </label>
                       <div id="gee-precip-opacity-row" class="gee-layer-opacity-box">
                         <input type="range" id="gee-precip-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas Curah Hujan" />
-                        <span id="gee-precip-opacity-val" class="gee-layer-opacity-val" style="color: #38bdf8;">85%</span>
+                        <span id="gee-precip-opacity-val" class="gee-layer-opacity-val" style="color: #22c55e;">85%</span>
                       </div>
                     </div>
 
@@ -506,18 +506,18 @@
                 </div>
 
                 <!-- 2c. Precipitation Legend — visible when precipitation is toggled -->
-                <div id="gee-precip-legend" class="gee-lulc-box" style="display: none; border-color: rgba(56, 189, 248, 0.3); background: rgba(8, 20, 36, 0.7);">
-                  <div class="gee-lulc-title" style="color: #38bdf8;">🌧️ Legenda Intensitas Curah Hujan (CHIRPS Daily)</div>
-                  <div class="gee-legend-bar" style="height: 8px; border-radius: 4px; margin: 6px 0; background: linear-gradient(90deg, #38bdf8 0%, #0284c7 20%, #22c55e 40%, #eab308 60%, #f97316 80%, #ef4444 92%, #a855f7 100%);" aria-hidden="true"></div>
+                <div id="gee-precip-legend" class="gee-lulc-box" style="display: none; border-color: rgba(34, 197, 94, 0.3); background: rgba(8, 20, 36, 0.7);">
+                  <div class="gee-lulc-title" style="color: #22c55e;">🌧️ Legenda Intensitas Curah Hujan Radar (GEE)</div>
+                  <div class="gee-legend-bar" style="height: 8px; border-radius: 4px; margin: 6px 0; background: linear-gradient(90deg, #00e400 0%, #ffff00 30%, #ff7e00 60%, #ff0000 85%, #99004c 100%);" aria-hidden="true"></div>
                   <div class="gee-legend-labels" style="font-size: 10px; display: flex; justify-content: space-between; color: #cbd5e1; font-weight: 600;">
-                    <span>1 mm (Ringan)</span>
-                    <span>10 mm</span>
-                    <span>25 mm (Sedang)</span>
-                    <span>40 mm</span>
-                    <span>50 mm+ (Ekstrem)</span>
+                    <span>2.5 mm (Ringan)</span>
+                    <span>15 mm</span>
+                    <span>30 mm (Sedang)</span>
+                    <span>50 mm (Lebat)</span>
+                    <span>>70 mm (Ekstrem)</span>
                   </div>
                   <div style="font-size: 9.5px; color: #94a3b8; margin-top: 5px; line-height: 1.4;">
-                    Sumber: <code>UCSB CHIRPS Daily (GEE)</code> · Area tanpa hujan otomatis <em>transparan</em> agar peta dasar tetap terlihat jelas.
+                    Sumber: <code>UCSB CHIRPS Daily &amp; NASA IMERG (GEE)</code> · Area tanpa hujan otomatis <em>transparan 100%</em> agar peta dasar tetap terlihat jelas tanpa terhalang.
                   </div>
                 </div>
 

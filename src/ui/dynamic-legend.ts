@@ -212,17 +212,17 @@ export class DynamicLegendUI {
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">🌧️</span>
               <div>
-                <div class="dynamic-legend-title">Curah Hujan Harian (CHIRPS (GEE))</div>
-                <div class="dynamic-legend-sub">UCSB CHIRPS Daily · Area Tanpa Hujan Transparan</div>
+                <div class="dynamic-legend-title">Curah Hujan Radar (GEE)</div>
+                <div class="dynamic-legend-sub">UCSB CHIRPS & NASA IMERG · Area Tanpa Hujan 100% Transparan</div>
               </div>
             </div>
-            <div class="gee-legend-bar" style="height: 8px; border-radius: 4px; margin-top: 8px; background: linear-gradient(90deg, #38bdf8 0%, #0284c7 20%, #22c55e 40%, #eab308 60%, #f97316 80%, #ef4444 92%, #a855f7 100%);" aria-hidden="true"></div>
+            <div class="gee-legend-bar" style="height: 8px; border-radius: 4px; margin-top: 8px; background: linear-gradient(90deg, #00e400 0%, #ffff00 30%, #ff7e00 60%, #ff0000 85%, #99004c 100%);" aria-hidden="true"></div>
             <div class="gee-legend-labels" style="font-size: 10px; display: flex; justify-content: space-between; color: #cbd5e1; font-weight: 600; margin-top: 4px;">
-              <span>1 mm (Ringan)</span>
-              <span>10 mm</span>
-              <span>25 mm (Sedang)</span>
-              <span>40 mm</span>
-              <span>50 mm+ (Ekstrem)</span>
+              <span>2.5 mm (Ringan)</span>
+              <span>15 mm</span>
+              <span>30 mm (Sedang)</span>
+              <span>50 mm (Lebat)</span>
+              <span>>70 mm (Ekstrem)</span>
             </div>
           </div>
         `;
