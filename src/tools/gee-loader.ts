@@ -167,7 +167,7 @@ export class GEELoader {
         end: this.currentParams.end
       });
 
-      const res = await fetch(`/api/gee-lst-tiles?${qs.toString()}`);
+      const res = await fetch(`/api/gee-lst-tiles?${qs.toString()}&_t=${Date.now()}`);
       if (!res.ok) {
         throw new Error(`GEE API returned status ${res.status}`);
       }

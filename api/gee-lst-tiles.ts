@@ -107,8 +107,8 @@ export default async function handler(req: any, res: any) {
           );
         });
 
-        // Spatial Bounding Box: Dynamic viewport or default Indonesia Archipelago
-        let regionBbox = eeCore.Geometry.Rectangle([95.0, -11.0, 141.0, 6.0]);
+        // Spatial Bounding Box: If explicit bbox is provided, filter & clip; otherwise GLOBAL coverage!
+        let regionBbox: any = null;
         if (bbox && typeof bbox === 'string') {
           const parts = bbox.split(',').map(Number);
           if (parts.length === 4 && parts.every(n => !isNaN(n))) {
@@ -137,27 +137,38 @@ export default async function handler(req: any, res: any) {
           collection = eeCore.ImageCollection('MODIS/061/MYD11A2');
         } else {
           // Combined Terra (MOD11A2) + Aqua (MYD11A2) 8-Day Composites
-          const terra = eeCore.ImageCollection('MODIS/061/MOD11A2').filterDate(start, filterEnd).filterBounds(regionBbox);
-          const aqua = eeCore.ImageCollection('MODIS/061/MYD11A2').filterDate(start, filterEnd).filterBounds(regionBbox);
+          let terra = eeCore.ImageCollection('MODIS/061/MOD11A2').filterDate(start, filterEnd);
+          let aqua = eeCore.ImageCollection('MODIS/061/MYD11A2').filterDate(start, filterEnd);
+          if (regionBbox) {
+            terra = terra.filterBounds(regionBbox);
+            aqua = aqua.filterBounds(regionBbox);
+          }
           collection = terra.merge(aqua);
         }
 
-        const filtered = collection
+        let filtered = collection
           .filterDate(start, filterEnd)
-          .filterBounds(regionBbox)
           .select(bandName);
 
+        if (regionBbox) {
+          filtered = filtered.filterBounds(regionBbox);
+        }
+
         // Convert raw MODIS DN to Celsius: DN * 0.02 - 273.15
-        const lstCelsius = filtered
+        let lstCelsius = filtered
           .mean()
           .multiply(0.02)
-          .subtract(273.15)
-          .clip(regionBbox);
+          .subtract(273.15);
+
+        if (regionBbox) {
+          lstCelsius = lstCelsius.clip(regionBbox);
+        }
 
         const visParams = {
           min: minTemp,
           max: maxTemp,
-          palette
+          palette,
+          format: 'png'
         };
 
         const mapId = await new Promise<{ urlFormat: string }>((resolve, reject) => {
@@ -167,7 +178,10 @@ export default async function handler(req: any, res: any) {
           });
         });
 
-        res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000');
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+
         return sendJson(200, {
           status: 'live',
           isFallback: false,
@@ -177,11 +191,12 @@ export default async function handler(req: any, res: any) {
           satellite: sat,
           mode: m,
           period: `${start} to ${end}`,
+          coverage: regionBbox ? 'Regional' : 'Global',
           min: minTemp,
           max: maxTemp,
           palette,
           resolution: '1 km (8-Day Composite)',
-          provenance: 'Google Earth Engine Serverless Compute with Clear-Sky QC Calibration'
+          provenance: 'Google Earth Engine Serverless Compute with Clear-Sky QC Calibration (Global)'
         });
       }
     } catch (err: any) {
