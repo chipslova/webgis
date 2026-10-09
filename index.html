@@ -489,19 +489,24 @@
                   </div>
                 </div>
 
-                <!-- 2b. Sentinel-2 LULC Legend — visible when landcover is toggled -->
-                <div id="gee-lulc-legend" class="gee-lulc-box">
-                  <div class="gee-lulc-title">🗺️ Legenda 9 Kelas Sentinel-2 10m LULC</div>
+                <!-- 2b. ESA WorldCover LULC Legend — visible when landcover is toggled -->
+                <div id="gee-lulc-legend" class="gee-lulc-box" style="display: none;">
+                  <div class="gee-lulc-title">🗺️ Legenda Tutupan Lahan (ESA WorldCover 10m)</div>
                   <div class="gee-lulc-chips">
-                    <span class="gee-lulc-chip chip-water">🌊 Air</span>
-                    <span class="gee-lulc-chip chip-forest">🌲 Hutan</span>
-                    <span class="gee-lulc-chip chip-mangrove">💧 Mangrove</span>
-                    <span class="gee-lulc-chip chip-crop">🌾 Pertanian</span>
+                    <span class="gee-lulc-chip chip-forest">🌲 Pepohonan</span>
+                    <span class="gee-lulc-chip chip-shrub">🌿 Semak</span>
+                    <span class="gee-lulc-chip chip-grass">🌾 Padang Rumput</span>
+                    <span class="gee-lulc-chip chip-crop">🚜 Pertanian</span>
                     <span class="gee-lulc-chip chip-built">🏢 Terbangun</span>
                     <span class="gee-lulc-chip chip-bare">🏜️ Lahan Terbuka</span>
-                    <span class="gee-lulc-chip chip-shrub">🌿 Semak/Rangeland</span>
-                    <span class="gee-lulc-chip chip-snow">❄️ Salju</span>
-                    <span class="gee-lulc-chip chip-cloud">☁️ Awan</span>
+                    <span class="gee-lulc-chip chip-snow">❄️ Salju/Es</span>
+                    <span class="gee-lulc-chip chip-water">🌊 Air Permukaan</span>
+                    <span class="gee-lulc-chip chip-wetland">💧 Lahan Basah</span>
+                    <span class="gee-lulc-chip chip-mangrove">🌱 Mangrove</span>
+                    <span class="gee-lulc-chip chip-moss">🍃 Lumut</span>
+                  </div>
+                  <div style="font-size: 9.5px; color: #94a3b8; margin-top: 5px; line-height: 1.4;">
+                    Sumber: <code>ESA/WorldCover/v200 (10m)</code> · Laut terbuka &amp; area tanpa data <em>transparan 100%</em>.
                   </div>
                 </div>
 

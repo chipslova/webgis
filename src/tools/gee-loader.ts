@@ -213,7 +213,7 @@ export class GEELoader {
 
   public async computeLiveLandcover(year: string = '2021'): Promise<any> {
     try {
-      const res = await fetch(`/api/gee-landcover-tiles?year=${year}`);
+      const res = await fetch(`/api/gee-landcover-tiles?year=${year}&_t=${Date.now()}`);
       if (res.ok) {
         const data = await res.json();
         if (data.status === 'live' && data.tileUrlTemplate) {
@@ -526,13 +526,18 @@ export class GEELoader {
 
         const existingLcSource = this.map.getSource(lcSourceId) as any;
         if (existingLcSource) {
-          if (typeof existingLcSource.setTiles === 'function') {
-            existingLcSource.setTiles([lcWmsUrl]);
-          }
-          if (this.map.getLayer(lcLayerId)) {
-            this.map.setLayoutProperty(lcLayerId, 'visibility', isLcVis ? 'visible' : 'none');
-            this.map.setPaintProperty(lcLayerId, 'raster-opacity', this.getLayerOpacity('landcover'));
-          } else {
+          if (existingLcSource.tiles && existingLcSource.tiles[0] !== lcWmsUrl) {
+            if (this.map.getLayer(lcLayerId)) {
+              this.map.removeLayer(lcLayerId);
+            }
+            this.map.removeSource(lcSourceId);
+
+            this.map.addSource(lcSourceId, {
+              type: 'raster',
+              tiles: [lcWmsUrl],
+              tileSize: 256,
+              maxzoom: 18
+            });
             this.map.addLayer({
               id: lcLayerId,
               type: 'raster',
@@ -544,6 +549,23 @@ export class GEELoader {
                 'raster-fade-duration': 200
               }
             }, beforeLayerId);
+          } else {
+            if (this.map.getLayer(lcLayerId)) {
+              this.map.setLayoutProperty(lcLayerId, 'visibility', isLcVis ? 'visible' : 'none');
+              this.map.setPaintProperty(lcLayerId, 'raster-opacity', this.getLayerOpacity('landcover'));
+            } else {
+              this.map.addLayer({
+                id: lcLayerId,
+                type: 'raster',
+                source: lcSourceId,
+                layout: { visibility: isLcVis ? 'visible' : 'none' },
+                paint: {
+                  'raster-opacity': this.getLayerOpacity('landcover'),
+                  'raster-resampling': 'nearest',
+                  'raster-fade-duration': 200
+                }
+              }, beforeLayerId);
+            }
           }
         } else {
           this.map.addSource(lcSourceId, {

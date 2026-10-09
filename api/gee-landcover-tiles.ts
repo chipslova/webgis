@@ -50,8 +50,7 @@ export default async function handler(req: any, res: any) {
     : (req.url ? Object.fromEntries(new URL(req.url, 'http://localhost').searchParams) : {});
 
   const {
-    year = '2021',
-    bbox
+    year = '2021'
   } = (query || {}) as any;
 
   // ESA WorldCover v200 provides 2021 data (v100 provides 2020)
@@ -79,36 +78,35 @@ export default async function handler(req: any, res: any) {
           );
         });
 
-        let regionBbox = eeCore.Geometry.Rectangle([95.0, -11.0, 141.0, 6.0]);
-        if (bbox && typeof bbox === 'string') {
-          const parts = bbox.split(',').map(Number);
-          if (parts.length === 4 && parts.every((n: number) => !isNaN(n))) {
-            regionBbox = eeCore.Geometry.Rectangle([
-              Math.max(-180, parts[0]),
-              Math.max(-90, parts[1]),
-              Math.min(180, parts[2]),
-              Math.min(90, parts[3])
-            ]);
-          }
-        }
+        const collection = eeCore.ImageCollection('ESA/WorldCover/v200');
+        const lcImage = collection.mosaic().select('Map');
 
-        const collection = eeCore.ImageCollection('ESA/WorldCover/v200')
-          .filterBounds(regionBbox);
+        // Official ESA WorldCover v200 class values
+        const from = [10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];
+        const to   = [ 1,  2,  3,  4,  5,  6,  7,  8,  9, 10,  11];
 
-        const lcImage = collection.mosaic().clip(regionBbox);
+        // Remap discrete classes and mask out 0 (nodata/open sea) for true PNG transparency
+        const remapped = lcImage.remap(from, to, 0);
+        const masked = remapped.updateMask(remapped.gt(0));
 
         const visParams = {
-          bands: ['Map']
+          min: 1,
+          max: 11,
+          palette,
+          format: 'png'
         };
 
         const mapId = await new Promise<{ urlFormat: string }>((resolve, reject) => {
-          lcImage.getMap(visParams, (map: any, err: any) => {
+          masked.getMap(visParams, (map: any, err: any) => {
             if (err) reject(err);
             else resolve(map);
           });
         });
 
-        res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000');
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+
         return sendJson(200, {
           status: 'live',
           isFallback: false,

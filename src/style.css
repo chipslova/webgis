@@ -12101,15 +12101,18 @@ html, body, #app {
   color: #00f0ff;
 }
 
-/* GEE LULC Legend Chips */
-.chip-water { background: #1A5BAB; color: #fff; }
-.chip-forest { background: #358221; color: #fff; }
-.chip-mangrove { background: #87D19E; color: #000; }
-.chip-crop { background: #FFDB5C; color: #000; }
-.chip-built { background: #ED022A; color: #fff; }
-.chip-bare { background: #EDE9E4; color: #000; }
-.chip-shrub { background: #C6D799; color: #000; }
-.chip-snow { background: #F2FAFF; color: #000; }
+/* GEE LULC Legend Chips - ESA WorldCover 10m Official Palette */
+.chip-forest { background: #006400; color: #fff; }
+.chip-shrub { background: #ffbb22; color: #000; }
+.chip-grass { background: #ffff4c; color: #000; }
+.chip-crop { background: #f096ff; color: #000; }
+.chip-built { background: #fa0000; color: #fff; }
+.chip-bare { background: #b4b4b4; color: #000; }
+.chip-snow { background: #f0f0f0; color: #000; }
+.chip-water { background: #0064c8; color: #fff; }
+.chip-wetland { background: #0096a0; color: #fff; }
+.chip-mangrove { background: #00cf75; color: #000; }
+.chip-moss { background: #fae6a0; color: #000; }
 .chip-cloud { background: #C8C8C8; color: #000; }
 
 .text-indigo-light { color: #f3e8ff !important; }
