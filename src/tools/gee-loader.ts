@@ -195,10 +195,10 @@ export class GEELoader {
   public async computeLivePrecipitation(date?: string): Promise<any> {
     const d = date || this.currentParams.start || '2024-08-01';
     try {
-      const res = await fetch(`/api/gee-precipitation-tiles?start=${d}&end=${d}`);
+      const res = await fetch(`/api/gee-precipitation-tiles?start=${d}&end=${d}&_t=${Date.now()}`);
       if (res.ok) {
         const data = await res.json();
-        if (data.status === 'live' && data.tileUrlTemplate) {
+        if ((data.status === 'live' || data.status === 'fallback') && data.tileUrlTemplate) {
           this.livePrecipTileUrlTemplate = data.tileUrlTemplate;
           this.renderAllLayers();
           return data;

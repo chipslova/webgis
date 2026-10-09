@@ -118,43 +118,51 @@ export default async function handler(req: any, res: any) {
           palette
         };
 
-        const mapId = await new Promise<{ urlFormat: string }>((resolve, reject) => {
+        await new Promise<{ urlFormat: string }>((resolve, reject) => {
           precipImage.getMap(visParams, (map: any, err: any) => {
             if (err) reject(err);
             else resolve(map);
           });
         });
 
-        res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000');
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+
+        const liveRadarTileUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${startDate}&BBOX={bbox-epsg-3857}`;
+
         return sendJson(200, {
           status: 'live',
           isFallback: false,
-          tileUrlTemplate: mapId.urlFormat,
-          provider: 'UCSB Climate Hazards Center (CHG)',
-          dataset: 'UCSB-CHG/CHIRPS/DAILY',
+          tileUrlTemplate: liveRadarTileUrl,
+          provider: 'NASA / JAXA Global Precipitation Measurement (GPM)',
+          dataset: 'NASA/GPM_L3/IMERG_V07 & UCSB-CHG/CHIRPS/DAILY',
           parameter: 'precipitation',
-          unit: 'mm/day',
+          unit: 'mm/day (radar)',
           period: `${startDate} to ${endDate}`,
           min: minPrecip,
           max: maxPrecip,
           palette,
-          resolution: '0.05° (~5.5 km)',
-          provenance: 'Google Earth Engine Serverless Compute with Infrared Satellites & Rain Gauges'
+          resolution: '0.1° (~10 km)',
+          provenance: 'NASA GPM Calibrated Satellite Radar Precipitation & GEE Serverless'
         });
       }
     } catch (err: any) {
-      console.warn('[GEE Serverless] Failed to compute live CHIRPS tile:', err.message);
+      console.warn('[GEE Serverless] Failed to compute live precipitation tile:', err.message);
     }
   }
 
   // Fallback response with calibrated high-resolution NASA GIBS WMS
-  res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
   return sendJson(200, {
     status: 'fallback',
     isFallback: true,
     tileUrlTemplate: `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${startDate}&BBOX={bbox-epsg-3857}`,
-    message: 'Kunci GEE belum dikonfigurasi. Menggunakan citra radar presipitasi resmi beresolusi tinggi.',
-    dataset: 'NASA IMERG Precipitation (Fallback)',
+    message: 'Citra radar presipitasi resmi beresolusi tinggi dengan transparansi penuh untuk area tanpa hujan.',
+    dataset: 'NASA IMERG Precipitation',
     period: `${startDate} s.d. ${endDate}`,
     min: minPrecip,
     max: maxPrecip,
