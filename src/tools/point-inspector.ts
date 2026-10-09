@@ -362,8 +362,8 @@ export class PointInspector {
       activeLayerCategory = `Piksel OGC WMS (${pikselProduct.resolution || '10m'})`;
     } else if (this.geeLoader) {
       if (this.geeLoader.isLayerVisible('precipitation')) {
-        activeLayerName = 'Curah Hujan Harian Satelit (CHIRPS (GEE))';
-        activeLayerCategory = 'Presipitasi Satelit · mm/jam';
+        activeLayerName = 'Curah Hujan Radar Satelit (NASA GPM / GEE)';
+        activeLayerCategory = 'Presipitasi Radar · mm/hari (Transparan)';
       } else if (this.geeLoader.isLayerVisible('lst-day')) {
         activeLayerName = 'NASA MODIS LST Siang (1 km)';
         activeLayerCategory = 'NASA LP DAAC · MOD11A2 / MYD11A2';
@@ -440,8 +440,8 @@ export class PointInspector {
     if (!pikselProduct) {
       if (rasterStatusEl) {
         if (this.geeLoader?.isLayerVisible('precipitation')) {
-          rasterStatusEl.innerText = 'Presipitasi Satelit Aktif (CHIRPS (GEE) · mm/jam)';
-          rasterStatusEl.style.color = '#38bdf8';
+          rasterStatusEl.innerText = 'Presipitasi Radar Satelit Aktif (NASA GPM · Transparan 100%)';
+          rasterStatusEl.style.color = '#22c55e';
         } else if (this.geeLoader?.isLayerVisible('lst-day') || this.geeLoader?.isLayerVisible('lst-night')) {
           rasterStatusEl.innerText = 'Radiansi Termal MODIS LST 1km Aktif (Klik titik stasiun untuk observasi detail)';
           rasterStatusEl.style.color = '#f59e0b';

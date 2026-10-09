@@ -581,14 +581,18 @@ export class GEELoader {
 
       const existingPrecipSource = this.map.getSource(precipSourceId) as any;
       if (existingPrecipSource) {
-        if (typeof existingPrecipSource.setTiles === 'function') {
-          existingPrecipSource.setTiles([precipWmsUrl]);
-        }
-        if (this.map.getLayer(precipLayerId)) {
-          this.map.setLayoutProperty(precipLayerId, 'visibility', isPrecipVis ? 'visible' : 'none');
-          this.map.setPaintProperty(precipLayerId, 'raster-opacity', this.getLayerOpacity('precipitation'));
-          this.map.setPaintProperty(precipLayerId, 'raster-resampling', 'linear');
-        } else {
+        if (existingPrecipSource.tiles && existingPrecipSource.tiles[0] !== precipWmsUrl) {
+          if (this.map.getLayer(precipLayerId)) {
+            this.map.removeLayer(precipLayerId);
+          }
+          this.map.removeSource(precipSourceId);
+
+          this.map.addSource(precipSourceId, {
+            type: 'raster',
+            tiles: [precipWmsUrl],
+            tileSize: 256,
+            maxzoom: 12
+          });
           this.map.addLayer({
             id: precipLayerId,
             type: 'raster',
@@ -600,6 +604,27 @@ export class GEELoader {
               'raster-fade-duration': 150
             }
           }, beforeStationLayerId);
+        } else {
+          if (typeof existingPrecipSource.setTiles === 'function') {
+            existingPrecipSource.setTiles([precipWmsUrl]);
+          }
+          if (this.map.getLayer(precipLayerId)) {
+            this.map.setLayoutProperty(precipLayerId, 'visibility', isPrecipVis ? 'visible' : 'none');
+            this.map.setPaintProperty(precipLayerId, 'raster-opacity', this.getLayerOpacity('precipitation'));
+            this.map.setPaintProperty(precipLayerId, 'raster-resampling', 'linear');
+          } else {
+            this.map.addLayer({
+              id: precipLayerId,
+              type: 'raster',
+              source: precipSourceId,
+              layout: { visibility: isPrecipVis ? 'visible' : 'none' },
+              paint: {
+                'raster-opacity': this.getLayerOpacity('precipitation'),
+                'raster-resampling': 'linear',
+                'raster-fade-duration': 150
+              }
+            }, beforeStationLayerId);
+          }
         }
       } else {
         this.map.addSource(precipSourceId, {
