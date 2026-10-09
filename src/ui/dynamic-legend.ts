@@ -213,15 +213,15 @@ export class DynamicLegendUI {
               <span class="legend-card-icon">🌧️</span>
               <div>
                 <div class="dynamic-legend-title">Curah Hujan Harian (CHIRPS (GEE))</div>
-                <div class="dynamic-legend-sub">NASA IMERG Precipitation Rate · Resolusi Harian Bebas Awan</div>
+                <div class="dynamic-legend-sub">UCSB CHIRPS Daily · Area Tanpa Hujan Transparan</div>
               </div>
             </div>
-            <div class="gee-legend-bar" style="height: 8px; border-radius: 4px; margin-top: 8px; background: linear-gradient(90deg, #f8fafc 0%, #7dd3fc 15%, #0284c7 35%, #16a34a 55%, #eab308 75%, #ef4444 90%, #7e22ce 100%);" aria-hidden="true"></div>
-            <div class="gee-legend-labels" style="font-size: 10px; display: flex; justify-content: space-between; color: var(--text-muted); margin-top: 4px;">
-              <span>0 mm (Nihil)</span>
-              <span>5 mm</span>
-              <span>15 mm (Sedang)</span>
-              <span>30 mm (Lebat)</span>
+            <div class="gee-legend-bar" style="height: 8px; border-radius: 4px; margin-top: 8px; background: linear-gradient(90deg, #38bdf8 0%, #0284c7 20%, #22c55e 40%, #eab308 60%, #f97316 80%, #ef4444 92%, #a855f7 100%);" aria-hidden="true"></div>
+            <div class="gee-legend-labels" style="font-size: 10px; display: flex; justify-content: space-between; color: #cbd5e1; font-weight: 600; margin-top: 4px;">
+              <span>1 mm (Ringan)</span>
+              <span>10 mm</span>
+              <span>25 mm (Sedang)</span>
+              <span>40 mm</span>
               <span>50 mm+ (Ekstrem)</span>
             </div>
           </div>

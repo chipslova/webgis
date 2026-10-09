@@ -68,16 +68,15 @@ export default async function handler(req: any, res: any) {
   const startDate = start || date;
   const endDate = end || startDate;
 
-  // CHIRPS Official GEE Precipitation Color Palette
+  // Weather Radar & CHIRPS Precipitation Color Palette (Transparent background, vivid rain gradient)
   const palette = [
-    '001137', // Deep blue (trace / light rain)
-    '0044bb', // Blue
-    '00aaff', // Cyan
-    '00cc44', // Green
-    'eedd00', // Yellow
-    'ff6600', // Orange
-    'ee0000', // Red
-    '9900cc'  // Purple (extreme precipitation >50 mm)
+    '38bdf8', // Light sky blue (Hujan ringan 1–5 mm)
+    '0284c7', // Royal blue (5–12 mm)
+    '22c55e', // Green (12–25 mm)
+    'eab308', // Yellow (25–38 mm)
+    'f97316', // Orange (38–50 mm)
+    'ef4444', // Red (50–70 mm)
+    'a855f7'  // Purple/Magenta (Ekstrem >70 mm)
   ];
 
   const minPrecip = customMin ? Number(customMin) : 1;
@@ -125,7 +124,10 @@ export default async function handler(req: any, res: any) {
           .filterBounds(regionBbox)
           .select('precipitation');
 
-        const precipImage = collection.mean().clip(regionBbox);
+        const rawMean = collection.mean();
+        // Mask out non-rain pixels (< minPrecip or <= 0.5 mm) so dry/no-rain areas are 100% transparent and the base map remains visible
+        const precipThreshold = Math.max(0.5, minPrecip);
+        const precipImage = rawMean.updateMask(rawMean.gte(precipThreshold)).clip(regionBbox);
 
         const visParams = {
           min: minPrecip,

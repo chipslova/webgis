@@ -582,9 +582,7 @@ export class GEELoader {
           if (this.map.getLayer(precipLayerId)) {
             this.map.setLayoutProperty(precipLayerId, 'visibility', isPrecipVis ? 'visible' : 'none');
             this.map.setPaintProperty(precipLayerId, 'raster-opacity', this.getLayerOpacity('precipitation'));
-            this.map.setPaintProperty(precipLayerId, 'raster-resampling', 'nearest');
-            this.map.setPaintProperty(precipLayerId, 'raster-contrast', 0.25);
-            this.map.setPaintProperty(precipLayerId, 'raster-saturation', 0.35);
+            this.map.setPaintProperty(precipLayerId, 'raster-resampling', 'linear');
           } else {
             this.map.addLayer({
               id: precipLayerId,
@@ -593,9 +591,7 @@ export class GEELoader {
               layout: { visibility: isPrecipVis ? 'visible' : 'none' },
               paint: {
                 'raster-opacity': this.getLayerOpacity('precipitation'),
-                'raster-resampling': 'nearest',
-                'raster-contrast': 0.25,
-                'raster-saturation': 0.35,
+                'raster-resampling': 'linear',
                 'raster-fade-duration': 150
               }
             }, beforeLayerId);
@@ -615,9 +611,7 @@ export class GEELoader {
             layout: { visibility: isPrecipVis ? 'visible' : 'none' },
             paint: {
               'raster-opacity': this.getLayerOpacity('precipitation'),
-              'raster-resampling': 'nearest',
-              'raster-contrast': 0.25,
-              'raster-saturation': 0.35,
+              'raster-resampling': 'linear',
               'raster-fade-duration': 150
             }
           }, beforeLayerId);
