@@ -448,13 +448,15 @@ export class GEEPanelUI {
       const bdgSrc = document.getElementById('metric-bdg-src');
 
       if (jktTemp !== null && bdgTemp !== null) {
-        if (jktEl) jktEl.innerText = `${jktTemp.toFixed(1)} °C`;
-        if (bdgEl) bdgEl.innerText = `${bdgTemp.toFixed(1)} °C`;
+        if (jktEl) jktEl.innerHTML = `${jktTemp.toFixed(1)} <span class="gee-comp-unit">°C</span>`;
+        if (bdgEl) bdgEl.innerHTML = `${bdgTemp.toFixed(1)} <span class="gee-comp-unit">°C</span>`;
         
         const delta = jktTemp - bdgTemp;
         if (deltaEl) {
-          deltaEl.innerText = `Δ ${delta > 0 ? '+' : ''}${delta.toFixed(1)} °C`;
-          deltaEl.style.background = delta > 10 ? '#ef4444' : '#f59e0b';
+          deltaEl.innerHTML = `Δ ${delta > 0 ? '+' : ''}${delta.toFixed(1)} <span class="gee-delta-unit">°C</span>`;
+          deltaEl.style.color = '#ffffff';
+          deltaEl.style.background = delta > 10 ? '#dc2626' : '#d97706';
+          deltaEl.style.borderColor = delta > 10 ? '#ef4444' : '#f59e0b';
         }
         
         if (jktSrc) { jktSrc.innerText = 'MODIS Serverless API'; jktSrc.style.color = '#10b981'; }
@@ -462,7 +464,12 @@ export class GEEPanelUI {
       } else {
         if (jktEl) jktEl.innerText = 'Data N/A';
         if (bdgEl) bdgEl.innerText = 'Data N/A';
-        if (deltaEl) { deltaEl.innerText = 'Δ N/A'; deltaEl.style.background = '#64748b'; }
+        if (deltaEl) {
+          deltaEl.innerText = 'Δ N/A';
+          deltaEl.style.color = '#ffffff';
+          deltaEl.style.background = '#475569';
+          deltaEl.style.borderColor = '#64748b';
+        }
         if (jktSrc) { jktSrc.innerText = 'Gagal memuat (Kunci GEE Belum Dikonfigurasi)'; jktSrc.style.color = '#ef4444'; }
         if (bdgSrc) { bdgSrc.innerText = 'Gagal memuat (Kunci GEE Belum Dikonfigurasi)'; bdgSrc.style.color = '#ef4444'; }
       }

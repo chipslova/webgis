@@ -194,7 +194,7 @@ export class DynamicLegendUI {
             <div class="dynamic-legend-swatches" style="margin-top: 8px;">
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #ef4444; border-radius: 50%;"></span>
-                <span class="dynamic-legend-label">Titik Pemantauan Pulau Bahang (SUHI - Jakarta, Surabaya, Medan)</span>
+                <span class="dynamic-legend-label">Titik Pemantauan Suhu Panas Perkotaan (UHI - Jakarta, Surabaya, Medan)</span>
               </div>
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #10b981; border-radius: 50%;"></span>

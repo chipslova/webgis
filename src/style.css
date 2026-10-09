@@ -1323,8 +1323,9 @@ html, body, #app {
 .gee-legend-labels {
   display: flex;
   justify-content: space-between;
-  font-size: 9px;
-  color: var(--text-muted);
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #cbd5e1;
 }
 
 .poi-tags, .lc-tags {
@@ -10144,19 +10145,32 @@ html, body, #app {
 }
 
 .gee-comp-val {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 19px;
+  font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.2;
   margin: 3px 0 2px 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 3px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .gee-comp-col.urban .gee-comp-val {
-  color: #ef4444;
+  color: #ff6b6b;
 }
 
 .gee-comp-col.rural .gee-comp-val {
-  color: #10b981;
+  color: #34d399;
+}
+
+.gee-comp-unit {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f8fafc;
+  opacity: 0.95;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .gee-comp-sub {
@@ -10179,20 +10193,35 @@ html, body, #app {
 }
 
 .gee-delta-badge {
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff !important;
+  background: #ea580c;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 6px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.gee-delta-unit {
   font-size: 10px;
   font-weight: 700;
-  color: #f59e0b;
-  background: rgba(245, 158, 11, 0.15);
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  border-radius: 4px;
-  padding: 2px 5px;
-  white-space: nowrap;
+  color: #ffffff;
+  opacity: 0.95;
 }
 
 .gee-delta-sub {
-  font-size: 8px;
-  color: #94a3b8;
-  margin-top: 2px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-top: 3px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -10961,8 +10990,9 @@ html, body, #app {
 .gee-legend-labels {
   display: flex;
   justify-content: space-between;
-  font-size: 9px;
-  color: var(--text-muted);
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #cbd5e1;
   margin-top: 3px;
 }
 
