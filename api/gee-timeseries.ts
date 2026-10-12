@@ -12,6 +12,7 @@ interface TimeSeriesRequestBody {
   lon: number;
   startDate?: string;
   endDate?: string;
+  satellite?: 'terra' | 'aqua' | 'combined';
 }
 
 export default async function handler(req: any, res: any) {
@@ -59,7 +60,7 @@ export default async function handler(req: any, res: any) {
     return sendJson(400, { error: 'Invalid JSON request body.' });
   }
 
-  const { lat, lon, startDate = '2023-01-01', endDate = '2024-01-01' } = body;
+  const { lat, lon, startDate = '2023-01-01', endDate = '2024-01-01', satellite = 'terra' } = body;
 
   if (typeof lat !== 'number' || typeof lon !== 'number') {
     return sendJson(400, { error: 'lat and lon are required numeric parameters.' });
@@ -84,8 +85,9 @@ export default async function handler(req: any, res: any) {
         });
 
         const eePoint = ee.Geometry.Point([lon, lat]);
+        const collectionId = satellite === 'aqua' ? 'MODIS/061/MYD11A2' : 'MODIS/061/MOD11A2';
 
-        const modisCol = ee.ImageCollection('MODIS/061/MOD11A2')
+        const modisCol = ee.ImageCollection(collectionId)
           .filterDate(startDate, endDate)
           .filterBounds(eePoint)
           .select(['LST_Day_1km', 'LST_Night_1km']);

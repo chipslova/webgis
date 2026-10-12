@@ -249,6 +249,14 @@ export class GEELoader {
       tileSize: 256
     });
 
+    // Ensure static fallback layers are hidden so they never obscure the live GEE raster
+    if (this.map.getLayer('gee-modis-day-wms-layer')) {
+      this.map.setLayoutProperty('gee-modis-day-wms-layer', 'visibility', 'none');
+    }
+    if (this.map.getLayer('gee-modis-night-wms-layer')) {
+      this.map.setLayoutProperty('gee-modis-night-wms-layer', 'visibility', 'none');
+    }
+
     const beforeLayerId = this.map.getLayer('gee-modis-stations-circles') ? 'gee-modis-stations-circles' : undefined;
 
     this.map.addLayer({

@@ -69,9 +69,10 @@ export class GEEPanelUI {
     const computeStatus = document.getElementById('gee-compute-status');
 
     if (status === 'live') {
+      const satName = metadata?.satellite === 'aqua' ? 'Aqua (Siang 13:30)' : 'Terra (Pagi 10:30)';
       if (pill) { pill.style.background = '#16a34a'; pill.innerText = '● LIVE GEE REDUCTION'; }
-      if (desc) desc.innerText = `Menampilkan komposit 8-harian MODIS (${metadata?.period || 'Live'}) hasil reduksi Google Earth Engine API.`;
-      if (datasetLabel) datasetLabel.innerHTML = `Dataset: <code>${metadata?.dataset || 'MODIS/061/MOD11A2 + MYD11A2'}</code> • Provider: NASA LP DAAC`;
+      if (desc) desc.innerHTML = `Menampilkan citra Satelit <strong>${satName}</strong> • Periode: <strong>${metadata?.period || 'Live'}</strong> hasil reduksi Google Earth Engine API.`;
+      if (datasetLabel) datasetLabel.innerHTML = `Dataset: <code>${metadata?.dataset || 'MODIS/061/MOD11A2'}</code> • Provider: NASA LP DAAC`;
       if (computeStatus) computeStatus.style.display = 'none';
     } else if (status === 'computing') {
       if (pill) { pill.style.background = '#d97706'; pill.innerText = '◌ MENGHITUNG KOMPOSIT GEE...'; }
@@ -103,6 +104,8 @@ export class GEEPanelUI {
       this.geeLoader.setParams({ satellite, mode, start, end });
       if (this.geeLoader.isLayerVisible('lst-day') || this.geeLoader.isLayerVisible('lst-night') || this.geeLoader.isLayerVisible('precipitation')) {
         btn?.click();
+      } else {
+        this.updateThermalContrast();
       }
     };
 
@@ -212,13 +215,24 @@ export class GEEPanelUI {
         btn.setAttribute('disabled', 'true');
         btn.innerText = 'Menghubungi GEE...';
 
+        // Automatically activate daytime LST layer if user hasn't checked any thermal layer yet
+        if (!this.geeLoader.isLayerVisible('lst-day') && !this.geeLoader.isLayerVisible('lst-night')) {
+          await this.geeLoader.toggleLayer('lst-day', true);
+          this.syncCheckboxStates();
+        }
+
+        const satName = satellite === 'aqua' ? 'Aqua (Siang 13:30)' : 'Terra (Pagi 10:30)';
+        const periodName = start.startsWith('2024-08') ? 'Kemarau (Agu 2024)' :
+          start.startsWith('2024-01') ? 'Musim Hujan (Jan 2024)' :
+          start.startsWith('2024-04') ? 'Pancaroba (Apr 2024)' : `${start}`;
+
         try {
           const [res] = await Promise.all([
             this.geeLoader.computeLiveGEE({ satellite, mode, start, end }),
             this.geeLoader.isLayerVisible('precipitation') ? this.geeLoader.computeLivePrecipitation(start) : Promise.resolve(null)
           ]);
           if (res && res.status === 'live') {
-            showToast('Komposit GEE Live berhasil dihitung!', 'success');
+            showToast(`Citra GEE Live aktif: ${satName} · ${periodName}!`, 'success');
           } else {
             showToast('GEE API mengembalikan fallback WMS.', 'info');
           }
@@ -226,7 +240,7 @@ export class GEEPanelUI {
           showToast(`Gagal memanggil GEE: ${e.message}`, 'error');
         } finally {
           btn.removeAttribute('disabled');
-          btn.innerHTML = '⚡ Terapkan Analisis Langsung';
+          btn.innerHTML = '⚡ Terapkan Kueri';
           
           // Also update the UI contrast box when new parameters are applied
           this.updateThermalContrast();
@@ -417,16 +431,19 @@ export class GEEPanelUI {
         }
       }
 
+      const satSelect = document.getElementById('gee-satellite-select') as HTMLSelectElement | null;
+      const satellite = (satSelect?.value || 'terra') as 'terra' | 'aqua';
+
       const fetchTemp = async (coords: {lat: number, lon: number}) => {
         const res = await fetch('/api/gee-timeseries', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lat: coords.lat, lon: coords.lon, startDate, endDate })
+          body: JSON.stringify({ lat: coords.lat, lon: coords.lon, startDate, endDate, satellite })
         });
         if (!res.ok) throw new Error('API Error');
         const data = await res.json();
         const tsData = data.data || [];
-        // Find the most recent valid LST reading
+        // Find the most recent valid LST reading in this period
         for (let i = tsData.length - 1; i >= 0; i--) {
           const val = tsData[i].day_c;
           if (val !== null && val !== undefined) {
@@ -447,6 +464,8 @@ export class GEEPanelUI {
       const jktSrc = document.getElementById('metric-jkt-src');
       const bdgSrc = document.getElementById('metric-bdg-src');
 
+      const satLabel = satellite === 'aqua' ? 'MODIS Aqua (Siang 13:30)' : 'MODIS Terra (Pagi 10:30)';
+
       if (jktTemp !== null && bdgTemp !== null) {
         if (jktEl) jktEl.innerHTML = `${jktTemp.toFixed(1)} <span class="gee-comp-unit">°C</span>`;
         if (bdgEl) bdgEl.innerHTML = `${bdgTemp.toFixed(1)} <span class="gee-comp-unit">°C</span>`;
@@ -459,19 +478,19 @@ export class GEEPanelUI {
           deltaEl.style.borderColor = delta > 10 ? '#ef4444' : '#f59e0b';
         }
         
-        if (jktSrc) { jktSrc.innerText = 'MODIS Serverless API'; jktSrc.style.color = '#10b981'; }
-        if (bdgSrc) { bdgSrc.innerText = 'MODIS Serverless API'; bdgSrc.style.color = '#10b981'; }
+        if (jktSrc) { jktSrc.innerText = `${satLabel} · Live GEE`; jktSrc.style.color = '#10b981'; }
+        if (bdgSrc) { bdgSrc.innerText = `${satLabel} · Live GEE`; bdgSrc.style.color = '#10b981'; }
       } else {
-        if (jktEl) jktEl.innerText = 'Data N/A';
-        if (bdgEl) bdgEl.innerText = 'Data N/A';
+        if (jktEl) jktEl.innerText = jktTemp !== null ? `${jktTemp.toFixed(1)} °C` : 'Berawan (N/A)';
+        if (bdgEl) bdgEl.innerText = bdgTemp !== null ? `${bdgTemp.toFixed(1)} °C` : 'Berawan (N/A)';
         if (deltaEl) {
           deltaEl.innerText = 'Δ N/A';
           deltaEl.style.color = '#ffffff';
           deltaEl.style.background = '#475569';
           deltaEl.style.borderColor = '#64748b';
         }
-        if (jktSrc) { jktSrc.innerText = 'Gagal memuat (Kunci GEE Belum Dikonfigurasi)'; jktSrc.style.color = '#ef4444'; }
-        if (bdgSrc) { bdgSrc.innerText = 'Gagal memuat (Kunci GEE Belum Dikonfigurasi)'; bdgSrc.style.color = '#ef4444'; }
+        if (jktSrc) { jktSrc.innerText = `${satLabel} · Terhalang Awan`; jktSrc.style.color = '#fbbf24'; }
+        if (bdgSrc) { bdgSrc.innerText = `${satLabel} · Terhalang Awan`; bdgSrc.style.color = '#fbbf24'; }
       }
 
     } catch (err) {
