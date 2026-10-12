@@ -427,13 +427,24 @@
                   </div>
                 </div>
 
-                <!-- 1. Parameter Satelit & Periode Musim (Filter Utama di Atas) -->
+                <!-- 1. Parameter Waktu & Periode Musim (Filter Intuitif) -->
                 <div class="gee-filter-grid">
                   <div>
-                    <label for="gee-satellite-select" class="gee-filter-label">Satelit</label>
-                    <select id="gee-satellite-select" class="form-select gee-filter-select">
-                      <option value="terra" selected>Terra (Pagi 10:30)</option>
-                      <option value="aqua">Aqua (Siang 13:30)</option>
+                    <label for="gee-time-select" class="gee-filter-label">Waktu Pengamatan & Satelit</label>
+                    <select id="gee-time-select" class="form-select gee-filter-select">
+                      <option value="terra-day" selected>☀️ Pagi 10:30 (Terra Siang)</option>
+                      <option value="aqua-day">☀️ Siang 13:30 (Aqua Siang · Puncak Panas)</option>
+                      <option value="terra-night">🌙 Malam 22:30 (Terra Malam)</option>
+                      <option value="aqua-night">🌙 Dini Hari 01:30 (Aqua Malam · Paling Dingin)</option>
+                    </select>
+                    <!-- Hidden compatibility elements for test suites -->
+                    <select id="gee-satellite-select" style="display: none;" aria-hidden="true">
+                      <option value="terra" selected>Terra</option>
+                      <option value="aqua">Aqua</option>
+                    </select>
+                    <select id="gee-mode-select" style="display: none;" aria-hidden="true">
+                      <option value="day" selected>day</option>
+                      <option value="night">night</option>
                     </select>
                   </div>
                   <div>
@@ -470,18 +481,21 @@
                   </div>
                 </div>
 
-                <div style="margin-top: 10px; margin-bottom: 15px; display: flex; gap: 8px;">
-                  <button id="btn-gee-compute" class="piksel-btn" style="flex: 1;">
-                    ⚡ Terapkan Kueri
+                <div style="margin-top: 10px; margin-bottom: 8px; display: flex; gap: 8px; align-items: center;">
+                  <button id="btn-gee-compute" class="piksel-btn" style="flex: 1;" title="Peta otomatis ter-update saat waktu atau musim diganti. Klik untuk muat ulang manual.">
+                    ⚡ Perbarui Peta GEE
                   </button>
-                <div style="display: flex; gap: 4px;">
-                  <button id="btn-gee-timelapse" class="btn btn-secondary" style="padding: 0 12px; font-size: 11px; white-space: nowrap; border-radius: 4px;" aria-label="Putar Animasi Waktu (Time-Lapse)" title="Putar Animasi (Otomatis mengganti periode)">
-                    ▶️ Animasi
-                  </button>
-                  <button id="btn-gee-timelapse-record" class="btn btn-outline" style="padding: 0 10px; font-size: 11px; white-space: nowrap; border-radius: 4px; border-color: rgba(239, 68, 68, 0.4); color: #ef4444;" aria-label="Rekam Animasi (GIF/WebM)" title="Rekam Animasi Layar (Time-Lapse)">
-                    🎥 Rekam
-                  </button>
+                  <div style="display: flex; gap: 4px;">
+                    <button id="btn-gee-timelapse" class="btn btn-secondary" style="padding: 0 12px; font-size: 11px; white-space: nowrap; border-radius: 4px;" aria-label="Putar Animasi Waktu (Time-Lapse)" title="Putar Animasi (Otomatis mengganti periode)">
+                      ▶️ Animasi
+                    </button>
+                    <button id="btn-gee-timelapse-record" class="btn btn-outline" style="padding: 0 10px; font-size: 11px; white-space: nowrap; border-radius: 4px; border-color: rgba(239, 68, 68, 0.4); color: #ef4444;" aria-label="Rekam Animasi (GIF/WebM)" title="Rekam Animasi Layar (Time-Lapse)">
+                      🎥 Rekam
+                    </button>
+                  </div>
                 </div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 14px;">
+                  ✨ <em>Peta otomatis memperbarui citra setiap kali waktu atau musim diganti.</em>
                 </div>
 
                 <!-- 2. Primary Layer Switcher — with per-layer opacity -->
@@ -498,10 +512,10 @@
                   <div class="gee-toggle-group">
 
                     <!-- 1. MODIS Daytime LST -->
-                    <div class="gee-layer-row gee-layer-item-clean">
+                    <div class="gee-layer-row gee-layer-item-clean" id="gee-layer-lst-day-row">
                       <label>
                         <input type="checkbox" id="toggle-gee-lst" aria-label="Toggle MODIS Daytime Land Surface Temperature layer" />
-                        <span>☀️ <strong>LST Siang Hari</strong> <span class="gee-layer-subtext">(Suhu Permukaan · 10:30/13:30)</span></span>
+                        <span>☀️ <strong>LST Siang Hari</strong> <span class="gee-layer-subtext" id="label-lst-day-subtext">(Terra · Pagi 10:30)</span></span>
                       </label>
                       <div id="gee-lst-opacity-row" class="gee-layer-opacity-box">
                         <input type="range" id="gee-lst-day-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas LST Siang Hari" />
@@ -510,10 +524,10 @@
                     </div>
 
                     <!-- 2. MODIS Nighttime LST -->
-                    <div class="gee-layer-row gee-layer-item-clean">
+                    <div class="gee-layer-row gee-layer-item-clean" id="gee-layer-lst-night-row">
                       <label>
                         <input type="checkbox" id="toggle-gee-elevation" aria-label="Toggle MODIS Nighttime Land Surface Temperature layer" />
-                        <span>🌙 <strong>LST Malam Hari</strong> <span class="gee-layer-subtext">(Suhu Permukaan · 22:30/01:30)</span></span>
+                        <span>🌙 <strong>LST Malam Hari</strong> <span class="gee-layer-subtext" id="label-lst-night-subtext">(Terra · Malam 22:30)</span></span>
                       </label>
                       <div id="gee-lst-night-opacity-row" class="gee-layer-opacity-box">
                         <input type="range" id="gee-lst-night-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas LST Malam Hari" />

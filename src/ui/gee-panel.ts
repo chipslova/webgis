@@ -105,15 +105,68 @@ export class GEEPanelUI {
 
   private bindGEEComputeEvents() {
     const btn = document.getElementById('btn-gee-compute');
-    const satSelect = document.getElementById('gee-satellite-select') as HTMLSelectElement;
-    const periodSelect = document.getElementById('gee-period-select') as HTMLSelectElement;
-    const modeSelect = document.getElementById('gee-mode-select') as HTMLSelectElement;
+    const timeSelect = document.getElementById('gee-time-select') as HTMLSelectElement | null;
+    const satSelect = document.getElementById('gee-satellite-select') as HTMLSelectElement | null;
+    const periodSelect = document.getElementById('gee-period-select') as HTMLSelectElement | null;
+    const modeSelect = document.getElementById('gee-mode-select') as HTMLSelectElement | null;
 
-    const handleParamChange = () => {
-      const satellite = (satSelect?.value || 'terra') as 'terra' | 'aqua' | 'combined';
-      const mode = (modeSelect?.value || 'day') as 'day' | 'night';
+    const parseTime = (val: string): { satellite: 'terra' | 'aqua'; mode: 'day' | 'night' } => {
+      switch (val) {
+        case 'aqua-day':
+          return { satellite: 'aqua', mode: 'day' };
+        case 'terra-night':
+          return { satellite: 'terra', mode: 'night' };
+        case 'aqua-night':
+          return { satellite: 'aqua', mode: 'night' };
+        case 'terra-day':
+        default:
+          return { satellite: 'terra', mode: 'day' };
+      }
+    };
+
+    const updateTimeSubtexts = (sat: string) => {
+      const daySub = document.getElementById('label-lst-day-subtext');
+      const nightSub = document.getElementById('label-lst-night-subtext');
+      if (sat === 'aqua') {
+        if (daySub) daySub.innerText = '(Aqua · Puncak Panas 13:30)';
+        if (nightSub) nightSub.innerText = '(Aqua · Paling Dingin 01:30)';
+      } else {
+        if (daySub) daySub.innerText = '(Terra · Pagi 10:30)';
+        if (nightSub) nightSub.innerText = '(Terra · Malam 22:30)';
+      }
+    };
+
+    const handleParamChange = async () => {
+      let satellite: 'terra' | 'aqua' | 'combined' = 'terra';
+      let mode: 'day' | 'night' = 'day';
+
+      if (timeSelect && timeSelect.value) {
+        const parsed = parseTime(timeSelect.value);
+        satellite = parsed.satellite;
+        mode = parsed.mode;
+        if (satSelect) satSelect.value = satellite;
+        if (modeSelect) modeSelect.value = mode;
+        updateTimeSubtexts(satellite);
+
+        // Auto-switch layers if either LST layer is currently on
+        if (this.geeLoader.isLayerVisible('lst-day') || this.geeLoader.isLayerVisible('lst-night')) {
+          if (mode === 'day') {
+            await this.geeLoader.toggleLayer('lst-day', true);
+            await this.geeLoader.toggleLayer('lst-night', false);
+          } else {
+            await this.geeLoader.toggleLayer('lst-night', true);
+            await this.geeLoader.toggleLayer('lst-day', false);
+          }
+          this.syncCheckboxStates();
+        }
+      } else {
+        satellite = (satSelect?.value || 'terra') as 'terra' | 'aqua' | 'combined';
+        mode = (modeSelect?.value || 'day') as 'day' | 'night';
+      }
+
       const [start, end] = this.getPeriodDates(periodSelect?.value);
       this.geeLoader.setParams({ satellite, mode, start, end });
+
       if (this.geeLoader.isLayerVisible('lst-day') || this.geeLoader.isLayerVisible('lst-night') || this.geeLoader.isLayerVisible('precipitation')) {
         btn?.click();
       } else {
@@ -121,6 +174,7 @@ export class GEEPanelUI {
       }
     };
 
+    if (timeSelect) timeSelect.addEventListener('change', handleParamChange);
     if (satSelect) satSelect.addEventListener('change', handleParamChange);
     if (periodSelect) periodSelect.addEventListener('change', handleParamChange);
     if (modeSelect) modeSelect.addEventListener('change', handleParamChange);
@@ -221,19 +275,30 @@ export class GEEPanelUI {
 
     if (btn) {
       btn.addEventListener('click', async () => {
-        const satellite = (satSelect?.value || 'terra') as 'terra' | 'aqua' | 'combined';
-        const mode = (modeSelect?.value || 'day') as 'day' | 'night';
+        let satellite = (satSelect?.value || 'terra') as 'terra' | 'aqua' | 'combined';
+        let mode = (modeSelect?.value || 'day') as 'day' | 'night';
+        if (timeSelect && timeSelect.value) {
+          const parsed = parseTime(timeSelect.value);
+          satellite = parsed.satellite;
+          mode = parsed.mode;
+        }
         const [start, end] = this.getPeriodDates(periodSelect?.value);
         btn.setAttribute('disabled', 'true');
         btn.innerText = 'Menghubungi GEE...';
 
-        // Automatically activate daytime LST layer if user hasn't checked any thermal layer yet
+        // Automatically activate appropriate LST layer if user hasn't checked any thermal layer yet
         if (!this.geeLoader.isLayerVisible('lst-day') && !this.geeLoader.isLayerVisible('lst-night')) {
-          await this.geeLoader.toggleLayer('lst-day', true);
+          if (mode === 'night') {
+            await this.geeLoader.toggleLayer('lst-night', true);
+          } else {
+            await this.geeLoader.toggleLayer('lst-day', true);
+          }
           this.syncCheckboxStates();
         }
 
-        const satName = satellite === 'aqua' ? 'Aqua (Siang 13:30)' : 'Terra (Pagi 10:30)';
+        const satName = satellite === 'aqua' 
+          ? (mode === 'day' ? 'Aqua (Siang 13:30)' : 'Aqua (Dini Hari 01:30)') 
+          : (mode === 'day' ? 'Terra (Pagi 10:30)' : 'Terra (Malam 22:30)');
         const isRecent = periodSelect?.value === 'live-recent';
         const periodName = isRecent ? 'Terkini (Live 30 Hari)' :
           start.startsWith('2024-08') ? 'Kemarau (Agu 2024)' :
@@ -254,7 +319,7 @@ export class GEEPanelUI {
           showToast(`Gagal memanggil GEE: ${e.message}`, 'error');
         } finally {
           btn.removeAttribute('disabled');
-          btn.innerHTML = '⚡ Terapkan Kueri';
+          btn.innerHTML = '⚡ Perbarui Peta GEE';
           
           // Also update the UI contrast box when new parameters are applied
           this.updateThermalContrast();
@@ -337,6 +402,44 @@ export class GEEPanelUI {
     attachToggle('toggle-gee-lc', 'landcover');
     attachToggle('toggle-gee-precipitation', 'precipitation');
     attachToggle('toggle-gee-rainfall', 'precipitation');
+
+    const toggleLstDay = document.getElementById('toggle-gee-lst') as HTMLInputElement | null;
+    const toggleLstNight = document.getElementById('toggle-gee-elevation') as HTMLInputElement | null;
+    const timeSelect = document.getElementById('gee-time-select') as HTMLSelectElement | null;
+
+    if (toggleLstDay && timeSelect) {
+      toggleLstDay.addEventListener('change', () => {
+        if (toggleLstDay.checked) {
+          if (toggleLstNight && toggleLstNight.checked) {
+            this.geeLoader.toggleLayer('lst-night', false);
+            this.syncCheckboxStates();
+          }
+          const isAqua = timeSelect.value.includes('aqua');
+          timeSelect.value = isAqua ? 'aqua-day' : 'terra-day';
+          const daySub = document.getElementById('label-lst-day-subtext');
+          if (daySub) daySub.innerText = isAqua ? '(Aqua · Puncak Panas 13:30)' : '(Terra · Pagi 10:30)';
+          const btn = document.getElementById('btn-gee-compute');
+          btn?.click();
+        }
+      });
+    }
+
+    if (toggleLstNight && timeSelect) {
+      toggleLstNight.addEventListener('change', () => {
+        if (toggleLstNight.checked) {
+          if (toggleLstDay && toggleLstDay.checked) {
+            this.geeLoader.toggleLayer('lst-day', false);
+            this.syncCheckboxStates();
+          }
+          const isAqua = timeSelect.value.includes('aqua');
+          timeSelect.value = isAqua ? 'aqua-night' : 'terra-night';
+          const nightSub = document.getElementById('label-lst-night-subtext');
+          if (nightSub) nightSub.innerText = isAqua ? '(Aqua · Paling Dingin 01:30)' : '(Terra · Malam 22:30)';
+          const btn = document.getElementById('btn-gee-compute');
+          btn?.click();
+        }
+      });
+    }
 
     attachToggle('toggle-gee-stations', 'stations');
 
@@ -516,8 +619,9 @@ export class GEEPanelUI {
 
     if (timeEl) timeEl.innerText = 'Mengambil data GEE MODIS...';
 
-    const satSelect = document.getElementById('gee-sat-select') as HTMLSelectElement | null;
-    const satellite = satSelect?.value === 'aqua' ? 'aqua' : 'terra';
+    const timeSelect = document.getElementById('gee-time-select') as HTMLSelectElement | null;
+    const satSelect = (document.getElementById('gee-satellite-select') || document.getElementById('gee-sat-select')) as HTMLSelectElement | null;
+    const satellite = (timeSelect?.value.includes('aqua') || satSelect?.value === 'aqua') ? 'aqua' : 'terra';
 
     try {
       const res = await fetch('/api/gee-timeseries', {
