@@ -124,15 +124,14 @@ export class GEEPanelUI {
       }
     };
 
-    const updateTimeSubtexts = (sat: string) => {
+    const updateTimeSubtexts = (sat: string, mode: string = 'day') => {
       const daySub = document.getElementById('label-lst-day-subtext');
-      const nightSub = document.getElementById('label-lst-night-subtext');
-      if (sat === 'aqua') {
-        if (daySub) daySub.innerText = '(Aqua · Puncak Panas 13:30)';
-        if (nightSub) nightSub.innerText = '(Aqua · Paling Dingin 01:30)';
-      } else {
-        if (daySub) daySub.innerText = '(Terra · Pagi 10:30)';
-        if (nightSub) nightSub.innerText = '(Terra · Malam 22:30)';
+      if (daySub) {
+        if (sat === 'aqua') {
+          daySub.innerText = mode === 'day' ? '(Aqua · Puncak Panas 13:30)' : '(Aqua · Paling Dingin 01:30)';
+        } else {
+          daySub.innerText = mode === 'day' ? '(Terra · Pagi 10:30)' : '(Terra · Malam 22:30)';
+        }
       }
     };
 
@@ -146,7 +145,7 @@ export class GEEPanelUI {
         mode = parsed.mode;
         if (satSelect) satSelect.value = satellite;
         if (modeSelect) modeSelect.value = mode;
-        updateTimeSubtexts(satellite);
+        updateTimeSubtexts(satellite, mode);
 
         // Auto-switch layers if either LST layer is currently on
         if (this.geeLoader.isLayerVisible('lst-day') || this.geeLoader.isLayerVisible('lst-night')) {
@@ -331,6 +330,17 @@ export class GEEPanelUI {
   // ── Checkbox sync ────────────────────────────────────────────────────────────
 
   private syncCheckboxStates() {
+    const isDay = this.geeLoader.isLayerVisible('lst-day');
+    const isNight = this.geeLoader.isLayerVisible('lst-night');
+    const isThermalActive = isDay || isNight;
+
+    const mainLstToggle = document.getElementById('toggle-gee-lst') as HTMLInputElement | null;
+    if (mainLstToggle) {
+      mainLstToggle.checked = isThermalActive;
+      const opRow = document.getElementById('gee-lst-opacity-row');
+      if (opRow) opRow.style.display = isThermalActive ? 'flex' : 'none';
+    }
+
     const applyToggle = (id: string, layerKey: string, opRowId?: string, legendId?: string) => {
       const el = document.getElementById(id) as HTMLInputElement | null;
       if (!el) return;
@@ -340,17 +350,13 @@ export class GEEPanelUI {
       if (legendId) { const l = document.getElementById(legendId); if (l) l.style.display = isOn ? 'block' : 'none'; }
     };
 
-    applyToggle('toggle-gee-lst', 'lst-day', 'gee-lst-opacity-row');
-    applyToggle('toggle-gee-air', 'lst-day', 'gee-lst-opacity-row');
     applyToggle('toggle-gee-elevation', 'lst-night', 'gee-lst-night-opacity-row');
     applyToggle('toggle-gee-surface', 'lst-night', 'gee-lst-night-opacity-row');
     applyToggle('toggle-gee-landcover', 'landcover', 'gee-lc-opacity-row', 'gee-lulc-legend');
     applyToggle('toggle-gee-precipitation', 'precipitation', 'gee-precip-opacity-row', 'gee-precip-legend');
     applyToggle('toggle-gee-rainfall', 'precipitation', 'gee-precip-opacity-row', 'gee-precip-legend');
-
     applyToggle('toggle-gee-stations', 'stations');
 
-    const isThermalActive = this.geeLoader.isLayerVisible('lst-day') || this.geeLoader.isLayerVisible('lst-night');
     const thermalLegendBox = document.getElementById('gee-thermal-legend-box');
     if (thermalLegendBox) {
       thermalLegendBox.style.display = isThermalActive ? 'block' : 'none';
@@ -360,6 +366,17 @@ export class GEEPanelUI {
   // ── Per-layer opacity sliders ────────────────────────────────────────────────
 
   private bindPerLayerOpacityEvents() {
+    const daySlider = document.getElementById('gee-lst-day-opacity') as HTMLInputElement | null;
+    const dayLabel = document.getElementById('gee-lst-day-opacity-val');
+    if (daySlider) {
+      daySlider.addEventListener('input', () => {
+        const val = Number(daySlider.value);
+        if (dayLabel) dayLabel.innerText = `${val}%`;
+        this.geeLoader.setLayerOpacity('lst-day', val / 100);
+        this.geeLoader.setLayerOpacity('lst-night', val / 100);
+      });
+    }
+
     const bind = (sliderId: string, valId: string, layerKey: string) => {
       const slider = document.getElementById(sliderId) as HTMLInputElement | null;
       const label = document.getElementById(valId);
@@ -371,12 +388,9 @@ export class GEEPanelUI {
       });
     };
 
-    bind('gee-lst-day-opacity', 'gee-lst-day-opacity-val', 'lst-day');
     bind('gee-lst-night-opacity', 'gee-lst-night-opacity-val', 'lst-night');
     bind('gee-landcover-opacity', 'gee-landcover-opacity-val', 'landcover');
     bind('gee-precip-opacity', 'gee-precip-opacity-val', 'precipitation');
-
-
   }
 
   // ── Layer toggle events ──────────────────────────────────────────────────────
@@ -392,8 +406,31 @@ export class GEEPanelUI {
       });
     };
 
-    attachToggle('toggle-gee-lst', 'lst-day');
-    attachToggle('toggle-gee-lst-day', 'lst-day');
+    const toggleLst = document.getElementById('toggle-gee-lst') as HTMLInputElement | null;
+    const timeSelect = document.getElementById('gee-time-select') as HTMLSelectElement | null;
+
+    if (toggleLst) {
+      toggleLst.addEventListener('change', async () => {
+        const isChecked = toggleLst.checked;
+        const isNight = timeSelect ? timeSelect.value.includes('night') : false;
+        if (isChecked) {
+          if (isNight) {
+            await this.geeLoader.toggleLayer('lst-night', true);
+            await this.geeLoader.toggleLayer('lst-day', false);
+          } else {
+            await this.geeLoader.toggleLayer('lst-day', true);
+            await this.geeLoader.toggleLayer('lst-night', false);
+          }
+          const btn = document.getElementById('btn-gee-compute');
+          btn?.click();
+        } else {
+          await this.geeLoader.toggleLayer('lst-day', false);
+          await this.geeLoader.toggleLayer('lst-night', false);
+        }
+        this.syncCheckboxStates();
+      });
+    }
+
     attachToggle('toggle-gee-air', 'lst-day');
     attachToggle('toggle-gee-elevation', 'lst-night');
     attachToggle('toggle-gee-lst-night', 'lst-night');
@@ -402,45 +439,6 @@ export class GEEPanelUI {
     attachToggle('toggle-gee-lc', 'landcover');
     attachToggle('toggle-gee-precipitation', 'precipitation');
     attachToggle('toggle-gee-rainfall', 'precipitation');
-
-    const toggleLstDay = document.getElementById('toggle-gee-lst') as HTMLInputElement | null;
-    const toggleLstNight = document.getElementById('toggle-gee-elevation') as HTMLInputElement | null;
-    const timeSelect = document.getElementById('gee-time-select') as HTMLSelectElement | null;
-
-    if (toggleLstDay && timeSelect) {
-      toggleLstDay.addEventListener('change', () => {
-        if (toggleLstDay.checked) {
-          if (toggleLstNight && toggleLstNight.checked) {
-            this.geeLoader.toggleLayer('lst-night', false);
-            this.syncCheckboxStates();
-          }
-          const isAqua = timeSelect.value.includes('aqua');
-          timeSelect.value = isAqua ? 'aqua-day' : 'terra-day';
-          const daySub = document.getElementById('label-lst-day-subtext');
-          if (daySub) daySub.innerText = isAqua ? '(Aqua · Puncak Panas 13:30)' : '(Terra · Pagi 10:30)';
-          const btn = document.getElementById('btn-gee-compute');
-          btn?.click();
-        }
-      });
-    }
-
-    if (toggleLstNight && timeSelect) {
-      toggleLstNight.addEventListener('change', () => {
-        if (toggleLstNight.checked) {
-          if (toggleLstDay && toggleLstDay.checked) {
-            this.geeLoader.toggleLayer('lst-day', false);
-            this.syncCheckboxStates();
-          }
-          const isAqua = timeSelect.value.includes('aqua');
-          timeSelect.value = isAqua ? 'aqua-night' : 'terra-night';
-          const nightSub = document.getElementById('label-lst-night-subtext');
-          if (nightSub) nightSub.innerText = isAqua ? '(Aqua · Paling Dingin 01:30)' : '(Terra · Malam 22:30)';
-          const btn = document.getElementById('btn-gee-compute');
-          btn?.click();
-        }
-      });
-    }
-
     attachToggle('toggle-gee-stations', 'stations');
 
     document.getElementById('btn-focus-gee-area')?.addEventListener('click', () => this.geeLoader.flyToStudyArea());
