@@ -1240,14 +1240,14 @@
 
             <!-- Live GEE Time-Series Extractor -->
             <div class="insp-section" id="insp-timeseries-row" style="margin-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px;">
-              <div class="insp-section-title">ANALISIS DERET WAKTU GEE (LIVE)</div>
+              <div class="insp-section-title">DERET WAKTU LST (GEE)</div>
               <button id="btn-insp-extract-ts" class="btn btn-primary full-width" style="margin-top: 6px; font-size: 11px; padding: 6px 10px;">
-                <span class="btn-icon">📈</span> Ekstrak Deret Waktu Suhu LST (1 Tahun Terakhir)
+                <span class="btn-icon">📈</span> Ekstrak Deret LST
               </button>
               
               <div id="insp-ts-result-container" style="display: none; margin-top: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 4px; padding: 8px;">
                 <div id="insp-ts-loading" style="display: none; text-align: center; color: var(--text-muted); font-size: 11px;">
-                  Sedang mengekstrak data dari GEE... (±10 detik)
+                  Mengekstrak data GEE...
                 </div>
                 <div id="insp-ts-chart-wrap" style="position: relative; width: 100%; height: 120px; display: none;">
                   <canvas id="insp-ts-canvas" width="250" height="120"></canvas>
@@ -1259,11 +1259,11 @@
             <!-- Data Provenance & Transparency Note -->
             <div class="insp-disclaimer-note">
               <span class="insp-disclaimer-icon" aria-hidden="true">ℹ️</span>
-              <span>Koordinat WGS84 & atribut vektor dikueri langsung dari geometri peta. Lapisan raster dirender melalui ubin citra OGC WMS (kueri piksel langsung memerlukan layanan WCS/COG).</span>
+              <span>Koordinat & atribut dikueri dari peta. Deret waktu diekstraksi live dari Google Earth Engine (MODIS LST).</span>
             </div>
 
             <div class="insp-footer-actions">
-              <button id="btn-insp-copy-coords" class="insp-action-btn" aria-label="Salin koordinat ke papan klip">Salin Koordinat (WGS84)</button>
+              <button id="btn-insp-copy-coords" class="insp-action-btn" aria-label="Salin koordinat ke papan klip">Salin Koordinat</button>
               <button id="btn-insp-bookmark" class="insp-action-btn secondary" title="Simpan lokasi ini ke Bookmark Favorit (Local Storage)" aria-label="Simpan ke Bookmark">⭐ Simpan Bookmark</button>
             </div>
           </div>

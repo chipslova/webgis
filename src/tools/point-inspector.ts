@@ -207,7 +207,7 @@ export class PointInspector {
       chartWrap.style.display = 'none';
       errBox.style.display = 'none';
       extractTsBtn.setAttribute('disabled', 'true');
-      extractTsBtn.innerText = 'Memproses...';
+      extractTsBtn.innerHTML = '<span class="btn-icon">⏳</span> Memproses...';
 
       try {
         const res = await fetch('/api/gee-timeseries', {
@@ -216,8 +216,8 @@ export class PointInspector {
           body: JSON.stringify({
             lat: this.currentInspected.lat,
             lon: this.currentInspected.lng,
-            startDate: '2025-01-01',
-            endDate: '2026-01-01'
+            startDate: '2024-01-01',
+            endDate: '2026-12-31'
           })
         });
 
@@ -244,7 +244,7 @@ export class PointInspector {
         errBox.innerText = err.message;
       } finally {
         extractTsBtn.removeAttribute('disabled');
-        extractTsBtn.innerHTML = '<span class="btn-icon">📈</span> Muat Ulang Deret Waktu';
+        extractTsBtn.innerHTML = '<span class="btn-icon">🔄</span> Muat Ulang LST';
       }
     });
   }
@@ -661,7 +661,7 @@ export class PointInspector {
     if (tsContainer) tsContainer.style.display = 'none';
     if (extractTsBtn) {
       extractTsBtn.removeAttribute('disabled');
-      extractTsBtn.innerHTML = '<span class="btn-icon">📈</span> Ekstrak Deret Waktu Suhu LST (1 Tahun Terakhir)';
+      extractTsBtn.innerHTML = '<span class="btn-icon">📈</span> Ekstrak Deret LST';
     }
 
     this.containerEl.classList.add('active');
