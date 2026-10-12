@@ -43,8 +43,18 @@ export default async function handler(req: any, res: any) {
     ? req.query
     : (req.url ? Object.fromEntries(new URL(req.url, 'http://localhost').searchParams) : {});
 
-  // Extract params
-  const { dataset, startDate, endDate, bbox, scale } = (query || {}) as any;
+  let body: any = {};
+  if (req.body) {
+    try {
+      body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    } catch {
+      body = {};
+    }
+  }
+
+  // Extract params from both query and body
+  const params = { ...(query || {}), ...(body || {}) };
+  const { dataset, startDate, endDate, bbox, scale } = params as any;
 
   if (!dataset || !bbox) {
     return sendJson(400, { error: 'Parameter dataset dan bbox wajib diisi.' });
