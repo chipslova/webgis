@@ -130,7 +130,7 @@ export default async function handler(req: any, res: any) {
 
         return sendJson(200, {
           status: 'success',
-          source: 'MODIS/061/MOD11A2',
+          source: collectionId,
           point: [lon, lat],
           data: timeSeriesData
         });

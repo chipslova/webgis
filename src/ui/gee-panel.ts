@@ -118,6 +118,7 @@ export class GEEPanelUI {
         btn?.click();
       } else {
         this.updateThermalContrast();
+        this.fetchLiveGEETemp();
       }
     };
 
@@ -256,8 +257,9 @@ export class GEEPanelUI {
           btn.removeAttribute('disabled');
           btn.innerHTML = '⚡ Terapkan Kueri';
           
-          // Also update the UI contrast box when new parameters are applied
+          // Also update the UI contrast box and live GEE temperature when new parameters are applied
           this.updateThermalContrast();
+          this.fetchLiveGEETemp();
         }
       });
     }
@@ -503,68 +505,116 @@ export class GEEPanelUI {
     }
   }
 
-  // ── Real-Time Air Temperature Widget (Open-Meteo) ─────────────────────────────
+  // ── Real-Time GEE LST Temperature Widget (100% Google Earth Engine) ────────────
+
+  private activeWeatherLoc = { lat: -6.175, lon: 106.827, name: 'Jakarta Pusat' };
+
+  public async fetchLiveGEETemp(lat?: number, lon?: number, cityName?: string) {
+    if (lat !== undefined && lon !== undefined) {
+      this.activeWeatherLoc.lat = lat;
+      this.activeWeatherLoc.lon = lon;
+      if (cityName) this.activeWeatherLoc.name = cityName;
+    }
+
+    const { lat: currentLat, lon: currentLon, name } = this.activeWeatherLoc;
+
+    const tempEl = document.getElementById('gee-weather-temp');
+    const cityEl = document.getElementById('gee-weather-city');
+    const skinEl = document.getElementById('gee-weather-surface-temp');
+    const humEl = document.getElementById('gee-weather-humidity');
+    const rangeEl = document.getElementById('gee-weather-range');
+    const iconEl = document.getElementById('gee-weather-icon');
+    const timeEl = document.getElementById('gee-weather-time');
+
+    if (timeEl) timeEl.innerText = 'Kueri GEE...';
+
+    const satSelect = document.getElementById('gee-satellite-select') as HTMLSelectElement | null;
+    const periodSelect = document.getElementById('gee-period-select') as HTMLSelectElement | null;
+    const modeSelect = document.getElementById('gee-mode-select') as HTMLSelectElement | null;
+
+    const satellite = (satSelect?.value || 'terra') as 'terra' | 'aqua';
+    const mode = (modeSelect?.value || 'day') as 'day' | 'night';
+    const [start, end] = this.getPeriodDates(periodSelect?.value);
+
+    try {
+      const res = await fetch('/api/gee-timeseries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lat: currentLat,
+          lon: currentLon,
+          startDate: start,
+          endDate: end,
+          satellite
+        })
+      });
+
+      let json = await res.json();
+      let records: Array<{ date: string; day_c: number | null; night_c: number | null }> = json?.data || [];
+
+      // If no valid readings in this specific date range (e.g. cloud cover or recent ingestion gap),
+      // query the full annual composite from Earth Engine
+      if (!records || records.length === 0) {
+        const fallbackRes = await fetch('/api/gee-timeseries', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lat: currentLat,
+            lon: currentLon,
+            startDate: '2024-01-01',
+            endDate: '2024-12-31',
+            satellite
+          })
+        });
+        const fallbackJson = await fallbackRes.json();
+        records = fallbackJson?.data || [];
+      }
+
+      const validRecords = records.filter(r => r.day_c !== null || r.night_c !== null);
+      if (validRecords.length > 0) {
+        const latest = validRecords[validRecords.length - 1];
+        const dayVal = latest.day_c;
+        const nightVal = latest.night_c;
+        const mainTemp = (mode === 'night' && nightVal !== null) ? nightVal : (dayVal ?? nightVal);
+
+        if (tempEl && mainTemp !== null && mainTemp !== undefined) {
+          tempEl.innerText = `${mainTemp.toFixed(1)} °C`;
+        }
+        if (cityEl) {
+          cityEl.innerText = `📍 ${name}`;
+        }
+        if (skinEl) {
+          skinEl.innerText = dayVal !== null && dayVal !== undefined ? `${dayVal.toFixed(1)} °C` : '--.- °C';
+        }
+        if (humEl) {
+          humEl.innerText = nightVal !== null && nightVal !== undefined ? `${nightVal.toFixed(1)} °C` : '--.- °C';
+        }
+        if (rangeEl) {
+          rangeEl.innerText = latest.date ? `${latest.date}` : '--';
+        }
+        if (iconEl && mainTemp !== null && mainTemp !== undefined) {
+          if (mainTemp >= 35) iconEl.innerText = '🔥';
+          else if (mainTemp >= 30) iconEl.innerText = '☀️';
+          else if (mainTemp >= 24) iconEl.innerText = '🌤️';
+          else iconEl.innerText = '❄️';
+        }
+        if (timeEl) {
+          const satLabel = satellite === 'aqua' ? 'Aqua (13:30)' : 'Terra (10:30)';
+          timeEl.innerText = `${satLabel} · Live GEE`;
+        }
+      } else {
+        if (cityEl) cityEl.innerText = `📍 ${name}`;
+        if (timeEl) timeEl.innerText = 'GEE: Tutupan Awan';
+      }
+    } catch (e) {
+      console.warn('Failed to fetch GEE LST temperature:', e);
+      if (timeEl) timeEl.innerText = 'Gagal memuat GEE';
+    }
+  }
 
   private initRealtimeWeather() {
     const chips = document.querySelectorAll('.gee-weather-chip');
     const mapCenterBtn = document.getElementById('btn-weather-map-center');
-
-    const fetchLiveWeather = async (lat: number, lon: number, cityName: string) => {
-      const tempEl = document.getElementById('gee-weather-temp');
-      const cityEl = document.getElementById('gee-weather-city');
-      const skinEl = document.getElementById('gee-weather-surface-temp');
-      const humEl = document.getElementById('gee-weather-humidity');
-      const rangeEl = document.getElementById('gee-weather-range');
-      const iconEl = document.getElementById('gee-weather-icon');
-      const timeEl = document.getElementById('gee-weather-time');
-
-      if (timeEl) timeEl.innerText = 'Memperbarui...';
-
-      try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}&current=temperature_2m,relative_humidity_2m,surface_temperature,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=auto`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Network error');
-        const data = await res.json();
-
-        const current = data.current;
-        const daily = data.daily;
-
-        if (tempEl && current && current.temperature_2m !== undefined) {
-          tempEl.innerText = `${current.temperature_2m.toFixed(1)} °C`;
-        }
-        if (cityEl) {
-          cityEl.innerText = `📍 ${cityName}`;
-        }
-        if (skinEl && current && current.surface_temperature !== undefined) {
-          skinEl.innerText = `${current.surface_temperature.toFixed(1)} °C`;
-        }
-        if (humEl && current && current.relative_humidity_2m !== undefined) {
-          humEl.innerText = `${current.relative_humidity_2m}%`;
-        }
-        if (rangeEl && daily && daily.temperature_2m_min && daily.temperature_2m_max) {
-          rangeEl.innerText = `${daily.temperature_2m_min[0].toFixed(1)}°C – ${daily.temperature_2m_max[0].toFixed(1)}°C`;
-        }
-
-        // Weather icon
-        if (iconEl && current && current.weather_code !== undefined) {
-          const code = current.weather_code;
-          if (code === 0) iconEl.innerText = '☀️';
-          else if (code <= 3) iconEl.innerText = '🌤️';
-          else if (code <= 48) iconEl.innerText = '🌫️';
-          else if (code <= 67) iconEl.innerText = '🌧️';
-          else if (code <= 82) iconEl.innerText = '🌦️';
-          else iconEl.innerText = '⛈️';
-        }
-
-        if (timeEl && current) {
-          const now = new Date();
-          const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-          timeEl.innerText = `Live ${timeStr} WIB`;
-        }
-      } catch (e) {
-        if (timeEl) timeEl.innerText = 'Gagal memuat cuaca';
-      }
-    };
 
     chips.forEach((chip) => {
       chip.addEventListener('click', () => {
@@ -575,7 +625,7 @@ export class GEEPanelUI {
         const lon = Number(chip.getAttribute('data-lon'));
         const city = chip.getAttribute('data-city') || 'Lokasi';
         if (!isNaN(lat) && !isNaN(lon)) {
-          fetchLiveWeather(lat, lon, city);
+          this.fetchLiveGEETemp(lat, lon, city);
         }
       });
     });
@@ -587,13 +637,13 @@ export class GEEPanelUI {
         const map = this.geeLoader.getMap();
         if (map) {
           const center = map.getCenter();
-          fetchLiveWeather(center.lat, center.lng, `Tengah Peta (${center.lat.toFixed(2)}°, ${center.lng.toFixed(2)}°)`);
+          this.fetchLiveGEETemp(center.lat, center.lng, `Tengah Peta (${center.lat.toFixed(2)}°, ${center.lng.toFixed(2)}°)`);
         }
       });
     }
 
     // Default load Jakarta Pusat
-    fetchLiveWeather(-6.175, 106.827, 'Jakarta Pusat');
+    this.fetchLiveGEETemp(-6.175, 106.827, 'Jakarta Pusat');
   }
 }
 

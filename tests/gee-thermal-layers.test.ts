@@ -221,4 +221,61 @@ describe('GEE Land Surface Temperature (LST) & Thermal Layer Suite', () => {
     expect(valLabel?.innerText).toBe('60%');
     expect(geeLoader.getLayerOpacity('precipitation')).toBe(0.6);
   });
+
+  it('should query and render 100% Google Earth Engine LST temperature in live widget', async () => {
+    document.body.innerHTML += `
+      <div class="gee-live-weather-card">
+        <span class="gee-weather-badge" id="gee-weather-time">NASA MODIS</span>
+        <span class="gee-weather-icon" id="gee-weather-icon">🌡️</span>
+        <div id="gee-weather-temp">--.- °C</div>
+        <div id="gee-weather-city">📍 Jakarta</div>
+        <strong id="gee-weather-surface-temp">--.- °C</strong>
+        <strong id="gee-weather-humidity">--.- °C</strong>
+        <strong id="gee-weather-range">--</strong>
+        <button class="gee-weather-chip" data-lat="-6.175" data-lon="106.827" data-city="Jakarta">Jakarta</button>
+        <button class="gee-weather-chip" data-lat="-6.914" data-lon="107.609" data-city="Bandung">Bandung</button>
+      </div>
+    `;
+
+    // Mock fetch for /api/gee-timeseries
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn().mockImplementation((url: string, opts?: any) => {
+      if (url.includes('/api/gee-timeseries')) {
+        const body = JSON.parse(opts?.body || '{}');
+        const cityName = body.lat < -6.5 ? 'Bandung' : 'Jakarta';
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            status: 'success',
+            source: 'MODIS/061/MOD11A2',
+            point: [body.lon, body.lat],
+            data: [
+              { date: '2024-08-28', day_c: cityName === 'Bandung' ? 35.9 : 35.1, night_c: 24.3 }
+            ]
+          })
+        });
+      }
+      return originalFetch(url, opts);
+    });
+
+    await geePanelUI.fetchLiveGEETemp(-6.175, 106.827, 'Jakarta Pusat');
+
+    const tempEl = document.getElementById('gee-weather-temp');
+    const dayEl = document.getElementById('gee-weather-surface-temp');
+    const nightEl = document.getElementById('gee-weather-humidity');
+    const rangeEl = document.getElementById('gee-weather-range');
+    const timeEl = document.getElementById('gee-weather-time');
+
+    expect(tempEl?.innerText).toBe('35.1 °C');
+    expect(dayEl?.innerText).toBe('35.1 °C');
+    expect(nightEl?.innerText).toBe('24.3 °C');
+    expect(rangeEl?.innerText).toBe('2024-08-28');
+    expect(timeEl?.innerText).toContain('Live GEE');
+
+    // Test clicking Bandung chip
+    await geePanelUI.fetchLiveGEETemp(-6.914, 107.609, 'Bandung');
+    expect(tempEl?.innerText).toBe('35.9 °C');
+
+    globalThis.fetch = originalFetch;
+  });
 });

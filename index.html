@@ -378,19 +378,19 @@
                   <span class="gee-card-badge">1 km · LP DAAC</span>
                 </div>
 
-                <!-- Live Real-Time Air Temperature Widget (Cuaca Aktual Jam Ini) -->
+                <!-- Live Real-Time GEE LST Card (100% Google Earth Engine Serverless) -->
                 <div class="gee-live-weather-card">
                   <div class="gee-weather-header">
                     <div class="gee-weather-title">
                       <span class="gee-pulse-dot"></span>
-                      <span><strong>Suhu Udara Real-Time (Cuaca Jam Ini)</strong></span>
+                      <span><strong>Suhu LST Google Earth Engine (Live GEE)</strong></span>
                     </div>
-                    <span class="gee-weather-badge" id="gee-weather-time">Memuat data live...</span>
+                    <span class="gee-weather-badge" id="gee-weather-time">NASA MODIS · GEE Live</span>
                   </div>
 
                   <div class="gee-weather-body">
                     <div class="gee-weather-left">
-                      <span class="gee-weather-icon" id="gee-weather-icon">🌤️</span>
+                      <span class="gee-weather-icon" id="gee-weather-icon">🌡️</span>
                       <div>
                         <div class="gee-weather-temp" id="gee-weather-temp">--.- °C</div>
                         <div class="gee-weather-city" id="gee-weather-city">📍 Jakarta Pusat</div>
@@ -398,16 +398,16 @@
                     </div>
                     <div class="gee-weather-right">
                       <div class="gee-weather-stat">
-                        <span class="stat-label">Suhu Permukaan:</span>
-                        <strong class="stat-val" id="gee-weather-surface-temp">--.- °C</strong>
+                        <span class="stat-label">LST Siang Hari:</span>
+                        <strong class="stat-val" id="gee-weather-surface-temp" style="color: #f87171;">--.- °C</strong>
                       </div>
                       <div class="gee-weather-stat">
-                        <span class="stat-label">Kelembapan Udara:</span>
-                        <strong class="stat-val" id="gee-weather-humidity">--%</strong>
+                        <span class="stat-label">LST Malam Hari:</span>
+                        <strong class="stat-val" id="gee-weather-humidity" style="color: #38bdf8;">--.- °C</strong>
                       </div>
                       <div class="gee-weather-stat">
-                        <span class="stat-label">Rentang Hari Ini:</span>
-                        <strong class="stat-val" id="gee-weather-range">--°C / --°C</strong>
+                        <span class="stat-label">Tanggal Rekaman:</span>
+                        <strong class="stat-val" id="gee-weather-range">--</strong>
                       </div>
                     </div>
                   </div>
@@ -419,11 +419,11 @@
                     <button type="button" class="gee-weather-chip" data-lat="-7.257" data-lon="112.752" data-city="Surabaya">Surabaya</button>
                     <button type="button" class="gee-weather-chip" data-lat="-0.973" data-lon="116.707" data-city="IKN Nusantara">IKN</button>
                     <button type="button" class="gee-weather-chip" data-lat="3.595" data-lon="98.672" data-city="Medan">Medan</button>
-                    <button type="button" class="gee-weather-chip chip-map-pos" id="btn-weather-map-center" title="Ambil suhu udara langsung di posisi tengah layar peta">📌 Ikuti Peta</button>
+                    <button type="button" class="gee-weather-chip chip-map-pos" id="btn-weather-map-center" title="Ambil nilai suhu LST dari Google Earth Engine langsung di posisi tengah layar peta">📌 Titik Peta</button>
                   </div>
                   
                   <div class="gee-weather-expl">
-                    💡 <strong>Suhu Udara (2m):</strong> Suhu atmosfer yang dirasakan tubuh kita saat ini (Open-Meteo live). <strong>Suhu LST (Satelit):</strong> Panas kulit tanah/aspal yang dipetakan oleh citra di bawah.
+                    📡 <em>100% Google Earth Engine:</em> Nilai suhu LST diekstraksi langsung dari piksel satelit NASA MODIS secara live melalui serverless Cloud Compute GEE.
                   </div>
                 </div>
 
