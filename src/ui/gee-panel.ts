@@ -43,6 +43,7 @@ export class GEEPanelUI {
       }, { once: false });
 
       this.updateThermalContrast();
+      this.initRealtimeWeather();
 
       this.isInitialized = true;
     }
@@ -497,10 +498,102 @@ export class GEEPanelUI {
         if (jktSrc) { jktSrc.innerText = `${satLabel} · Terhalang Awan`; jktSrc.style.color = '#fbbf24'; }
         if (bdgSrc) { bdgSrc.innerText = `${satLabel} · Terhalang Awan`; bdgSrc.style.color = '#fbbf24'; }
       }
-
     } catch (err) {
       console.warn('Failed to update thermal contrast:', err);
     }
+  }
+
+  // ── Real-Time Air Temperature Widget (Open-Meteo) ─────────────────────────────
+
+  private initRealtimeWeather() {
+    const chips = document.querySelectorAll('.gee-weather-chip');
+    const mapCenterBtn = document.getElementById('btn-weather-map-center');
+
+    const fetchLiveWeather = async (lat: number, lon: number, cityName: string) => {
+      const tempEl = document.getElementById('gee-weather-temp');
+      const cityEl = document.getElementById('gee-weather-city');
+      const skinEl = document.getElementById('gee-weather-surface-temp');
+      const humEl = document.getElementById('gee-weather-humidity');
+      const rangeEl = document.getElementById('gee-weather-range');
+      const iconEl = document.getElementById('gee-weather-icon');
+      const timeEl = document.getElementById('gee-weather-time');
+
+      if (timeEl) timeEl.innerText = 'Memperbarui...';
+
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}&current=temperature_2m,relative_humidity_2m,surface_temperature,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=auto`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Network error');
+        const data = await res.json();
+
+        const current = data.current;
+        const daily = data.daily;
+
+        if (tempEl && current && current.temperature_2m !== undefined) {
+          tempEl.innerText = `${current.temperature_2m.toFixed(1)} °C`;
+        }
+        if (cityEl) {
+          cityEl.innerText = `📍 ${cityName}`;
+        }
+        if (skinEl && current && current.surface_temperature !== undefined) {
+          skinEl.innerText = `${current.surface_temperature.toFixed(1)} °C`;
+        }
+        if (humEl && current && current.relative_humidity_2m !== undefined) {
+          humEl.innerText = `${current.relative_humidity_2m}%`;
+        }
+        if (rangeEl && daily && daily.temperature_2m_min && daily.temperature_2m_max) {
+          rangeEl.innerText = `${daily.temperature_2m_min[0].toFixed(1)}°C – ${daily.temperature_2m_max[0].toFixed(1)}°C`;
+        }
+
+        // Weather icon
+        if (iconEl && current && current.weather_code !== undefined) {
+          const code = current.weather_code;
+          if (code === 0) iconEl.innerText = '☀️';
+          else if (code <= 3) iconEl.innerText = '🌤️';
+          else if (code <= 48) iconEl.innerText = '🌫️';
+          else if (code <= 67) iconEl.innerText = '🌧️';
+          else if (code <= 82) iconEl.innerText = '🌦️';
+          else iconEl.innerText = '⛈️';
+        }
+
+        if (timeEl && current) {
+          const now = new Date();
+          const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+          timeEl.innerText = `Live ${timeStr} WIB`;
+        }
+      } catch (e) {
+        if (timeEl) timeEl.innerText = 'Gagal memuat cuaca';
+      }
+    };
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        if (chip.id === 'btn-weather-map-center') return;
+        chips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const lat = Number(chip.getAttribute('data-lat'));
+        const lon = Number(chip.getAttribute('data-lon'));
+        const city = chip.getAttribute('data-city') || 'Lokasi';
+        if (!isNaN(lat) && !isNaN(lon)) {
+          fetchLiveWeather(lat, lon, city);
+        }
+      });
+    });
+
+    if (mapCenterBtn) {
+      mapCenterBtn.addEventListener('click', () => {
+        chips.forEach(c => c.classList.remove('active'));
+        mapCenterBtn.classList.add('active');
+        const map = this.geeLoader.getMap();
+        if (map) {
+          const center = map.getCenter();
+          fetchLiveWeather(center.lat, center.lng, `Tengah Peta (${center.lat.toFixed(2)}°, ${center.lng.toFixed(2)}°)`);
+        }
+      });
+    }
+
+    // Default load Jakarta Pusat
+    fetchLiveWeather(-6.175, 106.827, 'Jakarta Pusat');
   }
 }
 

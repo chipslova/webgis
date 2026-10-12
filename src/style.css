@@ -13523,3 +13523,166 @@ html, body, #app {
   }
 }
 
+/* GEE Live Real-Time Weather Widget */
+.gee-live-weather-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+}
+
+.gee-weather-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gee-weather-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.gee-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+  70% { transform: scale(1.15); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+.gee-weather-badge {
+  font-size: 9.5px;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.gee-weather-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.gee-weather-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gee-weather-icon {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.gee-weather-temp {
+  font-size: 20px;
+  font-weight: 800;
+  color: #f8fafc;
+  line-height: 1.1;
+  font-family: var(--font-mono, monospace);
+  letter-spacing: -0.5px;
+}
+
+.gee-weather-city {
+  font-size: 10px;
+  color: #38bdf8;
+  margin-top: 2px;
+}
+
+.gee-weather-right {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 9.5px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.gee-weather-stat {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.gee-weather-stat .stat-label {
+  color: #94a3b8;
+}
+
+.gee-weather-stat .stat-val {
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.gee-weather-cities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.gee-weather-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 9.5px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.gee-weather-chip:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+  color: #fff;
+}
+
+.gee-weather-chip.active {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.gee-weather-chip.chip-map-pos {
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #f59e0b;
+}
+
+.gee-weather-chip.chip-map-pos:hover {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.gee-weather-expl {
+  font-size: 9px;
+  line-height: 1.35;
+  color: #94a3b8;
+  background: rgba(2, 132, 199, 0.08);
+  border-left: 2px solid #0284c7;
+  padding: 4px 6px;
+  border-radius: 3px;
+}
+
