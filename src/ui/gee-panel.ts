@@ -89,6 +89,17 @@ export class GEEPanelUI {
     }
   }
 
+  private getPeriodDates(val?: string): [string, string] {
+    if (!val || val === 'live-recent' || !val.includes('|')) {
+      const now = new Date();
+      const end = now.toISOString().split('T')[0];
+      const prev = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const start = prev.toISOString().split('T')[0];
+      return [start, end];
+    }
+    return val.split('|') as [string, string];
+  }
+
   // ── GEE compute button ───────────────────────────────────────────────────────
 
   private bindGEEComputeEvents() {
@@ -100,7 +111,7 @@ export class GEEPanelUI {
     const handleParamChange = () => {
       const satellite = (satSelect?.value || 'terra') as 'terra' | 'aqua' | 'combined';
       const mode = (modeSelect?.value || 'day') as 'day' | 'night';
-      const [start, end] = (periodSelect?.value || '2024-08-01|2024-08-31').split('|');
+      const [start, end] = this.getPeriodDates(periodSelect?.value);
       this.geeLoader.setParams({ satellite, mode, start, end });
       if (this.geeLoader.isLayerVisible('lst-day') || this.geeLoader.isLayerVisible('lst-night') || this.geeLoader.isLayerVisible('precipitation')) {
         btn?.click();
@@ -211,7 +222,7 @@ export class GEEPanelUI {
       btn.addEventListener('click', async () => {
         const satellite = (satSelect?.value || 'terra') as 'terra' | 'aqua' | 'combined';
         const mode = (modeSelect?.value || 'day') as 'day' | 'night';
-        const [start, end] = (periodSelect?.value || '2024-08-01|2024-08-31').split('|');
+        const [start, end] = this.getPeriodDates(periodSelect?.value);
         btn.setAttribute('disabled', 'true');
         btn.innerText = 'Menghubungi GEE...';
 
@@ -222,7 +233,9 @@ export class GEEPanelUI {
         }
 
         const satName = satellite === 'aqua' ? 'Aqua (Siang 13:30)' : 'Terra (Pagi 10:30)';
-        const periodName = start.startsWith('2024-08') ? 'Kemarau (Agu 2024)' :
+        const isRecent = periodSelect?.value === 'live-recent';
+        const periodName = isRecent ? 'Terkini (Live 30 Hari)' :
+          start.startsWith('2024-08') ? 'Kemarau (Agu 2024)' :
           start.startsWith('2024-01') ? 'Musim Hujan (Jan 2024)' :
           start.startsWith('2024-04') ? 'Pancaroba (Apr 2024)' : `${start}`;
 
@@ -421,15 +434,7 @@ export class GEEPanelUI {
       const bandung = { lat: -6.914, lon: 107.609 };
       
       const periodSelect = document.getElementById('gee-period-select') as HTMLSelectElement | null;
-      let startDate = '2024-01-01';
-      let endDate = '2024-12-31';
-      if (periodSelect && periodSelect.value) {
-        const parts = periodSelect.value.split('|');
-        if (parts.length === 2) {
-          startDate = parts[0];
-          endDate = parts[1];
-        }
-      }
+      const [startDate, endDate] = this.getPeriodDates(periodSelect?.value);
 
       const satSelect = document.getElementById('gee-satellite-select') as HTMLSelectElement | null;
       const satellite = (satSelect?.value || 'terra') as 'terra' | 'aqua';
