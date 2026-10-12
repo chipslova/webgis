@@ -118,7 +118,6 @@ export class GEEPanelUI {
         btn?.click();
       } else {
         this.updateThermalContrast();
-        this.fetchLiveGEETemp();
       }
     };
 
@@ -257,9 +256,8 @@ export class GEEPanelUI {
           btn.removeAttribute('disabled');
           btn.innerHTML = '⚡ Terapkan Kueri';
           
-          // Also update the UI contrast box and live GEE temperature when new parameters are applied
+          // Also update the UI contrast box when new parameters are applied
           this.updateThermalContrast();
-          this.fetchLiveGEETemp();
         }
       });
     }
@@ -505,92 +503,73 @@ export class GEEPanelUI {
     }
   }
 
-  // ── Real-Time GEE LST Temperature Widget (100% Google Earth Engine) ────────────
+  // ── Pure Google Earth Engine (GEE) MODIS LST Point Temperature ───────────
 
-  private activeWeatherLoc = { lat: -6.175, lon: 106.827, name: 'Jakarta Pusat' };
-
-  public async fetchLiveGEETemp(lat?: number, lon?: number, cityName?: string) {
-    if (lat !== undefined && lon !== undefined) {
-      this.activeWeatherLoc.lat = lat;
-      this.activeWeatherLoc.lon = lon;
-      if (cityName) this.activeWeatherLoc.name = cityName;
-    }
-
-    const { lat: currentLat, lon: currentLon, name } = this.activeWeatherLoc;
-
+  public async fetchLiveGEETemp(lat: number, lon: number, cityName: string): Promise<void> {
     const tempEl = document.getElementById('gee-weather-temp');
     const cityEl = document.getElementById('gee-weather-city');
-    const skinEl = document.getElementById('gee-weather-surface-temp');
-    const humEl = document.getElementById('gee-weather-humidity');
-    const rangeEl = document.getElementById('gee-weather-range');
+    const dayEl = document.getElementById('gee-weather-day-temp') || document.getElementById('gee-weather-surface-temp');
+    const nightEl = document.getElementById('gee-weather-night-temp') || document.getElementById('gee-weather-humidity');
+    const deltaEl = document.getElementById('gee-weather-delta-temp') || document.getElementById('gee-weather-range');
     const iconEl = document.getElementById('gee-weather-icon');
     const timeEl = document.getElementById('gee-weather-time');
 
-    if (timeEl) timeEl.innerText = 'Kueri GEE...';
+    if (timeEl) timeEl.innerText = 'Mengambil data GEE MODIS...';
 
-    const satSelect = document.getElementById('gee-satellite-select') as HTMLSelectElement | null;
-    const periodSelect = document.getElementById('gee-period-select') as HTMLSelectElement | null;
-    const modeSelect = document.getElementById('gee-mode-select') as HTMLSelectElement | null;
-
-    const satellite = (satSelect?.value || 'terra') as 'terra' | 'aqua';
-    const mode = (modeSelect?.value || 'day') as 'day' | 'night';
-    const [start, end] = this.getPeriodDates(periodSelect?.value);
+    const satSelect = document.getElementById('gee-sat-select') as HTMLSelectElement | null;
+    const satellite = satSelect?.value === 'aqua' ? 'aqua' : 'terra';
 
     try {
       const res = await fetch('/api/gee-timeseries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          lat: currentLat,
-          lon: currentLon,
-          startDate: start,
-          endDate: end,
+          lat,
+          lon,
+          startDate: '2024-01-01',
+          endDate: '2026-12-31',
           satellite
         })
       });
 
-      let json = await res.json();
-      let records: Array<{ date: string; day_c: number | null; night_c: number | null }> = json?.data || [];
-
-      // If no valid readings in this specific date range (e.g. cloud cover or recent ingestion gap),
-      // query the full annual composite from Earth Engine
-      if (!records || records.length === 0) {
-        const fallbackRes = await fetch('/api/gee-timeseries', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            lat: currentLat,
-            lon: currentLon,
-            startDate: '2024-01-01',
-            endDate: '2024-12-31',
-            satellite
-          })
-        });
-        const fallbackJson = await fallbackRes.json();
-        records = fallbackJson?.data || [];
-      }
-
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const records: Array<{ date: string; day_c: number | null; night_c: number | null }> = json?.data || [];
       const validRecords = records.filter(r => r.day_c !== null || r.night_c !== null);
+      const validDayRecords = records.filter(r => r.day_c !== null && r.day_c !== undefined);
+      const validNightRecords = records.filter(r => r.night_c !== null && r.night_c !== undefined);
+
       if (validRecords.length > 0) {
-        const latest = validRecords[validRecords.length - 1];
-        const dayVal = latest.day_c;
-        const nightVal = latest.night_c;
-        const mainTemp = (mode === 'night' && nightVal !== null) ? nightVal : (dayVal ?? nightVal);
+        const latestRecord = validRecords[validRecords.length - 1];
+        const latestDayRecord = validDayRecords[validDayRecords.length - 1];
+        const latestNightRecord = validNightRecords[validNightRecords.length - 1];
+
+        const dayVal = latestDayRecord?.day_c ?? null;
+        const nightVal = latestNightRecord?.night_c ?? null;
+        const mainTemp = dayVal ?? nightVal;
+        const recDate = latestRecord?.date || latestDayRecord?.date || '';
 
         if (tempEl && mainTemp !== null && mainTemp !== undefined) {
           tempEl.innerText = `${mainTemp.toFixed(1)} °C`;
         }
         if (cityEl) {
-          cityEl.innerText = `📍 ${name}`;
+          cityEl.innerText = `📍 ${cityName}`;
         }
-        if (skinEl) {
-          skinEl.innerText = dayVal !== null && dayVal !== undefined ? `${dayVal.toFixed(1)} °C` : '--.- °C';
+        if (dayEl) {
+          dayEl.innerText = dayVal !== null && dayVal !== undefined ? `${dayVal.toFixed(1)} °C` : '--.- °C';
         }
-        if (humEl) {
-          humEl.innerText = nightVal !== null && nightVal !== undefined ? `${nightVal.toFixed(1)} °C` : '--.- °C';
+        if (nightEl) {
+          nightEl.innerText = nightVal !== null && nightVal !== undefined ? `${nightVal.toFixed(1)} °C` : '--.- °C';
         }
-        if (rangeEl) {
-          rangeEl.innerText = latest.date ? `${latest.date}` : '--';
+        if (deltaEl) {
+          if (dayVal !== null && dayVal !== undefined && nightVal !== null && nightVal !== undefined) {
+            const delta = dayVal - nightVal;
+            deltaEl.innerText = `${delta >= 0 ? '+' : ''}${delta.toFixed(1)} °C`;
+          } else if (recDate) {
+            deltaEl.innerText = recDate;
+          } else {
+            deltaEl.innerText = '--';
+          }
         }
         if (iconEl && mainTemp !== null && mainTemp !== undefined) {
           if (mainTemp >= 35) iconEl.innerText = '🔥';
@@ -599,16 +578,16 @@ export class GEEPanelUI {
           else iconEl.innerText = '❄️';
         }
         if (timeEl) {
-          const satLabel = satellite === 'aqua' ? 'Aqua (13:30)' : 'Terra (10:30)';
-          timeEl.innerText = `${satLabel} · Live GEE`;
+          const satLabel = satellite === 'aqua' ? 'Aqua' : 'Terra';
+          timeEl.innerText = `GEE ${recDate} · ${satLabel} LST`;
         }
       } else {
-        if (cityEl) cityEl.innerText = `📍 ${name}`;
+        if (cityEl) cityEl.innerText = `📍 ${cityName}`;
         if (timeEl) timeEl.innerText = 'GEE: Tutupan Awan';
       }
     } catch (e) {
       console.warn('Failed to fetch GEE LST temperature:', e);
-      if (timeEl) timeEl.innerText = 'Gagal memuat GEE';
+      if (timeEl) timeEl.innerText = 'Gagal memuat data GEE';
     }
   }
 
@@ -646,4 +625,5 @@ export class GEEPanelUI {
     this.fetchLiveGEETemp(-6.175, 106.827, 'Jakarta Pusat');
   }
 }
+
 

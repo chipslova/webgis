@@ -226,12 +226,12 @@ describe('GEE Land Surface Temperature (LST) & Thermal Layer Suite', () => {
     document.body.innerHTML += `
       <div class="gee-live-weather-card">
         <span class="gee-weather-badge" id="gee-weather-time">NASA MODIS</span>
-        <span class="gee-weather-icon" id="gee-weather-icon">🌡️</span>
+        <span class="gee-weather-icon" id="gee-weather-icon">☀️</span>
         <div id="gee-weather-temp">--.- °C</div>
         <div id="gee-weather-city">📍 Jakarta</div>
-        <strong id="gee-weather-surface-temp">--.- °C</strong>
-        <strong id="gee-weather-humidity">--.- °C</strong>
-        <strong id="gee-weather-range">--</strong>
+        <strong id="gee-weather-day-temp">--.- °C</strong>
+        <strong id="gee-weather-night-temp">--.- °C</strong>
+        <strong id="gee-weather-delta-temp">--</strong>
         <button class="gee-weather-chip" data-lat="-6.175" data-lon="106.827" data-city="Jakarta">Jakarta</button>
         <button class="gee-weather-chip" data-lat="-6.914" data-lon="107.609" data-city="Bandung">Bandung</button>
       </div>
@@ -261,21 +261,25 @@ describe('GEE Land Surface Temperature (LST) & Thermal Layer Suite', () => {
     await geePanelUI.fetchLiveGEETemp(-6.175, 106.827, 'Jakarta Pusat');
 
     const tempEl = document.getElementById('gee-weather-temp');
-    const dayEl = document.getElementById('gee-weather-surface-temp');
-    const nightEl = document.getElementById('gee-weather-humidity');
-    const rangeEl = document.getElementById('gee-weather-range');
+    const dayEl = document.getElementById('gee-weather-day-temp');
+    const nightEl = document.getElementById('gee-weather-night-temp');
+    const deltaEl = document.getElementById('gee-weather-delta-temp');
     const timeEl = document.getElementById('gee-weather-time');
 
     expect(tempEl?.innerText).toBe('35.1 °C');
     expect(dayEl?.innerText).toBe('35.1 °C');
     expect(nightEl?.innerText).toBe('24.3 °C');
-    expect(rangeEl?.innerText).toBe('2024-08-28');
-    expect(timeEl?.innerText).toContain('Live GEE');
+    expect(deltaEl?.innerText).toBe('+10.8 °C');
+    expect(timeEl?.innerText).toContain('GEE 2024-08-28');
+    expect(timeEl?.innerText).toContain('Terra LST');
 
     // Test clicking Bandung chip
     await geePanelUI.fetchLiveGEETemp(-6.914, 107.609, 'Bandung');
     expect(tempEl?.innerText).toBe('35.9 °C');
+    expect(dayEl?.innerText).toBe('35.9 °C');
+    expect(deltaEl?.innerText).toBe('+11.6 °C');
 
     globalThis.fetch = originalFetch;
   });
 });
+

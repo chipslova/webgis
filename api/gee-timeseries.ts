@@ -60,7 +60,7 @@ export default async function handler(req: any, res: any) {
     return sendJson(400, { error: 'Invalid JSON request body.' });
   }
 
-  const { lat, lon, startDate = '2023-01-01', endDate = '2024-01-01', satellite = 'terra' } = body;
+  const { lat, lon, startDate = '2024-01-01', endDate = '2026-12-31', satellite = 'terra' } = body;
 
   if (typeof lat !== 'number' || typeof lon !== 'number') {
     return sendJson(400, { error: 'lat and lon are required numeric parameters.' });
