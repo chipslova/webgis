@@ -136,18 +136,18 @@ export class SearchUI {
 
   private getTypeBadge(type?: string): string {
     if (type === 'city' || type === 'administrative') {
-      return '<span style="font-size: 9.5px; padding: 1px 5px; border-radius: 4px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">Kota / Wilayah</span>';
+      return '<span style="font-size: 9.5px; padding: 2px 6px; border-radius: 4px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); display: inline-flex; align-items: center; gap: 3px;">🏙️ Kota / Wilayah</span>';
     }
     if (type === 'volcano') {
-      return '<span style="font-size: 9.5px; padding: 1px 5px; border-radius: 4px; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);">Gunung Api</span>';
+      return '<span style="font-size: 9.5px; padding: 2px 6px; border-radius: 4px; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); display: inline-flex; align-items: center; gap: 3px;">🌋 Gunung Api</span>';
     }
     if (type === 'island') {
-      return '<span style="font-size: 9.5px; padding: 1px 5px; border-radius: 4px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">Kepulauan</span>';
+      return '<span style="font-size: 9.5px; padding: 2px 6px; border-radius: 4px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); display: inline-flex; align-items: center; gap: 3px;">🏝️ Kepulauan</span>';
     }
     if (type === 'lake' || type === 'water') {
-      return '<span style="font-size: 9.5px; padding: 1px 5px; border-radius: 4px; background: rgba(6, 182, 212, 0.15); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3);">Badan Air</span>';
+      return '<span style="font-size: 9.5px; padding: 2px 6px; border-radius: 4px; background: rgba(6, 182, 212, 0.15); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3); display: inline-flex; align-items: center; gap: 3px;">🌊 Badan Air</span>';
     }
-    return '<span style="font-size: 9.5px; padding: 1px 5px; border-radius: 4px; background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3);">Lokasi</span>';
+    return '<span style="font-size: 9.5px; padding: 2px 6px; border-radius: 4px; background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); display: inline-flex; align-items: center; gap: 3px;">📍 Lokasi</span>';
   }
 
   private renderSearchResults(results: SearchResult[], query: string) {
@@ -208,8 +208,13 @@ export class SearchUI {
     footer.style.fontSize = '10px';
     footer.style.color = '#64748b';
     footer.style.borderTop = '1px solid rgba(255, 255, 255, 0.06)';
-    footer.style.textAlign = 'right';
-    footer.innerText = 'Data: OpenStreetMap & Landmark Indonesia';
+    footer.style.display = 'flex';
+    footer.style.justifyContent = 'space-between';
+    footer.style.alignItems = 'center';
+    footer.innerHTML = `
+      <span>Data: OSM & Landmark ID</span>
+      <span style="opacity: 0.85;">Pilih: <kbd style="font-size: 9px; padding: 1px 4px; border-radius: 2px; background: rgba(255,255,255,0.08);">↑↓</kbd> · Buka: <kbd style="font-size: 9px; padding: 1px 4px; border-radius: 2px; background: rgba(255,255,255,0.08);">↵</kbd> · Tutup: <kbd style="font-size: 9px; padding: 1px 4px; border-radius: 2px; background: rgba(255,255,255,0.08);">Esc</kbd></span>
+    `;
     dropdown.appendChild(footer);
 
     dropdown.classList.add('active');

@@ -135,6 +135,23 @@ export class GEEPanelUI {
       }
     };
 
+    // Restore user preferences from localStorage
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const savedTime = localStorage.getItem('webgis_gee_time');
+        if (savedTime && timeSelect && Array.from(timeSelect.options).some(o => o.value === savedTime)) {
+          timeSelect.value = savedTime;
+          const parsed = parseTime(savedTime);
+          if (satSelect) satSelect.value = parsed.satellite;
+          if (modeSelect) modeSelect.value = parsed.mode;
+        }
+        const savedPeriod = localStorage.getItem('webgis_gee_period');
+        if (savedPeriod && periodSelect && Array.from(periodSelect.options).some(o => o.value === savedPeriod)) {
+          periodSelect.value = savedPeriod;
+        }
+      } catch (_) {}
+    }
+
     const handleParamChange = async () => {
       let satellite: 'terra' | 'aqua' | 'combined' = 'terra';
       let mode: 'day' | 'night' = 'day';
@@ -146,6 +163,18 @@ export class GEEPanelUI {
         if (satSelect) satSelect.value = satellite;
         if (modeSelect) modeSelect.value = mode;
         updateTimeSubtexts(satellite, mode);
+
+        // Night / Day dynamic aesthetic on LST card
+        const lstRow = document.getElementById('gee-layer-lst-day-row');
+        if (lstRow) {
+          if (mode === 'night') {
+            lstRow.style.borderColor = 'rgba(129, 140, 248, 0.45)';
+            lstRow.style.boxShadow = '0 0 14px rgba(99, 102, 241, 0.15)';
+          } else {
+            lstRow.style.borderColor = 'rgba(245, 158, 11, 0.35)';
+            lstRow.style.boxShadow = '0 0 14px rgba(245, 158, 11, 0.12)';
+          }
+        }
 
         // Auto-switch layers if either LST layer is currently on
         if (this.geeLoader.isLayerVisible('lst-day') || this.geeLoader.isLayerVisible('lst-night')) {
@@ -161,6 +190,14 @@ export class GEEPanelUI {
       } else {
         satellite = (satSelect?.value || 'terra') as 'terra' | 'aqua' | 'combined';
         mode = (modeSelect?.value || 'day') as 'day' | 'night';
+      }
+
+      // Persist preferences
+      if (typeof localStorage !== 'undefined') {
+        try {
+          if (timeSelect?.value) localStorage.setItem('webgis_gee_time', timeSelect.value);
+          if (periodSelect?.value) localStorage.setItem('webgis_gee_period', periodSelect.value);
+        } catch (_) {}
       }
 
       const [start, end] = this.getPeriodDates(periodSelect?.value);
@@ -285,6 +322,11 @@ export class GEEPanelUI {
         btn.setAttribute('disabled', 'true');
         btn.innerText = 'Menghubungi GEE...';
 
+        const tileLoading = document.getElementById('gee-tiles-loading');
+        if (tileLoading) tileLoading.style.display = 'inline-flex';
+        const statusHint = document.getElementById('gee-status-hint');
+        if (statusHint) statusHint.innerHTML = '<span class="gee-spinner" style="width: 9px; height: 9px; border: 1.5px solid rgba(56, 189, 248, 0.3); border-top-color: #38bdf8; border-radius: 50%; display: inline-block; animation: spin 0.8s linear infinite;"></span> <em style="color: #38bdf8;">Mengambil citra live GEE...</em>';
+
         // Automatically activate appropriate LST layer if user hasn't checked any thermal layer yet
         if (!this.geeLoader.isLayerVisible('lst-day') && !this.geeLoader.isLayerVisible('lst-night')) {
           if (mode === 'night') {
@@ -319,6 +361,8 @@ export class GEEPanelUI {
         } finally {
           btn.removeAttribute('disabled');
           btn.innerHTML = '⚡ Perbarui Peta GEE';
+          if (tileLoading) tileLoading.style.display = 'none';
+          if (statusHint) statusHint.innerHTML = '⚡ <em>Peta otomatis ter-update</em>';
           
           // Also update the UI contrast box when new parameters are applied
           this.updateThermalContrast();

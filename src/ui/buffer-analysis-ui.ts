@@ -229,10 +229,11 @@ export class BufferAnalysisUI {
       return;
     }
 
-    if (statusBox) {
-      statusBox.className = 'analysis-status-box';
-      statusBox.style.display = 'block';
-      statusBox.innerHTML = `◌ <strong>Menghitung zona penyangga${overlayLayerId ? ' & spatial intersection' : ''}...</strong> (Radius: ${radius} km)`;
+    const runBtn = document.getElementById('btn-run-buffer-analysis') as HTMLButtonElement | null;
+    const originalText = runBtn?.innerHTML;
+    if (runBtn) {
+      runBtn.disabled = true;
+      runBtn.innerHTML = '<span class="gee-spinner" style="width: 12px; height: 12px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; display: inline-block; animation: spin 0.8s linear infinite;"></span> Menghitung...';
     }
 
     try {
@@ -332,6 +333,11 @@ export class BufferAnalysisUI {
       }
     } catch (err: any) {
       showToast(`Error: ${err?.message || 'Kalkulasi buffer gagal'}`, 'error');
+    } finally {
+      if (runBtn) {
+        runBtn.disabled = false;
+        if (originalText) runBtn.innerHTML = originalText;
+      }
     }
   }
 
