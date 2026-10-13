@@ -13823,17 +13823,32 @@ html, body, #app {
   color: #94a3b8;
   background: rgba(2, 132, 199, 0.08);
   border: 1px solid rgba(2, 132, 199, 0.2);
-  padding: 5px 8px;
+  padding: 6px 9px;
   border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.gee-weather-expl-row {
   display: flex;
   align-items: flex-start;
   gap: 5px;
+  color: #cbd5e1;
 }
 
 .gee-weather-expl-dot {
   font-size: 9.5px;
   flex-shrink: 0;
   margin-top: 1px;
+}
+
+.gee-weather-cycle-info {
+  padding-top: 5px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  font-size: 9px;
+  line-height: 1.35;
 }
 
 /* Fallback legacy compatibility */

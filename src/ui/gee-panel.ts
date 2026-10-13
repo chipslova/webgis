@@ -730,6 +730,7 @@ export class GEEPanelUI {
         if (timeEl) {
           const satLabel = satellite === 'aqua' ? 'Aqua' : 'Terra';
           timeEl.innerText = `GEE ${recDate} · ${satLabel} LST`;
+          timeEl.title = `Siklus 8-harian NASA MODIS (${recDate}). Diperbarui otomatis setelah proses validasi citra GEE selesai.`;
         }
       } else {
         if (cityEl) cityEl.innerText = `📍 ${cityName}`;
