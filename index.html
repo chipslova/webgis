@@ -449,15 +449,18 @@
 
                       <!-- Sub-controls: muncul otomatis saat LST dicentang -->
                       <div id="gee-lst-subcontrols" style="display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(255, 255, 255, 0.1);">
-                        <div id="gee-lst-opacity-row" class="gee-layer-opacity-box" style="padding: 0 0 6px 0;">
+                        <div id="gee-lst-opacity-row" class="gee-layer-opacity-box" style="padding: 2px 0 8px 0; display: flex; align-items: center; gap: 8px;">
                           <span style="font-size: 10px; color: var(--text-muted); min-width: 50px;">Opasitas:</span>
-                          <input type="range" id="gee-lst-day-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas Suhu Permukaan Daratan" />
-                          <span id="gee-lst-day-opacity-val" class="gee-layer-opacity-val">85%</span>
+                          <input type="range" id="gee-lst-day-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas Suhu Permukaan Daratan" style="flex: 1;" />
+                          <span id="gee-lst-day-opacity-val" class="gee-layer-opacity-val" style="min-width: 32px; text-align: right;">85%</span>
                         </div>
 
-                        <div class="gee-filter-grid" style="margin-bottom: 6px; padding: 6px 8px;">
+                        <div class="gee-filter-grid" style="margin-bottom: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 8px;">
                           <div>
-                            <label for="gee-time-select" class="gee-filter-label">🕒 Waktu Pengamatan</label>
+                            <label for="gee-time-select" class="gee-filter-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                              <span>🕒 Waktu Pengamatan</span>
+                              <span style="font-size: 9.5px; color: var(--text-muted); font-weight: normal;">Terra / Aqua MODIS</span>
+                            </label>
                             <select id="gee-time-select" class="form-select gee-filter-select">
                               <option value="terra-day" selected>☀️ Pagi 10:30 (Terra Siang)</option>
                               <option value="aqua-day">☀️ Siang 13:30 (Aqua · Puncak Panas)</option>
@@ -475,7 +478,10 @@
                             </select>
                           </div>
                           <div>
-                            <label for="gee-period-select" class="gee-filter-label">📅 Periode Musim</label>
+                            <label for="gee-period-select" class="gee-filter-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                              <span>📅 Periode Musim</span>
+                              <span style="font-size: 9.5px; color: var(--text-muted); font-weight: normal;">Komposit Tanggal</span>
+                            </label>
                             <select id="gee-period-select" class="form-select gee-filter-select">
                               <option value="live-recent">🔴 Terkini / 30 Hari Terakhir</option>
                               <optgroup label="Tahun 2026">
