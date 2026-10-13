@@ -339,6 +339,8 @@ export class GEEPanelUI {
       mainLstToggle.checked = isThermalActive;
       const opRow = document.getElementById('gee-lst-opacity-row');
       if (opRow) opRow.style.display = isThermalActive ? 'flex' : 'none';
+      const subcontrols = document.getElementById('gee-lst-subcontrols');
+      if (subcontrols) subcontrols.style.display = isThermalActive ? 'block' : 'none';
     }
 
     const applyToggle = (id: string, layerKey: string, opRowId?: string, legendId?: string) => {
@@ -412,6 +414,8 @@ export class GEEPanelUI {
     if (toggleLst) {
       toggleLst.addEventListener('change', async () => {
         const isChecked = toggleLst.checked;
+        const subcontrols = document.getElementById('gee-lst-subcontrols');
+        if (subcontrols) subcontrols.style.display = isChecked ? 'block' : 'none';
         const isNight = timeSelect ? timeSelect.value.includes('night') : false;
         if (isChecked) {
           if (isNight) {
