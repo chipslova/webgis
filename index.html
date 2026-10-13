@@ -380,50 +380,73 @@
 
                 <!-- Live GEE MODIS LST Point Temperature Widget (100% Google Earth Engine) -->
                 <div class="gee-live-weather-card">
+                  <!-- Header: Status & Acquisition Tag -->
                   <div class="gee-weather-header">
                     <div class="gee-weather-title">
                       <span class="gee-pulse-dot"></span>
-                      <span><strong>Suhu LST Titik Terkini (Google Earth Engine)</strong></span>
+                      <span><strong>Suhu LST Titik Terkini</strong></span>
                     </div>
                     <span class="gee-weather-badge" id="gee-weather-time">Memuat data GEE...</span>
                   </div>
 
-                  <div class="gee-weather-body">
-                    <div class="gee-weather-left">
-                      <span class="gee-weather-icon" id="gee-weather-icon">☀️</span>
-                      <div>
-                        <div class="gee-weather-temp" id="gee-weather-temp">--.- °C</div>
-                        <div class="gee-weather-city" id="gee-weather-city">📍 Jakarta Pusat</div>
-                      </div>
+                  <!-- Telemetry Hero Banner: Location & Main Reading -->
+                  <div class="gee-weather-hero">
+                    <div class="gee-weather-loc-row">
+                      <span class="gee-weather-city" id="gee-weather-city">📍 Jakarta Pusat</span>
+                      <span class="gee-weather-source-pill">NASA MODIS 1km</span>
                     </div>
-                    <div class="gee-weather-right">
-                      <div class="gee-weather-stat">
-                        <span class="stat-label">LST Siang (MODIS):</span>
-                        <strong class="stat-val" id="gee-weather-day-temp">--.- °C</strong>
-                      </div>
-                      <div class="gee-weather-stat">
-                        <span class="stat-label">LST Malam (MODIS):</span>
-                        <strong class="stat-val" id="gee-weather-night-temp">--.- °C</strong>
-                      </div>
-                      <div class="gee-weather-stat">
-                        <span class="stat-label">Fluktuasi (Δ Siang-Malam):</span>
-                        <strong class="stat-val" id="gee-weather-delta-temp" style="color: #f59e0b;">+--.- °C</strong>
+                    <div class="gee-weather-main-display">
+                      <span class="gee-weather-icon" id="gee-weather-icon">☀️</span>
+                      <div class="gee-weather-temp-group">
+                        <div class="gee-weather-temp" id="gee-weather-temp">--.- °C</div>
+                        <div class="gee-weather-temp-sub">Estimasi Suhu Permukaan Daratan</div>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Quick City Selector -->
-                  <div class="gee-weather-cities">
-                    <button type="button" class="gee-weather-chip active" data-lat="-6.175" data-lon="106.827" data-city="Jakarta">Jakarta</button>
-                    <button type="button" class="gee-weather-chip" data-lat="-6.914" data-lon="107.609" data-city="Bandung">Bandung</button>
-                    <button type="button" class="gee-weather-chip" data-lat="-7.257" data-lon="112.752" data-city="Surabaya">Surabaya</button>
-                    <button type="button" class="gee-weather-chip" data-lat="-0.973" data-lon="116.707" data-city="IKN Nusantara">IKN</button>
-                    <button type="button" class="gee-weather-chip" data-lat="3.595" data-lon="98.672" data-city="Medan">Medan</button>
-                    <button type="button" class="gee-weather-chip chip-map-pos" id="btn-weather-map-center" title="Ambil nilai piksel LST langsung dari titik tengah peta di Google Earth Engine">📌 Cek Titik Peta</button>
+                  <!-- Structured 3-Column Metrics Grid -->
+                  <div class="gee-weather-metrics-grid">
+                    <div class="gee-weather-stat-cell gee-weather-stat cell-day">
+                      <div class="metric-head">
+                        <span class="metric-icon">☀️</span>
+                        <span class="metric-label stat-label">LST Siang</span>
+                      </div>
+                      <strong class="stat-val" id="gee-weather-day-temp">--.- °C</strong>
+                    </div>
+                    <div class="gee-weather-stat-cell gee-weather-stat cell-night">
+                      <div class="metric-head">
+                        <span class="metric-icon">🌙</span>
+                        <span class="metric-label stat-label">LST Malam</span>
+                      </div>
+                      <strong class="stat-val" id="gee-weather-night-temp">--.- °C</strong>
+                    </div>
+                    <div class="gee-weather-stat-cell gee-weather-stat cell-delta">
+                      <div class="metric-head">
+                        <span class="metric-icon">⚡</span>
+                        <span class="metric-label stat-label">Fluktuasi (Δ)</span>
+                      </div>
+                      <strong class="stat-val" id="gee-weather-delta-temp">+--.- °C</strong>
+                    </div>
+                  </div>
+
+                  <!-- Quick City Selector Toolbar -->
+                  <div class="gee-weather-selector-wrap">
+                    <div class="gee-weather-selector-label">Pilih Titik Pengamatan:</div>
+                    <div class="gee-weather-cities">
+                      <button type="button" class="gee-weather-chip active" data-lat="-6.175" data-lon="106.827" data-city="Jakarta">Jakarta</button>
+                      <button type="button" class="gee-weather-chip" data-lat="-6.914" data-lon="107.609" data-city="Bandung">Bandung</button>
+                      <button type="button" class="gee-weather-chip" data-lat="-7.257" data-lon="112.752" data-city="Surabaya">Surabaya</button>
+                      <button type="button" class="gee-weather-chip" data-lat="-0.973" data-lon="116.707" data-city="IKN Nusantara">IKN</button>
+                      <button type="button" class="gee-weather-chip" data-lat="3.595" data-lon="98.672" data-city="Medan">Medan</button>
+                    </div>
+                    <button type="button" class="gee-weather-chip chip-map-pos" id="btn-weather-map-center" title="Ambil nilai piksel LST langsung dari titik tengah peta di Google Earth Engine">
+                      <span class="chip-map-icon">📌</span> Ambil Titik Tengah Peta
+                    </button>
                   </div>
                   
                   <div class="gee-weather-expl">
-                    🟢 <strong>100% Google Earth Engine:</strong> Data diekstrak langsung dari koleksi citra satelit NASA MODIS LST (1 km) secara serverless tanpa model cuaca eksternal.
+                    <span class="gee-weather-expl-dot">🟢</span>
+                    <span><strong>100% Google Earth Engine:</strong> Data diekstrak langsung dari koleksi citra satelit NASA MODIS LST (1 km) secara serverless tanpa model cuaca eksternal.</span>
                   </div>
                 </div>
 
