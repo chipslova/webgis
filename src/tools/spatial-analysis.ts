@@ -32,12 +32,19 @@ export interface ThermalForecastData {
   notice: string;
 }
 
+export interface PrecipitationStats {
+  dailyMm: number;
+  accumulation7dMm: number;
+  status: string;
+}
+
 export interface ZonalAnalysisResult {
   regionName: string;
   totalAreaKm2: number;
   totalAreaHa: number;
   landCoverBreakdown: LandCoverClassStat[];
   thermalStats: ThermalStats;
+  precipStats?: PrecipitationStats;
   dominantClass: string;
   timestamp: string;
   geojson: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>;
@@ -277,7 +284,7 @@ export class SpatialAnalysisEngine {
     }
 
     const imgUrl = `https://ic.imagery1.arcgis.com/arcgis/rest/services/Sentinel2_10m_LandCover/ImageServer/exportImage?bbox=${minLng},${minLat},${maxLng},${maxLat}&bboxSR=4326&imageSR=4326&size=${width},${height}&format=png32&transparent=true&f=image`;
-    const meteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${centerLat.toFixed(4)}&longitude=${centerLng.toFixed(4)}&current=temperature_2m,surface_temperature,relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min&timezone=auto`;
+    const meteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${centerLat.toFixed(4)}&longitude=${centerLng.toFixed(4)}&current=temperature_2m,surface_temperature,relative_humidity_2m,precipitation,rain&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto`;
 
     const [imgRes, meteoRes] = await Promise.all([
       fetch(imgUrl),
@@ -476,6 +483,18 @@ export class SpatialAnalysisEngine {
             };
           }
         }
+        if (mJson.daily && Array.isArray(mJson.daily.precipitation_sum)) {
+          precipDailyMm = Number((mJson.daily.precipitation_sum[0] ?? 0).toFixed(1));
+          precipAccum7d = Number(mJson.daily.precipitation_sum.slice(0, 5).reduce((a: number, b: number) => a + (b || 0), 0).toFixed(1));
+        } else if (mJson.current && mJson.current.precipitation !== undefined) {
+          precipDailyMm = Number((mJson.current.precipitation ?? 0).toFixed(1));
+          precipAccum7d = precipDailyMm;
+        }
+        if (precipDailyMm >= 50) precipStatus = 'Hujan Ekstrem';
+        else if (precipDailyMm >= 20) precipStatus = 'Hujan Sedang';
+        else if (precipDailyMm >= 2.5) precipStatus = 'Hujan Ringan';
+        else if (precipDailyMm > 0) precipStatus = 'Gerimis';
+
         if (meanTempC > maxTempC) maxTempC = Number((meanTempC + 2.5).toFixed(1));
         if (meanTempC < minTempC) minTempC = Number((meanTempC - 2.5).toFixed(1));
       } catch (mErr) {
@@ -487,6 +506,9 @@ export class SpatialAnalysisEngine {
     const hotspotPercentage = meanTempC >= 34 ? Math.min(100, Math.round(((meanTempC - 33) / 10) * 100)) : 0;
     const hotspotAreaKm2 = Number(((hotspotPercentage / 100) * totalAreaKm2).toFixed(2));
 
+    let precipDailyMm = 0;
+    let precipAccum7d = 0;
+    let precipStatus = 'Cerah / Kering';
 
     return {
       regionName: regionLabel,
@@ -499,6 +521,11 @@ export class SpatialAnalysisEngine {
         maxTempC,
         hotspotAreaKm2,
         hotspotPercentage
+      },
+      precipStats: {
+        dailyMm: precipDailyMm,
+        accumulation7dMm: precipAccum7d,
+        status: precipStatus
       },
       thermalForecast,
       dominantClass,

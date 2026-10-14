@@ -247,6 +247,51 @@ export class PointInspector {
         extractTsBtn.innerHTML = '<span class="btn-icon">🔄</span> Muat Ulang LST';
       }
     });
+
+    const extractPrecipBtn = document.getElementById('btn-insp-extract-precip');
+    extractPrecipBtn?.addEventListener('click', async () => {
+      if (!this.currentInspected) return;
+
+      const container = document.getElementById('insp-ts-result-container');
+      const loading = document.getElementById('insp-ts-loading');
+      const chartWrap = document.getElementById('insp-ts-chart-wrap');
+      const errBox = document.getElementById('insp-ts-error');
+      const canvas = document.getElementById('insp-ts-canvas') as HTMLCanvasElement;
+
+      if (!container || !loading || !chartWrap || !errBox || !canvas) return;
+
+      container.style.display = 'block';
+      loading.style.display = 'block';
+      loading.innerText = 'Mengambil data presipitasi 30 hari...';
+      chartWrap.style.display = 'none';
+      errBox.style.display = 'none';
+      extractPrecipBtn.setAttribute('disabled', 'true');
+      extractPrecipBtn.innerHTML = '<span class="btn-icon">⏳</span> Memproses...';
+
+      try {
+        const meteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${this.currentInspected.lat}&longitude=${this.currentInspected.lng}&daily=precipitation_sum&past_days=30&forecast_days=1&timezone=Asia%2FJakarta`;
+        const res = await fetch(meteoUrl);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const dates: string[] = json.daily?.time || [];
+        const precipValues: number[] = json.daily?.precipitation_sum || [];
+
+        if (precipValues.length === 0) {
+          throw new Error('Data riwayat curah hujan kosong untuk titik ini.');
+        }
+
+        this.drawPrecipChart(canvas, dates, precipValues);
+        loading.style.display = 'none';
+        chartWrap.style.display = 'block';
+      } catch (err: any) {
+        loading.style.display = 'none';
+        errBox.style.display = 'block';
+        errBox.innerText = err.message;
+      } finally {
+        extractPrecipBtn.removeAttribute('disabled');
+        extractPrecipBtn.innerHTML = '<span class="btn-icon">🔄</span> Muat Ulang Hujan';
+      }
+    });
   }
 
   private drawMiniChart(canvas: HTMLCanvasElement, data: any[]) {
@@ -322,6 +367,67 @@ export class PointInspector {
     // Labels
     ctx.fillStyle = '#ef4444'; ctx.fillText('Siang', width - P.right - 25, 10);
     ctx.fillStyle = '#06b6d4'; ctx.fillText('Malam', width - P.right - 25, 20);
+  }
+
+  private drawPrecipChart(canvas: HTMLCanvasElement, dates: string[], values: number[]) {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const width = 250;
+    const height = 120;
+    canvas.width = width;
+    canvas.height = height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    const P = { top: 12, right: 10, bottom: 20, left: 25 };
+    const cH = height - P.top - P.bottom;
+    const cW = width - P.left - P.right;
+
+    let maxVal = Math.max(...values, 5);
+    const sumVal = values.reduce((a, b) => a + (b || 0), 0);
+
+    const toY = (v: number) => height - P.bottom - (v / maxVal) * cH;
+
+    // Grid lines
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '8.5px Inter, sans-serif';
+
+    [0, maxVal / 2, maxVal].forEach((yV) => {
+      const y = toY(yV);
+      ctx.beginPath();
+      ctx.moveTo(P.left, y);
+      ctx.lineTo(width - P.right, y);
+      ctx.stroke();
+      ctx.fillText(`${yV.toFixed(0)}m`, 2, y + 3);
+    });
+
+    // Bars
+    const barWidth = Math.max(2, (cW / values.length) - 1.5);
+    values.forEach((v, i) => {
+      const x = P.left + i * (cW / values.length);
+      const y = toY(v);
+      const h = height - P.bottom - y;
+
+      if (v >= 20) {
+        ctx.fillStyle = '#f97316'; // Hujan lebat
+      } else if (v >= 2.5) {
+        ctx.fillStyle = '#22c55e'; // Hujan sedang/ringan
+      } else if (v > 0) {
+        ctx.fillStyle = '#38bdf8'; // Gerimis
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,0.06)'; // Kering
+      }
+
+      ctx.fillRect(x, y, barWidth, Math.max(1, h));
+    });
+
+    // Header label
+    ctx.fillStyle = '#4ade80';
+    ctx.font = '9px Inter, sans-serif';
+    ctx.fillText(`Total 30 Hari: ${sumVal.toFixed(1)} mm`, P.left, 9);
   }
 
   public close() {
@@ -658,10 +764,15 @@ export class PointInspector {
     // Reset Time-series UI
     const tsContainer = document.getElementById('insp-ts-result-container');
     const extractTsBtn = document.getElementById('btn-insp-extract-ts');
+    const extractPrecipBtn = document.getElementById('btn-insp-extract-precip');
     if (tsContainer) tsContainer.style.display = 'none';
     if (extractTsBtn) {
       extractTsBtn.removeAttribute('disabled');
-      extractTsBtn.innerHTML = '<span class="btn-icon">📈</span> Ekstrak Deret LST';
+      extractTsBtn.innerHTML = '<span class="btn-icon">📈</span> Deret LST';
+    }
+    if (extractPrecipBtn) {
+      extractPrecipBtn.removeAttribute('disabled');
+      extractPrecipBtn.innerHTML = '<span class="btn-icon">🌧️</span> Histori Hujan';
     }
 
     this.containerEl.classList.add('active');

@@ -829,8 +829,24 @@ export class SpatialAnalysisUI {
             </div>
           </div>
 
+          <!-- Estimasi Curah Hujan AOI -->
+          <div style="background: rgba(15, 23, 42, 0.7); padding: 6px 8px; border-radius: 6px; border: 1px solid rgba(34, 197, 94, 0.25); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 9.5px; color: #86efac; text-transform: uppercase; letter-spacing: 0.3px; font-weight: 600;">🌧️ Curah Hujan Wilayah</div>
+              <div style="font-size: 15px; font-weight: 700; color: #bbf7d0; margin-top: 1px;">
+                ${res.precipStats ? res.precipStats.dailyMm : 0} mm/hari
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 9.5px; color: #94a3b8;">Status Cuaca</div>
+              <div style="font-size: 11px; font-weight: 600; color: #86efac; margin-top: 1px;">
+                ${res.precipStats ? res.precipStats.status : 'Cerah / Kering'}
+              </div>
+            </div>
+          </div>
+
           <div style="font-size: 9.5px; color: #94a3b8; line-height: 1.4; background: rgba(0, 0, 0, 0.25); border: 1px dashed rgba(255, 255, 255, 0.1); padding: 5px 7px; border-radius: 5px;">
-            🔬 <em>LST mengukur suhu radiatif kulit permukaan tanah (radiant skin temp) berbasis Open-Meteo &amp; thermal sensor MODIS.</em>
+            🔬 <em>LST mengukur suhu radiatif tanah (MODIS), dan presipitasi mengukur intensitas air hujan (CHIRPS &amp; NASA GPM).</em>
           </div>
         </div>
 

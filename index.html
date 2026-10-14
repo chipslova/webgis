@@ -632,28 +632,122 @@
                         <input type="checkbox" id="toggle-gee-precipitation" aria-label="Toggle Curah Hujan Radar (GEE) layer" />
                         <span>🌧️ <strong>Curah Hujan Radar (GEE)</strong> <span class="gee-layer-subtext">(mm/hari)</span></span>
                       </label>
-                      <div id="gee-precip-opacity-row" class="gee-layer-opacity-box">
-                        <span style="font-size: 10px; color: var(--text-muted); min-width: 50px;">Opasitas:</span>
-                        <input type="range" id="gee-precip-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas Curah Hujan" style="flex: 1;" />
-                        <span id="gee-precip-opacity-val" class="gee-layer-opacity-val" style="color: #22c55e; min-width: 32px; text-align: right;">85%</span>
-                      </div>
+                      <!-- Sub-controls: muncul otomatis saat Curah Hujan dicentang -->
+                      <div id="gee-precip-subcontrols" style="display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(255, 255, 255, 0.1);">
+                        
+                        <!-- Opasitas Row -->
+                        <div id="gee-precip-opacity-row" class="gee-layer-opacity-box" style="padding: 2px 0 8px 0; display: flex; align-items: center; gap: 8px;">
+                          <span style="font-size: 10px; color: var(--text-muted); min-width: 50px;">Opasitas:</span>
+                          <input type="range" id="gee-precip-opacity" min="0" max="100" value="85" class="piksel-slider gee-layer-opacity-slider" aria-label="Opasitas Curah Hujan" style="flex: 1;" />
+                          <span id="gee-precip-opacity-val" class="gee-layer-opacity-val" style="color: #22c55e; min-width: 32px; text-align: right;">85%</span>
+                        </div>
 
-                      <!-- Contextual Legend for Precipitation -->
-                      <div id="gee-precip-legend" class="gee-lulc-box" style="display: none; margin-top: 6px; padding: 6px 8px; border-color: rgba(34, 197, 94, 0.3); background: rgba(8, 20, 36, 0.7); border-radius: 6px;">
-                        <div class="gee-lulc-title" style="color: #22c55e; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                          <span>🌧️ Legenda Curah Hujan Radar</span>
-                          <span style="font-size: 9px; color: var(--text-muted); font-weight: normal;">CHIRPS / GPM</span>
+                        <!-- Pilihan Waktu Radar: Terkini vs Histori -->
+                        <div class="gee-filter-grid" style="margin-bottom: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 8px; background: rgba(0, 0, 0, 0.2); border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                          <div>
+                            <label for="gee-precip-period-select" class="gee-filter-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                              <span>🕒 Waktu &amp; Periode Radar Hujan</span>
+                              <span style="font-size: 9.5px; color: #22c55e; font-weight: 600;">NASA GPM / CHIRPS</span>
+                            </label>
+                            <select id="gee-precip-period-select" class="form-select gee-filter-select">
+                              <option value="live" selected>🔴 Radar Terkini (Hari Ini / Live Satelit)</option>
+                              <optgroup label="Histori Musim Hujan Puncak">
+                                <option value="2024-01-01|2024-01-31">🌧️ Musim Hujan / Jan 2024</option>
+                                <option value="2023-01-01|2023-01-31">🌧️ Musim Hujan / Jan 2023</option>
+                              </optgroup>
+                              <optgroup label="Histori Kemarau &amp; Iklim Ekstrem">
+                                <option value="2024-08-01|2024-08-31">☀️ Musim Kemarau / Aug 2024</option>
+                                <option value="2023-08-01|2023-08-31">🔥 Puncak El Niño / Aug 2023 (Kering)</option>
+                                <option value="2022-08-01|2022-08-31">🌊 La Niña Basah / Aug 2022</option>
+                              </optgroup>
+                            </select>
+                          </div>
                         </div>
-                        <div class="gee-legend-bar" style="height: 7px; border-radius: 3.5px; margin: 4px 0; background: linear-gradient(90deg, #00e400 0%, #ffff00 30%, #ff7e00 60%, #ff0000 85%, #99004c 100%);" aria-hidden="true"></div>
-                        <div class="gee-legend-labels" style="font-size: 9px; display: flex; justify-content: space-between; color: #cbd5e1; font-weight: 500;">
-                          <span>2.5 mm (Ringan)</span>
-                          <span>15 mm</span>
-                          <span>30 mm (Sedang)</span>
-                          <span>50 mm (Lebat)</span>
-                          <span>&gt;70 mm (Ekstrem)</span>
+
+                        <!-- Live Telemetry Widget for Curah Hujan -->
+                        <div class="gee-live-weather-card precip-telemetry-card" style="margin-bottom: 8px; border-color: rgba(34, 197, 94, 0.25);">
+                          <!-- Header -->
+                          <div class="gee-weather-header">
+                            <div class="gee-weather-title" style="color: #22c55e;">
+                              <span class="gee-pulse-dot" style="background: #22c55e; box-shadow: 0 0 8px #22c55e;"></span>
+                              <span><strong>Pantauan Curah Hujan Titik</strong></span>
+                            </div>
+                            <span class="gee-weather-badge" id="gee-precip-status-time" style="color: #86efac; border-color: rgba(34, 197, 94, 0.3);">NASA GPM &amp; CHIRPS</span>
+                          </div>
+
+                          <!-- Hero Banner -->
+                          <div class="gee-weather-hero">
+                            <div class="gee-weather-loc-row">
+                              <span class="gee-weather-city" id="gee-precip-city" style="color: #4ade80;">📍 Jakarta Pusat</span>
+                              <span class="gee-weather-source-pill" id="gee-precip-status-pill" style="color: #86efac; border-color: rgba(34, 197, 94, 0.3); background: rgba(34, 197, 94, 0.1);">Cerah</span>
+                            </div>
+                            <div class="gee-weather-main-display">
+                              <span class="gee-weather-icon" id="gee-precip-icon">🌧️</span>
+                              <div class="gee-weather-temp-group">
+                                <div class="gee-weather-temp" id="gee-precip-val" style="color: #f0fdf4;">--.- mm/hari</div>
+                                <div class="gee-weather-temp-sub">Estimasi Presipitasi Harian</div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- 3-Column Metrics Grid -->
+                          <div class="gee-weather-metrics-grid">
+                            <div class="gee-weather-stat-cell cell-day" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.25);">
+                              <div class="metric-head" style="color: #86efac;">
+                                <span class="metric-icon">🌧️</span>
+                                <span class="metric-label stat-label">Hari Ini</span>
+                              </div>
+                              <strong class="stat-val" id="gee-precip-today-val" style="color: #bbf7d0;">--.- mm</strong>
+                            </div>
+                            <div class="gee-weather-stat-cell cell-night" style="background: rgba(14, 165, 233, 0.1); border-color: rgba(56, 189, 248, 0.25);">
+                              <div class="metric-head" style="color: #7dd3fc;">
+                                <span class="metric-icon">💧</span>
+                                <span class="metric-label stat-label">Total 7 Hari</span>
+                              </div>
+                              <strong class="stat-val" id="gee-precip-7d-val" style="color: #e0f2fe;">--.- mm</strong>
+                            </div>
+                            <div class="gee-weather-stat-cell cell-delta" style="background: rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.25);">
+                              <div class="metric-head" style="color: #d8b4fe;">
+                                <span class="metric-icon">🌊</span>
+                                <span class="metric-label stat-label">Total 30 Hari</span>
+                              </div>
+                              <strong class="stat-val" id="gee-precip-30d-val" style="color: #f3e8ff;">--.- mm</strong>
+                            </div>
+                          </div>
+
+                          <!-- Quick City Selector Toolbar -->
+                          <div class="gee-weather-selector-wrap">
+                            <div class="gee-weather-selector-label">Pilih Titik Pantau Hujan:</div>
+                            <div class="gee-weather-cities">
+                              <button type="button" class="gee-precip-chip gee-weather-chip active" data-lat="-6.175" data-lon="106.827" data-city="Jakarta">Jakarta</button>
+                              <button type="button" class="gee-precip-chip gee-weather-chip" data-lat="-6.914" data-lon="107.609" data-city="Bandung">Bandung</button>
+                              <button type="button" class="gee-precip-chip gee-weather-chip" data-lat="-7.257" data-lon="112.752" data-city="Surabaya">Surabaya</button>
+                              <button type="button" class="gee-precip-chip gee-weather-chip" data-lat="-0.973" data-lon="116.707" data-city="IKN Nusantara">IKN</button>
+                              <button type="button" class="gee-precip-chip gee-weather-chip" data-lat="3.595" data-lon="98.672" data-city="Medan">Medan</button>
+                            </div>
+                            <button type="button" class="gee-precip-chip gee-weather-chip chip-map-pos" id="btn-precip-map-center" title="Ambil nilai presipitasi langsung dari titik tengah peta" style="color: #4ade80; border-color: rgba(74, 222, 128, 0.4);">
+                              <span class="chip-map-icon">📌</span> Ambil Titik Tengah Peta
+                            </button>
+                          </div>
                         </div>
-                        <div style="font-size: 9.5px; color: #94a3b8; margin-top: 4px; line-height: 1.35;">
-                          Area tanpa hujan otomatis <em>transparan 100%</em> agar peta dasar terlihat.
+
+                        <!-- Contextual Legend for Precipitation -->
+                        <div id="gee-precip-legend" class="gee-lulc-box" style="margin-top: 4px; padding: 6px 8px; border-color: rgba(34, 197, 94, 0.3); background: rgba(8, 20, 36, 0.7); border-radius: 6px;">
+                          <div class="gee-lulc-title" style="color: #22c55e; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span>🌧️ Skala Intensitas Curah Hujan Radar</span>
+                            <span style="font-size: 9px; color: var(--text-muted); font-weight: normal;">CHIRPS / GPM</span>
+                          </div>
+                          <div class="gee-legend-bar" style="height: 7px; border-radius: 3.5px; margin: 4px 0; background: linear-gradient(90deg, #00e400 0%, #ffff00 30%, #ff7e00 60%, #ff0000 85%, #99004c 100%);" aria-hidden="true"></div>
+                          <div class="gee-legend-labels" style="font-size: 9px; display: flex; justify-content: space-between; color: #cbd5e1; font-weight: 500;">
+                            <span>2.5 mm (Ringan)</span>
+                            <span>15 mm</span>
+                            <span>30 mm (Sedang)</span>
+                            <span>50 mm (Lebat)</span>
+                            <span>&gt;70 mm (Ekstrem)</span>
+                          </div>
+                          <div style="font-size: 9.5px; color: #94a3b8; margin-top: 4px; line-height: 1.35;">
+                            Area tanpa hujan otomatis <em>transparan 100%</em> agar peta dasar terlihat.
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1323,12 +1417,17 @@
               <span id="insp-lst">Tidak tersedia untuk kueri titik WMS</span>
             </div>
 
-            <!-- Live GEE Time-Series Extractor -->
+            <!-- Live GEE Time-Series Extractor (LST & Precipitation) -->
             <div class="insp-section" id="insp-timeseries-row" style="margin-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px;">
-              <div class="insp-section-title">DERET WAKTU LST (GEE)</div>
-              <button id="btn-insp-extract-ts" class="btn btn-primary full-width" style="margin-top: 6px; font-size: 11px; padding: 6px 10px;">
-                <span class="btn-icon">📈</span> Ekstrak Deret LST
-              </button>
+              <div class="insp-section-title">DERET WAKTU &amp; HISTORI SATELIT</div>
+              <div style="display: flex; gap: 4px; margin-top: 6px;">
+                <button id="btn-insp-extract-ts" class="btn btn-primary" style="flex: 1; font-size: 10.5px; padding: 6px 6px;">
+                  <span class="btn-icon">📈</span> Deret LST
+                </button>
+                <button id="btn-insp-extract-precip" class="btn btn-secondary" style="flex: 1; font-size: 10.5px; padding: 6px 6px; background: rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.35); color: #86efac;">
+                  <span class="btn-icon">🌧️</span> Histori Hujan
+                </button>
+              </div>
               
               <div id="insp-ts-result-container" style="display: none; margin-top: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 4px; padding: 8px;">
                 <div id="insp-ts-loading" style="display: none; text-align: center; color: var(--text-muted); font-size: 11px;">

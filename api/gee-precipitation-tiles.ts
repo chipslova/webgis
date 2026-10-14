@@ -64,8 +64,25 @@ export default async function handler(req: any, res: any) {
     max: customMax
   } = (query || {}) as GEEPrecipRequest;
 
-  const startDate = start || date;
-  const endDate = end || startDate;
+  let rawStart = start || date;
+  let rawEnd = end || rawStart;
+
+  if (rawStart.includes('|')) {
+    const parts = rawStart.split('|');
+    rawStart = parts[0];
+    rawEnd = parts[1] || rawStart;
+  }
+
+  if (rawStart === 'live') {
+    const now = new Date();
+    // Use yesterday or today UTC for NASA GIBS near real-time radar
+    now.setUTCDate(now.getUTCDate() - 1);
+    rawStart = now.toISOString().split('T')[0];
+    rawEnd = rawStart;
+  }
+
+  const startDate = rawStart;
+  const endDate = rawEnd;
 
   // Meteorological Weather Radar Color Palette (100% transparent dry areas, vibrant rain cells)
   const palette = [

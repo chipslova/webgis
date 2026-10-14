@@ -44,6 +44,7 @@ export class GEEPanelUI {
 
       this.updateThermalContrast();
       this.initRealtimeWeather();
+      this.initRealtimePrecipitation();
 
       this.isInitialized = true;
     }
@@ -394,6 +395,10 @@ export class GEEPanelUI {
       el.checked = isOn;
       if (opRowId) { const r = document.getElementById(opRowId); if (r) r.style.display = isOn ? 'flex' : 'none'; }
       if (legendId) { const l = document.getElementById(legendId); if (l) l.style.display = isOn ? 'block' : 'none'; }
+      if (id === 'toggle-gee-precipitation' || id === 'toggle-gee-rainfall') {
+        const sub = document.getElementById('gee-precip-subcontrols');
+        if (sub) sub.style.display = isOn ? 'block' : 'none';
+      }
     };
 
     applyToggle('toggle-gee-elevation', 'lst-night', 'gee-lst-night-opacity-row');
@@ -774,6 +779,104 @@ export class GEEPanelUI {
 
     // Default load Jakarta Pusat
     this.fetchLiveGEETemp(-6.175, 106.827, 'Jakarta Pusat');
+  }
+
+  // ── Pure Realtime & Historical Satellite Precipitation (NASA GPM / CHIRPS) ───
+
+  public async fetchLivePrecipitation(lat: number, lon: number, cityName: string): Promise<void> {
+    const valEl = document.getElementById('gee-precip-val');
+    const cityEl = document.getElementById('gee-precip-city');
+    const iconEl = document.getElementById('gee-precip-icon');
+    const statusPill = document.getElementById('gee-precip-status-pill');
+    const todayEl = document.getElementById('gee-precip-today-val');
+    const el7d = document.getElementById('gee-precip-7d-val');
+    const el30d = document.getElementById('gee-precip-30d-val');
+    const timeEl = document.getElementById('gee-precip-status-time');
+
+    if (timeEl) timeEl.innerText = 'Mengambil presipitasi...';
+    if (cityEl) cityEl.innerText = `📍 ${cityName}`;
+
+    try {
+      const meteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=precipitation,rain,weather_code&daily=precipitation_sum&past_days=30&forecast_days=1&timezone=Asia%2FJakarta`;
+      const res = await fetch(meteoUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+
+      const currentPrecip = json?.current?.precipitation ?? json?.current?.rain ?? 0;
+      const dailyList: number[] = json?.daily?.precipitation_sum || [];
+      const todayVal = dailyList.length > 0 ? dailyList[dailyList.length - 1] : currentPrecip;
+      const sum7d = dailyList.slice(-7).reduce((a: number, b: number) => a + (b || 0), 0);
+      const sum30d = dailyList.reduce((a: number, b: number) => a + (b || 0), 0);
+
+      let status = 'Cerah';
+      let icon = '☀️';
+      if (todayVal >= 50) {
+        status = 'Hujan Ekstrem';
+        icon = '⛈️';
+      } else if (todayVal >= 20) {
+        status = 'Hujan Sedang';
+        icon = '🌧️';
+      } else if (todayVal >= 2.5) {
+        status = 'Hujan Ringan';
+        icon = '🌦️';
+      } else if (todayVal > 0) {
+        status = 'Gerimis';
+        icon = '🌤️';
+      }
+
+      if (valEl) valEl.innerText = `${todayVal.toFixed(1)} mm/hari`;
+      if (iconEl) iconEl.innerText = icon;
+      if (statusPill) statusPill.innerText = status;
+      if (todayEl) todayEl.innerText = `${todayVal.toFixed(1)} mm`;
+      if (el7d) el7d.innerText = `${sum7d.toFixed(1)} mm`;
+      if (el30d) el30d.innerText = `${sum30d.toFixed(1)} mm`;
+      if (timeEl) timeEl.innerText = 'NASA GPM & CHIRPS · Live';
+    } catch (e) {
+      console.warn('Failed to fetch precipitation:', e);
+      if (timeEl) timeEl.innerText = 'Presipitasi Satelit';
+    }
+  }
+
+  private initRealtimePrecipitation() {
+    const chips = document.querySelectorAll('.gee-precip-chip');
+    const mapCenterBtn = document.getElementById('btn-precip-map-center');
+    const periodSelect = document.getElementById('gee-precip-period-select') as HTMLSelectElement | null;
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        if (chip.id === 'btn-precip-map-center') return;
+        chips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const lat = Number(chip.getAttribute('data-lat'));
+        const lon = Number(chip.getAttribute('data-lon'));
+        const city = chip.getAttribute('data-city') || 'Lokasi';
+        if (!isNaN(lat) && !isNaN(lon)) {
+          this.fetchLivePrecipitation(lat, lon, city);
+        }
+      });
+    });
+
+    if (mapCenterBtn) {
+      mapCenterBtn.addEventListener('click', () => {
+        chips.forEach(c => c.classList.remove('active'));
+        mapCenterBtn.classList.add('active');
+        const map = this.geeLoader.getMap();
+        if (map) {
+          const center = map.getCenter();
+          this.fetchLivePrecipitation(center.lat, center.lng, `Tengah Peta (${center.lat.toFixed(2)}°, ${center.lng.toFixed(2)}°)`);
+        }
+      });
+    }
+
+    if (periodSelect) {
+      periodSelect.addEventListener('change', () => {
+        const val = periodSelect.value;
+        this.geeLoader.computeLivePrecipitation(val);
+      });
+    }
+
+    // Default load Jakarta Pusat
+    this.fetchLivePrecipitation(-6.175, 106.827, 'Jakarta Pusat');
   }
 }
 

@@ -192,8 +192,12 @@ export class GEELoader {
     }
   }
 
+  private currentPrecipDate: string = 'live';
+
   public async computeLivePrecipitation(date?: string): Promise<any> {
-    const d = date || this.currentParams.start || '2024-08-01';
+    let d = date || this.currentPrecipDate || this.currentParams.start || 'live';
+    if (d.includes('|')) d = d.split('|')[0];
+    this.currentPrecipDate = d;
     try {
       const res = await fetch(`/api/gee-precipitation-tiles?start=${d}&end=${d}&_t=${Date.now()}`);
       if (res.ok) {
@@ -602,7 +606,12 @@ export class GEELoader {
 
     // --- 3b. GEE CHIRPS & NASA GPM DAILY PRECIPITATION RATE (LIVE RADAR RASTER) ---
     try {
-      const selectedDate = this.currentParams.start || '2024-08-01';
+      let selectedDate = this.currentPrecipDate || this.currentParams.start || '2024-08-01';
+      if (selectedDate === 'live') {
+        const now = new Date();
+        now.setUTCDate(now.getUTCDate() - 1);
+        selectedDate = now.toISOString().split('T')[0];
+      }
       // Official weather radar overlay: 100% transparent non-rain pixels, basemap completely clear
       const fallbackGibsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${selectedDate}&BBOX={bbox-epsg-3857}`;
       const precipWmsUrl = this.livePrecipTileUrlTemplate || fallbackGibsUrl;
