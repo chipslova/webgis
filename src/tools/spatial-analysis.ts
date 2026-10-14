@@ -446,6 +446,9 @@ export class SpatialAnalysisEngine {
     let minTempC = 23.0;
     let maxTempC = 33.0;
     let thermalForecast: ThermalForecastData | undefined = undefined;
+    let precipDailyMm = 0;
+    let precipAccum7d = 0;
+    let precipStatus = 'Cerah / Kering';
 
     if (meteoRes && meteoRes.ok) {
       try {
@@ -505,10 +508,6 @@ export class SpatialAnalysisEngine {
     // Hotspot area calculation (honest fallback based purely on mean temp threshold)
     const hotspotPercentage = meanTempC >= 34 ? Math.min(100, Math.round(((meanTempC - 33) / 10) * 100)) : 0;
     const hotspotAreaKm2 = Number(((hotspotPercentage / 100) * totalAreaKm2).toFixed(2));
-
-    let precipDailyMm = 0;
-    let precipAccum7d = 0;
-    let precipStatus = 'Cerah / Kering';
 
     return {
       regionName: regionLabel,

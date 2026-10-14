@@ -428,6 +428,14 @@ export class PointInspector {
     ctx.fillStyle = '#4ade80';
     ctx.font = '9px Inter, sans-serif';
     ctx.fillText(`Total 30 Hari: ${sumVal.toFixed(1)} mm`, P.left, 9);
+
+    // Date range labels at bottom
+    if (dates && dates.length > 0) {
+      ctx.fillStyle = '#64748b';
+      ctx.font = '8px Inter, sans-serif';
+      ctx.fillText(dates[0].slice(5), P.left, height - 5);
+      ctx.fillText(dates[dates.length - 1].slice(5), width - P.right - 24, height - 5);
+    }
   }
 
   public close() {
