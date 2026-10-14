@@ -642,25 +642,30 @@
                           <span id="gee-precip-opacity-val" class="gee-layer-opacity-val" style="color: #22c55e; min-width: 32px; text-align: right;">85%</span>
                         </div>
 
-                        <!-- Pilihan Waktu Radar: Terkini vs Histori -->
+                        <!-- Pilihan Waktu Radar: Arsip Satelit GEE CHIRPS -->
                         <div class="gee-filter-grid" style="margin-bottom: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 8px; background: rgba(0, 0, 0, 0.2); border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);">
                           <div>
                             <label for="gee-precip-period-select" class="gee-filter-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                              <span>🕒 Waktu &amp; Periode Radar Hujan</span>
-                              <span style="font-size: 9.5px; color: #22c55e; font-weight: 600;">NASA GPM / CHIRPS</span>
+                              <span>🕒 Periode Observasi GEE CHIRPS</span>
+                              <span style="font-size: 9.5px; color: #22c55e; font-weight: 600;">1981 – 2026</span>
                             </label>
                             <select id="gee-precip-period-select" class="form-select gee-filter-select">
-                              <option value="live" selected>🔴 Radar Terkini (Hari Ini / Live Satelit)</option>
-                              <optgroup label="Histori Musim Hujan Puncak">
-                                <option value="2024-01-15">🌧️ Musim Hujan / Jan 2024</option>
-                                <option value="2023-01-15">🌧️ Musim Hujan / Jan 2023</option>
+                              <optgroup label="Data Terkini di Katalog GEE">
+                                <option value="2024-08-15" selected>📡 Rilis Katalog GEE: Kemarau (Agu 2024)</option>
+                                <option value="2024-01-15">🌧️ Puncak Musim Hujan (Jan 2024)</option>
                               </optgroup>
-                              <optgroup label="Histori Kemarau &amp; Iklim Ekstrem">
-                                <option value="2024-08-15">☀️ Musim Kemarau / Agu 2024</option>
-                                <option value="2023-08-15">🔥 Puncak El Niño / Agu 2023 (Kering)</option>
-                                <option value="2022-08-15">🌊 La Niña Basah / Agu 2022</option>
+                              <optgroup label="Tahun 2023 (Anomali Iklim El Niño)">
+                                <option value="2023-08-15">🔥 Puncak El Niño Kuat / Sangat Kering (Agu 2023)</option>
+                                <option value="2023-01-15">🌧️ Musim Hujan (Jan 2023)</option>
+                              </optgroup>
+                              <optgroup label="Tahun 2022 &amp; 2021 (La Niña &amp; Banjir)">
+                                <option value="2022-08-15">🌊 Fenomena La Niña Basah (Agu 2022)</option>
+                                <option value="2021-01-15">🌧️ Puncak Musim Hujan (Jan 2021)</option>
                               </optgroup>
                             </select>
+                          </div>
+                          <div style="font-size: 9.5px; color: #94a3b8; line-height: 1.35; padding: 5px 8px; background: rgba(34, 197, 94, 0.08); border-radius: 4px; border: 1px solid rgba(34, 197, 94, 0.2);">
+                            ℹ️ <strong>Arsip Google Earth Engine:</strong> Visual citra murni bersumber dari satelit <code>UCSB-CHG/CHIRPS/DAILY</code>. Karena proses verifikasi stasiun darat, data terakhir GEE tersedia hingga rilisan terverifikasi (bukan detik ini).
                           </div>
                         </div>
 
@@ -670,9 +675,9 @@
                           <div class="gee-weather-header">
                             <div class="gee-weather-title" style="color: #22c55e;">
                               <span class="gee-pulse-dot" style="background: #22c55e; box-shadow: 0 0 8px #22c55e;"></span>
-                              <span><strong>Pantauan Curah Hujan Titik</strong></span>
+                              <span><strong>Pantauan Stasiun Harian</strong></span>
                             </div>
-                            <span class="gee-weather-badge" id="gee-precip-status-time" style="color: #86efac; border-color: rgba(34, 197, 94, 0.3);">NASA GPM &amp; CHIRPS</span>
+                            <span class="gee-weather-badge" id="gee-precip-status-time" style="color: #86efac; border-color: rgba(34, 197, 94, 0.3);">Stasiun Cuaca Hari Ini</span>
                           </div>
 
                           <!-- Hero Banner -->

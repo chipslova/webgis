@@ -192,11 +192,11 @@ export class GEELoader {
     }
   }
 
-  private currentPrecipDate: string = 'live';
+  private currentPrecipDate: string = '2024-08-01';
   private currentPrecipWmsUrl: string | null = null;
 
   public async computeLivePrecipitation(date?: string): Promise<any> {
-    let d = date || this.currentPrecipDate || this.currentParams.start || 'live';
+    let d = date || this.currentPrecipDate || this.currentParams.start || '2024-08-01';
     if (d.includes('|')) d = d.split('|')[0];
     this.currentPrecipDate = d;
     try {
@@ -605,16 +605,13 @@ export class GEELoader {
       logger.warn('[GEELoader] Notice adding Sentinel-2 10m Land Cover raster layer:', e);
     }
 
-    // --- 3b. GEE CHIRPS & NASA GPM DAILY PRECIPITATION RATE (LIVE RADAR RASTER) ---
+    // --- 3b. GEE CHIRPS DAILY PRECIPITATION RATE (EARTH ENGINE RASTER) ---
     try {
-      let selectedDate = this.currentPrecipDate || this.currentParams.start || 'live';
+      let selectedDate = this.currentPrecipDate || this.currentParams.start || '2024-08-01';
       if (selectedDate.includes('|')) {
         selectedDate = selectedDate.split('|')[0];
       }
-      const isLive = !selectedDate || selectedDate === 'live' || selectedDate === 'current';
-      const timeParam = isLive ? '' : `&TIME=${selectedDate}`;
-      // Official weather radar overlay: 100% transparent non-rain pixels, basemap completely clear
-      const fallbackGibsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE${timeParam}&BBOX={bbox-epsg-3857}`;
+      const fallbackGibsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${selectedDate}&BBOX={bbox-epsg-3857}`;
       const precipWmsUrl = this.livePrecipTileUrlTemplate || fallbackGibsUrl;
       const precipSourceId = 'gee-precipitation-wms-source';
       const precipLayerId = 'gee-precipitation-wms-layer';

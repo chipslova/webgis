@@ -830,10 +830,10 @@ export class GEEPanelUI {
       if (todayEl) todayEl.innerText = `${todayVal.toFixed(1)} mm`;
       if (el7d) el7d.innerText = `${sum7d.toFixed(1)} mm`;
       if (el30d) el30d.innerText = `${sum30d.toFixed(1)} mm`;
-      if (timeEl) timeEl.innerText = 'NASA GPM & CHIRPS · Live';
+      if (timeEl) timeEl.innerText = 'Stasiun Cuaca · Hari Ini';
     } catch (e) {
       console.warn('Failed to fetch precipitation:', e);
-      if (timeEl) timeEl.innerText = 'Presipitasi Satelit';
+      if (timeEl) timeEl.innerText = 'Stasiun Cuaca';
     }
   }
 

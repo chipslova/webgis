@@ -64,7 +64,7 @@ export default async function handler(req: any, res: any) {
     max: customMax
   } = (query || {}) as GEEPrecipRequest;
 
-  let rawStart = start || date;
+  let rawStart = start || date || '2024-08-01';
   let rawEnd = end || rawStart;
 
   if (rawStart.includes('|')) {
@@ -73,17 +73,14 @@ export default async function handler(req: any, res: any) {
     rawEnd = parts[1] || rawStart;
   }
 
-  const isLive = !rawStart || rawStart === 'live' || rawStart === 'current';
-  let startDate = rawStart;
-  let endDate = rawEnd;
+  // CHIRPS catalog bounds (1981-01-01 s.d. rilis terakhir 2024/2026)
+  const startDate = rawStart;
+  const endDate = rawEnd;
 
-  if (isLive) {
-    startDate = 'live';
-    endDate = 'live';
-  } else if (startDate && startDate.includes('|')) {
-    const parts = startDate.split('|');
-    startDate = parts[0];
-    endDate = parts[1] || startDate;
+  // Midpoint date for NASA GIBS WMS fallback
+  let dateForWms = startDate;
+  if (startDate.length === 10 && endDate.length === 10) {
+    dateForWms = `${startDate.substring(0, 8)}15`;
   }
 
   // Meteorological Weather Radar Color Palette (100% transparent dry areas, vibrant rain cells)
@@ -127,7 +124,7 @@ export default async function handler(req: any, res: any) {
           .select('precipitation');
 
         const rawMean = collection.mean();
-        // Mask out non-rain / trace background pixels (< 2.5 mm) so dry/no-rain areas are 100% transparent and the base map remains completely visible
+        // Mask out non-rain / trace background pixels (< 2.5 mm) so dry/no-rain areas are 100% transparent
         const precipThreshold = Math.max(2.5, minPrecip);
         const precipImage = rawMean.updateMask(rawMean.gte(precipThreshold));
 
@@ -137,7 +134,7 @@ export default async function handler(req: any, res: any) {
           palette
         };
 
-        await new Promise<{ urlFormat: string }>((resolve, reject) => {
+        const mapId = await new Promise<{ urlFormat: string }>((resolve, reject) => {
           precipImage.getMap(visParams, (map: any, err: any) => {
             if (err) reject(err);
             else resolve(map);
@@ -148,47 +145,43 @@ export default async function handler(req: any, res: any) {
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
 
-        const timeParam = isLive ? '' : `&TIME=${startDate}`;
-        const liveRadarTileUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE${timeParam}&BBOX={bbox-epsg-3857}`;
-
         return sendJson(200, {
           status: 'live',
           isFallback: false,
-          tileUrlTemplate: liveRadarTileUrl,
-          provider: 'NASA / JAXA Global Precipitation Measurement (GPM)',
-          dataset: 'NASA/GPM_L3/IMERG_V07 & UCSB-CHG/CHIRPS/DAILY',
+          tileUrlTemplate: mapId.urlFormat,
+          provider: 'UC Santa Barbara Climate Hazards Center & Google Earth Engine',
+          dataset: 'UCSB-CHG/CHIRPS/DAILY',
           parameter: 'precipitation',
-          unit: 'mm/day (radar)',
-          period: isLive ? 'Real-time Terkini' : `${startDate} to ${endDate}`,
+          unit: 'mm/day',
+          period: `${startDate} s.d. ${endDate}`,
           min: minPrecip,
           max: maxPrecip,
           palette,
-          resolution: '0.1° (~10 km)',
-          provenance: 'NASA GPM Calibrated Satellite Radar Precipitation & GEE Serverless'
+          resolution: '0.05° (~5.5 km CHIRPS)',
+          provenance: 'Google Earth Engine Serverless Compute (UCSB-CHG/CHIRPS/DAILY)'
         });
       }
     } catch (err: any) {
-      console.warn('[GEE Serverless] Failed to compute live precipitation tile:', err.message);
+      console.warn('[GEE Serverless] Failed to compute live GEE CHIRPS tile:', err.message);
     }
   }
 
-  // Fallback response with calibrated high-resolution NASA GIBS WMS
+  // Fallback response with calibrated NASA GIBS WMS when GEE service account is not yet configured
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
 
-  const fallbackTimeParam = isLive ? '' : `&TIME=${startDate}`;
   return sendJson(200, {
     status: 'fallback',
     isFallback: true,
-    tileUrlTemplate: `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE${fallbackTimeParam}&BBOX={bbox-epsg-3857}`,
-    message: 'Citra radar presipitasi resmi beresolusi tinggi dengan transparansi penuh untuk area tanpa hujan.',
-    dataset: 'NASA IMERG Precipitation',
-    period: isLive ? 'Real-time Terkini' : `${startDate} s.d. ${endDate}`,
+    tileUrlTemplate: `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${dateForWms}&BBOX={bbox-epsg-3857}`,
+    message: 'Katalog GEE CHIRPS (1981-sekarang) memerlukan GEE_SERVICE_ACCOUNT_KEY. Menampilkan citra radar satelit terkalibrasi NASA GPM IMERG untuk periode yang dipilih.',
+    dataset: 'UCSB-CHG/CHIRPS/DAILY & NASA IMERG',
+    period: `${startDate} s.d. ${endDate}`,
     min: minPrecip,
     max: maxPrecip,
     palette,
-    resolution: '0.1° (IMERG)',
-    provenance: 'NASA GPM Calibrated Precipitation'
+    resolution: '0.05° - 0.1°',
+    provenance: 'NASA GPM Calibrated Satellite Precipitation / GEE Fallback'
   });
 }
