@@ -306,65 +306,10 @@
             <section id="panel-gee" class="sidebar-panel" role="tabpanel" aria-labelledby="tab-gee">
               <div class="panel-header">
                 <div class="piksel-panel-badge-row">
-                  <h2>Suhu Permukaan Daratan (LST)</h2>
-                  <span class="piksel-national-badge" id="gee-catalog-badge" title="NASA LP DAAC MODIS Terra + Aqua 8-Day LST Composite">NASA LP DAAC · MODIS</span>
+                  <h2>Observasi Citra Satelit GEE</h2>
+                  <span class="piksel-national-badge" id="gee-catalog-badge" title="Google Earth Engine Cloud Compute Analytics">Google Earth Engine</span>
                 </div>
-                <p>NASA LP DAAC · MODIS Terra &amp; Aqua (Komposit Suhu Permukaan 1 km 8-Harian Seluruh Indonesia 2000–Tersedia Terkini).</p>
-              </div>
-
-              <!-- Live GEE Status & Compute State Banner (Collapsible) -->
-              <details class="clean-accordion gee-disclaimer-banner" style="margin-bottom: 8px;">
-                <summary class="gee-disclaimer-header" style="cursor: pointer; list-style: none;">
-                  <span><strong>Suhu Permukaan Daratan NASA MODIS</strong></span>
-                  <span id="gee-live-status-pill" class="gee-disclaimer-tag">⚡ 1 KM LAND-MASKED</span>
-                </summary>
-                <div class="accordion-body" style="padding-top: 6px;">
-                  <p id="gee-status-description" class="gee-status-desc">Peta suhu permukaan radiatif (LST 1 km) seluruh daratan &amp; kepulauan Indonesia via NASA GIBS WMS &amp; GEE Zonal Compute. Wilayah lautan dimasking transparan sesuai standar NASA LP DAAC.</p>
-                  <div class="gee-disclaimer-notice">
-                    <span id="gee-active-dataset-label">Dataset: <code>MODIS/061/MOD11A2 + MYD11A2</code></span>
-                    <a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A2" target="_blank" rel="noopener noreferrer" class="gee-catalog-link">Katalog GEE ↗</a>
-                  </div>
-                </div>
-              </details>
-
-              <!-- Cara Pakai / Quick Guide Box (Collapsible) -->
-              <details class="clean-accordion gee-guide-accordion">
-                <summary>
-                  <span>💡 Panduan Singkat Analisis Suhu LST</span>
-                </summary>
-                <div class="accordion-body">
-                  <ol class="gee-guide-list">
-                    <li><strong>Pilih Mode Waktu</strong> di bawah (☀️ Siang Hari untuk cek Panas Kota / 🌙 Malam Hari untuk pendinginan).</li>
-                    <li><strong>Klik pada stasiun di peta</strong> untuk melihat estimasi nilai suhu lokasi tersebut (°C).</li>
-                    <li><strong>Bandingkan warna termal</strong>: Merah/Oranye = Panas Perkotaan (UHI), Hijau/Biru = Sejuk Hutan &amp; Pegunungan.</li>
-                  </ol>
-                </div>
-              </details>
-
-              <!-- Unified Metric Comparison Card (Urban vs Forest Baseline + SUHI Delta) -->
-              <div class="gee-card gee-metric-comparison">
-                <div class="gee-comparison-header">
-                  <span class="gee-section-title">📊 Kontras Suhu Permukaan (LST Difference)</span>
-                  <span class="piksel-hint">Kontras Termal Siang Hari</span>
-                </div>
-                <div class="gee-comparison-grid">
-                  <div class="gee-comp-col urban">
-                    <div class="gee-comp-label">🏢 Jakarta (Pesisir &amp; Kota)</div>
-                    <div class="gee-comp-val" id="metric-jakarta-lst">...</div>
-                    <div class="gee-comp-sub">UHI Siang Hari</div>
-                    <div class="gee-comp-sub" id="metric-jkt-src" style="color: #fbbf24; font-size: 9px; margin-top: 4px;">Loading GEE...</div>
-                  </div>
-                  <div class="gee-comp-divider">
-                    <span class="gee-delta-badge" id="metric-suhi-delta">...</span>
-                    <span class="gee-delta-sub">Selisih Suhu</span>
-                  </div>
-                  <div class="gee-comp-col rural">
-                    <div class="gee-comp-label">🌲 Bandung (Pegunungan)</div>
-                    <div class="gee-comp-val" id="metric-bandung-lst">...</div>
-                    <div class="gee-comp-sub">Elevasi 1.240m (Lapse Rate)</div>
-                    <div class="gee-comp-sub" id="metric-bdg-src" style="color: #fbbf24; font-size: 9px; margin-top: 4px;">Loading GEE...</div>
-                  </div>
-                </div>
+                <p>Analisis komputasi awan serverless: Suhu Permukaan (LST), Tutupan Lahan (ESA WorldCover), dan Curah Hujan (CHIRPS).</p>
               </div>
 
               <!-- Unified Citra Satelit GEE Explorer Card -->
@@ -559,7 +504,7 @@
                         </div>
 
                         <!-- Timelapse & Quick Action Controls -->
-                        <div style="display: flex; gap: 6px; align-items: center; justify-content: space-between; margin-top: 4px;">
+                        <div style="display: flex; gap: 6px; align-items: center; justify-content: space-between; margin-top: 4px; margin-bottom: 8px;">
                           <span id="gee-status-hint" style="font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
                             ⚡ <em>Peta otomatis ter-update</em>
                           </span>
@@ -571,6 +516,66 @@
                               🎥 Rekam
                             </button>
                           </div>
+                        </div>
+
+                        <!-- Unified Metric Comparison Card (Urban vs Forest Baseline + SUHI Delta) -->
+                        <div class="gee-card gee-metric-comparison" style="margin-bottom: 8px; border-color: rgba(245, 158, 11, 0.2);">
+                          <div class="gee-comparison-header">
+                            <span class="gee-section-title">📊 Kontras Suhu Permukaan (LST Difference)</span>
+                            <span class="piksel-hint">Perkotaan vs Pegunungan</span>
+                          </div>
+                          <div class="gee-comparison-grid">
+                            <div class="gee-comp-col urban">
+                              <div class="gee-comp-label">🏢 Jakarta (Pesisir &amp; Kota)</div>
+                              <div class="gee-comp-val" id="metric-jakarta-lst">...</div>
+                              <div class="gee-comp-sub">UHI Siang Hari</div>
+                              <div class="gee-comp-sub" id="metric-jkt-src" style="color: #fbbf24; font-size: 9px; margin-top: 4px;">Loading GEE...</div>
+                            </div>
+                            <div class="gee-comp-divider">
+                              <span class="gee-delta-badge" id="metric-suhi-delta">...</span>
+                              <span class="gee-delta-sub">Selisih Suhu</span>
+                            </div>
+                            <div class="gee-comp-col rural">
+                              <div class="gee-comp-label">🌲 Bandung (Pegunungan)</div>
+                              <div class="gee-comp-val" id="metric-bandung-lst">...</div>
+                              <div class="gee-comp-sub">Elevasi 1.240m (Lapse Rate)</div>
+                              <div class="gee-comp-sub" id="metric-bdg-src" style="color: #fbbf24; font-size: 9px; margin-top: 4px;">Loading GEE...</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Live GEE Status & Compute State Banner (Collapsible) -->
+                        <details class="clean-accordion gee-disclaimer-banner" style="margin-bottom: 8px;">
+                          <summary class="gee-disclaimer-header" style="cursor: pointer; list-style: none;">
+                            <span><strong>Suhu Permukaan Daratan NASA MODIS</strong></span>
+                            <span id="gee-live-status-pill" class="gee-disclaimer-tag">⚡ 1 KM LAND-MASKED</span>
+                          </summary>
+                          <div class="accordion-body" style="padding-top: 6px;">
+                            <p id="gee-status-description" class="gee-status-desc">Peta suhu permukaan radiatif (LST 1 km) seluruh daratan &amp; kepulauan Indonesia via NASA GIBS WMS &amp; GEE Zonal Compute. Wilayah lautan dimasking transparan sesuai standar NASA LP DAAC.</p>
+                            <div class="gee-disclaimer-notice">
+                              <span id="gee-active-dataset-label">Dataset: <code>MODIS/061/MOD11A2 + MYD11A2</code></span>
+                              <a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A2" target="_blank" rel="noopener noreferrer" class="gee-catalog-link">Katalog GEE ↗</a>
+                            </div>
+                          </div>
+                        </details>
+
+                        <!-- Cara Pakai / Quick Guide Box (Collapsible) -->
+                        <details class="clean-accordion gee-guide-accordion" style="margin-bottom: 8px;">
+                          <summary>
+                            <span>💡 Panduan Singkat Analisis Suhu LST</span>
+                          </summary>
+                          <div class="accordion-body">
+                            <ol class="gee-guide-list">
+                              <li><strong>Pilih Mode Waktu</strong> di atas (☀️ Siang Hari untuk cek Panas Kota / 🌙 Malam Hari untuk pendinginan).</li>
+                              <li><strong>Klik pada stasiun di peta</strong> untuk melihat estimasi nilai suhu lokasi tersebut (°C).</li>
+                              <li><strong>Bandingkan warna termal</strong>: Merah/Oranye = Panas Perkotaan (UHI), Hijau/Biru = Sejuk Hutan &amp; Pegunungan.</li>
+                            </ol>
+                          </div>
+                        </details>
+
+                        <!-- Scientific Disclaimer Note for LST -->
+                        <div class="gee-scientific-box" style="margin-bottom: 6px;">
+                          🔬 <em>Catatan Ilmiah: LST mengukur temperatur radiatif kulit permukaan tanah/tutupan lahan (1 km skin temperature), bukan temperatur udara 2 meter.</em>
                         </div>
 
                         <!-- Hidden compatibility button for test suites and programmatic triggers -->
@@ -792,10 +797,6 @@
               </div>
 
 
-              <!-- Scientific Disclaimer Note -->
-              <div class="gee-scientific-box">
-                🔬 <em>Catatan Ilmiah: LST mengukur temperatur radiatif kulit permukaan tanah/tutupan lahan (1 km skin temperature), bukan temperatur udara 2 meter.</em>
-              </div>
 
               <!-- Download Center -->
               <details class="clean-accordion">
