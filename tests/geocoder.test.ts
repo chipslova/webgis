@@ -106,6 +106,26 @@ describe('GeocoderTool', () => {
     expect(results[0].display_name).toContain('Bandung');
   });
 
+  it('should support worldwide international queries via global Nominatim search', async () => {
+    const mockTokyo = [
+      {
+        display_name: 'Tokyo, Japan',
+        lat: '35.6762',
+        lon: '139.6503',
+        type: 'city'
+      }
+    ];
+
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockTokyo
+    } as any);
+
+    const results = await geocoder.search('tokyo');
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0].display_name).toContain('Tokyo');
+  });
+
   it('should fitBounds when result has a valid boundingbox', () => {
     const resultWithBBox = {
       display_name: 'Bali (Denpasar, Provinsi Bali)',

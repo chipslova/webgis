@@ -187,13 +187,15 @@ export class GeocoderTool {
 
     // 2. Fetch remote Nominatim with graceful fallback
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=id&q=${encodeURIComponent(query)}&limit=6`;
+      // Global worldwide Nominatim search (supporting both Indonesia & international queries)
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=7`;
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 2500);
 
       const res = await fetch(url, {
         headers: {
-          'Accept-Language': 'id,en'
+          'Accept-Language': 'id,en',
+          'User-Agent': 'WebGIS-EarthObservation/1.0'
         },
         signal: controller.signal
       });
