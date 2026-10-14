@@ -869,9 +869,15 @@ export class GEEPanelUI {
     }
 
     if (periodSelect) {
-      periodSelect.addEventListener('change', () => {
+      periodSelect.addEventListener('change', async () => {
         const val = periodSelect.value;
-        this.geeLoader.computeLivePrecipitation(val);
+        if (!this.geeLoader.isLayerVisible('precipitation')) {
+          await this.geeLoader.toggleLayer('precipitation', true);
+          this.syncCheckboxStates();
+        }
+        await this.geeLoader.computeLivePrecipitation(val);
+        const optText = periodSelect.options[periodSelect.selectedIndex]?.text || val;
+        showToast(`Radar Presipitasi: ${optText}`, 'info');
       });
     }
 

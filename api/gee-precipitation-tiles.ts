@@ -73,16 +73,18 @@ export default async function handler(req: any, res: any) {
     rawEnd = parts[1] || rawStart;
   }
 
-  if (rawStart === 'live') {
-    const now = new Date();
-    // Use yesterday or today UTC for NASA GIBS near real-time radar
-    now.setUTCDate(now.getUTCDate() - 1);
-    rawStart = now.toISOString().split('T')[0];
-    rawEnd = rawStart;
-  }
+  const isLive = !rawStart || rawStart === 'live' || rawStart === 'current';
+  let startDate = rawStart;
+  let endDate = rawEnd;
 
-  const startDate = rawStart;
-  const endDate = rawEnd;
+  if (isLive) {
+    startDate = 'live';
+    endDate = 'live';
+  } else if (startDate && startDate.includes('|')) {
+    const parts = startDate.split('|');
+    startDate = parts[0];
+    endDate = parts[1] || startDate;
+  }
 
   // Meteorological Weather Radar Color Palette (100% transparent dry areas, vibrant rain cells)
   const palette = [
@@ -146,7 +148,8 @@ export default async function handler(req: any, res: any) {
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
 
-        const liveRadarTileUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${startDate}&BBOX={bbox-epsg-3857}`;
+        const timeParam = isLive ? '' : `&TIME=${startDate}`;
+        const liveRadarTileUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE${timeParam}&BBOX={bbox-epsg-3857}`;
 
         return sendJson(200, {
           status: 'live',
@@ -156,7 +159,7 @@ export default async function handler(req: any, res: any) {
           dataset: 'NASA/GPM_L3/IMERG_V07 & UCSB-CHG/CHIRPS/DAILY',
           parameter: 'precipitation',
           unit: 'mm/day (radar)',
-          period: `${startDate} to ${endDate}`,
+          period: isLive ? 'Real-time Terkini' : `${startDate} to ${endDate}`,
           min: minPrecip,
           max: maxPrecip,
           palette,
@@ -174,13 +177,14 @@ export default async function handler(req: any, res: any) {
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
 
+  const fallbackTimeParam = isLive ? '' : `&TIME=${startDate}`;
   return sendJson(200, {
     status: 'fallback',
     isFallback: true,
-    tileUrlTemplate: `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${startDate}&BBOX={bbox-epsg-3857}`,
+    tileUrlTemplate: `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE${fallbackTimeParam}&BBOX={bbox-epsg-3857}`,
     message: 'Citra radar presipitasi resmi beresolusi tinggi dengan transparansi penuh untuk area tanpa hujan.',
     dataset: 'NASA IMERG Precipitation',
-    period: `${startDate} s.d. ${endDate}`,
+    period: isLive ? 'Real-time Terkini' : `${startDate} s.d. ${endDate}`,
     min: minPrecip,
     max: maxPrecip,
     palette,

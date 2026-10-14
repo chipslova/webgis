@@ -193,6 +193,7 @@ export class GEELoader {
   }
 
   private currentPrecipDate: string = 'live';
+  private currentPrecipWmsUrl: string | null = null;
 
   public async computeLivePrecipitation(date?: string): Promise<any> {
     let d = date || this.currentPrecipDate || this.currentParams.start || 'live';
@@ -606,21 +607,21 @@ export class GEELoader {
 
     // --- 3b. GEE CHIRPS & NASA GPM DAILY PRECIPITATION RATE (LIVE RADAR RASTER) ---
     try {
-      let selectedDate = this.currentPrecipDate || this.currentParams.start || '2024-08-01';
-      if (selectedDate === 'live') {
-        const now = new Date();
-        now.setUTCDate(now.getUTCDate() - 1);
-        selectedDate = now.toISOString().split('T')[0];
+      let selectedDate = this.currentPrecipDate || this.currentParams.start || 'live';
+      if (selectedDate.includes('|')) {
+        selectedDate = selectedDate.split('|')[0];
       }
+      const isLive = !selectedDate || selectedDate === 'live' || selectedDate === 'current';
+      const timeParam = isLive ? '' : `&TIME=${selectedDate}`;
       // Official weather radar overlay: 100% transparent non-rain pixels, basemap completely clear
-      const fallbackGibsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${selectedDate}&BBOX={bbox-epsg-3857}`;
+      const fallbackGibsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE${timeParam}&BBOX={bbox-epsg-3857}`;
       const precipWmsUrl = this.livePrecipTileUrlTemplate || fallbackGibsUrl;
       const precipSourceId = 'gee-precipitation-wms-source';
       const precipLayerId = 'gee-precipitation-wms-layer';
 
       const existingPrecipSource = this.map.getSource(precipSourceId) as any;
       if (existingPrecipSource) {
-        if (existingPrecipSource.tiles && existingPrecipSource.tiles[0] !== precipWmsUrl) {
+        if (this.currentPrecipWmsUrl !== precipWmsUrl) {
           if (this.map.getLayer(precipLayerId)) {
             this.map.removeLayer(precipLayerId);
           }
@@ -629,8 +630,7 @@ export class GEELoader {
           this.map.addSource(precipSourceId, {
             type: 'raster',
             tiles: [precipWmsUrl],
-            tileSize: 256,
-            maxzoom: 12
+            tileSize: 256
           });
           this.map.addLayer({
             id: precipLayerId,
@@ -643,10 +643,8 @@ export class GEELoader {
               'raster-fade-duration': 150
             }
           }, beforeStationLayerId);
+          this.currentPrecipWmsUrl = precipWmsUrl;
         } else {
-          if (typeof existingPrecipSource.setTiles === 'function') {
-            existingPrecipSource.setTiles([precipWmsUrl]);
-          }
           if (this.map.getLayer(precipLayerId)) {
             this.map.setLayoutProperty(precipLayerId, 'visibility', isPrecipVis ? 'visible' : 'none');
             this.map.setPaintProperty(precipLayerId, 'raster-opacity', this.getLayerOpacity('precipitation'));
@@ -669,8 +667,7 @@ export class GEELoader {
         this.map.addSource(precipSourceId, {
           type: 'raster',
           tiles: [precipWmsUrl],
-          tileSize: 256,
-          maxzoom: 12
+          tileSize: 256
         });
 
         this.map.addLayer({
@@ -684,6 +681,7 @@ export class GEELoader {
             'raster-fade-duration': 150
           }
         }, beforeStationLayerId);
+        this.currentPrecipWmsUrl = precipWmsUrl;
       }
     } catch (e) {
       logger.warn('[GEELoader] Notice adding Precipitation layer:', e);
