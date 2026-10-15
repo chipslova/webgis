@@ -28,6 +28,14 @@ export class PointInspector {
   private containerEl: HTMLElement | null = null;
   private isEnabled: boolean = true;
   private currentInspected?: { lat: number; lng: number; name?: string; elevation?: string };
+  private chartState: {
+    type: 'lst';
+    lstData: any[];
+  } | {
+    type: 'precip';
+    precipDates: string[];
+    precipValues: number[];
+  } | null = null;
 
   public static getBookmarks(): BookmarkedLocation[] {
     try {
@@ -234,6 +242,7 @@ export class PointInspector {
           throw new Error('Data time-series kosong untuk titik ini.');
         }
 
+        this.chartState = { type: 'lst', lstData: data.data };
         this.drawMiniChart(canvas, data.data);
         loading.style.display = 'none';
         chartWrap.style.display = 'block';
@@ -280,6 +289,7 @@ export class PointInspector {
           throw new Error('Data riwayat curah hujan kosong untuk titik ini.');
         }
 
+        this.chartState = { type: 'precip', precipDates: dates, precipValues: precipValues };
         this.drawPrecipChart(canvas, dates, precipValues);
         loading.style.display = 'none';
         chartWrap.style.display = 'block';
@@ -292,9 +302,102 @@ export class PointInspector {
         extractPrecipBtn.innerHTML = '<span class="btn-icon">🔄</span> Muat Ulang Hujan';
       }
     });
+
+    // Interactive Hover & Touch Event Handlers for Time-Series Canvas
+    const canvas = document.getElementById('insp-ts-canvas') as HTMLCanvasElement;
+    const tooltip = document.getElementById('insp-ts-tooltip');
+
+    const updateHover = (clientX: number) => {
+      if (!this.chartState || !canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width) return;
+      const scaleX = canvas.width / rect.width;
+      const mouseX = (clientX - rect.left) * scaleX;
+      const P = { top: 10, right: 10, bottom: 20, left: 25 };
+      const cW = canvas.width - P.left - P.right;
+
+      if (this.chartState.type === 'lst') {
+        const data = this.chartState.lstData;
+        const N = data.length;
+        if (N === 0) return;
+        const rawIdx = Math.round(((mouseX - P.left) / cW) * (N - 1));
+        const idx = Math.max(0, Math.min(N - 1, rawIdx));
+        this.drawMiniChart(canvas, data, idx);
+
+        if (tooltip) {
+          const d = data[idx];
+          const xPixel = (P.left + (idx / (N - 1 || 1)) * cW) / scaleX;
+          tooltip.style.display = 'block';
+          tooltip.style.left = `${Math.max(55, Math.min(rect.width - 55, xPixel))}px`;
+
+          const dayStr = d.day_c !== null ? `${d.day_c.toFixed(1)} °C` : '<span style="color:#64748b;">N/A (Awan)</span>';
+          const nightStr = d.night_c !== null ? `${d.night_c.toFixed(1)} °C` : '<span style="color:#64748b;">N/A</span>';
+          const deltaStr = (d.day_c !== null && d.night_c !== null)
+            ? `Δ ${Math.abs(d.day_c - d.night_c).toFixed(1)} °C`
+            : null;
+
+          tooltip.innerHTML = `
+            <div class="insp-chart-tooltip-date">📅 ${d.date || 'Tanggal N/A'}</div>
+            <div class="insp-chart-tooltip-row"><span style="color:#ef4444;">☀️ LST Siang:</span> <strong>${dayStr}</strong></div>
+            <div class="insp-chart-tooltip-row"><span style="color:#06b6d4;">🌙 LST Malam:</span> <strong>${nightStr}</strong></div>
+            ${deltaStr ? `<div class="insp-chart-tooltip-row" style="color:#fbbf24; font-size:9px; border-top:1px dashed rgba(255,255,255,0.15); padding-top:2px; margin-top:2px;"><span>⚡ Fluktuasi:</span> <span>${deltaStr}</span></div>` : ''}
+          `;
+        }
+      } else if (this.chartState.type === 'precip') {
+        const dates = this.chartState.precipDates;
+        const values = this.chartState.precipValues;
+        const N = values.length;
+        if (N === 0) return;
+        const slotW = cW / N;
+        const rawIdx = Math.floor((mouseX - P.left) / slotW);
+        const idx = Math.max(0, Math.min(N - 1, rawIdx));
+        this.drawPrecipChart(canvas, dates, values, idx);
+
+        if (tooltip) {
+          const v = values[idx] || 0;
+          const d = dates[idx] || 'N/A';
+          const xPixel = (P.left + (idx + 0.5) * slotW) / scaleX;
+          tooltip.style.display = 'block';
+          tooltip.style.left = `${Math.max(55, Math.min(rect.width - 55, xPixel))}px`;
+
+          let cat = '☀️ Kering / Nihil';
+          let color = '#94a3b8';
+          if (v >= 50) { cat = '⛈️ Hujan Ekstrem'; color = '#ef4444'; }
+          else if (v >= 20) { cat = '🌧️ Hujan Lebat'; color = '#f97316'; }
+          else if (v >= 2.5) { cat = '🌦️ Hujan Sedang'; color = '#22c55e'; }
+          else if (v > 0) { cat = '🌤️ Gerimis'; color = '#38bdf8'; }
+
+          tooltip.innerHTML = `
+            <div class="insp-chart-tooltip-date">📅 ${d}</div>
+            <div class="insp-chart-tooltip-row"><span style="color:#4ade80;">🌧️ Curah Hujan:</span> <strong>${v.toFixed(1)} mm</strong></div>
+            <div class="insp-chart-tooltip-row" style="font-size:9px; color:${color};"><span>Status:</span> <span>${cat}</span></div>
+          `;
+        }
+      }
+    };
+
+    const clearHover = () => {
+      if (!this.chartState || !canvas) return;
+      if (tooltip) tooltip.style.display = 'none';
+      if (this.chartState.type === 'lst') {
+        this.drawMiniChart(canvas, this.chartState.lstData);
+      } else if (this.chartState.type === 'precip') {
+        this.drawPrecipChart(canvas, this.chartState.precipDates, this.chartState.precipValues);
+      }
+    };
+
+    canvas?.addEventListener('mousemove', (e) => updateHover(e.clientX));
+    canvas?.addEventListener('mouseleave', clearHover);
+    canvas?.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches.length > 0) updateHover(e.touches[0].clientX);
+    }, { passive: true });
+    canvas?.addEventListener('touchmove', (e) => {
+      if (e.touches && e.touches.length > 0) updateHover(e.touches[0].clientX);
+    }, { passive: true });
+    canvas?.addEventListener('touchend', clearHover);
   }
 
-  private drawMiniChart(canvas: HTMLCanvasElement, data: any[]) {
+  private drawMiniChart(canvas: HTMLCanvasElement, data: any[], hoverIndex?: number | null) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -364,12 +467,77 @@ export class PointInspector {
     drawLine('night_c', '#06b6d4'); // Cyan for night
     drawLine('day_c', '#ef4444');   // Red for day
 
-    // Labels
+    // Small dots for points
+    data.forEach((d, i) => {
+      const x = toX(i);
+      if (d.night_c !== null) {
+        ctx.beginPath();
+        ctx.arc(x, toY(d.night_c), 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#06b6d4';
+        ctx.fill();
+      }
+      if (d.day_c !== null) {
+        ctx.beginPath();
+        ctx.arc(x, toY(d.day_c), 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#ef4444';
+        ctx.fill();
+      }
+    });
+
+    // Highlight hovered point with crosshair and glowing circles
+    if (typeof hoverIndex === 'number' && data[hoverIndex]) {
+      const x = toX(hoverIndex);
+      const d = data[hoverIndex];
+
+      ctx.save();
+      ctx.setLineDash([3, 3]);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, P.top);
+      ctx.lineTo(x, height - P.bottom);
+      ctx.stroke();
+      ctx.restore();
+
+      if (d.night_c !== null) {
+        const y = toY(d.night_c);
+        ctx.beginPath();
+        ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#06b6d4';
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      if (d.day_c !== null) {
+        const y = toY(d.day_c);
+        ctx.beginPath();
+        ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#ef4444';
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.fill();
+        ctx.stroke();
+      }
+    }
+
+    // Legend & Hint in top bar
+    if (typeof hoverIndex === 'number' && data[hoverIndex]) {
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = '9px Inter, sans-serif';
+      ctx.fillText(data[hoverIndex].date || '', P.left, 9);
+    } else {
+      ctx.fillStyle = '#64748b';
+      ctx.font = '8px Inter, sans-serif';
+      ctx.fillText('Hover titik untuk detail', P.left, 9);
+    }
+
     ctx.fillStyle = '#ef4444'; ctx.fillText('Siang', width - P.right - 25, 10);
     ctx.fillStyle = '#06b6d4'; ctx.fillText('Malam', width - P.right - 25, 20);
   }
 
-  private drawPrecipChart(canvas: HTMLCanvasElement, dates: string[], values: number[]) {
+  private drawPrecipChart(canvas: HTMLCanvasElement, dates: string[], values: number[], hoverIndex?: number | null) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -410,8 +578,11 @@ export class PointInspector {
       const x = P.left + i * (cW / values.length);
       const y = toY(v);
       const h = height - P.bottom - y;
+      const isHover = (hoverIndex === i);
 
-      if (v >= 20) {
+      if (isHover) {
+        ctx.fillStyle = '#fde047'; // Bright yellow on hover
+      } else if (v >= 20) {
         ctx.fillStyle = '#f97316'; // Hujan lebat
       } else if (v >= 2.5) {
         ctx.fillStyle = '#22c55e'; // Hujan sedang/ringan
@@ -422,12 +593,26 @@ export class PointInspector {
       }
 
       ctx.fillRect(x, y, barWidth, Math.max(1, h));
+
+      if (isHover) {
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x, y, barWidth, Math.max(1, h));
+      }
     });
 
     // Header label
-    ctx.fillStyle = '#4ade80';
     ctx.font = '9px Inter, sans-serif';
-    ctx.fillText(`Total 30 Hari: ${sumVal.toFixed(1)} mm`, P.left, 9);
+    if (typeof hoverIndex === 'number' && dates[hoverIndex]) {
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillText(`📅 ${dates[hoverIndex]}: ${(values[hoverIndex] || 0).toFixed(1)} mm`, P.left, 9);
+    } else {
+      ctx.fillStyle = '#4ade80';
+      ctx.fillText(`Total 30 Hari: ${sumVal.toFixed(1)} mm`, P.left, 9);
+      ctx.fillStyle = '#64748b';
+      ctx.font = '8px Inter, sans-serif';
+      ctx.fillText('(Hover bar untuk detail)', width - P.right - 92, 9);
+    }
 
     // Date range labels at bottom
     if (dates && dates.length > 0) {
@@ -442,6 +627,9 @@ export class PointInspector {
     if (this.containerEl) {
       this.containerEl.classList.remove('active');
     }
+    const tooltip = document.getElementById('insp-ts-tooltip');
+    if (tooltip) tooltip.style.display = 'none';
+    this.chartState = null;
     if (this.marker) {
       this.marker.remove();
       this.marker = null;
@@ -773,7 +961,10 @@ export class PointInspector {
     const tsContainer = document.getElementById('insp-ts-result-container');
     const extractTsBtn = document.getElementById('btn-insp-extract-ts');
     const extractPrecipBtn = document.getElementById('btn-insp-extract-precip');
+    const tooltip = document.getElementById('insp-ts-tooltip');
     if (tsContainer) tsContainer.style.display = 'none';
+    if (tooltip) tooltip.style.display = 'none';
+    this.chartState = null;
     if (extractTsBtn) {
       extractTsBtn.removeAttribute('disabled');
       extractTsBtn.innerHTML = '<span class="btn-icon">📈</span> Deret LST';

@@ -6177,6 +6177,49 @@ kbd {
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
 }
 
+/* Inspector Time-Series & Precipitation Chart Tooltip */
+.insp-chart-tooltip {
+  position: absolute;
+  top: 4px;
+  pointer-events: none;
+  background: rgba(10, 16, 30, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 240, 255, 0.45);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 10px;
+  color: #f1f5f9;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65), 0 0 10px rgba(0, 240, 255, 0.2);
+  z-index: 25;
+  white-space: nowrap;
+  line-height: 1.4;
+  transform: translateX(-50%);
+  transition: opacity 0.08s ease;
+}
+
+.insp-chart-tooltip-date {
+  font-weight: 700;
+  color: #fbbf24;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding-bottom: 2px;
+  margin-bottom: 3px;
+  font-size: 9.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.insp-chart-tooltip-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 9.5px;
+  margin-top: 1px;
+}
+
 /* ==========================================================================
    Basemap Customization, Global Overlays & 3D Terrain
    ========================================================================== */
