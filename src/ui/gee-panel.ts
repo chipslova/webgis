@@ -804,9 +804,30 @@ export class GEEPanelUI {
 
       const currentPrecip = json?.current?.precipitation ?? json?.current?.rain ?? 0;
       const dailyList: number[] = json?.daily?.precipitation_sum || [];
+      const dates: string[] = json?.daily?.time || [];
       const todayVal = dailyList.length > 0 ? dailyList[dailyList.length - 1] : currentPrecip;
+      const rawDate = dates.length > 0 ? dates[dates.length - 1] : '';
       const sum7d = dailyList.slice(-7).reduce((a: number, b: number) => a + (b || 0), 0);
       const sum30d = dailyList.reduce((a: number, b: number) => a + (b || 0), 0);
+
+      let formattedDate = 'Hari Ini';
+      let shortDate = 'Hari Ini';
+      if (rawDate) {
+        try {
+          const parts = rawDate.split('-');
+          if (parts.length === 3) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            const day = parseInt(parts[2], 10);
+            const mIdx = parseInt(parts[1], 10) - 1;
+            const year = parts[0];
+            formattedDate = `${day} ${months[mIdx]} ${year}`;
+            shortDate = `${day} ${months[mIdx]}`;
+          }
+        } catch {
+          formattedDate = rawDate;
+          shortDate = rawDate;
+        }
+      }
 
       let status = 'Cerah';
       let icon = '☀️';
@@ -824,13 +845,18 @@ export class GEEPanelUI {
         icon = '🌤️';
       }
 
+      const todayLabel = document.getElementById('gee-precip-today-label');
       if (valEl) valEl.innerText = `${todayVal.toFixed(1)} mm/hari`;
       if (iconEl) iconEl.innerText = icon;
       if (statusPill) statusPill.innerText = status;
       if (todayEl) todayEl.innerText = `${todayVal.toFixed(1)} mm`;
+      if (todayLabel && shortDate !== 'Hari Ini') todayLabel.innerText = `Hari Ini (${shortDate})`;
       if (el7d) el7d.innerText = `${sum7d.toFixed(1)} mm`;
       if (el30d) el30d.innerText = `${sum30d.toFixed(1)} mm`;
-      if (timeEl) timeEl.innerText = 'Stasiun Cuaca · Hari Ini';
+      if (timeEl) {
+        timeEl.innerText = `Stasiun · ${formattedDate}`;
+        timeEl.title = `Data observasi stasiun cuaca per tanggal ${formattedDate}`;
+      }
     } catch (e) {
       console.warn('Failed to fetch precipitation:', e);
       if (timeEl) timeEl.innerText = 'Stasiun Cuaca';
