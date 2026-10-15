@@ -63,7 +63,15 @@ export default async function handler(req: any, res: any) {
   const serviceAccountKeyStr = process.env.GEE_SERVICE_ACCOUNT_KEY;
 
   if (!serviceAccountKeyStr) {
-    return sendJson(503, { error: 'Konfigurasi server: GEE_SERVICE_ACCOUNT_KEY tidak ditemukan.' });
+    const sampleFilename = dataset === 'chirps-precip' ? 'chirps_precipitation_sample.tif' : (dataset === 'esa-landcover' ? 'worldcover_lulc_sample.tif' : 'modis_lst_sample.tif');
+    const sampleTiffUrl = `https://storage.googleapis.com/earthengine-community/sample_data/${sampleFilename}`;
+    return sendJson(200, {
+      status: 'simulated',
+      message: 'Server dalam mode simulasi (kunci GEE_SERVICE_ACCOUNT_KEY belum terpasang). Mengunduh berkas GeoTIFF sampel.',
+      downloadUrl: sampleTiffUrl,
+      dataset,
+      bbox
+    });
   }
 
   try {

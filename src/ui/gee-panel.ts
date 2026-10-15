@@ -503,24 +503,49 @@ export class GEEPanelUI {
   // ── Download dataset events ───────────────────────────────────────────────────
 
   private bindDownloadEvents() {
+    const datasetSelect = document.getElementById('gee-download-dataset-select') as HTMLSelectElement | null;
+    const infoText = document.getElementById('gee-download-info-text');
+
+    datasetSelect?.addEventListener('change', () => {
+      if (!infoText) return;
+      switch (datasetSelect.value) {
+        case 'modis-lst-day':
+          infoText.innerText = '🌡️ Citra NASA MODIS MYD11A2 Siang (1 km). Menggunakan rentang tanggal dari pemilih Periode Musim LST.';
+          break;
+        case 'modis-lst-night':
+          infoText.innerText = '🌙 Citra NASA MODIS MOD11A2 Malam (1 km). Menggunakan rentang tanggal dari pemilih Periode Musim LST.';
+          break;
+        case 'chirps-precip':
+          infoText.innerText = '🌧️ Citra UCSB CHIRPS Daily (~5 km). Menggunakan rentang bulan dari pemilih Periode Presipitasi.';
+          break;
+        case 'esa-landcover':
+          infoText.innerText = '🌳 Peta Tutupan Lahan ESA WorldCover 10m (11 kelas diskrit resolusi tinggi).';
+          break;
+        default:
+          infoText.innerText = '🎯 Otomatis mendeteksi lapisan aktif di tab GEE (LST Siang/Malam, Presipitasi CHIRPS, atau Tutupan Lahan ESA).';
+          break;
+      }
+    });
 
     document.getElementById('btn-download-geotiff')?.addEventListener('click', async (e) => {
       const btn = e.currentTarget as HTMLButtonElement;
       
-      // Determine active dataset
-      let dataset = '';
-      if (this.geeLoader.isLayerVisible('lst-day')) {
-        dataset = 'modis-lst-day';
-      } else if (this.geeLoader.isLayerVisible('lst-night')) {
-        dataset = 'modis-lst-night';
-      } else if (this.geeLoader.isLayerVisible('precipitation')) {
-        dataset = 'chirps-precip';
-      } else if (this.geeLoader.isLayerVisible('landcover')) {
-        dataset = 'esa-landcover';
+      // Determine chosen dataset
+      let dataset = datasetSelect?.value || 'auto';
+      if (dataset === 'auto') {
+        if (this.geeLoader.isLayerVisible('lst-day')) {
+          dataset = 'modis-lst-day';
+        } else if (this.geeLoader.isLayerVisible('lst-night')) {
+          dataset = 'modis-lst-night';
+        } else if (this.geeLoader.isLayerVisible('precipitation')) {
+          dataset = 'chirps-precip';
+        } else if (this.geeLoader.isLayerVisible('landcover')) {
+          dataset = 'esa-landcover';
+        }
       }
 
-      if (!dataset) {
-        showToast('Nyalakan salah satu lapisan Satelit terlebih dahulu (LST Siang, LST Malam, Tutupan Lahan, atau Curah Hujan)', 'warning');
+      if (!dataset || dataset === 'auto') {
+        showToast('Pilih salah satu dataset pada pilihan di atas atau nyalakan lapisan satelit terlebih dahulu (LST, Curah Hujan, atau Tutupan Lahan)', 'warning');
         return;
       }
 
@@ -528,20 +553,34 @@ export class GEEPanelUI {
       const bounds = map.getBounds();
       const bboxStr = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
       
-      // Get period
-      const periodSelect = document.getElementById('gee-period-select') as HTMLSelectElement | null;
       let startDate = '2024-08-01';
       let endDate = '2024-08-31';
-      if (periodSelect && periodSelect.value) {
-        const parts = periodSelect.value.split('|');
-        if (parts.length === 2) {
-          startDate = parts[0];
-          endDate = parts[1];
-        }
+      let scale = '1000';
+      let label = 'MODIS LST';
+
+      if (dataset === 'chirps-precip') {
+        const precipSelect = document.getElementById('gee-precip-period-select') as HTMLSelectElement | null;
+        const pInfo = this.getPrecipPeriodInfo(precipSelect?.value || '2024-08-15');
+        startDate = pInfo.startDate;
+        endDate = pInfo.endDate;
+        scale = '5000';
+        label = 'Presipitasi CHIRPS (5 km)';
+      } else if (dataset === 'esa-landcover') {
+        startDate = '2021-01-01';
+        endDate = '2021-12-31';
+        scale = '100';
+        label = 'Tutupan Lahan ESA WorldCover (10m)';
+      } else {
+        const periodSelect = document.getElementById('gee-period-select') as HTMLSelectElement | null;
+        const [pStart, pEnd] = this.getPeriodDates(periodSelect?.value);
+        startDate = pStart;
+        endDate = pEnd;
+        scale = '1000';
+        label = dataset === 'modis-lst-night' ? 'MODIS LST Malam (1 km)' : 'MODIS LST Siang (1 km)';
       }
 
       const originalText = btn.innerHTML;
-      btn.innerHTML = '⏳ Menghubungi Google Earth Engine...';
+      btn.innerHTML = `⏳ Menghubungi Google Earth Engine...`;
       btn.disabled = true;
 
       try {
@@ -550,7 +589,7 @@ export class GEEPanelUI {
           bbox: bboxStr,
           startDate,
           endDate,
-          scale: '1000'
+          scale
         });
 
         const res = await fetch(`/api/gee-export-tiff?${qs.toString()}`);
@@ -561,10 +600,10 @@ export class GEEPanelUI {
 
         const data = await res.json();
         if (data.downloadUrl) {
-          showToast('Permintaan berhasil! Mengunduh GeoTIFF...', 'success');
+          showToast(`Permintaan berhasil! Mengunduh GeoTIFF ${label}...`, 'success');
           const a = document.createElement('a');
           a.href = data.downloadUrl;
-          a.download = `export_${dataset}.tif`;
+          a.download = `export_${dataset}_${startDate}_${endDate}.tif`;
           a.target = '_blank';
           document.body.appendChild(a);
           a.click();

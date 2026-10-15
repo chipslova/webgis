@@ -796,12 +796,30 @@
 
 
               <!-- Download Center -->
-              <details class="clean-accordion">
+              <details class="clean-accordion" id="gee-download-accordion">
                 <summary>
-                  <span>Pusat Unduhan Dataset MODIS LST</span>
+                  <span>📥 Pusat Unduhan Dataset Satelit GEE</span>
                 </summary>
                 <div class="accordion-body">
-                  <p class="download-desc">Ekspor data area spasial MODIS LST:</p>
+                  <p class="download-desc">Pilih dataset Google Earth Engine untuk diekspor ke GeoTIFF berdasarkan koordinat tampilan peta saat ini:</p>
+
+                  <div class="form-group" style="margin-bottom: 8px;">
+                    <label for="gee-download-dataset-select" class="form-label font-bold text-xs text-secondary d-block" style="margin-bottom: 4px;">
+                      Pilih Dataset Citra Satelit:
+                    </label>
+                    <select id="gee-download-dataset-select" class="form-select full-width" style="font-size: 11.5px; padding: 5px 8px;">
+                      <option value="auto">🎯 Otomatis (Mengikuti Lapisan Aktif)</option>
+                      <option value="modis-lst-day">🌡️ Suhu Permukaan Daratan Siang (MODIS LST · 1 km)</option>
+                      <option value="modis-lst-night">🌙 Suhu Permukaan Daratan Malam (MODIS LST · 1 km)</option>
+                      <option value="chirps-precip">🌧️ Presipitasi Curah Hujan (UCSB CHIRPS · 5 km)</option>
+                      <option value="esa-landcover">🌳 Tutupan Lahan (ESA WorldCover · 10 m)</option>
+                    </select>
+                  </div>
+
+                  <div id="gee-download-info-box" class="analysis-note-box" style="margin-top: 0; margin-bottom: 8px;">
+                    <span id="gee-download-info-text">Ekspor raster mentah GeoTIFF (EPSG:4326) untuk analisis GIS di QGIS, ArcGIS, atau Python.</span>
+                  </div>
+
                   <div class="download-buttons">
                     <button id="btn-download-geotiff" class="btn btn-primary full-width" aria-label="Ekspor Area Tampil ke Format GeoTIFF (Resolusi Penuh)">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
