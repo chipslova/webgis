@@ -353,7 +353,7 @@ export class GEEPanelUI {
             this.geeLoader.isLayerVisible('precipitation') ? this.geeLoader.computeLivePrecipitation(start) : Promise.resolve(null)
           ]);
           if (res && res.status === 'live') {
-            showToast(`Citra GEE Live aktif: ${satName} · ${periodName}!`, 'success');
+            showToast(`Citra GEE aktif: ${satName} · ${periodName}!`, 'success');
           } else {
             showToast('GEE API mengembalikan fallback WMS.', 'info');
           }
