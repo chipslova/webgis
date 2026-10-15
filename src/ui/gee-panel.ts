@@ -595,12 +595,13 @@ export class GEEPanelUI {
         const res = await fetch(`/api/gee-export-tiff?${qs.toString()}`);
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error || `HTTP Error ${res.status}`);
+          throw new Error(errData.details || errData.error || `HTTP Error ${res.status}`);
         }
 
         const data = await res.json();
         if (data.downloadUrl) {
-          showToast(`Permintaan berhasil! Mengunduh GeoTIFF ${label}...`, 'success');
+          const scaleNote = data.effectiveScale ? ` (${data.effectiveScale}m)` : '';
+          showToast(`Permintaan berhasil! Mengunduh GeoTIFF ${label}${scaleNote}...`, 'success');
           const a = document.createElement('a');
           a.href = data.downloadUrl;
           a.download = `export_${dataset}_${startDate}_${endDate}.tif`;

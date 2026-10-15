@@ -91,9 +91,30 @@ export default async function handler(req: any, res: any) {
       );
     });
 
+function calculateAdaptiveScale(bboxParts: number[], requestedScale: number, maxPixels = 3_500_000): number {
+  const [minLng, minLat, maxLng, maxLat] = bboxParts;
+  const midLat = (minLat + maxLat) / 2;
+  const latMeters = Math.abs(maxLat - minLat) * 111320;
+  const lngMeters = Math.abs(maxLng - minLng) * 111320 * Math.cos((midLat * Math.PI) / 180);
+
+  const cols = lngMeters / requestedScale;
+  const rows = latMeters / requestedScale;
+  const totalPixels = cols * rows;
+  const maxDim = Math.max(cols, rows);
+
+  if (totalPixels <= maxPixels && maxDim <= 10000) {
+    return requestedScale;
+  }
+
+  const scaleForPixels = Math.sqrt((lngMeters * latMeters) / maxPixels);
+  const scaleForDim = maxDim > 10000 ? Math.max(lngMeters, latMeters) / 10000 : requestedScale;
+  return Math.ceil(Math.max(requestedScale, scaleForPixels, scaleForDim));
+}
+
     let regionBbox: any;
+    let parts: number[] = [];
     if (bbox && typeof bbox === 'string') {
-      const parts = bbox.split(',').map(Number);
+      parts = bbox.split(',').map(Number);
       if (parts.length === 4 && parts.every((n: number) => !isNaN(n))) {
         regionBbox = eeCore.Geometry.Rectangle([
           Math.max(-180, parts[0]),
@@ -147,8 +168,9 @@ export default async function handler(req: any, res: any) {
       return sendJson(400, { error: 'Dataset tidak didukung.' });
     }
 
-    // Get the Download URL
-    const dlScale = parseInt(scale || '1000', 10);
+    // Get the Download URL with Adaptive Scale to guarantee staying within GEE payload limits (<50MB)
+    const rawScale = parseInt(scale || '1000', 10);
+    const dlScale = parts.length === 4 ? calculateAdaptiveScale(parts, rawScale) : rawScale;
     const dlUrl = await new Promise<string>((resolve, reject) => {
       finalImage.getDownloadURL({
         name: `export_${dataset}_${Date.now()}`,
@@ -166,7 +188,8 @@ export default async function handler(req: any, res: any) {
       status: 'success',
       downloadUrl: dlUrl,
       dataset,
-      bbox
+      bbox,
+      effectiveScale: dlScale
     });
   } catch (err: any) {
     console.error('[GEE Export] Error:', err);
