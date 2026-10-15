@@ -281,5 +281,70 @@ describe('GEE Land Surface Temperature (LST) & Thermal Layer Suite', () => {
 
     globalThis.fetch = originalFetch;
   });
+
+  it('should query and render 100% Google Earth Engine CHIRPS precipitation in live telemetry widget', async () => {
+    document.body.innerHTML += `
+      <div class="gee-live-weather-card precip-telemetry-card">
+        <select id="gee-precip-period-select">
+          <option value="2024-08-15" selected>Kemarau (Agu 2024)</option>
+        </select>
+        <span class="gee-weather-badge" id="gee-precip-status-time">GEE CHIRPS</span>
+        <span class="gee-weather-city" id="gee-precip-city">📍 Jakarta</span>
+        <span class="gee-weather-icon" id="gee-precip-icon">☀️</span>
+        <span class="gee-weather-source-pill" id="gee-precip-status-pill">Cerah</span>
+        <div id="gee-precip-val">--.- mm/hari</div>
+        <strong id="gee-precip-today-val">--.- mm</strong>
+        <span id="gee-precip-today-label">Rata-rata Harian</span>
+        <strong id="gee-precip-7d-val">--.- mm</strong>
+        <strong id="gee-precip-30d-val">--.- mm</strong>
+      </div>
+    `;
+
+    const originalFetch = globalThis.fetch;
+    let requestedPayload: any = null;
+    globalThis.fetch = vi.fn().mockImplementation((url: string, opts?: any) => {
+      if (url.includes('/api/gee-timeseries')) {
+        requestedPayload = JSON.parse(opts?.body || '{}');
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            status: 'success',
+            source: 'UCSB-CHG/CHIRPS/DAILY',
+            point: [requestedPayload.lon, requestedPayload.lat],
+            data: [
+              { date: '2024-08-01', precip: 2.0 },
+              { date: '2024-08-02', precip: 6.0 },
+              { date: '2024-08-03', precip: 1.0 }
+            ]
+          })
+        });
+      }
+      return originalFetch(url, opts);
+    });
+
+    await geePanelUI.fetchLivePrecipitation(-6.175, 106.827, 'Jakarta Pusat');
+
+    // Ensure it strictly targeted GEE precipitation, NOT any third-party weather API
+    expect(requestedPayload).not.toBeNull();
+    expect(requestedPayload.satellite).toBe('precipitation');
+    expect(requestedPayload.startDate).toBe('2024-08-01');
+    expect(requestedPayload.endDate).toBe('2024-08-31');
+
+    const valEl = document.getElementById('gee-precip-val');
+    const todayEl = document.getElementById('gee-precip-today-val');
+    const el7d = document.getElementById('gee-precip-7d-val');
+    const el30d = document.getElementById('gee-precip-30d-val');
+    const timeEl = document.getElementById('gee-precip-status-time');
+    const statusPill = document.getElementById('gee-precip-status-pill');
+
+    expect(valEl?.innerText).toBe('3.0 mm/hari');
+    expect(todayEl?.innerText).toBe('3.0 mm');
+    expect(el7d?.innerText).toBe('6.0 mm');
+    expect(el30d?.innerText).toBe('9.0 mm');
+    expect(timeEl?.innerText).toContain('GEE CHIRPS · Agu 2024');
+    expect(statusPill?.innerText).toBe('Hujan Sedang');
+
+    globalThis.fetch = originalFetch;
+  });
 });
 

@@ -271,23 +271,64 @@ export class PointInspector {
 
       container.style.display = 'block';
       loading.style.display = 'block';
-      loading.innerText = 'Mengambil data presipitasi 30 hari...';
+      loading.innerText = 'Mengekstrak data presipitasi GEE (CHIRPS)...';
       chartWrap.style.display = 'none';
       errBox.style.display = 'none';
       extractPrecipBtn.setAttribute('disabled', 'true');
       extractPrecipBtn.innerHTML = '<span class="btn-icon">⏳</span> Memproses...';
 
       try {
-        const meteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${this.currentInspected.lat}&longitude=${this.currentInspected.lng}&daily=precipitation_sum&past_days=30&forecast_days=1&timezone=Asia%2FJakarta`;
-        const res = await fetch(meteoUrl);
+        const periodSelect = document.getElementById('gee-precip-period-select') as HTMLSelectElement | null;
+        const periodVal = periodSelect?.value || '2024-08-15';
+        let startDate = '2024-08-01';
+        let endDate = '2024-08-31';
+        if (periodVal.startsWith('2024-01')) {
+          startDate = '2024-01-01';
+          endDate = '2024-01-31';
+        } else if (periodVal.startsWith('2023-08')) {
+          startDate = '2023-08-01';
+          endDate = '2023-08-31';
+        } else if (periodVal.startsWith('2023-01')) {
+          startDate = '2023-01-01';
+          endDate = '2023-01-31';
+        } else if (periodVal.startsWith('2022-08')) {
+          startDate = '2022-08-01';
+          endDate = '2022-08-31';
+        } else if (periodVal.startsWith('2021-01')) {
+          startDate = '2021-01-01';
+          endDate = '2021-01-31';
+        } else {
+          const match = periodVal.match(/^(\d{4})-(\d{2})/);
+          if (match) {
+            const y = match[1];
+            const m = match[2];
+            const lastDay = new Date(Number(y), Number(m), 0).getDate();
+            startDate = `${y}-${m}-01`;
+            endDate = `${y}-${m}-${lastDay}`;
+          }
+        }
+
+        const res = await fetch('/api/gee-timeseries', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lat: this.currentInspected.lat,
+            lon: this.currentInspected.lng,
+            startDate,
+            endDate,
+            satellite: 'precipitation'
+          })
+        });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
-        const dates: string[] = json.daily?.time || [];
-        const precipValues: number[] = json.daily?.precipitation_sum || [];
+        const records: Array<{ date: string; precip: number }> = json?.data || [];
 
-        if (precipValues.length === 0) {
-          throw new Error('Data riwayat curah hujan kosong untuk titik ini.');
+        if (records.length === 0) {
+          throw new Error('Data riwayat curah hujan GEE CHIRPS kosong untuk titik ini.');
         }
+
+        const dates: string[] = records.map(r => r.date);
+        const precipValues: number[] = records.map(r => r.precip || 0);
 
         this.chartState = { type: 'precip', precipDates: dates, precipValues: precipValues };
         this.drawPrecipChart(canvas, dates, precipValues);
@@ -608,7 +649,7 @@ export class PointInspector {
       ctx.fillText(`📅 ${dates[hoverIndex]}: ${(values[hoverIndex] || 0).toFixed(1)} mm`, P.left, 9);
     } else {
       ctx.fillStyle = '#4ade80';
-      ctx.fillText(`Total 30 Hari: ${sumVal.toFixed(1)} mm`, P.left, 9);
+      ctx.fillText(`Total: ${sumVal.toFixed(1)} mm (${dates.length} Hari)`, P.left, 9);
       ctx.fillStyle = '#64748b';
       ctx.font = '8px Inter, sans-serif';
       ctx.fillText('(Hover bar untuk detail)', width - P.right - 92, 9);

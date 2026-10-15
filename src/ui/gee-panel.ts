@@ -783,6 +783,29 @@ export class GEEPanelUI {
 
   // ── Pure Realtime & Historical Satellite Precipitation (NASA GPM / CHIRPS) ───
 
+  private lastPrecipLocation: { lat: number; lon: number; city: string } = {
+    lat: -6.175,
+    lon: 106.827,
+    city: 'Jakarta Pusat'
+  };
+
+  private getPrecipPeriodInfo(periodVal: string): { startDate: string; endDate: string; label: string } {
+    if (periodVal.startsWith('2024-08')) return { startDate: '2024-08-01', endDate: '2024-08-31', label: 'Agu 2024' };
+    if (periodVal.startsWith('2024-01')) return { startDate: '2024-01-01', endDate: '2024-01-31', label: 'Jan 2024' };
+    if (periodVal.startsWith('2023-08')) return { startDate: '2023-08-01', endDate: '2023-08-31', label: 'Agu 2023' };
+    if (periodVal.startsWith('2023-01')) return { startDate: '2023-01-01', endDate: '2023-01-31', label: 'Jan 2023' };
+    if (periodVal.startsWith('2022-08')) return { startDate: '2022-08-01', endDate: '2022-08-31', label: 'Agu 2022' };
+    if (periodVal.startsWith('2021-01')) return { startDate: '2021-01-01', endDate: '2021-01-31', label: 'Jan 2021' };
+    const match = periodVal.match(/^(\d{4})-(\d{2})/);
+    if (match) {
+      const y = match[1];
+      const m = match[2];
+      const lastDay = new Date(Number(y), Number(m), 0).getDate();
+      return { startDate: `${y}-${m}-01`, endDate: `${y}-${m}-${lastDay}`, label: `${m}/${y}` };
+    }
+    return { startDate: '2024-08-01', endDate: '2024-08-31', label: 'Agu 2024' };
+  }
+
   public async fetchLivePrecipitation(lat: number, lon: number, cityName: string): Promise<void> {
     const valEl = document.getElementById('gee-precip-val');
     const cityEl = document.getElementById('gee-precip-city');
@@ -792,74 +815,71 @@ export class GEEPanelUI {
     const el7d = document.getElementById('gee-precip-7d-val');
     const el30d = document.getElementById('gee-precip-30d-val');
     const timeEl = document.getElementById('gee-precip-status-time');
+    const todayLabel = document.getElementById('gee-precip-today-label');
 
-    if (timeEl) timeEl.innerText = 'Mengambil presipitasi...';
+    if (timeEl) timeEl.innerText = 'Mengambil data GEE CHIRPS...';
     if (cityEl) cityEl.innerText = `📍 ${cityName}`;
 
+    const periodSelect = document.getElementById('gee-precip-period-select') as HTMLSelectElement | null;
+    const periodVal = periodSelect?.value || '2024-08-15';
+    const periodInfo = this.getPrecipPeriodInfo(periodVal);
+
     try {
-      const meteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=precipitation,rain,weather_code&daily=precipitation_sum&past_days=30&forecast_days=1&timezone=Asia%2FJakarta`;
-      const res = await fetch(meteoUrl);
+      const res = await fetch('/api/gee-timeseries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lat,
+          lon,
+          startDate: periodInfo.startDate,
+          endDate: periodInfo.endDate,
+          satellite: 'precipitation'
+        })
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
+      const records: Array<{ date: string; precip: number }> = json?.data || [];
 
-      const currentPrecip = json?.current?.precipitation ?? json?.current?.rain ?? 0;
-      const dailyList: number[] = json?.daily?.precipitation_sum || [];
-      const dates: string[] = json?.daily?.time || [];
-      const todayVal = dailyList.length > 0 ? dailyList[dailyList.length - 1] : currentPrecip;
-      const rawDate = dates.length > 0 ? dates[dates.length - 1] : '';
-      const sum7d = dailyList.slice(-7).reduce((a: number, b: number) => a + (b || 0), 0);
-      const sum30d = dailyList.reduce((a: number, b: number) => a + (b || 0), 0);
+      if (records.length > 0) {
+        const precipValues = records.map(r => r.precip || 0);
+        const totalAccum = precipValues.reduce((a, b) => a + b, 0);
+        const meanDaily = totalAccum / precipValues.length;
+        const maxDaily = Math.max(...precipValues);
 
-      let formattedDate = 'Hari Ini';
-      let shortDate = 'Hari Ini';
-      if (rawDate) {
-        try {
-          const parts = rawDate.split('-');
-          if (parts.length === 3) {
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-            const day = parseInt(parts[2], 10);
-            const mIdx = parseInt(parts[1], 10) - 1;
-            const year = parts[0];
-            formattedDate = `${day} ${months[mIdx]} ${year}`;
-            shortDate = `${day} ${months[mIdx]}`;
-          }
-        } catch {
-          formattedDate = rawDate;
-          shortDate = rawDate;
+        let status = 'Cerah / Kering';
+        let icon = '☀️';
+        if (meanDaily >= 20) {
+          status = 'Hujan Sangat Lebat';
+          icon = '⛈️';
+        } else if (meanDaily >= 10) {
+          status = 'Hujan Lebat';
+          icon = '🌧️';
+        } else if (meanDaily >= 3) {
+          status = 'Hujan Sedang';
+          icon = '🌦️';
+        } else if (meanDaily > 0.5) {
+          status = 'Hujan Ringan';
+          icon = '🌤️';
         }
-      }
 
-      let status = 'Cerah';
-      let icon = '☀️';
-      if (todayVal >= 50) {
-        status = 'Hujan Ekstrem';
-        icon = '⛈️';
-      } else if (todayVal >= 20) {
-        status = 'Hujan Sedang';
-        icon = '🌧️';
-      } else if (todayVal >= 2.5) {
-        status = 'Hujan Ringan';
-        icon = '🌦️';
-      } else if (todayVal > 0) {
-        status = 'Gerimis';
-        icon = '🌤️';
-      }
-
-      const todayLabel = document.getElementById('gee-precip-today-label');
-      if (valEl) valEl.innerText = `${todayVal.toFixed(1)} mm/hari`;
-      if (iconEl) iconEl.innerText = icon;
-      if (statusPill) statusPill.innerText = status;
-      if (todayEl) todayEl.innerText = `${todayVal.toFixed(1)} mm`;
-      if (todayLabel && shortDate !== 'Hari Ini') todayLabel.innerText = `Hari Ini (${shortDate})`;
-      if (el7d) el7d.innerText = `${sum7d.toFixed(1)} mm`;
-      if (el30d) el30d.innerText = `${sum30d.toFixed(1)} mm`;
-      if (timeEl) {
-        timeEl.innerText = `Stasiun · ${formattedDate}`;
-        timeEl.title = `Data observasi stasiun cuaca per tanggal ${formattedDate}`;
+        if (valEl) valEl.innerText = `${meanDaily.toFixed(1)} mm/hari`;
+        if (iconEl) iconEl.innerText = icon;
+        if (statusPill) statusPill.innerText = status;
+        if (todayEl) todayEl.innerText = `${meanDaily.toFixed(1)} mm`;
+        if (todayLabel) todayLabel.innerText = 'Rata-rata Harian';
+        if (el7d) el7d.innerText = `${maxDaily.toFixed(1)} mm`;
+        if (el30d) el30d.innerText = `${totalAccum.toFixed(1)} mm`;
+        if (timeEl) {
+          timeEl.innerText = `GEE CHIRPS · ${periodInfo.label}`;
+          timeEl.title = `Data satelit UCSB CHIRPS via Google Earth Engine (${periodInfo.startDate} s/d ${periodInfo.endDate})`;
+        }
+      } else {
+        if (cityEl) cityEl.innerText = `📍 ${cityName}`;
+        if (timeEl) timeEl.innerText = 'GEE: Data Tidak Tersedia';
       }
     } catch (e) {
-      console.warn('Failed to fetch precipitation:', e);
-      if (timeEl) timeEl.innerText = 'Stasiun Cuaca';
+      console.warn('Failed to fetch GEE precipitation:', e);
+      if (timeEl) timeEl.innerText = 'GEE CHIRPS (Data Kosong)';
     }
   }
 
@@ -877,6 +897,7 @@ export class GEEPanelUI {
         const lon = Number(chip.getAttribute('data-lon'));
         const city = chip.getAttribute('data-city') || 'Lokasi';
         if (!isNaN(lat) && !isNaN(lon)) {
+          this.lastPrecipLocation = { lat, lon, city };
           this.fetchLivePrecipitation(lat, lon, city);
         }
       });
@@ -889,7 +910,9 @@ export class GEEPanelUI {
         const map = this.geeLoader.getMap();
         if (map) {
           const center = map.getCenter();
-          this.fetchLivePrecipitation(center.lat, center.lng, `Tengah Peta (${center.lat.toFixed(2)}°, ${center.lng.toFixed(2)}°)`);
+          const cityName = `Tengah Peta (${center.lat.toFixed(2)}°, ${center.lng.toFixed(2)}°)`;
+          this.lastPrecipLocation = { lat: center.lat, lon: center.lng, city: cityName };
+          this.fetchLivePrecipitation(center.lat, center.lng, cityName);
         }
       });
     }
@@ -904,6 +927,13 @@ export class GEEPanelUI {
         await this.geeLoader.computeLivePrecipitation(val);
         const optText = periodSelect.options[periodSelect.selectedIndex]?.text || val;
         showToast(`Radar Presipitasi: ${optText}`, 'info');
+
+        // Automatically update GEE telemetry for the selected period
+        this.fetchLivePrecipitation(
+          this.lastPrecipLocation.lat,
+          this.lastPrecipLocation.lon,
+          this.lastPrecipLocation.city
+        );
       });
     }
 
