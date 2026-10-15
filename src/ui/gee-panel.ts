@@ -71,22 +71,22 @@ export class GEEPanelUI {
     const computeStatus = document.getElementById('gee-compute-status');
 
     if (status === 'live') {
-      const satName = metadata?.satellite === 'aqua' ? 'Aqua (Siang 13:30)' : 'Terra (Pagi 10:30)';
-      if (pill) { pill.style.background = '#16a34a'; pill.innerText = '● LIVE GEE REDUCTION'; }
-      if (desc) desc.innerHTML = `Menampilkan citra Satelit <strong>${satName}</strong> • Periode: <strong>${metadata?.period || 'Live'}</strong> hasil reduksi Google Earth Engine API.`;
-      if (datasetLabel) datasetLabel.innerHTML = `Dataset: <code>${metadata?.dataset || 'MODIS/061/MOD11A2'}</code> • Provider: NASA LP DAAC`;
+      const satName = metadata?.satellite === 'aqua' ? 'Aqua (Siang)' : 'Terra (Pagi)';
+      if (pill) { pill.style.background = '#16a34a'; pill.innerText = '● LIVE GEE'; }
+      if (desc) desc.innerHTML = `Satelit <strong>${satName}</strong> · Suhu kulit daratan (bebas awan). Lautan transparan.`;
+      if (datasetLabel) datasetLabel.innerHTML = `Dataset: <code>${metadata?.dataset || 'MODIS/061/MOD11A2'}</code>`;
       if (computeStatus) computeStatus.style.display = 'none';
     } else if (status === 'computing') {
-      if (pill) { pill.style.background = '#d97706'; pill.innerText = '◌ MENGHITUNG KOMPOSIT GEE...'; }
-      if (desc) desc.innerText = 'Memproses kalkulasi Google Earth Engine Cloud Compute...';
+      if (pill) { pill.style.background = '#d97706'; pill.innerText = '◌ MEMUAT GEE...'; }
+      if (desc) desc.innerText = 'Menghitung komposit Google Earth Engine...';
       if (computeStatus) { computeStatus.style.display = 'block'; computeStatus.innerText = 'Menghubungi GEE Serverless API...'; }
     } else if (status === 'error') {
-      if (pill) { pill.style.background = '#ef4444'; pill.innerText = '✕ GEE TIDAK TERSEDIA'; }
-      if (desc) desc.innerText = 'Layanan GEE Cloud Compute tidak dapat dihubungi. Menampilkan raster NASA GIBS WMS.';
+      if (pill) { pill.style.background = '#ef4444'; pill.innerText = '✕ OFFLINE'; }
+      if (desc) desc.innerText = 'Layanan GEE offline. Menampilkan raster cadangan NASA GIBS.';
       if (computeStatus) computeStatus.style.display = 'none';
     } else {
-      if (pill) { pill.style.background = '#0284c7'; pill.innerText = '● NASA GIBS WMS (1 KM RASTER)'; }
-      if (desc) desc.innerText = 'Aliran raster citra satelit NASA MODIS L3 Land Surface Temperature (Komposit 8-Harian 1 km). Bebas tutupan awan (Clear-Sky QA Masked).';
+      if (pill) { pill.style.background = '#0284c7'; pill.innerText = '● NASA GIBS'; }
+      if (desc) desc.innerText = 'Raster komposit MODIS 1 km (8-harian). Wilayah lautan transparan.';
       if (computeStatus) computeStatus.style.display = 'none';
     }
   }

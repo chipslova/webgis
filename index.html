@@ -544,38 +544,21 @@
                           </div>
                         </div>
 
-                        <!-- Live GEE Status & Compute State Banner (Collapsible) -->
-                        <details class="clean-accordion gee-disclaimer-banner" style="margin-bottom: 8px;">
-                          <summary class="gee-disclaimer-header" style="cursor: pointer; list-style: none;">
-                            <span><strong>Suhu Permukaan Daratan NASA MODIS</strong></span>
-                            <span id="gee-live-status-pill" class="gee-disclaimer-tag">⚡ 1 KM LAND-MASKED</span>
-                          </summary>
-                          <div class="accordion-body" style="padding-top: 6px;">
-                            <p id="gee-status-description" class="gee-status-desc">Peta suhu permukaan radiatif (LST 1 km) seluruh daratan &amp; kepulauan Indonesia via NASA GIBS WMS &amp; GEE Zonal Compute. Wilayah lautan dimasking transparan sesuai standar NASA LP DAAC.</p>
-                            <div class="gee-disclaimer-notice">
-                              <span id="gee-active-dataset-label">Dataset: <code>MODIS/061/MOD11A2 + MYD11A2</code></span>
-                              <a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A2" target="_blank" rel="noopener noreferrer" class="gee-catalog-link">Katalog GEE ↗</a>
-                            </div>
+                        <!-- Compact Informative Note: Sumber & Status Citra LST -->
+                        <div class="gee-disclaimer-banner" style="margin-top: 6px; margin-bottom: 8px; padding: 7px 10px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 6px;">
+                          <div class="gee-disclaimer-header" style="margin-bottom: 3px; display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap;">
+                            <span style="font-size: 10px; font-weight: 600; color: #f59e0b; display: flex; align-items: center; gap: 4px;">
+                              <span>ℹ️</span> <span>Satelit NASA MODIS (LST 1 km)</span>
+                            </span>
+                            <span id="gee-live-status-pill" class="gee-disclaimer-tag" style="font-size: 8.5px; padding: 1.5px 6px;">● LIVE GEE</span>
                           </div>
-                        </details>
-
-                        <!-- Cara Pakai / Quick Guide Box (Collapsible) -->
-                        <details class="clean-accordion gee-guide-accordion" style="margin-bottom: 8px;">
-                          <summary>
-                            <span>💡 Panduan Singkat Analisis Suhu LST</span>
-                          </summary>
-                          <div class="accordion-body">
-                            <ol class="gee-guide-list">
-                              <li><strong>Pilih Mode Waktu</strong> di atas (☀️ Siang Hari untuk cek Panas Kota / 🌙 Malam Hari untuk pendinginan).</li>
-                              <li><strong>Klik pada stasiun di peta</strong> untuk melihat estimasi nilai suhu lokasi tersebut (°C).</li>
-                              <li><strong>Bandingkan warna termal</strong>: Merah/Oranye = Panas Perkotaan (UHI), Hijau/Biru = Sejuk Hutan &amp; Pegunungan.</li>
-                            </ol>
+                          <div id="gee-status-description" style="font-size: 9.5px; color: #cbd5e1; line-height: 1.35; margin-bottom: 4px;">
+                            Komposit suhu kulit daratan (bebas tutupan awan). Area laut dimasking transparan.
                           </div>
-                        </details>
-
-                        <!-- Scientific Disclaimer Note for LST -->
-                        <div class="gee-scientific-box" style="margin-bottom: 6px;">
-                          🔬 <em>Catatan Ilmiah: LST mengukur temperatur radiatif kulit permukaan tanah/tutupan lahan (1 km skin temperature), bukan temperatur udara 2 meter.</em>
+                          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 9px; color: #94a3b8; border-top: 1px dashed rgba(245, 158, 11, 0.2); padding-top: 3px;">
+                            <span id="gee-active-dataset-label">Dataset: <code>MODIS/061/MOD11A2</code></span>
+                            <a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A2" target="_blank" rel="noopener noreferrer" class="gee-catalog-link" style="color: #f59e0b; text-decoration: none;">Katalog GEE ↗</a>
+                          </div>
                         </div>
 
                         <!-- Hidden compatibility button for test suites and programmatic triggers -->
