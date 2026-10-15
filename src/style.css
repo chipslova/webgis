@@ -13623,7 +13623,8 @@ html, body, #app {
   padding: 2px 7px;
   border-radius: 9999px;
   white-space: nowrap;
-  max-width: 170px;
+  max-width: fit-content;
+  flex-shrink: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }

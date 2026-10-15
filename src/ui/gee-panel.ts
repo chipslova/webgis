@@ -668,7 +668,7 @@ export class GEEPanelUI {
     const iconEl = document.getElementById('gee-weather-icon');
     const timeEl = document.getElementById('gee-weather-time');
 
-    if (timeEl) timeEl.innerText = 'Mengambil data GEE MODIS...';
+    if (timeEl) timeEl.innerText = 'Memuat...';
 
     const timeSelect = document.getElementById('gee-time-select') as HTMLSelectElement | null;
     const satSelect = (document.getElementById('gee-satellite-select') || document.getElementById('gee-sat-select')) as HTMLSelectElement | null;
@@ -734,16 +734,16 @@ export class GEEPanelUI {
         }
         if (timeEl) {
           const satLabel = satellite === 'aqua' ? 'Aqua' : 'Terra';
-          timeEl.innerText = `GEE ${recDate} · ${satLabel} LST`;
-          timeEl.title = `Siklus 8-harian NASA MODIS (${recDate}). Diperbarui otomatis setelah proses validasi citra GEE selesai.`;
+          timeEl.innerText = `${recDate} · ${satLabel}`;
+          timeEl.title = `Siklus 8-harian NASA MODIS ${satLabel} (${recDate}). Diperbarui otomatis dari Google Earth Engine.`;
         }
       } else {
         if (cityEl) cityEl.innerText = `📍 ${cityName}`;
-        if (timeEl) timeEl.innerText = 'GEE: Tutupan Awan';
+        if (timeEl) timeEl.innerText = 'Tutupan Awan';
       }
     } catch (e) {
       console.warn('Failed to fetch GEE LST temperature:', e);
-      if (timeEl) timeEl.innerText = 'Gagal memuat data GEE';
+      if (timeEl) timeEl.innerText = 'Gagal memuat';
     }
   }
 
@@ -789,21 +789,21 @@ export class GEEPanelUI {
     city: 'Jakarta Pusat'
   };
 
-  private getPrecipPeriodInfo(periodVal: string): { startDate: string; endDate: string; label: string } {
-    if (periodVal.startsWith('2024-08')) return { startDate: '2024-08-01', endDate: '2024-08-31', label: 'Agu 2024' };
-    if (periodVal.startsWith('2024-01')) return { startDate: '2024-01-01', endDate: '2024-01-31', label: 'Jan 2024' };
-    if (periodVal.startsWith('2023-08')) return { startDate: '2023-08-01', endDate: '2023-08-31', label: 'Agu 2023' };
-    if (periodVal.startsWith('2023-01')) return { startDate: '2023-01-01', endDate: '2023-01-31', label: 'Jan 2023' };
-    if (periodVal.startsWith('2022-08')) return { startDate: '2022-08-01', endDate: '2022-08-31', label: 'Agu 2022' };
-    if (periodVal.startsWith('2021-01')) return { startDate: '2021-01-01', endDate: '2021-01-31', label: 'Jan 2021' };
+  private getPrecipPeriodInfo(periodVal: string): { startDate: string; endDate: string; label: string; dateRange: string } {
+    if (periodVal.startsWith('2024-08')) return { startDate: '2024-08-01', endDate: '2024-08-31', label: 'Agu 2024', dateRange: '01–31 Agu 2024' };
+    if (periodVal.startsWith('2024-01')) return { startDate: '2024-01-01', endDate: '2024-01-31', label: 'Jan 2024', dateRange: '01–31 Jan 2024' };
+    if (periodVal.startsWith('2023-08')) return { startDate: '2023-08-01', endDate: '2023-08-31', label: 'Agu 2023', dateRange: '01–31 Agu 2023' };
+    if (periodVal.startsWith('2023-01')) return { startDate: '2023-01-01', endDate: '2023-01-31', label: 'Jan 2023', dateRange: '01–31 Jan 2023' };
+    if (periodVal.startsWith('2022-08')) return { startDate: '2022-08-01', endDate: '2022-08-31', label: 'Agu 2022', dateRange: '01–31 Agu 2022' };
+    if (periodVal.startsWith('2021-01')) return { startDate: '2021-01-01', endDate: '2021-01-31', label: 'Jan 2021', dateRange: '01–31 Jan 2021' };
     const match = periodVal.match(/^(\d{4})-(\d{2})/);
     if (match) {
       const y = match[1];
       const m = match[2];
       const lastDay = new Date(Number(y), Number(m), 0).getDate();
-      return { startDate: `${y}-${m}-01`, endDate: `${y}-${m}-${lastDay}`, label: `${m}/${y}` };
+      return { startDate: `${y}-${m}-01`, endDate: `${y}-${m}-${lastDay}`, label: `${m}/${y}`, dateRange: `01–${lastDay} ${m}/${y}` };
     }
-    return { startDate: '2024-08-01', endDate: '2024-08-31', label: 'Agu 2024' };
+    return { startDate: '2024-08-01', endDate: '2024-08-31', label: 'Agu 2024', dateRange: '01–31 Agu 2024' };
   }
 
   public async fetchLivePrecipitation(lat: number, lon: number, cityName: string): Promise<void> {
@@ -817,7 +817,7 @@ export class GEEPanelUI {
     const timeEl = document.getElementById('gee-precip-status-time');
     const todayLabel = document.getElementById('gee-precip-today-label');
 
-    if (timeEl) timeEl.innerText = 'Mengambil data GEE CHIRPS...';
+    if (timeEl) timeEl.innerText = 'Memuat...';
     if (cityEl) cityEl.innerText = `📍 ${cityName}`;
 
     const periodSelect = document.getElementById('gee-precip-period-select') as HTMLSelectElement | null;
@@ -870,16 +870,16 @@ export class GEEPanelUI {
         if (el7d) el7d.innerText = `${maxDaily.toFixed(1)} mm`;
         if (el30d) el30d.innerText = `${totalAccum.toFixed(1)} mm`;
         if (timeEl) {
-          timeEl.innerText = `GEE CHIRPS · ${periodInfo.label}`;
-          timeEl.title = `Data satelit UCSB CHIRPS via Google Earth Engine (${periodInfo.startDate} s/d ${periodInfo.endDate})`;
+          timeEl.innerText = periodInfo.dateRange;
+          timeEl.title = `Periode presipitasi satelit UCSB CHIRPS (${periodInfo.startDate} s/d ${periodInfo.endDate})`;
         }
       } else {
         if (cityEl) cityEl.innerText = `📍 ${cityName}`;
-        if (timeEl) timeEl.innerText = 'GEE: Data Tidak Tersedia';
+        if (timeEl) timeEl.innerText = 'Data Tidak Tersedia';
       }
     } catch (e) {
       console.warn('Failed to fetch GEE precipitation:', e);
-      if (timeEl) timeEl.innerText = 'GEE CHIRPS (Data Kosong)';
+      if (timeEl) timeEl.innerText = 'Gagal memuat';
     }
   }
 

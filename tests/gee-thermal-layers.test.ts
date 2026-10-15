@@ -270,8 +270,7 @@ describe('GEE Land Surface Temperature (LST) & Thermal Layer Suite', () => {
     expect(dayEl?.innerText).toBe('35.1 °C');
     expect(nightEl?.innerText).toBe('24.3 °C');
     expect(deltaEl?.innerText).toBe('+10.8 °C');
-    expect(timeEl?.innerText).toContain('GEE 2024-08-28');
-    expect(timeEl?.innerText).toContain('Terra LST');
+    expect(timeEl?.innerText).toBe('2024-08-28 · Terra');
 
     // Test clicking Bandung chip
     await geePanelUI.fetchLiveGEETemp(-6.914, 107.609, 'Bandung');
@@ -288,7 +287,7 @@ describe('GEE Land Surface Temperature (LST) & Thermal Layer Suite', () => {
         <select id="gee-precip-period-select">
           <option value="2024-08-15" selected>Kemarau (Agu 2024)</option>
         </select>
-        <span class="gee-weather-badge" id="gee-precip-status-time">GEE CHIRPS</span>
+        <span class="gee-weather-badge" id="gee-precip-status-time">01–31 Agu 2024</span>
         <span class="gee-weather-city" id="gee-precip-city">📍 Jakarta</span>
         <span class="gee-weather-icon" id="gee-precip-icon">☀️</span>
         <span class="gee-weather-source-pill" id="gee-precip-status-pill">Cerah</span>
@@ -341,7 +340,7 @@ describe('GEE Land Surface Temperature (LST) & Thermal Layer Suite', () => {
     expect(todayEl?.innerText).toBe('3.0 mm');
     expect(el7d?.innerText).toBe('6.0 mm');
     expect(el30d?.innerText).toBe('9.0 mm');
-    expect(timeEl?.innerText).toContain('GEE CHIRPS · Agu 2024');
+    expect(timeEl?.innerText).toBe('01–31 Agu 2024');
     expect(statusPill?.innerText).toBe('Hujan Sedang');
 
     globalThis.fetch = originalFetch;
