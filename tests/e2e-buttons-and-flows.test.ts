@@ -276,6 +276,29 @@ describe('E2E WebGIS Exhaustive Buttons & Interaction Flow Audit', () => {
       }
       swipeManager.deactivate();
     });
+    it('3. GEE Layer Comparison: supports GEE LST Day vs Night, presets, and GEE optgroups', () => {
+      swipeManager.activate();
+      swipeManager.setLeftConfig({ productId: 'gee-lst-day', year: '2024' });
+      swipeManager.setRightConfig({ productId: 'gee-lst-night', year: '2024' });
+      expect(swipeManager.getLeftConfig().productId).toBe('gee-lst-day');
+      expect(swipeManager.getRightConfig().productId).toBe('gee-lst-night');
+
+      swipeUI.render();
+      const root = document.getElementById('swipe-ui-root');
+      expect(root).not.toBeNull();
+      const optgroups = root?.querySelectorAll('optgroup');
+      expect(optgroups && optgroups.length).toBeGreaterThanOrEqual(2);
+
+      // Apply GEE Preset
+      const thermalPreset = SWIPE_PRESETS.find((p) => p.id === 'jakarta-uhi-thermal');
+      expect(thermalPreset).toBeDefined();
+      if (thermalPreset) {
+        swipeManager.applyPreset(thermalPreset);
+        expect(swipeManager.getLeftConfig().productId).toBe('gee-lst-day');
+        expect(swipeManager.getRightConfig().productId).toBe('gee-lst-night');
+      }
+      swipeManager.deactivate();
+    });
   });
   describe('D. Universal Escape (`ESC`) Key Accessibility', () => {
     it('should close Command Palette on ESC key', () => {

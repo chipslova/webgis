@@ -51,7 +51,7 @@ export interface NaturalLegend {
 
 export type PikselLegend = ContinuousLegend | CategoricalLegend | NaturalLegend;
 
-export type ProductCategory = 'geomad' | 'indices' | 'quality' | 'landsat' | 'hazard' | 'other';
+export type ProductCategory = 'geomad' | 'indices' | 'quality' | 'landsat' | 'hazard' | 'gee' | 'other';
 
 export interface PikselProduct {
   id: string;
@@ -686,4 +686,120 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     description: 'Lintasan orbit Landsat 9 OLI-2 dengan data reflektansi permukaan 30m paling lengkap dan tajam di Indonesia.',
     recommendedProduct: 'ls9-sr'
   }
+];
+
+export const GEE_YEARS = ['2026', '2025', '2024', '2023', '2022', '2021', '2020'];
+
+export const GEE_COMPARE_PRODUCTS: PikselProduct[] = [
+  {
+    id: 'gee-lst-day',
+    name: '🌡️ Suhu LST Siang (NASA MODIS 1 km)',
+    category: 'gee',
+    layer: 'MODIS_Terra_L3_Land_Surface_Temp_Day_8Day',
+    style: '',
+    timeEnabled: true,
+    timeMode: 'annual',
+    availableYears: GEE_YEARS,
+    minZoom: 3,
+    serviceUrl: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi',
+    description: 'Citra suhu permukaan daratan (Land Surface Temperature) siang hari bebas awan komposit 8-harian dari satelit NASA MODIS.',
+    whatItShows: 'Distribusi suhu kulit daratan pada siang hari (10:30 & 13:30 LT) dalam skala Celcius, memperlihatkan fenomena Urban Heat Island (UHI).',
+    badge: 'MODIS LST 1 km',
+    color: '#f59e0b',
+    resolution: '1 km',
+    sensor: 'NASA Terra/Aqua MODIS',
+    legend: {
+      type: 'continuous',
+      leftLabel: '≤15°C',
+      middleLabel: '30°C',
+      rightLabel: '≥45°C',
+      gradientClass: 'lst-gradient'
+    },
+    attribution: '© Google Earth Engine / NASA LP DAAC MOD11A2 & MYD11A2'
+  },
+  {
+    id: 'gee-lst-night',
+    name: '🌙 Suhu LST Malam (NASA MODIS 1 km)',
+    category: 'gee',
+    layer: 'MODIS_Terra_L3_Land_Surface_Temp_Night_8Day',
+    style: '',
+    timeEnabled: true,
+    timeMode: 'annual',
+    availableYears: GEE_YEARS,
+    minZoom: 3,
+    serviceUrl: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi',
+    description: 'Citra suhu permukaan daratan malam hari komposit 8-harian dari satelit NASA MODIS, menonjolkan retensi panas malam hari.',
+    whatItShows: 'Distribusi suhu kulit daratan malam hari (22:30 & 01:30 LT) memperlihatkan perbedaan pelepasan radiasi termal perkotaan vs vegetasi.',
+    badge: 'MODIS LST 1 km',
+    color: '#6366f1',
+    resolution: '1 km',
+    sensor: 'NASA Terra/Aqua MODIS',
+    legend: {
+      type: 'continuous',
+      leftLabel: '≤10°C',
+      middleLabel: '20°C',
+      rightLabel: '≥30°C',
+      gradientClass: 'lst-gradient'
+    },
+    attribution: '© Google Earth Engine / NASA LP DAAC MOD11A2 & MYD11A2'
+  },
+  {
+    id: 'gee-chirps',
+    name: '🌧️ Presipitasi Curah Hujan (UCSB CHIRPS 5 km)',
+    category: 'gee',
+    layer: 'IMERG_Precipitation_Rate',
+    style: '',
+    timeEnabled: true,
+    timeMode: 'annual',
+    availableYears: GEE_YEARS,
+    minZoom: 3,
+    serviceUrl: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi',
+    description: 'Estimasi presipitasi curah hujan satelit beresolusi 0.05° (~5 km) dari gabungan stasiun iklim dan data inframerah satelit.',
+    whatItShows: 'Tingkat intensitas curah hujan (mm/hari) yang menggambarkan pola iklim monsun dan sebaran presipitasi regional.',
+    badge: 'CHIRPS 5 km',
+    color: '#06b6d4',
+    resolution: '5 km',
+    sensor: 'UCSB CHG CHIRPS / GEE',
+    legend: {
+      type: 'continuous',
+      leftLabel: '0 mm',
+      middleLabel: '25 mm',
+      rightLabel: '≥100 mm',
+      gradientClass: 'precip-gradient'
+    },
+    attribution: '© UCSB Climate Hazards Center / Google Earth Engine'
+  },
+  {
+    id: 'gee-landcover',
+    name: '🌳 Tutupan Lahan (ESA WorldCover 10 m)',
+    category: 'gee',
+    layer: 'Sentinel2_10m_LandCover',
+    style: '',
+    timeEnabled: false,
+    availableYears: ['2021'],
+    minZoom: 3,
+    serviceUrl: 'https://ic.imagery1.arcgis.com/arcgis/rest/services/Sentinel2_10m_LandCover/ImageServer/exportImage',
+    description: 'Peta tutupan lahan global resolusi tinggi 10m berbasis konstelasi satelit Sentinel-1 dan Sentinel-2 dengan 11 kelas diskrit.',
+    whatItShows: 'Klasifikasi tutupan lahan: Pepohonan, semak, pertanian, padang rumput, kawasan terbangun, lahan terbuka, dan badan air.',
+    badge: 'WorldCover 10m',
+    color: '#10b981',
+    resolution: '10 meters',
+    sensor: 'ESA / Sentinel-2',
+    legend: {
+      type: 'categorical',
+      items: [
+        { label: 'Pepohonan', color: '#006400' },
+        { label: 'Semak', color: '#ffbb22' },
+        { label: 'Pertanian', color: '#f096ff' },
+        { label: 'Terbangun', color: '#fa0000' },
+        { label: 'Air', color: '#0064c8' }
+      ]
+    },
+    attribution: '© European Space Agency (ESA) WorldCover 10m 2021'
+  }
+];
+
+export const ALL_COMPARE_PRODUCTS: PikselProduct[] = [
+  ...PIKSEL_PRODUCTS,
+  ...GEE_COMPARE_PRODUCTS
 ];

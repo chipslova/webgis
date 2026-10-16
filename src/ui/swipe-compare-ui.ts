@@ -1,5 +1,5 @@
 import { SwipeCompareManager, SWIPE_PRESETS } from '../tools/swipe-compare';
-import { PIKSEL_PRODUCTS, S2_YEARS } from '../config/piksel';
+import { PIKSEL_PRODUCTS, ALL_COMPARE_PRODUCTS, GEE_COMPARE_PRODUCTS, S2_YEARS, GEE_YEARS } from '../config/piksel';
 import { showToast } from './toast';
 
 export class SwipeCompareUI {
@@ -60,19 +60,31 @@ export class SwipeCompareUI {
     const rightConfig = this.manager.getRightConfig();
     const sliderPos = this.manager.getSliderPosition();
 
-    const leftProd = PIKSEL_PRODUCTS.find((p) => p.id === leftConfig.productId);
-    const rightProd = PIKSEL_PRODUCTS.find((p) => p.id === rightConfig.productId);
+    const leftProd = ALL_COMPARE_PRODUCTS.find((p) => p.id === leftConfig.productId);
+    const rightProd = ALL_COMPARE_PRODUCTS.find((p) => p.id === rightConfig.productId);
 
-    const leftOptionsHtml = PIKSEL_PRODUCTS.filter((p) => !p.isDisabled).map(
-      (p) => `<option value="${p.id}" ${p.id === leftConfig.productId ? 'selected' : ''}>${p.name}</option>`
-    ).join('');
+    const renderOptionsHtml = (selectedId: string | null) => {
+      const pikselOpts = PIKSEL_PRODUCTS.filter((p) => !p.isDisabled).map(
+        (p) => `<option value="${p.id}" ${p.id === selectedId ? 'selected' : ''}>${p.name}</option>`
+      ).join('');
+      const geeOpts = GEE_COMPARE_PRODUCTS.filter((p) => !p.isDisabled).map(
+        (p) => `<option value="${p.id}" ${p.id === selectedId ? 'selected' : ''}>${p.name}</option>`
+      ).join('');
+      return `
+        <optgroup label="🛰️ Satelit BIG Piksel (Sentinel-2)">
+          ${pikselOpts}
+        </optgroup>
+        <optgroup label="🌍 Google Earth Engine (Suhu, Hujan & LULC)">
+          ${geeOpts}
+        </optgroup>
+      `;
+    };
 
-    const rightOptionsHtml = PIKSEL_PRODUCTS.filter((p) => !p.isDisabled).map(
-      (p) => `<option value="${p.id}" ${p.id === rightConfig.productId ? 'selected' : ''}>${p.name}</option>`
-    ).join('');
+    const leftOptionsHtml = renderOptionsHtml(leftConfig.productId);
+    const rightOptionsHtml = renderOptionsHtml(rightConfig.productId);
 
-    const leftYears = leftProd?.availableYears ?? (leftProd?.timeEnabled !== false ? S2_YEARS : []);
-    const rightYears = rightProd?.availableYears ?? (rightProd?.timeEnabled !== false ? S2_YEARS : []);
+    const leftYears = leftProd?.availableYears ?? (leftProd?.category === 'gee' ? GEE_YEARS : (leftProd?.timeEnabled !== false ? S2_YEARS : []));
+    const rightYears = rightProd?.availableYears ?? (rightProd?.category === 'gee' ? GEE_YEARS : (rightProd?.timeEnabled !== false ? S2_YEARS : []));
 
     const showLeftYear = (leftProd?.timeEnabled !== false) && leftYears.length > 0;
     const showRightYear = (rightProd?.timeEnabled !== false) && rightYears.length > 0;
@@ -97,6 +109,7 @@ export class SwipeCompareUI {
     const presetEmojis: Record<string, string> = {
       'ikn-dev': '🏙️', 'bromo-spectral': '🌋', 'jakarta-urban': '🌆',
       'danau-toba': '💧', 'jakarta-ndbi': '🏗️', 'sebangau-moisture': '🌿',
+      'jakarta-uhi-thermal': '🌡️', 'java-thermal-contrast': '🌳'
     };
 
     const presetsHtml = SWIPE_PRESETS.map((preset) => `
@@ -247,8 +260,8 @@ export class SwipeCompareUI {
 
     const leftProd = root.querySelector('#swipe-left-prod') as HTMLSelectElement;
     leftProd?.addEventListener('change', () => {
-      const prod = PIKSEL_PRODUCTS.find((p) => p.id === leftProd.value);
-      const years = prod?.availableYears ?? (prod?.timeEnabled !== false ? S2_YEARS : []);
+      const prod = ALL_COMPARE_PRODUCTS.find((p) => p.id === leftProd.value);
+      const years = prod?.availableYears ?? (prod?.category === 'gee' ? GEE_YEARS : (prod?.timeEnabled !== false ? S2_YEARS : []));
       const currentYear = this.manager.getLeftConfig().year;
       const nextYear = years.length > 0 ? (years.includes(currentYear) ? currentYear : years[0]) : '';
       this.manager.setLeftConfig({ productId: leftProd.value, year: nextYear });
@@ -261,8 +274,8 @@ export class SwipeCompareUI {
 
     const rightProd = root.querySelector('#swipe-right-prod') as HTMLSelectElement;
     rightProd?.addEventListener('change', () => {
-      const prod = PIKSEL_PRODUCTS.find((p) => p.id === rightProd.value);
-      const years = prod?.availableYears ?? (prod?.timeEnabled !== false ? S2_YEARS : []);
+      const prod = ALL_COMPARE_PRODUCTS.find((p) => p.id === rightProd.value);
+      const years = prod?.availableYears ?? (prod?.category === 'gee' ? GEE_YEARS : (prod?.timeEnabled !== false ? S2_YEARS : []));
       const currentYear = this.manager.getRightConfig().year;
       const nextYear = years.length > 0 ? (years.includes(currentYear) ? currentYear : years[0]) : '';
       this.manager.setRightConfig({ productId: rightProd.value, year: nextYear });

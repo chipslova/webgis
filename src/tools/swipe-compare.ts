@@ -1,5 +1,5 @@
 import * as maplibregl from 'maplibre-gl';
-import { PIKSEL_PRODUCTS, PikselProduct } from '../config/piksel';
+import { ALL_COMPARE_PRODUCTS, PikselProduct } from '../config/piksel';
 import { BASEMAPS, DEFAULT_BASEMAP_ID } from '../config/basemaps';
 import { MapManager } from '../map/map-manager';
 import { SidebarUI } from '../ui/sidebar';
@@ -94,6 +94,28 @@ export const SWIPE_PRESETS: SwipePreset[] = [
     description: 'Bandingkan Warna Alami (Kiri) vs Indeks Kelembapan Kanopi NDMI 2025 (Kanan) di hutan rawa gambut Sebangau.',
     left: { productId: 's2-geomad-rgb', year: '2025' },
     right: { productId: 's2-ndmi', year: '2025' }
+  },
+  {
+    id: 'jakarta-uhi-thermal',
+    name: 'Pulau Bahang Jakarta (LST Siang vs Malam)',
+    locationName: 'DKI Jakarta & Sekitarnya',
+    center: [106.8272, -6.1754],
+    zoom: 10.5,
+    pitch: 0,
+    description: 'Bandingkan akumulasi panas permukaan daratan perkotaan waktu siang (Kiri) vs pelepasan radiasi termal malam hari (Kanan).',
+    left: { productId: 'gee-lst-day', year: '2024' },
+    right: { productId: 'gee-lst-night', year: '2024' }
+  },
+  {
+    id: 'java-thermal-contrast',
+    name: 'Kontras Termal Jawa (LST vs Tutupan Lahan)',
+    locationName: 'Jawa Barat (Jakarta - Bandung)',
+    center: [107.25, -6.6],
+    zoom: 9.0,
+    pitch: 0,
+    description: 'Bandingkan gradien suhu termal daratan MODIS LST (Kiri) dengan klasifikasi tutupan lahan ESA WorldCover 10m (Kanan).',
+    left: { productId: 'gee-lst-day', year: '2024' },
+    right: { productId: 'gee-landcover', year: '2021' }
   }
 ];
 
@@ -510,6 +532,22 @@ export class SwipeCompareManager {
   }
 
   private buildWmsTileUrl(product: PikselProduct, year: string): string {
+    if (product.id === 'gee-lst-day') {
+      const time = `${year}-05-01`;
+      return `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=MODIS_Terra_L3_Land_Surface_Temp_Day_8Day&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=true&HEIGHT=256&WIDTH=256&TIME=${time}&BBOX={bbox-epsg-3857}`;
+    }
+    if (product.id === 'gee-lst-night') {
+      const time = `${year}-05-01`;
+      return `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=MODIS_Terra_L3_Land_Surface_Temp_Night_8Day&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=true&HEIGHT=256&WIDTH=256&TIME=${time}&BBOX={bbox-epsg-3857}`;
+    }
+    if (product.id === 'gee-chirps') {
+      const time = `${year}-08-01`;
+      return `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${time}&BBOX={bbox-epsg-3857}`;
+    }
+    if (product.id === 'gee-landcover') {
+      return `https://ic.imagery1.arcgis.com/arcgis/rest/services/Sentinel2_10m_LandCover/ImageServer/exportImage?bbox={bbox-epsg-3857}&bboxSR=3857&imageSR=3857&size=256,256&format=png&transparent=true&f=image`;
+    }
+
     const params = new URLSearchParams({
       SERVICE: 'WMS',
       VERSION: '1.3.0',
@@ -561,11 +599,11 @@ export class SwipeCompareManager {
 
     if (!this.leftConfig.productId) return;
 
-    const prod = PIKSEL_PRODUCTS.find((p) => p.id === this.leftConfig.productId);
+    const prod = ALL_COMPARE_PRODUCTS.find((p) => p.id === this.leftConfig.productId);
     if (!prod || prod.isDisabled) return;
 
     const tileUrl = this.buildWmsTileUrl(prod, this.leftConfig.year);
-    const minZoom = prod.minZoom ?? 8;
+    const minZoom = prod.minZoom ?? (prod.id.startsWith('gee-') ? 3 : 8);
 
     try {
       this.compareMap.addSource(srcId, {
@@ -720,11 +758,11 @@ export class SwipeCompareManager {
 
     if (!this.rightConfig.productId) return;
 
-    const prod = PIKSEL_PRODUCTS.find((p) => p.id === this.rightConfig.productId);
+    const prod = ALL_COMPARE_PRODUCTS.find((p) => p.id === this.rightConfig.productId);
     if (!prod || prod.isDisabled) return;
 
     const tileUrl = this.buildWmsTileUrl(prod, this.rightConfig.year);
-    const minZoom = prod.minZoom ?? 8;
+    const minZoom = prod.minZoom ?? (prod.id.startsWith('gee-') ? 3 : 8);
 
     try {
       this.primaryMap.addSource(srcId, {

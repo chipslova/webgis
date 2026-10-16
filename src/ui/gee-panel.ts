@@ -497,6 +497,45 @@ export class GEEPanelUI {
     document.getElementById('btn-focus-gee-area')?.addEventListener('click', () => this.geeLoader.flyToStudyArea());
     document.getElementById('btn-focus-gee-indonesia')?.addEventListener('click', () => this.geeLoader.flyToIndonesia());
 
+    const openSwipeCompare = (leftProd: string = 'gee-lst-day', rightProd: string = 'gee-lst-night') => {
+      const periodSelect = document.getElementById('gee-period-select') as HTMLSelectElement | null;
+      let yr = '2024';
+      if (periodSelect && periodSelect.value && periodSelect.value.includes('-')) {
+        yr = periodSelect.value.slice(0, 4);
+      }
+      window.dispatchEvent(new CustomEvent('webgis:open-swipe-compare', {
+        detail: {
+          productId: leftProd,
+          rightProductId: rightProd,
+          year: yr
+        }
+      }));
+    };
+
+    document.getElementById('btn-gee-swipe-compare')?.addEventListener('click', () => {
+      if (this.geeLoader.isLayerVisible('landcover')) {
+        openSwipeCompare('gee-lst-day', 'gee-landcover');
+      } else if (this.geeLoader.isLayerVisible('precipitation')) {
+        openSwipeCompare('gee-chirps', 'gee-lst-day');
+      } else {
+        openSwipeCompare('gee-lst-day', 'gee-lst-night');
+      }
+    });
+
+    document.getElementById('btn-gee-quick-compare-lst')?.addEventListener('click', () => {
+      openSwipeCompare('gee-lst-day', 'gee-lst-night');
+    });
+
+    document.getElementById('btn-gee-open-swipe-hub')?.addEventListener('click', () => {
+      if (this.geeLoader.isLayerVisible('landcover')) {
+        openSwipeCompare('gee-lst-day', 'gee-landcover');
+      } else if (this.geeLoader.isLayerVisible('precipitation')) {
+        openSwipeCompare('gee-chirps', 'gee-lst-day');
+      } else {
+        openSwipeCompare('gee-lst-day', 'gee-lst-night');
+      }
+    });
+
     this.isToggleEventsBound = true;
   }
 

@@ -918,12 +918,25 @@ class WebGISApp {
 
     window.addEventListener('webgis:open-swipe-compare', ((e: CustomEvent) => {
       if (!this.swipeCompareManager) return;
-      const { productId, year } = e.detail || {};
+      const { productId, rightProductId, year } = e.detail || {};
       if (productId) {
-        const rightProdId = productId === 's2-geomad-rgb' ? 's2-geomad-nir' : 's2-geomad-rgb';
-        const targetYear = year || '2025';
+        let rProdId = rightProductId;
+        if (!rProdId) {
+          if (productId === 'gee-lst-day') {
+            rProdId = 'gee-lst-night';
+          } else if (productId === 'gee-lst-night') {
+            rProdId = 'gee-lst-day';
+          } else if (productId === 'gee-chirps') {
+            rProdId = 'gee-lst-day';
+          } else if (productId === 'gee-landcover') {
+            rProdId = 'gee-lst-day';
+          } else {
+            rProdId = productId === 's2-geomad-rgb' ? 's2-geomad-nir' : 's2-geomad-rgb';
+          }
+        }
+        const targetYear = year || (productId.startsWith('gee-') ? '2024' : '2025');
         this.swipeCompareManager.setLeftConfig({ productId, year: targetYear });
-        this.swipeCompareManager.setRightConfig({ productId: rightProdId, year: targetYear });
+        this.swipeCompareManager.setRightConfig({ productId: rProdId, year: targetYear });
       }
       if (!this.swipeCompareManager.isActive()) {
         this.swipeCompareManager.activate();
