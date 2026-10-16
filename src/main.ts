@@ -934,7 +934,7 @@ class WebGISApp {
             rProdId = productId === 's2-geomad-rgb' ? 's2-geomad-nir' : 's2-geomad-rgb';
           }
         }
-        const targetYear = year || (productId.startsWith('gee-') ? '2024' : '2025');
+        const targetYear = year || (productId.startsWith('gee-') ? '2024-08-01' : '2025');
         this.swipeCompareManager.setLeftConfig({ productId, year: targetYear });
         this.swipeCompareManager.setRightConfig({ productId: rProdId, year: targetYear });
       }

@@ -86,30 +86,49 @@ export class SwipeCompareUI {
     const leftYears = leftProd?.availableYears ?? (leftProd?.category === 'gee' ? GEE_YEARS : (leftProd?.timeEnabled !== false ? S2_YEARS : []));
     const rightYears = rightProd?.availableYears ?? (rightProd?.category === 'gee' ? GEE_YEARS : (rightProd?.timeEnabled !== false ? S2_YEARS : []));
 
-    const showLeftYear = (leftProd?.timeEnabled !== false) && leftYears.length > 0;
-    const showRightYear = (rightProd?.timeEnabled !== false) && rightYears.length > 0;
+    const leftTimeOptions = leftProd?.timeOptions ?? leftYears.map((y) => ({ value: y, label: y }));
+    const rightTimeOptions = rightProd?.timeOptions ?? rightYears.map((y) => ({ value: y, label: y }));
+
+    const showLeftYear = (leftProd?.timeEnabled !== false) && leftTimeOptions.length > 0;
+    const showRightYear = (rightProd?.timeEnabled !== false) && rightTimeOptions.length > 0;
+
+    const activeLeftVal = leftTimeOptions.some((o) => o.value === leftConfig.year)
+      ? leftConfig.year
+      : (leftTimeOptions.find((o) => leftConfig.year && o.value.startsWith(leftConfig.year))?.value ?? leftTimeOptions[0]?.value ?? '');
+
+    const activeRightVal = rightTimeOptions.some((o) => o.value === rightConfig.year)
+      ? rightConfig.year
+      : (rightTimeOptions.find((o) => rightConfig.year && o.value.startsWith(rightConfig.year))?.value ?? rightTimeOptions[0]?.value ?? '');
 
     const leftYearHtml = showLeftYear
-      ? `<select id="swipe-left-year" class="sc-year-select" aria-label="Pilih tahun lapisan sisi kiri">
-          ${leftYears.map((y) => `<option value="${y}" ${y === leftConfig.year ? 'selected' : ''}>${y}</option>`).join('')}
+      ? `<select id="swipe-left-year" class="sc-year-select" aria-label="Pilih periode atau tahun lapisan sisi kiri">
+          ${leftTimeOptions.map((opt) => `<option value="${opt.value}" ${opt.value === activeLeftVal ? 'selected' : ''}>${opt.label}</option>`).join('')}
         </select>`
       : '';
 
     const rightYearHtml = showRightYear
-      ? `<select id="swipe-right-year" class="sc-year-select" aria-label="Pilih tahun lapisan sisi kanan">
-          ${rightYears.map((y) => `<option value="${y}" ${y === rightConfig.year ? 'selected' : ''}>${y}</option>`).join('')}
+      ? `<select id="swipe-right-year" class="sc-year-select" aria-label="Pilih periode atau tahun sisi kanan">
+          ${rightTimeOptions.map((opt) => `<option value="${opt.value}" ${opt.value === activeRightVal ? 'selected' : ''}>${opt.label}</option>`).join('')}
         </select>`
       : '';
 
+    const findTimeLabel = (prod: any, val: string) => {
+      if (!val) return '';
+      const match = prod?.timeOptions?.find((o: any) => o.value === val)
+        || prod?.timeOptions?.find((o: any) => o.value.startsWith(val));
+      return match ? match.label : val;
+    };
+
     const leftName = leftProd?.name || 'Lapisan Kiri';
     const rightName = rightProd?.name || 'Lapisan Kanan';
-    const leftYear = showLeftYear ? leftConfig.year : '';
-    const rightYear = showRightYear ? rightConfig.year : '';
+    const leftYear = showLeftYear ? findTimeLabel(leftProd, activeLeftVal) : '';
+    const rightYear = showRightYear ? findTimeLabel(rightProd, activeRightVal) : '';
 
     const presetEmojis: Record<string, string> = {
       'ikn-dev': '🏙️', 'bromo-spectral': '🌋', 'jakarta-urban': '🌆',
       'danau-toba': '💧', 'jakarta-ndbi': '🏗️', 'sebangau-moisture': '🌿',
-      'jakarta-uhi-thermal': '🌡️', 'java-thermal-contrast': '🌳'
+      'jakarta-uhi-thermal': '🌡️', 'java-thermal-contrast': '🌳',
+      'elnino-vs-lanina-thermal': '🔥'
     };
 
     const presetsHtml = SWIPE_PRESETS.map((preset) => `
@@ -261,9 +280,10 @@ export class SwipeCompareUI {
     const leftProd = root.querySelector('#swipe-left-prod') as HTMLSelectElement;
     leftProd?.addEventListener('change', () => {
       const prod = ALL_COMPARE_PRODUCTS.find((p) => p.id === leftProd.value);
-      const years = prod?.availableYears ?? (prod?.category === 'gee' ? GEE_YEARS : (prod?.timeEnabled !== false ? S2_YEARS : []));
+      const timeOpts = prod?.timeOptions ?? (prod?.availableYears ?? (prod?.category === 'gee' ? GEE_YEARS : (prod?.timeEnabled !== false ? S2_YEARS : []))).map((y) => ({ value: y, label: y }));
       const currentYear = this.manager.getLeftConfig().year;
-      const nextYear = years.length > 0 ? (years.includes(currentYear) ? currentYear : years[0]) : '';
+      const hasCurrent = timeOpts.some((o) => o.value === currentYear);
+      const nextYear = timeOpts.length > 0 ? (hasCurrent ? currentYear : timeOpts[0].value) : '';
       this.manager.setLeftConfig({ productId: leftProd.value, year: nextYear });
     });
 
@@ -275,9 +295,10 @@ export class SwipeCompareUI {
     const rightProd = root.querySelector('#swipe-right-prod') as HTMLSelectElement;
     rightProd?.addEventListener('change', () => {
       const prod = ALL_COMPARE_PRODUCTS.find((p) => p.id === rightProd.value);
-      const years = prod?.availableYears ?? (prod?.category === 'gee' ? GEE_YEARS : (prod?.timeEnabled !== false ? S2_YEARS : []));
+      const timeOpts = prod?.timeOptions ?? (prod?.availableYears ?? (prod?.category === 'gee' ? GEE_YEARS : (prod?.timeEnabled !== false ? S2_YEARS : []))).map((y) => ({ value: y, label: y }));
       const currentYear = this.manager.getRightConfig().year;
-      const nextYear = years.length > 0 ? (years.includes(currentYear) ? currentYear : years[0]) : '';
+      const hasCurrent = timeOpts.some((o) => o.value === currentYear);
+      const nextYear = timeOpts.length > 0 ? (hasCurrent ? currentYear : timeOpts[0].value) : '';
       this.manager.setRightConfig({ productId: rightProd.value, year: nextYear });
     });
 

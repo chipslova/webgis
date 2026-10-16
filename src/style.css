@@ -7896,6 +7896,12 @@ body.swipe-mode-active #dynamic-legend-container {
   overflow: hidden;
 }
 
+.sc-year-select {
+  max-width: 175px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .sc-side.left .sc-prod-select:focus,
 .sc-side.left .sc-prod-select:hover,
 .sc-side.left .sc-year-select:focus,

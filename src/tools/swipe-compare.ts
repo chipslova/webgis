@@ -103,8 +103,8 @@ export const SWIPE_PRESETS: SwipePreset[] = [
     zoom: 10.5,
     pitch: 0,
     description: 'Bandingkan akumulasi panas permukaan daratan perkotaan waktu siang (Kiri) vs pelepasan radiasi termal malam hari (Kanan).',
-    left: { productId: 'gee-lst-day', year: '2024' },
-    right: { productId: 'gee-lst-night', year: '2024' }
+    left: { productId: 'gee-lst-day', year: '2024-08-01' },
+    right: { productId: 'gee-lst-night', year: '2024-08-01' }
   },
   {
     id: 'java-thermal-contrast',
@@ -114,8 +114,19 @@ export const SWIPE_PRESETS: SwipePreset[] = [
     zoom: 9.0,
     pitch: 0,
     description: 'Bandingkan gradien suhu termal daratan MODIS LST (Kiri) dengan klasifikasi tutupan lahan ESA WorldCover 10m (Kanan).',
-    left: { productId: 'gee-lst-day', year: '2024' },
+    left: { productId: 'gee-lst-day', year: '2024-08-01' },
     right: { productId: 'gee-landcover', year: '2021' }
+  },
+  {
+    id: 'elnino-vs-lanina-thermal',
+    name: 'Anomali Iklim (El Niño 2023 vs La Niña 2022)',
+    locationName: 'Jawa & Nusa Tenggara',
+    center: [112.5, -7.8],
+    zoom: 7.5,
+    pitch: 0,
+    description: 'Bandingkan suhu permukaan puncak kemarau kering ekstrem El Niño 2023 (Kiri) vs kemarau basah La Niña 2022 (Kanan).',
+    left: { productId: 'gee-lst-day', year: '2023-08-01' },
+    right: { productId: 'gee-lst-day', year: '2022-08-01' }
   }
 ];
 
@@ -533,15 +544,15 @@ export class SwipeCompareManager {
 
   private buildWmsTileUrl(product: PikselProduct, year: string): string {
     if (product.id === 'gee-lst-day') {
-      const time = `${year}-05-01`;
+      const time = year.includes('-') ? year : `${year}-08-01`;
       return `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=MODIS_Terra_L3_Land_Surface_Temp_Day_8Day&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=true&HEIGHT=256&WIDTH=256&TIME=${time}&BBOX={bbox-epsg-3857}`;
     }
     if (product.id === 'gee-lst-night') {
-      const time = `${year}-05-01`;
+      const time = year.includes('-') ? year : `${year}-08-01`;
       return `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=MODIS_Terra_L3_Land_Surface_Temp_Night_8Day&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=true&HEIGHT=256&WIDTH=256&TIME=${time}&BBOX={bbox-epsg-3857}`;
     }
     if (product.id === 'gee-chirps') {
-      const time = `${year}-08-01`;
+      const time = year.includes('-') ? year : `${year}-08-01`;
       return `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&LAYERS=IMERG_Precipitation_Rate&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TIME=${time}&BBOX={bbox-epsg-3857}`;
     }
     if (product.id === 'gee-landcover') {

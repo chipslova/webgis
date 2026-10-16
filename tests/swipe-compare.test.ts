@@ -87,4 +87,27 @@ describe('Swipe / Split-Screen Comparison Mode', () => {
     manager.activate();
     expect(manager.isActive()).toBe(false);
   });
+
+  it('should render rich seasonal options in UI when GEE product is selected', () => {
+    document.body.innerHTML = '<div id="map"></div>';
+    const manager = new SwipeCompareManager(mockMap);
+    (manager as any).isCompareActive = true;
+    manager.setLeftConfig({ productId: 'gee-lst-day', year: '2024-08-01' });
+    manager.setRightConfig({ productId: 'gee-chirps', year: '2024-01-01' });
+
+    const { SwipeCompareUI } = require('../src/ui/swipe-compare-ui');
+    const ui = new SwipeCompareUI(manager);
+    ui.render();
+
+    const leftSelect = document.getElementById('swipe-left-year') as HTMLSelectElement;
+    expect(leftSelect).not.toBeNull();
+    const options = Array.from(leftSelect.options).map((o) => o.value);
+    expect(options).toContain('2024-08-01');
+    expect(options).toContain('2024-01-01');
+    expect(leftSelect.value).toBe('2024-08-01');
+
+    const leftBadge = document.querySelector('.sc-map-badge-left .sc-badge-year');
+    expect(leftBadge?.textContent).toContain('Kemarau');
+  });
 });
+

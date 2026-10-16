@@ -53,6 +53,11 @@ export type PikselLegend = ContinuousLegend | CategoricalLegend | NaturalLegend;
 
 export type ProductCategory = 'geomad' | 'indices' | 'quality' | 'landsat' | 'hazard' | 'gee' | 'other';
 
+export interface ProductTimeOption {
+  value: string;
+  label: string;
+}
+
 export interface PikselProduct {
   id: string;
   name: string;
@@ -62,6 +67,7 @@ export interface PikselProduct {
   timeEnabled?: boolean;
   timeMode?: 'annual' | 'year-range' | 'none';
   availableYears?: string[];
+  timeOptions?: ProductTimeOption[];
   serviceUrl: string;
   description: string;
   badge: string;
@@ -690,6 +696,26 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
 
 export const GEE_YEARS = ['2026', '2025', '2024', '2023', '2022', '2021', '2020'];
 
+export const GEE_LST_TIME_OPTIONS: ProductTimeOption[] = [
+  { value: '2024-08-01', label: '☀️ Kemarau (Agu 2024)' },
+  { value: '2024-04-01', label: '🌤️ Pancaroba (Apr 2024)' },
+  { value: '2024-01-01', label: '🌧️ Musim Hujan (Jan 2024)' },
+  { value: '2023-08-01', label: '🔥 El Niño Kering (Agu 2023)' },
+  { value: '2023-01-01', label: '🌧️ Musim Hujan (Jan 2023)' },
+  { value: '2022-08-01', label: '🌊 La Niña Basah (Agu 2022)' },
+  { value: '2021-08-01', label: '☀️ Kemarau (Agu 2021)' },
+  { value: '2020-08-01', label: '☀️ Kemarau (Agu 2020)' }
+];
+
+export const GEE_CHIRPS_TIME_OPTIONS: ProductTimeOption[] = [
+  { value: '2024-08-15', label: '☀️ Puncak Kemarau (Agu 2024)' },
+  { value: '2024-01-15', label: '🌧️ Puncak Hujan (Jan 2024)' },
+  { value: '2023-08-15', label: '🔥 Puncak El Niño (Agu 2023)' },
+  { value: '2023-01-15', label: '🌧️ Musim Hujan (Jan 2023)' },
+  { value: '2022-08-15', label: '🌊 La Niña Basah (Agu 2022)' },
+  { value: '2021-01-15', label: '🌧️ Puncak Hujan (Jan 2021)' }
+];
+
 export const GEE_COMPARE_PRODUCTS: PikselProduct[] = [
   {
     id: 'gee-lst-day',
@@ -700,6 +726,7 @@ export const GEE_COMPARE_PRODUCTS: PikselProduct[] = [
     timeEnabled: true,
     timeMode: 'annual',
     availableYears: GEE_YEARS,
+    timeOptions: GEE_LST_TIME_OPTIONS,
     minZoom: 3,
     serviceUrl: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi',
     description: 'Citra suhu permukaan daratan (Land Surface Temperature) siang hari bebas awan komposit 8-harian dari satelit NASA MODIS.',
@@ -726,6 +753,7 @@ export const GEE_COMPARE_PRODUCTS: PikselProduct[] = [
     timeEnabled: true,
     timeMode: 'annual',
     availableYears: GEE_YEARS,
+    timeOptions: GEE_LST_TIME_OPTIONS,
     minZoom: 3,
     serviceUrl: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi',
     description: 'Citra suhu permukaan daratan malam hari komposit 8-harian dari satelit NASA MODIS, menonjolkan retensi panas malam hari.',
@@ -752,6 +780,7 @@ export const GEE_COMPARE_PRODUCTS: PikselProduct[] = [
     timeEnabled: true,
     timeMode: 'annual',
     availableYears: GEE_YEARS,
+    timeOptions: GEE_CHIRPS_TIME_OPTIONS,
     minZoom: 3,
     serviceUrl: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi',
     description: 'Estimasi presipitasi curah hujan satelit beresolusi 0.05° (~5 km) dari gabungan stasiun iklim dan data inframerah satelit.',

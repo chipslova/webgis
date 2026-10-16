@@ -498,10 +498,13 @@ export class GEEPanelUI {
     document.getElementById('btn-focus-gee-indonesia')?.addEventListener('click', () => this.geeLoader.flyToIndonesia());
 
     const openSwipeCompare = (leftProd: string = 'gee-lst-day', rightProd: string = 'gee-lst-night') => {
-      const periodSelect = document.getElementById('gee-period-select') as HTMLSelectElement | null;
-      let yr = '2024';
-      if (periodSelect && periodSelect.value && periodSelect.value.includes('-')) {
-        yr = periodSelect.value.slice(0, 4);
+      let yr = '2024-08-01';
+      if (leftProd === 'gee-chirps' || rightProd === 'gee-chirps') {
+        const precipSelect = document.getElementById('gee-precip-period-select') as HTMLSelectElement | null;
+        if (precipSelect?.value) yr = precipSelect.value;
+      } else {
+        const periodSelect = document.getElementById('gee-period-select') as HTMLSelectElement | null;
+        if (periodSelect?.value) yr = periodSelect.value;
       }
       window.dispatchEvent(new CustomEvent('webgis:open-swipe-compare', {
         detail: {
