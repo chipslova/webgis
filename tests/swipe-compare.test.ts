@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi } from 'vitest';
 import { SwipeCompareManager, SWIPE_PRESETS } from '../src/tools/swipe-compare';
+import { SwipeCompareUI } from '../src/ui/swipe-compare-ui';
 
 describe('Swipe / Split-Screen Comparison Mode', () => {
   const mockMap: any = {
@@ -95,7 +96,6 @@ describe('Swipe / Split-Screen Comparison Mode', () => {
     manager.setLeftConfig({ productId: 'gee-lst-day', year: '2024-08-01' });
     manager.setRightConfig({ productId: 'gee-chirps', year: '2024-01-01' });
 
-    const { SwipeCompareUI } = require('../src/ui/swipe-compare-ui');
     const ui = new SwipeCompareUI(manager);
     ui.render();
 

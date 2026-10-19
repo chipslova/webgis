@@ -46,6 +46,10 @@ describe('GeocoderTool', () => {
     };
 
     geocoder = new GeocoderTool(mockMap);
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => []
+    } as any);
   });
 
   afterEach(() => {
