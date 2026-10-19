@@ -474,7 +474,8 @@ export class GEELoader {
     }
 
     // --- 1. OFFICIAL NASA GIBS OGC WMS: DAYTIME LST RASTER LAYER (FALLBACK) ---
-    const dayWmsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=MODIS_Terra_L3_Land_Surface_Temp_Day_8Day&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=true&HEIGHT=256&WIDTH=256&TIME=2024-05-01&BBOX={bbox-epsg-3857}`;
+    const lstTime = this.currentParams?.start || '2024-08-01';
+    const dayWmsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:3857&LAYERS=MODIS_Terra_L3_Land_Surface_Temp_8Day_Day&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=true&HEIGHT=256&WIDTH=256&TIME=${lstTime}&BBOX={bbox-epsg-3857}`;
     const daySourceId = 'gee-modis-day-wms-source';
     const dayLayerId = 'gee-modis-day-wms-layer';
     
@@ -501,7 +502,7 @@ export class GEELoader {
     }
 
     // --- 2. OFFICIAL NASA GIBS OGC WMS: NIGHTTIME LST RASTER LAYER (FALLBACK) ---
-    const nightWmsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=MODIS_Terra_L3_Land_Surface_Temp_Night_8Day&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=true&HEIGHT=256&WIDTH=256&TIME=2024-05-01&BBOX={bbox-epsg-3857}`;
+    const nightWmsUrl = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:3857&LAYERS=MODIS_Terra_L3_Land_Surface_Temp_8Day_Night&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=true&HEIGHT=256&WIDTH=256&TIME=${lstTime}&BBOX={bbox-epsg-3857}`;
     const nightSourceId = 'gee-modis-night-wms-source';
     const nightLayerId = 'gee-modis-night-wms-layer';
     

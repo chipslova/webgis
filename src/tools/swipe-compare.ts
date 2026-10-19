@@ -545,11 +545,11 @@ export class SwipeCompareManager {
   private buildWmsTileUrl(product: PikselProduct, year: string): string {
     if (product.id === 'gee-lst-day') {
       const time = year.includes('-') ? year : `${year}-08-01`;
-      return `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=MODIS_Terra_L3_Land_Surface_Temp_Day_8Day&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=true&HEIGHT=256&WIDTH=256&TIME=${time}&BBOX={bbox-epsg-3857}`;
+      return `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:3857&LAYERS=MODIS_Terra_L3_Land_Surface_Temp_8Day_Day&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=true&HEIGHT=256&WIDTH=256&TIME=${time}&BBOX={bbox-epsg-3857}`;
     }
     if (product.id === 'gee-lst-night') {
       const time = year.includes('-') ? year : `${year}-08-01`;
-      return `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=MODIS_Terra_L3_Land_Surface_Temp_Night_8Day&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=true&HEIGHT=256&WIDTH=256&TIME=${time}&BBOX={bbox-epsg-3857}`;
+      return `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:3857&LAYERS=MODIS_Terra_L3_Land_Surface_Temp_8Day_Night&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=true&HEIGHT=256&WIDTH=256&TIME=${time}&BBOX={bbox-epsg-3857}`;
     }
     if (product.id === 'gee-chirps') {
       const time = year.includes('-') ? year : `${year}-08-01`;

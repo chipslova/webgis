@@ -207,10 +207,14 @@ export default async function handler(req: any, res: any) {
 
   // Graceful response when GEE key is pending configuration in Vercel environment variables
   // Visual raster rendered via NASA GIBS WMS (1 km), while vector baseline uses precomputed regional interpolation
+  const gibsLayer = isDay ? 'MODIS_Terra_L3_Land_Surface_Temp_8Day_Day' : 'MODIS_Terra_L3_Land_Surface_Temp_8Day_Night';
+  const tileUrlTemplate = `https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&CRS=EPSG:3857&LAYERS=${gibsLayer}&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=true&HEIGHT=256&WIDTH=256&TIME=${start}&BBOX={bbox-epsg-3857}`;
+
   res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
   return sendJson(200, {
     status: 'fallback',
     isFallback: true,
+    tileUrlTemplate,
     message: 'Kunci GEE belum dikonfigurasi. Citra raster termal ditampilkan via NASA GIBS WMS (1 km), kalkulasi vektor menggunakan model aproksimasi regional ~50 km.',
     dataset: 'NASA LP DAAC MODIS LST (MOD11A2 / MYD11A2) via NASA GIBS WMS',
     satellite,
