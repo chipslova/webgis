@@ -422,9 +422,6 @@ export class AIAssistantDockUI {
               const info = layerNames[a.args.layerId] || { label: a.args.layerId, icon: '📑' };
               label = `Lapisan: ${info.label}`;
               icon = info.icon;
-            } else if (a.name === 'filterStations') {
-              label = `Filter Stasiun: "${a.args.query || 'Semua'}"`;
-              icon = '🌦️';
             }
             return `
               <button type="button" class="ai-action-badge" data-action-idx="${idx}" title="Klik untuk menerapkan ulang aksi ini pada peta">

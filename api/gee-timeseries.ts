@@ -185,65 +185,21 @@ export default async function handler(req: any, res: any) {
     }
   }
 
-  // Fallback if no keys
+  // When GEE_SERVICE_ACCOUNT_KEY is not configured: do NOT produce simulated / fake numbers.
+  // Return honest unconfigured status with empty data array and clear guidance.
   if (satellite === 'precipitation') {
-    const dates: Array<{ date: string; precip: number }> = [];
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const diffMs = end.getTime() - start.getTime();
-    const days = Math.min(31, Math.max(1, Math.round(diffMs / (1000 * 3600 * 24))));
-    const isWetSeason = (start.getUTCMonth() >= 10 || start.getUTCMonth() <= 2);
-    const isElNino = startDate.includes('2023');
-    const baseMean = isWetSeason ? 16.5 : (isElNino ? 1.4 : 3.8);
-
-    for (let i = 0; i < days; i++) {
-      const cur = new Date(start.getTime() + i * 24 * 3600 * 1000);
-      const seed = Math.sin(lat * 7.5 + lon * 3.2 + i * 0.85);
-      const dayPrecip = Math.max(0, Number((baseMean + seed * (baseMean * 0.75)).toFixed(1)));
-      dates.push({
-        date: cur.toISOString().split('T')[0],
-        precip: dayPrecip
-      });
-    }
-
     return sendJson(200, {
-      status: 'simulated',
-      source: 'UCSB-CHG/CHIRPS/DAILY (GEE Serverless Compute)',
+      status: 'unconfigured',
+      message: 'Kunci GEE_SERVICE_ACCOUNT_KEY belum dikonfigurasi di server untuk komputasi CHIRPS Precipitation. Visualisasi raster peta tetap aktif via layer satelit.',
       point: [lon, lat],
-      data: dates
-    });
-  }
-
-  // Fallback climatology for MODIS LST when GEE_SERVICE_ACCOUNT_KEY is pending
-  // Jakarta (coastal, urban heat island): ~34-36°C day, ~25-27°C night
-  // Bandung (highland plateau, lapse rate): ~21-23°C day, ~16-18°C night
-  const dates: Array<{ date: string; day_c: number; night_c: number }> = [];
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  const diffMs = end.getTime() - start.getTime();
-  const days = Math.min(31, Math.max(1, Math.round(diffMs / (1000 * 3600 * 24))));
-
-  // Elevation and coastal approximation from coordinates
-  const isHighland = lat < -6.8 && lon > 107.5; // Bandung plateau region
-  const baseDay = isHighland ? 21.8 : 34.6;
-  const baseNight = isHighland ? 16.4 : 25.8;
-
-  for (let i = 0; i < days; i++) {
-    const cur = new Date(start.getTime() + i * 24 * 3600 * 1000);
-    const dayVariation = Number((Math.sin(i * 0.4 + lat) * 0.8).toFixed(1));
-    const nightVariation = Number((Math.cos(i * 0.4 + lon) * 0.5).toFixed(1));
-
-    dates.push({
-      date: cur.toISOString().split('T')[0],
-      day_c: Number((baseDay + dayVariation).toFixed(1)),
-      night_c: Number((baseNight + nightVariation).toFixed(1))
+      data: []
     });
   }
 
   return sendJson(200, {
-    status: 'simulated',
-    source: 'NASA LP DAAC MODIS LST (MOD11A2/MYD11A2 Climatological Model)',
+    status: 'unconfigured',
+    message: 'Kunci GEE_SERVICE_ACCOUNT_KEY belum dikonfigurasi di server untuk time-series MODIS LST. Visualisasi raster peta harian tetap aktif via NASA GIBS WMS (1 km).',
     point: [lon, lat],
-    data: dates
+    data: []
   });
 }

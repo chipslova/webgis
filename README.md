@@ -10,7 +10,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.10.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-261%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-269%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
   <img src="docs/preview.png" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
@@ -72,17 +72,17 @@ Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit 
   * **Kerapatan Pengamatan** (*Observation Density*): Statistik jumlah scene bebas awan per piksel.
 * **Preset Pantauan Prioritas & Karhutla**: Navigasi 1-klik ke kawasan vulkanik Bromo & Merapi, IKN Nusantara, Danau Toba, Dataran Banjir Citarum, serta hotspot Karhutla di **Lahan Gambut Sebangau (Palangka Raya)** dan **Pesisir Riau (Semenanjung Kampar)**.
 * **Penyesuaian Filter Visual Real-Time**: Kontrol non-destruktif *Brightness* (kecerahan), *Contrast* (kontras), dan *Saturation* (kejenuhan warna) langsung pada kanvas WebGL.
-* **Landsat 9 Surface Reflectance (30m)**: Komposit multispektral USGS/NASA (2022–2025).
+* **Landsat 9 Surface Reflectance (30m)**: Komposit multispektral USGS/NASA (2021–2026).
 * **Pemodelan Bahaya Banjir (Flood Hazard)**: Klasifikasi periode ulang banjir (`flood_hazard_rp02` & `rp10`) untuk wilayah studi prioritas.
 * **Grid Indeks Open Data Cube (ODC)**: Hamparan interaktif 1.631 batas ubin (*tile boundaries*) ODC di seluruh Indonesia.
 
-### 🌍 3. GEE Live & Sampling Piksel Satelit Gratis
+### 🌍 3. GEE Live & Sampling Piksel Satelit
 * **Sampling Piksel Client-Side (Tanpa Setup Akun)**: Langsung mengekstraksi nilai piksel dari ubin citra Sentinel-2 10m & cuaca real-time Open-Meteo tanpa memerlukan akun berbayar atau konfigurasi server.
-* **Integrasi Google Earth Engine Asli (Opsional)**: Panduan 3-langkah transparan untuk menghubungkan Service Account Google Cloud / GEE resmi via env var Vercel (`GEE_CLIENT_EMAIL` & `GEE_PRIVATE_KEY` / `GEE_SERVICE_ACCOUNT_KEY`).
+* **Integrasi Google Earth Engine Asli (Opsional)**: Panduan transparan untuk menghubungkan Service Account Google Cloud / GEE resmi via env var Vercel (`GEE_SERVICE_ACCOUNT_KEY`).
 * **NASA MODIS Land Surface Temp (LST 1 km)**: Ubin gradien termal suhu permukaan bumi kontinu ($10^\circ\text{C} \to 42^\circ\text{C}+$) via NASA GIBS WMS dengan *ocean masking* transparan.
-* **Curah Hujan Harian (CHIRPS (GEE))**: Lapisan presipitasi satelit harian global dengan palet warna kontras tinggi (mm/jam) dari resolusi 0.1°.
-* **Titik Pengamatan Referensi LST**: Titik pantau (DEMO) dengan simulasi anomali suhu siang/malam (*diurnal delta*).
-* **Tutupan Lahan & Elevasi SRTM**: Sentinel-2 10m LULC (9 kelas) dan kontur elevasi USGS SRTM 30m.
+* **Curah Hujan Harian (CHIRPS (GEE))**: Lapisan presipitasi satelit harian global dengan palet warna kontras tinggi (mm/hari) dari resolusi 0.05° (~5.5 km).
+* **Telemetri Suhu Titik & Presipitasi**: Ekstraksi komposit satelit secara real-time via backend compute serverless GEE / NASA GIBS.
+* **Tutupan Lahan & Elevasi SRTM**: ESA WorldCover 10m LULC (11 kelas) dan mesh elevasi Terrarium 3D.
 
 ### 📈 4. Analisis Geospasial & Grafik Waktu-Nyata
 * **Grafik Runtun Waktu Musiman (Harmonic Time-Series)**: Visualisasi kurva suhu permukaan LST vs simulasi suhu udara 2m NOAA CFSv2 dengan tabel data yang ramah aksesibilitas (*screen-reader friendly*).
@@ -144,7 +144,7 @@ graph TD
         MM -->|NASA GIBS WMS| NASA["NASA GIBS Earthdata Cloud"]
         MM -->|Vector & Basemap Tiles| BasemapSrc["Esri / OpenFreeMap / BIG RBI Tiles"]
         MM -->|Raster DEM Mesh| AWSDEM["AWS Terrarium 30m Global DEM"]
-        MM -->|Lazy Asynchronous Fetch| LocalData["/data/*.geojson (GEE Baseline & Stations)"]
+        MM -->|Lazy Asynchronous Fetch| LocalData["/data/*.geojson (GeoJSON Data Layers)"]
     end
 
     subgraph Penyimpanan_Sinkronisasi["Sinkronisasi & Status"]
@@ -157,9 +157,9 @@ graph TD
 ### Keamanan & Efisiensi Sistem
 * **Perlindungan Endpoint Serverless (Rate Limiting)**: Pelindung sliding window in-memory pada seluruh endpoint serverless (`/api/gee-zonal-stats`, `/api/gee-lst-tiles`, `/api/wms-proxy`) dengan header `Retry-After`, `X-RateLimit-*`, dan respons status 429 untuk mencegah pemborosan kuota compute GEE maupun scraping berlebihan.
 * **Pertahanan XSS Mendalam (Defense-in-Depth)**: Sanitasi string HTML yang ketat pada seluruh input GeoJSON, nama file, dan popover, diperkuat dengan header HTTP Content-Security-Policy (CSP) di `vercel.json`.
-* **Efisiensi Ukuran Berkas**: Dataset GeoJSON statis dimuat secara *lazy-loading* via HTTP asinkron, menjaga ukuran berkas JavaScript inti tetap ramping (~263 KB / ~70 KB gzipped) dengan pemisahan *chunk* modular untuk MapLibre GL, Turf.js, dan PMTiles.
+* **Efisiensi Ukuran Berkas**: Pemisahan chunk modular cerdas (MapLibre GL, Turf.js, UI, Core) menjaga ukuran bundle teroptimasi (~525 KB core chunk / ~145 KB gzipped).
 * **Hirarki Tumpukan Lapisan Deterministik**: Fungsi terpusat `enforceLayerOrder()` menjamin visualisasi selalu konsisten pada setiap perpindahan peta dasar:
-  $$\text{Pengukuran/Buffer} \to \text{Vektor GeoJSON Kustom} \to \text{Titik Stasiun POI} \to \text{Grid ODC} \to \text{Raster LST GEE} \to \text{WMS Piksel} \to \text{Peta Dasar}$$
+  $$\text{Pengukuran/Buffer} \to \text{Vektor GeoJSON Kustom} \to \text{Grid ODC} \to \text{Raster LST GEE} \to \text{WMS Piksel} \to \text{Peta Dasar}$$
 * **Aksesibilitas & Pembaca Layar**: Dukungan penuh navigasi keyboard, region `aria-live` untuk pengumuman perubahan status peta, serta atribut ARIA lengkap pada seluruh panel laci dan tab.
 
 ---
@@ -170,13 +170,12 @@ graph TD
 | :--- | :--- | :--- | :--- | :--- |
 | **Sentinel-2 GeoMAD** | BIG Piksel / ESA | 10 meter | 2017 – 2025 | OGC WMS 1.3.0 (PNG / Edge Proxy) |
 | **Indeks Spektral (NDVI/NDWI/NDBI)** | Open Data Cube / Esri 10m LULC | 10 meter | Komposit Tahunan & Live | OGC WMS 1.3.0 / ImageServer |
-| **Landsat 9 Multispektral** | USGS / NASA | 30 meter | 2022 – 2025 | OGC WMS 1.3.0 |
+| **Landsat 9 Multispektral** | USGS / NASA | 30 meter | 2021 – 2026 | OGC WMS 1.3.0 |
 | **Model Bahaya Banjir** | BIG Hidrologi | 10 meter | Wilayah Studi Prioritas | OGC WMS 1.3.0 |
 | **MODIS Land Surface Temp** | NASA LP DAAC (MOD11A2 / MYD11A2) | 1.000 meter (1 km) | 2000 – Sekarang (8-Day) | NASA GIBS WMS & GEE Serverless Compute |
+| **Curah Hujan CHIRPS** | UCSB Climate Hazards Group | 0.05° (~5.5 km) | 1981 – Sekarang | GEE Serverless Compute & WMS |
 | **Sampling Piksel Satelit** | Sentinel-2 / Open-Meteo | 10 meter | Live Client-Side | Canvas Pixel Extraction & REST API |
-| **Stasiun Referensi LST** | MODIS Clear-Sky QA Points | Titik Pengamatan | Baseline Multi-Tahun | GeoJSON (Lazy Fetch) |
-| **SRTM Digital Elevation** | USGS / NASA | 30 meter | Grid DEM Statis | GeoJSON (Lazy Fetch) |
-| **Sentinel-2 10m LULC** | Impact Observatory / ESRI | 10 meter | Komposit 9 Kelas | GeoJSON (Lazy Fetch) |
+| **ESA WorldCover 10m LULC** | ESA / WorldCover Consortium | 10 meter | Komposit 11 Kelas | WMS / ImageServer |
 | **3D Terrarium DEM** | Mapzen / AWS Open Data | Global DEM | Kontinu | Raster DEM TileJSON |
 | **3D Buildings** | OpenFreeMap / OSM | Global Vektor | Kontinu | Vector Tiles |
 | **Rupabumi Indonesia (RBI)** | Badan Informasi Geospasial | Vektor | Skala Nasional | TileJSON / Vector |
@@ -189,7 +188,7 @@ graph TD
 * **Mesin Pemetaan**: [MapLibre GL JS](https://maplibre.org/) (v6.10.0)
 * **Kalkulasi Spasial**: [@turf/turf](https://turfjs.org/) (Modular: `@turf/helpers`, `@turf/length`, `@turf/area`, `@turf/buffer`, `@turf/distance`, `@turf/intersect`, `@turf/difference`, `@turf/union`, `@turf/bbox`, `@turf/boolean-point-in-polygon`)
 * **Protokol Raster / Vektor**: OGC WMS 1.3.0, NASA GIBS WMS, PMTiles, GeoJSON, TileJSON
-* **Framework Pengujian**: [Vitest](https://vitest.dev/) (**237 Unit & Integration Tests** di 34 test suites — 100% Lulus)
+* **Framework Pengujian**: [Vitest](https://vitest.dev/) (**269 Unit & Integration Tests** di 38 test files — 100% Lulus)
 * **Alat Bangun (Build Tool)**: [Vite 6](https://vitejs.dev/)
 * **Package Manager / Runtime**: [Bun](https://bun.sh/)
 

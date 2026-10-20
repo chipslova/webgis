@@ -419,52 +419,6 @@ export class AINavigator {
         break;
       }
 
-      case 'filterStations': {
-        if (!map) return;
-        const query = (args.query || '').toLowerCase().trim();
-        const minElev = args.minElevation !== undefined ? Number(args.minElevation) : null;
-        const maxElev = args.maxElevation !== undefined ? Number(args.maxElevation) : null;
-
-        try {
-          const res = await fetch('/data/gee_cfsv2_stations.geojson');
-          if (res.ok) {
-            const data = await res.json();
-            const matched = data.features?.filter((f: any) => {
-              const p = f.properties || {};
-              const matchName = !query ||
-                (p.name && p.name.toLowerCase().includes(query)) ||
-                (p.province && p.province.toLowerCase().includes(query)) ||
-                (p.island && p.island.toLowerCase().includes(query));
-
-              const elev = p.elevation_m !== undefined ? p.elevation_m : 0;
-              const matchMin = minElev === null || elev >= minElev;
-              const matchMax = maxElev === null || elev <= maxElev;
-
-              return matchName && matchMin && matchMax;
-            });
-
-            if (matched && matched.length > 0) {
-              const first = matched[0];
-              const coords = first.geometry?.coordinates;
-              if (coords) {
-                map.flyTo({
-                  center: coords,
-                  zoom: 11,
-                  pitch: 45,
-                  duration: 2500
-                });
-                showToast(`Ditemukan ${matched.length} stasiun cuaca cocok. Terbang ke ${first.properties?.name || 'stasiun'}...`, 'success', 3500);
-              }
-            } else {
-              showToast(`Tidak ditemukan stasiun yang cocok dengan kriteria "${query}".`, 'warning', 3000);
-            }
-          }
-        } catch (e) {
-          logger.warn('[AINavigator] Failed to filter stations:', e);
-        }
-        break;
-      }
-
       default:
         logger.info('[AINavigator] Unhandled action:', action);
     }

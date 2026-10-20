@@ -159,8 +159,6 @@ export class ActiveLayersUI {
     const customLayers      = this.geojsonLoader.getLayers();
     const hasMeasure        = this.measureTool.hasActiveMeasurement();
 
-    const isGeePoiActive    = this.geeLoader.isLayerActive('poi');
-    const isGeePoiVis       = this.geeLoader.isLayerVisible('poi');
     const isGeeLstActive    = this.geeLoader.isLayerActive('lst');
     const isGeeLstVis       = this.geeLoader.isLayerVisible('lst');
     const isGeeElvActive    = this.geeLoader.isLayerActive('elevation');
@@ -173,7 +171,6 @@ export class ActiveLayersUI {
     let layerCount = 0;
     if (activePiksel) layerCount++;
     if (isPikselGridOn) layerCount++;
-    if (isGeePoiActive) layerCount++;
     if (isGeeLstActive) layerCount++;
     if (isGeeElvActive) layerCount++;
     if (isGeeLcActive) layerCount++;
@@ -268,32 +265,7 @@ export class ActiveLayersUI {
         });
       });
 
-      // 3. GEE POI Observation
-      if (isGeePoiActive) {
-        itemsHtml += this.buildRow({
-          id: 'gee-poi',
-          name: '18 Titik Referensi Termal',
-          meta: 'NASA / GEE · 18 Stasiun',
-          color: '#ef4444',
-          isVisible: isGeePoiVis,
-          opacityPct: 100,
-          eyeBtnClass: 'btn-toggle-gee-poi',
-          removeBtnClass: 'btn-remove-gee-poi',
-          noOpacity: true,
-          details: [
-            { label: 'Sumber', value: 'Google Earth Engine & NASA LP DAAC' },
-            { label: 'Cakupan', value: '18 Titik Referensi Iklim & Perkotaan' },
-          ],
-          legendHtml: `
-            <div class="poi-tags" style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
-              <span class="poi-tag urban-tag" style="font-size: 10px; padding: 2px 6px;">🔴 Urban Core: Monas Jakarta (33.85°C)</span>
-              <span class="poi-tag rural-tag" style="font-size: 10px; padding: 2px 6px;">🟢 Rural / Highland: Hutan IPB & Bandung (21.2°C)</span>
-            </div>
-          `
-        });
-      }
-
-      // 4. Piksel Data Cube Grid
+      // 3. Piksel Data Cube Grid
       if (isPikselGridOn) {
         itemsHtml += this.buildRow({
           id: 'piksel-grid',
@@ -652,12 +624,6 @@ export class ActiveLayersUI {
 
       if (target.closest('.btn-toggle-piksel-visibility')) {
         this.pikselLoader.setLayerVisible(!this.pikselLoader.isLayerVisible());
-        this.render();
-        return;
-      }
-
-      if (target.closest('.btn-toggle-gee-poi')) {
-        this.geeLoader.setLayerVisible('poi', !this.geeLoader.isLayerVisible('poi'));
         this.render();
         return;
       }

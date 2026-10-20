@@ -406,7 +406,6 @@ export class GEEPanelUI {
     applyToggle('toggle-gee-landcover', 'landcover', 'gee-lc-opacity-row', 'gee-lulc-legend');
     applyToggle('toggle-gee-precipitation', 'precipitation', 'gee-precip-opacity-row', 'gee-precip-legend');
     applyToggle('toggle-gee-rainfall', 'precipitation', 'gee-precip-opacity-row', 'gee-precip-legend');
-    applyToggle('toggle-gee-stations', 'stations');
 
     const thermalLegendBox = document.getElementById('gee-thermal-legend-box');
     if (thermalLegendBox) {
@@ -492,7 +491,6 @@ export class GEEPanelUI {
     attachToggle('toggle-gee-lc', 'landcover');
     attachToggle('toggle-gee-precipitation', 'precipitation');
     attachToggle('toggle-gee-rainfall', 'precipitation');
-    attachToggle('toggle-gee-stations', 'stations');
 
     document.getElementById('btn-focus-gee-area')?.addEventListener('click', () => this.geeLoader.flyToStudyArea());
     document.getElementById('btn-focus-gee-indonesia')?.addEventListener('click', () => this.geeLoader.flyToIndonesia());
@@ -676,6 +674,7 @@ export class GEEPanelUI {
       const satSelect = document.getElementById('gee-satellite-select') as HTMLSelectElement | null;
       const satellite = (satSelect?.value || 'terra') as 'terra' | 'aqua';
 
+      let isUnconfigured = false;
       const fetchTemp = async (coords: {lat: number, lon: number}) => {
         const res = await fetch('/api/gee-timeseries', {
           method: 'POST',
@@ -684,6 +683,10 @@ export class GEEPanelUI {
         });
         if (!res.ok) throw new Error('API Error');
         const data = await res.json();
+        if (data.status === 'unconfigured') {
+          isUnconfigured = true;
+          return null;
+        }
         const tsData = data.data || [];
         // Find the most recent valid LST reading in this period
         for (let i = tsData.length - 1; i >= 0; i--) {
@@ -723,16 +726,17 @@ export class GEEPanelUI {
         if (jktSrc) { jktSrc.innerText = `${satLabel} · Live GEE`; jktSrc.style.color = '#10b981'; }
         if (bdgSrc) { bdgSrc.innerText = `${satLabel} · Live GEE`; bdgSrc.style.color = '#10b981'; }
       } else {
-        if (jktEl) jktEl.innerText = jktTemp !== null ? `${jktTemp.toFixed(1)} °C` : 'Berawan (N/A)';
-        if (bdgEl) bdgEl.innerText = bdgTemp !== null ? `${bdgTemp.toFixed(1)} °C` : 'Berawan (N/A)';
+        if (jktEl) jktEl.innerText = jktTemp !== null ? `${jktTemp.toFixed(1)} °C` : (isUnconfigured ? 'N/A' : 'Berawan (N/A)');
+        if (bdgEl) bdgEl.innerText = bdgTemp !== null ? `${bdgTemp.toFixed(1)} °C` : (isUnconfigured ? 'N/A' : 'Berawan (N/A)');
         if (deltaEl) {
           deltaEl.innerText = 'Δ N/A';
           deltaEl.style.color = '#ffffff';
           deltaEl.style.background = '#475569';
           deltaEl.style.borderColor = '#64748b';
         }
-        if (jktSrc) { jktSrc.innerText = `${satLabel} · Terhalang Awan`; jktSrc.style.color = '#fbbf24'; }
-        if (bdgSrc) { bdgSrc.innerText = `${satLabel} · Terhalang Awan`; bdgSrc.style.color = '#fbbf24'; }
+        const fallbackNote = isUnconfigured ? 'Memerlukan GEE Key' : `${satLabel} · Terhalang Awan`;
+        if (jktSrc) { jktSrc.innerText = fallbackNote; jktSrc.style.color = isUnconfigured ? '#94a3b8' : '#fbbf24'; }
+        if (bdgSrc) { bdgSrc.innerText = fallbackNote; bdgSrc.style.color = isUnconfigured ? '#94a3b8' : '#fbbf24'; }
       }
     } catch (err) {
       console.warn('Failed to update thermal contrast:', err);
@@ -771,6 +775,20 @@ export class GEEPanelUI {
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
+
+      if (json?.status === 'unconfigured') {
+        if (cityEl) cityEl.innerText = `📍 ${cityName}`;
+        if (timeEl) {
+          timeEl.innerText = 'NASA GIBS (WMS Aktif)';
+          timeEl.title = 'Layer peta raster aktif via NASA GIBS. Data time-series numerik memerlukan konfigurasi GEE_SERVICE_ACCOUNT_KEY.';
+        }
+        if (tempEl) tempEl.innerText = '--.- °C';
+        if (dayEl) dayEl.innerText = '--.- °C';
+        if (nightEl) nightEl.innerText = '--.- °C';
+        if (deltaEl) deltaEl.innerText = 'Key Required';
+        return;
+      }
+
       const records: Array<{ date: string; day_c: number | null; night_c: number | null }> = json?.data || [];
       const validRecords = records.filter(r => r.day_c !== null || r.night_c !== null);
       const validDayRecords = records.filter(r => r.day_c !== null && r.day_c !== undefined);
@@ -920,6 +938,18 @@ export class GEEPanelUI {
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
+
+      if (json?.status === 'unconfigured') {
+        if (cityEl) cityEl.innerText = `📍 ${cityName}`;
+        if (timeEl) {
+          timeEl.innerText = 'NASA GIBS / GEE Key Required';
+          timeEl.title = 'Raster peta presipitasi aktif. Time-series numerik memerlukan GEE_SERVICE_ACCOUNT_KEY.';
+        }
+        if (valEl) valEl.innerText = '--.- mm/hari';
+        if (statusPill) statusPill.innerText = 'Raster Aktif';
+        return;
+      }
+
       const records: Array<{ date: string; precip: number }> = json?.data || [];
 
       if (records.length > 0) {

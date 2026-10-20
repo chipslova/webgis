@@ -454,20 +454,6 @@ export class CommandPaletteUI {
         }
       },
       {
-        id: 'tool-gee-stations',
-        category: 'tools',
-        categoryLabel: '⚡ Alat & Analisis',
-        title: '18 Titik Referensi Observasi LST & Iklim',
-        subtitle: 'Tampilkan jaringan 18 titik pemantau suhu permukaan di kota & regional Indonesia',
-        icon: '📍',
-        keywords: ['stasiun', 'titik', 'stations', 'observasi', 'poi', 'kota', 'jakarta', 'ikn', 'lembang'],
-        action: () => {
-          this.sidebarUI.setActiveTab('gee');
-          this.geeLoader?.toggleLayer('stations', true);
-          showToast('18 Titik Referensi Observasi LST ditampilkan', 'info');
-        }
-      },
-      {
         id: 'tool-terrain-3d',
         category: 'tools',
         categoryLabel: '⚡ Alat & Analisis',

@@ -127,27 +127,6 @@ export const GIS_FUNCTION_DECLARATIONS = [
     }
   },
   {
-    name: 'filterStations',
-    description: 'Filter or search the CFSv2 meteorological / weather observation stations dataset.',
-    parameters: {
-      type: 'OBJECT',
-      properties: {
-        query: {
-          type: 'STRING',
-          description: 'Text query to filter stations by name, island, or province (e.g. "Jawa", "Sumatera", "Stasiun", "Klimatologi", "Monas")'
-        },
-        minElevation: {
-          type: 'NUMBER',
-          description: 'Minimum station elevation in meters (optional)'
-        },
-        maxElevation: {
-          type: 'NUMBER',
-          description: 'Maximum station elevation in meters (optional)'
-        }
-      }
-    }
-  },
-  {
     name: 'activateTool',
     description: 'Open or activate a specific built-in tool or UI panel on the WebGIS.',
     parameters: {
@@ -420,20 +399,17 @@ DAFTAR AKSI (ACTIONS) YANG TERSEDIA:
    Pilihan (16 basemap): 'esri-imagery', 'esri-streets', 'big-rbi', 'osm-standard', 'esri-topographic', 'esri-dark-grey', 'open-topo', 'esri-relief', 'esri-natgeo', 'esri-ocean', 'esri-light-grey', 'openfreemap-liberty', 'openfreemap-positron', 'esri-clarity', 'osm-humanitarian', 'esri-colorpencil'
 4. "toggleProjection"
    args: { "projection": "globe" | "mercator" }
-5. "filterStations"
-   args: { "query": string }
-6. "activateTool"
+5. "activateTool"
    args: { "toolName": "measure" | "spatial-analysis" | "point-inspector" | "swipe-compare" | "attribute-table" | "basemap-gallery" | "reset-view" | "start-tour" }
 
 KATALOG FITUR WEBGIS:
 - 16 Peta Dasar aktif (Satelit Esri, Jalan, BIG RBI, Topografi, Vektor OpenFreeMap, Relief, Batimetri laut, dll).
 - 3D Terrain elevation (AWS Terrarium) dan ekstrusi volume gedung 3D planet (OpenFreeMap).
 - Citra Satelit Sentinel-2 & Landsat-9 BIG Piksel: RGB, False Color NIR, NDVI (vegetasi), NDWI (air), NDBI (bangunan), NDMI (kelembapan), Bahaya Banjir.
-- Google Earth Engine: LST thermal harian MODIS & Tutupan Lahan Esri 10m LULC.
-- Jaringan 18 Stasiun Iklim Observasi (Data ilustrasi/DEMO).
+- Google Earth Engine & NASA GIBS: LST thermal harian MODIS, Presipitasi Hujan GPM IMERG, & Tutupan Lahan Esri 10m LULC.
 - Alat Ukur (Measure): Jarak lintasan, luas poligon, dan profil elevasi ketinggian permukaan tanah (mdpl).
 - Tirai Pembanding (Swipe): Split-screen membandingkan 2 basemap atau layer citra secara langsung.
-- Point Inspector: Klik sembarang titik di peta untuk melihat koordinat WGS84, ketinggian elevasi mdpl (DEM), status layer aktif, serta atribut stasiun/vektor yang diklik.
+- Point Inspector: Klik sembarang titik di peta untuk melihat koordinat WGS84, ketinggian elevasi mdpl (DEM), serta status layer aktif.
 - Impor/Ekspor: KML, GeoJSON, Shapefile, CSV, dan Ekspor Cetak Peta PNG/PDF.
 
 ${contextDescription}`;
@@ -580,8 +556,6 @@ ${contextDescription}`;
             replyText = `Mengalihkan proyeksi peta ke **${first.args.projection === 'globe' ? 'Bola Bumi 3D' : 'Mercator 2D'}**...`;
           } else if (first.name === 'activateTool') {
             replyText = `Membuka alat spasial **${first.args.toolName}**...`;
-          } else if (first.name === 'filterStations') {
-            replyText = `Memfilter stasiun cuaca dengan kata kunci **"${first.args.query || ''}"**...`;
           } else {
             replyText = 'Menjalankan perintah navigasi peta...';
           }
