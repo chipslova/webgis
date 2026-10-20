@@ -109,5 +109,34 @@ describe('Swipe / Split-Screen Comparison Mode', () => {
     const leftBadge = document.querySelector('.sc-map-badge-left .sc-badge-year');
     expect(leftBadge?.textContent).toContain('Kemarau');
   });
+
+  it('should support accessible keyboard navigation on the swipe divider handle', () => {
+    document.body.innerHTML = '<div id="map"></div>';
+    const manager = new SwipeCompareManager(mockMap);
+    (manager as any).isCompareActive = true;
+    manager.setSliderPosition(50);
+
+    const ui = new SwipeCompareUI(manager);
+    ui.render();
+
+    const handle = document.getElementById('swipe-divider-handle');
+    expect(handle).not.toBeNull();
+
+    // ArrowLeft should decrease position
+    handle?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }));
+    expect(manager.getSliderPosition()).toBe(48);
+
+    // ArrowRight with shift should increase position by 10
+    handle?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', shiftKey: true }));
+    expect(manager.getSliderPosition()).toBe(58);
+
+    // Home key should go to 0
+    handle?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home' }));
+    expect(manager.getSliderPosition()).toBe(0);
+
+    // End key should go to 100
+    handle?.dispatchEvent(new KeyboardEvent('keydown', { key: 'End' }));
+    expect(manager.getSliderPosition()).toBe(100);
+  });
 });
 

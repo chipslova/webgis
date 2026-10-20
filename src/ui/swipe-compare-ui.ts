@@ -373,8 +373,19 @@ export class SwipeCompareUI {
 
     handle.addEventListener('keydown', (e) => {
       const cur = this.manager.getSliderPosition();
-      if (e.key === 'ArrowLeft') { e.preventDefault(); this.manager.setSliderPosition(cur - 5); }
-      else if (e.key === 'ArrowRight') { e.preventDefault(); this.manager.setSliderPosition(cur + 5); }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        this.manager.setSliderPosition(cur - (e.shiftKey ? 10 : 2));
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        this.manager.setSliderPosition(cur + (e.shiftKey ? 10 : 2));
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        this.manager.setSliderPosition(0);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        this.manager.setSliderPosition(100);
+      }
     });
   }
 }

@@ -75,6 +75,19 @@ export function showToast(
     toast.appendChild(actionBtn);
   }
 
+  // Allow clicking the toast to dismiss it immediately
+  toast.title = 'Klik untuk menutup notifikasi';
+  toast.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('.toast-action-btn')) return;
+    toast.classList.remove('toast-visible');
+    setTimeout(() => {
+      toast.remove();
+      if (container && container.childNodes.length === 0) {
+        container.remove();
+      }
+    }, 200);
+  });
+
   container.appendChild(toast);
 
   // Trigger entrance transition
