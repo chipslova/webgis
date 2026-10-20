@@ -442,12 +442,15 @@ export class PointInspector {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Fixed width for popup
+    const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
     const width = 250;
     const height = 120;
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
 
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, width, height);
 
     const P = { top: 10, right: 10, bottom: 20, left: 25 };
@@ -582,11 +585,15 @@ export class PointInspector {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
     const width = 250;
     const height = 120;
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
 
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, width, height);
 
     const P = { top: 12, right: 10, bottom: 20, left: 25 };

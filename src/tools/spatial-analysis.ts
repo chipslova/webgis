@@ -1,5 +1,7 @@
 import { area } from '@turf/area';
 import { logger } from '../utils/logger';
+export { SpatialIntersectAnalyzer } from './spatial-intersect';
+export type { SpatialOverlayMode, IntersectAnalysisResult } from './spatial-intersect';
 
 export interface LandCoverClassStat {
   code: number;

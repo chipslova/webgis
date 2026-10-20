@@ -3,16 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WebGIS Observasi Bumi Indonesia — Platform Geospasial Independen</title>
+    <title>Digital Earth Indonesia WebGIS — Platform Observasi Geospasial</title>
     
     <!-- Meta & SEO Tags -->
-    <meta name="description" content="Platform WebGIS interaktif independen untuk observasi bumi Indonesia: Sentinel-2 GeoMAD, Landsat 9, pemodelan termal MODIS LST, dan elevasi SRTM 30m via OGC WMS BIG Piksel." />
-    <meta name="keywords" content="WebGIS Indonesia, Citra Satelit, Sentinel-2 GeoMAD, Landsat 9, NDVI, Open Data Cube, BIG Piksel, MODIS LST, SRTM 30m, MapLibre GL" />
+    <meta name="description" content="Platform WebGIS interaktif independen untuk observasi bumi Indonesia: Sentinel-2 GeoMAD, Landsat 9, pemodelan termal MODIS LST, dan elevasi 3D Terrarium via OGC WMS BIG Piksel." />
+    <meta name="keywords" content="Digital Earth Indonesia, WebGIS, Citra Satelit, Sentinel-2 GeoMAD, Landsat 9, NDVI, Open Data Cube, BIG Piksel, MODIS LST, Terrarium 3D, MapLibre GL" />
     <meta name="author" content="chipslova" />
     <meta name="theme-color" content="#070b14" />
     
     <!-- Open Graph / Social Media -->
-    <meta property="og:title" content="WebGIS Observasi Bumi Indonesia — Platform Geospasial Independen" />
+    <meta property="og:title" content="Digital Earth Indonesia WebGIS — Platform Observasi Geospasial" />
     <meta property="og:description" content="Platform WebGIS interaktif independen untuk eksplorasi Sentinel-2 GeoMAD, Landsat 9, studi kasus termal, dan kalkulasi geodesik spasial." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://webgis-three-iota.vercel.app/" />
@@ -22,7 +22,7 @@
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="WebGIS Observasi Bumi Indonesia" />
+    <meta name="twitter:title" content="Digital Earth Indonesia WebGIS" />
     <meta name="twitter:description" content="Platform WebGIS interaktif independen mengonsumsi BIG Piksel OGC WMS, Landsat 9, dan analisis spasial." />
     <meta name="twitter:image" content="https://webgis-three-iota.vercel.app/og-preview.jpg" />
     
@@ -495,10 +495,10 @@
                           <div class="gee-weather-expl">
                             <div class="gee-weather-expl-row">
                               <span class="gee-weather-expl-dot">🟢</span>
-                              <span><strong>100% Google Earth Engine:</strong> Data diekstrak langsung dari koleksi citra satelit NASA MODIS LST (1 km) secara serverless.</span>
+                              <span><strong>Citra Satelit NASA MODIS:</strong> Visualisasi peta kontinu via NASA GIBS WMS (1 km) &amp; komputasi numerik titik via Google Earth Engine API saat terkonfigurasi.</span>
                             </div>
                             <div class="gee-weather-cycle-info">
-                              ℹ️ <strong>Siklus Data:</strong> Menggunakan komposit 8-harian resmi NASA (bebas tutupan awan).
+                              ℹ️ <strong>Siklus Pengamatan:</strong> Komposit 8-harian terkalibrasi NASA Land Processes DAAC.
                             </div>
                           </div>
                         </div>
@@ -776,8 +776,8 @@
                   </summary>
                   <div class="accordion-body" style="padding: 6px 8px; font-size: 10.5px; line-height: 1.45;">
                     <div>• <strong>Peta LST (Suhu):</strong> Merah = Permukaan daratan panas (34°C–40°C+ saat siang/kemarau). Lautan transparan.</div>
-                    <div class="mt-xs">• <strong>Tutupan Lahan (LULC):</strong> Merah = Lahan Terbangun / Perkotaan (Built-Up Area).</div>
-                    <div class="mt-xs">• <strong>Curah Hujan (NASA IMERG):</strong> Biru-Hijau = Hujan ringan/sedang (5–20 mm), Kuning-Merah-Ungu = Hujan lebat/ekstrem (&gt;30 mm/jam).</div>
+                    <div class="mt-xs">• <strong>Tutupan Lahan (LULC):</strong> Merah = Lahan Terbangun / Perkotaan (Built-Up Area · ESA WorldCover).</div>
+                    <div class="mt-xs">• <strong>Curah Hujan (CHIRPS / GPM):</strong> Hijau-Kuning = Hujan ringan/sedang (2.5–15 mm), Oranye-Merah-Ungu = Hujan lebat/ekstrem (&gt;30 mm/hari).</div>
                   </div>
                 </details>
               </div>
