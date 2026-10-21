@@ -195,6 +195,7 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'vector',
     category: 'Esri',
     group: 'canvas',
+    zoomWarning: 'Gaya artistik 400+ layer dengan tekstur pensil. Memerlukan akselerasi GPU & internet stabil.',
     description: 'Gaya peta vektor artistik pensil warna dengan estetika tipografi gambar tangan',
     styleUrl: '/basemap/styles/esri-style-colorpencil.json',
     previewColor: '#e0a96d'

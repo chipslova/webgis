@@ -243,6 +243,19 @@ export class MapManager {
       logger.warn('[MapManager] Map engine event notice:', err);
     });
 
+    this.map.on('styleimagemissing', (e: any) => {
+      const id = e?.id;
+      if (id && this.map && !this.map.hasImage(id)) {
+        try {
+          this.map.addImage(id, {
+            width: 1,
+            height: 1,
+            data: new Uint8Array(4)
+          });
+        } catch (_) {}
+      }
+    });
+
     const canvas = this.map.getCanvas();
     if (canvas) {
       canvas.addEventListener('webglcontextlost', (e) => {
