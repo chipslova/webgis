@@ -47,6 +47,12 @@ describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
       setLayoutProperty: vi.fn(),
       setPaintProperty: vi.fn(),
       flyTo: vi.fn(),
+      getCenter: vi.fn().mockReturnValue({ lng: 110, lat: -7 }),
+      getZoom: vi.fn().mockReturnValue(8),
+      getPitch: vi.fn().mockReturnValue(0),
+      getBearing: vi.fn().mockReturnValue(0),
+      setStyle: vi.fn(),
+      setMaxZoom: vi.fn(),
       getCanvas: vi.fn().mockReturnValue({ style: {} })
     };
 
@@ -164,4 +170,25 @@ describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
     expect(fill2Idx).toBeLessThan(point1Idx);
     expect(line1Idx).toBeLessThan(point1Idx);
   });
+
+  it('should clear active satellite overlay when setBasemap is called to prevent covering the basemap', async () => {
+    const mockPiksel = {
+      getActiveProductId: vi.fn().mockReturnValue('s2-geomad-rgb'),
+      setActiveProduct: vi.fn(),
+      getAllMapLayerIds: () => []
+    };
+    const mockGee = {
+      clearAllLayers: vi.fn(),
+      getAllMapLayerIds: () => []
+    };
+
+    mapManager.setPikselLoader(mockPiksel);
+    mapManager.setGeeLoader(mockGee);
+
+    await mapManager.setBasemap('osm-standard');
+
+    expect(mockPiksel.setActiveProduct).toHaveBeenCalledWith(null);
+    expect(mockGee.clearAllLayers).toHaveBeenCalled();
+  });
 });
+

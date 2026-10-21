@@ -584,6 +584,20 @@ export class MapManager {
 
     this.currentBasemapId = basemapId;
 
+    // Mutually exclusive: When user explicitly selects a basemap,
+    // clear active satellite overlay so the chosen basemap is 100% visible and not covered up
+    if (this.pikselLoaderRef && typeof (this.pikselLoaderRef as any).getActiveProductId === 'function') {
+      if ((this.pikselLoaderRef as any).getActiveProductId()) {
+        (this.pikselLoaderRef as any).setActiveProduct(null);
+      }
+    }
+    if (this.geeLoaderRef && typeof (this.geeLoaderRef as any).clearAllLayers === 'function') {
+      (this.geeLoaderRef as any).clearAllLayers();
+    }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('webgis:basemap-selected', { detail: { basemapId } }));
+    }
+
     // Enforce maxZoom capability constraints on the map viewport
     const effectiveMaxZoom = target.maxZoom !== undefined ? target.maxZoom : 22;
     if (typeof this.map.setMaxZoom === 'function') {

@@ -16,6 +16,7 @@ export class PikselPanelUI {
   };
   private selectedCategory: string = 'all';
   private isEventsBound: boolean = false;
+  private activePresetId: string | null = null;
 
   constructor(pikselLoader: PikselLoader) {
     this.pikselLoader = pikselLoader;
@@ -42,6 +43,13 @@ export class PikselPanelUI {
       this.updateLoadingHUD(state);
       this.updateActiveCardStatus(state);
     });
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('webgis:basemap-selected', () => {
+        this.activePresetId = null;
+        this.render();
+      });
+    }
   }
 
   public render() {
@@ -59,12 +67,15 @@ export class PikselPanelUI {
     const diagnostics = this.pikselLoader.getDiagnostics();
 
     // 1. Presets HTML
-    const presetsHtml = PIKSEL_PRESETS.map((preset: PikselPreset) => `
-      <button class="piksel-preset-chip" data-id="${preset.id}" aria-label="Jelajahi ${preset.name}, ${preset.locationName}" title="${preset.description}">
+    const presetsHtml = PIKSEL_PRESETS.map((preset: PikselPreset) => {
+      const isChipActive = activeProduct !== null && (this.activePresetId === preset.id || activeProduct.id === preset.recommendedProduct);
+      return `
+      <button class="piksel-preset-chip ${isChipActive ? 'active' : ''}" data-id="${preset.id}" aria-label="Jelajahi ${preset.name}, ${preset.locationName}" title="${preset.description}">
         <span class="preset-chip-title">${preset.name}</span>
         <span class="preset-chip-sub">${preset.locationName}</span>
       </button>
-    `).join('');
+      `;
+    }).join('');
 
     // 2. Active Layer Control Box (Prominent & Clear)
     let activeControlHtml = '';
@@ -675,9 +686,21 @@ export class PikselPanelUI {
       if (presetBtn && presetBtn.dataset.id) {
         const preset = PIKSEL_PRESETS.find(p => p.id === presetBtn.dataset.id);
         if (preset) {
-          this.pikselLoader.flyToPreset(preset);
-          const prod = PIKSEL_PRODUCTS.find(p => p.id === preset.recommendedProduct);
-          showToast(`Mengarahkan peta ke ${preset.name} (${prod?.name || 'Citra Satelit'})`, 'info');
+          const currentProd = this.pikselLoader.getActiveProduct();
+          const isSameActive = currentProd && (this.activePresetId === preset.id || currentProd.id === preset.recommendedProduct);
+
+          if (isSameActive) {
+            // Clicking again toggles off preset and returns to clean basemap
+            this.activePresetId = null;
+            this.pikselLoader.setActiveProduct(null);
+            showToast(`Preset dinonaktifkan — kembali ke peta dasar (${preset.name} ditutup)`, 'info');
+          } else {
+            this.activePresetId = preset.id;
+            this.pikselLoader.flyToPreset(preset);
+            const prod = PIKSEL_PRODUCTS.find(p => p.id === preset.recommendedProduct);
+            showToast(`Mengarahkan peta ke ${preset.name} (${prod?.name || 'Citra Satelit'})`, 'info');
+          }
+          this.render();
           if (typeof window !== 'undefined' && window.innerWidth <= 768) {
             window.dispatchEvent(new CustomEvent('webgis:collapse-sidebar-if-mobile'));
           }
@@ -712,6 +735,7 @@ export class PikselPanelUI {
         }
 
         const current = this.pikselLoader.getActiveProduct();
+        this.activePresetId = null;
         if (current?.id === clickedId) {
           this.pikselLoader.setActiveProduct(null);
         } else {

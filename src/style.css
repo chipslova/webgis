@@ -3560,6 +3560,16 @@ html, body, #app {
   transform: translateY(-1px);
 }
 
+.piksel-preset-chip.active {
+  background: rgba(0, 240, 255, 0.16);
+  border-color: #00f0ff;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
+}
+
+.piksel-preset-chip.active .preset-chip-title {
+  color: #00f0ff;
+}
+
 .preset-chip-title {
   font-size: 12px;
   font-weight: 700;
