@@ -47,6 +47,8 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'National',
     group: 'recommended',
+    maxZoom: 16,
+    zoomWarning: 'Tingkat Zoom Maksimum 16 (Cakupan survei skala detail BIG bertahap)',
     description: 'Peta dasar topografi nasional resmi dari Badan Informasi Geospasial (BIG)',
     styleUrl: '/basemap/styles/big-style-rbi.json',
     previewColor: '#4fa8d8',

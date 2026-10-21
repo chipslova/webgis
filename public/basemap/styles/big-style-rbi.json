@@ -14,6 +14,13 @@
   },
   "layers": [
     {
+      "id": "big-rbi-background",
+      "type": "background",
+      "paint": {
+        "background-color": "#c5e2f7"
+      }
+    },
+    {
       "id": "big-rbi-layer",
       "type": "raster",
       "source": "big-rbi-source",
