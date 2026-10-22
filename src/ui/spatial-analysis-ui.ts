@@ -785,7 +785,7 @@ export class SpatialAnalysisUI {
           Dihitung dari model profil spasial wilayah secara offline.
         </div>
         <button id="btn-open-gee-setup-modal" class="btn btn-outline btn-sm aoi-link-btn" style="border-color: rgba(245, 158, 11, 0.45); color: #fbbf24;">
-          ⚙️ Panduan Setup GEE Cloud
+          ℹ️ Info Mesin Komputasi GEE
         </button>
       </div>`;
 

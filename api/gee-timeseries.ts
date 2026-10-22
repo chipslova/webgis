@@ -117,10 +117,11 @@ export default async function handler(req: any, res: any) {
             const raw = f.properties?.precip;
             return {
               date: f.properties?.date,
-              precip: typeof raw === 'number' ? Number(raw.toFixed(1)) : 0
+              precip: typeof raw === 'number' && !isNaN(raw) ? Number(raw.toFixed(1)) : null
             };
           });
 
+          res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=7200');
           return sendJson(200, {
             status: 'success',
             source: 'UCSB-CHG/CHIRPS/DAILY',
@@ -172,6 +173,7 @@ export default async function handler(req: any, res: any) {
           })
           .filter((f) => f.day_c !== null || f.night_c !== null);
 
+        res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=7200');
         return sendJson(200, {
           status: 'success',
           source: collectionId,
@@ -186,11 +188,11 @@ export default async function handler(req: any, res: any) {
   }
 
   // When GEE_SERVICE_ACCOUNT_KEY is not configured: do NOT produce simulated / fake numbers.
-  // Return honest unconfigured status with empty data array and clear guidance.
+  // Return honest unconfigured status with empty data array and visitor-friendly guidance.
   if (satellite === 'precipitation') {
     return sendJson(200, {
       status: 'unconfigured',
-      message: 'Kunci GEE_SERVICE_ACCOUNT_KEY belum dikonfigurasi di server untuk komputasi CHIRPS Precipitation. Visualisasi raster peta tetap aktif via layer satelit.',
+      message: 'Data numerik time-series CHIRPS belum tersedia pada versi demo ini. Visualisasi raster peta tetap aktif via layer satelit.',
       point: [lon, lat],
       data: []
     });
@@ -198,7 +200,7 @@ export default async function handler(req: any, res: any) {
 
   return sendJson(200, {
     status: 'unconfigured',
-    message: 'Kunci GEE_SERVICE_ACCOUNT_KEY belum dikonfigurasi di server untuk time-series MODIS LST. Visualisasi raster peta harian tetap aktif via NASA GIBS WMS (1 km).',
+    message: 'Data numerik time-series MODIS LST belum tersedia pada versi demo ini. Visualisasi raster peta harian tetap aktif via NASA GIBS WMS (1 km).',
     point: [lon, lat],
     data: []
   });

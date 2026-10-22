@@ -10,7 +10,7 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 [![MapLibre GL](https://img.shields.io/badge/MapLibre_GL-v6.10.0-396afc?style=for-the-badge&logo=maplibre)](https://maplibre.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.2+-fbf0df?style=for-the-badge&logo=bun)](https://bun.sh/)
-[![Vitest](https://img.shields.io/badge/Vitest-270%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-275%20Tests%20Passing-10b981?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 
 <p align="center">
   <img src="docs/preview.png" alt="Digital Earth Indonesia WebGIS Interface" width="100%" style="border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" />
@@ -82,11 +82,11 @@ Aplikasi menghubungkan langsung layanan data resmi OGC WMS BIG Piksel, komposit 
 * **NASA MODIS Land Surface Temp (LST 1 km)**: Ubin gradien termal suhu permukaan bumi kontinu ($10^\circ\text{C} \to 42^\circ\text{C}+$) via NASA GIBS WMS dengan *ocean masking* transparan.
 * **Curah Hujan Harian (CHIRPS (GEE))**: Lapisan presipitasi satelit harian global dengan palet warna kontras tinggi (mm/hari) dari resolusi 0.05° (~5.5 km).
 * **Telemetri Suhu Titik & Presipitasi**: Ekstraksi komposit satelit secara real-time via backend compute serverless GEE / NASA GIBS.
-* **Tutupan Lahan & Elevasi SRTM**: ESA WorldCover 10m LULC (11 kelas) dan mesh elevasi Terrarium 3D.
+* **Tutupan Lahan & Elevasi 3D**: ESA WorldCover 10m LULC (11 kelas) dan mesh elevasi Terrarium 3D.
 
 ### 📈 4. Analisis Geospasial & Grafik Waktu-Nyata
 * **Grafik Runtun Waktu Musiman (Harmonic Time-Series)**: Visualisasi kurva suhu permukaan LST vs simulasi suhu udara 2m NOAA CFSv2 dengan tabel data yang ramah aksesibilitas (*screen-reader friendly*).
-* **Analisis Gradien Termal Urban Heat Island (UHI)**: Perbandingan anomali suhu antara dataran rendah metropolitan (mis. Jakarta 34.8°C) dan dataran tinggi (mis. Bandung 21.2°C).
+* **Analisis Gradien Termal Urban Heat Island (UHI)**: Observasi anomali suhu permukaan daratan (LST) dan deteksi hotspot termal perkotaan berbasis data satelit termal MODIS.
 * **Profil Elevasi Medan Geodesik**: Pengambilan profil penampang lintang topografi sepanjang rute garis yang digambar pengguna.
 
 ### 📏 5. Pengukuran Geodesik, Buffer & Analisis Spasial
@@ -169,13 +169,13 @@ graph TD
 | Dataset | Penyedia / Sumber | Resolusi Spasial | Cakupan Waktu | Protokol Akses |
 | :--- | :--- | :--- | :--- | :--- |
 | **Sentinel-2 GeoMAD** | BIG Piksel / ESA | 10 meter | 2017 – 2025 | OGC WMS 1.3.0 (PNG / Edge Proxy) |
-| **Indeks Spektral (NDVI/NDWI/NDBI)** | Open Data Cube / Esri 10m LULC | 10 meter | Komposit Tahunan & Live | OGC WMS 1.3.0 / ImageServer |
+| **Indeks Spektral (NDVI/NDWI/NDBI)** | BIG Piksel / Open Data Cube | 10 meter | Komposit Tahunan & Live | OGC WMS 1.3.0 |
 | **Landsat 9 Multispektral** | USGS / NASA | 30 meter | 2021 – 2026 | OGC WMS 1.3.0 |
 | **Model Bahaya Banjir** | BIG Hidrologi | 10 meter | Wilayah Studi Prioritas | OGC WMS 1.3.0 |
 | **MODIS Land Surface Temp** | NASA LP DAAC (MOD11A2 / MYD11A2) | 1.000 meter (1 km) | 2000 – Sekarang (8-Day) | NASA GIBS WMS & GEE Serverless Compute |
 | **Curah Hujan CHIRPS** | UCSB Climate Hazards Group | 0.05° (~5.5 km) | 1981 – Sekarang | GEE Serverless Compute & WMS |
 | **Sampling Piksel Satelit** | Sentinel-2 / Open-Meteo | 10 meter | Live Client-Side | Canvas Pixel Extraction & REST API |
-| **ESA WorldCover 10m LULC** | ESA / WorldCover Consortium | 10 meter | Komposit 11 Kelas | WMS / ImageServer |
+| **Tutupan Lahan Sentinel-2 10m** | Sentinel-2 Land Cover (Esri/Impact Observatory) & ESA WorldCover | 10 meter | 2017 – 2024 / Global | ArcGIS ImageServer & GEE |
 | **3D Terrarium DEM** | Mapzen / AWS Open Data | Global DEM | Kontinu | Raster DEM TileJSON |
 | **3D Buildings** | OpenFreeMap / OSM | Global Vektor | Kontinu | Vector Tiles |
 | **Rupabumi Indonesia (RBI)** | Badan Informasi Geospasial | Vektor | Skala Nasional | TileJSON / Vector |

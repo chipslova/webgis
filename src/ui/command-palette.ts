@@ -388,7 +388,7 @@ export class CommandPaletteUI {
         category: 'tools',
         categoryLabel: '⚡ Alat & Analisis',
         title: 'Google Earth Engine (Suhu Permukaan LST MODIS 1km)',
-        subtitle: 'Eksplorasi LST Siang & Malam MODIS 1km serta jaringan 18 stasiun pemantau',
+        subtitle: 'Eksplorasi LST Siang & Malam MODIS 1km serta analisis termal perkotaan (UHI)',
         icon: '🌡️',
         keywords: ['gee', 'earth engine', 'climate', 'temperature', 'lst', 'modis', 'terra', 'aqua', 'live', 'suhu', 'chart'],
         action: () => {

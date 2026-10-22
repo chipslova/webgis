@@ -30,7 +30,7 @@ export class AIAssistantDockUI {
     { label: '📏 Cara Ukur Peta', prompt: 'Bagaimana cara mengukur jarak dan melihat profil elevasi di peta ini?' },
     { label: '🗺️ Bandingkan Peta', prompt: 'Buka mode komparasi layar swipe untuk membandingkan dua peta dasar' },
     { label: '🛰️ Citra Satelit', prompt: 'Ubah peta dasar menjadi citra satelit resolusi tinggi' },
-    { label: '🌧️ Stasiun Cuaca', prompt: 'Tampilkan stasiun pengamatan cuaca di Pulau Jawa' },
+    { label: '🌧️ Curah Hujan', prompt: 'Tampilkan data curah hujan harian satelit di Indonesia' },
     { label: '🌍 Bola Bumi 3D', prompt: 'Ubah proyeksi peta menjadi Bola Bumi 3D Globe' },
     { label: '💡 Fitur WebGIS', prompt: 'Fitur analisis dan data spasial apa saja yang tersedia di WebGIS ini?' }
   ];
@@ -190,7 +190,7 @@ export class AIAssistantDockUI {
     this.messages.push({
       id: 'welcome',
       sender: 'ai',
-      text: 'Halo! Saya **AI Geospatial Copilot** resmi untuk platform WebGIS Digital Earth Indonesia. 🌐\n\nSaya **dikhususkan untuk menjawab pertanyaan seputar platform WebGIS ini beserta seluruh isinya**—seperti data citra satelit (Sentinel-2, BIG Piksel, MODIS LST), fitur analisis spasial, pemantauan stasiun cuaca, tutorial penggunaan alat peta, serta membantu mengendalikan peta secara otomatis.\n\nSilakan tanyakan seputar data, wilayah, atau fitur di WebGIS ini!',
+      text: 'Halo! Saya **AI Geospatial Copilot** resmi untuk platform WebGIS Digital Earth Indonesia. 🌐\n\nSaya **dikhususkan untuk menjawab pertanyaan seputar platform WebGIS ini beserta seluruh isinya**—seperti data citra satelit (Sentinel-2, BIG Piksel, MODIS LST), fitur analisis spasial, pemantauan cuaca & curah hujan, tutorial penggunaan alat peta, serta membantu mengendalikan peta secara otomatis.\n\nSilakan tanyakan seputar data, wilayah, atau fitur di WebGIS ini!',
       timestamp: new Date()
     });
     this.renderMessages();
@@ -407,7 +407,6 @@ export class AIAssistantDockUI {
                 landcover: { label: 'Tutupan Lahan ESA WorldCover v200 (GEE)', icon: '🌳' },
                 'lst-day': { label: 'Suhu LST Siang (MODIS 1km)', icon: '☀️' },
                 'lst-night': { label: 'Suhu LST Malam (MODIS 1km)', icon: '🌙' },
-                stations: { label: '18 Stasiun Iklim LST', icon: '📍' },
                 's2-geomad-rgb': { label: 'Citra Sentinel-2 True Color 10m', icon: '🛰️' },
                 's2-geomad-nir': { label: 'Citra Sentinel-2 False Color NIR 10m', icon: '🍁' },
                 's2-ndvi': { label: 'Indeks Vegetasi NDVI 10m', icon: '🌿' },

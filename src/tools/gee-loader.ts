@@ -37,7 +37,6 @@ export class GEELoader {
   private layerVisibilities: Map<string, boolean> = new Map([
     ['lst-day', false],
     ['lst-night', false],
-    ['stations', false],
     ['precipitation', false],
     // Aliases
     ['air-temp', false],
@@ -113,7 +112,6 @@ export class GEELoader {
   private normalizeLayerId(layerId: string): string {
     if (layerId === 'lst' || layerId === 'air-temp' || layerId === 'lst-day') return 'lst-day';
     if (layerId === 'elevation' || layerId === 'surface-temp' || layerId === 'lst-night') return 'lst-night';
-    if (layerId === 'poi' || layerId === 'stations') return 'stations';
     if (layerId === 'landcover' || layerId === 'lc') return 'landcover';
     if (layerId === 'precipitation' || layerId === 'rainfall' || layerId === 'curah-hujan' || layerId === 'chirps' || layerId === 'gpm') return 'precipitation';
     return layerId;
@@ -261,8 +259,7 @@ export class GEELoader {
     if (this.map.getLayer('gee-modis-night-wms-layer')) {
       this.map.setLayoutProperty('gee-modis-night-wms-layer', 'visibility', 'none');
     }
-
-    const beforeLayerId = this.map.getLayer('gee-modis-stations-circles') ? 'gee-modis-stations-circles' : undefined;
+    const beforeLayerId = undefined;
 
     this.map.addLayer({
       id: layerId,
@@ -331,8 +328,6 @@ export class GEELoader {
       } else if (key === 'lst-night') {
         this.activeLayers.delete('elevation');
         this.activeLayers.delete('surface-temp');
-      } else if (key === 'stations') {
-        this.activeLayers.delete('poi');
       } else if (key === 'landcover') {
         this.activeLayers.delete('lc');
       } else if (key === 'precipitation') {
@@ -479,9 +474,7 @@ export class GEELoader {
     const daySourceId = 'gee-modis-day-wms-source';
     const dayLayerId = 'gee-modis-day-wms-layer';
     
-    const beforeStationLayerId = this.map.getLayer('gee-modis-stations-circles')
-      ? 'gee-modis-stations-circles'
-      : undefined;
+    const beforeStationLayerId = undefined;
 
     if (!this.map.getSource(daySourceId)) {
       this.map.addSource(daySourceId, {

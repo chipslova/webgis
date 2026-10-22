@@ -84,7 +84,7 @@ export class GuidedTourUI {
         title: 'Suhu Permukaan MODIS LST, Curah Hujan & Urban Heat Island',
         subtitle: 'Analisis Termal MODIS Terra/Aqua, Presipitasi CHIRPS (GEE), & Tutupan Lahan',
         description: 'Observasi iklim dan termal: pantau Suhu Permukaan Daratan (LST Siang/Malam), dinamika curah hujan satelit harian, dan klasifikasi tutupan lahan Sentinel-2 10m.',
-        tags: ['MODIS LST 1 km', 'Curah Hujan CHIRPS (GEE)', '18 Stasiun Iklim', 'Sentinel-2 10m LULC'],
+        tags: ['MODIS LST 1 km', 'Curah Hujan CHIRPS (GEE)', 'Analisis Urban Heat Island', 'Sentinel-2 10m LULC'],
         action: async () => {
           const map = this.mapManager.getMap();
           if (!map) return;
@@ -95,11 +95,10 @@ export class GuidedTourUI {
             this.basemapCustomizer.toggle3DTerrain(false, false);
           }
 
-          // Load GEE and enable LST & POI
+          // Load GEE and enable LST
           if (this.geeLoader) {
             await this.geeLoader.loadGEEDatasets();
             this.geeLoader.toggleLayer('lst', true);
-            this.geeLoader.toggleLayer('poi', true);
             this.geeLoader.toggleLayer('elevation', false);
             this.geeLoader.toggleLayer('landcover', false);
           }

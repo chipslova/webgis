@@ -163,7 +163,6 @@ export const GIS_FUNCTION_DECLARATIONS = [
             'landcover',
             'lst-day',
             'lst-night',
-            'stations',
             's2-geomad-rgb',
             's2-geomad-nir',
             's2-ndvi',
@@ -173,7 +172,7 @@ export const GIS_FUNCTION_DECLARATIONS = [
             'hazard-flood',
             'tile-grid'
           ],
-          description: 'The layer ID to toggle: "precipitation" (Curah Hujan Harian NASA GPM IMERG), "landcover" (Tutupan Lahan Sentinel-2 10m Esri LULC), "lst-day" (Suhu Permukaan Daratan Siang MODIS), "lst-night" (Suhu Permukaan Daratan Malam MODIS), "stations" (18 Stasiun Observasi LST & Iklim), "s2-geomad-rgb" (Citra Satelit Sentinel-2 True Color), "s2-geomad-nir" (Citra False Color NIR), "s2-ndvi" (Indeks Kerapatan Vegetasi), "s2-ndwi" (Indeks Air Permukaan), "s2-ndbi" (Indeks Area Terbangun NDBI), "s2-ndmi" (Indeks Kelembapan Kanopi & Gambut NDMI), "hazard-flood" (Peta Bahaya Banjir Kawasan Prioritas), "tile-grid" (Batas Grid Open Data Cube).'
+          description: 'The layer ID to toggle: "precipitation" (Curah Hujan Harian Satelit CHIRPS), "landcover" (Tutupan Lahan ESA WorldCover), "lst-day" (Suhu Permukaan Daratan Siang MODIS), "lst-night" (Suhu Permukaan Daratan Malam MODIS), "s2-geomad-rgb" (Citra Satelit Sentinel-2 True Color), "s2-geomad-nir" (Citra False Color NIR), "s2-ndvi" (Indeks Kerapatan Vegetasi), "s2-ndwi" (Indeks Air Permukaan), "s2-ndbi" (Indeks Area Terbangun NDBI), "s2-ndmi" (Indeks Kelembapan Kanopi & Gambut NDMI), "hazard-flood" (Peta Bahaya Banjir Kawasan Prioritas), "tile-grid" (Batas Grid Open Data Cube).'
         },
         visible: {
           type: 'BOOLEAN',

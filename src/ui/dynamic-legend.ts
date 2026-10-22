@@ -77,7 +77,7 @@ export class DynamicLegendUI {
       `;
     }
 
-    // 2. Active GEE Layers (MODIS Terra + Aqua 1km LST Day/Night, Stations)
+    // 2. Active GEE Layers (MODIS Terra + Aqua 1km LST Day/Night)
     if (this.geeLoader) {
       if (this.geeLoader.isLayerVisible('lst-day') || this.geeLoader.isLayerVisible('lst') || this.geeLoader.isLayerVisible('air-temp')) {
         activeLayersCount++;
@@ -174,31 +174,6 @@ export class DynamicLegendUI {
               <div class="dynamic-legend-item">
                 <span class="dynamic-color-box" style="background-color: #C8C8C8;"></span>
                 <span class="dynamic-legend-label">Awan</span>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-
-      if (this.geeLoader.isLayerVisible('stations') || this.geeLoader.isLayerVisible('poi')) {
-        activeLayersCount++;
-        thematicHtml += `
-          <div class="dynamic-legend-card">
-            <div class="dynamic-legend-card-header">
-              <span class="legend-card-icon">📍</span>
-              <div>
-                <div class="dynamic-legend-title">Jaringan Stasiun Pemantauan MODIS 1km Indonesia</div>
-                <div class="dynamic-legend-sub">18 Stasiun Pemantau · NASA LP DAAC & GEE</div>
-              </div>
-            </div>
-            <div class="dynamic-legend-swatches" style="margin-top: 8px;">
-              <div class="dynamic-legend-item">
-                <span class="dynamic-color-box" style="background-color: #ef4444; border-radius: 50%;"></span>
-                <span class="dynamic-legend-label">Titik Pemantauan Suhu Panas Perkotaan (UHI - Jakarta, Surabaya, Medan)</span>
-              </div>
-              <div class="dynamic-legend-item">
-                <span class="dynamic-color-box" style="background-color: #10b981; border-radius: 50%;"></span>
-                <span class="dynamic-legend-label">Baseline Hutan & Dataran Tinggi (Papua, IKN, Gunung Gede)</span>
               </div>
             </div>
           </div>

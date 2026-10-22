@@ -734,7 +734,7 @@ export class GEEPanelUI {
           deltaEl.style.background = '#475569';
           deltaEl.style.borderColor = '#64748b';
         }
-        const fallbackNote = isUnconfigured ? 'Memerlukan GEE Key' : `${satLabel} · Terhalang Awan`;
+        const fallbackNote = isUnconfigured ? 'Data numerik demo' : `${satLabel} · Terhalang Awan`;
         if (jktSrc) { jktSrc.innerText = fallbackNote; jktSrc.style.color = isUnconfigured ? '#94a3b8' : '#fbbf24'; }
         if (bdgSrc) { bdgSrc.innerText = fallbackNote; bdgSrc.style.color = isUnconfigured ? '#94a3b8' : '#fbbf24'; }
       }
@@ -785,7 +785,7 @@ export class GEEPanelUI {
         if (tempEl) tempEl.innerText = '--.- °C';
         if (dayEl) dayEl.innerText = '--.- °C';
         if (nightEl) nightEl.innerText = '--.- °C';
-        if (deltaEl) deltaEl.innerText = 'Key Required';
+        if (deltaEl) deltaEl.innerText = '--.-';
         return;
       }
 
@@ -942,21 +942,23 @@ export class GEEPanelUI {
       if (json?.status === 'unconfigured') {
         if (cityEl) cityEl.innerText = `📍 ${cityName}`;
         if (timeEl) {
-          timeEl.innerText = 'NASA GIBS / GEE Key Required';
-          timeEl.title = 'Raster peta presipitasi aktif. Time-series numerik memerlukan GEE_SERVICE_ACCOUNT_KEY.';
+          timeEl.innerText = 'Data numerik belum tersedia pada versi demo ini';
+          timeEl.title = 'Raster peta presipitasi aktif via satelit. Time-series numerik belum tersedia pada versi demo ini.';
         }
         if (valEl) valEl.innerText = '--.- mm/hari';
         if (statusPill) statusPill.innerText = 'Raster Aktif';
         return;
       }
 
-      const records: Array<{ date: string; precip: number }> = json?.data || [];
+      const records: Array<{ date: string; precip: number | null }> = json?.data || [];
 
       if (records.length > 0) {
-        const precipValues = records.map(r => r.precip || 0);
-        const totalAccum = precipValues.reduce((a, b) => a + b, 0);
-        const meanDaily = totalAccum / precipValues.length;
-        const maxDaily = Math.max(...precipValues);
+        const validValues = records
+          .map(r => r.precip)
+          .filter((v): v is number => typeof v === 'number' && !isNaN(v));
+        const totalAccum = validValues.reduce((a, b) => a + b, 0);
+        const meanDaily = validValues.length > 0 ? totalAccum / validValues.length : 0;
+        const maxDaily = validValues.length > 0 ? Math.max(...validValues) : 0;
 
         let status = 'Cerah / Kering';
         let icon = '☀️';

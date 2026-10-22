@@ -339,8 +339,8 @@ export class AINavigator {
 
         if (!layerId) break;
 
-        // 1. Google Earth Engine layers: precipitation, landcover, lst-day, lst-night, stations
-        if (['precipitation', 'rainfall', 'curah-hujan', 'gpm', 'landcover', 'lc', 'lst-day', 'lst-night', 'stations', 'poi', 'surface-temp'].includes(layerId)) {
+        // 1. Google Earth Engine layers: precipitation, landcover, lst-day, lst-night
+        if (['precipitation', 'rainfall', 'curah-hujan', 'gpm', 'landcover', 'lc', 'lst-day', 'lst-night', 'surface-temp'].includes(layerId)) {
           if (this.geeLoaderRef?.toggleLayer) {
             await this.geeLoaderRef.toggleLayer(layerId, visible);
           }
@@ -352,8 +352,7 @@ export class AINavigator {
             precipitation: 'Curah Hujan Harian Satelit (CHIRPS (GEE))',
             landcover: 'Tutupan Lahan ESA WorldCover v200 (GEE)',
             'lst-day': 'Suhu Permukaan Daratan Siang (MODIS LST Day 1km)',
-            'lst-night': 'Suhu Permukaan Daratan Malam (MODIS LST Night 1km)',
-            stations: '18 Stasiun & Titik Observasi Iklim'
+            'lst-night': 'Suhu Permukaan Daratan Malam (MODIS LST Night 1km)'
           };
           const label = labels[layerId] || layerId;
           showToast(`Lapisan ${label} ${visible ? 'diaktifkan di peta' : 'disembunyikan'}.`, 'success', 3000);

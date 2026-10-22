@@ -439,8 +439,6 @@ export class MapManager {
       'gee-modis-live-raster-layer',
       'gee-modis-lst-day-fill',
       'gee-modis-lst-night-fill',
-      'gee-modis-stations-circles',
-      'gee-modis-stations-labels',
       'gee-elevation-fill',
       'gee-elevation-outline',
       'gee-landcover-fill',
@@ -558,8 +556,6 @@ export class MapManager {
         combinedMapboxIds.push('gee-modis-landcover-layer', 'gee-landcover-fill', 'gee-landcover-outline');
       } else if (uiId === 'gee-precipitation') {
         combinedMapboxIds.push('gee-precipitation-wms-layer');
-      } else if (uiId === 'gee-poi') {
-        combinedMapboxIds.push('gee-modis-stations-circles', 'gee-modis-stations-labels');
       } else if (uiId === 'measure') {
         combinedMapboxIds.push('measure-fill', 'measure-line-casing', 'measure-line', 'measure-points');
       } else {
