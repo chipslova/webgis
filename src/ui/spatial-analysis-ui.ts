@@ -36,6 +36,15 @@ export class SpatialAnalysisUI {
     this.initMapLayers();
     this.bindEvents();
     this.render();
+
+    // Automatically clear AOI if switching away from analysis tab
+    if (typeof window !== 'undefined') {
+      window.addEventListener('webgis:sidebar-tab-change', (e: any) => {
+        if (e.detail?.tabId !== 'analysis') {
+          this.clearAOI();
+        }
+      });
+    }
   }
 
   public onLayersChange(callback: () => void) {
@@ -221,6 +230,7 @@ export class SpatialAnalysisUI {
 
     const ring = [...this.drawnPoints, this.drawnPoints[0]];
     const polyFeature = polygon([ring]);
+    this.activeAOIFeature = polyFeature;
 
     this.isDrawingAOI = false;
     document.body.classList.remove('aoi-drawing-active');
@@ -253,7 +263,7 @@ export class SpatialAnalysisUI {
     this.analyzeFeature(polyFeature, `Area Kustom (${simpulCount} Simpul)`);
   }
 
-  public cancelDrawing() {
+  public cancelDrawing(silent: boolean = false) {
     this.isDrawingAOI = false;
     document.body.classList.remove('aoi-drawing-active');
     this.drawnPoints = [];
@@ -282,7 +292,9 @@ export class SpatialAnalysisUI {
     if (presetContainer) presetContainer.style.display = 'flex';
     if (statusEl) statusEl.style.display = 'none';
 
-    showToast('Pembuatan area analisis dibatalkan', 'info');
+    if (!silent) {
+      showToast('Pembuatan area analisis dibatalkan', 'info');
+    }
   }
 
   public undoLastPoint() {
@@ -410,6 +422,7 @@ export class SpatialAnalysisUI {
     });
 
     const polyFeature = polygon(preset.coordinates);
+    this.activeAOIFeature = polyFeature;
     const src = this.map.getSource('aoi-analysis-source') as maplibregl.GeoJSONSource;
     if (src && typeof src.setData === 'function') {
       src.setData(polyFeature);
@@ -421,13 +434,35 @@ export class SpatialAnalysisUI {
 
   public clearAOI() {
     this.activeAOIFeature = null;
+    this.activeResult = null;
     this.drawnPoints = [];
+    if (this.isDrawingAOI) {
+      this.cancelDrawing(true);
+    }
     const src = this.map.getSource('aoi-analysis-source') as maplibregl.GeoJSONSource;
     if (src && typeof src.setData === 'function') {
       src.setData({ type: 'FeatureCollection', features: [] });
     }
     this.clearAuxLayers();
     this.notifyLayersChange();
+
+    const presetSelect = document.getElementById('select-preset-aoi') as HTMLSelectElement | null;
+    if (presetSelect) {
+      presetSelect.value = '';
+    }
+
+    const container = document.getElementById('aoi-analysis-results-container');
+    if (container) {
+      container.innerHTML = `
+        <div class="aoi-empty-box">
+          <div class="aoi-empty-icon">📐</div>
+          <div class="aoi-empty-title">Belum Ada Area Analisis yang Dipilih</div>
+          <div class="aoi-empty-subtitle">
+            Gunakan tombol <strong>Gambar AOI Bebas</strong> atau pilih preset wilayah untuk memproses statistik spasial.
+          </div>
+        </div>
+      `;
+    }
   }
 
   public showLoadingState(label: string) {
@@ -489,25 +524,38 @@ export class SpatialAnalysisUI {
 
     this.activeAOIFeature = feature;
 
-    const [result] = await Promise.all([
-      SpatialAnalysisEngine.computeZonalStatsWithGEE(feature, label, targetYear),
-      new Promise((resolve) => setTimeout(resolve, 600))
-    ]);
+    try {
+      const [result] = await Promise.all([
+        SpatialAnalysisEngine.computeZonalStatsWithGEE(feature, label, targetYear),
+        new Promise((resolve) => setTimeout(resolve, 600))
+      ]);
 
-    this.activeResult = result;
-    this.hideLoadingState();
-    this.renderResult(result);
+      // If AOI was cleared (e.g. user navigated to another tab) while computing, discard result
+      if (!this.activeAOIFeature) {
+        this.hideLoadingState();
+        return;
+      }
 
-    if (result.isRealGEE) {
-      showToast(`Analisis piksel real GEE selesai untuk ${label} (${result.totalPixelCount?.toLocaleString('id-ID')} piksel)`, 'success');
-    } else if (result.isClientSampled) {
-      showToast(`Sampling piksel Sentinel-2 10m selesai untuk ${label} (${result.totalPixelCount?.toLocaleString('id-ID')} piksel)`, 'success');
-    } else {
-      showToast(`Estimator spasial selesai untuk ${label}`, 'success');
+      this.activeResult = result;
+      this.hideLoadingState();
+      this.renderResult(result);
+
+      if (result.isRealGEE) {
+        showToast(`Analisis piksel real GEE selesai untuk ${label} (${result.totalPixelCount?.toLocaleString('id-ID')} piksel)`, 'success');
+      } else if (result.isClientSampled) {
+        showToast(`Sampling piksel Sentinel-2 10m selesai untuk ${label} (${result.totalPixelCount?.toLocaleString('id-ID')} piksel)`, 'success');
+      } else {
+        showToast(`Estimator spasial selesai untuk ${label}`, 'success');
+      }
+      announceToScreenReader(`Analisis spasial selesai. Luas wilayah ${result.totalAreaKm2} kilometer persegi.`);
+
+      this.onResultChangeCallbacks.forEach(cb => cb(result));
+    } catch (err: any) {
+      this.hideLoadingState();
+      if (this.activeAOIFeature) {
+        showToast(`Gagal menganalisis area spasial: ${err?.message || 'Kesalahan jaringan'}`, 'error');
+      }
     }
-    announceToScreenReader(`Analisis spasial selesai. Luas wilayah ${result.totalAreaKm2} kilometer persegi.`);
-
-    this.onResultChangeCallbacks.forEach(cb => cb(result));
   }
 
   public onResultChange(callback: (res: ZonalAnalysisResult) => void) {

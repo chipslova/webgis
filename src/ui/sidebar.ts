@@ -166,6 +166,10 @@ export class SidebarUI {
       }
     });
 
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('webgis:sidebar-tab-change', { detail: { tabId } }));
+    }
+
     for (const callback of this.tabChangeCallbacks) {
       try {
         callback(tabId);

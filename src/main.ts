@@ -290,10 +290,13 @@ class WebGISApp {
       // Initialize Analysis Subnav Switcher (Tumpang Tindih, Statistik AOI, Radius Buffer)
       this.switchAnalysisSubtab = this.initAnalysisSubnav();
 
-      // Refresh buffer layers dropdown whenever analysis tab is opened
+      // Refresh buffer layers dropdown whenever analysis tab is opened;
+      // automatically clear selected AOI polygon & results when navigating to other tabs
       this.sidebarUI.onTabChange((tabId) => {
         if (tabId === 'analysis') {
           this.bufferAnalysisUI?.updateLayerSelect();
+        } else {
+          this.spatialAnalysisUI?.clearAOI();
         }
       });
 
@@ -1343,6 +1346,7 @@ class WebGISApp {
 
       if (subtab === 'buffer') {
         this.bufferAnalysisUI?.updateLayerSelect();
+        this.spatialAnalysisUI?.clearAOI();
       }
     };
 
