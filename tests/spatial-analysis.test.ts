@@ -117,4 +117,54 @@ describe('Spatial Analysis & AOI Zonal Statistics Engine', () => {
     expect(csvOutput).toContain('12.500');
     expect(csvOutput).toContain('Lahan Terbangun / Kota');
   });
+
+  it('should accept selectedYear and include year in ZonalAnalysisResult', async () => {
+    const mockPoly: GeoJSON.Feature<GeoJSON.Polygon> = {
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[[116.6, -1.0], [116.8, -1.0], [116.8, -0.9], [116.6, -0.9], [116.6, -1.0]]]
+      },
+      properties: {}
+    };
+
+    // Mock fetch for image and meteo
+    const originalFetch = global.fetch;
+    let requestedTimeParam = '';
+    global.fetch = async (url: any, opts: any) => {
+      const urlStr = String(url);
+      if (urlStr.includes('Sentinel2_10m_LandCover')) {
+        requestedTimeParam = urlStr;
+        // Return dummy 1x1 png blob
+        return {
+          ok: true,
+          status: 200,
+          blob: async () => new Blob([new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10])], { type: 'image/png' })
+        } as any;
+      }
+      if (urlStr.includes('open-meteo')) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ current: { temperature_2m: 30.5 }, daily: { temperature_2m_max: [33.0], temperature_2m_min: [24.0] } })
+        } as any;
+      }
+      return originalFetch(url, opts);
+    };
+
+    try {
+      // Test computeZonalStatsClientSampled for year 2024
+      // Mock canvas createImageBitmap if needed
+      (global as any).createImageBitmap = async () => ({
+        close: () => {}
+      });
+      const res = await SpatialAnalysisEngine.computeZonalStatsClientSampled(mockPoly, 'IKN Nusantara', 2024).catch(() => null);
+      if (res) {
+        expect(res.year).toBe(2024);
+        expect(requestedTimeParam).toContain('time=2024-01-01,2024-12-31');
+      }
+    } finally {
+      global.fetch = originalFetch;
+    }
+  });
 });

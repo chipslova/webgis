@@ -15,6 +15,8 @@ export class SpatialAnalysisUI {
   private activeResult: ZonalAnalysisResult | null = null;
   private activeResultSubTab: 'landcover' | 'thermal' | 'forecast' = 'landcover';
   private activeAOIFeature: any = null;
+  private activeLabel: string = 'Area Kustom';
+  private selectedYear: number = 2024;
   private isDrawingAOI: boolean = false;
   private drawnPoints: [number, number][] = [];
   private onResultChangeCallbacks: Array<(res: ZonalAnalysisResult) => void> = [];
@@ -475,15 +477,20 @@ export class SpatialAnalysisUI {
 
   public async analyzeFeature(
     feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>,
-    label: string
+    label: string,
+    year?: number
   ) {
-    this.showLoadingState(label);
-    showToast(`Menganalisis data spasial untuk ${label}...`, 'info');
+    this.activeLabel = label;
+    const targetYear = year ?? this.selectedYear;
+    this.selectedYear = targetYear;
+
+    this.showLoadingState(`${label} (${targetYear})`);
+    showToast(`Menganalisis data spasial ${label} untuk tahun ${targetYear}...`, 'info');
 
     this.activeAOIFeature = feature;
 
     const [result] = await Promise.all([
-      SpatialAnalysisEngine.computeZonalStatsWithGEE(feature, label),
+      SpatialAnalysisEngine.computeZonalStatsWithGEE(feature, label, targetYear),
       new Promise((resolve) => setTimeout(resolve, 600))
     ]);
 
@@ -559,6 +566,30 @@ export class SpatialAnalysisUI {
             </select>
           </div>
 
+          <!-- Year Selector for Land Cover Observation -->
+          <div class="aoi-year-select-box" style="margin-top: 10px; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.08); padding: 8px 10px; border-radius: 6px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+              <label for="select-aoi-year" style="font-size: 11px; font-weight: 600; color: #cbd5e1; display: flex; align-items: center; gap: 4px;">
+                <span>📅</span>
+                <span>Tahun Citra Satelit LULC:</span>
+              </label>
+              <span style="font-size: 9.5px; color: var(--accent-cyan); font-weight: 600; background: rgba(56, 189, 248, 0.12); padding: 1.5px 5px; border-radius: 3px; border: 1px solid rgba(56, 189, 248, 0.25);">Sentinel-2 10m</span>
+            </div>
+            <select id="select-aoi-year" class="form-select aoi-preset-select" aria-label="Pilih tahun citra satelit tutupan lahan">
+              <option value="2024" ${this.selectedYear === 2024 ? 'selected' : ''}>2024 (Paling Mutakhir · Pembangunan IKN)</option>
+              <option value="2023" ${this.selectedYear === 2023 ? 'selected' : ''}>2023 (Konstruksi Tahap Awal)</option>
+              <option value="2022" ${this.selectedYear === 2022 ? 'selected' : ''}>2022 (Awal Pembebasan Lahan)</option>
+              <option value="2021" ${this.selectedYear === 2021 ? 'selected' : ''}>2021 (Sebelum Pembangunan)</option>
+              <option value="2020" ${this.selectedYear === 2020 ? 'selected' : ''}>2020 (Baseline Awal · Hutan Utuh)</option>
+              <option value="2019" ${this.selectedYear === 2019 ? 'selected' : ''}>2019 (Historis Pra-IKN)</option>
+              <option value="2018" ${this.selectedYear === 2018 ? 'selected' : ''}>2018 (Historis Pra-IKN)</option>
+              <option value="2017" ${this.selectedYear === 2017 ? 'selected' : ''}>2017 (Historis Pra-IKN)</option>
+            </select>
+            <div style="font-size: 10px; color: #94a3b8; margin-top: 4px; line-height: 1.3;">
+              💡 Ganti tahun untuk membandingkan perubahan deforestasi / tutupan lahan sebelum &amp; sesudah pembangunan.
+            </div>
+          </div>
+
           <div id="aoi-draw-status" class="aoi-draw-status-box" style="display: none;"></div>
         </div>
 
@@ -610,6 +641,16 @@ export class SpatialAnalysisUI {
         setTimeout(() => {
           if (presetSelect) presetSelect.value = '';
         }, 800);
+      }
+    });
+
+    const yearSelect = document.getElementById('select-aoi-year') as HTMLSelectElement | null;
+    yearSelect?.addEventListener('change', () => {
+      this.selectedYear = Number(yearSelect.value) || 2024;
+      if (this.activeAOIFeature) {
+        this.analyzeFeature(this.activeAOIFeature, this.activeLabel || 'Area Terpilih');
+      } else {
+        showToast(`Tahun observasi satelit diatur ke ${this.selectedYear}. Silakan gambar AOI atau pilih wilayah.`, 'info');
       }
     });
   }
@@ -708,9 +749,10 @@ export class SpatialAnalysisUI {
             <div class="aoi-result-title">
               <span class="aoi-result-dot" aria-hidden="true"></span>
               <span class="aoi-result-name" title="${escapeHtml(res.regionName)}">${escapeHtml(res.regionName)}</span>
+              <span class="aoi-year-pill" style="font-size: 10px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.35); padding: 1px 6px; border-radius: 4px; margin-left: 6px;">Tahun ${res.year || 2024}</span>
             </div>
             <div class="aoi-result-timestamp">
-              Dianalisis: ${escapeHtml(res.timestamp)}
+              Citra Sentinel-2 10m (${res.year || 2024}) &middot; Dianalisis: ${escapeHtml(res.timestamp)}
             </div>
           </div>
           <div class="aoi-export-action-group" role="group" aria-label="Ekspor Hasil Analisis">

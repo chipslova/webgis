@@ -49,6 +49,7 @@ export interface ZonalAnalysisResult {
   precipStats?: PrecipitationStats;
   dominantClass: string;
   timestamp: string;
+  year?: number;
   geojson: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>;
   /** True when stats are heuristic estimates, NOT real GEE pixel sampling */
   isEstimated: boolean;
@@ -252,8 +253,10 @@ export class SpatialAnalysisEngine {
    */
   public static async computeZonalStatsClientSampled(
     aoiFeature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>,
-    regionLabel: string = 'Kawasan Kustom'
+    regionLabel: string = 'Kawasan Kustom',
+    selectedYear: number | string = 2024
   ): Promise<ZonalAnalysisResult> {
+    const yr = Number(selectedYear) || 2024;
     let totalAreaSqMeters = 0;
     try {
       totalAreaSqMeters = area(aoiFeature);
@@ -285,7 +288,8 @@ export class SpatialAnalysisEngine {
       width = Math.max(64, Math.min(180, Math.round(180 * aspect)));
     }
 
-    const imgUrl = `https://ic.imagery1.arcgis.com/arcgis/rest/services/Sentinel2_10m_LandCover/ImageServer/exportImage?bbox=${minLng},${minLat},${maxLng},${maxLat}&bboxSR=4326&imageSR=4326&size=${width},${height}&format=png32&transparent=true&f=image`;
+    const timeParam = `&time=${yr}-01-01,${yr}-12-31`;
+    const imgUrl = `https://ic.imagery1.arcgis.com/arcgis/rest/services/Sentinel2_10m_LandCover/ImageServer/exportImage?bbox=${minLng},${minLat},${maxLng},${maxLat}&bboxSR=4326&imageSR=4326&size=${width},${height}&format=png32&transparent=true${timeParam}&f=image`;
     const meteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${centerLat.toFixed(4)}&longitude=${centerLng.toFixed(4)}&current=temperature_2m,surface_temperature,relative_humidity_2m,precipitation,rain&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto`;
 
     const [imgRes, meteoRes] = await Promise.all([
@@ -531,13 +535,14 @@ export class SpatialAnalysisEngine {
       thermalForecast,
       dominantClass,
       timestamp: formatAnalysisTimestamp(),
+      year: yr,
       geojson: aoiFeature,
       isEstimated: false,
       isRealGEE: false,
       isClientSampled: true,
       totalPixelCount: totalSampled,
       computationSource: 'Sentinel-2 10m LULC (ArcGIS/Esri) + Open-Meteo Realtime',
-      estimationMethod: 'Sampling Piksel Satelit Sentinel-2 10m & Open-Meteo LST (Client-Side)'
+      estimationMethod: `Sampling Piksel Satelit Sentinel-2 10m (Tahun ${yr}) & Open-Meteo LST (Client-Side)`
     };
   }
 
@@ -549,8 +554,10 @@ export class SpatialAnalysisEngine {
    */
   public static async computeZonalStatsWithGEE(
     aoiFeature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>,
-    regionLabel: string = 'Kawasan Kustom'
+    regionLabel: string = 'Kawasan Kustom',
+    selectedYear: number | string = 2024
   ): Promise<ZonalAnalysisResult> {
+    const yr = Number(selectedYear) || 2024;
     // 1. Try real GEE Cloud Serverless Endpoint (if configured)
     try {
       const response = await fetch('/api/gee-zonal-stats', {
@@ -558,7 +565,8 @@ export class SpatialAnalysisEngine {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           geometry: aoiFeature.geometry,
-          regionName: regionLabel
+          regionName: regionLabel,
+          year: yr
         })
       });
 
@@ -573,9 +581,10 @@ export class SpatialAnalysisEngine {
             thermalStats: json.thermalStats,
             dominantClass: json.dominantClass,
             timestamp: formatAnalysisTimestamp(),
+            year: yr,
             geojson: aoiFeature,
             isEstimated: false,
-            estimationMethod: 'Google Earth Engine Cloud (Live reduceRegion)',
+            estimationMethod: `Google Earth Engine Cloud (Live reduceRegion - ${yr})`,
             isRealGEE: true,
             totalPixelCount: json.totalPixelCount,
             computationSource: json.source
@@ -588,7 +597,7 @@ export class SpatialAnalysisEngine {
 
     // 2. 100% Free Way: Real Client-Side Raster Pixel Sampling
     try {
-      return await this.computeZonalStatsClientSampled(aoiFeature, regionLabel);
+      return await this.computeZonalStatsClientSampled(aoiFeature, regionLabel, yr);
     } catch (clientErr) {
       logger.warn('[SpatialAnalysis] Client-side pixel sampling failed:', clientErr);
       throw new Error("Analisis spasial gagal: Data satelit LULC atau Open-Meteo LST tidak dapat dijangkau.");
