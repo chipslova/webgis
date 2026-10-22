@@ -266,13 +266,28 @@ describe('Satellite Image Filter Adjustments (Brightness, Contrast, Saturation)'
     const jktPreset = presets.find((p) => p.id === 'jakarta-urban');
     expect(jktPreset).toBeDefined();
     expect(jktPreset?.recommendedProduct).toBe('s2-ndbi');
+    expect(jktPreset?.recommendedBasemap).toBe('esri-streets');
+    expect(jktPreset?.defaultOpacity).toBe(0.75);
+
+    const citarumPreset = presets.find((p) => p.id === 'citarum-floodplain');
+    expect(citarumPreset?.recommendedBasemap).toBe('esri-streets');
+    expect(citarumPreset?.defaultOpacity).toBe(0.70);
+
+    const mockMapManager = {
+      setBasemap: vi.fn().mockResolvedValue(true)
+    };
+    loader.setMapManager(mockMapManager);
 
     loader.flyToPreset(palangkaPreset!);
     expect(mockMap.flyTo).toHaveBeenCalledWith(expect.objectContaining({
       center: palangkaPreset!.center,
       zoom: palangkaPreset!.zoom
     }));
+    expect(mockMapManager.setBasemap).toHaveBeenCalledWith('esri-imagery', expect.objectContaining({
+      clearOverlays: false
+    }));
     expect(loader.getActiveProductId()).toBe('s2-ndmi');
+    expect(loader.getOpacity()).toBe(0.75);
   });
 
   it('should have s2-bsi disabled with upstream server error notice', () => {

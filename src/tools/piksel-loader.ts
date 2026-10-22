@@ -98,6 +98,12 @@ export class PikselLoader {
     return slot === 0 ? `piksel-raster-src-${productId}` : `piksel-raster-src-${productId}-buf`;
   }
 
+  private mapManagerRef: any = null;
+
+  public setMapManager(mapManager: any) {
+    this.mapManagerRef = mapManager;
+  }
+
   public setBasemapCustomizer(_customizer: any) {
     // Preserved for modular compatibility
   }
@@ -1254,6 +1260,20 @@ export class PikselLoader {
   public flyToPreset(preset: PikselPreset) {
     if (!this.map) return;
 
+    // 1. If preset specifies a recommended basemap, switch to it without wiping overlays
+    if (preset.recommendedBasemap && this.mapManagerRef && typeof this.mapManagerRef.setBasemap === 'function') {
+      this.mapManagerRef.setBasemap(preset.recommendedBasemap, {
+        clearOverlays: false,
+        targetView: {
+          center: preset.center,
+          zoom: preset.zoom,
+          pitch: preset.pitch || 0,
+          bearing: 0
+        }
+      });
+    }
+
+    // 2. Smoothly animate camera to preset viewpoint
     this.map.flyTo({
       center: preset.center,
       zoom: preset.zoom,
@@ -1263,10 +1283,17 @@ export class PikselLoader {
       essential: true
     });
 
-    // Automatically activate the optimal satellite analysis product for this preset location
+    // 3. Set preset default opacity (default 0.75 so underlying basemap details show through)
+    const targetOpacity = preset.defaultOpacity ?? 0.75;
+    this.currentOpacity = targetOpacity;
+
+    // 4. Automatically activate the optimal satellite analysis product for this preset location
     if (preset.recommendedProduct) {
       this.setActiveProduct(preset.recommendedProduct);
     }
+
+    // 5. Apply opacity to active raster layer
+    this.setOpacity(targetOpacity);
   }
 
   public restoreAfterStyleChange() {

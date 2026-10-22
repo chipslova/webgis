@@ -6,6 +6,7 @@ import {
   S2_YEARS
 } from '../config/piksel';
 import { showToast } from './toast';
+import { BASEMAPS } from '../config/basemaps';
 
 export class PikselPanelUI {
   private pikselLoader: PikselLoader;
@@ -698,7 +699,9 @@ export class PikselPanelUI {
             this.activePresetId = preset.id;
             this.pikselLoader.flyToPreset(preset);
             const prod = PIKSEL_PRODUCTS.find(p => p.id === preset.recommendedProduct);
-            showToast(`Mengarahkan peta ke ${preset.name} (${prod?.name || 'Citra Satelit'})`, 'info');
+            const bm = preset.recommendedBasemap ? BASEMAPS.find(b => b.id === preset.recommendedBasemap) : null;
+            const bmText = bm ? ` • Peta Dasar: ${bm.name}` : '';
+            showToast(`Mengarahkan peta ke ${preset.name} (${prod?.name || 'Citra Satelit'}${bmText})`, 'info');
           }
           this.render();
           if (typeof window !== 'undefined' && window.innerWidth <= 768) {

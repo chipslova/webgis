@@ -43,6 +43,16 @@ export class BasemapCustomizerUI {
       });
     }
 
+    if (typeof window !== 'undefined') {
+      window.addEventListener('webgis:basemap-selected', (e: Event) => {
+        const customEvent = e as CustomEvent;
+        if (customEvent.detail?.basemapId) {
+          this.customizer.setBasemapId(customEvent.detail.basemapId);
+        }
+        this.syncUI();
+      });
+    }
+
     if (this.pikselLoader) {
       this.pikselLoader.onLayersChange(() => {
         this.syncUI();
@@ -569,6 +579,9 @@ export class BasemapCustomizerUI {
 
     // 1. Sync Basemap Popover active states and sidebar card
     document.querySelectorAll<HTMLElement>('.basemap-popover-item').forEach(item => {
+      item.classList.toggle('active', item.dataset.id === currentBasemapId);
+    });
+    document.querySelectorAll<HTMLElement>('.basemap-card').forEach(item => {
       item.classList.toggle('active', item.dataset.id === currentBasemapId);
     });
 

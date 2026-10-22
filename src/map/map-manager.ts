@@ -9,6 +9,16 @@ import { logger } from '../utils/logger';
 
 setWorkerUrl(workerUrl);
 
+export interface SetBasemapOptions {
+  clearOverlays?: boolean;
+  targetView?: {
+    center: [number, number] | { lng: number; lat: number };
+    zoom: number;
+    pitch?: number;
+    bearing?: number;
+  };
+}
+
 export class MapManager {
   private map: maplibregl.Map | null = null;
   private containerId: string;
@@ -577,22 +587,27 @@ export class MapManager {
     this.enforceLayerOrder();
   }
 
-  public async setBasemap(basemapId: string): Promise<boolean> {
+  public async setBasemap(basemapId: string, options?: SetBasemapOptions): Promise<boolean> {
     if (!this.map) return false;
     const target = BASEMAPS.find(b => b.id === basemapId);
     if (!target) return false;
 
     this.currentBasemapId = basemapId;
 
-    // Mutually exclusive: When user explicitly selects a basemap,
-    // clear active satellite overlay so the chosen basemap is 100% visible and not covered up
-    if (this.pikselLoaderRef && typeof (this.pikselLoaderRef as any).getActiveProductId === 'function') {
-      if ((this.pikselLoaderRef as any).getActiveProductId()) {
-        (this.pikselLoaderRef as any).setActiveProduct(null);
+    const clearOverlays = options?.clearOverlays ?? true;
+
+    // Mutually exclusive: When user explicitly selects a basemap (clearOverlays = true),
+    // clear active satellite overlay so the chosen basemap is 100% visible and not covered up.
+    // When preset automation switches basemap (clearOverlays = false), keep overlay intact.
+    if (clearOverlays) {
+      if (this.pikselLoaderRef && typeof (this.pikselLoaderRef as any).getActiveProductId === 'function') {
+        if ((this.pikselLoaderRef as any).getActiveProductId()) {
+          (this.pikselLoaderRef as any).setActiveProduct(null);
+        }
       }
-    }
-    if (this.geeLoaderRef && typeof (this.geeLoaderRef as any).clearAllLayers === 'function') {
-      (this.geeLoaderRef as any).clearAllLayers();
+      if (this.geeLoaderRef && typeof (this.geeLoaderRef as any).clearAllLayers === 'function') {
+        (this.geeLoaderRef as any).clearAllLayers();
+      }
     }
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('webgis:basemap-selected', { detail: { basemapId } }));
@@ -605,11 +620,11 @@ export class MapManager {
     }
 
     // Retain view parameters, clamping zoom if target basemap has lower ceiling
-    const center = this.map.getCenter();
-    const currentZoom = this.map.getZoom();
+    const center = options?.targetView?.center ?? this.map.getCenter();
+    const currentZoom = options?.targetView?.zoom ?? this.map.getZoom();
     const targetZoom = target.maxZoom !== undefined ? Math.min(currentZoom, target.maxZoom) : currentZoom;
-    const pitch = this.map.getPitch();
-    const bearing = this.map.getBearing();
+    const pitch = options?.targetView?.pitch ?? this.map.getPitch();
+    const bearing = options?.targetView?.bearing ?? this.map.getBearing();
 
     if (target.maxZoom !== undefined && currentZoom > target.maxZoom) {
       showToast(`Zoom disesuaikan ke level maksimum basemap (Z${target.maxZoom})`, 'warning');

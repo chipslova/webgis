@@ -104,6 +104,8 @@ export interface PikselPreset {
   pitch?: number;
   description: string;
   recommendedProduct: string;
+  recommendedBasemap?: string;
+  defaultOpacity?: number;
 }
 
 export const PIKSEL_CATEGORIES: { id: ProductCategory; name: string; icon: string; subtitle: string }[] = [
@@ -592,7 +594,9 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     zoom: 12,
     pitch: 35,
     description: 'Kaldera Bromo, lautan pasir, dan morfologi vulkanik dengan GeoMAD True Color.',
-    recommendedProduct: 's2-geomad-rgb'
+    recommendedProduct: 's2-geomad-rgb',
+    recommendedBasemap: 'esri-imagery',
+    defaultOpacity: 0.85
   },
   {
     id: 'toba',
@@ -602,7 +606,9 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     zoom: 10.5,
     pitch: 20,
     description: 'Analisis badan air dan garis pantai kaldera Danau Toba menggunakan NDWI.',
-    recommendedProduct: 's2-ndwi'
+    recommendedProduct: 's2-ndwi',
+    recommendedBasemap: 'esri-topographic',
+    defaultOpacity: 0.75
   },
   {
     id: 'ikn',
@@ -612,7 +618,9 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     zoom: 11.5,
     pitch: 25,
     description: 'Pemantauan tutupan hutan tropis dan pembangunan infrastruktur baru dengan NDVI.',
-    recommendedProduct: 's2-ndvi'
+    recommendedProduct: 's2-ndvi',
+    recommendedBasemap: 'esri-imagery',
+    defaultOpacity: 0.75
   },
   {
     id: 'citarum-floodplain',
@@ -621,7 +629,9 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     center: [107.2500, -6.2200],
     zoom: 10.5,
     description: 'Zonasi bahaya banjir hidrologis di sepanjang hilir DAS Citarum.',
-    recommendedProduct: 'flood-hazard-rp02'
+    recommendedProduct: 'flood-hazard-rp02',
+    recommendedBasemap: 'esri-streets',
+    defaultOpacity: 0.70
   },
   {
     id: 'gag-island',
@@ -630,7 +640,9 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     center: [129.8900, -0.4500],
     zoom: 12.5,
     description: 'Morfologi kepulauan tropis dan tutupan vegetasi pesisir dengan GeoMAD True Color.',
-    recommendedProduct: 's2-geomad-rgb'
+    recommendedProduct: 's2-geomad-rgb',
+    recommendedBasemap: 'esri-imagery',
+    defaultOpacity: 0.80
   },
   {
     id: 'merapi',
@@ -640,7 +652,9 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     zoom: 12,
     pitch: 30,
     description: 'Morfologi kubah lava aktif, jalur lahar, dan lereng vegetasi dengan False Color NIR.',
-    recommendedProduct: 's2-geomad-nir'
+    recommendedProduct: 's2-geomad-nir',
+    recommendedBasemap: 'esri-topographic',
+    defaultOpacity: 0.75
   },
   {
     id: 'jakarta-urban',
@@ -650,7 +664,9 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     zoom: 11.5,
     pitch: 20,
     description: 'Delineasi kawasan perkotaan dan konsentrasi tapak bangunan fisik menggunakan NDBI (tampak magenta/ungu pekat pada area pemukiman padat).',
-    recommendedProduct: 's2-ndbi'
+    recommendedProduct: 's2-ndbi',
+    recommendedBasemap: 'esri-streets',
+    defaultOpacity: 0.75
   },
   {
     id: 'palangka-raya-karhutla',
@@ -660,7 +676,9 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     zoom: 11,
     pitch: 20,
     description: 'Analisis kadar air vegetasi rawa gambut primer dengan NDMI (tampak biru tua karena tutupan kanopi basah dan tergenang alami).',
-    recommendedProduct: 's2-ndmi'
+    recommendedProduct: 's2-ndmi',
+    recommendedBasemap: 'esri-imagery',
+    defaultOpacity: 0.75
   },
   {
     id: 'riau-peatland',
@@ -670,7 +688,9 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     zoom: 10.5,
     pitch: 15,
     description: 'Pemantauan kadar air kanopi vegetasi gambut pesisir Sumatra dengan NDMI (tampak gradien biru sesuai kelembapan kanopi).',
-    recommendedProduct: 's2-ndmi'
+    recommendedProduct: 's2-ndmi',
+    recommendedBasemap: 'esri-imagery',
+    defaultOpacity: 0.75
   },
   {
     id: 'jatim-count',
@@ -680,7 +700,9 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     zoom: 10.5,
     pitch: 15,
     description: 'Wilayah dengan konsentrasi data bebas awan tertinggi di Indonesia (>30 scene/tahun) akibat iklim monsun kering.',
-    recommendedProduct: 's2-count'
+    recommendedProduct: 's2-count',
+    recommendedBasemap: 'esri-dark-grey',
+    defaultOpacity: 0.75
   },
   {
     id: 'bali-landsat9',
@@ -690,7 +712,9 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     zoom: 10,
     pitch: 20,
     description: 'Lintasan orbit Landsat 9 OLI-2 dengan data reflektansi permukaan 30m paling lengkap dan tajam di Indonesia.',
-    recommendedProduct: 'ls9-sr'
+    recommendedProduct: 'ls9-sr',
+    recommendedBasemap: 'esri-topographic',
+    defaultOpacity: 0.80
   }
 ];
 
