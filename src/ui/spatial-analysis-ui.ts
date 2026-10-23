@@ -893,7 +893,9 @@ export class SpatialAnalysisUI {
           <!-- Suhu Rata-rata & Rentang -->
           <div style="background: rgba(15, 23, 42, 0.7); padding: 6px 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
             <div>
-              <div style="font-size: 9.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px;">Suhu Permukaan (LST)</div>
+              <div style="font-size: 9.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px;">
+                ${res.isRealGEE ? 'Suhu Permukaan LST (Google Earth Engine)' : res.isClientSampled ? 'Suhu Permukaan NWP (Open-Meteo)' : 'Suhu Permukaan (Model Proxy)'}
+              </div>
               <div style="font-size: 16px; font-weight: 700; color: #f59e0b; margin-top: 1px;">
                 ${res.thermalStats.meanTempC}°C
               </div>
@@ -909,7 +911,7 @@ export class SpatialAnalysisUI {
           <!-- Paparan Panas UHI & Risiko -->
           <div style="background: rgba(15, 23, 42, 0.7); padding: 6px 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 6px;">
             <div style="min-width: 0; flex: 1;">
-              <div style="font-size: 9.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px;">Paparan Panas UHI</div>
+              <div style="font-size: 9.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px;">Paparan Panas Wilayah</div>
               <div style="font-size: 10px; color: #cbd5e1; margin-top: 1px; white-space: nowrap;">
                 Hotspot: <strong style="color: #fff;">${res.thermalStats.hotspotAreaKm2 >= 1000 ? Math.round(res.thermalStats.hotspotAreaKm2).toLocaleString('id-ID') : res.thermalStats.hotspotAreaKm2.toLocaleString('id-ID')} km²</strong> (${res.thermalStats.hotspotPercentage}%)
               </div>
@@ -936,7 +938,7 @@ export class SpatialAnalysisUI {
           </div>
 
           <div style="font-size: 9.5px; color: #94a3b8; line-height: 1.4; background: rgba(0, 0, 0, 0.25); border: 1px dashed rgba(255, 255, 255, 0.1); padding: 5px 7px; border-radius: 5px;">
-            🔬 <em>LST mengukur suhu radiatif tanah (MODIS), dan presipitasi mengukur intensitas air hujan (CHIRPS &amp; NASA GPM).</em>
+            🔬 <em>Catatan Sumber: ${res.isRealGEE ? 'Suhu LST dihitung dari komposit satelit MODIS di Google Earth Engine.' : 'Suhu & presipitasi diperoleh dari model prediksi cuaca numerik Open-Meteo (GFS/ECMWF), terpisah dari komposit satelit radiometric LST.'}</em>
           </div>
         </div>
 

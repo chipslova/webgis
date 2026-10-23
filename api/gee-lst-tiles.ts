@@ -215,7 +215,7 @@ export default async function handler(req: any, res: any) {
     status: 'fallback',
     isFallback: true,
     tileUrlTemplate,
-    message: 'Kunci GEE belum dikonfigurasi. Citra raster termal ditampilkan via NASA GIBS WMS (1 km), kalkulasi vektor menggunakan model aproksimasi regional ~50 km.',
+    message: 'Kunci GEE belum dikonfigurasi. Citra raster termal ditampilkan secara visual via NASA GIBS WMS resmi (1 km). Analisis numerik live memerlukan kredensial Google Earth Engine.',
     dataset: 'NASA LP DAAC MODIS LST (MOD11A2 / MYD11A2) via NASA GIBS WMS',
     satellite,
     mode,
@@ -223,11 +223,7 @@ export default async function handler(req: any, res: any) {
     min: minTemp,
     max: maxTemp,
     palette,
-    resolution: '1 km (NASA GIBS Raster) / ~50 km (Model Fallback)',
-    urbanBaseline: 34.8,
-    ruralBaseline: 21.2,
-    deltaUhi: 13.6,
-    activeStationsCount: 18,
-    provenance: 'NASA GIBS OGC WMS (1 km) with Precomputed Regional Baseline Model'
+    resolution: '1 km (NASA GIBS WMS Composite)',
+    provenance: 'NASA GIBS OGC WMS (1 km Global MODIS Land Surface Temperature Composite)'
   });
 }

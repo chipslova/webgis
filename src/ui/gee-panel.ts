@@ -71,9 +71,9 @@ export class GEEPanelUI {
     const computeStatus = document.getElementById('gee-compute-status');
 
     if (status === 'live') {
-      const satName = metadata?.satellite === 'aqua' ? 'Aqua (Siang)' : 'Terra (Pagi)';
+      const satName = metadata?.satellite === 'aqua' ? 'Aqua (Siang 13:30)' : 'Terra (Pagi 10:30)';
       if (pill) { pill.style.background = '#16a34a'; pill.innerText = '● LIVE GEE'; }
-      if (desc) desc.innerHTML = `Satelit <strong>${satName}</strong> · Suhu kulit daratan (bebas awan). Lautan transparan.`;
+      if (desc) desc.innerHTML = `Komputasi Live GEE: Satelit <strong>${satName}</strong> · Suhu kulit daratan LST (bebas awan). Lautan dimasking transparan.`;
       if (datasetLabel) datasetLabel.innerHTML = `Dataset: <code>${metadata?.dataset || 'MODIS/061/MOD11A2'}</code>`;
       if (computeStatus) computeStatus.style.display = 'none';
     } else if (status === 'computing') {
@@ -81,12 +81,12 @@ export class GEEPanelUI {
       if (desc) desc.innerText = 'Menghitung komposit Google Earth Engine...';
       if (computeStatus) { computeStatus.style.display = 'block'; computeStatus.innerText = 'Menghubungi GEE Serverless API...'; }
     } else if (status === 'error') {
-      if (pill) { pill.style.background = '#ef4444'; pill.innerText = '✕ OFFLINE'; }
-      if (desc) desc.innerText = 'Layanan GEE offline. Menampilkan raster cadangan NASA GIBS.';
+      if (pill) { pill.style.background = '#ef4444'; pill.innerText = '✕ GAGAL'; }
+      if (desc) desc.innerText = 'Layanan komputasi GEE tidak dapat dijangkau. Menampilkan citra raster resmi cadangan NASA GIBS.';
       if (computeStatus) computeStatus.style.display = 'none';
     } else {
-      if (pill) { pill.style.background = '#0284c7'; pill.innerText = '● NASA GIBS'; }
-      if (desc) desc.innerText = 'Raster komposit MODIS 1 km (8-harian). Wilayah lautan transparan.';
+      if (pill) { pill.style.background = '#0284c7'; pill.innerText = '● NASA GIBS (Raster Fallback)'; }
+      if (desc) desc.innerText = 'Citra resmi komposit MODIS LST 1 km via NASA GIBS WMS. Analisis numerik live GEE memerlukan konfigurasi API.';
       if (computeStatus) computeStatus.style.display = 'none';
     }
   }
@@ -675,7 +675,7 @@ export class GEEPanelUI {
       const satellite = (satSelect?.value || 'terra') as 'terra' | 'aqua';
 
       let isUnconfigured = false;
-      const fetchTemp = async (coords: {lat: number, lon: number}) => {
+      const fetchTemp = async (coords: {lat: number, lon: number}): Promise<{ val: number; date: string } | null> => {
         const res = await fetch('/api/gee-timeseries', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -692,13 +692,13 @@ export class GEEPanelUI {
         for (let i = tsData.length - 1; i >= 0; i--) {
           const val = tsData[i].day_c;
           if (val !== null && val !== undefined) {
-            return val; // already in Celsius
+            return { val, date: tsData[i].date }; // already in Celsius
           }
         }
         return null;
       };
 
-      const [jktTemp, bdgTemp] = await Promise.all([
+      const [jktRes, bdgRes] = await Promise.all([
         fetchTemp(jakarta).catch(() => null),
         fetchTemp(bandung).catch(() => null)
       ]);
@@ -711,11 +711,11 @@ export class GEEPanelUI {
 
       const satLabel = satellite === 'aqua' ? 'MODIS Aqua (Siang 13:30)' : 'MODIS Terra (Pagi 10:30)';
 
-      if (jktTemp !== null && bdgTemp !== null) {
-        if (jktEl) jktEl.innerHTML = `${jktTemp.toFixed(1)} <span class="gee-comp-unit">°C</span>`;
-        if (bdgEl) bdgEl.innerHTML = `${bdgTemp.toFixed(1)} <span class="gee-comp-unit">°C</span>`;
+      if (jktRes !== null && bdgRes !== null) {
+        if (jktEl) jktEl.innerHTML = `${jktRes.val.toFixed(1)} <span class="gee-comp-unit">°C</span>`;
+        if (bdgEl) bdgEl.innerHTML = `${bdgRes.val.toFixed(1)} <span class="gee-comp-unit">°C</span>`;
         
-        const delta = jktTemp - bdgTemp;
+        const delta = jktRes.val - bdgRes.val;
         if (deltaEl) {
           deltaEl.innerHTML = `Δ ${delta > 0 ? '+' : ''}${delta.toFixed(1)} <span class="gee-delta-unit">°C</span>`;
           deltaEl.style.color = '#ffffff';
@@ -723,20 +723,22 @@ export class GEEPanelUI {
           deltaEl.style.borderColor = delta > 10 ? '#ef4444' : '#f59e0b';
         }
         
-        if (jktSrc) { jktSrc.innerText = `${satLabel} · Live GEE`; jktSrc.style.color = '#10b981'; }
-        if (bdgSrc) { bdgSrc.innerText = `${satLabel} · Live GEE`; bdgSrc.style.color = '#10b981'; }
+        if (jktSrc) { jktSrc.innerText = `${satLabel} (${jktRes.date}) · Live GEE`; jktSrc.style.color = '#10b981'; }
+        if (bdgSrc) { bdgSrc.innerText = `${satLabel} (${bdgRes.date}) · Live GEE`; bdgSrc.style.color = '#10b981'; }
       } else {
-        if (jktEl) jktEl.innerText = jktTemp !== null ? `${jktTemp.toFixed(1)} °C` : (isUnconfigured ? 'N/A' : 'Berawan (N/A)');
-        if (bdgEl) bdgEl.innerText = bdgTemp !== null ? `${bdgTemp.toFixed(1)} °C` : (isUnconfigured ? 'N/A' : 'Berawan (N/A)');
+        const jktVal = jktRes?.val ?? null;
+        const bdgVal = bdgRes?.val ?? null;
+        if (jktEl) jktEl.innerText = jktVal !== null ? `${jktVal.toFixed(1)} °C` : (isUnconfigured ? 'N/A' : 'Tidak Ada Observasi');
+        if (bdgEl) bdgEl.innerText = bdgVal !== null ? `${bdgVal.toFixed(1)} °C` : (isUnconfigured ? 'N/A' : 'Tidak Ada Observasi');
         if (deltaEl) {
           deltaEl.innerText = 'Δ N/A';
           deltaEl.style.color = '#ffffff';
           deltaEl.style.background = '#475569';
           deltaEl.style.borderColor = '#64748b';
         }
-        const fallbackNote = isUnconfigured ? 'Data numerik demo' : `${satLabel} · Terhalang Awan`;
-        if (jktSrc) { jktSrc.innerText = fallbackNote; jktSrc.style.color = isUnconfigured ? '#94a3b8' : '#fbbf24'; }
-        if (bdgSrc) { bdgSrc.innerText = fallbackNote; bdgSrc.style.color = isUnconfigured ? '#94a3b8' : '#fbbf24'; }
+        const fallbackNote = isUnconfigured ? 'Layanan numerik GEE belum terkonfigurasi' : `${satLabel} · Tidak ada observasi valid`;
+        if (jktSrc) { jktSrc.innerText = jktRes ? `${satLabel} (${jktRes.date})` : fallbackNote; jktSrc.style.color = isUnconfigured ? '#94a3b8' : '#fbbf24'; }
+        if (bdgSrc) { bdgSrc.innerText = bdgRes ? `${satLabel} (${bdgRes.date})` : fallbackNote; bdgSrc.style.color = isUnconfigured ? '#94a3b8' : '#fbbf24'; }
       }
     } catch (err) {
       console.warn('Failed to update thermal contrast:', err);

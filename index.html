@@ -154,6 +154,10 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8.01"/><line x1="10" y1="8" x2="10" y2="8.01"/><line x1="14" y1="8" x2="14" y2="8.01"/><line x1="18" y1="8" x2="18" y2="8.01"/><line x1="6" y1="12" x2="6" y2="12.01"/><line x1="18" y1="12" x2="18" y2="12.01"/><line x1="8" y1="16" x2="16" y2="16"/></svg>
                 <span>Pintasan Keyboard (?)</span>
               </button>
+              <button class="more-item" id="more-item-methodology" role="menuitem">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><circle cx="12" cy="8" r="1" fill="currentColor"/></svg>
+                <span>Metodologi &amp; Sains (P4)</span>
+              </button>
               <button class="more-item" id="more-item-export" role="menuitem">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                 <span>Ekspor Peta (PNG)</span>
@@ -441,13 +445,13 @@
                           <div class="gee-weather-hero">
                             <div class="gee-weather-loc-row">
                               <span class="gee-weather-city" id="gee-weather-city">📍 Jakarta Pusat</span>
-                              <span class="gee-weather-source-pill">NASA MODIS 1km</span>
+                              <span class="gee-weather-source-pill">NASA MODIS LST (1 km)</span>
                             </div>
                             <div class="gee-weather-main-display">
                               <span class="gee-weather-icon" id="gee-weather-icon">☀️</span>
                               <div class="gee-weather-temp-group">
                                 <div class="gee-weather-temp" id="gee-weather-temp">--.- °C</div>
-                                <div class="gee-weather-temp-sub">Estimasi Suhu Permukaan Daratan</div>
+                                <div class="gee-weather-temp-sub">Suhu Kulit Permukaan Daratan (LST)</div>
                               </div>
                             </div>
                           </div>
@@ -495,10 +499,10 @@
                           <div class="gee-weather-expl">
                             <div class="gee-weather-expl-row">
                               <span class="gee-weather-expl-dot">🟢</span>
-                              <span><strong>Citra Satelit NASA MODIS:</strong> Visualisasi peta kontinu via NASA GIBS WMS (1 km) &amp; komputasi numerik titik via Google Earth Engine API saat terkonfigurasi.</span>
+                              <span><strong>Citra Satelit NASA MODIS:</strong> Visualisasi raster via NASA GIBS WMS (1 km) &amp; komputasi numerik titik via Google Earth Engine API saat terkonfigurasi.</span>
                             </div>
                             <div class="gee-weather-cycle-info">
-                              ℹ️ <strong>Siklus Pengamatan:</strong> Komposit 8-harian terkalibrasi NASA Land Processes DAAC.
+                              ℹ️ <strong>Catatan Metodologi:</strong> MODIS LST mengukur suhu kulit radiatif permukaan daratan (skin temperature) dari komposit 8-harian satelit Terra/Aqua, bukan suhu udara ambien (termometer 2m).
                             </div>
                           </div>
                         </div>
@@ -524,26 +528,29 @@
                         <!-- Unified Metric Comparison Card (Urban vs Forest Baseline + SUHI Delta) -->
                         <div class="gee-card gee-metric-comparison" style="margin-bottom: 8px; border-color: rgba(245, 158, 11, 0.2);">
                           <div class="gee-comparison-header">
-                            <span class="gee-section-title">📊 Kontras Suhu Permukaan (LST Difference)</span>
-                            <span class="piksel-hint">Perkotaan vs Pegunungan</span>
+                            <span class="gee-section-title">📊 Perbedaan Suhu Permukaan Daratan (LST)</span>
+                            <span class="piksel-hint">Jakarta vs Bandung</span>
                           </div>
                           <div class="gee-comparison-grid">
                             <div class="gee-comp-col urban">
-                              <div class="gee-comp-label">🏢 Jakarta (Pesisir &amp; Kota)</div>
+                              <div class="gee-comp-label">🏢 Jakarta (Pesisir &amp; Dataran Rendah)</div>
                               <div class="gee-comp-val" id="metric-jakarta-lst">...</div>
-                              <div class="gee-comp-sub">UHI Siang Hari</div>
+                              <div class="gee-comp-sub">LST Satelit MODIS 1 km</div>
                               <div class="gee-comp-sub" id="metric-jkt-src" style="color: #fbbf24; font-size: 9px; margin-top: 4px;">Loading GEE...</div>
                             </div>
                             <div class="gee-comp-divider">
                               <span class="gee-delta-badge" id="metric-suhi-delta">...</span>
-                              <span class="gee-delta-sub">Selisih Suhu</span>
+                              <span class="gee-delta-sub">Selisih LST (Jkt − Bdg)</span>
                             </div>
                             <div class="gee-comp-col rural">
-                              <div class="gee-comp-label">🌲 Bandung (Pegunungan)</div>
+                              <div class="gee-comp-label">🌲 Bandung (Dataran Tinggi ~700–1.200 m)</div>
                               <div class="gee-comp-val" id="metric-bandung-lst">...</div>
-                              <div class="gee-comp-sub">Elevasi 1.240m (Lapse Rate)</div>
+                              <div class="gee-comp-sub">Efek Lapse Rate Topografi</div>
                               <div class="gee-comp-sub" id="metric-bdg-src" style="color: #fbbf24; font-size: 9px; margin-top: 4px;">Loading GEE...</div>
                             </div>
+                          </div>
+                          <div style="font-size: 8.5px; color: #94a3b8; line-height: 1.35; padding: 4px 6px; background: rgba(0, 0, 0, 0.25); border-radius: 4px; margin-top: 6px;">
+                            ℹ️ <em>Catatan Ilmiah: Selisih suhu ini adalah perbandingan LST satelit, bukan estimasi Urban Heat Island (UHI) formal. Perbedaan dipengaruhi oleh elevasi topografi (lapse rate ~0.6°C/100m) dan tutupan vegetasi.</em>
                           </div>
                           <button id="btn-gee-quick-compare-lst" type="button" class="btn btn-outline full-width" style="margin-top: 8px; font-size: 10.5px; padding: 4px 8px; border-color: rgba(245, 158, 11, 0.35); color: #fbbf24; display: flex; align-items: center; justify-content: center; gap: 5px;">
                             <span>⚖️</span>
@@ -624,8 +631,8 @@
                     <!-- 4. CHIRPS (GEE) & NASA GPM Precipitation -->
                     <div class="gee-layer-row gee-layer-item-clean">
                       <label>
-                        <input type="checkbox" id="toggle-gee-precipitation" aria-label="Toggle Curah Hujan Radar (GEE) layer" />
-                        <span>🌧️ <strong>Curah Hujan Radar (GEE)</strong> <span class="gee-layer-subtext">(mm/hari)</span></span>
+                        <input type="checkbox" id="toggle-gee-precipitation" aria-label="Toggle Estimasi Curah Hujan Satelit (CHIRPS) layer" />
+                        <span>🌧️ <strong>Estimasi Curah Hujan Satelit (CHIRPS)</strong> <span class="gee-layer-subtext">(mm/hari)</span></span>
                       </label>
                       <!-- Sub-controls: muncul otomatis saat Curah Hujan dicentang -->
                       <div id="gee-precip-subcontrols" style="display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(255, 255, 255, 0.1);">
@@ -637,17 +644,17 @@
                           <span id="gee-precip-opacity-val" class="gee-layer-opacity-val" style="color: #22c55e; min-width: 32px; text-align: right;">85%</span>
                         </div>
 
-                        <!-- Pilihan Waktu Radar: Arsip Satelit GEE CHIRPS -->
+                        <!-- Pilihan Waktu: Arsip Satelit GEE CHIRPS -->
                         <div class="gee-filter-grid" style="margin-bottom: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 8px; background: rgba(0, 0, 0, 0.2); border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);">
                           <div>
                             <label for="gee-precip-period-select" class="gee-filter-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                              <span>🕒 Periode Observasi GEE CHIRPS</span>
-                              <span style="font-size: 9.5px; color: #22c55e; font-weight: 600;">1981 – 2026</span>
+                              <span>🕒 Periode Observasi UCSB CHIRPS (GEE)</span>
+                              <span style="font-size: 9.5px; color: #22c55e; font-weight: 600;">1981 – Sekarang</span>
                             </label>
                             <select id="gee-precip-period-select" class="form-select gee-filter-select">
                               <optgroup label="Data Terkini di Katalog GEE">
-                                <option value="2024-08-15" selected>📡 Rilis Katalog GEE: Kemarau (Agu 2024)</option>
-                                <option value="2024-01-15">🌧️ Puncak Musim Hujan (Jan 2024)</option>
+                                <option value="2024-08-15" selected>📡 Komposit Musim Kemarau (Agu 2024)</option>
+                                <option value="2024-01-15">🌧️ Komposit Puncak Musim Hujan (Jan 2024)</option>
                               </optgroup>
                               <optgroup label="Tahun 2023 (Anomali Iklim El Niño)">
                                 <option value="2023-08-15">🔥 Puncak El Niño Kuat / Sangat Kering (Agu 2023)</option>
@@ -664,8 +671,8 @@
                         <!-- Contextual Legend for Precipitation -->
                         <div id="gee-precip-legend" class="gee-lulc-box" style="margin-top: 4px; margin-bottom: 8px; padding: 6px 8px; border-color: rgba(34, 197, 94, 0.3); background: rgba(8, 20, 36, 0.7); border-radius: 6px;">
                           <div class="gee-lulc-title" style="color: #22c55e; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                            <span>🌧️ Skala Intensitas Curah Hujan Radar</span>
-                            <span style="font-size: 9px; color: var(--text-muted); font-weight: normal;">CHIRPS / GPM</span>
+                            <span>🌧️ Skala Estimasi Presipitasi Satelit</span>
+                            <span style="font-size: 9px; color: var(--text-muted); font-weight: normal;">UCSB CHIRPS Daily (GEE)</span>
                           </div>
                           <div class="gee-legend-bar" style="height: 7px; border-radius: 3.5px; margin: 4px 0; background: linear-gradient(90deg, #00e400 0%, #ffff00 30%, #ff7e00 60%, #ff0000 85%, #99004c 100%);" aria-hidden="true"></div>
                           <div class="gee-legend-labels" style="font-size: 9px; display: flex; justify-content: space-between; color: #cbd5e1; font-weight: 500;">
@@ -676,7 +683,7 @@
                             <span>&gt;70 mm (Ekstrem)</span>
                           </div>
                           <div style="font-size: 9.5px; color: #94a3b8; margin-top: 4px; line-height: 1.35;">
-                            Area tanpa hujan otomatis <em>transparan 100%</em> agar peta dasar terlihat.
+                            Estimasi inframerah satelit dikalibrasi stasiun hujan (bukan radar cuaca darat). Area tanpa hujan <em>transparan 100%</em>.
                           </div>
                         </div>
 
@@ -1230,66 +1237,123 @@
               </details>
 
               <!-- Data Provenance Table (Collapsible Accordion) -->
-              <details class="clean-accordion">
+              <details class="clean-accordion" open>
                 <summary>
-                  <span>📊 Spesifikasi Teknis & Matriks Data</span>
+                  <span>📊 Spesifikasi Teknis &amp; Matriks Provenansi Data</span>
                 </summary>
                 <div class="accordion-body p-0">
                   <div class="table-responsive">
                     <table class="data-matrix-table">
                       <thead>
                         <tr>
-                          <th>Produk</th>
-                          <th>Penyedia / Sumber</th>
-                          <th>Resolusi</th>
-                          <th>Protokol / Tipe</th>
+                          <th>Produk Geospasial</th>
+                          <th>Penyedia / Satelit</th>
+                          <th>Resolusi Asli</th>
+                          <th>Protokol &amp; Sumber Layanan</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr>
-                          <td>Sentinel-2 GeoMAD</td>
-                          <td>BIG Piksel / ESA</td>
+                          <td><strong>Sentinel-2 GeoMAD RGB</strong></td>
+                          <td>BIG Piksel / ESA Sentinel-2</td>
                           <td>10 meter</td>
-                          <td>OGC WMS (ODC)</td>
+                          <td>OGC WMS 1.3.0 (Tahunan 2016–2025)</td>
                         </tr>
                         <tr>
-                          <td>Indeks Spektral (NDVI/NDWI)</td>
-                          <td>BIG Piksel / ODC</td>
+                          <td><strong>Indeks Spektral (NDVI, NDWI, NDBI)</strong></td>
+                          <td>BIG Piksel Open Data Cube</td>
                           <td>10 meter</td>
-                          <td>Visualisasi OGC WMS</td>
+                          <td>OGC WMS (Formula Aljabar Band Spektral)</td>
                         </tr>
                         <tr>
-                          <td>Landsat 9 Reflektansi Permukaan</td>
+                          <td><strong>Landsat 9 Surface Reflectance</strong></td>
                           <td>USGS / NASA (Piksel ODC)</td>
                           <td>30 meter</td>
-                          <td>OGC WMS (Tiled)</td>
+                          <td>OGC WMS 1.3.0 (Tiled Multi-spektral)</td>
                         </tr>
                         <tr>
-                          <td>Model Bahaya Banjir</td>
-                          <td>BIG Hidrologi</td>
-                          <td>10 meter</td>
-                          <td>WMS Raster Fisik</td>
-                        </tr>
-                        <tr>
-                          <td>MODIS Suhu Permukaan (LST Siang)</td>
-                          <td>Analisis Terkomputasi (Metode GEE)</td>
+                          <td><strong>NASA MODIS LST (MOD11A2 / MYD11A2)</strong></td>
+                          <td>NASA Land Processes DAAC</td>
                           <td>1.000 meter</td>
-                          <td>Grid Termal Analitis</td>
+                          <td>NASA GIBS WMS (Visual) &amp; GEE Cloud (Numerik)</td>
                         </tr>
                         <tr>
-                          <td>Topografi SRTM</td>
-                          <td>USGS / NASA</td>
-                          <td>30 meter</td>
-                          <td>Model Elevasi Digital (DEM)</td>
+                          <td><strong>Estimasi Presipitasi Harian CHIRPS</strong></td>
+                          <td>UC Santa Barbara CHG &amp; USGS</td>
+                          <td>0.05° (~5.3 km)</td>
+                          <td>Google Earth Engine (UCSB-CHG/CHIRPS/DAILY)</td>
                         </tr>
                         <tr>
-                          <td>Tutupan Lahan Esri 10m LULC</td>
-                          <td>ESA</td>
+                          <td><strong>Tutupan Lahan ESA WorldCover v200</strong></td>
+                          <td>European Space Agency (ESA)</td>
                           <td>10 meter</td>
-                          <td>Klasifikasi Tutupan Lahan</td>
+                          <td>Google Earth Engine (ESA/WorldCover/v200 - 11 Kelas)</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Tutupan Lahan Sentinel-2 10m LULC</strong></td>
+                          <td>Esri &amp; Impact Observatory</td>
+                          <td>10 meter</td>
+                          <td>ArcGIS ImageServer REST (exportImage 2017–2024)</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Model Medan Topografi 3D &amp; DEM</strong></td>
+                          <td>AWS Terrarium (SRTM / Copernicus DEM)</td>
+                          <td>30 meter</td>
+                          <td>MapLibre WebGL Raster DEM Mesh (Tingkat Ketelitian 0.1m)</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Model Cuaca Numerik NWP</strong></td>
+                          <td>Open-Meteo (ECMWF IFS / GFS)</td>
+                          <td>~11–25 km</td>
+                          <td>REST API (Suhu 2m, Tekanan, &amp; Model Permukaan)</td>
                         </tr>
                       </tbody>
                     </table>
+                  </div>
+                </div>
+              </details>
+
+              <!-- Scientific Methodology & Reproducibility Guide (P4) -->
+              <details class="clean-accordion mt-12" open id="sec-scientific-methodology">
+                <summary>
+                  <span>🔬 Metodologi Ilmiah &amp; Panduan Reproduktibilitas</span>
+                </summary>
+                <div class="accordion-body">
+                  <div style="font-size: 11px; line-height: 1.55; color: #cbd5e1; display: flex; flex-direction: column; gap: 10px;">
+                    <div>
+                      <strong style="color: #38bdf8;">1. Formulasi Matematika &amp; Aljabar Band</strong>
+                      <ul style="margin: 4px 0 0 16px; padding: 0;">
+                        <li><strong>Konversi Nilai MODIS LST (Celsius):</strong> <br/><code>T (°C) = (DN × 0.02) − 273.15</code> (Faktor skala radiometrik 0.02 Kelvin, offset 273.15).</li>
+                        <li><strong>Normalized Difference Vegetation Index (NDVI):</strong> <br/><code>NDVI = (B8 − B4) / (B8 + B4)</code> (Band 8 NIR 842nm, Band 4 Merah 665nm).</li>
+                        <li><strong>Normalized Difference Water Index (NDWI McFeeters):</strong> <br/><code>NDWI = (B3 − B8) / (B3 + B8)</code> (Band 3 Hijau 560nm, Band 8 NIR 842nm).</li>
+                        <li><strong>Normalized Difference Built-up Index (NDBI):</strong> <br/><code>NDBI = (B11 − B8) / (B11 + B8)</code> (Band 11 SWIR-1 1610nm, Band 8 NIR).</li>
+                        <li><strong>Jarak Geodesik &amp; Luas Poligon Bola Bumi:</strong> Menggunakan ellipsoidal Great-Circle / Haversine dan Vincenty geodesic formulation pada library <code>@turf/length</code> dan <code>@turf/area</code> (Datum WGS84, EPSG:4326).</li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <strong style="color: #fbbf24;">2. Batasan Ilmiah &amp; Safeguard Perbandingan Suhu</strong>
+                      <ul style="margin: 4px 0 0 16px; padding: 0;">
+                        <li><strong>LST vs Suhu Udara:</strong> LST (Land Surface Temperature) mengukur suhu kulit radiatif permukaan tanah/atap bangunan, bukan suhu udara ambien 2m yang dirasakan tubuh manusia.</li>
+                        <li><strong>Perbedaan Jakarta vs Bandung Bukan UHI Murni:</strong> Jakarta (elevasi ~8 mdpl) dan Bandung (elevasi ~768 mdpl) memiliki perbedaan ketinggian signifikan. Menurut hukum fisika atmosfer <em>Environmental Lapse Rate</em>, suhu udara/permukaan turun ~0.65°C setiap kenaikan elevasi 100 meter. Perbedaan LST di aplikasi mencerminkan kombinasi topografi, tutupan vegetasi, dan iklim mikro, bukan murni fenomena antropogenik Urban Heat Island (UHI).</li>
+                        <li><strong>Presipitasi CHIRPS:</strong> CHIRPS menggabungkan citra satelit geosinkron inframerah termal (metode Cold Cloud Duration) yang dikalibrasi stasiun hujan BMKG dan global. Ini bukan radar pemantau curah hujan Doppler terestrial real-time.</li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <strong style="color: #34d399;">3. Panduan Reproduktibilitas di QGIS &amp; Python</strong>
+                      <p style="margin: 4px 0;">Untuk mereplikasi dan memvalidasi hasil analisis di software desktop GIS independen:</p>
+                      <ul style="margin: 0 0 0 16px; padding: 0;">
+                        <li><strong>Verifikasi GeoTIFF di QGIS:</strong> Buka <em>Layer ➔ Add Raster Layer</em>. Periksa CRS di Layer Properties (harus <code>EPSG:4326 - WGS 84</code>) dan periksa nilai nodata/rentang piksel.</li>
+                        <li><strong>Verifikasi via Python GDAL/Rasterio:</strong>
+                          <pre style="background: rgba(0, 0, 0, 0.4); padding: 6px 8px; border-radius: 4px; font-size: 10px; margin-top: 4px; overflow-x: auto; color: #a7f3d0;"><code>import rasterio
+with rasterio.open('export_modis_lst.tif') as src:
+    print('CRS:', src.crs)
+    print('Extent:', src.bounds)
+    print('Min/Max (°C):', src.read(1).min(), src.read(1).max())</code></pre>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </details>

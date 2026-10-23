@@ -373,8 +373,8 @@ export class ActiveLayersUI {
         const precipOpacityPct = Math.round(this.geeLoader.getLayerOpacity('precipitation') * 100);
         itemsHtml += this.buildRow({
           id: 'gee-precipitation',
-          name: 'Curah Hujan Radar',
-          meta: 'GEE CHIRPS & NASA GPM · mm/hari',
+          name: 'Estimasi Curah Hujan Satelit (CHIRPS)',
+          meta: 'UCSB CHIRPS Daily (GEE) · mm/hari',
           color: '#22c55e',
           isVisible: isGeePrecipVis,
           opacityPct: precipOpacityPct,
@@ -382,8 +382,8 @@ export class ActiveLayersUI {
           removeBtnClass: 'btn-remove-gee-precip',
           opacitySliderClass: 'gee-precip-opacity-slider',
           details: [
-            { label: 'Sensor/Misi', value: 'UCSB CHIRPS Daily & NASA IMERG (GEE)' },
-            { label: 'Parameter', value: 'Intensitas Presipitasi Radar' },
+            { label: 'Sensor/Misi', value: 'UCSB CHIRPS Daily (Inframerah Satelit & Kalibrasi Stasiun Hujan)' },
+            { label: 'Parameter', value: 'Estimasi Presipitasi Permukaan' },
             { label: 'Satuan', value: 'Milimeter per hari (mm/hari)' },
             { label: 'Transparansi', value: 'Area tanpa hujan 100% transparan (peta dasar utuh)' },
           ],

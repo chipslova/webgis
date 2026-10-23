@@ -988,6 +988,14 @@ class WebGISApp {
     bindItem('more-item-share', () => this.handleShare());
     bindItem('more-item-attr-table', () => this.attributeTableUI?.open());
     bindItem('more-item-shortcuts', () => this.shortcutsModalUI?.open());
+    bindItem('more-item-methodology', () => {
+      this.sidebarUI.setActiveTab('about');
+      this.sidebarUI.setOpen(true);
+      setTimeout(() => {
+        const el = document.getElementById('sec-scientific-methodology');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    });
     bindItem('more-item-export', () => this.handleExport());
   }
 

@@ -712,8 +712,8 @@ export class PointInspector {
       activeLayerCategory = `Piksel OGC WMS (${pikselProduct.resolution || '10m'})`;
     } else if (this.geeLoader) {
       if (this.geeLoader.isLayerVisible('precipitation')) {
-        activeLayerName = 'Curah Hujan Radar Satelit (NASA GPM / GEE)';
-        activeLayerCategory = 'Presipitasi Radar · mm/hari (Transparan)';
+        activeLayerName = 'Estimasi Presipitasi Satelit (UCSB CHIRPS / GEE)';
+        activeLayerCategory = 'Presipitasi Satelit · mm/hari (Area Kering Transparan)';
       } else if (this.geeLoader.isLayerVisible('lst-day')) {
         activeLayerName = 'NASA MODIS LST Siang (1 km)';
         activeLayerCategory = 'NASA LP DAAC · MOD11A2 / MYD11A2';

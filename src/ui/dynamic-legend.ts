@@ -187,8 +187,8 @@ export class DynamicLegendUI {
             <div class="dynamic-legend-card-header">
               <span class="legend-card-icon">🌧️</span>
               <div>
-                <div class="dynamic-legend-title">Curah Hujan Radar (GEE)</div>
-                <div class="dynamic-legend-sub">UCSB CHIRPS & NASA IMERG · Area Tanpa Hujan 100% Transparan</div>
+                <div class="dynamic-legend-title">Estimasi Curah Hujan Satelit (CHIRPS)</div>
+                <div class="dynamic-legend-sub">UCSB CHIRPS Daily (GEE) · Area Tanpa Hujan 100% Transparan</div>
               </div>
             </div>
             <div class="gee-legend-bar" style="height: 8px; border-radius: 4px; margin-top: 8px; background: linear-gradient(90deg, #00e400 0%, #ffff00 30%, #ff7e00 60%, #ff0000 85%, #99004c 100%);" aria-hidden="true"></div>
