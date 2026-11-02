@@ -1565,11 +1565,11 @@ with rasterio.open('export_modis_lst.tif') as src:
             </span>
             <span class="dock-btn-text">Peta Dasar</span>
           </button>
-          <button id="btn-toggle-sublayers" class="dock-btn" type="button" aria-label="Kustomisasi Sublapisan & Relief" title="Kustomisasi Sublapisan & Relief">
+          <button id="btn-toggle-sublayers" class="dock-btn" type="button" aria-label="Kustomisasi Tampilan Peta (Sublapisan & Relief)" title="Kustomisasi Tampilan Peta (Sublapisan & Relief)">
             <span class="dock-btn-icon" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             </span>
-            <span class="dock-btn-text">Sublapisan</span>
+            <span class="dock-btn-text">Tampilan Peta</span>
           </button>
           <button id="btn-dock-swipe" class="dock-btn" type="button" aria-label="Bandingkan Citra (Layar Belah Swipe)" title="Bandingkan Citra (Layar Belah Swipe)">
             <span class="dock-btn-icon" aria-hidden="true">
@@ -1581,7 +1581,7 @@ with rasterio.open('export_modis_lst.tif') as src:
           <div class="dock-divider" aria-hidden="true"></div>
 
           <!-- Advanced Group -->
-          <button id="btn-toggle-terrain" class="dock-btn dock-btn-advanced" type="button" aria-label="Pengaturan Medan 3D & Elevasi" title="Pengaturan Medan 3D & Elevasi (Lanjutan)">
+          <button id="btn-toggle-terrain" class="dock-btn dock-btn-advanced" type="button" aria-label="Pengaturan Medan 3D & Elevasi" title="Pengaturan Medan 3D & Elevasi">
             <span class="dock-btn-icon" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
             </span>
@@ -1642,164 +1642,175 @@ with rasterio.open('export_modis_lst.tif') as src:
           </div>
         </div>
 
-        <!-- Floating Basemap Customization Popover Menu -->
-        <div id="sublayers-popover" class="glass-popover sublayers-popover" style="display: none;" role="dialog" aria-modal="false" aria-label="Kustomisasi Sublapisan Peta Dasar">
+        <!-- Floating Basemap Customization Popover Menu (Unified Sublapisan & Relief 3D) -->
+        <div id="sublayers-popover" class="glass-popover sublayers-popover" style="display: none;" role="dialog" aria-modal="false" aria-label="Kustomisasi Tampilan Peta: Sublapisan & Relief 3D">
           <div class="popover-header-row">
-            <div class="popover-header">KUSTOMISASI SUBLAPISAN</div>
-            <button class="popover-close-btn" id="btn-close-sublayers-popover" title="Tutup" aria-label="Tutup kustomisasi sublapisan">✕</button>
+            <div class="popover-header">KUSTOMISASI TAMPILAN PETA</div>
+            <button class="popover-close-btn" id="btn-close-sublayers-popover" title="Tutup" aria-label="Tutup kustomisasi tampilan peta">✕</button>
+          </div>
+
+          <!-- Segmented Tab Navigation -->
+          <div class="customizer-tabs" role="tablist" aria-label="Kategori Kustomisasi Peta">
+            <button type="button" class="customizer-tab-btn active" id="tab-btn-sublayers" role="tab" aria-selected="true" aria-controls="pane-customizer-sublayers">
+              <span>🔲 Sublapisan Vektor</span>
+            </button>
+            <button type="button" class="customizer-tab-btn" id="tab-btn-terrain" role="tab" aria-selected="false" aria-controls="pane-customizer-terrain">
+              <span>⛰️ Relief & Medan 3D</span>
+            </button>
           </div>
 
           <div class="popover-body-scroll">
-            <!-- Global Overlays Section -->
-            <div class="sublayers-section-header">RELIEF MEDAN</div>
-            <div class="sublayers-list global-overlays-list">
-              <label class="sublayer-item">
-                <div class="sublayer-info">
-                  <span class="sublayer-icon" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
-                  </span>
-                  <span class="sublayer-label">Bayangan Medan (Hillshade Relief)</span>
+            <!-- TAB PANE 1: Sublapisan Vektor -->
+            <div id="pane-customizer-sublayers" class="customizer-tab-pane active" role="tabpanel" aria-labelledby="tab-btn-sublayers">
+              <div class="sublayers-section-header">
+                <span>SUBLAPISAN VEKTOR 2D</span>
+                <div class="sublayers-header-actions">
+                  <button class="btn-micro" id="btn-popover-focus-demo" title="Terbang ke area perkotaan padat (Monas, Z14.5) untuk pratinjau sublapisan" aria-label="Fokus ke area perkotaan padat">🎯 Zoom Demo</button>
+                  <button class="btn-micro" id="btn-popover-sublayers-all" aria-label="Tampilkan semua sublapisan vektor">Tampilkan Semua</button>
+                  <button class="btn-micro btn-micro-mute" id="btn-popover-sublayers-mute" aria-label="Sembunyikan semua sublapisan vektor">Sembunyikan Semua</button>
                 </div>
-                <input type="checkbox" id="popover-check-hillshade" class="sublayer-toggle" aria-label="Aktifkan lapisan bayangan medan hillshade" />
-                <span class="toggle-switch"></span>
-              </label>
-            </div>
+              </div>
 
-            <!-- Vector Sublayers Section -->
-            <div class="sublayers-section-header" style="margin-top: 10px;">
-              <span>SUBLAPISAN VEKTOR</span>
-              <div class="sublayers-header-actions">
-                <button class="btn-micro" id="btn-popover-focus-demo" title="Terbang ke area perkotaan padat (Monas, Z14.5) untuk pratinjau sublapisan" aria-label="Fokus ke area perkotaan padat">🎯 Zoom Demo</button>
-                <button class="btn-micro" id="btn-popover-sublayers-all" aria-label="Tampilkan semua sublapisan vektor">Tampilkan Semua</button>
-                <button class="btn-micro btn-micro-mute" id="btn-popover-sublayers-mute" aria-label="Sembunyikan semua sublapisan vektor">Sembunyikan Semua</button>
+              <div class="sublayer-notice" id="popover-sublayer-notice" style="display: none;">
+                <span>ℹ️ Hanya aktif untuk peta dasar vektor</span>
+              </div>
+
+              <div class="sublayers-list vector-sublayers-list">
+                <label class="sublayer-item">
+                  <div class="sublayer-info">
+                    <span class="sublayer-icon" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/></svg>
+                    </span>
+                    <span class="sublayer-label">Titik Minat (POI)</span>
+                  </div>
+                  <input type="checkbox" id="popover-check-poi" class="sublayer-toggle" data-key="poi" checked aria-label="Tampilkan Titik Minat (POI)" />
+                  <span class="toggle-switch"></span>
+                </label>
+                <label class="sublayer-item">
+                  <div class="sublayer-info">
+                    <span class="sublayer-icon" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19 19 4"/><path d="M9 4h11v11"/></svg>
+                    </span>
+                    <span class="sublayer-label">Nama Jalan</span>
+                  </div>
+                  <input type="checkbox" id="popover-check-road_names" class="sublayer-toggle" data-key="road_names" checked aria-label="Tampilkan Nama Jalan" />
+                  <span class="toggle-switch"></span>
+                </label>
+                <label class="sublayer-item">
+                  <div class="sublayer-info">
+                    <span class="sublayer-icon" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    </span>
+                    <span class="sublayer-label">Nama Tempat / Label</span>
+                  </div>
+                  <input type="checkbox" id="popover-check-place_names" class="sublayer-toggle" data-key="place_names" checked aria-label="Tampilkan Nama Tempat" />
+                  <span class="toggle-switch"></span>
+                </label>
+                <label class="sublayer-item">
+                  <div class="sublayer-info">
+                    <span class="sublayer-icon" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    </span>
+                    <span class="sublayer-label">Batas Administratif</span>
+                  </div>
+                  <input type="checkbox" id="popover-check-admin_boundaries" class="sublayer-toggle" data-key="admin_boundaries" checked aria-label="Tampilkan Batas Administratif" />
+                  <span class="toggle-switch"></span>
+                </label>
+                <label class="sublayer-item">
+                  <div class="sublayer-info">
+                    <span class="sublayer-icon" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 3 7h6l-5 4 2 7-6-4-6 4 2-7-5-4h6z"/></svg>
+                    </span>
+                    <span class="sublayer-label">Area Hijau & Lahan Dasar</span>
+                  </div>
+                  <input type="checkbox" id="popover-check-landcover" class="sublayer-toggle" data-key="landcover" checked aria-label="Tampilkan Tutupan Lahan" />
+                  <span class="toggle-switch"></span>
+                </label>
+                <label class="sublayer-item">
+                  <div class="sublayer-info">
+                    <span class="sublayer-icon" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                    </span>
+                    <span class="sublayer-label">Badan Air & Sungai</span>
+                  </div>
+                  <input type="checkbox" id="popover-check-water" class="sublayer-toggle" data-key="water" checked aria-label="Tampilkan Badan Air" />
+                  <span class="toggle-switch"></span>
+                </label>
+                <label class="sublayer-item">
+                  <div class="sublayer-info">
+                    <span class="sublayer-icon" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M9 8h1"/><path d="M9 12h1"/><path d="M9 16h1"/><path d="M14 8h1"/><path d="M14 12h1"/><path d="M14 16h1"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
+                    </span>
+                    <span class="sublayer-label">Bangunan 3D</span>
+                  </div>
+                  <input type="checkbox" id="popover-check-buildings" class="sublayer-toggle" data-key="buildings" checked aria-label="Tampilkan Bangunan 3D" />
+                  <span class="toggle-switch"></span>
+                </label>
+                <label class="sublayer-item">
+                  <div class="sublayer-info">
+                    <span class="sublayer-icon" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </span>
+                    <span class="sublayer-label">Jaringan Jalan</span>
+                  </div>
+                  <input type="checkbox" id="popover-check-roads" class="sublayer-toggle" data-key="roads" checked aria-label="Tampilkan Jaringan Jalan" />
+                  <span class="toggle-switch"></span>
+                </label>
               </div>
             </div>
 
-            <div class="sublayer-notice" id="popover-sublayer-notice" style="display: none;">
-              <span>ℹ️ Hanya aktif untuk peta dasar vektor</span>
-            </div>
+            <!-- TAB PANE 2: Relief & Medan 3D -->
+            <div id="pane-customizer-terrain" class="customizer-tab-pane" role="tabpanel" aria-labelledby="tab-btn-terrain">
+              <!-- Hillshade Relief Toggle -->
+              <div class="sublayers-section-header">BAYANGAN BUKIT (HILLSHADE RELIEF)</div>
+              <div class="sublayers-list global-overlays-list" style="margin-bottom: 12px;">
+                <label class="sublayer-item">
+                  <div class="sublayer-info">
+                    <span class="sublayer-icon" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+                    </span>
+                    <span class="sublayer-label">Bayangan Medan (Hillshade 2D Relief)</span>
+                  </div>
+                  <input type="checkbox" id="popover-check-hillshade" class="sublayer-toggle" aria-label="Aktifkan lapisan bayangan medan hillshade" />
+                  <span class="toggle-switch"></span>
+                </label>
+              </div>
 
-            <div class="sublayers-list vector-sublayers-list">
-              <label class="sublayer-item">
-                <div class="sublayer-info">
-                  <span class="sublayer-icon" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/></svg>
-                  </span>
-                  <span class="sublayer-label">Titik Minat (POI)</span>
+              <!-- DEM 3D Mesh Toggle -->
+              <div class="sublayers-section-header">MODEL ELEVASI DIGITAL 3D (DEM)</div>
+              <div class="terrain-section">
+                <label class="sublayer-item" style="padding: 10px 14px; margin-bottom: 6px;">
+                  <div class="sublayer-info">
+                    <span class="sublayer-icon" style="width: 26px; height: 26px; font-size: 14px;" aria-hidden="true">⛰️</span>
+                    <div>
+                      <span class="sublayer-label" style="font-size: 12px; font-weight: 600;">Model Elevasi Digital 3D (DEM Mesh)</span>
+                      <span style="display: block; font-size: 10px; color: #94a3b8; margin-top: 1px;">AWS Terrarium (DEM Global Resolusi 30m)</span>
+                    </div>
+                  </div>
+                  <input type="checkbox" id="popover-terrain-master-toggle" class="sublayer-toggle" aria-label="Aktifkan mesh elevasi medan 3D" />
+                  <span class="toggle-switch"></span>
+                </label>
+              </div>
+
+              <!-- Vertical Exaggeration Slider Section -->
+              <div class="terrain-section" style="margin-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px;">
+                <div class="slider-header-row">
+                  <label for="popover-terrain-exaggeration-slider" class="terrain-section-label">EKSAGERASI VERTIKAL</label>
+                  <span id="popover-terrain-exaggeration-val" class="exaggeration-value-badge">1.50x</span>
                 </div>
-                <input type="checkbox" id="popover-check-poi" class="sublayer-toggle" data-key="poi" checked aria-label="Tampilkan Titik Minat (POI)" />
-                <span class="toggle-switch"></span>
-              </label>
-              <label class="sublayer-item">
-                <div class="sublayer-info">
-                  <span class="sublayer-icon" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19 19 4"/><path d="M9 4h11v11"/></svg>
-                  </span>
-                  <span class="sublayer-label">Nama Jalan</span>
+                <div class="slider-container">
+                  <span class="slider-min-label" aria-hidden="true">0.5x</span>
+                  <input type="range" id="popover-terrain-exaggeration-slider" min="0.5" max="5.0" step="0.1" value="1.5" aria-label="Faktor eksagerasi vertikal untuk medan 3D" />
+                  <span class="slider-max-label" aria-hidden="true">5.0x</span>
                 </div>
-                <input type="checkbox" id="popover-check-road_names" class="sublayer-toggle" data-key="road_names" checked aria-label="Tampilkan Nama Jalan" />
-                <span class="toggle-switch"></span>
-              </label>
-              <label class="sublayer-item">
-                <div class="sublayer-info">
-                  <span class="sublayer-icon" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                  </span>
-                  <span class="sublayer-label">Nama Tempat / Label</span>
-                </div>
-                <input type="checkbox" id="popover-check-place_names" class="sublayer-toggle" data-key="place_names" checked aria-label="Tampilkan Nama Tempat" />
-                <span class="toggle-switch"></span>
-              </label>
-              <label class="sublayer-item">
-                <div class="sublayer-info">
-                  <span class="sublayer-icon" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-                  </span>
-                  <span class="sublayer-label">Batas Administratif</span>
-                </div>
-                <input type="checkbox" id="popover-check-admin_boundaries" class="sublayer-toggle" data-key="admin_boundaries" checked aria-label="Tampilkan Batas Administratif" />
-                <span class="toggle-switch"></span>
-              </label>
-              <label class="sublayer-item">
-                <div class="sublayer-info">
-                  <span class="sublayer-icon" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 3 7h6l-5 4 2 7-6-4-6 4 2-7-5-4h6z"/></svg>
-                  </span>
-                  <span class="sublayer-label">Area Hijau & Lahan Dasar</span>
-                </div>
-                <input type="checkbox" id="popover-check-landcover" class="sublayer-toggle" data-key="landcover" checked aria-label="Tampilkan Tutupan Lahan" />
-                <span class="toggle-switch"></span>
-              </label>
-              <label class="sublayer-item">
-                <div class="sublayer-info">
-                  <span class="sublayer-icon" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
-                  </span>
-                  <span class="sublayer-label">Badan Air & Sungai</span>
-                </div>
-                <input type="checkbox" id="popover-check-water" class="sublayer-toggle" data-key="water" checked aria-label="Tampilkan Badan Air" />
-                <span class="toggle-switch"></span>
-              </label>
-              <label class="sublayer-item">
-                <div class="sublayer-info">
-                  <span class="sublayer-icon" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M9 8h1"/><path d="M9 12h1"/><path d="M9 16h1"/><path d="M14 8h1"/><path d="M14 12h1"/><path d="M14 16h1"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
-                  </span>
-                  <span class="sublayer-label">Bangunan 3D</span>
-                </div>
-                <input type="checkbox" id="popover-check-buildings" class="sublayer-toggle" data-key="buildings" checked aria-label="Tampilkan Bangunan 3D" />
-                <span class="toggle-switch"></span>
-              </label>
-              <label class="sublayer-item">
-                <div class="sublayer-info">
-                  <span class="sublayer-icon" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                  </span>
-                  <span class="sublayer-label">Jaringan Jalan</span>
-                </div>
-                <input type="checkbox" id="popover-check-roads" class="sublayer-toggle" data-key="roads" checked aria-label="Tampilkan Jaringan Jalan" />
-                <span class="toggle-switch"></span>
-              </label>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Floating 3D Terrain Popover Menu -->
-        <div id="terrain-popover" class="glass-popover terrain-popover" style="display: none;" role="dialog" aria-modal="false" aria-label="Pengaturan Medan 3D & Elevasi">
-          <div class="popover-header-row">
-            <div class="popover-header">MEDAN 3D & ELEVASI</div>
-            <button class="popover-close-btn" id="btn-close-terrain-popover" title="Tutup" aria-label="Tutup pengaturan medan 3D">✕</button>
-          </div>
-
-          <div class="popover-body-scroll">
-            <!-- Single Clean 3D Terrain Toggle -->
-            <div class="terrain-section">
-              <label class="sublayer-item" style="padding: 10px 14px; margin-bottom: 6px;">
-                <div class="sublayer-info">
-                  <span class="sublayer-icon" style="width: 26px; height: 26px; font-size: 14px;" aria-hidden="true">⛰️</span>
-                  <div>
-                    <span class="sublayer-label" style="font-size: 12px; font-weight: 600;">Model Elevasi Digital 3D (DEM Mesh)</span>
-                    <span style="display: block; font-size: 10px; color: #94a3b8; margin-top: 1px;">AWS Terrarium (DEM Global Resolusi 30m)</span>
-                  </div>
-                </div>
-                <input type="checkbox" id="popover-terrain-master-toggle" class="sublayer-toggle" aria-label="Aktifkan mesh elevasi medan 3D" />
-                <span class="toggle-switch"></span>
-              </label>
-            </div>
-
-            <!-- Vertical Exaggeration Slider Section -->
-            <div class="terrain-section" style="margin-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px;">
-              <div class="slider-header-row">
-                <label for="popover-terrain-exaggeration-slider" class="terrain-section-label">EKSAGERASI VERTIKAL</label>
-                <span id="popover-terrain-exaggeration-val" class="exaggeration-value-badge">1.50x</span>
-              </div>
-              <div class="slider-container">
-                <span class="slider-min-label" aria-hidden="true">0.5x</span>
-                <input type="range" id="popover-terrain-exaggeration-slider" min="0.5" max="5.0" step="0.1" value="1.5" aria-label="Faktor eksagerasi vertikal untuk medan 3D" />
-                <span class="slider-max-label" aria-hidden="true">5.0x</span>
-              </div>
-            </div>
-          </div>
+        <!-- Hidden Backward-Compatible Stub for #terrain-popover to prevent breaking tests/scripts -->
+        <div id="terrain-popover" class="glass-popover terrain-popover" style="display: none;" role="dialog" aria-hidden="true">
+          <button class="popover-close-btn" id="btn-close-terrain-popover" style="display: none;" aria-hidden="true">✕</button>
         </div>
 
         <!-- Floating Inset Locator Popover Menu -->

@@ -313,6 +313,9 @@ export class BasemapCustomizerUI {
   /**
    * Binds floating bottom tools dock buttons
    */
+  /**
+   * Binds floating bottom tools dock buttons
+   */
   private bindDockEvents() {
     const btnBasemap = document.getElementById('btn-toggle-basemap');
     const btnSublayers = document.getElementById('btn-toggle-sublayers');
@@ -334,17 +337,21 @@ export class BasemapCustomizerUI {
 
     btnSublayers?.addEventListener('click', (e) => {
       e.stopPropagation();
+      this.switchCustomizerTab('sublayers');
       this.togglePopover(this.sublayersPopoverId, btnSublayers);
     });
 
     btnSidebarSublayers?.addEventListener('click', (e) => {
       e.stopPropagation();
+      this.switchCustomizerTab('sublayers');
       this.togglePopover(this.sublayersPopoverId, btnSublayers ?? undefined);
     });
 
     btnTerrain?.addEventListener('click', (e) => {
       e.stopPropagation();
-      this.togglePopover(this.terrainPopoverId, btnTerrain);
+      // Unify: opening Terrain switches the unified popover to the 'terrain' tab
+      this.switchCustomizerTab('terrain');
+      this.togglePopover(this.sublayersPopoverId, btnTerrain);
     });
 
     btnGrid?.addEventListener('click', (e) => {
@@ -359,10 +366,37 @@ export class BasemapCustomizerUI {
   }
 
   /**
+   * Switches the active tab in the unified customizer popover
+   */
+  public switchCustomizerTab(tab: 'sublayers' | 'terrain') {
+    const btnSub = document.getElementById('tab-btn-sublayers');
+    const btnTer = document.getElementById('tab-btn-terrain');
+    const paneSub = document.getElementById('pane-customizer-sublayers');
+    const paneTer = document.getElementById('pane-customizer-terrain');
+
+    if (btnSub && btnTer && paneSub && paneTer) {
+      const isSub = tab === 'sublayers';
+      btnSub.classList.toggle('active', isSub);
+      btnSub.setAttribute('aria-selected', isSub ? 'true' : 'false');
+      paneSub.classList.toggle('active', isSub);
+
+      btnTer.classList.toggle('active', !isSub);
+      btnTer.setAttribute('aria-selected', !isSub ? 'true' : 'false');
+      paneTer.classList.toggle('active', !isSub);
+    }
+  }
+
+  /**
    * Toggles visibility of a glass popover while closing others
    */
   public togglePopover(popoverId: string, triggerBtn?: HTMLElement) {
-    const target = document.getElementById(popoverId);
+    // If popoverId is terrain-popover, redirect to sublayers-popover with terrain tab for backwards compatibility
+    const actualId = popoverId === this.terrainPopoverId ? this.sublayersPopoverId : popoverId;
+    if (popoverId === this.terrainPopoverId) {
+      this.switchCustomizerTab('terrain');
+    }
+
+    const target = document.getElementById(actualId);
     if (!target) return;
 
     const isVisible = target.style.display === 'block';
@@ -374,7 +408,7 @@ export class BasemapCustomizerUI {
       if (triggerBtn) {
         triggerBtn.classList.add('popover-open');
       }
-      announceToScreenReader(`Panel popover ${popoverId.replace('-popover', '')} dibuka`);
+      announceToScreenReader(`Panel popover ${actualId.replace('-popover', '')} dibuka`);
 
       // Auto-focus active element or first interactive element for keyboard accessibility
       requestAnimationFrame(() => {
@@ -421,6 +455,16 @@ export class BasemapCustomizerUI {
    * Binds popover close buttons and interaction controls
    */
   private bindPopoverEvents() {
+    // Tab switching buttons
+    document.getElementById('tab-btn-sublayers')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.switchCustomizerTab('sublayers');
+    });
+    document.getElementById('tab-btn-terrain')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.switchCustomizerTab('terrain');
+    });
+
     // Close buttons
     document.getElementById('btn-close-basemap-popover')?.addEventListener('click', (e) => {
       e.stopPropagation();
