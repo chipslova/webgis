@@ -67,12 +67,15 @@ export class PikselPanelUI {
     const currentYear = this.pikselLoader.getSelectedYear();
     const diagnostics = this.pikselLoader.getDiagnostics();
 
-    // 1. Presets HTML
+    // 1. Presets HTML (Strict Single-Active: Hanya preset yang benar-benar dipilih yang berstatus active)
     const presetsHtml = PIKSEL_PRESETS.map((preset: PikselPreset) => {
-      const isChipActive = activeProduct !== null && (this.activePresetId === preset.id || activeProduct.id === preset.recommendedProduct);
+      const isChipActive = activeProduct !== null && this.activePresetId === preset.id && activeProduct.id === preset.recommendedProduct;
       return `
       <button class="piksel-preset-chip ${isChipActive ? 'active' : ''}" data-id="${preset.id}" aria-label="Jelajahi ${preset.name}, ${preset.locationName}" title="${preset.description}">
-        <span class="preset-chip-title">${preset.name}</span>
+        <div class="preset-chip-header">
+          <span class="preset-chip-title">${preset.name}</span>
+          ${isChipActive ? '<span class="preset-chip-active-badge">✓ Aktif</span>' : ''}
+        </div>
         <span class="preset-chip-sub">${preset.locationName}</span>
       </button>
       `;
@@ -688,7 +691,7 @@ export class PikselPanelUI {
         const preset = PIKSEL_PRESETS.find(p => p.id === presetBtn.dataset.id);
         if (preset) {
           const currentProd = this.pikselLoader.getActiveProduct();
-          const isSameActive = currentProd && (this.activePresetId === preset.id || currentProd.id === preset.recommendedProduct);
+          const isSameActive = currentProd !== null && this.activePresetId === preset.id && currentProd.id === preset.recommendedProduct;
 
           if (isSameActive) {
             // Clicking again toggles off preset and returns to clean basemap
