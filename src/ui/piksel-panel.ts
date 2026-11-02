@@ -46,7 +46,18 @@ export class PikselPanelUI {
     });
 
     if (typeof window !== 'undefined') {
-      window.addEventListener('webgis:basemap-selected', () => {
+      window.addEventListener('webgis:basemap-selected', (e: Event) => {
+        const customEvent = e as CustomEvent;
+        const switchedBasemapId = customEvent.detail?.basemapId;
+        const currentActivePreset = PIKSEL_PRESETS.find(p => p.id === this.activePresetId);
+
+        // Hanya reset preset jika pengguna mengganti basemap ke basemap lain di luar rekomendasi preset ini
+        if (currentActivePreset && switchedBasemapId && currentActivePreset.recommendedBasemap === switchedBasemapId) {
+          // Basemap diubah oleh preset itu sendiri, jangan hapus state aktif!
+          this.render();
+          return;
+        }
+
         this.activePresetId = null;
         this.render();
       });
