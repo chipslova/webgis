@@ -703,18 +703,6 @@ export const PIKSEL_PRESETS: PikselPreset[] = [
     recommendedProduct: 's2-count',
     recommendedBasemap: 'esri-dark-grey',
     defaultOpacity: 0.75
-  },
-  {
-    id: 'bali-landsat9',
-    name: 'Pulau Bali & Batur',
-    locationName: 'Reflektansi Permukaan Landsat 9 30m',
-    center: [115.2000, -8.3500],
-    zoom: 10,
-    pitch: 20,
-    description: 'Lintasan orbit Landsat 9 OLI-2 dengan data reflektansi permukaan 30m paling lengkap dan tajam di Indonesia.',
-    recommendedProduct: 'ls9-sr',
-    recommendedBasemap: 'esri-topographic',
-    defaultOpacity: 0.80
   }
 ];
 
