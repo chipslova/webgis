@@ -70,19 +70,18 @@ describe('Audit Refinement & Correctness Test Suite', () => {
     const qualityBtn = catButtons.find(b => b.dataset.cat === 'quality');
     expect(qualityBtn?.textContent?.trim()).toContain('Kualitas & Densitas');
   });
-  it('should dynamically inject 30 meters resolution into export subtitle for Landsat 9', () => {
-    const landsatProduct = PIKSEL_PRODUCTS.find(p => p.id === 'ls9-sr');
-    expect(landsatProduct).toBeDefined();
-    expect(landsatProduct?.resolution).toBe('30 meters');
-    pikselLoader.setActiveProduct('ls9-sr');
-    expect(pikselLoader.getActiveProduct()?.id).toBe('ls9-sr');
+  it('should dynamically inject 10 meters resolution into export subtitle for Sentinel-2', () => {
+    const s2Product = PIKSEL_PRODUCTS.find(p => p.id === 's2-geomad-rgb');
+    expect(s2Product).toBeDefined();
+    expect(s2Product?.resolution).toBe('10 meters');
+    pikselLoader.setActiveProduct('s2-geomad-rgb');
+    expect(pikselLoader.getActiveProduct()?.id).toBe('s2-geomad-rgb');
     const activeProduct = pikselLoader.getActiveProduct();
     const activeYear = pikselLoader.getSelectedYear() || '2025';
     const defaultSub = activeProduct
       ? `${activeProduct.name} (${activeYear}) • OGC WMS (${activeProduct.resolution || '10m'})`
       : 'Sistem Informasi Geografis & Analisis Spasial Nasional';
-    expect(defaultSub).toContain('30 meters');
-    expect(defaultSub).not.toContain('• OGC WMS (10m)');
+    expect(defaultSub).toContain('10 meters');
   });
   it('should preserve 10 meters resolution for Sentinel-2 GeoMAD products in export', () => {
     pikselLoader.setActiveProduct('s2-geomad-rgb');

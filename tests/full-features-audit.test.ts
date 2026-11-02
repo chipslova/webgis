@@ -273,13 +273,6 @@ describe('Full WebGIS Feature & Button Audit', () => {
         expect(prod?.minZoom, `Product ${id} should have minZoom >= 8`).toBeGreaterThanOrEqual(8);
       });
 
-      const landsatProd = PIKSEL_PRODUCTS.find(p => p.id === 'ls9-sr');
-      expect(landsatProd).toBeDefined();
-      expect(landsatProd?.timeMode).toBe('year-range');
-      expect(landsatProd?.minZoom).toBe(7);
-      expect(landsatProd?.availableYears).toContain('2026');
-      expect(landsatProd?.availableYears).toContain('2021');
-
       const floodProd = PIKSEL_PRODUCTS.find(p => p.id === 'flood-hazard-rp02');
       expect(floodProd).toBeDefined();
       expect(floodProd?.timeMode).toBe('none');

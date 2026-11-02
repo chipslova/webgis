@@ -2269,11 +2269,6 @@ html, body, #app {
   background: linear-gradient(90deg, #4c1d95 0%, #2563eb 40%, #06b6d4 70%, #facc15 100%);
 }
 
-/* 7. Landsat 9 SR: Optical Blue -> Soil/Urban -> Natural Forest */
-.legend-gradient.ls9-sr-gradient {
-  background: linear-gradient(90deg, #1e3a8a 0%, #0f766e 25%, #a8a29e 50%, #84cc16 75%, #15803d 100%);
-}
-
 /* Categorical Legend Box */
 .piksel-categorical-list {
   display: flex;
@@ -4207,10 +4202,6 @@ html, body, #app {
 
 .active-legend-bar.count-gradient {
   background: linear-gradient(90deg, #4c1d95 0%, #2563eb 40%, #06b6d4 70%, #facc15 100%);
-}
-
-.active-legend-bar.ls9-sr-gradient {
-  background: linear-gradient(90deg, #1e3a8a 0%, #0f766e 25%, #a8a29e 50%, #84cc16 75%, #15803d 100%);
 }
 
 .active-legend-labels {

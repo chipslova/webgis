@@ -386,8 +386,8 @@ export class AINavigator {
             's2-indices-ndmi': 's2-ndmi',
             'rgb': 's2-geomad-rgb',
             'nir': 's2-geomad-nir',
-            'landsat': 'ls9-sr',
-            'landsat-9': 'ls9-sr'
+            'landsat': 's2-geomad-rgb',
+            'landsat-9': 's2-geomad-rgb'
           };
           const resolvedProductId = pikselAliases[layerId] || layerId;
 
@@ -409,7 +409,6 @@ export class AINavigator {
             'flood-hazard-rp02': 'Peta Bahaya Banjir PU 2-Tahun',
             'flood-hazard-rp10': 'Peta Bahaya Banjir PU 10-Tahun',
             'hazard-flood': 'Peta Pemodelan Bahaya Banjir PU 2-Tahun',
-            'ls9-sr': 'Citra Satelit Landsat 9 Reflektansi 30m',
             's2-count': 'Kualitas Data (Scene Count)'
           };
           const label = pikselLabels[resolvedProductId] || pikselLabels[layerId] || resolvedProductId;

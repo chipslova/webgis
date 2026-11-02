@@ -74,16 +74,6 @@ describe('Satellite Auto-Focus & Optimal View Navigation', () => {
       })
     );
 
-    // Test Landsat 9 -> Bali
-    flyToMock.mockClear();
-    const targetLandsat = loader.autoFlyToOptimalView('ls9-sr', true);
-    expect(targetLandsat).toBe('Pulau Bali & Batur');
-    expect(flyToMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        center: [115.2000, -8.3500],
-        zoom: 10
-      })
-    );
 
     // Test Scene Count -> Jawa Timur
     flyToMock.mockClear();

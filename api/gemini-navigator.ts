@@ -391,7 +391,6 @@ DAFTAR AKSI (ACTIONS) YANG TERSEDIA:
    - "s2-ndbi" (Indeks Area Terbangun NDBI 10m)
    - "s2-ndmi" (Indeks Kelembapan Kanopi & Kubah Gambut NDMI 10m)
    - "hazard-flood" (atau "flood-hazard-rp02", "flood-hazard-rp10" untuk Pemodelan Bahaya Banjir Kala Ulang 2 & 10 Tahun)
-   - "ls9-sr" (Citra Satelit Landsat 9 OLI-2 Surface Reflectance 30m)
    - "tile-grid" (Batas Grid Open Data Cube 1.631 Tile)
 3. "switchBasemap"
    args: { "basemapId": string }
