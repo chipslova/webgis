@@ -95,9 +95,13 @@ export class PikselPanelUI {
     // 2. Active Layer Control Box (Prominent & Clear)
     let activeControlHtml = '';
     if (activeProduct) {
-      const yearOptionsHtml = (activeProduct.availableYears || S2_YEARS).map(
-        (y) => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`
-      ).join('');
+      const yearOptionsHtml = activeProduct.timeOptions
+        ? activeProduct.timeOptions.map(
+            (opt) => `<option value="${opt.value}" ${opt.value === currentYear ? 'selected' : ''}>${opt.label}</option>`
+          ).join('')
+        : (activeProduct.availableYears || S2_YEARS).map(
+            (y) => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`
+          ).join('');
 
       let legendHtml = '';
       if (activeProduct.legend) {

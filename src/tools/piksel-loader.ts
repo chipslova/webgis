@@ -709,9 +709,13 @@ export class PikselLoader {
    */
   private buildWmsTileUrl(product: PikselProduct, targetYear?: string): string {
     const yearToUse = targetYear || (
-      (product.availableYears && product.availableYears.includes(this.selectedYear))
+      (product.timeOptions && product.timeOptions.some(o => o.value === this.selectedYear))
         ? this.selectedYear
-        : (product.availableYears ? product.availableYears[0] : this.selectedYear)
+        : (product.timeOptions ? product.timeOptions[0].value : (
+            (product.availableYears && product.availableYears.includes(this.selectedYear))
+              ? this.selectedYear
+              : (product.availableYears ? product.availableYears[0] : this.selectedYear)
+          ))
     );
 
     const params = new URLSearchParams({
@@ -728,14 +732,21 @@ export class PikselLoader {
     });
 
     if (product.timeEnabled) {
-      switch (product.timeMode) {
-        case 'year-range':
-          params.set('TIME', `${yearToUse}-01-01/${yearToUse}-12-31`);
-          break;
-        case 'annual':
-        default:
-          params.set('TIME', `${yearToUse}-01-01`);
-          break;
+      if (yearToUse && /^\d{4}-\d{2}-\d{2}$/.test(yearToUse)) {
+        params.set('TIME', yearToUse);
+      } else {
+        switch (product.timeMode) {
+          case 'year-range':
+            params.set('TIME', `${yearToUse}-01-01/${yearToUse}-12-31`);
+            break;
+          case 'none':
+            // Do not inject synthetic date range for products with native default or discrete scenes
+            break;
+          case 'annual':
+          default:
+            params.set('TIME', `${yearToUse}-01-01`);
+            break;
+        }
       }
     }
 

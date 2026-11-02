@@ -111,6 +111,7 @@ export interface PikselPreset {
 export const PIKSEL_CATEGORIES: { id: ProductCategory; name: string; icon: string; subtitle: string }[] = [
   { id: 'geomad', name: 'Sentinel-2 GeoMAD', icon: '', subtitle: 'Komposit Optik & Inframerah Bebas Awan 10m' },
   { id: 'indices', name: 'Indeks Spektral', icon: '', subtitle: 'Indeks Vegetasi (NDVI), Air (NDWI), Bangunan (NDBI) & Kelembapan (NDMI) 10m' },
+  { id: 'landsat', name: 'Landsat 9', icon: '', subtitle: 'Observasi Reflektansi Permukaan USGS/NASA 30m' },
   { id: 'hazard', name: 'Bahaya Banjir', icon: '', subtitle: 'Pemodelan Hidrologi Bahaya Banjir Kawasan Prioritas' },
   { id: 'quality', name: 'Kualitas & Densitas Data', icon: '', subtitle: 'Statistik Pengamatan Bebas Awan Tiap Piksel' }
 ];
@@ -125,6 +126,14 @@ export const PIKSEL_WMS_BASE_URL = IS_LOCAL_DEV
   ? 'https://ows.staging.piksel.big.go.id/wms'
   : '/api/wms-proxy';
 export const S2_YEARS = ['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017'];
+export const LS9_YEARS = ['2024', '2023', '2022', '2021'];
+
+export const LS9_TIME_OPTIONS: ProductTimeOption[] = [
+  { value: '2024-08-05', label: '☀️ Kemarau Jernih (5 Agu 2024)' },
+  { value: '2023-08-03', label: '🔥 El Niño Bebas Awan (3 Agu 2023)' },
+  { value: '2022-08-16', label: '🌤️ Kemarau (16 Agu 2022)' },
+  { value: '2021-12-19', label: '🛰️ Observasi OLI-2 Awal (19 Des 2021)' }
+];
 
 export const PIKSEL_PRODUCTS: PikselProduct[] = [
   // 1. GeoMAD Group
@@ -537,6 +546,50 @@ export const PIKSEL_PRODUCTS: PikselProduct[] = [
       ]
     },
     attribution: '© Badan Informasi Geospasial (BIG) — Piksel'
+  },
+
+  // 5. Landsat Group
+  {
+    id: 'ls9-sr',
+    name: 'Reflektansi Permukaan Landsat 9 (30m)',
+    category: 'landsat',
+    layer: 'ls9_c2l2_sr',
+    style: 'simple_rgb',
+    timeEnabled: true,
+    timeMode: 'none',
+    timeOptions: LS9_TIME_OPTIONS,
+    availableYears: LS9_YEARS,
+    minZoom: 7,
+    serviceUrl: PIKSEL_WMS_BASE_URL,
+    description: 'Reflektansi permukaan optik multispektral 30m dari USGS/NASA Landsat 9 dalam Data Cube BIG.',
+    whatItShows: 'Reflektansi permukaan terkalibrasi: Sangat baik untuk perbandingan historis multidekade dengan arsip Landsat 5/7/8.',
+    badge: 'Multispektral 30m',
+    color: '#ec4899',
+    resolution: '30 meters',
+    sensor: 'Landsat 9 OLI-2 (Collection 2 Level-2)',
+    isComputeHeavy: true,
+    statusNotice: 'Catatan: Landsat 9 terdiri dari rekaman scene USGS/NASA individual (area di luar lintasan swath tampak transparan).',
+    optimalFocus: {
+      name: 'Pulau Bali & Batur',
+      locationName: 'Reflektansi Permukaan Landsat 9 30m',
+      center: [115.2000, -8.3500],
+      zoom: 10,
+      pitch: 20,
+      description: 'Lintasan orbit Landsat 9 OLI-2 dengan data reflektansi permukaan 30m paling lengkap dan tajam di Indonesia.'
+    },
+    legend: {
+      type: 'natural',
+      leftLabel: 'Air (Biru Gelap)',
+      middleLabel: 'Lahan / Kota (Krem)',
+      rightLabel: 'Kanopi (Hijau)',
+      gradientClass: 'ls9-sr-gradient',
+      swatches: [
+        { label: 'Air (Biru Gelap)', color: '#1e40af' },
+        { label: 'Lahan / Kota (Krem/Abu-abu)', color: '#a8a29e' },
+        { label: 'Kanopi Hutan (Hijau)', color: '#15803d' }
+      ]
+    },
+    attribution: '© Badan Informasi Geospasial (BIG) / USGS / NASA'
   }
 ];
 
