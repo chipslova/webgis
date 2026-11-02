@@ -3599,6 +3599,17 @@ html, body, #app {
   line-height: 1.3;
 }
 
+.preset-chip-active-badge.loading {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.55);
+}
+
+.piksel-preset-chip.is-loading {
+  border-color: rgba(245, 158, 11, 0.6) !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.3) !important;
+}
+
 .preset-chip-sub {
   font-size: 10px;
   color: var(--text-muted);

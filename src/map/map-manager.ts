@@ -35,6 +35,11 @@ export class MapManager {
   private geojsonLoaderRef?: { getAllMapLayerIds?(): string[] } | null;
   private spatialAnalysisUIRef?: { getAllMapLayerIds?(): string[] } | null;
   private measureToolRef?: { getAllMapLayerIds?(): string[] } | null;
+  private pendingStyleTargetView: { center: [number, number] | { lng: number; lat: number }; zoom: number; pitch: number; bearing: number } | null = null;
+
+  public clearPendingStyleTargetView() {
+    this.pendingStyleTargetView = null;
+  }
 
   public setPikselLoader(loader: { getAllMapLayerIds?(): string[] } | null) {
     this.pikselLoaderRef = loader;
@@ -366,6 +371,14 @@ export class MapManager {
 
     // Centralized style.load listener for all basemap transitions
     this.map.on('style.load', () => {
+      if (this.pendingStyleTargetView && this.map) {
+        const tv = this.pendingStyleTargetView;
+        this.pendingStyleTargetView = null;
+        this.map.setCenter(tv.center);
+        this.map.setZoom(tv.zoom);
+        this.map.setPitch(tv.pitch);
+        this.map.setBearing(tv.bearing);
+      }
       this.fireStyleReadyCallbacks();
     });
 
@@ -626,6 +639,18 @@ export class MapManager {
       showToast(`Zoom disesuaikan ke level maksimum basemap (Z${target.maxZoom})`, 'warning');
     }
 
+    // Set or clear pending target view so style.load only ever uses the freshest requested view
+    if (options?.targetView) {
+      this.pendingStyleTargetView = {
+        center,
+        zoom: targetZoom,
+        pitch,
+        bearing
+      };
+    } else {
+      this.pendingStyleTargetView = null;
+    }
+
     try {
       let normalizedStyle = this.styleSpecCache.get(target.id);
       if (!normalizedStyle) {
@@ -639,14 +664,6 @@ export class MapManager {
       logger.warn('Failed to load style JSON directly, fallback to URL:', err);
       this.map.setStyle(target.styleUrl, { diff: true });
     }
-
-    this.map.once('style.load', () => {
-      if (!this.map) return;
-      this.map.setCenter(center);
-      this.map.setZoom(targetZoom);
-      this.map.setPitch(pitch);
-      this.map.setBearing(bearing);
-    });
 
     return true;
   }

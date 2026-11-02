@@ -1272,6 +1272,11 @@ export class PikselLoader {
   public flyToPreset(preset: PikselPreset) {
     if (!this.map) return;
 
+    // 0. Cancel any ongoing camera animation immediately so the new preset takes control without lag
+    if (typeof this.map.stop === 'function') {
+      this.map.stop();
+    }
+
     // 1. If preset specifies a recommended basemap, switch to it without wiping overlays if not already active
     if (preset.recommendedBasemap && this.mapManagerRef && typeof this.mapManagerRef.setBasemap === 'function') {
       const currentBm = typeof this.mapManagerRef.getCurrentBasemapId === 'function' ? this.mapManagerRef.getCurrentBasemapId() : null;
@@ -1285,6 +1290,8 @@ export class PikselLoader {
             bearing: 0
           }
         });
+      } else if (typeof (this.mapManagerRef as any).clearPendingStyleTargetView === 'function') {
+        (this.mapManagerRef as any).clearPendingStyleTargetView();
       }
     }
 
@@ -1294,7 +1301,7 @@ export class PikselLoader {
       zoom: preset.zoom,
       pitch: preset.pitch || 0,
       bearing: 0,
-      duration: 1800,
+      duration: 1500,
       essential: true
     });
 

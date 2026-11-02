@@ -80,12 +80,14 @@ export class PikselPanelUI {
 
     // 1. Presets HTML (Strict Single-Active: Hanya preset yang benar-benar dipilih yang berstatus active)
     const presetsHtml = PIKSEL_PRESETS.map((preset: PikselPreset) => {
-      const isChipActive = activeProduct !== null && this.activePresetId === preset.id && activeProduct.id === preset.recommendedProduct;
+      const isChipActive = this.activePresetId === preset.id;
+      const isLoading = isChipActive && (this.currentLoadingState.status === 'loading' || this.currentLoadingState.status === 'requesting');
+      const badgeText = isLoading ? '⏳ Memuat...' : '✓ Aktif';
       return `
-      <button class="piksel-preset-chip ${isChipActive ? 'active' : ''}" data-id="${preset.id}" aria-label="Jelajahi ${preset.name}, ${preset.locationName}" title="${preset.description}">
+      <button class="piksel-preset-chip ${isChipActive ? 'active' : ''} ${isLoading ? 'is-loading' : ''}" data-id="${preset.id}" aria-label="Jelajahi ${preset.name}, ${preset.locationName}" title="${preset.description}">
         <div class="preset-chip-header">
           <span class="preset-chip-title">${preset.name}</span>
-          ${isChipActive ? '<span class="preset-chip-active-badge">✓ Aktif</span>' : ''}
+          ${isChipActive ? `<span class="preset-chip-active-badge ${isLoading ? 'loading' : ''}">${badgeText}</span>` : ''}
         </div>
         <span class="preset-chip-sub">${preset.locationName}</span>
       </button>
@@ -705,8 +707,7 @@ export class PikselPanelUI {
       if (presetBtn && presetBtn.dataset.id) {
         const preset = PIKSEL_PRESETS.find(p => p.id === presetBtn.dataset.id);
         if (preset) {
-          const currentProd = this.pikselLoader.getActiveProduct();
-          const isSameActive = currentProd !== null && this.activePresetId === preset.id && currentProd.id === preset.recommendedProduct;
+          const isSameActive = this.activePresetId === preset.id;
 
           if (isSameActive) {
             // Clicking again toggles off preset and returns to clean basemap
