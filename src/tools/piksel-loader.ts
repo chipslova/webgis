@@ -632,7 +632,8 @@ export class PikselLoader {
 
     if (!this.map) return;
 
-    if (!this.map.getStyle()) {
+    const isStyleLoaded = typeof this.map.isStyleLoaded === 'function' ? this.map.isStyleLoaded() : true;
+    if (!this.map.getStyle() || !isStyleLoaded) {
       this.map.once('style.load', () => {
         if (this.activeRequestId === currentReqId) {
           this.setActiveProduct(productId);
@@ -1260,17 +1261,20 @@ export class PikselLoader {
   public flyToPreset(preset: PikselPreset) {
     if (!this.map) return;
 
-    // 1. If preset specifies a recommended basemap, switch to it without wiping overlays
+    // 1. If preset specifies a recommended basemap, switch to it without wiping overlays if not already active
     if (preset.recommendedBasemap && this.mapManagerRef && typeof this.mapManagerRef.setBasemap === 'function') {
-      this.mapManagerRef.setBasemap(preset.recommendedBasemap, {
-        clearOverlays: false,
-        targetView: {
-          center: preset.center,
-          zoom: preset.zoom,
-          pitch: preset.pitch || 0,
-          bearing: 0
-        }
-      });
+      const currentBm = typeof this.mapManagerRef.getCurrentBasemapId === 'function' ? this.mapManagerRef.getCurrentBasemapId() : null;
+      if (currentBm !== preset.recommendedBasemap) {
+        this.mapManagerRef.setBasemap(preset.recommendedBasemap, {
+          clearOverlays: false,
+          targetView: {
+            center: preset.center,
+            zoom: preset.zoom,
+            pitch: preset.pitch || 0,
+            bearing: 0
+          }
+        });
+      }
     }
 
     // 2. Smoothly animate camera to preset viewpoint
