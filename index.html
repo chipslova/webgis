@@ -1751,9 +1751,9 @@ with rasterio.open('export_modis_lst.tif') as src:
                     <span class="sublayer-icon" aria-hidden="true">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M9 8h1"/><path d="M9 12h1"/><path d="M9 16h1"/><path d="M14 8h1"/><path d="M14 12h1"/><path d="M14 16h1"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
                     </span>
-                    <span class="sublayer-label">Bangunan 3D</span>
+                    <span class="sublayer-label">Tapak Bangunan (Footprint)</span>
                   </div>
-                  <input type="checkbox" id="popover-check-buildings" class="sublayer-toggle" data-key="buildings" checked aria-label="Tampilkan Bangunan 3D" />
+                  <input type="checkbox" id="popover-check-buildings" class="sublayer-toggle" data-key="buildings" checked aria-label="Tampilkan Tapak Bangunan (Footprint)" />
                   <span class="toggle-switch"></span>
                 </label>
                 <label class="sublayer-item">
@@ -1813,6 +1813,22 @@ with rasterio.open('export_modis_lst.tif') as src:
                   <input type="range" id="popover-terrain-exaggeration-slider" min="0.5" max="5.0" step="0.1" value="1.5" aria-label="Faktor eksagerasi vertikal untuk medan 3D" />
                   <span class="slider-max-label" aria-hidden="true">5.0x</span>
                 </div>
+              </div>
+
+              <!-- 3D Extruded Buildings Toggle -->
+              <div class="sublayers-section-header" style="margin-top: 14px;">EKSTRUSI BANGUNAN 3D</div>
+              <div class="sublayers-list global-overlays-list" style="margin-bottom: 12px;">
+                <label class="sublayer-item">
+                  <div class="sublayer-info">
+                    <span class="sublayer-icon" aria-hidden="true">🏢</span>
+                    <div>
+                      <span class="sublayer-label" style="font-size: 12px; font-weight: 600;">Ekstrusi Bangunan 3D</span>
+                      <span style="display: block; font-size: 10px; color: #94a3b8; margin-top: 1px;">Balok volumetrik 3D perkotaan (Zoom &ge; 12)</span>
+                    </div>
+                  </div>
+                  <input type="checkbox" id="popover-check-buildings-3d" class="sublayer-toggle" aria-label="Aktifkan ekstrusi bangunan 3D" />
+                  <span class="toggle-switch"></span>
+                </label>
               </div>
             </div>
           </div>

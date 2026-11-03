@@ -533,7 +533,7 @@ export class BasemapCustomizerUI {
           const map = this.mapManager?.getMap();
           const currentZoom = map && typeof map.getZoom === 'function' ? map.getZoom() : 14;
           if (currentZoom < 11) {
-            this.flyToDemoLocation(`Auto-zooming ke Jakarta (Z14.5) untuk menampilkan perubahan sublayer "${key}"!`);
+            showToast('Sublapisan diperbarui. Perbesar peta (zoom in) untuk melihat detail label & jalan.', 'info');
           }
         }
       });
@@ -548,13 +548,7 @@ export class BasemapCustomizerUI {
         return;
       }
       this.customizer.setAllSublayers(true);
-      const map = this.mapManager?.getMap();
-      const currentZoom = map && typeof map.getZoom === 'function' ? map.getZoom() : 14;
-      if (currentZoom < 11) {
-        this.flyToDemoLocation('Auto-zoom ke Jakarta (Z14.5) untuk menampilkan seluruh sublayer!');
-      } else {
-        showToast('Seluruh sublayer vektor diaktifkan', 'info');
-      }
+      showToast('Seluruh sublayer vektor diaktifkan', 'info');
       this.syncUI();
     });
 
@@ -566,13 +560,7 @@ export class BasemapCustomizerUI {
         return;
       }
       this.customizer.setAllSublayers(false);
-      const map = this.mapManager?.getMap();
-      const currentZoom = map && typeof map.getZoom === 'function' ? map.getZoom() : 14;
-      if (currentZoom < 11) {
-        this.flyToDemoLocation('Auto-zoom ke Jakarta (Z14.5) untuk melihat Kanvas Bersih!');
-      } else {
-        showToast('Kanvas Peta Bersih: seluruh sublayer disembunyikan', 'info');
-      }
+      showToast('Kanvas Peta Bersih: seluruh sublayer disembunyikan', 'info');
       this.syncUI();
     });
 
@@ -581,6 +569,13 @@ export class BasemapCustomizerUI {
     masterTerrainToggle?.addEventListener('change', () => {
       this.customizer.toggle3DTerrain(masterTerrainToggle.checked);
       showToast(masterTerrainToggle.checked ? 'Mode Elevasi Medan 3D diaktifkan!' : 'Kembali ke tampilan peta datar 2D', 'info');
+      this.syncUI();
+    });
+
+    const checkBuildings3D = document.getElementById('popover-check-buildings-3d') as HTMLInputElement | null;
+    checkBuildings3D?.addEventListener('change', () => {
+      this.customizer.toggle3DBuildings(checkBuildings3D.checked);
+      showToast(checkBuildings3D.checked ? 'Ekstrusi Bangunan 3D diaktifkan (Z12+)' : 'Ekstrusi Bangunan 3D dinonaktifkan', 'info');
       this.syncUI();
     });
 
@@ -676,7 +671,7 @@ export class BasemapCustomizerUI {
             this.mapManager.setBasemap(targetVectorBm);
           }
           this.customizer.setBasemapId(targetVectorBm);
-          this.flyToDemoLocation('⚡ Beralih ke Vektor OpenFreeMap & zoom otomatis ke Monas Jakarta (Z14.5)! Kustomisasi sublapisan kini aktif.');
+          showToast('⚡ Beralih ke Peta Dasar Vektor OpenFreeMap Liberty. Kustomisasi sublapisan kini aktif.', 'info');
           this.syncUI();
         });
       }
@@ -726,6 +721,9 @@ export class BasemapCustomizerUI {
     // 4. Sync 3D Terrain Popover Controls
     const masterTerrainToggle = document.getElementById('popover-terrain-master-toggle') as HTMLInputElement;
     if (masterTerrainToggle) masterTerrainToggle.checked = state.terrain3D;
+
+    const checkBuildings3D = document.getElementById('popover-check-buildings-3d') as HTMLInputElement | null;
+    if (checkBuildings3D) checkBuildings3D.checked = state.buildings3D;
 
     const terrainExagSlider = document.getElementById('popover-terrain-exaggeration-slider') as HTMLInputElement;
     if (terrainExagSlider) terrainExagSlider.value = String(state.terrainExaggeration);
