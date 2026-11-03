@@ -9,7 +9,7 @@
         "https://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
       ],
       "tileSize": 256,
-      "maxzoom": 19,
+      "maxzoom": 18,
       "attribution": "© OpenStreetMap contributors, Humanitarian OpenStreetMap Team"
     }
   },

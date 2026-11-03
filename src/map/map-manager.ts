@@ -378,6 +378,7 @@ export class MapManager {
 
     // Centralized style.load listener for all basemap transitions
     this.map.on('style.load', () => {
+      this.updateEffectiveMaxZoom(false);
       if (this.pendingStyleTargetView && this.map) {
         const tv = this.pendingStyleTargetView;
         this.pendingStyleTargetView = null;
