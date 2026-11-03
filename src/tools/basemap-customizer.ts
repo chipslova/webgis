@@ -429,6 +429,18 @@ export class BasemapCustomizer {
     const colorExpr = this.getBuildingColorExpression(this.currentBasemapId);
 
     try {
+      // Also handle any native fill-extrusion layers in the active style (e.g. OpenFreeMap Liberty's 'building-3d')
+      const style = this.map.getStyle();
+      if (style && style.layers) {
+        for (const layer of style.layers) {
+          if (layer.type === 'fill-extrusion' && layer.id !== custom3DLayerId) {
+            try {
+              this.map.setLayoutProperty(layer.id, 'visibility', shouldExtrude ? 'visible' : 'none');
+            } catch (_) {}
+          }
+        }
+      }
+
       if (shouldExtrude) {
         const buildingSrc = this.ensureBuildingVectorSource();
 
@@ -514,7 +526,8 @@ export class BasemapCustomizer {
         layer.id.startsWith('gee-') ||
         layer.id.startsWith('geojson-') ||
         layer.id.startsWith('overlay-') ||
-        layer.id === '3d-extruded-buildings-layer'
+        layer.id === '3d-extruded-buildings-layer' ||
+        layer.type === 'fill-extrusion'
       ) {
         continue;
       }
