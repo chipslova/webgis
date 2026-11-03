@@ -3,7 +3,7 @@ import { setWorkerUrl } from 'maplibre-gl';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import * as pmtiles from 'pmtiles';
-import { BASEMAPS, DEFAULT_BASEMAP_ID } from '../config/basemaps';
+import { BASEMAPS, DEFAULT_BASEMAP_ID, BasemapConfig } from '../config/basemaps';
 import { showToast } from '../ui/toast';
 import { logger } from '../utils/logger';
 
@@ -83,7 +83,7 @@ export class MapManager {
    * Dynamically transforms relative sprite/glyph/source URLs, normalizes endpoints,
    * and strictly deduplicates all layer IDs to prevent MapLibre validation rejections.
    */
-  private normalizeStyleSpecification(style: maplibregl.StyleSpecification, baseUrl?: string): maplibregl.StyleSpecification {
+  private normalizeStyleSpecification(style: maplibregl.StyleSpecification, baseUrl?: string, basemapConfig?: BasemapConfig): maplibregl.StyleSpecification {
     const origin = window.location.origin;
 
     // 1. Resolve relative or local sprite URLs
@@ -147,6 +147,11 @@ export class MapManager {
         const src = style.sources[sourceId] as any;
         if (!src) continue;
 
+        // Strictly enforce source maxzoom ceiling to prevent server-side 'Map data not available' dummy tiles
+        if (basemapConfig?.maxZoom !== undefined && src.type === 'raster') {
+          src.maxzoom = Math.min(src.maxzoom !== undefined ? src.maxzoom : basemapConfig.maxZoom, basemapConfig.maxZoom);
+        }
+
         // Resolve relative source URLs first
         if (src.url && typeof src.url === 'string') {
           if (src.url.startsWith('../') || src.url.startsWith('./')) {
@@ -194,7 +199,7 @@ export class MapManager {
       const res = await fetch(defaultBasemap.styleUrl);
       if (res.ok) {
         const json = await res.json();
-        initialStyle = this.normalizeStyleSpecification(json, defaultBasemap.styleUrl);
+        initialStyle = this.normalizeStyleSpecification(json, defaultBasemap.styleUrl, defaultBasemap);
         this.styleSpecCache.set(defaultBasemap.id, initialStyle);
       }
     } catch (e) {
@@ -213,6 +218,8 @@ export class MapManager {
       bearing: 0,
       attributionControl: false
     } as maplibregl.MapOptions & { preserveDrawingBuffer?: boolean });
+
+    this.updateEffectiveMaxZoom(false);
 
     // Add standard controls
     this.map.addControl(
@@ -710,7 +717,7 @@ export class MapManager {
       if (!normalizedStyle) {
         const res = await fetch(target.styleUrl);
         const styleJson: maplibregl.StyleSpecification = await res.json();
-        normalizedStyle = this.normalizeStyleSpecification(styleJson, target.styleUrl);
+        normalizedStyle = this.normalizeStyleSpecification(styleJson, target.styleUrl, target);
         this.styleSpecCache.set(target.id, normalizedStyle);
       }
       this.map.setStyle(JSON.parse(JSON.stringify(normalizedStyle)), { diff: true });
