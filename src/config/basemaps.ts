@@ -23,6 +23,8 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'Esri',
     group: 'recommended',
+    maxZoom: 18,
+    zoomWarning: 'Tingkat Zoom Maksimum 18 (Resolusi Optimal Citra Satelit)',
     description: 'Mosaik citra satelit global resolusi tinggi ArcGIS World Imagery resmi',
     styleUrl: '/basemap/styles/esri-style-community.json',
     previewColor: '#1e293b',
@@ -37,6 +39,8 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'Esri',
     group: 'recommended',
+    maxZoom: 18,
+    zoomWarning: 'Tingkat Zoom Maksimum 18 (Jaringan Jalan Global Esri)',
     description: 'Peta jalan global Esri dengan jaringan transportasi rinci dan landmark perkotaan',
     styleUrl: '/basemap/styles/esri-style-streets.json',
     previewColor: '#3b82f6'
@@ -63,6 +67,8 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'OpenData',
     group: 'recommended',
+    maxZoom: 19,
+    zoomWarning: 'Tingkat Zoom Maksimum 19 (OpenStreetMap Standard)',
     description: 'Peta jalan global, tapak bangunan, dan tutupan lahan dari komunitas OpenStreetMap',
     styleUrl: '/basemap/styles/esri-style-open-basemap.json',
     previewColor: '#d97706'
@@ -73,6 +79,8 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'Esri',
     group: 'recommended',
+    maxZoom: 18,
+    zoomWarning: 'Tingkat Zoom Maksimum 18 (Topografi Dunia Esri)',
     description: 'Peta topografi dunia Esri dengan kontur elevasi dan bentang alam fisik',
     styleUrl: '/basemap/styles/esri-style-topographic.json',
     previewColor: '#688e57'
@@ -84,6 +92,7 @@ export const BASEMAPS: BasemapConfig[] = [
     category: 'Esri',
     group: 'recommended',
     maxZoom: 16,
+    zoomWarning: 'Tingkat Zoom Maksimum 16 (Kanvas Gelap Esri)',
     description: 'Kanvas abu-abu gelap kontras tinggi untuk visualisasi overlay geospasial tajam',
     styleUrl: '/basemap/styles/esri-style-cleanmap.json',
     previewColor: '#1e293b'
@@ -145,6 +154,7 @@ export const BASEMAPS: BasemapConfig[] = [
     category: 'Esri',
     group: 'thematic',
     maxZoom: 16,
+    zoomWarning: 'Tingkat Zoom Maksimum 16 (Kanvas Terang Esri)',
     description: 'Kanvas abu-abu terang minimalis untuk visualisasi lapisan data tematik berbobot',
     styleUrl: '/basemap/styles/esri-style-light-grey-canvas.json',
     previewColor: '#e2e8f0'
@@ -175,6 +185,8 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'Esri',
     group: 'canvas',
+    maxZoom: 17,
+    zoomWarning: 'Tingkat Zoom Maksimum 17 (Arsip Citra Jernih Esri)',
     description: 'Arsip citra satelit resolusi tinggi bebas awan untuk tampilan medan jernih',
     styleUrl: '/basemap/styles/esri-style-imagery-clarity.json',
     previewColor: '#1e3a8a'
@@ -185,6 +197,8 @@ export const BASEMAPS: BasemapConfig[] = [
     format: 'raster',
     category: 'OpenData',
     group: 'canvas',
+    maxZoom: 19,
+    zoomWarning: 'Tingkat Zoom Maksimum 19 (OpenStreetMap Humanitarian)',
     description: 'Gaya peta OpenStreetMap Humanitarian dengan penekanan pada fitur air dan jaringan jalan',
     styleUrl: '/basemap/styles/osm-style-humanitarian.json',
     previewColor: '#e11d48'

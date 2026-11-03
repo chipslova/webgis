@@ -596,6 +596,62 @@ export class MapManager {
     this.enforceLayerOrder();
   }
 
+  public getEffectiveMaxZoom(): { maxZoom: number; reason?: string } {
+    const currentBm = BASEMAPS.find((b) => b.id === this.currentBasemapId);
+    let effectiveMaxZoom = currentBm?.maxZoom !== undefined ? currentBm.maxZoom : 22;
+    let limitingReason = currentBm?.zoomWarning || (currentBm?.maxZoom ? `Tingkat Zoom Maksimum ${currentBm.maxZoom} (${currentBm.name})` : undefined);
+
+    // Dynamic constraint: Check active satellite / Piksel product
+    if (this.pikselLoaderRef && typeof (this.pikselLoaderRef as any).getActiveProduct === 'function') {
+      const pikselProd = (this.pikselLoaderRef as any).getActiveProduct();
+      if (pikselProd && pikselProd.maxZoom !== undefined) {
+        if (pikselProd.maxZoom < effectiveMaxZoom) {
+          effectiveMaxZoom = pikselProd.maxZoom;
+          limitingReason = pikselProd.zoomWarning || `Tingkat Zoom Maksimum ${pikselProd.maxZoom} (${pikselProd.name})`;
+        }
+      }
+    }
+
+    // Dynamic constraint: Check active GEE layers
+    if (this.geeLoaderRef && typeof (this.geeLoaderRef as any).isLayerActive === 'function') {
+      const gee = this.geeLoaderRef as any;
+      if (gee.isLayerActive('precipitation')) {
+        if (13 < effectiveMaxZoom) {
+          effectiveMaxZoom = 13;
+          limitingReason = 'Tingkat Zoom Maksimum 13 (Resolusi 5 km UCSB CHIRPS)';
+        }
+      } else if (gee.isLayerActive('lst-day') || gee.isLayerActive('lst-night')) {
+        if (14 < effectiveMaxZoom) {
+          effectiveMaxZoom = 14;
+          limitingReason = 'Tingkat Zoom Maksimum 14 (Resolusi 1 km NASA MODIS LST)';
+        }
+      }
+    }
+
+    return { maxZoom: effectiveMaxZoom, reason: limitingReason };
+  }
+
+  public updateEffectiveMaxZoom(clampImmediately: boolean = true) {
+    if (!this.map) return;
+    const { maxZoom, reason } = this.getEffectiveMaxZoom();
+
+    if (typeof this.map.setMaxZoom === 'function') {
+      this.map.setMaxZoom(maxZoom);
+    }
+
+    if (clampImmediately) {
+      const currentZoom = this.map.getZoom();
+      if (currentZoom > maxZoom) {
+        this.map.easeTo({ zoom: maxZoom, duration: 600 });
+        if (reason) {
+          showToast(reason, 'warning');
+        } else {
+          showToast(`Zoom disesuaikan ke level maksimum (Z${maxZoom})`, 'warning');
+        }
+      }
+    }
+  }
+
   public async setBasemap(basemapId: string, options?: SetBasemapOptions): Promise<boolean> {
     if (!this.map) return false;
     const target = BASEMAPS.find(b => b.id === basemapId);
@@ -622,21 +678,19 @@ export class MapManager {
       window.dispatchEvent(new CustomEvent('webgis:basemap-selected', { detail: { basemapId } }));
     }
 
-    // Enforce maxZoom capability constraints on the map viewport
-    const effectiveMaxZoom = target.maxZoom !== undefined ? target.maxZoom : 22;
-    if (typeof this.map.setMaxZoom === 'function') {
-      this.map.setMaxZoom(effectiveMaxZoom);
-    }
+    // Enforce coordinated maxZoom capability constraints on the map viewport
+    this.updateEffectiveMaxZoom(false);
+    const { maxZoom: effectiveMaxZoom, reason: effectiveReason } = this.getEffectiveMaxZoom();
 
-    // Retain view parameters, clamping zoom if target basemap has lower ceiling
+    // Retain view parameters, clamping zoom if target ceiling is lower
     const center = options?.targetView?.center ?? this.map.getCenter();
     const currentZoom = options?.targetView?.zoom ?? this.map.getZoom();
-    const targetZoom = target.maxZoom !== undefined ? Math.min(currentZoom, target.maxZoom) : currentZoom;
+    const targetZoom = Math.min(currentZoom, effectiveMaxZoom);
     const pitch = options?.targetView?.pitch ?? this.map.getPitch();
     const bearing = options?.targetView?.bearing ?? this.map.getBearing();
 
-    if (target.maxZoom !== undefined && currentZoom > target.maxZoom) {
-      showToast(`Zoom disesuaikan ke level maksimum basemap (Z${target.maxZoom})`, 'warning');
+    if (currentZoom > effectiveMaxZoom) {
+      showToast(effectiveReason || `Zoom disesuaikan ke level maksimum (Z${effectiveMaxZoom})`, 'warning');
     }
 
     // Set or clear pending target view so style.load only ever uses the freshest requested view

@@ -247,9 +247,9 @@ export class PikselPanelUI {
 
           <!-- Dedicated Direct Zoom and Split Compare Buttons -->
           <div class="active-layer-btn-row">
-            <button class="btn-zoom-product-action" id="btn-zoom-to-product" aria-label="Zoom peta ke Level ${activeProduct.minZoom ?? 8} untuk citra satelit" title="Zoom peta ke Level ${activeProduct.minZoom ?? 8}">
+            <button class="btn-zoom-product-action" id="btn-zoom-to-product" aria-label="Zoom peta ke rentang optimal Z${activeProduct.minZoom ?? 8}–${activeProduct.maxZoom ?? 18} untuk citra satelit" title="Zoom peta ke rentang optimal Z${activeProduct.minZoom ?? 8}–${activeProduct.maxZoom ?? 18}">
               <span style="font-size: 13px;" aria-hidden="true">🔍</span>
-              <span>Zoom Z${activeProduct.minZoom ?? 8}+</span>
+              <span>Zoom Z${activeProduct.minZoom ?? 8}–${activeProduct.maxZoom ?? 18}</span>
             </button>
             <button class="btn-compare-product-action" id="btn-compare-with-rgb" aria-label="Bandingkan ${activeProduct.name} dalam mode Split-Screen" title="Bandingkan lapisan ini dengan produk lain dalam mode Split-Screen">
               <span style="font-size: 13px;" aria-hidden="true">⚖️</span>
@@ -390,7 +390,7 @@ export class PikselPanelUI {
             </p>
             <div class="card-tags-line">
               <span class="card-tag">${prod.resolution}</span>
-              <span class="card-tag" title="Level Zoom Minimum Z${prod.minZoom ?? 8}+">Z${prod.minZoom ?? 8}+</span>
+              <span class="card-tag" title="Rentang Zoom Optimal: Z${prod.minZoom ?? 8} s/d Z${prod.maxZoom ?? 18}">Z${prod.minZoom ?? 8}–${prod.maxZoom ?? 18}</span>
               ${prod.optimalFocus ? `<span class="card-tag card-tag-focus" style="background: rgba(16, 185, 129, 0.12); color: #34d399; border-color: rgba(16, 185, 129, 0.25);" title="Area Data Paling Jelas: ${prod.optimalFocus.name} (Z${prod.optimalFocus.zoom})">📍 ${prod.optimalFocus.name}</span>` : ''}
               ${prod.timeEnabled && yearRange ? `<span class="card-tag multi-year">${yearRange}</span>` : ''}
               <span class="card-badge" style="color:${prod.color};">${prod.badge}</span>
@@ -402,6 +402,7 @@ export class PikselPanelUI {
                   <span style="color:#64748b;">Protokol:</span><span style="color:#cbd5e1; font-family:monospace;">OGC WMS 1.3.0</span>
                   <span style="color:#64748b;">Layer WMS:</span><span style="color:#cbd5e1; font-family:monospace;">${prod.layer}</span>
                   <span style="color:#64748b;">Style:</span><span style="color:#cbd5e1; font-family:monospace;">${prod.style}</span>
+                  <span style="color:#64748b;">Rentang Zoom:</span><span style="color:#cbd5e1; font-family:monospace;">Z${prod.minZoom ?? 8} – Z${prod.maxZoom ?? 18}</span>
                   <span style="color:#64748b;">Sensor:</span><span style="color:#cbd5e1;">${prod.sensor}</span>
                 </div>
                 ${prod.attribution ? `<span class="card-about-attr">${prod.attribution}</span>` : ''}

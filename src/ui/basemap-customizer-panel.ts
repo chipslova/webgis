@@ -99,7 +99,7 @@ export class BasemapCustomizerUI {
         : `<span class="bm-tag-badge raster" title="Peta Dasar Raster: Citra/peta komposit piksel">🖼️ Raster</span>`;
       
       const maxZoomBadge = bm.maxZoom
-        ? `<span class="bm-tag-badge maxzoom" title="Tingkat zoom maksimum ${bm.maxZoom} (Batimetri Kedalaman Laut)">⚠️ Max Z${bm.maxZoom}</span>`
+        ? `<span class="bm-tag-badge maxzoom" title="${bm.zoomWarning || 'Tingkat zoom maksimum ' + bm.maxZoom}">⚠️ Max Z${bm.maxZoom}</span>`
         : '';
 
       item.innerHTML = `
@@ -261,7 +261,7 @@ export class BasemapCustomizerUI {
           ? `<span class="bm-tag-badge vector">🔷 Vektor</span>`
           : `<span class="bm-tag-badge raster">🖼️ Raster</span>`;
         const maxZoomBadge = bm.maxZoom
-          ? `<span class="bm-tag-badge maxzoom">⚠️ Max Z${bm.maxZoom}</span>`
+          ? `<span class="bm-tag-badge maxzoom" title="${bm.zoomWarning || 'Tingkat zoom maksimum ' + bm.maxZoom}">⚠️ Max Z${bm.maxZoom}</span>`
           : '';
 
         card.innerHTML = `

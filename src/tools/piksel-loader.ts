@@ -780,6 +780,7 @@ export class PikselLoader {
     const layerId = this.getLayerIdForSlot(product.id, slot);
     const tileUrl = this.buildWmsTileUrl(product);
     const minZoom = product.minZoom ?? 8;
+    const maxZoom = product.maxZoom ?? 18;
 
     this.activeSourceId = sourceId;
     this.activeLayerId = layerId;
@@ -811,7 +812,7 @@ export class PikselLoader {
         tiles: [tileUrl],
         tileSize: 256,
         minzoom: minZoom,
-        maxzoom: 18,
+        maxzoom: maxZoom,
         attribution: product.attribution || '© Badan Informasi Geospasial (BIG) — Piksel'
       });
 
@@ -820,7 +821,7 @@ export class PikselLoader {
         type: 'raster',
         source: sourceId,
         minzoom: minZoom,
-        maxzoom: 18,
+        maxzoom: maxZoom,
         layout: { visibility: this.rasterVisible ? 'visible' : 'none' },
         paint: {
           'raster-opacity': this.currentOpacity,
@@ -898,6 +899,7 @@ export class PikselLoader {
     const prefetchLayerId = this.getLayerIdForSlot(prod.id, idleSlot);
     const tileUrl = this.buildWmsTileUrl(prod, nextYear);
     const minZoom = prod.minZoom ?? 8;
+    const maxZoom = prod.maxZoom ?? 18;
 
     try {
       if (this.map.getLayer(prefetchLayerId)) {
@@ -912,7 +914,7 @@ export class PikselLoader {
         tiles: [tileUrl],
         tileSize: 256,
         minzoom: minZoom,
-        maxzoom: 18,
+        maxzoom: maxZoom,
         attribution: prod.attribution || '© Badan Informasi Geospasial (BIG) — Piksel'
       });
 
@@ -921,7 +923,7 @@ export class PikselLoader {
         type: 'raster',
         source: prefetchSourceId,
         minzoom: minZoom,
-        maxzoom: 18,
+        maxzoom: maxZoom,
         layout: { visibility: 'visible' },
         paint: {
           'raster-opacity': 0.0001, // Dormant in GPU memory, invisible to user
@@ -1020,12 +1022,13 @@ export class PikselLoader {
         this.map.removeSource(nextSourceId);
       }
 
+      const maxZoom = product.maxZoom ?? 18;
       this.map.addSource(nextSourceId, {
         type: 'raster',
         tiles: [tileUrl],
         tileSize: 256,
         minzoom: minZoom,
-        maxzoom: 18,
+        maxzoom: maxZoom,
         attribution: product.attribution || '© Badan Informasi Geospasial (BIG) — Piksel'
       });
 
@@ -1034,7 +1037,7 @@ export class PikselLoader {
         type: 'raster',
         source: nextSourceId,
         minzoom: minZoom,
-        maxzoom: 18,
+        maxzoom: maxZoom,
         layout: { visibility: this.rasterVisible ? 'visible' : 'none' },
         paint: {
           'raster-opacity': this.currentOpacity,

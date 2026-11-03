@@ -173,13 +173,15 @@ class WebGISApp {
       });
       this.mapManager.onStyleReady(() => this.dynamicLegendUI?.render());
 
-      // Auto-enforce layer ordering & legend update on any layer state changes
+      // Auto-enforce coordinated maxZoom, layer ordering & legend update on any layer state changes
       this.pikselLoader.onLayersChange(() => {
+        this.mapManager.updateEffectiveMaxZoom(true);
         this.mapManager.enforceLayerOrder();
         this.dynamicLegendUI?.render();
         this.permalinkManager?.scheduleHashUpdate();
       });
       this.geeLoader.onLayersChange(() => {
+        this.mapManager.updateEffectiveMaxZoom(true);
         this.mapManager.enforceLayerOrder();
         this.dynamicLegendUI?.render();
       });
