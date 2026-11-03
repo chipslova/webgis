@@ -29,7 +29,7 @@ export const DEFAULT_CUSTOMIZER_STATE: BasemapCustomizerState = {
   terrainHillshade: false,
   terrain3D: false,
   terrainExaggeration: 1.5,
-  buildings3D: true,
+  buildings3D: false,
   sublayers: {
     poi: true,
     road_names: true,
@@ -391,7 +391,7 @@ export class BasemapCustomizer {
 
     // 2. Fallback: Dynamically provide global OpenFreeMap 3D Vector Building tiles
     const currentZoom = typeof this.map.getZoom === 'function' ? this.map.getZoom() : 0;
-    if (currentZoom < 12 && !this.state.terrain3D) {
+    if (currentZoom < 12) {
       if (typeof this.map.once === 'function') {
         this.map.once('zoom', () => {
           if (typeof this.map.getZoom === 'function' && this.map.getZoom() >= 12) {
@@ -425,7 +425,7 @@ export class BasemapCustomizer {
 
     const custom3DLayerId = '3d-extruded-buildings-layer';
     const isBuildingSublayerOn = this.state.sublayers.buildings !== false;
-    const shouldExtrude = isBuildingSublayerOn && (this.state.terrain3D || this.state.buildings3D);
+    const shouldExtrude = isBuildingSublayerOn && this.state.buildings3D;
     const colorExpr = this.getBuildingColorExpression(this.currentBasemapId);
 
     try {

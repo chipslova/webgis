@@ -22,7 +22,7 @@ describe('Basemap Customizer - Sublayer Detection & State Management', () => {
     expect(state.terrain3D).toBe(false);
     expect(state.terrainExaggeration).toBe(1.5);
     expect(state.terrainHillshade).toBe(false);
-    expect(state.buildings3D).toBe(true);
+    expect(state.buildings3D).toBe(false);
     expect(state.sublayers.poi).toBe(true);
     expect(state.sublayers.road_names).toBe(true);
     expect(state.sublayers.place_names).toBe(true);
