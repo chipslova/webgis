@@ -68,6 +68,8 @@ export class PikselPanelUI {
     const container = document.getElementById('panel-piksel');
     if (!container) return;
 
+    const prevScrollTop = container.scrollTop;
+
     const activeProduct = this.pikselLoader.getActiveProduct();
     const opacityPct = Math.round(this.pikselLoader.getOpacity() * 100);
     const filters = this.pikselLoader.getFilters();
@@ -516,6 +518,7 @@ export class PikselPanelUI {
         </div>
       </details>
     `;
+    container.scrollTop = prevScrollTop;
   }
 
   private getStatusBadgeHtml(state: PikselLoadingState): string {
@@ -733,8 +736,10 @@ export class PikselPanelUI {
       // 2. Category filter click
       const catBtn = target.closest('.cat-filter-btn') as HTMLElement;
       if (catBtn && catBtn.dataset.cat) {
-        this.selectedCategory = catBtn.dataset.cat;
-        this.render();
+        if (this.selectedCategory !== catBtn.dataset.cat) {
+          this.selectedCategory = catBtn.dataset.cat;
+          this.render();
+        }
         return;
       }
 
@@ -760,6 +765,7 @@ export class PikselPanelUI {
         this.activePresetId = null;
         if (current?.id === clickedId) {
           this.pikselLoader.setActiveProduct(null);
+          showToast(`Lapisan ${prodObj?.name || 'citra satelit'} dinonaktifkan`, 'info');
         } else {
           const map = this.pikselLoader.getMap();
           const prevCenter = map ? map.getCenter() : null;

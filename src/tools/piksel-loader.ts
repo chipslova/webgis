@@ -632,8 +632,7 @@ export class PikselLoader {
 
     if (!this.map) return;
 
-    const isStyleLoaded = typeof this.map.isStyleLoaded === 'function' ? this.map.isStyleLoaded() : true;
-    if (!this.map.getStyle() || !isStyleLoaded) {
+    if (!this.map.getStyle()) {
       this.map.once('style.load', () => {
         if (this.activeRequestId === currentReqId) {
           this.setActiveProduct(productId);
@@ -656,6 +655,12 @@ export class PikselLoader {
           return;
         }
 
+        // Validate and synchronize selected year for the newly activated product
+        if (product.timeOptions && !product.timeOptions.some(o => o.value === this.selectedYear)) {
+          this.selectedYear = product.timeOptions[0].value;
+        } else if (product.availableYears && !product.availableYears.includes(this.selectedYear)) {
+          this.selectedYear = product.availableYears[0];
+        }
 
         this.renderRasterLayer(product, currentReqId);
       }

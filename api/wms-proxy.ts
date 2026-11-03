@@ -29,13 +29,13 @@ export default async function handler(req: Request): Promise<Response> {
     return new Response('Method Not Allowed', { status: 405 });
   }
 
-  // Rate Limiting (120 requests/minute per IP)
+  // Rate Limiting (360 requests/minute per IP to comfortably accommodate high-DPI raster tile streams)
   const clientIp = getClientIp(req);
-  const rateLimit = checkRateLimit(clientIp, { maxRequests: 120, windowSeconds: 60 });
+  const rateLimit = checkRateLimit(clientIp, { maxRequests: 360, windowSeconds: 60 });
 
   if (!rateLimit.allowed) {
     return new Response(JSON.stringify({
-      error: 'Terlalu banyak permintaan proxy WMS (Rate limit exceeded). Batas: 120 ubin/menit per IP.',
+      error: 'Terlalu banyak permintaan proxy WMS (Rate limit exceeded). Batas: 360 ubin/menit per IP.',
       retryAfter: rateLimit.retryAfter
     }), {
       status: 429,
