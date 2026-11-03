@@ -1443,6 +1443,16 @@ with rasterio.open('export_modis_lst.tif') as src:
             <span id="map-status-text">Peta Dasar Aktif · Pilih citra satelit atau analisis dari bilah sisi</span>
           </div>
 
+          <!-- Real-Time Map & Tile Loading Indicator (Shows during tile download / zoom out) -->
+          <div id="map-loading-progress-bar" class="map-loading-progress-bar" aria-hidden="true"></div>
+          <div id="map-tile-loading-pill" class="map-tile-loading-pill" style="display: none;" role="status" aria-live="polite" aria-label="Status Memuat Ubin Peta">
+            <div class="tile-loading-spinner" aria-hidden="true"></div>
+            <div class="tile-loading-content">
+              <span id="map-tile-loading-title" class="tile-loading-title">Memuat Ubin Peta...</span>
+              <span id="map-tile-loading-sub" class="tile-loading-sub">Mengunduh data geografis</span>
+            </div>
+          </div>
+
           <!-- Floating Interactive Drawing Toolbar (Auto-collapsed sidebar companion) -->
           <div id="aoi-floating-pill" class="aoi-floating-pill" style="display: none;" role="toolbar" aria-label="Alat Penggambar Area Analisis">
             <div class="aoi-pill-indicator">
@@ -1910,6 +1920,10 @@ with rasterio.open('export_modis_lst.tif') as src:
           <span class="status-net" title="Status Jaringan Real-Time">
             <span id="net-status-dot" class="status-dot online"></span>
             <span id="net-status-text">Online</span>
+          </span>
+          <span id="status-tile-loader" class="status-tile-loader" style="display: none;" title="Status Pengunduhan Ubin Peta">
+            <span class="status-tile-spinner" aria-hidden="true"></span>
+            <span id="status-tile-loader-text">Memuat...</span>
           </span>
           <span class="status-divider" aria-hidden="true">|</span>
           <button id="btn-toggle-eco-mode" class="btn-text-sm eco-mode-btn" title="Mode Hemat Daya & GPU (Optimasi Perangkat Ringan / Baterai)" aria-label="Toggle Mode Hemat GPU">

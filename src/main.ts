@@ -36,6 +36,7 @@ import { setupUniversalEscapeHandler, announceToScreenReader, closeMenu, toggleM
 import { escapeHtml } from './utils/sanitize';
 import { logger } from './utils/logger';
 import { EcoModeManager } from './tools/eco-mode';
+import { MapLoadingIndicator } from './tools/map-loading-indicator';
 
 class WebGISApp {
   private mapManager: MapManager;
@@ -67,6 +68,7 @@ class WebGISApp {
   private shortcutsModalUI: ShortcutsModalUI | null = null;
   private aiNavigator: AINavigator | null = null;
   private aiAssistantDockUI: AIAssistantDockUI | null = null;
+  private mapLoadingIndicator: MapLoadingIndicator | null = null;
   private switchAnalysisSubtab?: (subtab: 'zonal' | 'buffer') => void;
   private errorHandler: ErrorHandler;
 
@@ -138,6 +140,14 @@ class WebGISApp {
       this.basemapCustomizerUI?.setPikselLoader(this.pikselLoader);
       this.pikselPanelUI = new PikselPanelUI(this.pikselLoader);
       this.mapExporter = new MapExporter(map, this.pikselLoader);
+
+      // Real-Time Global Map & Tile Loading Indicator
+      this.mapLoadingIndicator = new MapLoadingIndicator(
+        map,
+        this.mapManager,
+        this.pikselLoader,
+        this.geeLoader
+      );
 
       // Connect Dynamic Legend UI references
       this.dynamicLegendUI?.setPikselLoader(this.pikselLoader);
@@ -1321,6 +1331,10 @@ class WebGISApp {
 
   public getCommandPaletteUI(): CommandPaletteUI | null {
     return this.commandPaletteUI;
+  }
+
+  public getMapLoadingIndicator(): MapLoadingIndicator | null {
+    return this.mapLoadingIndicator;
   }
 
   private initAnalysisSubnav(): (subtab: 'zonal' | 'buffer') => void {
