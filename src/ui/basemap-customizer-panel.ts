@@ -5,6 +5,57 @@ import { BASEMAPS, DEFAULT_BASEMAP_ID } from '../config/basemaps';
 import { showToast } from './toast';
 import { announceToScreenReader } from '../utils/a11y';
 
+interface AutoZoomTarget {
+  minZoom: number;
+  targetZoom: number;
+  minPitch?: number;
+  targetPitch?: number;
+  title: string;
+}
+
+const SUBLAYER_AUTO_ZOOM_CONFIG: Record<VectorSublayerKey, AutoZoomTarget> = {
+  buildings: {
+    minZoom: 14.0,
+    targetZoom: 15.0,
+    title: 'Tapak Bangunan'
+  },
+  road_names: {
+    minZoom: 13.0,
+    targetZoom: 14.5,
+    title: 'Nama Jalan'
+  },
+  poi: {
+    minZoom: 13.0,
+    targetZoom: 14.5,
+    title: 'Titik Minat (POI)'
+  },
+  roads: {
+    minZoom: 11.0,
+    targetZoom: 13.0,
+    title: 'Jaringan Jalan'
+  },
+  landcover: {
+    minZoom: 9.0,
+    targetZoom: 11.0,
+    title: 'Tutupan Lahan'
+  },
+  place_names: {
+    minZoom: 7.5,
+    targetZoom: 9.5,
+    title: 'Nama Tempat'
+  },
+  water: {
+    minZoom: 8.0,
+    targetZoom: 10.0,
+    title: 'Badan Air'
+  },
+  admin_boundaries: {
+    minZoom: 5.5,
+    targetZoom: 7.0,
+    title: 'Batas Administratif'
+  }
+};
+
 export class BasemapCustomizerUI {
   private customizer: BasemapCustomizer;
   private mapManager?: MapManager;
@@ -434,6 +485,54 @@ export class BasemapCustomizerUI {
   }
 
   /**
+   * Automatically zooms and tilts the camera if the current viewpoint is zoomed out too far
+   * to clearly see the activated layer/feature.
+   */
+  public autoZoomForFeature(target: AutoZoomTarget): boolean {
+    const map = this.mapManager?.getMap();
+    if (!map || typeof map.getZoom !== 'function') return false;
+
+    const currentZoom = map.getZoom();
+    const currentPitch = typeof map.getPitch === 'function' ? map.getPitch() : 0;
+    const needsZoom = currentZoom < target.minZoom;
+    const needsPitch = target.minPitch !== undefined && currentPitch < target.minPitch;
+
+    if (needsZoom || needsPitch) {
+      const center = typeof map.getCenter === 'function' ? map.getCenter() : { lng: 106.8272, lat: -6.1754 };
+      // If camera is at default Indonesia overview (Makassar strait), guide to Monas Jakarta for immediate visibility
+      const isDefaultOceanCenter = currentZoom < 6.5 && Math.abs(center.lng - 117.89) < 1.5 && Math.abs(center.lat - (-2.55)) < 1.5;
+      const targetCenter = isDefaultOceanCenter ? ([106.8272, -6.1754] as [number, number]) : [center.lng, center.lat];
+
+      let finalZoom = target.targetZoom;
+      if (this.mapManager && typeof (this.mapManager as any).getEffectiveMaxZoom === 'function') {
+        const { maxZoom } = (this.mapManager as any).getEffectiveMaxZoom();
+        if (typeof maxZoom === 'number' && finalZoom > maxZoom) {
+          finalZoom = maxZoom;
+        }
+      }
+
+      const flyOpts: any = {
+        center: targetCenter,
+        essential: true,
+        duration: 1500
+      };
+
+      if (needsZoom) {
+        flyOpts.zoom = finalZoom;
+      }
+      if (needsPitch) {
+        flyOpts.pitch = target.targetPitch;
+      }
+
+      if (typeof map.flyTo === 'function') {
+        map.flyTo(flyOpts);
+      }
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Helper to fly smoothly to Jakarta Monas demo location at Z14.5
    */
   public flyToDemoLocation(message?: string) {
@@ -504,8 +603,22 @@ export class BasemapCustomizerUI {
     // --- Sublayers Popover Controls ---
     const checkHillshade = document.getElementById('popover-check-hillshade') as HTMLInputElement;
     checkHillshade?.addEventListener('change', () => {
-      this.customizer.toggleTerrainHillshade(checkHillshade.checked);
-      showToast(checkHillshade.checked ? 'Hillshade Relief Medan diaktifkan' : 'Hillshade Relief Medan dinonaktifkan', 'info');
+      const isChecked = checkHillshade.checked;
+      this.customizer.toggleTerrainHillshade(isChecked);
+      if (isChecked) {
+        const didZoom = this.autoZoomForFeature({
+          minZoom: 7.0,
+          targetZoom: 8.5,
+          title: 'Hillshade Relief Medan'
+        });
+        if (didZoom) {
+          showToast('Hillshade Relief Medan diaktifkan. Kamera otomatis zoom ke Z8.5 agar bayangan topografi terlihat.', 'info');
+        } else {
+          showToast('Hillshade Relief Medan diaktifkan', 'info');
+        }
+      } else {
+        showToast('Hillshade Relief Medan dinonaktifkan', 'info');
+      }
     });
 
     // Zoom Focus Demo Button
@@ -523,17 +636,23 @@ export class BasemapCustomizerUI {
       this.syncUI();
     });
 
-    // Vector sublayer toggles
+    // Vector sublayer toggles with Auto-Zoom for instant visibility
     const sublayerToggles = document.querySelectorAll<HTMLInputElement>('#sublayers-popover .sublayer-toggle[data-key]');
     sublayerToggles.forEach(input => {
       input.addEventListener('change', () => {
         const key = input.dataset.key as VectorSublayerKey;
         if (key) {
           this.customizer.toggleSublayer(key, input.checked);
-          const map = this.mapManager?.getMap();
-          const currentZoom = map && typeof map.getZoom === 'function' ? map.getZoom() : 14;
-          if (currentZoom < 11) {
-            showToast('Sublapisan diperbarui. Perbesar peta (zoom in) untuk melihat detail label & jalan.', 'info');
+          const cfg = SUBLAYER_AUTO_ZOOM_CONFIG[key];
+          if (input.checked && cfg) {
+            const didZoom = this.autoZoomForFeature(cfg);
+            if (didZoom) {
+              showToast(`${cfg.title} diaktifkan. Kamera otomatis zoom ke Z${cfg.targetZoom.toFixed(1)} agar terlihat jelas.`, 'info');
+            } else {
+              showToast(`${cfg.title} diaktifkan`, 'info');
+            }
+          } else if (!input.checked) {
+            showToast(`${cfg?.title || key} disembunyikan`, 'info');
           }
         }
       });
@@ -548,7 +667,16 @@ export class BasemapCustomizerUI {
         return;
       }
       this.customizer.setAllSublayers(true);
-      showToast('Seluruh sublayer vektor diaktifkan', 'info');
+      const didZoom = this.autoZoomForFeature({
+        minZoom: 13.0,
+        targetZoom: 14.5,
+        title: 'Seluruh Sublapisan Vektor'
+      });
+      if (didZoom) {
+        showToast('Seluruh sublayer vektor diaktifkan. Kamera otomatis zoom ke Z14.5 agar seluruh detail terlihat!', 'info');
+      } else {
+        showToast('Seluruh sublayer vektor diaktifkan', 'info');
+      }
       this.syncUI();
     });
 
@@ -564,18 +692,50 @@ export class BasemapCustomizerUI {
       this.syncUI();
     });
 
-    // --- 3D Terrain Popover Controls ---
+    // --- 3D Terrain Popover Controls with Auto-Tilt/Zoom ---
     const masterTerrainToggle = document.getElementById('popover-terrain-master-toggle') as HTMLInputElement;
     masterTerrainToggle?.addEventListener('change', () => {
-      this.customizer.toggle3DTerrain(masterTerrainToggle.checked);
-      showToast(masterTerrainToggle.checked ? 'Mode Elevasi Medan 3D diaktifkan!' : 'Kembali ke tampilan peta datar 2D', 'info');
+      const isChecked = masterTerrainToggle.checked;
+      this.customizer.toggle3DTerrain(isChecked);
+      if (isChecked) {
+        const didZoom = this.autoZoomForFeature({
+          minZoom: 8.0,
+          targetZoom: 9.5,
+          minPitch: 35,
+          targetPitch: 55,
+          title: 'Elevasi Medan 3D'
+        });
+        if (didZoom) {
+          showToast('Mode Elevasi Medan 3D diaktifkan. Kamera otomatis dimiringkan 55° agar kontur relief terlihat!', 'info');
+        } else {
+          showToast('Mode Elevasi Medan 3D diaktifkan!', 'info');
+        }
+      } else {
+        showToast('Kembali ke tampilan peta datar 2D', 'info');
+      }
       this.syncUI();
     });
 
     const checkBuildings3D = document.getElementById('popover-check-buildings-3d') as HTMLInputElement | null;
     checkBuildings3D?.addEventListener('change', () => {
-      this.customizer.toggle3DBuildings(checkBuildings3D.checked);
-      showToast(checkBuildings3D.checked ? 'Ekstrusi Bangunan 3D diaktifkan (Z12+)' : 'Ekstrusi Bangunan 3D dinonaktifkan', 'info');
+      const isChecked = checkBuildings3D.checked;
+      this.customizer.toggle3DBuildings(isChecked);
+      if (isChecked) {
+        const didZoom = this.autoZoomForFeature({
+          minZoom: 14.0,
+          targetZoom: 15.5,
+          minPitch: 40,
+          targetPitch: 55,
+          title: 'Ekstrusi Bangunan 3D'
+        });
+        if (didZoom) {
+          showToast('Ekstrusi Bangunan 3D diaktifkan. Kamera otomatis zoom ke Z15.5 & miring 55° agar tampak 3D!', 'info');
+        } else {
+          showToast('Ekstrusi Bangunan 3D diaktifkan (Z12+)', 'info');
+        }
+      } else {
+        showToast('Ekstrusi Bangunan 3D dinonaktifkan', 'info');
+      }
       this.syncUI();
     });
 

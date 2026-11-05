@@ -363,5 +363,47 @@ describe('E2E WebGIS Exhaustive Buttons & Interaction Flow Audit', () => {
       quickSwitchBtn.click();
       expect(mapManager.getCurrentBasemapId()).toBe('openfreemap-liberty');
     });
+    it('3. Auto-zooms and tilts map when activating sublayers, 3D buildings, or 3D terrain from a zoomed-out view', () => {
+      // Set to vector basemap at low zoom (Z10, flat pitch 0)
+      mapManager.setBasemap('openfreemap-liberty');
+      mockMap.getZoom.mockReturnValue(10);
+      mockMap.getPitch.mockReturnValue(0);
+      mockMap.flyTo.mockClear();
+
+      // 1. Activating buildings sublayer at Z10 should trigger auto-zoom to Z15.0
+      const buildingsToggle = document.getElementById('popover-check-buildings') as HTMLInputElement;
+      buildingsToggle.checked = true;
+      buildingsToggle.dispatchEvent(new Event('change'));
+      expect(mockMap.flyTo).toHaveBeenCalled();
+      const lastFlyCall = mockMap.flyTo.mock.calls[mockMap.flyTo.mock.calls.length - 1][0];
+      expect(lastFlyCall.zoom).toBe(15.0);
+
+      // 2. Activating 3D buildings at flat pitch should trigger tilt to pitch 55 and zoom 15.5
+      mockMap.flyTo.mockClear();
+      const buildings3DToggle = document.getElementById('popover-check-buildings-3d') as HTMLInputElement;
+      buildings3DToggle.checked = true;
+      buildings3DToggle.dispatchEvent(new Event('change'));
+      expect(mockMap.flyTo).toHaveBeenCalled();
+      const b3dFlyCall = mockMap.flyTo.mock.calls[mockMap.flyTo.mock.calls.length - 1][0];
+      expect(b3dFlyCall.zoom).toBe(15.5);
+      expect(b3dFlyCall.pitch).toBe(55);
+
+      // 3. Activating 3D terrain should trigger tilt to pitch 55
+      mockMap.flyTo.mockClear();
+      const terrainToggle = document.getElementById('popover-terrain-master-toggle') as HTMLInputElement;
+      terrainToggle.checked = true;
+      terrainToggle.dispatchEvent(new Event('change'));
+      expect(mockMap.flyTo).toHaveBeenCalled();
+      const terrainFlyCall = mockMap.flyTo.mock.calls[mockMap.flyTo.mock.calls.length - 1][0];
+      expect(terrainFlyCall.pitch).toBe(55);
+
+      // 4. If already zoomed in deep (Z16), turning on road_names should NOT trigger flyTo (no unwanted jumping)
+      mockMap.getZoom.mockReturnValue(16);
+      mockMap.flyTo.mockClear();
+      const roadNamesToggle = document.getElementById('popover-check-road_names') as HTMLInputElement;
+      roadNamesToggle.checked = true;
+      roadNamesToggle.dispatchEvent(new Event('change'));
+      expect(mockMap.flyTo).not.toHaveBeenCalled();
+    });
   });
 });
