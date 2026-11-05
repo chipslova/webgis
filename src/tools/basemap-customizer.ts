@@ -427,13 +427,14 @@ export class BasemapCustomizer {
     const colorExpr = this.getBuildingColorExpression(this.currentBasemapId);
 
     try {
-      // Also handle any native fill-extrusion layers in the active style (e.g. OpenFreeMap Liberty's 'building-3d')
+      // Suppress any native fill-extrusion layers in the active style (e.g. OpenFreeMap Liberty's 'building-3d')
+      // to avoid duplicate rendering, color clashes, and z-fighting with our unified, height-styled custom3DLayerId.
       const style = this.map.getStyle();
       if (style && style.layers) {
         for (const layer of style.layers) {
           if (layer.type === 'fill-extrusion' && layer.id !== custom3DLayerId) {
             try {
-              this.map.setLayoutProperty(layer.id, 'visibility', shouldExtrude ? 'visible' : 'none');
+              this.map.setLayoutProperty(layer.id, 'visibility', 'none');
             } catch (_) {}
           }
         }
