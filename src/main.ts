@@ -247,6 +247,14 @@ class WebGISApp {
           this.spatialAnalysisUI.cancelDrawing();
         }
 
+        if (tabId === 'measure' && this.measureTool) {
+          this.measureTool.syncActionButtons();
+          const card = document.getElementById('measure-result-card');
+          if (card) {
+            card.style.display = this.measureTool.hasActiveMeasurement() ? 'block' : 'none';
+          }
+        }
+
         if (tabId === 'gee') {
           this.geeLoader?.loadGEEDatasets();
         }
@@ -385,7 +393,8 @@ class WebGISApp {
         const card = document.getElementById('measure-result-card');
         const val = document.getElementById('measure-result-value');
         if (card && val) {
-          card.style.display = res.text ? 'block' : 'none';
+          const hasValidText = !!(res.text && res.text !== '0');
+          card.style.display = hasValidText ? 'block' : 'none';
           val.innerText = res.text || '0';
         }
         this.renderElevationProfileChart(res.profile || null);
@@ -553,6 +562,7 @@ class WebGISApp {
         updateInstructionVisibility();
         const card = document.getElementById('measure-result-card');
         if (card) card.style.display = 'none';
+        this.renderElevationProfileChart(null);
         this.dynamicLegendUI?.render();
       });
       this.measureTool.onFinish(() => {

@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { MeasureTool } from '../src/tools/measure';
+import { PointInspector } from '../src/tools/point-inspector';
 import { SpatialAnalysisUI } from '../src/ui/spatial-analysis-ui';
 import { SidebarUI } from '../src/ui/sidebar';
 import * as fs from 'fs';
@@ -363,5 +364,75 @@ describe('MeasureTool Fullscreen Mode, Floating Action Pill & Mutual Exclusion',
     expect(clearBtn.disabled).toBe(true);
     expect(geojsonBtn.disabled).toBe(true);
     expect(kmlBtn.disabled).toBe(true);
+  });
+
+  it('should prevent PointInspector from triggering immediately after finishMeasurement and when clicking tooltips', () => {
+    let inspectCalled = false;
+    const inspector = new PointInspector(mockMap, undefined, undefined, undefined, measureTool);
+    inspector.inspectCoordinate = vi.fn(async () => {
+      inspectCalled = true;
+    });
+
+    // 1. When actively measuring: click is suppressed
+    measureTool.setMode('distance');
+    expect(measureTool.getMode()).toBe('distance');
+
+    // Simulate map click
+    const clickHandler = (mockMap.on as any).mock.calls.find((call: any[]) => call[0] === 'click' && call[1].toString().includes('inspectCoordinate'))?.[1];
+    expect(clickHandler).toBeDefined();
+
+    clickHandler({
+      lngLat: { lng: 106.8, lat: -6.2 },
+      point: { x: 100, y: 100 },
+      originalEvent: { target: document.createElement('div') }
+    });
+    expect(inspectCalled).toBe(false);
+
+    // 2. Add points and finish measurement: isRecentlyFinished is true
+    (measureTool as any).addPoint([106.8, -6.2]);
+    (measureTool as any).addPoint([107.0, -6.3]);
+    measureTool.finishMeasurement();
+
+    expect(measureTool.isRecentlyFinished()).toBe(true);
+
+    // Click right after finish measurement (e.g. double-click artifact)
+    clickHandler({
+      lngLat: { lng: 107.0, lat: -6.3 },
+      point: { x: 120, y: 120 },
+      originalEvent: { target: document.createElement('div') }
+    });
+    expect(inspectCalled).toBe(false);
+
+    // 3. Click directly on measure tooltip or popup: suppressed
+    const tooltipEl = document.createElement('div');
+    tooltipEl.className = 'measure-tooltip';
+    const closeBtn = document.createElement('button');
+    closeBtn.id = 'btn-measure-tooltip-clear';
+    tooltipEl.appendChild(closeBtn);
+    document.body.appendChild(tooltipEl);
+
+    clickHandler({
+      lngLat: { lng: 107.0, lat: -6.3 },
+      point: { x: 120, y: 120 },
+      originalEvent: { target: closeBtn }
+    });
+    expect(inspectCalled).toBe(false);
+    tooltipEl.remove();
+  });
+
+  it('should pass empty string on clear() to prevent lingering "0" values in result card', () => {
+    let lastResult: any = null;
+    measureTool.onResult((res) => {
+      lastResult = res;
+    });
+
+    measureTool.setMode('distance');
+    (measureTool as any).addPoint([106.8, -6.2]);
+    (measureTool as any).addPoint([107.0, -6.3]);
+    expect(lastResult.text).not.toBe('');
+
+    measureTool.clear();
+    expect(lastResult.text).toBe('');
+    expect(measureTool.hasActiveMeasurement()).toBe(false);
   });
 });

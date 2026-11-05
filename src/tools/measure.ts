@@ -47,6 +47,8 @@ export class MeasureTool {
   private onModeChangeCallback?: (mode: MeasureMode) => void;
   /** BUG-4 fix: debounce timer to suppress the two click events fired before dblclick */
   private _clickPending: ReturnType<typeof setTimeout> | null = null;
+  /** Cooldown tracker to prevent trailing clicks/dblclicks from triggering PointInspector */
+  private lastFinishedTimestamp: number = 0;
 
   constructor(map: maplibregl.Map) {
     this.map = map;
@@ -408,6 +410,14 @@ export class MeasureTool {
     return this.mode !== 'none' && this.points.length > 0 && !this.isFinished;
   }
 
+  /**
+   * Returns true if a measurement was finalized in the last 400ms.
+   * Useful to prevent trailing click/dblclick events from immediately triggering PointInspector.
+   */
+  public isRecentlyFinished(): boolean {
+    return Date.now() - this.lastFinishedTimestamp < 400;
+  }
+
   private addPoint(coord: [number, number]) {
     if (this.isFinished) {
       this.clear();
@@ -440,6 +450,7 @@ export class MeasureTool {
       }
 
       this.isFinished = true;
+      this.lastFinishedTimestamp = Date.now();
       if (this.mode !== 'none') {
         this.lastMeasuredType = this.mode;
       }
@@ -511,7 +522,7 @@ export class MeasureTool {
     }
     this.highlightProfileCoordinate(null);
     if (this.onResultCallback) {
-      this.onResultCallback({ text: '0', mode: this.mode, profile: null });
+      this.onResultCallback({ text: '', mode: this.mode, profile: null });
     }
     this.updateFloatingPill();
     this.syncActionButtons();
