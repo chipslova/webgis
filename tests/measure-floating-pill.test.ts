@@ -317,6 +317,8 @@ describe('MeasureTool Fullscreen Mode, Floating Action Pill & Mutual Exclusion',
     const clearBtn = document.getElementById('btn-measure-clear') as HTMLButtonElement;
     const pillFinishBtn = document.getElementById('btn-measure-pill-finish') as HTMLButtonElement;
     const pillUndoBtn = document.getElementById('btn-measure-pill-undo') as HTMLButtonElement;
+    const geojsonBtn = document.getElementById('btn-measure-download-geojson') as HTMLButtonElement;
+    const kmlBtn = document.getElementById('btn-measure-download-kml') as HTMLButtonElement;
 
     // Initial state: all action buttons disabled
     expect(finishBtn.disabled).toBe(true);
@@ -324,6 +326,8 @@ describe('MeasureTool Fullscreen Mode, Floating Action Pill & Mutual Exclusion',
     expect(clearBtn.disabled).toBe(true);
     expect(pillFinishBtn.disabled).toBe(true);
     expect(pillUndoBtn.disabled).toBe(true);
+    expect(geojsonBtn.disabled).toBe(true);
+    expect(kmlBtn.disabled).toBe(true);
 
     // Enter distance mode (0 points)
     measureTool.setMode('distance');
@@ -346,14 +350,18 @@ describe('MeasureTool Fullscreen Mode, Floating Action Pill & Mutual Exclusion',
     expect(undoBtn.disabled).toBe(false);
     expect(clearBtn.disabled).toBe(false);
 
-    // Finish measurement: Selesai & Undo disabled, Clear stays enabled for completed geometry
+    // Finish measurement: Selesai & Undo disabled, Clear & Export stay enabled for completed geometry
     measureTool.finishMeasurement();
     expect(finishBtn.disabled).toBe(true);
     expect(undoBtn.disabled).toBe(true);
     expect(clearBtn.disabled).toBe(false);
+    expect(geojsonBtn.disabled).toBe(false);
+    expect(kmlBtn.disabled).toBe(false);
 
-    // Cancel / Clear: Clear disabled again
+    // Cancel / Clear: Clear & Export disabled again
     measureTool.cancelMeasurement();
     expect(clearBtn.disabled).toBe(true);
+    expect(geojsonBtn.disabled).toBe(true);
+    expect(kmlBtn.disabled).toBe(true);
   });
 });

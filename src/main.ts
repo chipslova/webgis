@@ -229,7 +229,7 @@ class WebGISApp {
             const mode = this.measureTool.getMode();
             const canFinish = (mode === 'distance' && pts >= 2) || (mode === 'area' && pts >= 3);
             if (canFinish) {
-              this.measureTool.finishMeasurement();
+              this.measureTool.finishMeasurement(true);
             } else {
               this.measureTool.cancelMeasurement();
             }

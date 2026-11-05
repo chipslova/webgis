@@ -249,7 +249,7 @@ export class MeasureTool {
           if (this.isDrawingActive()) {
             const canFinish = (this.mode === 'distance' && this.points.length >= 2) || (this.mode === 'area' && this.points.length >= 3);
             if (canFinish) {
-              this.finishMeasurement();
+              this.finishMeasurement(true);
             } else {
               this.cancelMeasurement();
             }
@@ -336,9 +336,15 @@ export class MeasureTool {
     const undoBtn = document.getElementById('btn-measure-undo') as HTMLButtonElement | null;
     const clearBtn = document.getElementById('btn-measure-clear') as HTMLButtonElement | null;
 
+    const hasGeometry = this.hasActiveMeasurement();
+    const geojsonBtn = document.getElementById('btn-measure-download-geojson') as HTMLButtonElement | null;
+    const kmlBtn = document.getElementById('btn-measure-download-kml') as HTMLButtonElement | null;
+
     if (finishBtn) finishBtn.disabled = !canFinish;
     if (undoBtn) undoBtn.disabled = !canUndo;
     if (clearBtn) clearBtn.disabled = !canClear;
+    if (geojsonBtn) geojsonBtn.disabled = !hasGeometry;
+    if (kmlBtn) kmlBtn.disabled = !hasGeometry;
 
     // 2. Floating Action Pill Buttons in #measure-floating-pill
     const pillFinishBtn = document.getElementById('btn-measure-pill-finish') as HTMLButtonElement | null;
@@ -422,7 +428,7 @@ export class MeasureTool {
     this.updateFloatingPill(currentHover);
   }
 
-  public finishMeasurement() {
+  public finishMeasurement(fromTabSwitch: boolean = false) {
     if (this.points.length > 0) {
       if (this.mode === 'area' && this.points.length < 3) {
         showToast('Minimal 3 titik koordinat diperlukan untuk membentuk poligon luas!', 'warning');
@@ -453,7 +459,11 @@ export class MeasureTool {
         window.dispatchEvent(new CustomEvent('webgis:restore-sidebar-after-drawing'));
       }
 
-      showToast('Pengukuran selesai. Hasil ditampilkan pada bilah sisi.', 'success');
+      if (fromTabSwitch) {
+        showToast('Pengukuran disimpan di peta. Tekan [Esc] untuk menghapus atau buka tab Pengukuran untuk melihat detail.', 'info', 4000);
+      } else {
+        showToast('Pengukuran selesai. Hasil ditampilkan pada bilah sisi.', 'success');
+      }
       if (this.onFinishCallback) {
         this.onFinishCallback();
       }
