@@ -358,6 +358,18 @@ html, body, #app {
   color: #ffffff;
 }
 
+.btn:disabled,
+.btn[disabled],
+.btn-pill-action:disabled,
+.btn-pill-action[disabled] {
+  opacity: 0.38 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  filter: grayscale(0.5);
+}
+
 .full-width {
   width: 100%;
 }

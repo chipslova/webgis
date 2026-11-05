@@ -52,6 +52,7 @@ export class MeasureTool {
     this.map = map;
     this.initLayers();
     this.bindEvents();
+    this.syncActionButtons();
     // NOTE: style.load listener centralized in MapManager.onStyleReady()
   }
 
@@ -319,6 +320,32 @@ export class MeasureTool {
         statusText.innerHTML = `📐 <strong>Luas: ${formatted} (${n} Simpul):</strong> Klik titik baru atau <strong>Selesai</strong>`;
       }
     }
+    this.syncActionButtons();
+  }
+
+  /** Synchronize disabled/enabled state of sidebar and floating action buttons based on measurement lifecycle */
+  public syncActionButtons() {
+    if (typeof document === 'undefined') return;
+
+    const canFinish = (this.mode === 'distance' && this.points.length >= 2) || (this.mode === 'area' && this.points.length >= 3);
+    const canUndo = !this.isFinished && this.points.length > 0;
+    const canClear = this.points.length > 0 || this.hasActiveMeasurement();
+
+    // 1. Sidebar Action Buttons in #panel-measure
+    const finishBtn = document.getElementById('btn-measure-finish') as HTMLButtonElement | null;
+    const undoBtn = document.getElementById('btn-measure-undo') as HTMLButtonElement | null;
+    const clearBtn = document.getElementById('btn-measure-clear') as HTMLButtonElement | null;
+
+    if (finishBtn) finishBtn.disabled = !canFinish;
+    if (undoBtn) undoBtn.disabled = !canUndo;
+    if (clearBtn) clearBtn.disabled = !canClear;
+
+    // 2. Floating Action Pill Buttons in #measure-floating-pill
+    const pillFinishBtn = document.getElementById('btn-measure-pill-finish') as HTMLButtonElement | null;
+    const pillUndoBtn = document.getElementById('btn-measure-pill-undo') as HTMLButtonElement | null;
+
+    if (pillFinishBtn) pillFinishBtn.disabled = !canFinish;
+    if (pillUndoBtn) pillUndoBtn.disabled = !canUndo;
   }
 
   public setMode(mode: MeasureMode) {
@@ -364,6 +391,7 @@ export class MeasureTool {
     if (this.onModeChangeCallback) {
       this.onModeChangeCallback(mode);
     }
+    this.syncActionButtons();
   }
 
   public getMode(): MeasureMode {
@@ -384,6 +412,7 @@ export class MeasureTool {
     this.renderFeatures(this.points);
     this.updateTooltip(coord, this.points);
     this.updateFloatingPill();
+    this.syncActionButtons();
   }
 
   private updateTempDraw(currentHover: [number, number]) {
@@ -431,6 +460,7 @@ export class MeasureTool {
       if (this.onModeChangeCallback) {
         this.onModeChangeCallback('none');
       }
+      this.syncActionButtons();
     }
   }
 
@@ -453,6 +483,7 @@ export class MeasureTool {
     if (this.onModeChangeCallback) {
       this.onModeChangeCallback('none');
     }
+    this.syncActionButtons();
   }
 
   public clear() {
@@ -473,6 +504,7 @@ export class MeasureTool {
       this.onResultCallback({ text: '0', mode: this.mode, profile: null });
     }
     this.updateFloatingPill();
+    this.syncActionButtons();
   }
 
   /** Remove the last placed vertex (Undo). Triggers re-render and tooltip update. */
@@ -489,6 +521,7 @@ export class MeasureTool {
       this.updateFloatingPill();
       showToast('Titik terakhir dihapus', 'info');
     }
+    this.syncActionButtons();
   }
 
   public onFinish(callback: () => void) {

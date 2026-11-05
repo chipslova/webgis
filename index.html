@@ -992,15 +992,15 @@
                   Ukur Luas Poligon
                 </button>
                 <div class="flex-row-gap-6">
-                  <button id="btn-measure-finish" class="btn btn-success-outline flex-1" aria-label="Selesaikan pengukuran (Enter)" title="Selesaikan pengukuran (Keyboard: Enter)">
+                  <button id="btn-measure-finish" class="btn btn-success-outline flex-1" aria-label="Selesaikan pengukuran (Enter)" title="Selesaikan pengukuran (Keyboard: Enter)" disabled>
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
                     Selesai
                   </button>
-                  <button id="btn-measure-undo" class="btn btn-outline flex-1" aria-label="Undo titik terakhir (Z)" title="Undo titik pengukuran terakhir (Keyboard: Z)">
+                  <button id="btn-measure-undo" class="btn btn-outline flex-1" aria-label="Undo titik terakhir (Z)" title="Undo titik pengukuran terakhir (Keyboard: Z)" disabled>
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
                     Undo
                   </button>
-                  <button id="btn-measure-clear" class="btn btn-danger-outline flex-1" aria-label="Hapus semua pengukuran dan rute">
+                  <button id="btn-measure-clear" class="btn btn-danger-outline flex-1" aria-label="Hapus semua pengukuran dan rute" disabled>
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                     Hapus Semua
                   </button>
@@ -1477,9 +1477,9 @@ with rasterio.open('export_modis_lst.tif') as src:
               <span id="measure-pill-status-text">📏 Mode Ukur: Klik peta untuk menandai titik...</span>
             </div>
             <div class="aoi-pill-actions">
-              <button id="btn-measure-pill-undo" class="btn-pill-action" title="Hapus titik terakhir (Z)" aria-label="Hapus titik terakhir">↩ Undo <span class="kbd-badge" style="font-size: 8.5px; opacity: 0.75; margin-left: 2px;">[Z]</span></button>
+              <button id="btn-measure-pill-undo" class="btn-pill-action" title="Hapus titik terakhir (Z)" aria-label="Hapus titik terakhir" disabled>↩ Undo <span class="kbd-badge" style="font-size: 8.5px; opacity: 0.75; margin-left: 2px;">[Z]</span></button>
               <button id="btn-measure-pill-cancel" class="btn-pill-action cancel" title="Batalkan pengukuran (Esc)" aria-label="Batalkan pengukuran">✕ Batal <span class="kbd-badge" style="font-size: 8.5px; opacity: 0.75; margin-left: 2px;">[Esc]</span></button>
-              <button id="btn-measure-pill-finish" class="btn-pill-action finish" title="Selesaikan pengukuran (Enter)" aria-label="Selesaikan pengukuran">✓ Selesai <span class="kbd-badge" style="font-size: 8.5px; opacity: 0.75; margin-left: 2px;">[↵]</span></button>
+              <button id="btn-measure-pill-finish" class="btn-pill-action finish" title="Selesaikan pengukuran (Enter)" aria-label="Selesaikan pengukuran" disabled>✓ Selesai <span class="kbd-badge" style="font-size: 8.5px; opacity: 0.75; margin-left: 2px;">[↵]</span></button>
             </div>
           </div>
         </main>

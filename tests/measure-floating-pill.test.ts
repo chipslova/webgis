@@ -311,4 +311,49 @@ describe('MeasureTool Fullscreen Mode, Floating Action Pill & Mutual Exclusion',
     expect(mockMap.getCanvas().style.cursor).toBe('');
     expect(document.body.classList.contains('measure-drawing-active')).toBe(false);
   });
+  it('should dynamically disable and enable Selesai, Undo, and Clear buttons based on drawing progress', () => {
+    const finishBtn = document.getElementById('btn-measure-finish') as HTMLButtonElement;
+    const undoBtn = document.getElementById('btn-measure-undo') as HTMLButtonElement;
+    const clearBtn = document.getElementById('btn-measure-clear') as HTMLButtonElement;
+    const pillFinishBtn = document.getElementById('btn-measure-pill-finish') as HTMLButtonElement;
+    const pillUndoBtn = document.getElementById('btn-measure-pill-undo') as HTMLButtonElement;
+
+    // Initial state: all action buttons disabled
+    expect(finishBtn.disabled).toBe(true);
+    expect(undoBtn.disabled).toBe(true);
+    expect(clearBtn.disabled).toBe(true);
+    expect(pillFinishBtn.disabled).toBe(true);
+    expect(pillUndoBtn.disabled).toBe(true);
+
+    // Enter distance mode (0 points)
+    measureTool.setMode('distance');
+    expect(finishBtn.disabled).toBe(true);
+    expect(undoBtn.disabled).toBe(true);
+    expect(clearBtn.disabled).toBe(true);
+
+    // Add 1st point: Undo & Clear enabled, Selesai still disabled (distance requires 2 points)
+    (measureTool as any).addPoint([106.8, -6.2]);
+    expect(undoBtn.disabled).toBe(false);
+    expect(clearBtn.disabled).toBe(false);
+    expect(finishBtn.disabled).toBe(true);
+    expect(pillUndoBtn.disabled).toBe(false);
+    expect(pillFinishBtn.disabled).toBe(true);
+
+    // Add 2nd point: Selesai enabled
+    (measureTool as any).addPoint([107.6, -6.9]);
+    expect(finishBtn.disabled).toBe(false);
+    expect(pillFinishBtn.disabled).toBe(false);
+    expect(undoBtn.disabled).toBe(false);
+    expect(clearBtn.disabled).toBe(false);
+
+    // Finish measurement: Selesai & Undo disabled, Clear stays enabled for completed geometry
+    measureTool.finishMeasurement();
+    expect(finishBtn.disabled).toBe(true);
+    expect(undoBtn.disabled).toBe(true);
+    expect(clearBtn.disabled).toBe(false);
+
+    // Cancel / Clear: Clear disabled again
+    measureTool.cancelMeasurement();
+    expect(clearBtn.disabled).toBe(true);
+  });
 });
