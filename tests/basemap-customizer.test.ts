@@ -54,9 +54,17 @@ describe('Basemap Customizer - Sublayer Detection & State Management', () => {
     // 7. Buildings
     expect(customizer.detectLayerCategory({ id: 'building-commercial-fill', type: 'fill' })).toBe('buildings');
     expect(customizer.detectLayerCategory({ id: 'structure-industrial', type: 'fill' })).toBe('buildings');
+    // Esri Colored Pencil specific layer schemas
+    expect(customizer.detectLayerCategory({ id: 'Urban area', type: 'fill', 'source-layer': 'Urban area' })).toBe('buildings');
+    expect(customizer.detectLayerCategory({ id: 'Building/General', type: 'fill', 'source-layer': 'Building' })).toBe('buildings');
+    expect(customizer.detectLayerCategory({ id: 'Government', type: 'fill', 'source-layer': 'Government' })).toBe('buildings');
+    expect(customizer.detectLayerCategory({ id: 'Government/label/Default', type: 'symbol', 'source-layer': 'Government/label' })).toBe('poi');
+    expect(customizer.detectLayerCategory({ id: 'City small scale/1', type: 'symbol', 'source-layer': 'City small scale' })).toBe('place_names');
+    expect(customizer.detectLayerCategory({ id: 'Openspace or forest', type: 'fill', 'source-layer': 'Openspace or forest' })).toBe('landcover');
     // 8. Roads
     expect(customizer.detectLayerCategory({ id: 'road-primary-casing', type: 'line' })).toBe('roads');
     expect(customizer.detectLayerCategory({ id: 'transportation-motorway', type: 'line' })).toBe('roads');
+    expect(customizer.detectLayerCategory({ id: 'Road/Expressway/casing', type: 'line', 'source-layer': 'Road' })).toBe('roads');
   });
   it('should toggle sublayers individually and bulk update', () => {
     customizer.toggleSublayer('poi', false);

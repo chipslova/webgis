@@ -372,36 +372,34 @@ export class BasemapCustomizer {
     const style = this.map.getStyle();
     if (!style || !style.layers) return null;
 
-    // 1. Check if the active basemap style already provides a vector building layer
+    // 1. Check if the active basemap style already provides an OpenMapTiles/compatible vector building layer.
+    // Note: Esri vector tile server styles do not contain OpenMapTiles 3D building height attributes
+    // and lack building footprints in many global regions, so Esri basemaps use global OpenFreeMap 3D tiles.
     for (const layer of style.layers) {
       const lId = layer.id.toLowerCase();
+      const layerSrc = (layer as any).source as string | undefined;
       const sLayer = (layer as any)['source-layer']?.toLowerCase() || '';
+      const srcName = (layerSrc || '').toLowerCase();
+      const srcDef = layerSrc ? (style.sources?.[layerSrc] as any) : undefined;
+      const srcUrl = (typeof srcDef?.url === 'string' ? srcDef.url : '').toLowerCase();
+      const isEsriSource = srcName.includes('esri') || srcUrl.includes('arcgis.com');
+
       if (
+        !isEsriSource &&
         (lId.includes('building') || sLayer.includes('building') || sLayer.includes('structure')) &&
         layer.type === 'fill' &&
-        layer.source &&
+        layerSrc &&
         layer.id !== '3d-extruded-buildings-layer'
       ) {
         return {
-          source: layer.source,
+          source: layerSrc,
           sourceLayer: (layer as any)['source-layer'] || undefined
         };
       }
     }
 
     // 2. Fallback: Dynamically provide global OpenFreeMap 3D Vector Building tiles
-    const currentZoom = typeof this.map.getZoom === 'function' ? this.map.getZoom() : 0;
-    if (currentZoom < 12) {
-      if (typeof this.map.once === 'function') {
-        this.map.once('zoom', () => {
-          if (typeof this.map.getZoom === 'function' && this.map.getZoom() >= 12) {
-            this.apply3DBuildings();
-          }
-        });
-      }
-      return null;
-    }
-
+    // MapLibre's fill-extrusion minzoom (12.0) naturally defers network tile requests until in range.
     const globalSourceId = 'global-3d-buildings-source';
     try {
       if (!this.map.getSource(globalSourceId)) {
@@ -543,15 +541,17 @@ export class BasemapCustomizer {
   }
 
   /**
-   * Deterministically detect vector sublayer category from MapLibre Layer specification
+   * Deterministically detect vector sublayer category from MapLibre Layer specification.
+   * Supports standard OpenMapTiles, Mapbox styles, and Esri Vector Basemap styling schemas.
    */
   public detectLayerCategory(layer: any): VectorSublayerKey | null {
     const lId = (layer.id || '').toLowerCase();
     const sLayer = (layer['source-layer'] || '').toLowerCase();
     const lType = layer.type || '';
 
-    // 1. POI & Amenities
+    // 1. POI & Amenities (Symbol type or explicit POI)
     if (
+      lId.startsWith('point of interest') ||
       lId.includes('poi') ||
       sLayer.includes('poi') ||
       lId.includes('amenity') ||
@@ -560,7 +560,28 @@ export class BasemapCustomizer {
       sLayer.includes('shop') ||
       lId.includes('attraction') ||
       lId.includes('restaurant') ||
-      lId.includes('hotel')
+      lId.includes('hotel') ||
+      lId.includes('hospital') ||
+      lId.includes('bank') ||
+      lId.includes('cafe') ||
+      (lType === 'symbol' &&
+        (lId.includes('education') ||
+          lId.includes('medical') ||
+          lId.includes('zoo') ||
+          lId.includes('landmark') ||
+          lId.includes('golf course') ||
+          lId.includes('cemetery') ||
+          lId.includes('emergency') ||
+          lId.includes('finance') ||
+          lId.includes('retail') ||
+          lId.includes('industry') ||
+          lId.includes('government') ||
+          lId.includes('beach') ||
+          lId.includes('airport') ||
+          lId.includes('port') ||
+          lId.includes('freight') ||
+          lId.includes('military') ||
+          lId.includes('indigenous')))
     ) {
       return 'poi';
     }
@@ -571,6 +592,11 @@ export class BasemapCustomizer {
       (lId.includes('road') ||
         lId.includes('street') ||
         lId.includes('highway') ||
+        lId.includes('trail') ||
+        lId.includes('path') ||
+        lId.includes('railroad') ||
+        lId.includes('ferry') ||
+        lId.includes('exit') ||
         lId.includes('transportation-name') ||
         sLayer.includes('transportation_name') ||
         sLayer.includes('road_label') ||
@@ -585,10 +611,19 @@ export class BasemapCustomizer {
       (lId.includes('place') ||
         sLayer.includes('place') ||
         lId.includes('settlement') ||
-        lId.includes('city-label') ||
-        lId.includes('town-label') ||
-        lId.includes('country-label') ||
+        lId.includes('city') ||
+        lId.includes('town') ||
+        lId.includes('village') ||
+        lId.includes('suburb') ||
+        lId.includes('neighborhood') ||
+        lId.includes('country') ||
+        lId.includes('continent') ||
         lId.includes('state-label') ||
+        lId.includes('admin0 point') ||
+        lId.includes('admin1 area') ||
+        lId.includes('admin2 area') ||
+        lId.includes('disputed label point') ||
+        lId.includes('island') ||
         sLayer.includes('aerodrome_label'))
     ) {
       return 'place_names';
@@ -602,28 +637,13 @@ export class BasemapCustomizer {
         lId.includes('boundary') ||
         sLayer.includes('boundary') ||
         lId.includes('border') ||
-        lId.includes('batas'))
+        lId.includes('batas') ||
+        lId.includes('special area of interest line'))
     ) {
       return 'admin_boundaries';
     }
 
-    // 5. Land Cover & Vegetation (Fill type)
-    if (
-      (lType === 'fill' || lType === 'background') &&
-      (lId.includes('landcover') ||
-        sLayer.includes('landcover') ||
-        lId.includes('landuse') ||
-        sLayer.includes('landuse') ||
-        lId.includes('park') ||
-        sLayer.includes('park') ||
-        lId.includes('forest') ||
-        lId.includes('grass') ||
-        lId.includes('wood'))
-    ) {
-      return 'landcover';
-    }
-
-    // 6. Water Bodies (Fill/Line type)
+    // 5. Water Bodies (Fill/Line type)
     if (
       lId.includes('water') ||
       sLayer.includes('water') ||
@@ -632,22 +652,38 @@ export class BasemapCustomizer {
       lId.includes('river') ||
       lId.includes('lake') ||
       lId.includes('laut') ||
-      lId.includes('sungai')
+      lId.includes('sungai') ||
+      lId.includes('bathymetry') ||
+      lId.includes('marine') ||
+      lId.startsWith('coastline')
     ) {
       return 'water';
     }
 
-    // 7. Buildings (Fill / Fill-extrusion)
+    // 6. Land Cover & Vegetation (Fill / Background / Vegetation symbols)
     if (
-      lId.includes('building') ||
-      sLayer.includes('building') ||
-      lId.includes('structure') ||
-      lId.includes('bangunan')
+      lId.includes('landcover') ||
+      sLayer.includes('landcover') ||
+      lId.includes('landuse') ||
+      sLayer.includes('landuse') ||
+      lId.includes('park') ||
+      sLayer.includes('park') ||
+      lId.includes('forest') ||
+      lId.includes('grass') ||
+      lId.includes('wood') ||
+      lId.includes('vegetation') ||
+      lId.includes('openspace') ||
+      lId.includes('tree') ||
+      lId.includes('shrub') ||
+      lId.includes('cemetery') ||
+      lId.includes('golf course') ||
+      lId.includes('beach')
     ) {
-      return 'buildings';
+      return 'landcover';
     }
 
-    // 8. Roads & Transport (Line type)
+    // 7. Roads & Transport (Line / Fill type)
+    // Placed before buildings so transport complexes don't get misclassified
     if (
       (lType === 'line' || lType === 'fill') &&
       (lId.includes('road') ||
@@ -657,11 +693,43 @@ export class BasemapCustomizer {
         sLayer.includes('transport') ||
         sLayer.includes('transportation') ||
         sLayer.includes('aeroway') ||
+        lId.includes('railroad') ||
+        lId.includes('ferry') ||
+        lId.includes('trail') ||
+        lId.includes('path') ||
         lId.includes('bridge') ||
         lId.includes('tunnel') ||
+        lId.includes('runway') ||
+        lId.includes('taxiway') ||
         lId.includes('jalan'))
     ) {
       return 'roads';
+    }
+
+    // 8. Buildings & Built-up Structures (Fill / Fill-extrusion / Line)
+    if (
+      lId.includes('building') ||
+      sLayer.includes('building') ||
+      lId.includes('structure') ||
+      lId.includes('bangunan') ||
+      lId.includes('urban area') ||
+      ((lType === 'fill' || lType === 'line') &&
+        (lId.includes('government') ||
+          lId.includes('industry') ||
+          lId.includes('retail') ||
+          lId.includes('finance') ||
+          lId.includes('emergency') ||
+          lId.includes('landmark') ||
+          lId.includes('education') ||
+          lId.includes('medical') ||
+          lId.includes('pedestrian') ||
+          lId.includes('special area of interest') ||
+          lId.includes('port') ||
+          lId.includes('freight') ||
+          lId.includes('military') ||
+          lId.includes('indigenous')))
+    ) {
+      return 'buildings';
     }
 
     return null;
