@@ -346,6 +346,18 @@ html, body, #app {
   color: #ffffff;
 }
 
+.btn-success-outline {
+  background: rgba(16, 185, 129, 0.08);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.btn-success-outline:hover {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: #10b981;
+  color: #ffffff;
+}
+
 .full-width {
   width: 100%;
 }

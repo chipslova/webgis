@@ -31,6 +31,7 @@ export interface MeasureResult {
 export class MeasureTool {
   private map: maplibregl.Map;
   private mode: MeasureMode = 'none';
+  private lastMeasuredType: 'distance' | 'area' = 'distance';
   private points: [number, number][] = [];
   private isFinished: boolean = false;
   private geojson: GeoJSON.FeatureCollection = {
@@ -214,23 +215,52 @@ export class MeasureTool {
       });
     }
 
-    // Keyboard support: Escape cancels measuring, 'z'/'Z' undoes last vertex, 'Enter' finishes
+    // Keyboard support: Escape cancels measuring/clears measurement, 'z'/'Z' undoes last vertex, 'Enter' finishes
     if (typeof window !== 'undefined') {
       window.addEventListener('keydown', (e: KeyboardEvent) => {
-        if (this.mode === 'none') return;
         const activeEl = typeof document !== 'undefined' ? document.activeElement : null;
         const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.getAttribute('contenteditable') === 'true');
         if (isInput) return;
 
         if (e.key === 'Escape') {
-          e.preventDefault();
-          this.cancelMeasurement();
-        } else if ((e.key === 'z' || e.key === 'Z') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          if (this.mode !== 'none' || this.hasActiveMeasurement()) {
+            e.preventDefault();
+            this.cancelMeasurement();
+          }
+          return;
+        }
+
+        if (this.mode === 'none') return;
+
+        if ((e.key === 'z' || e.key === 'Z') && !e.ctrlKey && !e.metaKey && !e.altKey) {
           e.preventDefault();
           this.undoLastPoint();
         } else if (e.key === 'Enter') {
           e.preventDefault();
           this.finishMeasurement();
+        }
+      });
+
+      // Handle sidebar tab change: clean up measure mode and cursor when leaving measure tab
+      window.addEventListener('webgis:sidebar-tab-change', (e: any) => {
+        const tabId = e.detail?.tabId;
+        if (tabId && tabId !== 'measure') {
+          if (this.isDrawingActive()) {
+            const canFinish = (this.mode === 'distance' && this.points.length >= 2) || (this.mode === 'area' && this.points.length >= 3);
+            if (canFinish) {
+              this.finishMeasurement();
+            } else {
+              this.cancelMeasurement();
+            }
+          } else if (this.mode !== 'none') {
+            this.setMode('none');
+          }
+          if (this.map && this.map.getCanvas()) {
+            this.map.getCanvas().style.cursor = '';
+          }
+          if (typeof document !== 'undefined') {
+            document.body.classList.remove('measure-drawing-active');
+          }
         }
       });
     }
@@ -292,6 +322,9 @@ export class MeasureTool {
   }
 
   public setMode(mode: MeasureMode) {
+    if (mode !== 'none') {
+      this.lastMeasuredType = mode;
+    }
     this.mode = mode;
     this.isFinished = false;
     this.clear();
@@ -301,7 +334,9 @@ export class MeasureTool {
     }
 
     if (mode === 'none') {
-      this.map.getCanvas().style.cursor = '';
+      if (this.map && this.map.getCanvas()) {
+        this.map.getCanvas().style.cursor = '';
+      }
       if (this.tooltip) {
         try { this.tooltip.remove(); } catch {}
         this.tooltip = null;
@@ -311,7 +346,9 @@ export class MeasureTool {
         document.body.classList.remove('measure-drawing-active');
       }
     } else {
-      this.map.getCanvas().style.cursor = 'crosshair';
+      if (this.map && this.map.getCanvas()) {
+        this.map.getCanvas().style.cursor = 'crosshair';
+      }
       if (typeof document !== 'undefined') {
         document.body.classList.add('measure-drawing-active');
         const inspectorCard = document.getElementById('floating-inspector-card');
@@ -368,6 +405,10 @@ export class MeasureTool {
       }
 
       this.isFinished = true;
+      if (this.mode !== 'none') {
+        this.lastMeasuredType = this.mode;
+      }
+      this.mode = 'none';
       this.renderFeatures(this.points, true);
       const lastPoint = this.points[this.points.length - 1];
       this.updateTooltip(lastPoint, this.points);
@@ -375,7 +416,9 @@ export class MeasureTool {
       if (typeof document !== 'undefined') {
         document.body.classList.remove('measure-drawing-active');
       }
-      this.map.getCanvas().style.cursor = '';
+      if (this.map && this.map.getCanvas()) {
+        this.map.getCanvas().style.cursor = '';
+      }
 
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('webgis:restore-sidebar-after-drawing'));
@@ -384,6 +427,9 @@ export class MeasureTool {
       showToast('Pengukuran selesai. Hasil ditampilkan pada bilah sisi.', 'success');
       if (this.onFinishCallback) {
         this.onFinishCallback();
+      }
+      if (this.onModeChangeCallback) {
+        this.onModeChangeCallback('none');
       }
     }
   }
@@ -511,7 +557,8 @@ export class MeasureTool {
 
   /** Compute 3D elevation cross-section profile along the measured line */
   public computeElevationProfile(coords: [number, number][] = this.points): ElevationProfileSummary | null {
-    if (this.mode !== 'distance' || coords.length < 2) {
+    const isDistance = this.mode === 'distance' || (this.mode === 'none' && this.isFinished && this.lastMeasuredType === 'distance');
+    if (!isDistance || coords.length < 2) {
       return null;
     }
 
@@ -636,12 +683,13 @@ export class MeasureTool {
 
   private updateTooltip(position: [number, number], coords: [number, number][]) {
     let text = '';
+    const activeType = this.mode !== 'none' ? this.mode : this.lastMeasuredType;
 
-    if (this.mode === 'distance' && coords.length >= 2) {
+    if (activeType === 'distance' && coords.length >= 2) {
       const line = lineString(coords);
       const lengthKm = length(line, { units: 'kilometers' });
       text = lengthKm >= 1 ? `${lengthKm.toFixed(2)} km` : `${(lengthKm * 1000).toFixed(0)} m`;
-    } else if (this.mode === 'area' && coords.length >= 3) {
+    } else if (activeType === 'area' && coords.length >= 3) {
       const poly = polygon([[...coords, coords[0]]]);
       const areaSqM = area(poly);
       if (areaSqM >= 1000000) {
@@ -664,10 +712,29 @@ export class MeasureTool {
         });
       }
 
+      const showClearBtn = this.isFinished && this.hasActiveMeasurement();
+      const popupHtml = `
+        <div class="measure-tooltip-content" style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 12px; color: #0f172a; background: white; padding: 6px 10px; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">
+          <span>${text}</span>
+          ${showClearBtn ? `<button id="btn-measure-tooltip-clear" style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #ef4444; font-size: 11px; padding: 0; line-height: 1; transition: all 0.15s ease;" title="Hapus Pengukuran (Esc)" aria-label="Hapus Pengukuran">✕</button>` : ''}
+        </div>
+      `;
+
       this.tooltip
         .setLngLat(position)
-        .setHTML(`<div style="padding: 6px 10px; font-weight: 600; font-size: 12px; color: #0f172a; background: white; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">${text}</div>`)
+        .setHTML(popupHtml)
         .addTo(this.map);
+
+      if (showClearBtn) {
+        setTimeout(() => {
+          const btn = document.getElementById('btn-measure-tooltip-clear');
+          btn?.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            this.cancelMeasurement();
+          });
+        }, 50);
+      }
     } catch {
       // Gracefully handle headless/mock environments where map container is unmounted
     }
@@ -675,7 +742,7 @@ export class MeasureTool {
     const profile = this.computeElevationProfile(coords);
 
     if (this.onResultCallback) {
-      this.onResultCallback({ text, mode: this.mode, profile });
+      this.onResultCallback({ text, mode: activeType, profile });
     }
   }
 
@@ -710,7 +777,8 @@ export class MeasureTool {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `measurement-${this.mode || 'geodesic'}-${Date.now()}.geojson`;
+    const typeLabel = this.mode !== 'none' ? this.mode : this.lastMeasuredType;
+    a.download = `measurement-${typeLabel || 'geodesic'}-${Date.now()}.geojson`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -725,7 +793,8 @@ export class MeasureTool {
 
     try {
       import('../utils/kml-exporter').then(({ geoJsonToKml, downloadKml }) => {
-        const kmlString = geoJsonToKml(this.geojson, `Measurement ${this.mode || 'Geodesic'}`);
+        const typeLabel = this.mode !== 'none' ? this.mode : this.lastMeasuredType;
+        const kmlString = geoJsonToKml(this.geojson, `Measurement ${typeLabel || 'Geodesic'}`);
         downloadKml(kmlString, `measurement-${this.mode || 'geodesic'}-${Date.now()}.kml`);
       });
       return true;

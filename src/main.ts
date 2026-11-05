@@ -222,9 +222,26 @@ class WebGISApp {
         if (this.swipeCompareManager?.isActive()) {
           this.swipeCompareManager.deactivate();
         }
-        // Cancel active drawing/measuring when user switches away from the respective tab
-        if (tabId !== 'measure' && this.measureTool?.isDrawingActive()) {
-          this.measureTool.cancelMeasurement();
+        // Cancel or finish active measuring when user switches away from the measure tab
+        if (tabId !== 'measure' && this.measureTool) {
+          if (this.measureTool.isDrawingActive()) {
+            const pts = (this.measureTool as any).points?.length || 0;
+            const mode = this.measureTool.getMode();
+            const canFinish = (mode === 'distance' && pts >= 2) || (mode === 'area' && pts >= 3);
+            if (canFinish) {
+              this.measureTool.finishMeasurement();
+            } else {
+              this.measureTool.cancelMeasurement();
+            }
+          } else if (this.measureTool.getMode() !== 'none') {
+            this.measureTool.setMode('none');
+          }
+          if (map?.getCanvas()) {
+            map.getCanvas().style.cursor = '';
+          }
+          if (typeof document !== 'undefined') {
+            document.body.classList.remove('measure-drawing-active');
+          }
         }
         if (tabId !== 'analysis' && this.spatialAnalysisUI?.isDrawingActive()) {
           this.spatialAnalysisUI.cancelDrawing();
@@ -602,6 +619,11 @@ class WebGISApp {
       if (ok) {
         showToast('Geometri pengukuran berhasil diekspor sebagai KML!', 'success');
       }
+    });
+
+    const finishBtn = document.getElementById('btn-measure-finish');
+    finishBtn?.addEventListener('click', () => {
+      this.measureTool?.finishMeasurement();
     });
 
     const undoBtn = document.getElementById('btn-measure-undo');

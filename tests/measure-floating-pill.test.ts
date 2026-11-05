@@ -23,6 +23,11 @@ describe('MeasureTool Fullscreen Mode, Floating Action Pill & Mutual Exclusion',
     // Mock MapLibre map instance
     const sources: Record<string, any> = {};
     const layers: Record<string, any> = {};
+    const mockCanvas = {
+      style: { cursor: '' },
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn()
+    };
 
     mockMap = {
       getSource: vi.fn((id: string) => sources[id]),
@@ -52,11 +57,7 @@ describe('MeasureTool Fullscreen Mode, Floating Action Pill & Mutual Exclusion',
       }),
       getStyle: vi.fn(() => ({ version: 8, layers: [] })),
       getContainer: vi.fn(() => document.createElement('div')),
-      getCanvas: vi.fn(() => ({
-        style: { cursor: '' },
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn()
-      })),
+      getCanvas: vi.fn(() => mockCanvas),
       on: vi.fn(),
       off: vi.fn(),
       once: vi.fn(),
@@ -223,5 +224,91 @@ describe('MeasureTool Fullscreen Mode, Floating Action Pill & Mutual Exclusion',
     expect(tabA).toBe('analysis');
     expect(tabB).toBe('analysis');
     expect(measureTool.getMode()).toBe('none');
+  });
+  it('should reset mode to "none" and reset cursor to default on finishMeasurement', () => {
+    measureTool.setMode('distance');
+    (measureTool as any).addPoint([106.8, -6.2]);
+    (measureTool as any).addPoint([107.6, -6.9]);
+
+    expect(measureTool.getMode()).toBe('distance');
+    expect(mockMap.getCanvas().style.cursor).toBe('crosshair');
+
+    measureTool.finishMeasurement();
+
+    expect(measureTool.getMode()).toBe('none');
+    expect(mockMap.getCanvas().style.cursor).toBe('');
+    expect(document.body.classList.contains('measure-drawing-active')).toBe(false);
+    expect(measureTool.hasActiveMeasurement()).toBe(true);
+
+    // Verify subsequent click does NOT restart drawing because mode is 'none'
+    const initialPointsCount = (measureTool as any).points.length;
+    mockMap.on.mock.calls
+      .filter(([event]: [string]) => event === 'click')
+      .forEach(([, handler]: [string, any]) => handler({ lngLat: { lng: 108.0, lat: -7.0 } }));
+
+    expect((measureTool as any).points.length).toBe(initialPointsCount);
+  });
+
+  it('should have Selesai button in #panel-measure and trigger finishMeasurement on click', () => {
+    const finishBtn = document.getElementById('btn-measure-finish');
+    expect(finishBtn).not.toBeNull();
+    expect(finishBtn?.textContent).toContain('Selesai');
+
+    let finished = false;
+    measureTool.onFinish(() => {
+      finished = true;
+    });
+
+    measureTool.setMode('distance');
+    (measureTool as any).addPoint([106.8, -6.2]);
+    (measureTool as any).addPoint([107.6, -6.9]);
+
+    measureTool.finishMeasurement();
+    expect(finished).toBe(true);
+    expect(measureTool.getMode()).toBe('none');
+  });
+
+  it('should allow clearing finished measurement via Escape key from any tab', () => {
+    measureTool.setMode('distance');
+    (measureTool as any).addPoint([106.8, -6.2]);
+    (measureTool as any).addPoint([107.6, -6.9]);
+    measureTool.finishMeasurement();
+
+    expect(measureTool.hasActiveMeasurement()).toBe(true);
+    expect(measureTool.getMode()).toBe('none');
+
+    // Press Escape
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+    expect(measureTool.hasActiveMeasurement()).toBe(false);
+    expect(mockMap.getCanvas().style.cursor).toBe('');
+  });
+
+  it('should reset mode and cursor when switching away from measure tab even if 0 points placed', () => {
+    measureTool.setMode('distance');
+    expect(measureTool.getMode()).toBe('distance');
+    expect(mockMap.getCanvas().style.cursor).toBe('crosshair');
+
+    // Switch to map tab via event
+    window.dispatchEvent(new CustomEvent('webgis:sidebar-tab-change', { detail: { tabId: 'map' } }));
+
+    expect(measureTool.getMode()).toBe('none');
+    expect(mockMap.getCanvas().style.cursor).toBe('');
+    expect(document.body.classList.contains('measure-drawing-active')).toBe(false);
+  });
+
+  it('should auto-finish measurement when switching away if points are valid', () => {
+    measureTool.setMode('distance');
+    (measureTool as any).addPoint([106.8, -6.2]);
+    (measureTool as any).addPoint([107.6, -6.9]);
+    expect(measureTool.isDrawingActive()).toBe(true);
+
+    // Switch to data tab via event
+    window.dispatchEvent(new CustomEvent('webgis:sidebar-tab-change', { detail: { tabId: 'data' } }));
+
+    expect(measureTool.getMode()).toBe('none');
+    expect(measureTool.hasActiveMeasurement()).toBe(true);
+    expect(mockMap.getCanvas().style.cursor).toBe('');
+    expect(document.body.classList.contains('measure-drawing-active')).toBe(false);
   });
 });
