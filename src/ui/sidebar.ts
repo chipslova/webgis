@@ -125,15 +125,20 @@ export class SidebarUI {
       }
     });
 
-    window.addEventListener('webgis:collapse-sidebar-for-drawing', () => {
+    window.addEventListener('webgis:collapse-sidebar-for-drawing', (e: any) => {
       this.wasOpenBeforeDrawing = this.isOpen;
-      if (this.isOpen) {
+      // Auto-collapse sidebar only on mobile/narrow screens (<= 768px) so the map is visible.
+      // On desktop, keep sidebar open so users can view live instructions, 3D elevation profile, and controls.
+      const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+      const forceCollapse = Boolean(e?.detail?.force);
+      if ((isMobile || forceCollapse) && this.isOpen) {
         this.setOpen(false);
       }
     });
 
     window.addEventListener('webgis:restore-sidebar-after-drawing', () => {
-      if (this.wasOpenBeforeDrawing && !this.isOpen) {
+      const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+      if (this.wasOpenBeforeDrawing && !this.isOpen && isMobile) {
         this.setOpen(true);
       }
     });
