@@ -159,3 +159,4 @@ Aplikasi menggunakan arsitektur nirserver (*serverless*) Vercel yang dibagi menj
    * Memblokir injeksi skrip berbahaya pihak ketiga dari domain yang tidak dikenal.
 3. **Sanitasi Data Masukan Klien (Anti-XSS)**:
    * Seluruh teks yang berasal dari berkas pengguna (nama layer Shapefile, properti GeoJSON, koordinat CSV) disaring melalui fungsi `escapeHtml()` di [src/utils/sanitize.ts](file:///d:/webgis/src/utils/sanitize.ts) sebelum dimasukkan ke dalam DOM atau tooltip.
+

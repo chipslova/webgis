@@ -3,6 +3,8 @@ import { logger } from '../utils/logger';
 import { ErrorHandler } from '../utils/error-handler';
 import { parseKMLToGeoJSON } from '../utils/kml-parser';
 import { parseCSVToGeoJSON } from '../utils/csv-parser';
+import { reprojectGeoJSON, guessIndonesianProjection } from '../utils/projections';
+import { showToast } from '../ui/toast';
 
 export interface CustomLayerItem {
   id: string;
@@ -141,8 +143,9 @@ export class GeoJsonLoader {
       return { valid: false, error: 'GeoJSON has no feature objects (features empty).' };
     }
 
-    // Validate coordinates bounds (prevent out-of-bounds UTM projection issues)
+    // Validate coordinates bounds (detect and auto-reproject out-of-bounds UTM/planar coordinates)
     let outOfBounds = false;
+    let sampleOutCoord: [number, number] | null = null;
 
     const checkCoord = (c: any): boolean => {
       if (Array.isArray(c)) {
@@ -150,6 +153,9 @@ export class GeoJsonLoader {
           const [lon, lat] = c;
           if (Math.abs(lon) > 180 || Math.abs(lat) > 90) {
             outOfBounds = true;
+            if (!sampleOutCoord) {
+              sampleOutCoord = [lon, lat];
+            }
             return false;
           }
           return true;
@@ -165,14 +171,67 @@ export class GeoJsonLoader {
     for (const feat of fc.features) {
       if (feat && feat.geometry && (feat.geometry as any).coordinates) {
         checkCoord((feat.geometry as any).coordinates);
-        if (outOfBounds) break;
+        if (outOfBounds && sampleOutCoord) break;
       }
     }
 
-    if (outOfBounds) {
+    if (outOfBounds && sampleOutCoord) {
+      // Check if CRS is explicitly defined in GeoJSON or guess from coordinates
+      let sourceProj: string | null = null;
+      const crsName = (raw as any)?.crs?.properties?.name;
+      if (typeof crsName === 'string') {
+        const match = crsName.match(/EPSG:{1,2}(\d+)/i);
+        if (match) {
+          sourceProj = `EPSG:${match[1]}`;
+        } else {
+          sourceProj = crsName;
+        }
+      }
+
+      if (!sourceProj) {
+        sourceProj = guessIndonesianProjection(sampleOutCoord);
+      }
+
+      if (sourceProj) {
+        try {
+          const reprojected = reprojectGeoJSON(fc, sourceProj, 'WGS84');
+          let stillOutOfBounds = false;
+          const recheck = (c: any): boolean => {
+            if (Array.isArray(c)) {
+              if (typeof c[0] === 'number' && typeof c[1] === 'number') {
+                const [lon, lat] = c;
+                if (Math.abs(lon) > 180 || Math.abs(lat) > 90) {
+                  stillOutOfBounds = true;
+                  return false;
+                }
+                return true;
+              }
+              for (const sub of c) {
+                if (!recheck(sub)) return false;
+              }
+            }
+            return true;
+          };
+
+          for (const feat of reprojected.features) {
+            if (feat && feat.geometry && (feat.geometry as any).coordinates) {
+              recheck((feat.geometry as any).coordinates);
+              if (stillOutOfBounds) break;
+            }
+          }
+
+          if (!stillOutOfBounds) {
+            logger.info(`[GeoJsonLoader] GeoJSON successfully auto-reprojected from ${sourceProj} to WGS84.`);
+            return { valid: true, data: reprojected };
+          }
+        } catch (err) {
+          logger.warn('[GeoJsonLoader] Auto-reprojection attempt failed:', err);
+        }
+      }
+
       return {
         valid: false,
-        error: 'Coordinates exceed WGS84 geographic bounds (longitude [-180, 180] / latitude [-90, 90]). Ensure data does not use planar UTM meter coordinates.'
+        error: 'Coordinates exceed WGS84 geographic bounds (longitude [-180, 180] / latitude [-90, 90]). Ensure data does not use unsupported planar UTM coordinates.'
       };
     }
 
@@ -594,6 +653,10 @@ export class GeoJsonLoader {
           layersCreated.push(layerId);
           layerNames.push(item.fileName);
           totalFeatures += item.featureCount;
+
+          if (item.reprojected) {
+            showToast(`Lapisan "${item.fileName}" berhasil dikonversi dari proyeksi lokal (${item.detectedProjection || 'UTM/TM-3'}) ke WGS84.`, 'info', 4000);
+          }
         }
       });
 

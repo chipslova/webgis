@@ -62,21 +62,38 @@ describe('GeoJsonLoader Robustness & Normalizer', () => {
     expect(GeoJsonLoader.normalizeAndValidate({ type: 'FeatureCollection', features: [] }).valid).toBe(false);
   });
 
-  it('should reject out-of-bounds UTM meter coordinates and warn about WGS84 EPSG:4326', () => {
+  it('should auto-reproject valid UTM meter coordinates to WGS84 and reject absurd out-of-bounds coordinates', () => {
     const utmFeature: GeoJSON.FeatureCollection = {
       type: 'FeatureCollection',
       features: [
         {
           type: 'Feature',
-          geometry: { type: 'Point', coordinates: [705423.5, 9312450.8] }, // Projected meters
+          geometry: { type: 'Point', coordinates: [705423.5, 9312450.8] }, // Projected meters (Jakarta UTM 48S)
           properties: { name: 'UTM Zone 48S Coord' }
         }
       ]
     };
 
     const res = GeoJsonLoader.normalizeAndValidate(utmFeature);
-    expect(res.valid).toBe(false);
-    expect(res.error).toContain('WGS84');
+    expect(res.valid).toBe(true);
+    expect(res.data).toBeDefined();
+    const [lon, lat] = (res.data!.features[0].geometry as GeoJSON.Point).coordinates;
+    expect(Math.abs(lon)).toBeLessThanOrEqual(180);
+    expect(Math.abs(lat)).toBeLessThanOrEqual(90);
+
+    const absurdFeature: GeoJSON.FeatureCollection = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [999999999, 999999999] },
+          properties: {}
+        }
+      ]
+    };
+    const absurdRes = GeoJsonLoader.normalizeAndValidate(absurdFeature);
+    expect(absurdRes.valid).toBe(false);
+    expect(absurdRes.error).toContain('WGS84');
   });
 });
 

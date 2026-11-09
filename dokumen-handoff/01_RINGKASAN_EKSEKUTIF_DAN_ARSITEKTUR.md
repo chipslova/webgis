@@ -210,3 +210,4 @@ $$\begin{array}{rll}
 \end{array}$$
 
 Dengan matriks deterministik ini, setiap kali pengguna mengganti peta dasar (*basemap*) atau menyalakan citra satelit baru, geometri pengukuran dan data vektor pengguna dijamin **selalu tampak di atas dan tidak akan pernah tertutup**.
+

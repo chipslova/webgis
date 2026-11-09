@@ -152,3 +152,4 @@ Dokumen ini menguraikan arsitektur internal, alur data, komponen antarmuka, sert
 4. **Aksesibilitas Lengkap (WCAG 2.1 Compliance)**:
    * Penanganan tombol <kbd>Esc</kbd> universal untuk menutup dialog, membatalkan alat ukur, atau menutup panel laci.
    * Atribut ARIA (`aria-expanded`, `aria-label`, `aria-live`) dan navigasi fokus keyboard penuh untuk pengguna pembaca layar (*screen reader*).
+

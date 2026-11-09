@@ -76,6 +76,23 @@ vi.mock('shpjs', () => {
           }
         ]);
       }
+      // If view[0] === 3, simulate shapefile in UTM Zone 48S coordinates
+      if (view[0] === 3) {
+        return Promise.resolve({
+          type: 'FeatureCollection',
+          fileName: 'persil_tanah_utm',
+          features: [
+            {
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [704400, 9316500]
+              },
+              properties: { NIB: '12345678' }
+            }
+          ]
+        });
+      }
       // Default mock fallback
       return Promise.resolve({
         type: 'FeatureCollection',
@@ -110,6 +127,7 @@ describe('Shapefile (.zip) Client-Side Importer', () => {
     setPaintProperty: vi.fn(),
     setLayoutProperty: vi.fn(),
     fitBounds: vi.fn(),
+    flyTo: vi.fn(),
     getCanvas: vi.fn().mockReturnValue({ style: {} })
   });
   it('should parse single Shapefile from zip buffer correctly via parseShapefileZip', async () => {
@@ -173,5 +191,22 @@ describe('Shapefile (.zip) Client-Side Importer', () => {
     expect(customLayers.length).toBe(2);
     expect(customLayers.some(l => l.name === 'jalan_arteri' && l.type === 'line')).toBe(true);
     expect(customLayers.some(l => l.name === 'kantor_pemerintah' && l.type === 'point')).toBe(true);
+  });
+
+  it('should automatically reproject Shapefile with planar UTM coordinates to WGS84 and attach successfully', async () => {
+    const mockMap: any = createMockMap();
+    const loader = new GeoJsonLoader(mockMap);
+    const buffer = new Uint8Array([3, 0, 0, 0]).buffer;
+    const result = await loader.loadFromZipBuffer('persil_utm.zip', buffer);
+    expect(result.success).toBe(true);
+    expect(result.layersCreated?.length).toBe(1);
+
+    const customLayers = loader.getCustomLayers();
+    expect(customLayers.length).toBe(1);
+    const reprojectedCoord = (customLayers[0].data.features[0].geometry as GeoJSON.Point).coordinates;
+    expect(reprojectedCoord[0]).toBeGreaterThan(106.8);
+    expect(reprojectedCoord[0]).toBeLessThan(106.9);
+    expect(reprojectedCoord[1]).toBeGreaterThan(-6.2);
+    expect(reprojectedCoord[1]).toBeLessThan(-6.15);
   });
 });

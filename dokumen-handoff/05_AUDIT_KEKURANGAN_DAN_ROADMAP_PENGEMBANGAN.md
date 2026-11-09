@@ -68,14 +68,16 @@ Dokumen ini menyajikan hasil **audit teknis mendalam dan objektif** mengenai ket
 
 ---
 
-### 🟡 5. Keterbatasan Dukungan Proyeksi Koordinat (Hanya WGS84 & Web Mercator)
-* **Temuan**: MapLibre GL JS secara alami hanya mendukung sistem proyeksi Web Mercator (`EPSG:3857`) dan koordinat geografis WGS84 (`EPSG:4326`).
-* **Kelemahan & Dampak**:
-  * Banyak instansi pemerintah daerah dan perusahaan di Indonesia yang masih menyimpan berkas Shapefile dalam sistem koordinat proyeksi nasional, seperti **DGN95 / UTM Zone 48S – 54S** atau sistem koordinat lokal **TM-3° (BPN)**.
-  * Jika pengguna mengunggah Shapefile dengan proyeksi UTM tanpa mengubahnya terlebih dahulu ke WGS84, titik-titik koordinatnya (bernilai ratusan ribu meter) akan gagal dipetakan atau terlempar keluar dari kepulauan Indonesia.
-* **Rekomendasi Solusi**:
-  1. Pasang pustaka `proj4js` di modul [src/utils/shapefile-parser.ts](file:///d:/webgis/src/utils/shapefile-parser.ts).
-  2. Baca string WKT dari berkas `.prj` di dalam arsip Shapefile, lalu lakukan *on-the-fly reprojection* otomatis ke WGS84 sebelum data dimasukkan ke dalam kanvas peta.
+### 🟢 5. Dukungan Proyeksi Koordinat Shapefile & GeoJSON (Sudah Diperbaiki / RESOLVED ✅)
+* **Status**: **Telah Diimplementasikan & Teruji (Langkah 1)** via [src/utils/projections.ts](file:///d:/webgis/src/utils/projections.ts) dan pustaka `proj4`.
+* **Solusi yang Diterapkan**:
+  1. Dibuat registri proyeksi geospasial Indonesia komprehensif mencakup:
+     - DGN95 / UTM Zona 46S – 54S (EPSG: 23866–23874)
+     - DGN95 / UTM Zona 46N – 52N (EPSG: 23886–23892)
+     - WGS 84 / UTM Zona 46S – 54S (EPSG: 32746–32754) & 46N – 52N
+     - DGN95 / Indonesia TM-3° Zona BPN (EPSG: 23831–23846)
+     - Standar penamaan WKT ESRI ArcMap / ArcGIS Pro.
+  2. Modul [src/utils/shapefile-parser.ts](file:///d:/webgis/src/utils/shapefile-parser.ts) dan [src/tools/geojson-loader.ts](file:///d:/webgis/src/tools/geojson-loader.ts) kini secara otomatis mendeteksi koordinat planar meter non-WGS84 dan melakukan transformasi *on-the-fly* ke WGS84 secara akurat sebelum dirender di peta, disertai notifikasi toast informatif.
 
 ---
 
@@ -155,3 +157,4 @@ flowchart TD
 1. **Tambahkan Banner Notifikasi Status Server Hulu**: Berikan indikator visual jika server WMS BIG sedang lambat/offline agar pengguna tidak mengira aplikasi yang rusak.
 2. **Web Worker untuk Turf.js**: Menghilangkan batasan `MAX_SAFE_FEATURES = 1000` dan mencegah browser lag saat memproses poligon besar.
 3. **Penyimpanan Redis untuk Kuota Gemini**: Mengunci plafon harian 1.000 panggilan AI secara akurat di seluruh edge region.
+

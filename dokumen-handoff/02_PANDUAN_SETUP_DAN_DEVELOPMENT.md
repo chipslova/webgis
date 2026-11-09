@@ -142,3 +142,4 @@ Platform ini dikonfigurasi secara optimal untuk di-deploy ke **Vercel** melalui 
 5. Klik tombol **Deploy**.
 
 Setiap *push* ke branch `main` pada repositori GitHub akan otomatis memicu *Preview Deployment* atau *Production Deployment* secara instan.
+
