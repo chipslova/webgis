@@ -688,6 +688,7 @@ export class AttributeTableUI {
       </div>
 
       <div class="attr-table-body-wrap">
+        <div class="mobile-table-scroll-hint" aria-hidden="true"><span>↔ Geser tabel ke kanan untuk melihat semua kolom</span></div>
         ${
           filtered.length === 0
             ? `<div class="attr-table-empty">Tidak ada fitur yang cocok dengan filter / kueri pencarian aktif</div>`

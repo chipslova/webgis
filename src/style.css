@@ -8059,6 +8059,280 @@ kbd {
 }
 
 /* ==========================================================================
+   Mobile Table Scroll Hint & Attribute Drawer Refinement
+   ========================================================================== */
+.mobile-table-scroll-hint {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-table-scroll-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(14, 165, 233, 0.15);
+    border-bottom: 1px solid rgba(56, 189, 248, 0.3);
+    color: #38bdf8;
+    font-size: 10.5px;
+    font-weight: 500;
+    padding: 4px 8px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .attribute-table-container {
+    height: 52vh;
+    max-height: 52vh;
+    bottom: calc(var(--footer-height, 28px) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .attr-table-header {
+    height: auto;
+    min-height: 48px;
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .attr-table-title-group {
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .attr-layer-select-wrap {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .attr-layer-select {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .attr-table-controls {
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 6px;
+  }
+
+  .attr-search-wrap {
+    flex: 1;
+    min-width: 130px;
+  }
+
+  .attr-search-wrap input {
+    width: 100%;
+  }
+
+  .attr-table td {
+    max-width: 160px;
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-attr-action span {
+    display: none;
+  }
+
+  .btn-attr-action {
+    padding: 6px 8px;
+    min-height: 36px;
+    min-width: 36px;
+    justify-content: center;
+  }
+}
+
+/* ==========================================================================
+   Ultra-Compact Mobile Layout & Typography (< 400px)
+   Targeting narrow smartphone viewports (iPhone SE, Galaxy compact, etc.)
+   ========================================================================== */
+@media (max-width: 400px) {
+  :root {
+    --header-height: 48px;
+    --sidebar-width: calc(100vw - 12px);
+    --nav-width: 44px;
+  }
+
+  /* 1. Header Compactness */
+  .app-header {
+    height: 48px;
+    padding: 0 8px;
+    gap: 6px;
+  }
+
+  .brand-logo {
+    width: 26px;
+    height: 26px;
+  }
+
+  .brand-logo svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .brand-text h1 {
+    font-size: 11px;
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .header-search {
+    max-width: 130px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .header-search input {
+    font-size: 11px;
+    padding: 5px 8px 5px 26px;
+  }
+
+  .search-cmd-pill {
+    display: none; /* Hide 'Ctrl+K' pill on tiny mobile screens to prevent text overlap */
+  }
+
+  .header-actions {
+    gap: 4px;
+  }
+
+  .header-actions .btn {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 6px;
+  }
+
+  /* 2. Sidebar Navigation & Panels */
+  .sidebar-tab-btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px 0;
+  }
+
+  .sidebar-panel {
+    padding: 10px 8px 24px 8px;
+  }
+
+  /* Single Column Presets: Prevents awkward line wraps in Indonesian preset names */
+  .presets-chip-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .piksel-preset-chip {
+    padding: 8px 10px;
+  }
+
+  .preset-chip-title {
+    font-size: 11.5px;
+  }
+
+  .preset-chip-sub {
+    font-size: 10px;
+  }
+
+  /* Active Product Controls */
+  .active-controls-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .active-layer-btn-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .btn-zoom-product-action,
+  .btn-compare-product-action {
+    width: 100%;
+    justify-content: center;
+    padding: 8px 10px;
+  }
+
+  .piksel-upstream-health-card {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
+  .upstream-health-title {
+    font-size: 11px;
+  }
+
+  .upstream-health-desc {
+    font-size: 9.5px;
+  }
+
+  /* 3. Floating Bottom Sheet Inspector */
+  .floating-inspector-card {
+    position: fixed;
+    top: auto;
+    bottom: calc(var(--footer-height, 28px) + env(safe-area-inset-bottom, 0px) + 8px);
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-width: none;
+    max-height: 50dvh;
+    border-radius: 12px;
+  }
+
+  /* 4. Measure Tool Floating Pill */
+  #measure-floating-pill {
+    left: 8px;
+    right: 8px;
+    transform: none;
+    margin: 0 auto;
+    width: auto;
+    max-width: none;
+    padding: 6px 8px;
+    gap: 6px;
+    justify-content: space-between;
+  }
+
+  .measure-floating-btn {
+    padding: 6px 8px;
+    font-size: 10.5px;
+    min-height: 38px;
+  }
+
+  /* 5. Attribute Table Mobile Adaptation */
+  .attr-height-toggle-group {
+    display: none; /* Hide 28%/48%/80% desktop height toggles on small mobile screens */
+  }
+
+  .attr-search-wrap {
+    min-width: 100px;
+  }
+
+  .attr-table td,
+  .attr-table th {
+    padding: 5px 6px;
+    font-size: 10px;
+  }
+
+  /* 6. Swipe Compare Control Bar */
+  .swipe-control-bar {
+    max-width: calc(100vw - 12px);
+    padding: 6px 8px;
+    gap: 4px;
+    bottom: calc(var(--footer-height) + env(safe-area-inset-bottom, 0px) + 6px);
+  }
+
+  .swipe-select {
+    max-width: 95px;
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  .swipe-select.year {
+    max-width: 50px;
+  }
+}
+
+/* ==========================================================================
    Header Command Palette Pill Button
    ========================================================================== */
 

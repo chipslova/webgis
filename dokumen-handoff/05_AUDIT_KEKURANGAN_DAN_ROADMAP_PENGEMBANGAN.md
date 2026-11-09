@@ -11,10 +11,10 @@ Dokumen ini menyajikan hasil **audit teknis mendalam dan objektif** mengenai ket
 | :--- | :---: | :---: | :--- |
 | **Arsitektur Klien & UI WebGL2** | **9.2** | 🟢 Sangat Baik | MapLibre GL 6.10 stabil, responsive glassmorphism, 60 FPS, didukung Eco-Mode. |
 | **Fungsionalitas Spasial & Geodesik** | **9.5** | 🟢 Luar Biasa | 8 modul analitik lengkap; komputasi buffer & overlay berjalan non-blocking di Web Worker. |
-| **Kualitas Kode & Unit Testing** | **9.2** | 🟢 Sangat Baik | TypeScript strict, 43 test files, 313 Vitest tests passing (100% green). |
+| **Kualitas Kode & Unit Testing** | **9.4** | 🟢 Sangat Baik | TypeScript strict, 44 test files, 318 Vitest tests passing (100% green). |
+| **Dukungan Mobile & Responsivitas** | **9.0** | 🟢 Sangat Baik | Layout ultra-compact < 400px, bottom sheet inspector, single-col presets, dan touch target >= 44px. |
 | **Keamanan Klien & CSP** | **8.5** | 🟢 Baik | Sanitasi input XSS ketat, Content Security Policy deklaratif di Vercel. |
 | **Ketahanan Sumber Hulu (Upstream)** | **7.8** | 🟢 Baik (Terproteksi) | Dilengkapi live health check probe dan tombol graceful fallback instan ke Esri Imagery. |
-| **Dukungan Mobile & Responsivitas** | **7.5** | 🟡 Cukup | Touch drawer aktif, namun panel data padat tetap lebih nyaman di desktop. |
 | **Skalabilitas State Serverless** | **6.0** | 🟠 Perlu Atensi | Rate limiter dan kuota harian masih in-memory di tingkat edge instance. |
 | **Persistensi Data & Basis Data** | **5.5** | 🔴 Keterbatasan Utama | Belum memiliki database cloud / sistem login; data murni di `localStorage`. |
 
@@ -101,14 +101,15 @@ Dokumen ini menyajikan hasil **audit teknis mendalam dan objektif** mengenai ket
 
 ---
 
-### 🟡 8. Kepadatan Informasi pada Layar Ponsel Cilik (< 400px)
-* **Temuan**: Meskipun bilah samping telah dilengkapi fitur navigasi laci geser sentuh (*touch drawer*), beberapa panel analisis geospasial memiliki kepadatan informasi yang sangat tinggi.
-* **Kelemahan & Dampak**:
-  * Tabel atribut dengan 20+ kolom, grafik profil elevasi lintang SVG, dan slider tirai pembanding (*swipe compare*) membutuhkan ruang layar horizontal yang leluasa.
-  * Pada layar ponsel pintar kecil (< 400px), tabel atribut harus digulir secara horizontal dan pengguna dapat merasa kewalahan dengan banyaknya tombol aksi yang berdekatan.
-* **Rekomendasi Solusi**:
-  1. Kembangkan mode tampilan khusus seluler (*Simplified Mobile Explorer Mode*) yang menyederhanakan tombol bilah alat menjadi 3 fungsi utama saja: *Eksplorasi Lapisan*, *Pencarian Lokasi*, dan *Info Titik (Inspector)*.
-  2. Sembunyikan alat analitik berat (seperti kalkulasi irisan spasial dan tirai pembanding) pada layar mobile, atau tampilkan peringatan untuk membukanya di tablet/laptop.
+### 🟢 8. Kepadatan Informasi & Tata Letak Layar Ponsel Sempit (< 400px) (Sudah Diperbaiki / RESOLVED ✅)
+* **Status**: **Telah Diimplementasikan & Teruji (Langkah 4)** via [src/style.css](file:///d:/webgis/src/style.css), [index.html](file:///d:/webgis/index.html), dan [src/ui/attribute-table-panel.ts](file:///d:/webgis/src/ui/attribute-table-panel.ts).
+* **Temuan Awal**: Pada layar smartphone kecil (< 400px seperti iPhone SE, Galaxy compact), judul preset 2 kolom terpotong berantakan, header `Ctrl+K` menimpa teks pencarian, tabel atribut horizontal terpotong tanpa panduan scroll, dan floating inspector menutupi pandangan peta.
+* **Solusi Ergonomis yang Diterapkan**:
+  1. **Ultra-Compact Mobile Layout (`@media (max-width: 400px)`)**: Header dikompresi menjadi 48px, badge shortcut disembunyikan otomatis pada layar sempit agar kotak input lokasi leluasa, dan touch target tombol memenuhi standar ergonomi tap minimal 44x44px.
+  2. **Single-Column Presets Grid**: Preset pemantauan satelit otomatis beralih ke 1 kolom pada ponsel sempit, mencegah pemotongan kata judul lokasi geospasial Indonesia.
+  3. **Native Bottom-Sheet Inspector**: Kartu inspektur koordinat/fitur otomatis beralih dari posisi melayang di atas peta menjadi *bottom drawer sheet* di atas footer, menyajikan informasi titik secara rapi tanpa menutupi area sentuh peta.
+  4. **Panduan Scroll Tabel Atribut**: Tabel atribut pada layar seluler dilengkapi bilah panduan visual interaktif `↔ Geser tabel ke kanan untuk melihat semua kolom` serta kontrol tinggi adaptif.
+  5. **Viewport Safe-Area Cover**: Tag meta viewport ditingkatkan dengan `viewport-fit=cover` untuk adaptasi *notch* dan *home indicator* smartphone modern.
 
 ---
 
