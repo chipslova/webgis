@@ -18,6 +18,12 @@ An interactive WebGIS platform for exploring Indonesian Earth Observation datase
 
 ---
 
+> [!TIP]
+> 📚 **Mencari Dokumentasi Teknis & Panduan Serah Terima (*Handoff*)?**
+> Seluruh panduan arsitektur sistem, setup lokal, katalog API serverless, dokumentasi 8 modul geospasial, serta **audit kekurangan & roadmap sistem** dapat diakses lengkap pada folder [**`dokumen-handoff/`**](./dokumen-handoff/README.md).
+
+---
+
 ## 🌟 Ringkasan Platform / Overview
 
 **Digital Earth Indonesia WebGIS** adalah platform pemetaan berbasis web modern yang dirancang untuk eksplorasi data Penginderaan Jauh (*Earth Observation*), pemodelan iklim/termal, dan analisis geospasial di wilayah Indonesia.
