@@ -125,6 +125,17 @@ export class SpatialIntersectAnalyzer {
   }
 
   /**
+   * Async alias for overlay with mode 'intersect' executing in Web Worker
+   */
+  public static async intersectAsync(
+    layerA: GeoJSON.FeatureCollection,
+    layerB: GeoJSON.FeatureCollection,
+    options: IntersectOptions = {}
+  ): Promise<IntersectAnalysisResult> {
+    return this.overlayAsync(layerA, layerB, { ...options, mode: 'intersect' });
+  }
+
+  /**
    * Alias for overlay with mode 'difference' (Layer A minus Layer B)
    */
   public static difference(
@@ -133,6 +144,17 @@ export class SpatialIntersectAnalyzer {
     options: IntersectOptions = {}
   ): IntersectAnalysisResult {
     return this.overlay(layerA, layerB, { ...options, mode: 'difference' });
+  }
+
+  /**
+   * Async alias for overlay with mode 'difference' executing in Web Worker
+   */
+  public static async differenceAsync(
+    layerA: GeoJSON.FeatureCollection,
+    layerB: GeoJSON.FeatureCollection,
+    options: IntersectOptions = {}
+  ): Promise<IntersectAnalysisResult> {
+    return this.overlayAsync(layerA, layerB, { ...options, mode: 'difference' });
   }
 
   /**
@@ -147,6 +169,17 @@ export class SpatialIntersectAnalyzer {
   }
 
   /**
+   * Async alias for overlay with mode 'union' executing in Web Worker
+   */
+  public static async unionAsync(
+    layerA: GeoJSON.FeatureCollection,
+    layerB: GeoJSON.FeatureCollection,
+    options: IntersectOptions = {}
+  ): Promise<IntersectAnalysisResult> {
+    return this.overlayAsync(layerA, layerB, { ...options, mode: 'union' });
+  }
+
+  /**
    * Alias for overlay with mode 'sym_difference' (Layer A XOR Layer B)
    */
   public static symmetricDifference(
@@ -155,6 +188,35 @@ export class SpatialIntersectAnalyzer {
     options: IntersectOptions = {}
   ): IntersectAnalysisResult {
     return this.overlay(layerA, layerB, { ...options, mode: 'sym_difference' });
+  }
+
+  /**
+   * Async alias for overlay with mode 'sym_difference' executing in Web Worker
+   */
+  public static async symmetricDifferenceAsync(
+    layerA: GeoJSON.FeatureCollection,
+    layerB: GeoJSON.FeatureCollection,
+    options: IntersectOptions = {}
+  ): Promise<IntersectAnalysisResult> {
+    return this.overlayAsync(layerA, layerB, { ...options, mode: 'sym_difference' });
+  }
+
+  /**
+   * Executes geometric overlay analysis asynchronously on a background Web Worker.
+   */
+  public static async overlayAsync(
+    layerA: GeoJSON.FeatureCollection,
+    layerB: GeoJSON.FeatureCollection,
+    options: IntersectOptions = {}
+  ): Promise<IntersectAnalysisResult> {
+    try {
+      const { SpatialWorkerClient } = await import('../workers/spatial-worker-client');
+      const client = SpatialWorkerClient.getInstance();
+      return await client.runIntersect(layerA, layerB, options);
+    } catch (err) {
+      logger.warn('[SpatialIntersect] Worker execution failed, falling back to main-thread execution:', err);
+      return this.overlay(layerA, layerB, options);
+    }
   }
 
   /**

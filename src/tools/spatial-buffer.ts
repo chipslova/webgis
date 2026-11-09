@@ -9,6 +9,7 @@ export interface BufferOptions {
   steps?: number;
   overlayGeoJSON?: GeoJSON.FeatureCollection;
   overlayLayerName?: string;
+  maxFeatures?: number;
 }
 
 export interface BufferIntersectionResult {
@@ -52,11 +53,13 @@ export class SpatialBufferAnalyzer {
       let featuresToProcess = sourceGeoJSON.features;
       let warning: string | undefined;
 
+      const maxSafe = options.maxFeatures ?? this.MAX_SAFE_FEATURES;
+
       // Safeguard: prevent browser freeze on massive vector datasets
-      if (featuresToProcess.length > this.MAX_SAFE_FEATURES) {
-        warning = `Lapisan memiliki ${featuresToProcess.length} fitur. Demi performa browser, hanya ${this.MAX_SAFE_FEATURES} fitur pertama yang diproses.`;
-        logger.warn(`[SpatialBuffer] Large dataset detected: capping at ${this.MAX_SAFE_FEATURES} features.`);
-        featuresToProcess = featuresToProcess.slice(0, this.MAX_SAFE_FEATURES);
+      if (featuresToProcess.length > maxSafe) {
+        warning = `Lapisan memiliki ${featuresToProcess.length} fitur. Demi performa browser, hanya ${maxSafe} fitur pertama yang diproses.`;
+        logger.warn(`[SpatialBuffer] Large dataset detected: capping at ${maxSafe} features.`);
+        featuresToProcess = featuresToProcess.slice(0, maxSafe);
       }
 
       const bufferFeatures: GeoJSON.Feature[] = [];
@@ -111,6 +114,29 @@ export class SpatialBufferAnalyzer {
         success: false,
         error: `Gagal memproses analisis buffer: ${err?.message || 'Kesalahan kalkulasi spasial'}`
       };
+    }
+  }
+
+  /**
+   * Executes geodesic buffer analysis asynchronously on a background Web Worker.
+   * Keeps the main UI completely responsive at 60 FPS even on large datasets.
+   * Automatically falls back to synchronous main-thread execution if Web Worker is unavailable.
+   */
+  public static async createBufferAsync(
+    sourceGeoJSON: GeoJSON.FeatureCollection,
+    options: BufferOptions
+  ): Promise<BufferAnalysisResult> {
+    try {
+      const { SpatialWorkerClient } = await import('../workers/spatial-worker-client');
+      const client = SpatialWorkerClient.getInstance();
+      const workerOptions: BufferOptions = {
+        maxFeatures: options.maxFeatures ?? 5000,
+        ...options
+      };
+      return await client.runBuffer(sourceGeoJSON, workerOptions);
+    } catch (err) {
+      logger.warn('[SpatialBuffer] Worker call failed, falling back to main-thread execution:', err);
+      return this.createBuffer(sourceGeoJSON, options);
     }
   }
 

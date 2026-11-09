@@ -724,7 +724,7 @@ export class GeoJsonLoader {
 
     try {
       const { SpatialBufferAnalyzer } = await import('./spatial-buffer');
-      const bufferRes = SpatialBufferAnalyzer.createBuffer(sourceItem.data, {
+      const bufferRes = await SpatialBufferAnalyzer.createBufferAsync(sourceItem.data, {
         radius,
         units,
         overlayGeoJSON,

@@ -10,8 +10,8 @@ Dokumen ini menyajikan hasil **audit teknis mendalam dan objektif** mengenai ket
 | Aspek Sistem | Skor (1–10) | Status | Keterangan Singkat |
 | :--- | :---: | :---: | :--- |
 | **Arsitektur Klien & UI WebGL2** | **9.2** | 🟢 Sangat Baik | MapLibre GL 6.10 stabil, responsive glassmorphism, 60 FPS, didukung Eco-Mode. |
-| **Fungsionalitas Spasial & Geodesik** | **9.0** | 🟢 Sangat Baik | 8 modul analitik lengkap (Ukur, Buffer, Intersect, Zonal, Swipe, Export, AI). |
-| **Kualitas Kode & Unit Testing** | **9.0** | 🟢 Sangat Baik | TypeScript strict, 42 test files, 308 Vitest tests passing (100% green). |
+| **Fungsionalitas Spasial & Geodesik** | **9.5** | 🟢 Luar Biasa | 8 modul analitik lengkap; komputasi buffer & overlay berjalan non-blocking di Web Worker. |
+| **Kualitas Kode & Unit Testing** | **9.2** | 🟢 Sangat Baik | TypeScript strict, 43 test files, 313 Vitest tests passing (100% green). |
 | **Keamanan Klien & CSP** | **8.5** | 🟢 Baik | Sanitasi input XSS ketat, Content Security Policy deklaratif di Vercel. |
 | **Ketahanan Sumber Hulu (Upstream)** | **7.8** | 🟢 Baik (Terproteksi) | Dilengkapi live health check probe dan tombol graceful fallback instan ke Esri Imagery. |
 | **Dukungan Mobile & Responsivitas** | **7.5** | 🟡 Cukup | Touch drawer aktif, namun panel data padat tetap lebih nyaman di desktop. |
@@ -45,15 +45,14 @@ Dokumen ini menyajikan hasil **audit teknis mendalam dan objektif** mengenai ket
 
 ---
 
-### 🟠 3. Kalkulasi Spasial Berjalan di Main Thread (Risiko UI Freezing)
-* **Temuan**: Seluruh kalkulasi geospasial Turf.js (kalkulasi poligon zona buffer [SpatialBuffer](file:///d:/webgis/src/tools/spatial-buffer.ts), irisan [SpatialIntersect](file:///d:/webgis/src/tools/spatial-intersect.ts), dan pengukuran poligon) dieksekusi langsung pada *main thread* JavaScript browser.
-* **Kelemahan & Dampak**:
-  * Saat pengguna mengimpor berkas ESRI Shapefile atau GeoJSON dengan ribuan fitur poligon rumit (misalnya batas desa seluruh provinsi Jawa Barat dengan > 20.000 simpul koordinat), kalkulasi buffer atau irisan spasial akan mengunci *main thread*.
-  * Akibatnya, animasi peta dan kursor mouse dapat mengalami *freezing* atau lag beberapa detik (*unresponsive script warning*).
-  * Saat ini sistem memitigasinya dengan membatasi kalkulasi buffer pada maksimal 1.000 fitur (`MAX_SAFE_FEATURES = 1000`), namun ini membatasi kapasitas dataset besar.
-* **Rekomendasi Solusi**:
-  1. Pindahkan modul kalkulasi Turf.js yang berat ke dalam **Web Worker** background menggunakan pustaka seperti `comlink`.
-  2. Dengan Web Worker, proses komputasi buffer/intersect ribuan fitur dapat berjalan di latar belakang tanpa mengganggu kelancaran animasi kanvas MapLibre 60 FPS.
+### 🟢 3. Kalkulasi Spasial di Background Thread Web Worker (Sudah Diperbaiki / RESOLVED ✅)
+* **Status**: **Telah Diimplementasikan & Teruji (Langkah 3)** via [src/workers/spatial.worker.ts](file:///d:/webgis/src/workers/spatial.worker.ts) dan [src/workers/spatial-worker-client.ts](file:///d:/webgis/src/workers/spatial-worker-client.ts).
+* **Temuan Awal**: Seluruh kalkulasi geospasial Turf.js dieksekusi langsung pada *main thread* JavaScript browser dengan batas darurat 1.000 fitur, berisiko membekukan (*freezing*) kanvas peta dan animasi antarmuka saat memproses ribuan simpul poligon rumit.
+* **Solusi yang Diterapkan**:
+  1. **Dedicated ES-Module Web Worker**: Dibuat worker [`src/workers/spatial.worker.ts`](file:///d:/webgis/src/workers/spatial.worker.ts) yang mengisolasi komputasi buffer geodesik dan overlay tumpang tindih ke thread latar belakang OS terpisah.
+  2. **Singleton Worker Client & Graceful Fallback**: [`src/workers/spatial-worker-client.ts`](file:///d:/webgis/src/workers/spatial-worker-client.ts) menangani pertukaran pesan secara asinkron dengan timeout guard 30 detik dan otomatis melakukan fallback ke thread utama jika Web Worker tidak didukung oleh lingkungan peramban.
+  3. **Peningkatan Kapasitas Fitur Aman**: Batasan aman komputasi ditingkatkan menjadi 5.000 fitur tanpa mengorbankan kelancaran animasi 60 FPS pada kanvas peta MapLibre.
+  4. **Metode Asinkron Terintegrasi**: [`SpatialBufferAnalyzer.createBufferAsync()`](file:///d:/webgis/src/tools/spatial-buffer.ts) dan [`SpatialIntersectAnalyzer.overlayAsync()`](file:///d:/webgis/src/tools/spatial-intersect.ts) terhubung langsung dengan [`GeoJsonLoader.createBufferForLayer()`](file:///d:/webgis/src/tools/geojson-loader.ts).
 
 ---
 

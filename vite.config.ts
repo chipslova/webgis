@@ -128,6 +128,9 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       exclude: ['maplibre-gl']
     },
+    worker: {
+      format: 'es'
+    },
     build: {
       outDir: 'dist',
       target: 'es2022',
