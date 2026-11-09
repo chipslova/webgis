@@ -1,4 +1,4 @@
-import { PikselLoader, PikselLoadingState, TimeLapseState } from '../tools/piksel-loader';
+import { PikselLoader, PikselLoadingState, TimeLapseState, UpstreamHealthStatus } from '../tools/piksel-loader';
 import {
   PIKSEL_PRODUCTS,
   PIKSEL_PRESETS,
@@ -45,6 +45,13 @@ export class PikselPanelUI {
       this.updateActiveCardStatus(state);
     });
 
+    this.pikselLoader.onUpstreamHealthChange((health) => {
+      this.updateUpstreamHealthUI(health);
+    });
+
+    // Pemicu health probe awal secara asinkron
+    this.pikselLoader.checkUpstreamHealth();
+
     if (typeof window !== 'undefined') {
       window.addEventListener('webgis:basemap-selected', (e: Event) => {
         const customEvent = e as CustomEvent;
@@ -62,6 +69,82 @@ export class PikselPanelUI {
         this.render();
       });
     }
+  }
+
+  private getUpstreamHealthBarHtml(): string {
+    const health = this.pikselLoader.getUpstreamHealth();
+    const status = health.status;
+    let badgeClass = 'status-checking';
+    let statusText = 'Memeriksa koneksi...';
+    let dotClass = 'dot-checking';
+
+    if (status === 'healthy') {
+      badgeClass = 'status-healthy';
+      statusText = health.latencyMs ? `Normal (${health.latencyMs} ms)` : 'Normal (Aktif)';
+      dotClass = 'dot-healthy';
+    } else if (status === 'degraded') {
+      badgeClass = 'status-degraded';
+      statusText = health.latencyMs ? `Degraded (${health.latencyMs} ms)` : 'Lambat / Parsial';
+      dotClass = 'dot-degraded';
+    } else if (status === 'offline') {
+      badgeClass = 'status-offline';
+      statusText = 'Gangguan / Offline';
+      dotClass = 'dot-offline';
+    }
+
+    return `
+      <div class="piksel-upstream-health-card ${badgeClass}" id="piksel-upstream-health-bar" role="status" aria-live="polite">
+        <div class="upstream-health-left">
+          <span class="upstream-health-dot ${dotClass}" aria-hidden="true"></span>
+          <div class="upstream-health-info">
+            <div class="upstream-health-header-row">
+              <span class="upstream-health-title">Server Hulu BIG Piksel</span>
+              <span class="upstream-health-badge ${badgeClass}">${statusText}</span>
+            </div>
+            <span class="upstream-health-desc">${health.message || health.upstream}</span>
+          </div>
+        </div>
+        <button id="btn-refresh-upstream-health" class="btn-refresh-health" title="Periksa status koneksi server hulu sekarang" aria-label="Periksa status server hulu">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+        </button>
+      </div>
+    `;
+  }
+
+  public updateUpstreamHealthUI(_health: UpstreamHealthStatus) {
+    const bar = document.getElementById('piksel-upstream-health-bar');
+    if (bar) {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = this.getUpstreamHealthBarHtml();
+      const newCard = tempDiv.firstElementChild;
+      if (newCard) {
+        bar.replaceWith(newCard);
+        const refreshBtn = newCard.querySelector('#btn-refresh-upstream-health');
+        if (refreshBtn) {
+          refreshBtn.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            this.handleRefreshHealthClick(refreshBtn as HTMLElement);
+          });
+        }
+      }
+    }
+  }
+
+  private handleRefreshHealthClick(button?: HTMLElement) {
+    if (button) button.classList.add('is-spinning');
+    showToast('Menguji koneksi upstream ke server OGC WMS BIG Piksel...', 'info');
+    this.pikselLoader.checkUpstreamHealth(true).then((res) => {
+      if (button) button.classList.remove('is-spinning');
+      if (res.status === 'healthy') {
+        showToast(`Server WMS BIG Piksel merespons normal (${res.latencyMs || 0} ms)`, 'success');
+      } else if (res.status === 'degraded') {
+        showToast(`Server WMS BIG Piksel lambat (${res.latencyMs || 0} ms) - sebagian ubin mungkin lambat`, 'warning');
+      } else {
+        showToast('Server WMS BIG Piksel tidak merespons. Tersedia opsi Citra Esri sebagai fallback.', 'error');
+      }
+    }).catch(() => {
+      if (button) button.classList.remove('is-spinning');
+    });
   }
 
   public render() {
@@ -452,6 +535,9 @@ export class PikselPanelUI {
         <p>Data BIG Piksel · OGC WMS — Endpoint staging Open Data Cube untuk eksplorasi citra satelit.</p>
       </div>
 
+      <!-- Upstream Health Live Status Bar -->
+      ${this.getUpstreamHealthBarHtml()}
+
       <!-- Staging WMS Notice -->
       <div class="clean-alert alert-info" style="margin-bottom: 10px;">
         <div class="alert-icon-title">
@@ -459,7 +545,7 @@ export class PikselPanelUI {
           <strong>Endpoint WMS Staging BIG</strong>
         </div>
         <p class="alert-desc" style="margin: 4px 0 0 0;">
-          Citra satelit menggunakan endpoint <em>staging</em> BIG Piksel. Jika ubin tidak muncul, server mungkin sedang memperbarui data. Endpoint produksi: <code style="font-size: 10px; color: var(--accent-cyan);">piksel.big.go.id</code>
+          Citra satelit menggunakan endpoint <em>staging</em> BIG Piksel (<code style="font-size: 10px; color: var(--accent-cyan);">ows.staging.piksel.big.go.id</code>). Jika server mengalami kendala jaringan atau ubin lambat, Anda dapat beralih ke <strong>Citra Esri</strong> sebagai alternatif instan.
         </p>
       </div>
 
@@ -566,28 +652,43 @@ export class PikselPanelUI {
     if (status === 'degraded' || status === 'partial') {
       return `
         <div class="clean-alert alert-partial">
-          <div>
-            <strong>✓ Ubin raster sebagian telah dimuat</strong>
-            <span style="font-size: 11px; color: #cbd5e1; display: block; margin-top: 2px;">Beberapa ubin mengalami latensi dari server ODC hulu.</span>
+          <div class="alert-icon-title">
+            <span style="font-size: 16px;">⏱️</span>
+            <strong>Ubin Raster Sebagian Dimuat</strong>
+          </div>
+          <p class="alert-desc">
+            Beberapa ubin raster mengalami latensi tinggi dari server Open Data Cube hulu. Jika lambat, Anda dapat beralih ke Citra Esri alternatif.
+          </p>
+          <div class="alert-actions-row">
+            <button class="btn-alert-fallback" id="btn-fallback-esri-imagery" title="Beralih ke peta dasar Citra Satelit Esri alternatif">
+              🛰️ Gunakan Citra Esri
+            </button>
           </div>
         </div>
       `;
     }
 
     if (status === 'error') {
+      const upstreamHost = this.pikselLoader.getUpstreamHealth().upstream;
       return `
         <div class="clean-alert alert-error">
           <div class="alert-icon-title">
             <span style="font-size: 16px;">⚠️</span>
-            <strong>Layanan OGC WMS Tidak Tersedia</strong>
+            <strong>Server Hulu OGC WMS Mengalami Gangguan</strong>
           </div>
           <p class="alert-desc">
-            Server hulu mengalami timeout untuk lapisan ini. Anda dapat mencoba lagi atau memilih Sentinel-2 True Color.
+            Server hulu (${upstreamHost}) tidak merespons atau mengalami batas waktu permintaan (timeout). Silakan muat ulang atau pilih alternatif citra di bawah:
           </p>
           <div class="alert-actions-row">
             <button class="btn-alert-retry" id="btn-retry-piksel">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-              Coba Lagi
+              Coba Muat Ulang
+            </button>
+            <button class="btn-alert-fallback" id="btn-fallback-esri-imagery" title="Beralih ke Citra Satelit Esri resolusi tinggi">
+              🛰️ Citra Esri (Alternatif)
+            </button>
+            <button class="btn-alert-secondary" id="btn-jump-bromo-preset" title="Pindah ke preset Bromo yang memiliki cakupan data stabil">
+              📍 Contoh Stabil (Bromo)
             </button>
           </div>
         </div>
@@ -625,6 +726,14 @@ export class PikselPanelUI {
         retryBtn.addEventListener('click', () => {
           this.pikselLoader.retryCurrentProduct();
           showToast('Mencoba kembali memuat ubin satelit dari server OGC...', 'info');
+        });
+      }
+
+      const fallbackBtn = slot.querySelector('#btn-fallback-esri-imagery');
+      if (fallbackBtn) {
+        fallbackBtn.addEventListener('click', () => {
+          this.pikselLoader.switchToEsriFallback();
+          showToast('Beralih ke peta dasar Citra Satelit Esri World Imagery (Fallback)', 'info');
         });
       }
 
@@ -845,6 +954,20 @@ export class PikselPanelUI {
       if (target.closest('#btn-retry-piksel')) {
         this.pikselLoader.retryCurrentProduct();
         showToast('Mencoba memuat ulang ubin satelit dari server OGC...', 'info');
+        return;
+      }
+
+      // 5b. Refresh Upstream Health Probe
+      const refreshHealthBtn = target.closest('#btn-refresh-upstream-health') as HTMLElement;
+      if (refreshHealthBtn) {
+        this.handleRefreshHealthClick(refreshHealthBtn);
+        return;
+      }
+
+      // 5c. Fallback to Esri World Imagery
+      if (target.closest('#btn-fallback-esri-imagery')) {
+        this.pikselLoader.switchToEsriFallback();
+        showToast('Beralih ke peta dasar Citra Satelit Esri World Imagery (Fallback)', 'info');
         return;
       }
 

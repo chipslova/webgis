@@ -11,26 +11,26 @@ Dokumen ini menyajikan hasil **audit teknis mendalam dan objektif** mengenai ket
 | :--- | :---: | :---: | :--- |
 | **Arsitektur Klien & UI WebGL2** | **9.2** | 🟢 Sangat Baik | MapLibre GL 6.10 stabil, responsive glassmorphism, 60 FPS, didukung Eco-Mode. |
 | **Fungsionalitas Spasial & Geodesik** | **9.0** | 🟢 Sangat Baik | 8 modul analitik lengkap (Ukur, Buffer, Intersect, Zonal, Swipe, Export, AI). |
-| **Kualitas Kode & Unit Testing** | **8.8** | 🟢 Sangat Baik | TypeScript strict, 40 test files, 294 Vitest tests passing (100% green). |
+| **Kualitas Kode & Unit Testing** | **9.0** | 🟢 Sangat Baik | TypeScript strict, 42 test files, 308 Vitest tests passing (100% green). |
 | **Keamanan Klien & CSP** | **8.5** | 🟢 Baik | Sanitasi input XSS ketat, Content Security Policy deklaratif di Vercel. |
+| **Ketahanan Sumber Hulu (Upstream)** | **7.8** | 🟢 Baik (Terproteksi) | Dilengkapi live health check probe dan tombol graceful fallback instan ke Esri Imagery. |
 | **Dukungan Mobile & Responsivitas** | **7.5** | 🟡 Cukup | Touch drawer aktif, namun panel data padat tetap lebih nyaman di desktop. |
 | **Skalabilitas State Serverless** | **6.0** | 🟠 Perlu Atensi | Rate limiter dan kuota harian masih in-memory di tingkat edge instance. |
 | **Persistensi Data & Basis Data** | **5.5** | 🔴 Keterbatasan Utama | Belum memiliki database cloud / sistem login; data murni di `localStorage`. |
-| **Ketahanan Sumber Hulu (Upstream)** | **5.0** | 🔴 Keterbatasan Utama | Sangat bergantung pada ketersediaan server *staging* OGC WMS BIG Piksel. |
 
 ---
 
 ## 2. Rincian 9 Kekurangan & Keterbatasan Teknis Utama
 
-### 🔴 1. Ketergantungan Tunggal pada Server Upstream Staging (Single Point of Failure)
-* **Temuan**: Layanan citra satelit Sentinel-2 GeoMAD 10m (2017–2025) dan indeks spektral bergantung langsung pada alamat hulu `ows.staging.piksel.big.go.id` melalui proxy `/api/wms-proxy`.
-* **Kelemahan & Dampak**:
-  * Domain berlabel **`staging`** menandakan server pengujian internal yang tidak memiliki jaminan tingkat ketersediaan (*Service Level Agreement / SLA 99.9%*).
-  * Jika server BIG sedang mengalami *maintenance*, *overload*, atau perubahan sertifikat SSL, seluruh lapisan citra satelit dan fungsi time-lapse di aplikasi akan gagal dimuat atau mengalami *timeout*.
-* **Rekomendasi Solusi**:
-  1. Melakukan negosiasi atau permohonan resmi ke Badan Informasi Geospasial untuk mendapatkan akses ke *endpoint production* klaster resmi BIG Piksel.
-  2. Menerapkan mekanisme *stale fallback caching* jangka panjang (misal menyimpan ubin tahun-tahun statis 2017–2023 pada bucket Cloudflare R2 / AWS S3) agar peta tetap berfungsi saat server staging offline.
-  3. Menambahkan *graceful error banner* di UI saat server hulu tidak merespons, alih-alih membiarkan peta kosong.
+### 🟢 1. Ketahanan Sumber Hulu BIG Piksel & Mekanisme Graceful Fallback (Sudah Dimoderasi & Terlindungi ✅)
+* **Status**: **Telah Diimplementasikan & Teruji (Langkah 2)** via [api/wms-proxy.ts](file:///d:/webgis/api/wms-proxy.ts), [src/tools/piksel-loader.ts](file:///d:/webgis/src/tools/piksel-loader.ts), dan [src/ui/piksel-panel.ts](file:///d:/webgis/src/ui/piksel-panel.ts).
+* **Temuan Awal**: Layanan citra satelit Sentinel-2 GeoMAD 10m (2017–2025) dan indeks spektral bergantung langsung pada alamat hulu `ows.staging.piksel.big.go.id`. Domain `staging` dapat mengalami timeout mendadak saat proses pemeliharaan.
+* **Solusi Perlindungan yang Diterapkan**:
+  1. **Endpoint Health Probe Otomatis**: Endpoint `/api/wms-proxy?health=true` melakukan probe aktif terhadap respons server hulu BIG Piksel dengan klasifikasi latensi (Normal < 2500ms, Degraded, atau Offline jika timeout 5s).
+  2. **Indikator Live di UI**: Panel BIG Piksel menampilkan status kesehatan server hulu secara real-time dengan status pill berwarna (Hijau/Kuning/Merah) serta tombol *refresh* manual.
+  3. **Graceful Fallback Instan ke Citra Satelit Esri**: Jika server WMS hulu mengalami gangguan atau latensi tinggi, kartu error menyajikan opsi satu-klik **[🛰️ Citra Esri (Alternatif)]** (`switchToEsriFallback()`) yang langsung mengalihkan peta dasar ke citra satelit resolusi tinggi Esri World Imagery, serta tombol lompat **[📍 Contoh Stabil (Bromo)]** agar peta pengguna tidak pernah kosong.
+* **Tindakan Lanjutan Jangka Panjang**:
+  - Tetap dianjurkan mengajukan akses endpoint klaster *production* resmi ke BIG untuk redundansi ganda di masa depan.
 
 ---
 

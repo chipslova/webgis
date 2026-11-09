@@ -26,6 +26,14 @@ export interface PikselDiagnostics {
   statusMessage: string;
 }
 
+export interface UpstreamHealthStatus {
+  status: 'healthy' | 'degraded' | 'offline' | 'checking';
+  latencyMs?: number;
+  upstream: string;
+  message?: string;
+  checkedAt?: string;
+}
+
 export type PikselLoadingState = {
   status: PikselStatusCode;
   isLoading: boolean;
@@ -104,8 +112,92 @@ export class PikselLoader {
     this.mapManagerRef = mapManager;
   }
 
+  public getMapManager(): any {
+    return this.mapManagerRef;
+  }
+
   public setBasemapCustomizer(_customizer: any) {
     // Preserved for modular compatibility
+  }
+
+  // Upstream Server Health Monitoring State
+  private upstreamHealth: UpstreamHealthStatus = {
+    status: 'checking',
+    upstream: 'ows.staging.piksel.big.go.id',
+    message: 'Memeriksa status server hulu...'
+  };
+  private lastHealthCheckTime: number = 0;
+  private onUpstreamHealthCallbacks: Array<(status: UpstreamHealthStatus) => void> = [];
+
+  public getUpstreamHealth(): UpstreamHealthStatus {
+    return this.upstreamHealth;
+  }
+
+  public onUpstreamHealthChange(callback: (status: UpstreamHealthStatus) => void) {
+    this.onUpstreamHealthCallbacks.push(callback);
+    callback(this.upstreamHealth);
+  }
+
+  private notifyUpstreamHealthChange() {
+    this.onUpstreamHealthCallbacks.forEach((cb) => {
+      try { cb(this.upstreamHealth); } catch {}
+    });
+  }
+
+  public async checkUpstreamHealth(forceRefresh = false): Promise<UpstreamHealthStatus> {
+    const now = Date.now();
+    if (!forceRefresh && now - this.lastHealthCheckTime < 45000 && this.upstreamHealth.status !== 'checking') {
+      return this.upstreamHealth;
+    }
+
+    this.lastHealthCheckTime = now;
+    try {
+      const startTime = Date.now();
+      const res = await fetch('/api/wms-proxy?health=true', {
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const latency = data.latencyMs ?? (Date.now() - startTime);
+        this.upstreamHealth = {
+          status: data.status || 'healthy',
+          latencyMs: latency,
+          upstream: data.upstream || 'ows.staging.piksel.big.go.id',
+          message: data.status === 'offline'
+            ? 'Server WMS BIG Piksel tidak merespons (Offline)'
+            : data.status === 'degraded'
+              ? `Server WMS BIG Piksel lambat (${latency} ms)`
+              : `Server WMS BIG Piksel normal (${latency} ms)`,
+          checkedAt: data.checkedAt || new Date().toISOString()
+        };
+      } else {
+        this.upstreamHealth = {
+          status: 'degraded',
+          upstream: 'ows.staging.piksel.big.go.id',
+          message: 'Status server hulu tidak dapat diverifikasi',
+          checkedAt: new Date().toISOString()
+        };
+      }
+    } catch (_) {
+      this.upstreamHealth = {
+        status: 'offline',
+        upstream: 'ows.staging.piksel.big.go.id',
+        message: 'Koneksi ke server proxy WMS terputus',
+        checkedAt: new Date().toISOString()
+      };
+    }
+
+    this.notifyUpstreamHealthChange();
+    return this.upstreamHealth;
+  }
+
+  public switchToEsriFallback() {
+    this.cleanupActiveRasterLayer();
+    this.activeProductId = null;
+    this.notifyLayersChange();
+    if (this.mapManagerRef && typeof this.mapManagerRef.setBasemap === 'function') {
+      this.mapManagerRef.setBasemap('esri-imagery');
+    }
   }
 
   // Diagnostics & Telemetry
@@ -323,6 +415,7 @@ export class PikselLoader {
       this.activeRequestId = currentReqId;
       this.cleanupActiveRasterLayer();
       this.renderRasterLayer(prod, currentReqId);
+      this.checkUpstreamHealth(true);
     }
   }
 

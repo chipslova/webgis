@@ -98,6 +98,26 @@ export default defineConfig(({ mode }) => {
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify({ error: err?.message || 'API middleware error' }));
               }
+            } else if (req.url && req.url.startsWith('/api/wms-proxy')) {
+              try {
+                const { default: handler } = await import('./api/wms-proxy');
+                const fullUrl = `http://${req.headers.host || 'localhost:3000'}${req.url}`;
+                const fetchReq = new Request(fullUrl, {
+                  method: req.method,
+                  headers: req.headers as any
+                });
+                const edgeRes = await handler(fetchReq);
+                res.statusCode = edgeRes.status;
+                edgeRes.headers.forEach((val, key) => {
+                  res.setHeader(key, val);
+                });
+                const buf = await edgeRes.arrayBuffer();
+                res.end(Buffer.from(buf));
+              } catch (err: any) {
+                res.statusCode = 500;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: err?.message || 'WMS Proxy middleware error' }));
+              }
             } else {
               next();
             }

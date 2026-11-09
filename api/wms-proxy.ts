@@ -51,6 +51,57 @@ export default async function handler(req: Request): Promise<Response> {
   }
 
   const url = new URL(req.url);
+
+  // Health-check probe for upstream BIG Piksel WMS
+  if (url.searchParams.get('health') === 'true') {
+    const startTime = Date.now();
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const pingRes = await fetch(`${UPSTREAM_WMS_URL}?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0`, {
+        method: 'HEAD',
+        signal: controller.signal,
+        headers: {
+          'User-Agent': 'Digital-Earth-Indonesia-WebGIS/1.0 (HealthCheck)'
+        }
+      });
+      clearTimeout(timeoutId);
+      const latencyMs = Date.now() - startTime;
+      const isOk = pingRes.status >= 200 && pingRes.status < 500;
+      const status = !isOk ? 'offline' : latencyMs > 2500 ? 'degraded' : 'healthy';
+
+      return new Response(JSON.stringify({
+        status,
+        latencyMs,
+        upstream: UPSTREAM_WMS_HOST,
+        httpStatus: pingRes.status,
+        checkedAt: new Date().toISOString()
+      }), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'no-cache, no-store'
+        }
+      });
+    } catch (err: any) {
+      return new Response(JSON.stringify({
+        status: 'offline',
+        latencyMs: Date.now() - startTime,
+        upstream: UPSTREAM_WMS_HOST,
+        error: err?.message || 'Upstream timeout',
+        checkedAt: new Date().toISOString()
+      }), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'no-cache, no-store'
+        }
+      });
+    }
+  }
+
   const searchParams = url.searchParams.toString();
 
   if (!searchParams) {
