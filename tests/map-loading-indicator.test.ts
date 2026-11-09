@@ -78,7 +78,7 @@ describe('MapLoadingIndicator - Unified Real-Time Loading System', () => {
       getCurrentBasemapId: vi.fn().mockReturnValue('big-rbi')
     } as any;
 
-    const indicator = new MapLoadingIndicator(mockMap, mockMapManager);
+    new MapLoadingIndicator(mockMap, mockMapManager);
     const subEl = document.getElementById('map-tile-loading-sub');
 
     // Trigger tile loading on BIG RBI
@@ -117,7 +117,7 @@ describe('MapLoadingIndicator - Unified Real-Time Loading System', () => {
   it('6. should detect zoom out direction and adapt contextual message', () => {
     // Start at zoom 10
     mockMap.getZoom.mockReturnValue(10);
-    const indicator = new MapLoadingIndicator(mockMap);
+    new MapLoadingIndicator(mockMap);
 
     // Zoom out to zoom 6
     mockMap.getZoom.mockReturnValue(6);
