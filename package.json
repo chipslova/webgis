@@ -23,11 +23,13 @@
     "@turf/intersect": "7.4.0",
     "@turf/length": "7.4.0",
     "@turf/union": "7.4.0",
+    "hyparquet": "^1.33.0",
     "maplibre-gl": "6.10.0",
     "pmtiles": "3.2.1",
     "proj4": "^2.22.0",
     "shpjs": "^6.2.0",
-    "sortablejs": "^1.15.7"
+    "sortablejs": "^1.15.7",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@turf/distance": "7.4.0",

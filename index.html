@@ -1076,43 +1076,119 @@
 
             <!-- Panel: Data Import -->
             <section id="panel-data" class="sidebar-panel" role="tabpanel" aria-labelledby="tab-data">
-              <div class="panel-header">
-                <h2>Pusat Data Spasial (Shapefile, GeoJSON, KML, CSV)</h2>
-                <p>Unggah atau seret berkas Shapefile (.zip), GeoJSON, KML, atau CSV (dengan kolom Lat/Long) untuk visualisasi vektor &amp; analisis buffer spasial.</p>
-              </div>
-              <div class="upload-dropzone" id="geojson-dropzone" role="button" tabindex="0" aria-label="Klik untuk memilih berkas atau seret berkas Shapefile (.zip), GeoJSON, KML, atau CSV ke sini">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                <p><strong>Klik untuk memilih berkas</strong> atau seret &amp; lepas Shapefile (.zip) / GeoJSON / KML / CSV di sini</p>
-                <input type="file" id="file-geojson-input" class="d-none" accept=".zip,.geojson,.json,.kml,.csv,.tsv,.txt" aria-label="Pilih berkas Shapefile (.zip), GeoJSON, KML, atau CSV dari perangkat" />
-              </div>
-              <button id="btn-load-sample" class="btn btn-secondary full-width mt-12">
-                Muat Sampel Kota-Kota Besar Indonesia
-              </button>
-              <div id="layers-list" class="layers-list-container mt-16"></div>
-
-              <!-- Saved Views / Bookmark Manager -->
-              <div class="saved-projects-section">
-                <div class="saved-projects-header">
-                  <h3>💾 Tampilan Tersimpan</h3>
-                  <span id="saved-projects-count" class="saved-projects-count">0 Tampilan</span>
-                </div>
-                <p class="saved-projects-desc">Simpan posisi kamera, peta dasar, dan produk satelit yang aktif:</p>
-                <div class="project-save-form">
-                  <input type="text" id="input-save-project-name" placeholder="Nama tampilan (misal: IKN 2025)..." aria-label="Nama tampilan tersimpan" />
-                  <button id="btn-save-current-project" class="btn btn-primary-outline btn-save-project">Simpan</button>
-                </div>
-                <div class="data-storage-note">💡 <em>Tampilan tersimpan disimpan secara lokal pada peramban perangkat ini (localStorage).</em></div>
-                <div id="saved-projects-list" class="saved-projects-list"></div>
+              <!-- Sub-tab Segmented Navigation -->
+              <div class="data-hub-nav-tabs" role="tablist" aria-label="Sub-tab Pusat Data">
+                <button class="data-hub-tab-btn active" id="subtab-btn-layers" role="tab" aria-selected="true" data-subtab="layers" title="Unggah dan kelola berkas geospasial universal">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                  <span>Berkas Spasial</span>
+                </button>
+                <button class="data-hub-tab-btn" id="subtab-btn-training" role="tab" aria-selected="false" data-subtab="training" title="Koleksi titik sampel latih klasifikasi citra satelit">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+                  <span>Studio Sampel (ML)</span>
+                </button>
               </div>
 
-              <!-- Point Bookmarks -->
-              <div class="saved-projects-section mt-16">
-                <div class="saved-projects-header">
-                  <h3>📍 Bookmark Lokasi</h3>
-                  <span id="point-bookmarks-count" class="saved-projects-count">0 Titik</span>
+              <!-- Sub-tab 1: Universal Spatial File Import -->
+              <div id="subtab-content-layers" class="subtab-content">
+                <div class="panel-header">
+                  <h2>Universal Geospatial Hub</h2>
+                  <p>Unggah atau seret berkas <strong>Excel (.xlsx/.xls)</strong>, <strong>GeoParquet (.parquet)</strong>, <strong>Shapefile (.zip)</strong>, <strong>CSV/TSV</strong>, <strong>GeoJSON</strong>, atau <strong>KML</strong>.</p>
                 </div>
-                <p class="saved-projects-desc">Titik koordinat yang Anda simpan dari pop-up <em>Inspector</em>:</p>
-                <div id="point-bookmarks-list" class="saved-projects-list"></div>
+                <div class="upload-dropzone" id="geojson-dropzone" role="button" tabindex="0" aria-label="Klik untuk memilih berkas atau seret berkas Excel, GeoParquet, Shapefile, GeoJSON, KML, atau CSV ke sini">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                  <p><strong>Klik untuk memilih berkas</strong> atau seret &amp; lepas Excel (.xlsx) / GeoParquet / Shapefile (.zip) / CSV / GeoJSON di sini</p>
+                  <input type="file" id="file-geojson-input" class="d-none" accept=".zip,.geojson,.json,.kml,.csv,.tsv,.txt,.xlsx,.xls,.parquet,.geoparquet" aria-label="Pilih berkas spasial dari perangkat" />
+                </div>
+                <button id="btn-load-sample" class="btn btn-secondary full-width mt-12">
+                  Muat Sampel Kota-Kota Besar Indonesia
+                </button>
+                <div id="layers-list" class="layers-list-container mt-16"></div>
+
+                <!-- Saved Views / Bookmark Manager -->
+                <div class="saved-projects-section">
+                  <div class="saved-projects-header">
+                    <h3>💾 Tampilan Tersimpan</h3>
+                    <span id="saved-projects-count" class="saved-projects-count">0 Tampilan</span>
+                  </div>
+                  <p class="saved-projects-desc">Simpan posisi kamera, peta dasar, dan produk satelit yang aktif:</p>
+                  <div class="project-save-form">
+                    <input type="text" id="input-save-project-name" placeholder="Nama tampilan (misal: IKN 2025)..." aria-label="Nama tampilan tersimpan" />
+                    <button id="btn-save-current-project" class="btn btn-primary-outline btn-save-project">Simpan</button>
+                  </div>
+                  <div class="data-storage-note">💡 <em>Tampilan tersimpan disimpan secara lokal pada peramban perangkat ini (localStorage).</em></div>
+                  <div id="saved-projects-list" class="saved-projects-list"></div>
+                </div>
+
+                <!-- Point Bookmarks -->
+                <div class="saved-projects-section mt-16">
+                  <div class="saved-projects-header">
+                    <h3>📍 Bookmark Lokasi</h3>
+                    <span id="point-bookmarks-count" class="saved-projects-count">0 Titik</span>
+                  </div>
+                  <p class="saved-projects-desc">Titik koordinat yang Anda simpan dari pop-up <em>Inspector</em>:</p>
+                  <div id="point-bookmarks-list" class="saved-projects-list"></div>
+                </div>
+              </div>
+
+              <!-- Sub-tab 2: Ground Truth & Training Sample Studio -->
+              <div id="subtab-content-training" class="subtab-content" style="display: none;">
+                <div class="panel-header">
+                  <h2>🎯 Studio Sampel Latih (Ground Truth)</h2>
+                  <p>Koleksi titik sampel koordinat &amp; tutupan lahan untuk input klasifikasi Machine Learning (Sentinel-2 / Landsat).</p>
+                </div>
+
+                <div class="training-studio-container">
+                  <!-- Mode Trigger Button -->
+                  <button id="btn-toggle-sampling-mode" class="btn btn-secondary full-width" style="padding: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <span class="sampling-icon">🎯</span>
+                    <span id="label-sampling-mode">Aktifkan Mode Klik Sampel di Peta</span>
+                  </button>
+
+                  <div id="sampling-active-banner" class="training-mode-active-indicator" style="display: none;">
+                    <span>📍 <strong>Mode Pengambilan Aktif:</strong> Klik langsung pada citra satelit di peta untuk menyimpan titik sampel.</span>
+                  </div>
+
+                  <!-- Class Selector Section -->
+                  <div style="margin-top: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                      <span style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Pilih Kelas Aktif:</span>
+                      <button id="btn-add-custom-class" class="btn btn-secondary" style="font-size: 10px; padding: 2px 8px;">+ Tambah Kelas</button>
+                    </div>
+                    <div id="training-class-list" class="training-class-grid"></div>
+                  </div>
+
+                  <!-- Summary Statistics & Controls -->
+                  <div style="background: rgba(15,23,42,0.6); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); margin-top: 6px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                      <span style="font-size: 12px; font-weight: 600;">Ringkasan Sampel Terkumpul</span>
+                      <span id="training-total-badge" class="badge" style="background: rgba(59,130,246,0.2); color: #60a5fa; font-weight: 600;">0 Titik</span>
+                    </div>
+
+                    <!-- Export Actions Grid -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px;">
+                      <button id="btn-export-samples-csv" class="btn btn-secondary" style="font-size: 11px; padding: 6px 8px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <span>📥 Ekspor CSV</span>
+                      </button>
+                      <button id="btn-export-samples-xlsx" class="btn btn-secondary" style="font-size: 11px; padding: 6px 8px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <span>📊 Ekspor Excel (.xlsx)</span>
+                      </button>
+                      <button id="btn-export-samples-geojson" class="btn btn-secondary" style="font-size: 11px; padding: 6px 8px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <span>🗺️ Ekspor GeoJSON</span>
+                      </button>
+                      <button id="btn-clear-all-samples" class="btn btn-secondary" style="font-size: 11px; padding: 6px 8px; color: #f87171; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <span>🗑️ Bersihkan Semua</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Recent Points List -->
+                  <div style="margin-top: 10px;">
+                    <div style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px;">Daftar Titik Terbaru:</div>
+                    <div id="training-samples-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto;">
+                      <div style="color: var(--text-muted); font-size: 11px; text-align: center; padding: 12px;">Belum ada titik sampel latih. Klik pada peta atau impor dari berkas.</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </section>
 

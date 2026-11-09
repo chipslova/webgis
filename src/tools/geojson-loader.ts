@@ -3,6 +3,8 @@ import { logger } from '../utils/logger';
 import { ErrorHandler } from '../utils/error-handler';
 import { parseKMLToGeoJSON } from '../utils/kml-parser';
 import { parseCSVToGeoJSON } from '../utils/csv-parser';
+import { parseExcelToGeoJSON, ExcelParseOptions, ExcelParseResult } from '../utils/excel-parser';
+import { parseGeoParquetToGeoJSON, GeoParquetParseOptions, GeoParquetParseResult } from '../utils/geoparquet-parser';
 import { reprojectGeoJSON, guessIndonesianProjection } from '../utils/projections';
 import { showToast } from '../ui/toast';
 
@@ -685,6 +687,76 @@ export class GeoJsonLoader {
         error: `Gagal memproses Shapefile: ${err?.message || 'Format tidak didukung'}`
       };
     }
+  }
+
+  /**
+   * Loads a vector layer from an Excel (.xlsx, .xls) buffer
+   */
+  public loadFromExcelBuffer(
+    fileName: string,
+    buffer: ArrayBuffer,
+    options?: ExcelParseOptions,
+    color?: string
+  ): ExcelParseResult & { layerId?: string } {
+    const res = parseExcelToGeoJSON(buffer, options);
+
+    if (!res.success || !res.data) {
+      return res;
+    }
+
+    const layerName = fileName.replace(/\.[^/.]+$/, '').trim() || 'Layer Excel';
+    const layerId = `layer-xls-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const layerColor = color || '#10b981';
+
+    const added = this.addGeoJSONLayer(layerId, layerName, res.data, layerColor);
+    if (!added) {
+      return {
+        ...res,
+        success: false,
+        error: 'Gagal merender geometri Excel ke peta atau koordinat berada di luar jangkauan.'
+      };
+    }
+
+    this.zoomToLayer(layerId);
+    return {
+      ...res,
+      layerId
+    };
+  }
+
+  /**
+   * Loads a vector layer from a GeoParquet (.parquet, .geoparquet) buffer
+   */
+  public async loadFromParquetBuffer(
+    fileName: string,
+    buffer: ArrayBuffer,
+    options?: GeoParquetParseOptions,
+    color?: string
+  ): Promise<GeoParquetParseResult & { layerId?: string }> {
+    const res = await parseGeoParquetToGeoJSON(buffer, options);
+
+    if (!res.success || !res.data) {
+      return res;
+    }
+
+    const layerName = fileName.replace(/\.[^/.]+$/, '').trim() || 'Layer Parquet';
+    const layerId = `layer-pqt-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const layerColor = color || '#a855f7';
+
+    const added = this.addGeoJSONLayer(layerId, layerName, res.data, layerColor);
+    if (!added) {
+      return {
+        ...res,
+        success: false,
+        error: 'Gagal merender geometri Parquet ke peta.'
+      };
+    }
+
+    this.zoomToLayer(layerId);
+    return {
+      ...res,
+      layerId
+    };
   }
 
   /**

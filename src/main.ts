@@ -154,7 +154,7 @@ class WebGISApp {
       this.dynamicLegendUI?.setGEELoader(this.geeLoader);
       this.dynamicLegendUI?.setGeoJSONLoader(this.geojsonLoader);
 
-      // Instantiate Data Panel UI (GeoJSON Uploads & Vector Layers Manager)
+      // Instantiate Data Panel UI (Universal Geospatial Importer & Ground Truth Studio)
       this.dataPanelUI = new DataPanelUI(
         this.geojsonLoader,
         this.sidebarUI,
@@ -162,7 +162,8 @@ class WebGISApp {
           this.mapManager.enforceLayerOrder();
           this.dynamicLegendUI?.render();
           this.bufferAnalysisUI?.updateLayerSelect();
-        }
+        },
+        map
       );
 
       // Register tool references for deterministic layer ordering

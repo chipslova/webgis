@@ -21,7 +21,7 @@ export interface CSVParseResult {
   skippedCount?: number;
 }
 
-const LAT_ALIASES = [
+export const LAT_ALIASES = [
   'lat',
   'latitude',
   'lintang',
@@ -32,11 +32,13 @@ const LAT_ALIASES = [
   'coord y',
   'geo_lat',
   'point_y',
+  'northing',
+  'utara',
   'dec_lat',
   'dec_latitude'
 ];
 
-const LON_ALIASES = [
+export const LON_ALIASES = [
   'lon',
   'lng',
   'long',
@@ -50,9 +52,29 @@ const LON_ALIASES = [
   'geo_lon',
   'geo_lng',
   'point_x',
+  'easting',
+  'timur',
   'dec_lon',
   'dec_long',
   'dec_longitude'
+];
+
+export const CLASS_ALIASES = [
+  'class',
+  'kelas',
+  'label',
+  'kategori',
+  'category',
+  'tutupan_lahan',
+  'tutupan',
+  'lulc',
+  'landcover',
+  'id_kelas',
+  'class_id',
+  'class_name',
+  'tipe',
+  'type',
+  'target'
 ];
 
 /**

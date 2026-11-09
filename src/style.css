@@ -14674,4 +14674,194 @@ html, body, #app {
 .gee-weather-right { display: flex; flex-direction: column; gap: 3px; }
 .gee-weather-stat { display: flex; }
 
+/* ==========================================================================
+   Universal Column Mapper Modal & Training Sample Studio Styles
+   ========================================================================== */
+.column-mapper-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 11, 20, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.column-mapper-overlay.hidden {
+  display: none !important;
+}
+
+.column-mapper-dialog {
+  background: #0d1527;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 24px rgba(59, 130, 246, 0.15);
+  border-radius: 12px;
+  width: 620px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  color: #f1f5f9;
+}
+
+.column-mapper-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.column-mapper-body {
+  padding: 20px;
+}
+
+.column-mapper-table-container {
+  overflow-x: auto;
+  max-height: 140px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.column-mapper-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  font-family: var(--font-mono, monospace);
+  white-space: nowrap;
+}
+
+.column-mapper-table th {
+  background: rgba(30, 41, 59, 0.9);
+  color: #93c5fd;
+  text-align: left;
+  padding: 6px 10px;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.column-mapper-table td {
+  padding: 5px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+}
+
+/* Data Hub Segmented Navigation */
+.data-hub-nav-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 16px;
+}
+
+.data-hub-tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.data-hub-tab-btn:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.data-hub-tab-btn.active {
+  color: #fff;
+  background: #2563eb;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+}
+
+/* Training Sample Studio UI */
+.training-studio-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.training-class-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.training-class-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.training-class-btn:hover {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.training-class-btn.active {
+  border-color: #60a5fa;
+  background: rgba(37, 99, 235, 0.2);
+  box-shadow: 0 0 10px rgba(96, 165, 250, 0.25);
+  font-weight: 600;
+}
+
+.training-class-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.training-count-pill {
+  margin-left: auto;
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 1px 6px;
+  border-radius: 10px;
+  color: #94a3b8;
+}
+
+.training-mode-active-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(234, 179, 8, 0.15);
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  color: #fef08a;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  animation: pulse-border 2s infinite ease-in-out;
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-color: rgba(234, 179, 8, 0.4); }
+  50% { border-color: rgba(234, 179, 8, 0.9); box-shadow: 0 0 12px rgba(234, 179, 8, 0.3); }
+}
+
+
 
