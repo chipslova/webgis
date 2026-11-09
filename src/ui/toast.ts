@@ -51,10 +51,17 @@ export function showToast(
     warning: '⚠️'
   };
 
-  toast.innerHTML = `
-    <span class="toast-icon" aria-hidden="true">${iconMap[type]}</span>
-    <span class="toast-msg">${message}</span>
-  `;
+  const iconSpan = document.createElement('span');
+  iconSpan.className = 'toast-icon';
+  iconSpan.setAttribute('aria-hidden', 'true');
+  iconSpan.textContent = iconMap[type] || 'ℹ️';
+
+  const msgSpan = document.createElement('span');
+  msgSpan.className = 'toast-msg';
+  msgSpan.textContent = message;
+
+  toast.appendChild(iconSpan);
+  toast.appendChild(msgSpan);
 
   if (action) {
     const actionBtn = document.createElement('button');
