@@ -105,6 +105,7 @@ describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
       'gee-modis-day-wms-layer',
       'gee-modis-stations-circles',
       'piksel-ndbi-water-mask',
+      'overlay-terrain-hillshade',
       '3d-extruded-buildings-layer',
       'piksel-wms-layer'
     ];
@@ -115,6 +116,7 @@ describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
     // Verification: Data Hub points MUST be placed above Spatial Analysis AOI, and below measurement
     const pikselIdx = layerStack.indexOf('piksel-wms-layer');
     const geeRasterIdx = layerStack.indexOf('gee-modis-day-wms-layer');
+    const hillshadeIdx = layerStack.indexOf('overlay-terrain-hillshade');
     const waterMaskIdx = layerStack.indexOf('piksel-ndbi-water-mask');
     const building3DIdx = layerStack.indexOf('3d-extruded-buildings-layer');
     const geeStationsIdx = layerStack.indexOf('gee-modis-stations-circles');
@@ -125,7 +127,8 @@ describe('MapManager Layer Stacking & Analysis Layer Visibility', () => {
     const measureIdx = layerStack.indexOf('measure-points');
 
     expect(pikselIdx).toBeLessThan(geeRasterIdx);
-    expect(geeRasterIdx).toBeLessThan(waterMaskIdx);
+    expect(geeRasterIdx).toBeLessThan(hillshadeIdx);
+    expect(hillshadeIdx).toBeLessThan(waterMaskIdx);
     expect(waterMaskIdx).toBeLessThan(building3DIdx);
     expect(building3DIdx).toBeLessThan(geeStationsIdx);
     expect(geeStationsIdx).toBeLessThan(bufferIdx);

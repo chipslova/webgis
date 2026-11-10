@@ -474,7 +474,10 @@ export class MapManager {
     // 2a. Swipe Compare Right Layer (on primaryMap when comparison is active)
     const swipeRightRasterLayerIds = ['swipe-right-raster-layer'];
 
-    // 2b. Piksel Analytical Water/Ocean Masks (Guaranteed above all rasters so water/sea is never buried or misclassified)
+    // 2b. Terrain Hillshade Relief Overlay (Must be above basemap and satellite/GEE rasters so 3D topography is cast on the imagery)
+    const hillshadeLayerIds = ['overlay-terrain-hillshade'];
+
+    // 2c. Piksel Analytical Water/Ocean Masks (Guaranteed above all rasters so water/sea is never buried or misclassified)
     const pikselWaterMaskLayerIds = allPikselIds.filter(
       (id: string) => id.includes('mask')
     );
@@ -521,11 +524,12 @@ export class MapManager {
     const building3DLayerIds = ['3d-extruded-buildings-layer'];
 
     // Hierarchy:
-    // Rasters -> Grids -> 3D Buildings -> POI vectors -> GeoJSON Fills & Lines -> Intersect -> Analysis AOI -> Data Hub Points/Cities -> Measurement
+    // Rasters -> Hillshade Relief -> Water Masks -> Grids -> 3D Buildings -> POI vectors -> GeoJSON Fills & Lines -> Intersect -> Analysis AOI -> Data Hub Points/Cities -> Measurement
     const orderedLayerStack = [
       ...pikselRasterLayerIds,
       ...geeRasterLayerIds,
       ...swipeRightRasterLayerIds,
+      ...hillshadeLayerIds,
       ...pikselWaterMaskLayerIds,
       ...swipeRightWaterMaskLayerIds,
       ...pikselGridLayerIds,

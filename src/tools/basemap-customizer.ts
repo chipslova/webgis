@@ -330,15 +330,14 @@ export class BasemapCustomizer {
     try {
       if (this.state.terrainHillshade) {
         if (!this.map.getLayer(layerId)) {
-          // Insert above lowest background/raster layers
           this.map.addLayer({
             id: layerId,
             type: 'hillshade',
             source: 'terrarium-dem-source',
             paint: {
               'hillshade-shadow-color': '#090d16',
-              'hillshade-highlight-color': '#ffffff',
-              'hillshade-accent-color': '#00f0ff',
+              'hillshade-highlight-color': 'rgba(255, 255, 255, 0.4)',
+              'hillshade-accent-color': '#090d16',
               'hillshade-illumination-direction': 315,
               'hillshade-illumination-anchor': 'viewport',
               'hillshade-exaggeration': 0.65
@@ -346,6 +345,10 @@ export class BasemapCustomizer {
           });
         } else {
           this.map.setLayoutProperty(layerId, 'visibility', 'visible');
+        }
+
+        if (this.mapManagerRef && typeof (this.mapManagerRef as any).enforceLayerOrder === 'function') {
+          (this.mapManagerRef as any).enforceLayerOrder();
         }
       } else if (this.map.getLayer(layerId)) {
         this.map.setLayoutProperty(layerId, 'visibility', 'none');

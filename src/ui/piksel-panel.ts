@@ -765,6 +765,12 @@ export class PikselPanelUI {
     hud.style.display = 'flex';
     hud.className = `piksel-map-hud ${state.status}`;
 
+    // Suppress overlapping general tile loader and map status pills while HUD is active
+    const tilePill = document.getElementById('map-tile-loading-pill');
+    if (tilePill) tilePill.style.display = 'none';
+    const statusPill = document.getElementById('map-status-pill');
+    if (statusPill) statusPill.style.display = 'none';
+
     if (state.status === 'zoom_too_low') {
       spinner.style.display = 'none';
       const curZ = state.diagnostics?.currentZoom ? `Zoom ${state.diagnostics.currentZoom}` : '';

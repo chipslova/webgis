@@ -197,11 +197,21 @@ export class MapLoadingIndicator {
       this.progressBarEl.classList.add('is-active');
     }
 
-    // 2. Floating Map Loading Pill
+    // 2. Floating Map Loading Pill (Mutually exclusive with Piksel Map HUD and Map Status Pill)
+    const pikselHud = document.getElementById('piksel-map-hud');
+    const isPikselHudVisible = pikselHud && pikselHud.style.display !== 'none';
+
     if (this.pillEl) {
-      this.pillEl.style.display = 'flex';
-      this.pillEl.classList.remove('is-hiding');
-      this.updateContent(title, subtitle);
+      if (!isPikselHudVisible) {
+        this.pillEl.style.display = 'flex';
+        this.pillEl.classList.remove('is-hiding');
+        this.updateContent(title, subtitle);
+
+        const statusPill = document.getElementById('map-status-pill');
+        if (statusPill) statusPill.style.display = 'none';
+      } else {
+        this.pillEl.style.display = 'none';
+      }
     }
 
     // 3. Status Bar Tile Loader

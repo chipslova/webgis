@@ -39,6 +39,32 @@ export function showToast(
     document.body.appendChild(container);
   }
 
+  // Deduplicate and avoid stacking: dismiss prior navigation toasts when switching presets/basemaps
+  const isNavigationToast =
+    message.includes('Mengarahkan peta ke') ||
+    message.includes('Preset dinonaktifkan') ||
+    message.includes('Peta dasar diubah ke');
+
+  if (isNavigationToast) {
+    const existing = container.querySelectorAll('.toast-item');
+    existing.forEach((el) => {
+      const text = el.querySelector('.toast-msg')?.textContent || '';
+      if (
+        text.includes('Mengarahkan peta ke') ||
+        text.includes('Preset dinonaktifkan') ||
+        text.includes('Peta dasar diubah ke')
+      ) {
+        el.remove();
+      }
+    });
+  }
+
+  // Cap maximum simultaneous toasts to 3 to keep the map screen clean and uncluttered
+  const currentToasts = container.querySelectorAll('.toast-item');
+  if (currentToasts.length >= 3) {
+    currentToasts[0].remove();
+  }
+
   const toast = document.createElement('div');
   toast.className = `toast-item toast-${type}`;
   toast.setAttribute('role', type === 'error' ? 'alert' : 'status');

@@ -217,4 +217,21 @@ describe('Basemap Customizer & Sublayers Active Synchronization Suite', () => {
       duration: 800
     }));
   });
+
+  it('should deduplicate navigation toasts to prevent cluttering when exploring presets', async () => {
+    const { showToast } = await import('../src/ui/toast');
+    
+    // First preset navigation
+    showToast('Mengarahkan peta ke Bromo Tengger Semeru', 'info');
+    let toastItems = document.querySelectorAll('.toast-item');
+    expect(toastItems.length).toBe(1);
+    expect(toastItems[0].textContent).toContain('Bromo');
+
+    // Second preset navigation
+    showToast('Mengarahkan peta ke Danau Toba', 'info');
+    toastItems = document.querySelectorAll('.toast-item');
+    expect(toastItems.length).toBe(1);
+    expect(toastItems[0].textContent).toContain('Danau Toba');
+    expect(toastItems[0].textContent).not.toContain('Bromo');
+  });
 });
