@@ -278,19 +278,49 @@ export class DataPanelUI {
       const isActive = c.id === activeClassId;
       const count = counts[c.id] || 0;
       return `
-        <button class="training-class-btn ${isActive ? 'active' : ''}" data-class-id="${c.id}" type="button">
+        <div class="training-class-btn ${isActive ? 'active' : ''}" data-class-id="${c.id}" role="button" tabindex="0">
           <span class="training-class-dot" style="background-color: ${c.color};"></span>
-          <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(c.name)}</span>
+          <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;">${escapeHtml(c.name)}</span>
           <span class="training-count-pill">${count}</span>
-        </button>
+          ${classes.length > 1 ? `
+            <button class="training-class-btn-del" data-class-id="${c.id}" title="Hapus kelas '${escapeHtml(c.name)}'" aria-label="Hapus kelas ${escapeHtml(c.name)}">
+              ✕
+            </button>
+          ` : ''}
+        </div>
       `;
     }).join('');
 
     // Bind class click
-    classList.querySelectorAll<HTMLButtonElement>('.training-class-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
+    classList.querySelectorAll<HTMLElement>('.training-class-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).closest('.training-class-btn-del')) return;
         const id = parseInt(btn.dataset.classId || '1', 10);
         this.trainingSampler.setActiveClass(id);
+      });
+    });
+
+    // Bind class delete click
+    classList.querySelectorAll<HTMLButtonElement>('.training-class-btn-del').forEach((delBtn) => {
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = parseInt(delBtn.dataset.classId || '0', 10);
+        const targetClass = classes.find((c) => c.id === id);
+        if (!targetClass) return;
+
+        const count = counts[id] || 0;
+        const confirmMsg = count > 0
+          ? `Kelas "${targetClass.name}" memiliki ${count} titik sampel. Menghapus kelas ini juga akan menghapus seluruh titik sampelnya. Lanjutkan?`
+          : `Hapus kategori kelas "${targetClass.name}"?`;
+
+        if (confirm(confirmMsg)) {
+          const success = this.trainingSampler.removeClass(id);
+          if (success) {
+            showToast(`Kelas "${targetClass.name}" berhasil dihapus.`, 'info');
+          } else {
+            showToast('Minimal harus ada 1 kelas aktif tersisa.', 'warning');
+          }
+        }
       });
     });
 
@@ -349,6 +379,15 @@ export class DataPanelUI {
         const color = `hsl(${Math.round(hue)}, 75%, 50%)`;
         this.trainingSampler.addClass(name.trim(), color);
         showToast(`Kelas "${name.trim()}" berhasil ditambahkan!`, 'success');
+      }
+    });
+
+    // Reset Classes to Default
+    const resetClassesBtn = document.getElementById('btn-reset-classes');
+    resetClassesBtn?.addEventListener('click', () => {
+      if (confirm('Kembalikan kategori ke 5 kelas standar bawaan (Air, Hutan, Pertanian, Terbangun, Terbuka)?')) {
+        this.trainingSampler.resetClasses();
+        showToast('Kategori kelas dikembalikan ke 5 kelas standar.', 'info');
       }
     });
 

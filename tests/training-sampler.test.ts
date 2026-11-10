@@ -96,4 +96,50 @@ describe('TrainingSampler', () => {
     sampler.clearSamples();
     expect(sampler.getSamples().length).toBe(0);
   });
+
+  it('should remove a class and its associated samples, shifting activeClassId if needed', () => {
+    const sampler = new TrainingSampler();
+    const newClass = sampler.addClass('Lahan Basah', '#10b981');
+    sampler.setActiveClass(newClass.id);
+    sampler.addSample([100, 0], 'manual', newClass.id);
+    sampler.addSample([101, 1], 'manual', 1);
+
+    expect(sampler.getSamples().length).toBe(2);
+    expect(sampler.getActiveClassId()).toBe(newClass.id);
+
+    const deleted = sampler.removeClass(newClass.id);
+    expect(deleted).toBe(true);
+    expect(sampler.getClasses().some((c) => c.id === newClass.id)).toBe(false);
+    expect(sampler.getSamples().length).toBe(1);
+    expect(sampler.getSamples()[0].classId).toBe(1);
+    expect(sampler.getActiveClassId()).not.toBe(newClass.id);
+  });
+
+  it('should refuse to remove class when only one remains', () => {
+    const sampler = new TrainingSampler();
+    while (sampler.getClasses().length > 1) {
+      sampler.removeClass(sampler.getClasses()[0].id);
+    }
+    expect(sampler.getClasses().length).toBe(1);
+    const lastClassId = sampler.getClasses()[0].id;
+    const deleted = sampler.removeClass(lastClassId);
+    expect(deleted).toBe(false);
+    expect(sampler.getClasses().length).toBe(1);
+  });
+
+  it('should reset classes back to 5 default categories', () => {
+    const sampler = new TrainingSampler();
+    sampler.addClass('Kategori X', '#ff0000');
+    expect(sampler.getClasses().length).toBe(6);
+
+    sampler.resetClasses();
+    expect(sampler.getClasses().length).toBe(5);
+    expect(sampler.getClasses().map((c) => c.name)).toEqual([
+      'Air / Badan Air',
+      'Hutan / Vegetasi',
+      'Pertanian / Sawah',
+      'Lahan Terbangun',
+      'Tanah Terbuka / Tambang'
+    ]);
+  });
 });

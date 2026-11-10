@@ -21,6 +21,7 @@ describe('ColumnMapperModalUI & DataPanelUI Subtabs', () => {
       <button id="btn-toggle-sampling-mode"></button>
       <span id="label-sampling-mode"></span>
       <button id="btn-add-custom-class"></button>
+      <button id="btn-reset-classes"></button>
       <button id="btn-export-samples-csv"></button>
       <button id="btn-export-samples-xlsx"></button>
       <button id="btn-export-samples-geojson"></button>

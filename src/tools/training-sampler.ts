@@ -171,6 +171,30 @@ export class TrainingSampler {
     return newClass;
   }
 
+  public removeClass(classId: number): boolean {
+    if (this.classes.length <= 1) {
+      return false;
+    }
+
+    this.samples = this.samples.filter((s) => s.classId !== classId);
+    this.classes = this.classes.filter((c) => c.id !== classId);
+
+    if (this.activeClassId === classId) {
+      this.activeClassId = this.classes[0].id;
+    }
+
+    this.notifyChange();
+    return true;
+  }
+
+  public resetClasses(): void {
+    this.classes = [...DEFAULT_TRAINING_CLASSES];
+    if (!this.classes.some((c) => c.id === this.activeClassId)) {
+      this.activeClassId = this.classes[0].id;
+    }
+    this.notifyChange();
+  }
+
   public addSample(
     coords: [number, number],
     source: 'manual' | 'file' = 'manual',
