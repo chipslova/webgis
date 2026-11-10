@@ -104,6 +104,7 @@ describe('Basemap Customizer & Sublayers Active Synchronization Suite', () => {
       getPitch: vi.fn().mockReturnValue(50),
       getCenter: vi.fn().mockReturnValue({ lng: 106.8272, lat: -6.1754 }),
       flyTo: vi.fn(),
+      easeTo: vi.fn(),
       on: vi.fn()
     };
 
@@ -198,5 +199,22 @@ describe('Basemap Customizer & Sublayers Active Synchronization Suite', () => {
     const tabBtnTerrain = document.getElementById('tab-btn-terrain');
     expect(paneTerrain?.classList.contains('active')).toBe(true);
     expect(tabBtnTerrain?.classList.contains('active')).toBe(true);
+  });
+
+  it('should revert camera pitch to 0 (straight top-down 2D) when 3D building extrusion is turned OFF and 3D terrain is OFF', () => {
+    mockMap.getPitch.mockReturnValue(55);
+    customizer.toggle3DBuildings(true);
+    mockMap.easeTo.mockClear();
+
+    // Toggle 3D buildings off via checkbox
+    const checkBuildings3D = document.getElementById('popover-check-buildings-3d') as HTMLInputElement;
+    checkBuildings3D.checked = false;
+    checkBuildings3D.dispatchEvent(new Event('change'));
+
+    expect(customizer.getState().buildings3D).toBe(false);
+    expect(mockMap.easeTo).toHaveBeenCalledWith(expect.objectContaining({
+      pitch: 0,
+      duration: 800
+    }));
   });
 });

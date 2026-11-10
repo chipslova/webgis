@@ -357,9 +357,22 @@ export class BasemapCustomizer {
 
   // --- 3. 3D EXTRUDED BUILDINGS ---
 
-  public toggle3DBuildings(enabled?: boolean) {
+  public toggle3DBuildings(enabled?: boolean, autoTiltCamera: boolean = true) {
     this.state.buildings3D = enabled !== undefined ? enabled : !this.state.buildings3D;
     this.apply3DBuildings();
+
+    if (autoTiltCamera && this.map && typeof this.map.getPitch === 'function' && typeof this.map.easeTo === 'function') {
+      if (!this.state.buildings3D && !this.state.terrain3D) {
+        const currentPitch = this.map.getPitch();
+        if (currentPitch > 10) {
+          this.map.easeTo({
+            pitch: 0,
+            duration: 800
+          });
+        }
+      }
+    }
+
     this.notify();
   }
 

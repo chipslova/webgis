@@ -748,7 +748,11 @@ export class BasemapCustomizerUI {
           showToast('Ekstrusi Bangunan 3D diaktifkan (Z12+)', 'info');
         }
       } else {
-        showToast('Ekstrusi Bangunan 3D dinonaktifkan', 'info');
+        const map = this.mapManager?.getMap();
+        if (!this.customizer.getState().terrain3D && map && typeof map.getPitch === 'function' && map.getPitch() > 10 && typeof map.easeTo === 'function') {
+          map.easeTo({ pitch: 0, duration: 800 });
+        }
+        showToast('Ekstrusi Bangunan 3D dinonaktifkan. Kamera kembali ke tampilan tegak lurus 2D.', 'info');
       }
       this.syncUI();
     });
