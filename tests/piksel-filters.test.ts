@@ -300,5 +300,90 @@ describe('Satellite Image Filter Adjustments (Brightness, Contrast, Saturation)'
     expect(bsiProduct?.badge).toBe('Server Maintenance');
     expect(bsiProduct?.statusNotice).toContain('Error 500 upstream');
   });
+
+  it('should update preset chips loading badge and auto-hide map HUD when loading completes', () => {
+    vi.useFakeTimers();
+    const mockMap: any = createMockMap();
+    const eventHandlers: Record<string, Function[]> = {};
+    mockMap.on = vi.fn((event: string, handler: Function) => {
+      eventHandlers[event] = eventHandlers[event] || [];
+      eventHandlers[event].push(handler);
+    });
+
+    document.body.innerHTML = `
+      <div id="panel-piksel"></div>
+      <div id="piksel-map-hud" style="display: none;">
+        <div id="hud-spinner"></div>
+        <span id="hud-title"></span>
+        <span id="hud-subtitle"></span>
+      </div>
+    `;
+
+    const loader = new PikselLoader(mockMap);
+    const panelUI = new PikselPanelUI(loader);
+    panelUI.init();
+
+    // Click Bromo preset chip
+    const bromoPreset = loader.getPresets().find(p => p.id === 'bromo');
+    expect(bromoPreset).toBeDefined();
+
+    const chipBtn = document.querySelector('.piksel-preset-chip[data-id="bromo"]') as HTMLButtonElement;
+    expect(chipBtn).not.toBeNull();
+    chipBtn.click();
+
+    // While loading: preset chip has '⏳ Memuat...' and HUD is displayed
+    const activeChip = document.querySelector('.piksel-preset-chip.active') as HTMLElement;
+    expect(activeChip).not.toBeNull();
+    expect(activeChip.classList.contains('is-loading')).toBe(true);
+    const badge = activeChip.querySelector('.preset-chip-active-badge');
+    expect(badge?.textContent).toContain('Memuat');
+
+    const hud = document.getElementById('piksel-map-hud') as HTMLElement;
+    expect(hud.style.display).toBe('flex');
+    expect(hud.textContent).toContain('Memuat');
+
+    // Simulate Map 'idle' event when tiles finish
+    const idleHandlers = eventHandlers['idle'] || [];
+    expect(idleHandlers.length).toBeGreaterThan(0);
+    idleHandlers.forEach(h => h());
+
+    // Preset chip transitions to '✓ Aktif' and removes is-loading class
+    expect(activeChip.classList.contains('is-loading')).toBe(false);
+    expect(badge?.textContent).toContain('Aktif');
+
+    // HUD shows 'Siap'
+    expect(hud.textContent).toContain('Siap');
+
+    // Fast-forward 1200ms: HUD auto-hides cleanly
+    vi.advanceTimersByTime(1200);
+    expect(hud.style.display).toBe('none');
+
+    vi.useRealTimers();
+  });
+
+  it('should dismiss loading HUD immediately when clicked by user', () => {
+    const mockMap: any = createMockMap();
+    document.body.innerHTML = `
+      <div id="panel-piksel"></div>
+      <div id="piksel-map-hud" style="display: none;">
+        <div id="hud-spinner"></div>
+        <span id="hud-title"></span>
+        <span id="hud-subtitle"></span>
+      </div>
+    `;
+
+    const loader = new PikselLoader(mockMap);
+    const panelUI = new PikselPanelUI(loader);
+    panelUI.init();
+
+    loader.setActiveProduct('s2-geomad-rgb');
+
+    const hud = document.getElementById('piksel-map-hud') as HTMLElement;
+    expect(hud.style.display).toBe('flex');
+
+    // Clicking HUD dismisses it immediately
+    hud.click();
+    expect(hud.style.display).toBe('none');
+  });
 });
 

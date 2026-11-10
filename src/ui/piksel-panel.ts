@@ -18,6 +18,7 @@ export class PikselPanelUI {
   private selectedCategory: string = 'all';
   private isEventsBound: boolean = false;
   private activePresetId: string | null = null;
+  private hudHideTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(pikselLoader: PikselLoader) {
     this.pikselLoader = pikselLoader;
@@ -43,6 +44,7 @@ export class PikselPanelUI {
       this.currentLoadingState = state;
       this.updateLoadingHUD(state);
       this.updateActiveCardStatus(state);
+      this.updatePresetChipsState(state);
     });
 
     this.pikselLoader.onUpstreamHealthChange((health) => {
@@ -747,7 +749,59 @@ export class PikselPanelUI {
     }
   }
 
+  private updatePresetChipsState(state: PikselLoadingState) {
+    const container = document.getElementById('panel-piksel');
+    if (!container) return;
+
+    const chips = container.querySelectorAll('.piksel-preset-chip');
+    chips.forEach((el) => {
+      const chip = el as HTMLElement;
+      const presetId = chip.dataset.id;
+      const isChipActive = this.activePresetId === presetId;
+
+      chip.classList.toggle('active', isChipActive);
+
+      let badge = chip.querySelector('.preset-chip-active-badge') as HTMLElement | null;
+      if (isChipActive) {
+        const isLoading = state.status === 'loading' || state.status === 'requesting';
+        chip.classList.toggle('is-loading', isLoading);
+
+        if (!badge) {
+          const header = chip.querySelector('.preset-chip-header');
+          if (header) {
+            badge = document.createElement('span');
+            badge.className = 'preset-chip-active-badge';
+            header.appendChild(badge);
+          }
+        }
+
+        if (badge) {
+          if (isLoading) {
+            badge.className = 'preset-chip-active-badge loading';
+            badge.innerText = '⏳ Memuat...';
+          } else if (state.status === 'error') {
+            badge.className = 'preset-chip-active-badge error';
+            badge.innerText = '⚠️ Gagal';
+          } else {
+            badge.className = 'preset-chip-active-badge';
+            badge.innerText = '✓ Aktif';
+          }
+        }
+      } else {
+        chip.classList.remove('is-loading');
+        if (badge) {
+          badge.remove();
+        }
+      }
+    });
+  }
+
   private updateLoadingHUD(state: PikselLoadingState) {
+    if (this.hudHideTimer) {
+      clearTimeout(this.hudHideTimer);
+      this.hudHideTimer = null;
+    }
+
     const hud = document.getElementById('piksel-map-hud');
     const hudTitle = document.getElementById('hud-title');
     const hudSubtitle = document.getElementById('hud-subtitle');
@@ -759,11 +813,21 @@ export class PikselPanelUI {
 
     if (state.status === 'idle' || !activeProduct) {
       hud.style.display = 'none';
+      hud.onclick = null;
       return;
     }
 
     hud.style.display = 'flex';
     hud.className = `piksel-map-hud ${state.status}`;
+    hud.style.cursor = 'pointer';
+    hud.title = 'Klik untuk menutup notifikasi status';
+    hud.onclick = () => {
+      hud.style.display = 'none';
+      if (this.hudHideTimer) {
+        clearTimeout(this.hudHideTimer);
+        this.hudHideTimer = null;
+      }
+    };
 
     // Suppress overlapping general tile loader and map status pills while HUD is active
     const tilePill = document.getElementById('map-tile-loading-pill');
@@ -781,8 +845,6 @@ export class PikselPanelUI {
         this.pikselLoader.zoomToMinZoom();
       };
       return;
-    } else {
-      hud.onclick = null;
     }
 
     if (state.status === 'requesting' || state.status === 'loading') {
@@ -796,6 +858,11 @@ export class PikselPanelUI {
       spinner.style.display = 'none';
       hudTitle.innerText = `⚠️ Gangguan Server OGC WMS`;
       hudSubtitle.innerText = `Batas waktu habis. Klik coba lagi di bilah sisi.`;
+      this.hudHideTimer = setTimeout(() => {
+        if (this.currentLoadingState.status === 'error') {
+          hud.style.display = 'none';
+        }
+      }, 5000);
       return;
     }
 
@@ -803,11 +870,11 @@ export class PikselPanelUI {
       spinner.style.display = 'none';
       hudTitle.innerText = state.status === 'degraded' ? `${activeProduct.name} (Sebagian)` : `${activeProduct.name} Siap`;
       hudSubtitle.innerText = `Citra Satelit ${activeProduct.resolution} • OGC WMS`;
-      setTimeout(() => {
+      this.hudHideTimer = setTimeout(() => {
         if (this.currentLoadingState.status === 'ready' || this.currentLoadingState.status === 'degraded' || this.currentLoadingState.status === 'partial') {
           hud.style.display = 'none';
         }
-      }, 3500);
+      }, 1200);
       return;
     }
   }

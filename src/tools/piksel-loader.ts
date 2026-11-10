@@ -76,6 +76,7 @@ export class PikselLoader {
   private activeSlot: number = 0;
   private prefetchedYear: string | null = null;
   private crossFadeCleanupTimer: ReturnType<typeof setTimeout> | null = null;
+  private loadingResolutionTimer: ReturnType<typeof setTimeout> | null = null;
   private maskEnabled: boolean = false;
 
 
@@ -239,6 +240,12 @@ export class PikselLoader {
   }
 
   private emitState(status: PikselStatusCode, customMessage?: string) {
+    if (status === 'ready' || status === 'idle' || status === 'error' || status === 'degraded') {
+      if (this.loadingResolutionTimer) {
+        clearTimeout(this.loadingResolutionTimer);
+        this.loadingResolutionTimer = null;
+      }
+    }
     this.currentStatus = status;
     const prod = this.getActiveProduct();
     const currentZoom = this.map ? Number(this.map.getZoom().toFixed(1)) : 0;
@@ -486,7 +493,7 @@ export class PikselLoader {
     });
 
     this.map.on('idle', () => {
-      if (this.activeSourceId && this.map.isSourceLoaded(this.activeSourceId)) {
+      if (this.activeSourceId) {
         const prod = this.getActiveProduct();
         if (!prod) return;
 
@@ -497,7 +504,9 @@ export class PikselLoader {
           this.emitState('zoom_too_low');
         } else {
           this.tilesLoaded = this.tilesRequested;
-          if (this.tilesFailed > 0) {
+          if (this.tilesFailed > 0 && this.tilesLoaded === 0) {
+            this.emitState('error');
+          } else if (this.tilesFailed > 0) {
             this.emitState('degraded');
           } else {
             this.emitState('ready');
@@ -767,6 +776,11 @@ export class PikselLoader {
   private cleanupActiveRasterLayer() {
     if (!this.map) return;
 
+    if (this.loadingResolutionTimer) {
+      clearTimeout(this.loadingResolutionTimer);
+      this.loadingResolutionTimer = null;
+    }
+
     if (this.crossFadeCleanupTimer) {
       clearTimeout(this.crossFadeCleanupTimer);
       this.crossFadeCleanupTimer = null;
@@ -890,6 +904,22 @@ export class PikselLoader {
     } else {
       this.emitState('requesting');
     }
+
+    if (this.loadingResolutionTimer) {
+      clearTimeout(this.loadingResolutionTimer);
+    }
+    this.loadingResolutionTimer = setTimeout(() => {
+      if (this.currentStatus === 'loading' || this.currentStatus === 'requesting') {
+        const curProd = this.getActiveProduct();
+        if (curProd && this.map) {
+          const curZ = typeof this.map.getZoom === 'function' ? this.map.getZoom() : 10;
+          const mZ = curProd.minZoom ?? 8;
+          if (curZ >= mZ) {
+            this.emitState(this.tilesFailed > 0 ? 'degraded' : 'ready');
+          }
+        }
+      }
+    }, 2800);
 
     try {
       // Remove layer and source cleanly if existing
