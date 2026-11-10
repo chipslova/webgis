@@ -4,6 +4,7 @@ import { PikselLoader } from '../tools/piksel-loader';
 import { GEELoader } from '../tools/gee-loader';
 import { GeoJsonLoader } from '../tools/geojson-loader';
 import { MeasureTool } from '../tools/measure';
+import { TrainingSampler } from '../tools/training-sampler';
 import { TabId } from './sidebar';
 import { escapeHtml } from '../utils/sanitize';
 import { showToast } from './toast';
@@ -14,6 +15,7 @@ export class ActiveLayersUI {
   private geeLoader: GEELoader;
   private geojsonLoader: GeoJsonLoader;
   private measureTool: MeasureTool;
+  private trainingSampler?: TrainingSampler;
   private containerId: string;
   private onNavigateTab?: (tabId: TabId) => void;
   private expandedLayerId: string | null = null;
@@ -26,7 +28,8 @@ export class ActiveLayersUI {
     geeLoader: GEELoader,
     geojsonLoader: GeoJsonLoader,
     measureTool: MeasureTool,
-    onNavigateTab?: (tabId: TabId) => void
+    onNavigateTab?: (tabId: TabId) => void,
+    trainingSampler?: TrainingSampler
   ) {
     this.containerId = containerId;
     this.mapManager = mapManager;
@@ -35,8 +38,15 @@ export class ActiveLayersUI {
     this.geojsonLoader = geojsonLoader;
     this.measureTool = measureTool;
     this.onNavigateTab = onNavigateTab;
+    this.trainingSampler = trainingSampler;
 
     this.init();
+  }
+
+  public setTrainingSampler(sampler: TrainingSampler) {
+    this.trainingSampler = sampler;
+    this.trainingSampler.onSamplesChange(() => this.render());
+    this.render();
   }
 
   public init() {
@@ -47,6 +57,7 @@ export class ActiveLayersUI {
     this.geeLoader.onLayersChange(() => this.render());
     this.geojsonLoader.onLayersChange(() => this.render());
     this.measureTool.onResult(() => this.render());
+    this.trainingSampler?.onSamplesChange(() => this.render());
   }
 
   // ─── SVG Icons ───────────────────────────────────────────────────────────────
@@ -167,6 +178,7 @@ export class ActiveLayersUI {
     const isGeeLcVis        = this.geeLoader.isLayerVisible('landcover');
     const isGeePrecipActive = this.geeLoader.isLayerActive('precipitation');
     const isGeePrecipVis    = this.geeLoader.isLayerVisible('precipitation');
+    const trainingSamples   = this.trainingSampler?.getSamples() || [];
 
     let layerCount = 0;
     if (activePiksel) layerCount++;
@@ -177,6 +189,7 @@ export class ActiveLayersUI {
     if (isGeePrecipActive) layerCount++;
     layerCount += customLayers.length;
     if (hasMeasure) layerCount++;
+    if (trainingSamples.length > 0) layerCount++;
 
     let itemsHtml = '';
 
@@ -264,6 +277,48 @@ export class ActiveLayersUI {
           `
         });
       });
+
+      // 2b. Training Samples Layer (Ground Truth Studio)
+      if (trainingSamples.length > 0) {
+        const sampleCount = trainingSamples.length;
+        const classes = this.trainingSampler!.getClasses();
+        const counts = this.trainingSampler!.getClassCounts();
+        const activeClassesCount = Object.values(counts).filter(c => c > 0).length;
+        const isVisible = this.trainingSampler!.isLayerVisible();
+        const opacityPct = Math.round(this.trainingSampler!.getLayerOpacity() * 100);
+
+        const classBreakdown = classes
+          .filter(c => (counts[c.id] || 0) > 0)
+          .map(c => `<span style="display:inline-flex;align-items:center;gap:4px;margin-right:6px;font-size:10px;"><span style="width:7px;height:7px;border-radius:50%;background:${c.color};"></span>${escapeHtml(c.name)}: <strong>${counts[c.id]}</strong></span>`)
+          .join('');
+
+        itemsHtml += this.buildRow({
+          id: 'training-samples',
+          name: '🎯 Titik Sampel Latih (Ground Truth)',
+          meta: `Studio ML · ${sampleCount} titik (${activeClassesCount} kelas)`,
+          color: '#3b82f6',
+          isVisible,
+          opacityPct,
+          eyeBtnClass: 'btn-toggle-training-samples',
+          removeBtnClass: 'btn-remove-active-training-samples',
+          opacitySliderClass: 'training-samples-opacity-slider',
+          details: [
+            { label: 'Modul', value: 'Studio Sampel Latih (Machine Learning LULC)' },
+            { label: 'Total Titik', value: `${sampleCount} titik koordinat` },
+            { label: 'Rincian Kelas', value: classBreakdown || '-' }
+          ],
+          actionsHtml: `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+              <button class="btn btn-outline full-width al-zoom-training-samples-btn" style="font-size: 11px; padding: 5px 8px;">
+                🔍 Zoom ke Sampel
+              </button>
+              <button class="btn btn-secondary full-width al-goto-training-studio-btn" style="font-size: 11px; padding: 5px 8px;">
+                🎯 Buka Studio
+              </button>
+            </div>
+          `
+        });
+      }
 
       // 3. Piksel Data Cube Grid
       if (isPikselGridOn) {
@@ -460,6 +515,11 @@ export class ActiveLayersUI {
           </button>
         ` : ''}
       </div>
+      ${layerCount > 1 ? `
+        <div style="font-size: 10px; color: var(--text-muted, #94a3b8); padding: 0 4px 6px 4px; line-height: 1.35;">
+          💡 <em>Seret baris untuk menyusun Z-Index lapisan. Titik vektor otomatis dilindungi di atas citra satelit.</em>
+        </div>
+      ` : ''}
       <div class="al-list" id="al-sortable-list">
         ${itemsHtml}
       </div>
@@ -662,6 +722,14 @@ export class ActiveLayersUI {
         return;
       }
 
+      if (target.closest('.btn-toggle-training-samples')) {
+        if (this.trainingSampler) {
+          this.trainingSampler.setLayerVisible(!this.trainingSampler.isLayerVisible());
+          this.render();
+        }
+        return;
+      }
+
       // ── Clear All Overlays button ──────────────────────────────────────────
       if (target.closest('#btn-al-clear-all')) {
         this.pikselLoader.setActiveProduct(null);
@@ -669,15 +737,30 @@ export class ActiveLayersUI {
         this.geeLoader.clearAllLayers();
         this.geojsonLoader.clearAllLayers();
         this.measureTool.clear();
+        this.trainingSampler?.clearSamples();
         this.expandedLayerId = null;
         this.render();
         return;
       }
 
-      // ── Zoom to GeoJSON layer extent ────────────────────────────────────────
+      // ── Zoom to GeoJSON / Training Samples extent ───────────────────────────
       const zoomGeoJsonBtn = target.closest('.al-zoom-geojson-btn') as HTMLElement;
       if (zoomGeoJsonBtn?.dataset.id) {
         this.geojsonLoader.zoomToLayer(zoomGeoJsonBtn.dataset.id);
+        return;
+      }
+
+      if (target.closest('.al-zoom-training-samples-btn')) {
+        this.trainingSampler?.zoomToExtent();
+        return;
+      }
+
+      if (target.closest('.al-goto-training-studio-btn')) {
+        if (this.onNavigateTab) {
+          this.onNavigateTab('data');
+        }
+        const btnTraining = document.getElementById('subtab-btn-training');
+        btnTraining?.click();
         return;
       }
 
@@ -746,6 +829,16 @@ export class ActiveLayersUI {
         this.render();
         return;
       }
+
+      if (target.closest('.btn-remove-active-training-samples')) {
+        if (confirm('Bersihkan seluruh titik sampel latih (Ground Truth) dari kanvas peta?')) {
+          this.trainingSampler?.clearSamples();
+          showToast('Seluruh titik sampel latih telah dibersihkan.', 'info');
+          if (this.expandedLayerId === 'training-samples') this.expandedLayerId = null;
+          this.render();
+        }
+        return;
+      }
     });
 
     container.addEventListener('input', (e) => {
@@ -776,6 +869,9 @@ export class ActiveLayersUI {
         updateLabel();
       } else if (target.classList.contains('geojson-opacity-slider') && target.dataset.id) {
         this.geojsonLoader.setLayerOpacity(target.dataset.id, Number(target.value) / 100);
+        updateLabel();
+      } else if (target.classList.contains('training-samples-opacity-slider')) {
+        this.trainingSampler?.setLayerOpacity(Number(target.value) / 100);
         updateLabel();
       }
     });

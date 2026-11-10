@@ -209,7 +209,8 @@ class WebGISApp {
         this.geeLoader,
         this.geojsonLoader,
         this.measureTool,
-        (tabId: TabId) => this.sidebarUI.setActiveTab(tabId)
+        (tabId: TabId) => this.sidebarUI.setActiveTab(tabId),
+        this.dataPanelUI?.getTrainingSampler()
       );
 
       // Load lightweight sample cities vector layer & Piksel EO UI

@@ -36,6 +36,8 @@ export class TrainingSampler {
   private activeClassId: number = 1;
   private samples: TrainingSamplePoint[] = [];
   private isSamplingActive: boolean = false;
+  private isVisible: boolean = true;
+  private opacity: number = 0.95;
   private onChangeCallbacks: Array<() => void> = [];
 
   private sourceId = 'training-samples-source';
@@ -148,6 +150,52 @@ export class TrainingSampler {
 
   public getSamplingActive(): boolean {
     return this.isSamplingActive;
+  }
+
+  public isLayerVisible(): boolean {
+    return this.isVisible;
+  }
+
+  public setLayerVisible(visible: boolean) {
+    this.isVisible = visible;
+    if (this.map) {
+      const visVal = visible ? 'visible' : 'none';
+      if (this.map.getLayer(this.layerId)) {
+        this.map.setLayoutProperty(this.layerId, 'visibility', visVal);
+      }
+      if (this.map.getLayer(this.labelLayerId)) {
+        this.map.setLayoutProperty(this.labelLayerId, 'visibility', visVal);
+      }
+    }
+    this.notifyChange();
+  }
+
+  public getLayerOpacity(): number {
+    return this.opacity;
+  }
+
+  public setLayerOpacity(opacity: number) {
+    this.opacity = Math.max(0, Math.min(1, opacity));
+    if (this.map && this.map.getLayer(this.layerId)) {
+      this.map.setPaintProperty(this.layerId, 'circle-opacity', this.opacity);
+      this.map.setPaintProperty(this.layerId, 'circle-stroke-opacity', this.opacity);
+    }
+    this.notifyChange();
+  }
+
+  public zoomToExtent(): void {
+    if (!this.map || this.samples.length === 0) return;
+    const lons = this.samples.map((s) => s.coordinates[0]);
+    const lats = this.samples.map((s) => s.coordinates[1]);
+    const minX = Math.min(...lons);
+    const maxX = Math.max(...lons);
+    const minY = Math.min(...lats);
+    const maxY = Math.max(...lats);
+    if (minX === maxX && minY === maxY) {
+      this.map.flyTo({ center: [minX, minY], zoom: 14, duration: 1200 });
+    } else {
+      this.map.fitBounds([[minX, minY], [maxX, maxY]], { padding: 60, duration: 1200 });
+    }
   }
 
   public setActiveClass(classId: number) {
