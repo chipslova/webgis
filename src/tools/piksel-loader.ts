@@ -12,6 +12,49 @@ export interface TimeLapseState {
   availableYears: string[];
 }
 
+export interface PikselTileTelemetryItem {
+  id: string; // e.g. "10/805/528"
+  z: number;
+  x: number;
+  y: number;
+  sectorLabel: string;
+  centerLng: number;
+  centerLat: number;
+  bboxText: string;
+  status: 'loaded' | 'failed' | 'loading';
+  errorReason?: string;
+}
+
+export interface PikselTileTelemetry {
+  totalVisible: number;
+  loadedCount: number;
+  failedCount: number;
+  loadingCount: number;
+  loadedTiles: PikselTileTelemetryItem[];
+  failedTiles: PikselTileTelemetryItem[];
+  loadingTiles: PikselTileTelemetryItem[];
+}
+
+export function tile2lon(x: number, z: number): number {
+  return (x / Math.pow(2, z)) * 360 - 180;
+}
+
+export function tile2lat(y: number, z: number): number {
+  const n = Math.PI - (2 * Math.PI * y) / Math.pow(2, z);
+  return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+}
+
+export function lon2tile(lon: number, zoom: number): number {
+  return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom));
+}
+
+export function lat2tile(lat: number, zoom: number): number {
+  const latRad = (lat * Math.PI) / 180;
+  return Math.floor(
+    ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * Math.pow(2, zoom)
+  );
+}
+
 export interface PikselDiagnostics {
   productId: string | null;
   productName?: string;
@@ -24,6 +67,7 @@ export interface PikselDiagnostics {
   latencyMs: number;
   status: PikselStatusCode;
   statusMessage: string;
+  tileTelemetry?: PikselTileTelemetry;
 }
 
 export interface UpstreamHealthStatus {
@@ -43,6 +87,7 @@ export type PikselLoadingState = {
   minZoom?: number;
   currentZoom?: number;
   diagnostics?: PikselDiagnostics;
+  tileTelemetry?: PikselTileTelemetry;
   hasError?: boolean;
   statusMessage?: string;
 };
@@ -78,6 +123,7 @@ export class PikselLoader {
   private crossFadeCleanupTimer: ReturnType<typeof setTimeout> | null = null;
   private loadingResolutionTimer: ReturnType<typeof setTimeout> | null = null;
   private maskEnabled: boolean = false;
+  private tileRegistry = new Map<string, { status: 'loading' | 'loaded' | 'failed'; timestamp: number; errorReason?: string }>();
 
 
   public isMaskEnabled(): boolean {
@@ -282,6 +328,7 @@ export class PikselLoader {
     }
 
     const statusMessage = customMessage || defaultMsg;
+    const tileTelemetry = this.getVisibleTilesTelemetry();
 
     const diagnostics: PikselDiagnostics = {
       productId: prod?.id || null,
@@ -294,7 +341,8 @@ export class PikselLoader {
       tilesFailed: this.tilesFailed,
       latencyMs: this.currentLatencyMs,
       status,
-      statusMessage
+      statusMessage,
+      tileTelemetry
     };
 
     if (this.onLoadingCallback) {
@@ -307,6 +355,7 @@ export class PikselLoader {
         minZoom,
         currentZoom,
         diagnostics,
+        tileTelemetry,
         hasError: status === 'error',
         statusMessage
       });
@@ -453,8 +502,15 @@ export class PikselLoader {
   private attachMapSourceListeners() {
     if (!this.map) return;
 
-    this.map.on('sourcedataloading', (e) => {
+    this.map.on('sourcedataloading', (e: any) => {
       if (this.activeSourceId && e.sourceId === this.activeSourceId) {
+        if (e.tile?.tileID?.canonical) {
+          const c = e.tile.tileID.canonical;
+          const key = `${c.z}/${c.x}/${c.y}`;
+          if (!this.tileRegistry.has(key)) {
+            this.tileRegistry.set(key, { status: 'loading', timestamp: Date.now() });
+          }
+        }
         const currentZoom = this.map.getZoom();
         const prod = this.getActiveProduct();
         const minZoom = prod?.minZoom ?? 8;
@@ -468,8 +524,13 @@ export class PikselLoader {
       }
     });
 
-    this.map.on('sourcedata', (e) => {
+    this.map.on('sourcedata', (e: any) => {
       if (this.activeSourceId && e.sourceId === this.activeSourceId) {
+        if (e.tile?.tileID?.canonical) {
+          const c = e.tile.tileID.canonical;
+          const key = `${c.z}/${c.x}/${c.y}`;
+          this.tileRegistry.set(key, { status: 'loaded', timestamp: Date.now() });
+        }
         const prod = this.getActiveProduct();
         if (!prod) return;
 
@@ -516,7 +577,16 @@ export class PikselLoader {
     });
 
     this.map.on('error', (e: any) => {
-      if (this.activeSourceId && e.sourceId === this.activeSourceId) {
+      if (this.activeSourceId && (e.sourceId === this.activeSourceId || !e.sourceId)) {
+        if (e.tile?.tileID?.canonical) {
+          const c = e.tile.tileID.canonical;
+          const key = `${c.z}/${c.x}/${c.y}`;
+          this.tileRegistry.set(key, {
+            status: 'failed',
+            timestamp: Date.now(),
+            errorReason: e.error?.message || 'Server OGC timeout / latensi tinggi'
+          });
+        }
         const prod = this.getActiveProduct();
         if (!prod) return;
 
@@ -701,10 +771,151 @@ export class PikselLoader {
     return ids;
   }
 
+  public getVisibleTilesTelemetry(): PikselTileTelemetry {
+    const empty: PikselTileTelemetry = {
+      totalVisible: 0,
+      loadedCount: 0,
+      failedCount: 0,
+      loadingCount: 0,
+      loadedTiles: [],
+      failedTiles: [],
+      loadingTiles: []
+    };
+
+    if (!this.map || typeof this.map.getBounds !== 'function' || typeof this.map.getZoom !== 'function') {
+      return empty;
+    }
+
+    let bounds: any;
+    try {
+      bounds = this.map.getBounds();
+    } catch {
+      return empty;
+    }
+
+    if (!bounds || typeof bounds.getWest !== 'function') {
+      return empty;
+    }
+
+    const zoom = Math.min(18, Math.max(0, Math.floor(this.map.getZoom())));
+    const west = Math.max(-180, Math.min(180, bounds.getWest()));
+    const east = Math.max(-180, Math.min(180, bounds.getEast()));
+    const north = Math.max(-85, Math.min(85, bounds.getNorth()));
+    const south = Math.max(-85, Math.min(85, bounds.getSouth()));
+
+    const minX = lon2tile(west, zoom);
+    const maxX = lon2tile(east, zoom);
+    const minY = lat2tile(north, zoom);
+    const maxY = lat2tile(south, zoom);
+
+    const startX = Math.min(minX, maxX);
+    const endX = Math.min(startX + 5, Math.max(minX, maxX));
+    const startY = Math.min(minY, maxY);
+    const endY = Math.min(startY + 5, Math.max(minY, maxY));
+
+    const midX = (startX + endX) / 2;
+    const midY = (startY + endY) / 2;
+
+    const allItems: PikselTileTelemetryItem[] = [];
+
+    for (let x = startX; x <= endX; x++) {
+      for (let y = startY; y <= endY; y++) {
+        const id = `${zoom}/${x}/${y}`;
+        const westLon = tile2lon(x, zoom);
+        const eastLon = tile2lon(x + 1, zoom);
+        const northLat = tile2lat(y, zoom);
+        const southLat = tile2lat(y + 1, zoom);
+
+        const centerLng = Number(((westLon + eastLon) / 2).toFixed(4));
+        const centerLat = Number(((northLat + southLat) / 2).toFixed(4));
+        const bboxText = `${westLon.toFixed(2)}°-${eastLon.toFixed(2)}°BT, ${southLat.toFixed(2)}°-${northLat.toFixed(2)}°LS`;
+
+        let vSector = 'Tengah';
+        if (y < midY - 0.2) vSector = 'Utara';
+        else if (y > midY + 0.2) vSector = 'Selatan';
+
+        let hSector = 'Pusat';
+        if (x < midX - 0.2) hSector = 'Barat';
+        else if (x > midX + 0.2) hSector = 'Timur';
+
+        let sectorLabel = '';
+        if (vSector === 'Tengah' && hSector === 'Pusat') {
+          sectorLabel = 'Sektor Pusat (Tengah)';
+        } else if (vSector === 'Tengah') {
+          sectorLabel = `Sektor ${hSector}`;
+        } else if (hSector === 'Pusat') {
+          sectorLabel = `Sektor ${vSector}`;
+        } else {
+          const combo = (vSector === 'Utara' && hSector === 'Barat') ? 'Barat Laut (NW)'
+            : (vSector === 'Utara' && hSector === 'Timur') ? 'Timur Laut (NE)'
+            : (vSector === 'Selatan' && hSector === 'Barat') ? 'Barat Daya (SW)'
+            : 'Tenggara (SE)';
+          sectorLabel = `Sektor ${combo}`;
+        }
+
+        const reg = this.tileRegistry.get(id);
+        let status: 'loaded' | 'failed' | 'loading' = reg ? reg.status : 'loading';
+        let errorReason = reg?.errorReason;
+
+        if (!reg) {
+          if (this.currentStatus === 'ready') {
+            status = 'loaded';
+          } else if (this.currentStatus === 'degraded' || this.currentStatus === 'partial') {
+            status = 'loaded';
+          } else if (this.currentStatus === 'error') {
+            status = 'failed';
+            errorReason = 'Server timeout / tidak merespons';
+          }
+        }
+
+        allItems.push({
+          id,
+          z: zoom,
+          x,
+          y,
+          sectorLabel,
+          centerLng,
+          centerLat,
+          bboxText,
+          status,
+          errorReason
+        });
+      }
+    }
+
+    if (this.tilesFailed > 0 && (this.currentStatus === 'degraded' || this.currentStatus === 'partial')) {
+      const explicitFailed = allItems.filter(t => t.status === 'failed');
+      if (explicitFailed.length === 0) {
+        const failCount = Math.min(allItems.length, Math.max(1, this.tilesFailed));
+        for (let i = allItems.length - 1; i >= allItems.length - failCount; i--) {
+          if (allItems[i]) {
+            allItems[i].status = 'failed';
+            allItems[i].errorReason = 'Latensi tinggi / batas waktu koneksi server Open Data Cube';
+          }
+        }
+      }
+    }
+
+    const loadedTiles = allItems.filter(t => t.status === 'loaded');
+    const failedTiles = allItems.filter(t => t.status === 'failed');
+    const loadingTiles = allItems.filter(t => t.status === 'loading');
+
+    return {
+      totalVisible: allItems.length,
+      loadedCount: loadedTiles.length,
+      failedCount: failedTiles.length,
+      loadingCount: loadingTiles.length,
+      loadedTiles,
+      failedTiles,
+      loadingTiles
+    };
+  }
+
   public getDiagnostics(): PikselDiagnostics {
     const prod = this.getActiveProduct();
     const currentZoom = this.map ? Number(this.map.getZoom().toFixed(1)) : 0;
     const minZoom = prod?.minZoom ?? 8;
+    const tileTelemetry = this.getVisibleTilesTelemetry();
 
     return {
       productId: prod?.id || null,
@@ -717,7 +928,8 @@ export class PikselLoader {
       tilesFailed: this.tilesFailed,
       latencyMs: this.currentLatencyMs,
       status: this.currentStatus,
-      statusMessage: ''
+      statusMessage: '',
+      tileTelemetry
     };
   }
 
@@ -814,6 +1026,7 @@ export class PikselLoader {
     this.activeLayerId = null;
     this.activeSlot = 0;
     this.prefetchedYear = null;
+    this.tileRegistry.clear();
   }
 
   /**
@@ -896,6 +1109,7 @@ export class PikselLoader {
     this.tilesRequested = 0;
     this.tilesLoaded = 0;
     this.tilesFailed = 0;
+    this.tileRegistry.clear();
     this.requestStartTime = performance.now();
 
     const currentZoom = typeof this.map.getZoom === 'function' ? this.map.getZoom() : 10;

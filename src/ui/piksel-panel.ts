@@ -652,18 +652,79 @@ export class PikselPanelUI {
     }
 
     if (status === 'degraded' || status === 'partial') {
+      const telemetry = state.tileTelemetry || this.pikselLoader.getVisibleTilesTelemetry();
+      const loadedCount = telemetry.loadedCount;
+      const failedCount = telemetry.failedCount;
+      const total = telemetry.totalVisible || (loadedCount + failedCount);
+
+      const failedTilesHtml = telemetry.failedTiles.length > 0
+        ? telemetry.failedTiles.map((t) => `
+            <div class="tile-badge-item is-failed" data-lng="${t.centerLng}" data-lat="${t.centerLat}" data-zoom="${t.z}" role="button" tabindex="0" title="Klik untuk mengarahkan kamera ke ubin ini">
+              <div class="tile-item-main">
+                <span class="tile-badge-tag fail-tag">❌ ${t.sectorLabel}</span>
+                <span class="tile-coord-text">${t.centerLng}° BT, ${t.centerLat}° LS</span>
+              </div>
+              <div class="tile-item-sub">
+                <code>Ubin ${t.id}</code> • <span class="tile-reason-text">${t.errorReason || 'Latensi tinggi / batas waktu koneksi'}</span>
+              </div>
+            </div>
+          `).join('')
+        : `<div class="tile-empty-notice">Semua ubin terdeteksi sedang menunggu respons hulu</div>`;
+
+      const loadedTilesHtml = telemetry.loadedTiles.length > 0
+        ? telemetry.loadedTiles.map((t) => `
+            <div class="tile-badge-item is-loaded" data-lng="${t.centerLng}" data-lat="${t.centerLat}" data-zoom="${t.z}" role="button" tabindex="0" title="Klik untuk mengarahkan kamera ke ubin ini">
+              <div class="tile-item-main">
+                <span class="tile-badge-tag load-tag">✓ ${t.sectorLabel}</span>
+                <span class="tile-coord-text">${t.centerLng}° BT, ${t.centerLat}° LS</span>
+              </div>
+              <div class="tile-item-sub">
+                <code>Ubin ${t.id}</code> • <span style="color: #34d399;">Berhasil dimuat (Resolusi 10m)</span>
+              </div>
+            </div>
+          `).join('')
+        : `<div class="tile-empty-notice">Belum ada ubin yang selesai dirender</div>`;
+
       return `
-        <div class="clean-alert alert-partial">
+        <div class="clean-alert alert-partial" role="region" aria-label="Status Ubin Citra Satelit Sebagian Dimuat">
           <div class="alert-icon-title">
-            <span style="font-size: 16px;">⏱️</span>
-            <strong>Ubin Raster Sebagian Dimuat</strong>
+            <span style="font-size: 16px;" aria-hidden="true">⏱️</span>
+            <div style="flex: 1; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <strong>Ubin Raster Sebagian Dimuat</strong>
+              <span class="tile-status-ratio-badge">${loadedCount}/${total} Ubin Aktif</span>
+            </div>
           </div>
           <p class="alert-desc">
-            Beberapa ubin raster mengalami latensi tinggi dari server Open Data Cube hulu. Jika lambat, Anda dapat beralih ke Citra Esri alternatif.
+            Sebagian ubin citra satelit berhasil dimuat (${loadedCount} ubin), namun <strong>${failedCount} ubin mengalami latensi tinggi</strong> dari server Open Data Cube BIG. Jika lambat, Anda dapat beralih ke Citra Esri alternatif.
           </p>
-          <div class="alert-actions-row">
+
+          <!-- Rincian Ubin Terkendala (Yang Tidak Dimuat) -->
+          <div class="tile-breakdown-card failed-card">
+            <div class="tile-breakdown-header text-danger">
+              <span>⚠️ <strong>Ubin Tidak Dimuat / Mengalami Latensi (${failedCount}):</strong></span>
+            </div>
+            <div class="tile-items-list">
+              ${failedTilesHtml}
+            </div>
+          </div>
+
+          <!-- Rincian Ubin Berhasil (Yang Dimuat) - Collapsible -->
+          <details class="tile-breakdown-details" ${loadedCount <= 2 ? 'open' : ''}>
+            <summary class="tile-breakdown-summary text-success">
+              <span>✓ <strong>Ubin Berhasil Dimuat (${loadedCount} Ubin)</strong></span>
+              <span class="summary-arrow">▾</span>
+            </summary>
+            <div class="tile-items-list" style="margin-top: 6px;">
+              ${loadedTilesHtml}
+            </div>
+          </details>
+
+          <div class="alert-actions-row" style="margin-top: 10px;">
             <button class="btn-alert-fallback" id="btn-fallback-esri-imagery" title="Beralih ke peta dasar Citra Satelit Esri alternatif">
               🛰️ Gunakan Citra Esri
+            </button>
+            <button class="btn-alert-secondary" id="btn-toggle-tile-grid" title="Tampilkan kisi batas ubin di peta">
+              📐 ${this.pikselLoader.isGridVisible() ? 'Sembunyikan Grid Ubin' : 'Tampilkan Grid Ubin'}
             </button>
           </div>
         </div>
@@ -1048,6 +1109,39 @@ export class PikselPanelUI {
       if (target.closest('#btn-jump-bromo-preset')) {
         const bromo = PIKSEL_PRESETS.find(p => p.id === 'bromo');
         if (bromo) this.pikselLoader.flyToPreset(bromo);
+        return;
+      }
+
+      // 6b. Toggle Tile Grid from alert button
+      if (target.closest('#btn-toggle-tile-grid')) {
+        const isVisible = !this.pikselLoader.isGridVisible();
+        this.pikselLoader.setGridVisible(isVisible);
+        const gridBtn = document.getElementById('btn-toggle-tile-grid');
+        if (gridBtn) {
+          gridBtn.innerText = isVisible ? '📐 Sembunyikan Grid Ubin' : '📐 Tampilkan Grid Ubin';
+        }
+        const gridCheck = document.getElementById('toggle-piksel-grid') as HTMLInputElement | null;
+        if (gridCheck) gridCheck.checked = isVisible;
+        showToast(isVisible ? 'Grid batas ubin satelit ditampilkan pada peta' : 'Grid batas ubin satelit disembunyikan', 'info');
+        return;
+      }
+
+      // 6c. Click on specific tile item to fly to it
+      const clickedTile = target.closest('.tile-badge-item') as HTMLElement | null;
+      if (clickedTile && clickedTile.dataset.lng && clickedTile.dataset.lat) {
+        const lng = Number(clickedTile.dataset.lng);
+        const lat = Number(clickedTile.dataset.lat);
+        const zoom = Number(clickedTile.dataset.zoom) || 10;
+        const map = this.pikselLoader.getMap();
+        if (map && typeof map.flyTo === 'function') {
+          map.flyTo({
+            center: [lng, lat],
+            zoom: Math.max(zoom, 10),
+            essential: true
+          });
+        }
+        const sector = clickedTile.querySelector('.tile-badge-tag')?.textContent || 'Ubin';
+        showToast(`Mengarahkan kamera ke ${sector} (${lng.toFixed(2)}° BT, ${lat.toFixed(2)}° LS)`, 'info');
         return;
       }
 

@@ -145,4 +145,60 @@ describe('BIG Piksel Upstream Health Probe & Graceful Fallback Suite', () => {
     fallbackBtn?.click();
     expect(mockMapManager.setBasemap).toHaveBeenCalledWith('esri-imagery');
   });
+
+  it('should display specific loaded and failed tile details in the partial degraded alert', () => {
+    mockMap.getBounds = vi.fn().mockReturnValue({
+      getWest: () => 110.0,
+      getEast: () => 110.8,
+      getNorth: () => -7.2,
+      getSouth: () => -7.8
+    });
+    mockMap.getZoom = vi.fn().mockReturnValue(10);
+    mockMap.flyTo = vi.fn();
+
+    const panelDiv = document.getElementById('panel-piksel') || document.createElement('div');
+    panelDiv.id = 'panel-piksel';
+    document.body.appendChild(panelDiv);
+
+    const panelUI = new PikselPanelUI(pikselLoader);
+    panelUI.init();
+
+    pikselLoader.setActiveProduct('s2-geomad-rgb');
+
+    // Simulate 2 failed raster tiles
+    (pikselLoader as any).tilesFailed = 2;
+    (pikselLoader as any).emitState('degraded');
+
+    const alertBox = document.querySelector('.clean-alert.alert-partial') as HTMLElement;
+    expect(alertBox).not.toBeNull();
+    expect(alertBox.textContent).toContain('Ubin Raster Sebagian Dimuat');
+    expect(alertBox.textContent).toContain('Ubin Tidak Dimuat');
+
+    // Ratio badge should be rendered
+    const ratioBadge = alertBox.querySelector('.tile-status-ratio-badge');
+    expect(ratioBadge).not.toBeNull();
+    expect(ratioBadge?.textContent).toContain('Ubin Aktif');
+
+    // Failed tile items should be listed with sector label and coordinate
+    const failedTileItems = alertBox.querySelectorAll('.tile-badge-item.is-failed');
+    expect(failedTileItems.length).toBeGreaterThanOrEqual(1);
+
+    const firstFailed = failedTileItems[0] as HTMLElement;
+    expect(firstFailed.dataset.lng).toBeDefined();
+    expect(firstFailed.dataset.lat).toBeDefined();
+    expect(firstFailed.textContent).toContain('Sektor');
+    expect(firstFailed.textContent).toContain('Ubin');
+
+    // Clicking the failed tile should fly the map to the tile's center coordinates
+    firstFailed.click();
+    expect(mockMap.flyTo).toHaveBeenCalledWith(expect.objectContaining({
+      center: [Number(firstFailed.dataset.lng), Number(firstFailed.dataset.lat)]
+    }));
+
+    // Toggle tile grid button in alert
+    const toggleGridBtn = alertBox.querySelector('#btn-toggle-tile-grid') as HTMLButtonElement | null;
+    expect(toggleGridBtn).not.toBeNull();
+    toggleGridBtn?.click();
+    expect(pikselLoader.isGridVisible()).toBe(true);
+  });
 });
