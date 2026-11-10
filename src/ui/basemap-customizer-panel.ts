@@ -386,16 +386,30 @@ export class BasemapCustomizerUI {
       this.togglePopover(this.basemapPopoverId, btnBasemap ?? undefined);
     });
 
+    const openSublayersPopoverWithSmartTab = (triggerEl?: HTMLElement) => {
+      const state = this.customizer.getState();
+      const hasActive3D = state.terrain3D || state.terrainHillshade || state.buildings3D;
+      const hasCustomSublayers = Object.values(state.sublayers).some(v => v === false);
+      const currentBm = BASEMAPS.find(b => b.id === (this.mapManager?.getCurrentBasemapId() || DEFAULT_BASEMAP_ID));
+      const isRaster = currentBm ? currentBm.format !== 'vector' : true;
+
+      // If 3D settings are active and on raster basemap (or no custom sublayer on vector), open terrain tab
+      if (hasActive3D && (isRaster || !hasCustomSublayers)) {
+        this.switchCustomizerTab('terrain');
+      } else {
+        this.switchCustomizerTab('sublayers');
+      }
+      this.togglePopover(this.sublayersPopoverId, triggerEl);
+    };
+
     btnSublayers?.addEventListener('click', (e) => {
       e.stopPropagation();
-      this.switchCustomizerTab('sublayers');
-      this.togglePopover(this.sublayersPopoverId, btnSublayers);
+      openSublayersPopoverWithSmartTab(btnSublayers);
     });
 
     btnSidebarSublayers?.addEventListener('click', (e) => {
       e.stopPropagation();
-      this.switchCustomizerTab('sublayers');
-      this.togglePopover(this.sublayersPopoverId, btnSublayers ?? undefined);
+      openSublayersPopoverWithSmartTab(btnSublayers ?? undefined);
     });
 
     btnTerrain?.addEventListener('click', (e) => {
@@ -878,6 +892,11 @@ export class BasemapCustomizerUI {
       }
     });
 
+    // Check active states across sublayers and 3D overlays
+    const hasActive3DSettings = state.terrain3D || state.terrainHillshade || state.buildings3D;
+    const hasCustomSublayers = Object.values(state.sublayers).some(v => v === false);
+    const hasAnyCustomSetting = hasActive3DSettings || hasCustomSublayers;
+
     // 4. Sync 3D Terrain Popover Controls
     const masterTerrainToggle = document.getElementById('popover-terrain-master-toggle') as HTMLInputElement;
     if (masterTerrainToggle) masterTerrainToggle.checked = state.terrain3D;
@@ -885,24 +904,91 @@ export class BasemapCustomizerUI {
     const checkBuildings3D = document.getElementById('popover-check-buildings-3d') as HTMLInputElement | null;
     if (checkBuildings3D) checkBuildings3D.checked = state.buildings3D;
 
-    const terrainExagSlider = document.getElementById('popover-terrain-exaggeration-slider') as HTMLInputElement;
-    if (terrainExagSlider) terrainExagSlider.value = String(state.terrainExaggeration);
-
+    const isDEMActive = state.terrain3D;
+    const terrainExagContainer = document.getElementById('terrain-exaggeration-container');
+    const terrainExagSlider = document.getElementById('popover-terrain-exaggeration-slider') as HTMLInputElement | null;
     const terrainExagVal = document.getElementById('popover-terrain-exaggeration-val');
-    if (terrainExagVal) terrainExagVal.innerText = `${state.terrainExaggeration.toFixed(2)}x`;
+    const terrainExagNotice = document.getElementById('terrain-exaggeration-notice');
 
-    // 5. Sync Dock Buttons active highlights
+    if (terrainExagSlider) {
+      terrainExagSlider.disabled = !isDEMActive;
+      terrainExagSlider.value = String(state.terrainExaggeration);
+      terrainExagSlider.title = isDEMActive
+        ? `Eksagerasi Vertikal DEM: ${state.terrainExaggeration.toFixed(2)}x`
+        : 'Aktifkan Model Elevasi Digital 3D (DEM Mesh) di atas untuk mengatur eksagerasi vertikal.';
+    }
+    if (terrainExagVal) {
+      terrainExagVal.innerText = `${state.terrainExaggeration.toFixed(2)}x`;
+      terrainExagVal.style.opacity = isDEMActive ? '1' : '0.45';
+    }
+    if (terrainExagContainer) {
+      terrainExagContainer.classList.toggle('is-disabled', !isDEMActive);
+    }
+    if (terrainExagNotice) {
+      terrainExagNotice.style.display = isDEMActive ? 'none' : 'block';
+    }
+
+    // 5. Sync Popover Tab Badges
+    const badgeTabSublayers = document.getElementById('badge-tab-sublayers');
+    const badgeTabTerrain = document.getElementById('badge-tab-terrain');
+    if (badgeTabSublayers) {
+      badgeTabSublayers.style.display = hasCustomSublayers ? 'inline-block' : 'none';
+    }
+    if (badgeTabTerrain) {
+      badgeTabTerrain.style.display = hasActive3DSettings ? 'inline-block' : 'none';
+      if (hasActive3DSettings) {
+        const activeLabels: string[] = [];
+        if (state.buildings3D) activeLabels.push('3D Bangunan');
+        if (state.terrain3D) activeLabels.push('DEM 3D');
+        if (state.terrainHillshade) activeLabels.push('Hillshade');
+        badgeTabTerrain.textContent = activeLabels.join(' • ');
+      }
+    }
+
+    // 6. Sync Sidebar Sublayers Button (in Active Basemap Card)
+    const btnSidebarSublayers = document.getElementById('btn-sidebar-open-sublayers');
+    const sidebarSublayersBadge = document.getElementById('sidebar-sublayers-active-badge');
+    if (btnSidebarSublayers) {
+      btnSidebarSublayers.classList.toggle('has-active-settings', hasAnyCustomSetting);
+      btnSidebarSublayers.classList.toggle('active', hasAnyCustomSetting);
+      if (hasAnyCustomSetting) {
+        const activeList: string[] = [];
+        if (state.buildings3D) activeList.push('Ekstrusi 3D');
+        if (state.terrain3D) activeList.push('DEM Medan');
+        if (state.terrainHillshade) activeList.push('Hillshade');
+        if (hasCustomSublayers) activeList.push('Sublayer Vektor');
+        btnSidebarSublayers.title = `Kustomisasi Peta Aktif (${activeList.join(', ')}) - Klik untuk ubah`;
+      } else {
+        btnSidebarSublayers.title = 'Kustomisasi Sublapisan Vektor & Relief';
+      }
+    }
+    if (sidebarSublayersBadge) {
+      sidebarSublayersBadge.style.display = hasAnyCustomSetting ? 'inline-block' : 'none';
+    }
+
+    // 7. Sync Dock Buttons active highlights
     const btnTerrain = document.getElementById('btn-toggle-terrain');
-    if (btnTerrain) btnTerrain.classList.toggle('active', state.terrain3D);
+    if (btnTerrain) {
+      btnTerrain.classList.toggle('active', hasActive3DSettings);
+      btnTerrain.title = hasActive3DSettings
+        ? 'Pengaturan Medan 3D & Elevasi (Aktif)'
+        : 'Pengaturan Medan 3D & Elevasi';
+    }
 
     const isGridOn = this.pikselLoader ? this.pikselLoader.isGridVisible() : false;
     const btnGrid = document.getElementById('btn-toggle-grid');
     if (btnGrid) btnGrid.classList.toggle('active', isGridOn);
 
     const btnSublayers = document.getElementById('btn-toggle-sublayers');
+    const dockSublayersDot = document.getElementById('dock-sublayers-active-dot');
     if (btnSublayers) {
-      const isAnyOverlayActive = state.terrainHillshade;
-      btnSublayers.classList.toggle('active', isAnyOverlayActive);
+      btnSublayers.classList.toggle('active', hasAnyCustomSetting);
+      btnSublayers.title = hasAnyCustomSetting
+        ? 'Kustomisasi Tampilan Peta (Pengaturan Kustom Aktif)'
+        : 'Kustomisasi Tampilan Peta (Sublapisan & Relief)';
+    }
+    if (dockSublayersDot) {
+      dockSublayersDot.style.display = hasAnyCustomSetting ? 'block' : 'none';
     }
   }
 }

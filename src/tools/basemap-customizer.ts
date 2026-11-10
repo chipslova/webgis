@@ -79,6 +79,7 @@ export class BasemapCustomizer {
   public setBasemapId(basemapId: string) {
     this.currentBasemapId = basemapId;
     this.apply3DBuildings();
+    this.notify();
   }
 
   public onChange(callback: (state: BasemapCustomizerState) => void) {
@@ -124,6 +125,7 @@ export class BasemapCustomizer {
     // 2. Re-apply 3D Buildings & Vector Sublayers
     this.apply3DBuildings();
     this.applyVectorSublayers();
+    this.notify();
   }
 
   /**

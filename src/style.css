@@ -7651,6 +7651,93 @@ kbd {
   padding: 2px 7px;
   border-radius: 4px;
   font-family: 'JetBrains Mono', monospace;
+  transition: opacity 0.2s ease;
+}
+
+/* Vertical Exaggeration Inactive & Notice States */
+.terrain-section.is-disabled {
+  opacity: 0.45;
+  transition: opacity 0.25s ease;
+}
+
+.terrain-section.is-disabled input[type="range"] {
+  cursor: not-allowed !important;
+}
+
+.terrain-section.is-disabled input[type="range"]::-webkit-slider-thumb {
+  background: #64748b !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+.terrain-section.is-disabled input[type="range"]::-moz-range-thumb {
+  background: #64748b !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+.terrain-exag-notice {
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px dashed rgba(245, 158, 11, 0.35);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-top: 6px;
+  display: block;
+  transition: all 0.2s ease;
+}
+
+/* Active Sublayers & 3D Badges and Indicators */
+.badge-sublayers-active {
+  font-size: 9px;
+  font-weight: 700;
+  color: #00f0ff;
+  background: rgba(0, 240, 255, 0.18);
+  border: 1px solid rgba(0, 240, 255, 0.5);
+  padding: 1px 6px;
+  border-radius: 9999px;
+  margin-left: 4px;
+  letter-spacing: 0.3px;
+  display: inline-block;
+}
+
+#btn-sidebar-open-sublayers.has-active-settings {
+  border-color: rgba(0, 240, 255, 0.6) !important;
+  background: rgba(0, 240, 255, 0.12) !important;
+  color: #00f0ff !important;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+}
+
+.tab-indicator-badge {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #00f0ff;
+  background: rgba(0, 240, 255, 0.2);
+  border: 1px solid rgba(0, 240, 255, 0.55);
+  padding: 1px 6px;
+  border-radius: 6px;
+  margin-left: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  vertical-align: middle;
+}
+
+.dock-btn {
+  position: relative;
+}
+
+.dock-btn-badge-dot {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00f0ff;
+  box-shadow: 0 0 8px #00f0ff;
+  pointer-events: none;
 }
 
 
