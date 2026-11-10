@@ -239,9 +239,10 @@ export class PikselPanelUI {
       }
 
       const chronologicalYears = this.pikselLoader.getChronologicalYears();
-      const currentYearIndex = Math.max(0, chronologicalYears.indexOf(currentYear));
+      const currentYearIndex = Math.max(0, chronologicalYears.findIndex(y => y === currentYear || currentYear.startsWith(y) || y.startsWith(currentYear)));
       const isPlaying = this.pikselLoader.isTimeLapsePlaying();
       const currentSpeed = this.pikselLoader.getTimeLapseSpeed();
+      const currentYearDisplay = currentYear.length > 4 ? currentYear.slice(0, 4) : currentYear;
 
       const timelapseHtml = activeProduct.timeEnabled ? `
         <div class="piksel-timelapse-box" role="region" aria-label="Kontrol Animasi Time-Lapse Satelit">
@@ -252,7 +253,7 @@ export class PikselPanelUI {
             </div>
             <div class="timelapse-badge-pill ${isPlaying ? 'is-playing' : ''}" title="Tahun aktif saat ini (${chronologicalYears[0]}–${chronologicalYears[chronologicalYears.length - 1]})">
               <span class="timelapse-badge-dot" aria-hidden="true"></span>
-              <span id="timelapse-current-year-badge">${currentYear}</span>
+              <span id="timelapse-current-year-badge">${currentYearDisplay}</span>
             </div>
           </div>
 
@@ -281,11 +282,14 @@ export class PikselPanelUI {
               <input type="range" id="timelapse-slider" min="0" max="${chronologicalYears.length - 1}" value="${currentYearIndex}" class="timelapse-slider" aria-label="Timeline Tahun Satelit" />
             </div>
             <div class="timelapse-ticks">
-              ${chronologicalYears.map((yr) => `
-                <button class="timelapse-tick-btn ${yr === currentYear ? 'is-active' : ''}" data-year="${yr}" title="Pilih Tahun ${yr}">
-                  ${yr.slice(2)}
-                </button>
-              `).join('')}
+              ${chronologicalYears.map((yr) => {
+                const isActive = yr === currentYear || currentYear.startsWith(yr) || yr.startsWith(currentYear);
+                return `
+                  <button class="timelapse-tick-btn ${isActive ? 'is-active' : ''}" data-year="${yr}" title="Pilih Tahun ${yr}">
+                    ${yr.slice(2)}
+                  </button>
+                `;
+              }).join('')}
             </div>
           </div>
         </div>
@@ -1236,7 +1240,9 @@ export class PikselPanelUI {
 
   private updateTimeLapseUI(state: TimeLapseState) {
     const badge = document.getElementById('timelapse-current-year-badge');
-    if (badge) badge.innerText = state.year;
+    if (badge) {
+      badge.innerText = state.year.length > 4 ? state.year.slice(0, 4) : state.year;
+    }
 
     const badgePill = document.querySelector('.timelapse-badge-pill');
     if (badgePill) {
@@ -1244,13 +1250,20 @@ export class PikselPanelUI {
     }
 
     const yearSelect = document.getElementById('piksel-year-select') as HTMLSelectElement | null;
-    if (yearSelect && yearSelect.value !== state.year) {
-      yearSelect.value = state.year;
+    if (yearSelect) {
+      const matchOpt = Array.from(yearSelect.options).find(
+        opt => opt.value === state.year || opt.value.startsWith(state.year) || state.year.startsWith(opt.value)
+      );
+      if (matchOpt && yearSelect.value !== matchOpt.value) {
+        yearSelect.value = matchOpt.value;
+      }
     }
 
     const slider = document.getElementById('timelapse-slider') as HTMLInputElement | null;
     if (slider) {
-      const idx = state.availableYears.indexOf(state.year);
+      const idx = state.availableYears.findIndex(
+        y => y === state.year || state.year.startsWith(y) || y.startsWith(state.year)
+      );
       if (idx !== -1 && slider.value !== String(idx)) {
         slider.value = String(idx);
       }
@@ -1267,7 +1280,9 @@ export class PikselPanelUI {
     if (container) {
       container.querySelectorAll('.timelapse-tick-btn').forEach((btn) => {
         const el = btn as HTMLElement;
-        el.classList.toggle('is-active', el.dataset.year === state.year);
+        const tickYr = el.dataset.year || '';
+        const isActive = tickYr === state.year || state.year.startsWith(tickYr) || tickYr.startsWith(state.year);
+        el.classList.toggle('is-active', isActive);
       });
       container.querySelectorAll('.timelapse-speed-btn').forEach((btn) => {
         const el = btn as HTMLElement;

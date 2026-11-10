@@ -140,4 +140,39 @@ describe('Piksel Time-Lapse Silky-Smooth Double-Buffering & Next-Frame Preload',
     expect(mockMap.setPaintProperty).toHaveBeenCalledWith(slot0Id, 'raster-brightness-min', 0.15);
     expect(mockMap.setPaintProperty).toHaveBeenCalledWith(slot1Id, 'raster-brightness-min', 0.15);
   });
+
+  it('should normalize and preserve Landsat 9 discrete scene dates during year transitions', () => {
+    const mockMap = createMockMap() as any;
+    const loader = new PikselLoader(mockMap);
+
+    // 1. Activate Landsat 9
+    loader.setActiveProduct('ls9-sr');
+    expect(loader.getActiveProductId()).toBe('ls9-sr');
+    expect(loader.getSelectedYear()).toBe('2024-08-05');
+
+    const slot0SourceId = loader.getSourceIdForSlot('ls9-sr', 0);
+    const initialSource = createdSources[slot0SourceId];
+    expect(initialSource).toBeDefined();
+    expect(initialSource.tiles[0]).toContain('TIME=2024-08-05');
+    expect(initialSource.tiles[0]).toContain('LAYERS=ls9_c2l2_sr');
+
+    // 2. Switch year using 4-digit '2023' (e.g. from timeline slider or tick click)
+    loader.setSelectedYear('2023');
+    expect(loader.getSelectedYear()).toBe('2023-08-03');
+
+    const slot1SourceId = loader.getSourceIdForSlot('ls9-sr', 1);
+    const bufferSource = createdSources[slot1SourceId];
+    expect(bufferSource).toBeDefined();
+    expect(bufferSource.tiles[0]).toContain('TIME=2023-08-03');
+
+    // 3. Switch back to '2024' (or '2024-08-05')
+    loader.setSelectedYear('2024');
+    expect(loader.getSelectedYear()).toBe('2024-08-05');
+    const returnSource = createdSources[slot0SourceId];
+    expect(returnSource).toBeDefined();
+    expect(returnSource.tiles[0]).toContain('TIME=2024-08-05');
+
+    // 4. Chronological years should be properly extracted as 4-digit strings
+    expect(loader.getChronologicalYears()).toEqual(['2021', '2022', '2023', '2024']);
+  });
 });

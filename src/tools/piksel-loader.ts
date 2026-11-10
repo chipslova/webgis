@@ -631,16 +631,27 @@ export class PikselLoader {
   }
 
   public setSelectedYear(year: string) {
-    if (this.selectedYear === year) return;
-    this.selectedYear = year;
+    const product = this.getActiveProduct();
+    let yearToSet = year;
+
+    if (product && product.timeOptions) {
+      const match = product.timeOptions.find(
+        o => o.value === year || o.value.startsWith(year) || year.startsWith(o.value)
+      );
+      if (match) {
+        yearToSet = match.value;
+      }
+    }
+
+    if (this.selectedYear === yearToSet) return;
+    this.selectedYear = yearToSet;
 
     if (this.activeProductId) {
-      const product = this.getActiveProduct();
       if (product && product.timeEnabled) {
         const currentReqId = ++this.requestCounter;
         this.activeRequestId = currentReqId;
         // Smooth Double-Buffering Cross-Fade: keep old year visible as backplate while loading new year
-        this.transitionToYear(product, year, currentReqId);
+        this.transitionToYear(product, yearToSet, currentReqId);
       }
     }
     this.notifyLayersChange();
@@ -693,17 +704,24 @@ export class PikselLoader {
 
   public getChronologicalYears(): string[] {
     const prod = this.getActiveProduct();
-    if (!prod || !prod.availableYears || prod.availableYears.length === 0) {
-      return [this.selectedYear];
+    if (!prod) return [this.selectedYear];
+    if (prod.timeOptions && prod.timeOptions.length > 0) {
+      return prod.timeOptions
+        .map(o => o.value.slice(0, 4))
+        .sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
     }
-    return [...prod.availableYears].sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+    if (prod.availableYears && prod.availableYears.length > 0) {
+      return [...prod.availableYears].sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+    }
+    return [this.selectedYear.slice(0, 4)];
   }
 
   public stepTimeLapse(direction: 1 | -1) {
     const years = this.getChronologicalYears();
     if (years.length <= 1) return;
 
-    let currentIndex = years.indexOf(this.selectedYear);
+    const currentYearPrefix = this.selectedYear.slice(0, 4);
+    let currentIndex = years.findIndex(y => y === currentYearPrefix || this.selectedYear.startsWith(y));
     if (currentIndex === -1) currentIndex = 0;
 
     let nextIndex = currentIndex + direction;
@@ -970,10 +988,17 @@ export class PikselLoader {
         }
 
         // Validate and synchronize selected year for the newly activated product
-        if (product.timeOptions && !product.timeOptions.some(o => o.value === this.selectedYear)) {
-          this.selectedYear = product.timeOptions[0].value;
-        } else if (product.availableYears && !product.availableYears.includes(this.selectedYear)) {
-          this.selectedYear = product.availableYears[0];
+        if (product.timeOptions) {
+          const prefix = this.selectedYear.slice(0, 4);
+          const match = product.timeOptions.find(o => o.value === this.selectedYear || o.value.startsWith(prefix));
+          this.selectedYear = match ? match.value : product.timeOptions[0].value;
+        } else if (product.availableYears) {
+          const prefixYear = this.selectedYear.slice(0, 4);
+          if (product.availableYears.includes(prefixYear)) {
+            this.selectedYear = prefixYear;
+          } else {
+            this.selectedYear = product.availableYears[0];
+          }
         }
 
         this.renderRasterLayer(product, currentReqId);
@@ -1033,15 +1058,22 @@ export class PikselLoader {
    * Constructs the authentic OGC WMS URL for MapLibre Web Mercator tiling
    */
   private buildWmsTileUrl(product: PikselProduct, targetYear?: string): string {
-    const yearToUse = targetYear || (
-      (product.timeOptions && product.timeOptions.some(o => o.value === this.selectedYear))
-        ? this.selectedYear
-        : (product.timeOptions ? product.timeOptions[0].value : (
-            (product.availableYears && product.availableYears.includes(this.selectedYear))
-              ? this.selectedYear
-              : (product.availableYears ? product.availableYears[0] : this.selectedYear)
-          ))
-    );
+    let yearToUse = targetYear || this.selectedYear;
+
+    if (product.timeOptions && product.timeOptions.length > 0) {
+      const match = product.timeOptions.find(
+        o => o.value === yearToUse || o.value.startsWith(yearToUse) || yearToUse.startsWith(o.value)
+      );
+      if (match) {
+        yearToUse = match.value;
+      } else {
+        yearToUse = product.timeOptions[0].value;
+      }
+    } else if (product.availableYears && product.availableYears.length > 0) {
+      if (!product.availableYears.includes(yearToUse)) {
+        yearToUse = product.availableYears[0];
+      }
+    }
 
     const params = new URLSearchParams({
       SERVICE: 'WMS',
@@ -1065,7 +1097,9 @@ export class PikselLoader {
             params.set('TIME', `${yearToUse}-01-01/${yearToUse}-12-31`);
             break;
           case 'none':
-            // Do not inject synthetic date range for products with native default or discrete scenes
+            if (/^\d{4}$/.test(yearToUse)) {
+              params.set('TIME', `${yearToUse}-01-01`);
+            }
             break;
           case 'annual':
           default:
@@ -1225,7 +1259,8 @@ export class PikselLoader {
     if (!prod || !prod.timeEnabled || !prod.availableYears || prod.availableYears.length <= 1) return;
 
     const years = this.getChronologicalYears();
-    const currentIndex = years.indexOf(this.selectedYear);
+    const currentYearPrefix = this.selectedYear.slice(0, 4);
+    const currentIndex = years.findIndex(y => y === currentYearPrefix || this.selectedYear.startsWith(y) || y.startsWith(this.selectedYear));
     if (currentIndex === -1) return;
 
     const nextIndex = (currentIndex + 1) % years.length;
@@ -1296,7 +1331,12 @@ export class PikselLoader {
     const currentZoom = typeof this.map.getZoom === 'function' ? this.map.getZoom() : 10;
 
     // Check if nextLayerId was already pre-fetched in GPU memory
-    const isPrefetched = this.prefetchedYear === targetYear && this.map.getLayer(nextLayerId);
+    const targetYearPrefix = targetYear.slice(0, 4);
+    const isPrefetched = (
+      this.prefetchedYear === targetYear ||
+      this.prefetchedYear === targetYearPrefix ||
+      (this.prefetchedYear && (targetYear.startsWith(this.prefetchedYear) || this.prefetchedYear.startsWith(targetYearPrefix)))
+    ) && !!this.map.getLayer(nextLayerId);
 
     if (isPrefetched) {
       // 0ms instant transition!
@@ -1343,6 +1383,7 @@ export class PikselLoader {
     this.tilesRequested = 0;
     this.tilesLoaded = 0;
     this.tilesFailed = 0;
+    this.tileRegistry.clear();
     this.requestStartTime = performance.now();
 
     if (currentZoom < minZoom) {
@@ -1387,11 +1428,12 @@ export class PikselLoader {
         }
       });
 
-      // Keep currentLayerId visible until new tiles have cross-faded in (500ms)
+      // Keep currentLayerId visible until new tiles have loaded (via idle event or safe 1800ms fallback)
       if (this.crossFadeCleanupTimer) {
         clearTimeout(this.crossFadeCleanupTimer);
       }
-      this.crossFadeCleanupTimer = setTimeout(() => {
+
+      const removePreviousLayer = () => {
         try {
           if (this.map && typeof this.map.getLayer === 'function' && this.map.getLayer(currentLayerId)) {
             this.map.removeLayer(currentLayerId);
@@ -1400,7 +1442,21 @@ export class PikselLoader {
             this.map.removeSource(currentSourceId);
           }
         } catch (_) {}
-      }, 500);
+      };
+
+      this.crossFadeCleanupTimer = setTimeout(removePreviousLayer, 1800);
+
+      if (typeof this.map.once === 'function') {
+        this.map.once('idle', () => {
+          if (this.activeRequestId === requestId) {
+            removePreviousLayer();
+            if (this.crossFadeCleanupTimer) {
+              clearTimeout(this.crossFadeCleanupTimer);
+              this.crossFadeCleanupTimer = null;
+            }
+          }
+        });
+      }
 
       // Pre-fetch subsequent frame
       if (this.isTimeLapsePlaying()) {
